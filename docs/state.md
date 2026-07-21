@@ -8,8 +8,9 @@
 - M3+ (auth/projects/feed) ⏸ blocked on DB
 
 ## Next steps
-1. CI workflow `.github/workflows/ci.yml` + GitHub repo + push (orchestrator).
-2. Then: M7 marketing surfaces (manifesto, signed-out home) — no DB needed.
+1. M7 marketing surfaces (manifesto draft → Will approval gate, signed-out home
+   hero + is/isn't above a fixture-fed feed preview, static OG) — no DB needed.
+2. When a Supabase slot frees: unblock M3+ (see blockers).
 
 ## Open blockers
 - **Supabase**: org free-tier slots 2/2 used (hopper, qrcdn). Will chose to hold
@@ -29,4 +30,9 @@
 - `.claude/launch.json`'s `app` config got `"autoPort": true` — port 3000 is
   often held by a sibling project's (qrcdn) dev server on this machine.
 
-Last updated: 2026-07-21 by orchestrator (session 3, /design styleguide).
+## Infra
+Repo: github.com/willgibs/dorkhub (private, pre-existing — origin was already
+wired). CI green on main (verify + build). Tags m0/m1/m2 pushed. Dev server:
+`.claude/launch.json` "app" (autoPort — 3000 often taken by qrcdn).
+
+Last updated: 2026-07-21 by orchestrator (session 2 close: M2 complete, CI green).
