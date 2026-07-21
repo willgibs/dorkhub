@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{DEFAULT_THEME}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dorkhub · {{NAME}}</title>
+{{FONT_LINKS}}
+<style>
+/* ================================================================
+   BASE LAYOUT — identical across all four directions.
+   Every color / font / radius / shadow / border-width comes from a
+   custom property defined in the direction's theme block below.
+   Class names are the future React component spec.
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  background: var(--background);
+  color: var(--foreground);
+}
+img, svg { display: block; max-width: 100%; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; cursor: pointer; color: inherit; }
+code, pre, kbd { font-family: var(--font-mono); }
+h1, h2, h3, h4 { line-height: 1.2; margin: 0; }
+p { margin: 0; }
+ul { margin: 0; }
+
+.container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+/* ---- direction banner (exploration chrome, not product UI) ---- */
+.banner {
+  position: sticky; top: 0; z-index: 50;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: var(--border-w) solid var(--border);
+}
+.banner-inner {
+  max-width: 1120px; margin: 0 auto; padding: 10px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.banner-index { font-family: var(--font-mono); font-size: 12px; color: var(--primary); }
+.banner-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; white-space: nowrap; }
+.banner-thesis { flex: 1; color: var(--muted-foreground); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.theme-toggle {
+  border: var(--border-w) solid var(--border); background: var(--secondary);
+  color: var(--secondary-foreground); border-radius: var(--radius);
+  padding: 5px 12px; font-size: 12.5px; font-family: var(--font-mono);
+}
+.theme-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ---- section scaffolding ---- */
+.section { padding: 72px 0; border-bottom: 1px dashed var(--border); }
+.section-label {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--primary); margin: 0 0 8px;
+}
+.section-title { font-family: var(--font-display); font-size: 27px; margin: 0 0 8px; }
+.section-note { color: var(--muted-foreground); font-size: 14px; margin: 0 0 36px; max-width: 620px; }
+
+/* ---- buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px; border-radius: var(--radius);
+  border: var(--border-w) solid transparent;
+  font-weight: 600; font-size: 14px; font-family: var(--font-sans);
+  text-decoration: none; line-height: 1.4;
+  transition: transform .12s ease, filter .12s ease, background .12s ease;
+}
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--primary); color: var(--primary-foreground); }
+.btn-primary:hover, .btn-primary.is-hover { filter: brightness(1.07); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-foreground); border-color: var(--border); }
+.btn-secondary:hover, .btn-secondary.is-hover { background: var(--accent); color: var(--accent-foreground); }
+.btn-ghost { background: transparent; color: var(--muted-foreground); }
+.btn-ghost:hover, .btn-ghost.is-hover { background: var(--accent); color: var(--accent-foreground); }
+.btn:focus-visible, .btn.is-focus { outline: 2px solid var(--ring); outline-offset: 2px; }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+
+/* ---- avatar ---- */
+.avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--primary-soft); color: var(--primary);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700; flex: none;
+}
+.avatar-lg { width: 76px; height: 76px; font-size: 30px; }
+
+/* ---- token panel ---- */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 40px; }
+.swatch {
+  display: flex; align-items: center; gap: 10px;
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  padding: 8px 10px; background: var(--card);
+}
+.swatch-chip { width: 34px; height: 34px; border-radius: calc(var(--radius) * .6); border: 1px solid var(--border); flex: none; }
+.swatch-name { font-family: var(--font-mono); font-size: 11.5px; }
+.swatch-value { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted-foreground); }
+.demo-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; margin-bottom: 32px; }
+.radius-demo { width: 96px; height: 64px; background: var(--surface-2); border: var(--border-w) solid var(--border); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); }
+.shadow-demo { width: 150px; height: 84px; background: var(--card); border: var(--border-w) solid var(--border); border-radius: var(--radius); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--muted-foreground); }
+
+/* ---- type specimen ---- */
+.specimen > * { margin-bottom: 18px; }
+.type-display { font-family: var(--font-display); font-size: 52px; font-weight: 700; letter-spacing: -0.01em; }
+.type-h1 { font-family: var(--font-display); font-size: 36px; font-weight: 700; }
+.type-h2 { font-family: var(--font-display); font-size: 26px; font-weight: 700; }
+.type-body { max-width: 640px; }
+.type-small { font-size: 13.5px; color: var(--muted-foreground); max-width: 640px; }
+.type-mono { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted-foreground); }
+kbd {
+  background: var(--code-bg); color: var(--code-text);
+  border: 1px solid var(--border); border-bottom-width: 2px;
+  border-radius: calc(var(--radius) * .5); padding: 2px 7px; font-size: 12px;
+}
+
+/* ---- product nav ---- */
+.nav {
+  display: flex; align-items: center; gap: 22px;
+  padding: 14px 20px; background: var(--card);
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 19px; color: var(--foreground); text-decoration: none; }
+.nav-logo:hover { text-decoration: none; }
+.nav-links { display: flex; gap: 18px; font-size: 14px; }
+.nav-links a { color: var(--muted-foreground); }
+.nav-links a:hover { color: var(--foreground); text-decoration: none; }
+.nav-search {
+  flex: 1; max-width: 260px; display: flex; align-items: center; gap: 8px;
+  border: var(--border-w) solid var(--input); border-radius: var(--radius);
+  padding: 6px 12px; color: var(--muted-foreground); font-size: 13px; background: var(--background);
+}
+.nav-search kbd { margin-left: auto; }
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+
+/* ---- feed ---- */
+.feed-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 24px; }
+.filter-sep { width: 1px; height: 20px; background: var(--border); margin: 0 6px; }
+.tag-chip {
+  display: inline-flex; align-items: center;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.4;
+  padding: 4px 11px; border-radius: calc(var(--radius) * .8);
+  background: var(--surface-2); color: var(--muted-foreground);
+  border: var(--border-w) solid var(--border); text-decoration: none;
+}
+.tag-chip:hover { color: var(--foreground); text-decoration: none; }
+.tag-chip.active { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 20px; }
+.project-card {
+  display: flex; flex-direction: column;
+  background: var(--card); color: var(--card-foreground);
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow-card); overflow: hidden;
+  transition: transform .14s ease, box-shadow .14s ease;
+}
+.project-card:hover { transform: translateY(-2px); }
+.card-media { aspect-ratio: 16 / 10; background: var(--surface-2); border-bottom: var(--border-w) solid var(--border); }
+.card-media svg { width: 100%; height: 100%; }
+.card-body { padding: 15px 16px 13px; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+.card-title { font-family: var(--font-display); font-weight: 700; font-size: 16.5px; }
+.card-title a { color: inherit; }
+.card-tagline { font-size: 13.5px; color: var(--muted-foreground); flex: 1; }
+.card-meta { display: flex; gap: 14px; align-items: center; font-family: var(--font-mono); font-size: 12px; color: var(--muted-foreground); }
+.meta-item { display: inline-flex; align-items: center; gap: 5px; }
+.lang-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.card-footer {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 16px; border-top: var(--border-w) solid var(--border);
+}
+.author { display: inline-flex; gap: 8px; align-items: center; font-size: 12.5px; color: var(--muted-foreground); text-decoration: none; }
+.author:hover { color: var(--foreground); text-decoration: none; }
+.card-stats { display: flex; gap: 6px; }
+
+/* ---- stat + follow buttons ---- */
+.stat-btn {
+  display: inline-flex; gap: 6px; align-items: center;
+  background: transparent; border: var(--border-w) solid var(--border);
+  border-radius: var(--radius); padding: 5px 11px;
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--muted-foreground);
+  transition: background .12s ease, color .12s ease;
+}
+.stat-btn:hover, .stat-btn.is-hover { color: var(--foreground); background: var(--accent); }
+.stat-btn:focus-visible, .stat-btn.is-focus { outline: 2px solid var(--ring); outline-offset: 2px; }
+.stat-btn.liked { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); }
+.stat-btn.saved { background: var(--positive-soft); color: var(--positive); border-color: var(--positive); }
+.follow-btn.following { background: var(--surface-2); color: var(--muted-foreground); border-color: var(--border); }
+
+/* ---- project page ---- */
+.project-page { max-width: 780px; }
+.project-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px; }
+.project-title-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.project-title { font-family: var(--font-display); font-size: 34px; font-weight: 800; }
+.project-tagline { font-size: 17px; color: var(--muted-foreground); max-width: 620px; }
+.repo-stats { display: flex; flex-wrap: wrap; gap: 16px; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted-foreground); }
+.action-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 6px 0 0; }
+.clone-field {
+  display: inline-flex; align-items: stretch;
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  overflow: hidden; font-family: var(--font-mono); font-size: 12px;
+}
+.clone-field code { padding: 8px 12px; background: var(--code-bg); color: var(--code-text); align-self: center; }
+.copy-btn { padding: 0 12px; background: var(--secondary); color: var(--secondary-foreground); border: none; border-left: var(--border-w) solid var(--border); font-family: var(--font-mono); font-size: 11.5px; }
+.copy-btn:hover { background: var(--accent); color: var(--accent-foreground); }
+.gallery { display: grid; grid-template-columns: 1.8fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; margin: 28px 0; }
+.shot { background: var(--surface-2); border: var(--border-w) solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.shot svg { width: 100%; height: 100%; }
+.shot-main { grid-row: 1 / 3; aspect-ratio: 16 / 10.5; }
+.tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin: 20px 0 30px; }
+
+/* ---- readme / prose ---- */
+.readme {
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  background: var(--card); box-shadow: var(--shadow-card);
+  padding: 30px 34px; margin-bottom: 26px;
+}
+.readme-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted-foreground); margin-bottom: 20px; display: flex; justify-content: space-between; }
+.prose { font-size: 15px; }
+.prose h1 { font-family: var(--font-display); font-size: 28px; margin: 0 0 14px; }
+.prose h2 { font-family: var(--font-display); font-size: 20px; margin: 28px 0 10px; }
+.prose p { margin: 12px 0; }
+.prose ul { padding-left: 22px; margin: 12px 0; }
+.prose li { margin: 5px 0; }
+.prose code {
+  background: var(--code-bg); color: var(--code-text);
+  padding: 2px 6px; border-radius: calc(var(--radius) * .45); font-size: 13px;
+}
+.prose pre {
+  background: var(--code-bg); color: var(--code-text);
+  padding: 15px 18px; border-radius: calc(var(--radius) * .8);
+  border: var(--border-w) solid var(--border);
+  overflow-x: auto; font-size: 13px; line-height: 1.55; margin: 14px 0;
+}
+.prose pre code { background: none; padding: 0; }
+.prose table { border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+.prose th, .prose td { border: 1px solid var(--border); padding: 7px 14px; text-align: left; }
+.prose th { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); }
+.prose blockquote {
+  border-left: 3px solid var(--primary); margin: 16px 0;
+  padding: 2px 0 2px 16px; color: var(--muted-foreground); font-style: italic;
+}
+
+/* ---- update post ---- */
+.update-post {
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  background: var(--card); padding: 18px 22px;
+}
+.update-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.update-title { font-family: var(--font-display); font-weight: 700; font-size: 15.5px; }
+.update-date { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted-foreground); }
+.update-body { font-size: 14px; color: var(--muted-foreground); }
+
+/* ---- minimal project page ---- */
+.project-page.minimal .readme { box-shadow: none; }
+
+/* ---- profile header ---- */
+.profile-header { display: flex; gap: 22px; align-items: flex-start; margin-bottom: 30px; }
+.profile-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.profile-name-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.profile-display-name { font-family: var(--font-display); font-size: 26px; font-weight: 800; }
+.profile-username { font-family: var(--font-mono); font-size: 14px; color: var(--muted-foreground); }
+.profile-bio { color: var(--muted-foreground); font-size: 15px; max-width: 520px; }
+.profile-stats { display: flex; gap: 18px; font-family: var(--font-mono); font-size: 12.5px; color: var(--muted-foreground); }
+.profile-links { display: flex; gap: 8px; }
+.list-strip { margin-top: 8px; }
+.list-strip-title { font-family: var(--font-mono); font-size: 12px; color: var(--primary); margin-bottom: 12px; letter-spacing: .06em; }
+.mini-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.mini-card {
+  display: flex; flex-direction: column; gap: 4px;
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  background: var(--card); padding: 12px 16px; min-width: 170px;
+}
+.mini-name { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.mini-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted-foreground); display: flex; gap: 6px; align-items: center; }
+
+/* ---- marketing hero ---- */
+.hero { text-align: center; padding: 30px 0 10px; }
+.hero-headline { font-family: var(--font-display); font-size: 54px; font-weight: 800; letter-spacing: -0.015em; max-width: 760px; margin: 0 auto 18px; }
+.hero-sub { font-size: 17.5px; color: var(--muted-foreground); max-width: 560px; margin: 0 auto 28px; }
+.hero-ctas { display: flex; gap: 12px; justify-content: center; margin-bottom: 54px; }
+.isnt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; max-width: 720px; margin: 0 auto; text-align: left; }
+.isnt-col {
+  border: var(--border-w) solid var(--border); border-radius: var(--radius);
+  background: var(--card); padding: 20px 24px;
+}
+.isnt-col h3 { font-family: var(--font-mono); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+.isnt-col.is h3 { color: var(--positive); }
+.isnt-col.isnt h3 { color: var(--destructive); }
+.isnt-col ul { list-style: none; padding: 0; }
+.isnt-col li { padding: 5px 0; font-size: 14.5px; display: flex; gap: 10px; align-items: baseline; }
+.isnt-col li::before { font-family: var(--font-mono); flex: none; }
+.isnt-col.is li::before { content: "✓"; color: var(--positive); }
+.isnt-col.isnt li::before { content: "✗"; color: var(--destructive); }
+
+/* ---- state zoo ---- */
+.zoo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 26px 22px; }
+.zoo-item { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.zoo-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--muted-foreground); }
+.zoo-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.input {
+  border: var(--border-w) solid var(--input); background: var(--background);
+  color: var(--foreground); border-radius: var(--radius);
+  padding: 8px 12px; font-size: 14px; font-family: var(--font-sans); width: 210px;
+}
+.input:focus, .input.is-focus { outline: 2px solid var(--ring); outline-offset: 1px; }
+.input::placeholder { color: var(--muted-foreground); }
+.empty-state {
+  border: 1.5px dashed var(--border); border-radius: var(--radius);
+  padding: 34px 26px; text-align: center; color: var(--muted-foreground);
+  font-size: 14.5px; width: 100%;
+}
+.error-banner {
+  background: color-mix(in oklab, var(--destructive) 12%, transparent);
+  color: var(--destructive); border: var(--border-w) solid color-mix(in oklab, var(--destructive) 40%, transparent);
+  border-radius: var(--radius); padding: 12px 16px; font-size: 14px; width: 100%;
+}
+.e404 { font-family: var(--font-mono); font-size: 13.5px; color: var(--muted-foreground); white-space: pre-wrap; }
+.skeleton { background: var(--surface-2); border-radius: calc(var(--radius) * .6); position: relative; overflow: hidden; }
+.skeleton::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--foreground) 7%, transparent), transparent);
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer { from { transform: translateX(-100%);} to { transform: translateX(100%);} }
+.skeleton-card { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+/* ---- footer ---- */
+.site-footer { padding: 44px 0 60px; color: var(--muted-foreground); font-size: 13.5px; display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+.footer-links { display: flex; gap: 18px; }
+.footer-links a { color: var(--muted-foreground); }
+
+@media (max-width: 720px) {
+  .hero-headline { font-size: 36px; }
+  .type-display { font-size: 36px; }
+  .isnt-grid { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: 1fr; grid-template-rows: none; }
+  .shot-main { grid-row: auto; }
+  .nav-links, .nav-search { display: none; }
+  .banner-thesis { display: none; }
+  .profile-header { flex-direction: column; }
+}
+</style>
+<style>
+/* ================================================================
+   DIRECTION THEME — {{NAME}}
+   ================================================================ */
+{{THEME_CSS}}
+</style>
+</head>
+<body>
+
+<!-- ===== exploration chrome: direction banner ===== -->
+<header class="banner">
+  <div class="banner-inner">
+    <span class="banner-index">{{INDEX}}</span>
+    <span class="banner-name">{{NAME}}</span>
+    <span class="banner-thesis">{{THESIS}}</span>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">theme: <span id="themeName">…</span></button>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- ===== 02 · token panel ===== -->
+<section class="section" id="tokens">
+  <p class="section-label">02 · tokens</p>
+  <h2 class="section-title">Token panel</h2>
+  <p class="section-note">Every semantic token in this direction, auto-read from the stylesheet. These exact variable names ship to production.</p>
+  <div class="swatch-grid" id="swatchGrid"></div>
+  <div class="demo-row">
+    <div class="radius-demo" style="border-radius: calc(var(--radius) * .5)">r × .5</div>
+    <div class="radius-demo" style="border-radius: var(--radius)">r × 1</div>
+    <div class="radius-demo" style="border-radius: calc(var(--radius) * 1.5)">r × 1.5</div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-card)">shadow-card</div>
+    <div class="shadow-demo" style="box-shadow: var(--shadow-overlay)">shadow-overlay</div>
+  </div>
+</section>
+
+<!-- ===== 03 · type specimen ===== -->
+<section class="section" id="type">
+  <p class="section-label">03 · typography</p>
+  <h2 class="section-title">Type specimen</h2>
+  <div class="specimen">
+    <div class="type-display">Show your thing.</div>
+    <div class="type-h1">A 2KB web synth you can play with your keyboard</div>
+    <div class="type-h2">Built in a weekend, shared forever</div>
+    <p class="type-body">The missing home for dev work that's too good to stay buried on GitHub but too casual for a launch platform. Connect your account, pick the repos you're proud of, and give each one a page that scales from a bare README to a full show-and-tell.</p>
+    <p class="type-small">Small print: everything here is free to fork. That's the whole idea. Press <kbd>⌘</kbd><kbd>K</kbd> to search, or follow <a href="#">@mollybuilds</a> to see what she ships next. Inline code looks like <code>synth.attach(document)</code>.</p>
+    <p class="type-mono">mono · 12 projects · 340 followers · updated 3 days ago · MIT</p>
+  </div>
+</section>
+
+<!-- ===== 04 · nav ===== -->
+<section class="section" id="nav">
+  <p class="section-label">04 · navigation</p>
+  <h2 class="section-title">Nav</h2>
+  <p class="section-note">Signed-in state. The primary CTA carries the direction's voice.</p>
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="nav-logo" href="#">dorkhub</a>
+    <div class="nav-links"><a href="#">browse</a><a href="#">tags</a></div>
+    <div class="nav-search">search projects… <kbd>⌘K</kbd></div>
+    <div class="nav-right">
+      <a class="btn btn-primary btn-sm" href="#">{{V.cta_primary}}</a>
+      <span class="avatar" aria-label="@mollybuilds">m</span>
+    </div>
+  </nav>
+</section>
+
+<!-- ===== 05 · feed slice ===== -->
+<section class="section" id="feed">
+  <p class="section-label">05 · discovery feed</p>
+  <h2 class="section-title">Feed slice</h2>
+  <p class="section-note">Four cards that stress different layouts: rich with screenshot, image-less CLI, tag-heavy hardware, and brand-new with zero social proof.</p>
+  <!-- FeedFilters -->
+  <div class="feed-filters">
+    <a class="tag-chip active" href="#">recent</a>
+    <a class="tag-chip" href="#">trending</a>
+    <span class="filter-sep"></span>
+    <a class="tag-chip" href="#">audio</a>
+    <a class="tag-chip" href="#">cli</a>
+    <a class="tag-chip" href="#">hardware</a>
+    <a class="tag-chip" href="#">generative</a>
+  </div>
+  <div class="card-grid">
+    <!-- ProjectCard: rich -->
+    <article class="project-card">
+      <div class="card-media">
+        <svg viewBox="0 0 320 200" role="img" aria-label="tinysynth screenshot placeholder">
+          <rect width="320" height="200" fill="var(--surface-2)"/>
+          <rect x="24" y="130" width="34" height="46" rx="3" fill="var(--primary)"/>
+          <rect x="62" y="110" width="34" height="66" rx="3" fill="var(--primary-soft)"/>
+          <rect x="100" y="144" width="34" height="32" rx="3" fill="var(--primary)"/>
+          <rect x="138" y="96" width="34" height="80" rx="3" fill="var(--primary-soft)"/>
+          <rect x="176" y="124" width="34" height="52" rx="3" fill="var(--primary)"/>
+          <rect x="214" y="138" width="34" height="38" rx="3" fill="var(--primary-soft)"/>
+          <rect x="252" y="104" width="34" height="72" rx="3" fill="var(--primary)"/>
+          <polyline points="24,64 60,44 96,72 132,36 168,66 204,50 240,70 286,40" fill="none" stroke="var(--primary)" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title"><a href="#">tinysynth</a></h3>
+        <p class="card-tagline">a 2KB web synth you can play with your keyboard</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</span>
+          <span class="meta-item">★ 214</span>
+        </div>
+        <div class="card-tags">
+          <a class="tag-chip" href="#">audio</a><a class="tag-chip" href="#">webaudio</a><a class="tag-chip" href="#">tiny</a><a class="tag-chip" href="#">toy</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="author" href="#"><span class="avatar">m</span>@mollybuilds</a>
+        <div class="card-stats">
+          <button class="stat-btn">{{V.like}} 89</button>
+        </div>
+      </div>
+    </article>
+    <!-- ProjectCard: no image -->
+    <article class="project-card">
+      <div class="card-body">
+        <h3 class="card-title"><a href="#">gitgoblin</a></h3>
+        <p class="card-tagline">a cron job that writes passive-aggressive commit messages when you forget to push</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="lang-dot" style="background:#00ADD8"></span>Go</span>
+          <span class="meta-item">★ 67</span>
+        </div>
+        <div class="card-tags">
+          <a class="tag-chip" href="#">cli</a><a class="tag-chip" href="#">git</a><a class="tag-chip" href="#">humor</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="author" href="#"><span class="avatar">g</span>@gremlinworks</a>
+        <div class="card-stats">
+          <button class="stat-btn">{{V.like}} 31</button>
+        </div>
+      </div>
+    </article>
+    <!-- ProjectCard: tag-heavy hardware -->
+    <article class="project-card">
+      <div class="card-media">
+        <svg viewBox="0 0 320 200" role="img" aria-label="plantdad e-ink dashboard placeholder">
+          <rect width="320" height="200" fill="var(--surface-2)"/>
+          <rect x="40" y="24" width="240" height="152" rx="8" fill="var(--card)" stroke="var(--border)" stroke-width="2"/>
+          <path d="M110 150 C 110 110, 90 100, 96 74 C 120 86, 122 116, 118 150 Z" fill="var(--positive)"/>
+          <path d="M126 150 C 130 118, 150 108, 146 82 C 124 96, 120 122, 122 150 Z" fill="var(--positive-soft)"/>
+          <rect x="92" y="150" width="52" height="14" rx="3" fill="var(--muted-foreground)"/>
+          <rect x="172" y="52" width="84" height="10" rx="2" fill="var(--muted-foreground)"/>
+          <rect x="172" y="74" width="64" height="10" rx="2" fill="var(--border)"/>
+          <rect x="172" y="96" width="74" height="10" rx="2" fill="var(--border)"/>
+          <rect x="172" y="126" width="40" height="18" rx="3" fill="var(--destructive)" opacity=".7"/>
+        </svg>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title"><a href="#">plantdad</a></h3>
+        <p class="card-tagline">an e-ink dashboard that guilt-trips me into watering my monstera</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="lang-dot" style="background:#3572A5"></span>Python</span>
+          <span class="meta-item">★ 1.2k</span>
+        </div>
+        <div class="card-tags">
+          <a class="tag-chip" href="#">hardware</a><a class="tag-chip" href="#">raspberry-pi</a><a class="tag-chip" href="#">e-ink</a><a class="tag-chip" href="#">plants</a><a class="tag-chip" href="#">iot</a><a class="tag-chip" href="#">sensors</a><a class="tag-chip" href="#">dashboard</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="author" href="#"><span class="avatar">r</span>@rosiehux</a>
+        <div class="card-stats">
+          <button class="stat-btn liked">{{V.like}} 412</button>
+        </div>
+      </div>
+    </article>
+    <!-- ProjectCard: zero social proof -->
+    <article class="project-card">
+      <div class="card-body">
+        <h3 class="card-title"><a href="#">untitled-maze-thing</a></h3>
+        <p class="card-tagline">i made a maze generator. it makes mazes.</p>
+        <div class="card-meta">
+          <span class="meta-item"><span class="lang-dot" style="background:#f1e05a"></span>JavaScript</span>
+          <span class="meta-item">just shipped</span>
+        </div>
+        <div class="card-tags">
+          <a class="tag-chip" href="#">generative</a>
+        </div>
+      </div>
+      <div class="card-footer">
+        <a class="author" href="#"><span class="avatar">k</span>@kevbot</a>
+        <div class="card-stats">
+          <button class="stat-btn">{{V.like}}</button>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ===== 06 · rich project page ===== -->
+<section class="section" id="project-rich">
+  <p class="section-label">06 · project page — rich</p>
+  <h2 class="section-title">Rich project page</h2>
+  <p class="section-note">Maximum effort: screenshots, demo, tagline, tags, README, an update post. This is the ceiling.</p>
+  <div class="project-page">
+    <!-- ProjectHeader -->
+    <header class="project-head">
+      <a class="author" href="#"><span class="avatar">m</span>@mollybuilds</a>
+      <div class="project-title-row">
+        <h1 class="project-title">tinysynth</h1>
+      </div>
+      <p class="project-tagline">a 2KB web synth you can play with your keyboard. no dependencies, no build step, no reason.</p>
+      <!-- RepoStatsRow -->
+      <div class="repo-stats">
+        <span class="meta-item"><span class="lang-dot" style="background:#3178c6"></span>TypeScript</span>
+        <span class="meta-item">★ 214</span>
+        <span class="meta-item">⑂ 12 forks</span>
+        <span class="meta-item">MIT</span>
+        <span class="meta-item">updated 3 days ago</span>
+      </div>
+      <div class="action-row">
+        <a class="btn btn-primary" href="#">live demo ↗</a>
+        <a class="btn btn-secondary" href="#">view repo</a>
+        <!-- CopyButton -->
+        <span class="clone-field"><code>git clone github.com/mollybuilds/tinysynth</code><button class="copy-btn" data-copy="git clone https://github.com/mollybuilds/tinysynth">copy</button></span>
+        <button class="stat-btn liked">{{V.like}} 89</button>
+        <button class="stat-btn">{{V.save}}</button>
+      </div>
+    </header>
+    <!-- ScreenshotGallery -->
+    <div class="gallery">
+      <div class="shot shot-main">
+        <svg viewBox="0 0 560 368" role="img" aria-label="tinysynth main screenshot placeholder">
+          <rect width="560" height="368" fill="var(--surface-2)"/>
+          <rect x="40" y="240" width="56" height="88" rx="4" fill="var(--primary)"/>
+          <rect x="102" y="204" width="56" height="124" rx="4" fill="var(--primary-soft)"/>
+          <rect x="164" y="262" width="56" height="66" rx="4" fill="var(--primary)"/>
+          <rect x="226" y="182" width="56" height="146" rx="4" fill="var(--primary-soft)"/>
+          <rect x="288" y="230" width="56" height="98" rx="4" fill="var(--primary)"/>
+          <rect x="350" y="252" width="56" height="76" rx="4" fill="var(--primary-soft)"/>
+          <rect x="412" y="196" width="56" height="132" rx="4" fill="var(--primary)"/>
+          <polyline points="40,120 110,80 180,132 250,64 320,118 390,88 460,124 520,72" fill="none" stroke="var(--primary)" stroke-width="5"/>
+          <text x="40" y="44" font-family="monospace" font-size="16" fill="var(--muted-foreground)">tinysynth — keyboard view</text>
+        </svg>
+      </div>
+      <div class="shot">
+        <svg viewBox="0 0 280 176" role="img" aria-label="waveform picker placeholder">
+          <rect width="280" height="176" fill="var(--surface-2)"/>
+          <path d="M20 88 q 30 -60 60 0 t 60 0 t 60 0 t 60 0" fill="none" stroke="var(--primary)" stroke-width="4"/>
+          <text x="20" y="150" font-family="monospace" font-size="13" fill="var(--muted-foreground)">wave: sine</text>
+        </svg>
+      </div>
+      <div class="shot">
+        <svg viewBox="0 0 280 176" role="img" aria-label="square wave placeholder">
+          <rect width="280" height="176" fill="var(--surface-2)"/>
+          <path d="M20 118 h40 v-60 h40 v60 h40 v-60 h40 v60 h40 v-60 h40" fill="none" stroke="var(--primary)" stroke-width="4"/>
+          <text x="20" y="150" font-family="monospace" font-size="13" fill="var(--muted-foreground)">wave: square</text>
+        </svg>
+      </div>
+    </div>
+    <div class="tag-row">
+      <a class="tag-chip" href="#">audio</a><a class="tag-chip" href="#">webaudio</a><a class="tag-chip" href="#">tiny</a><a class="tag-chip" href="#">toy</a><a class="tag-chip" href="#">typescript</a>
+    </div>
+    <!-- MarkdownProse / readme -->
+    <div class="readme">
+      <div class="readme-label"><span>README.md</span><span><a href="#">{{V.fork_nudge}}</a></span></div>
+      <div class="prose">
+        <h1>tinysynth</h1>
+        <p>a 2KB web synth you can play with your keyboard. no deps, no build step, no reason.</p>
+        <h2>why</h2>
+        <ul>
+          <li>I wanted to know how small a playable synth could get</li>
+          <li>turns out: pretty small</li>
+          <li><a href="#">try the live demo</a> — mash your keyboard</li>
+        </ul>
+        <h2>usage</h2>
+        <pre><code>import { synth } from 'https://esm.sh/tinysynth'
+
+synth({ wave: 'square', octave: 3 }).attach(document)</code></pre>
+        <p>pass <code>wave: 'sine' | 'square' | 'saw'</code> and an <code>octave</code>. that's the whole API.</p>
+        <h2>keys</h2>
+        <table>
+          <thead><tr><th>key</th><th>note</th></tr></thead>
+          <tbody>
+            <tr><td><code>A</code></td><td>C4</td></tr>
+            <tr><td><code>W</code></td><td>C#4</td></tr>
+            <tr><td><code>S</code></td><td>D4</td></tr>
+            <tr><td><code>D</code></td><td>E4</td></tr>
+          </tbody>
+        </table>
+        <blockquote><p>built in a weekend. sounds like it, in a good way.</p></blockquote>
+      </div>
+    </div>
+    <!-- UpdatePost -->
+    <article class="update-post">
+      <div class="update-head">
+        <span class="update-title">v0.3 — tiny reverb</span>
+        <span class="update-date">3 days ago</span>
+      </div>
+      <p class="update-body">added a reverb. it's 300 bytes. i'm unreasonably proud of it. also fixed the bug where holding five keys summoned a demon frequency.</p>
+    </article>
+  </div>
+</section>
+
+<!-- ===== 07 · minimal project page ===== -->
+<section class="section" id="project-minimal">
+  <p class="section-label">07 · project page — minimal</p>
+  <h2 class="section-title">Minimal project page</h2>
+  <p class="section-note">The floor: a README and a repo link, nothing else. It has to look loved, not half-finished.</p>
+  <div class="project-page minimal">
+    <header class="project-head">
+      <a class="author" href="#"><span class="avatar">k</span>@kevbot</a>
+      <div class="project-title-row">
+        <h1 class="project-title">untitled-maze-thing</h1>
+      </div>
+      <div class="repo-stats">
+        <span class="meta-item"><span class="lang-dot" style="background:#f1e05a"></span>JavaScript</span>
+        <span class="meta-item">just shipped</span>
+      </div>
+      <div class="action-row">
+        <a class="btn btn-secondary" href="#">view repo</a>
+        <button class="stat-btn">{{V.like}}</button>
+        <button class="stat-btn">{{V.save}}</button>
+      </div>
+    </header>
+    <div class="readme">
+      <div class="readme-label"><span>README.md</span><span><a href="#">{{V.fork_nudge}}</a></span></div>
+      <div class="prose">
+        <h1>untitled-maze-thing</h1>
+        <p>i made a maze generator. it makes mazes.</p>
+        <pre><code>npx untitled-maze-thing 40x40</code></pre>
+        <p>that's it. that's the readme.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 08 · profile header ===== -->
+<section class="section" id="profile">
+  <p class="section-label">08 · profile</p>
+  <h2 class="section-title">Profile header</h2>
+  <!-- ProfileHeader -->
+  <header class="profile-header">
+    <span class="avatar avatar-lg">m</span>
+    <div class="profile-info">
+      <div class="profile-name-row">
+        <h1 class="profile-display-name">molly</h1>
+        <span class="profile-username">@mollybuilds</span>
+        <button class="btn btn-primary btn-sm follow-btn">{{V.follow}}</button>
+      </div>
+      <p class="profile-bio">builds small loud things · portland</p>
+      <div class="profile-stats">
+        <span>12 projects</span><span>340 followers</span>
+      </div>
+      <div class="profile-links">
+        <a class="tag-chip" href="#">mollybuilds.dev</a>
+        <a class="tag-chip" href="#">github.com/mollybuilds</a>
+      </div>
+    </div>
+  </header>
+  <!-- curated list strip -->
+  <div class="list-strip">
+    <p class="list-strip-title">▸ noisy toys</p>
+    <div class="mini-row">
+      <div class="mini-card"><span class="mini-name">tinysynth</span><span class="mini-meta"><span class="lang-dot" style="background:#3178c6"></span>TypeScript · ★ 214</span></div>
+      <div class="mini-card"><span class="mini-name">drumkit-ascii</span><span class="mini-meta"><span class="lang-dot" style="background:#f1e05a"></span>JavaScript · ★ 96</span></div>
+      <div class="mini-card"><span class="mini-name">chiptune-cron</span><span class="mini-meta"><span class="lang-dot" style="background:#dea584"></span>Rust · ★ 41</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 09 · marketing hero ===== -->
+<section class="section" id="hero">
+  <p class="section-label">09 · marketing</p>
+  <h2 class="section-title">Hero slice</h2>
+  <p class="section-note">The voice at its loudest. Headline and subline are this direction's; the is/isn't strip is shared.</p>
+  <div class="hero">
+    <h1 class="hero-headline">{{V.hero_headline}}</h1>
+    <p class="hero-sub">{{V.hero_sub}}</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary" href="#">browse projects</a>
+      <a class="btn btn-secondary" href="#">sign in with GitHub</a>
+    </div>
+    <div class="isnt-grid">
+      <div class="isnt-col is">
+        <h3>dorkhub is</h3>
+        <ul>
+          <li>show-and-tell for things you built</li>
+          <li>forkable by design</li>
+          <li>free, forever</li>
+        </ul>
+      </div>
+      <div class="isnt-col isnt">
+        <h3>dorkhub isn't</h3>
+        <ul>
+          <li>a leaderboard</li>
+          <li>a marketplace</li>
+          <li>a hiring portfolio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 10 · state zoo ===== -->
+<section class="section" id="states">
+  <p class="section-label">10 · state zoo</p>
+  <h2 class="section-title">State zoo</h2>
+  <p class="section-note">Boring UI is where directions actually diverge. Hover and focus states are frozen with helper classes.</p>
+  <div class="zoo-grid">
+    <div class="zoo-item">
+      <span class="zoo-label">button / primary</span>
+      <div class="zoo-row">
+        <button class="btn btn-primary">{{V.cta_primary}}</button>
+        <button class="btn btn-primary is-hover">hover</button>
+      </div>
+      <div class="zoo-row">
+        <button class="btn btn-primary is-focus">focus</button>
+        <button class="btn btn-primary" disabled>disabled</button>
+      </div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">button / secondary + ghost</span>
+      <div class="zoo-row">
+        <button class="btn btn-secondary">view repo</button>
+        <button class="btn btn-secondary is-hover">hover</button>
+      </div>
+      <div class="zoo-row">
+        <button class="btn btn-ghost">cancel</button>
+        <button class="btn btn-ghost is-hover">hover</button>
+      </div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">stat button / like</span>
+      <div class="zoo-row">
+        <button class="stat-btn">{{V.like}} 88</button>
+        <button class="stat-btn liked">{{V.like}} 89</button>
+        <button class="stat-btn is-focus">{{V.like}} 88</button>
+      </div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">stat button / save · follow</span>
+      <div class="zoo-row">
+        <button class="stat-btn">{{V.save}}</button>
+        <button class="stat-btn saved">{{V.saved}}</button>
+      </div>
+      <div class="zoo-row">
+        <button class="btn btn-primary btn-sm follow-btn">{{V.follow}}</button>
+        <button class="btn btn-sm follow-btn following">{{V.following}}</button>
+      </div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">tag chips</span>
+      <div class="zoo-row">
+        <a class="tag-chip" href="#">webaudio</a>
+        <a class="tag-chip active" href="#">audio</a>
+        <a class="tag-chip" href="#">raspberry-pi</a>
+      </div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">input</span>
+      <input class="input" placeholder="search projects…">
+      <input class="input is-focus" value="synth">
+    </div>
+    <div class="zoo-item" style="grid-column: 1 / -1;">
+      <span class="zoo-label">empty state</span>
+      <div class="empty-state">{{V.empty_feed}}</div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">error</span>
+      <div class="error-banner">{{V.error}}</div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">404</span>
+      <div class="e404">{{V.e404}}</div>
+    </div>
+    <div class="zoo-item">
+      <span class="zoo-label">loading skeleton</span>
+      <div class="skeleton-card">
+        <div class="skeleton" style="aspect-ratio: 16/10; width: 100%;"></div>
+        <div class="skeleton" style="height: 14px; width: 55%;"></div>
+        <div class="skeleton" style="height: 11px; width: 85%;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer container">
+  <span>{{V.footer_line}}</span>
+  <div class="footer-links">
+    <a href="#">manifesto</a><a href="#">colophon</a><a href="#">github</a>
+  </div>
+</footer>
+
+<script>
+// theme toggle
+const root = document.documentElement;
+const toggle = document.getElementById('themeToggle');
+const themeName = document.getElementById('themeName');
+function setTheme(t) { root.dataset.theme = t; themeName.textContent = t; renderSwatches(); }
+toggle.addEventListener('click', () => setTheme(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+const themeParam = new URLSearchParams(location.search).get('theme');
+if (themeParam === 'dark' || themeParam === 'light') root.dataset.theme = themeParam;
+
+// token panel: auto-render every semantic token
+const TOKENS = [
+  '--background','--foreground','--card','--card-foreground','--popover','--popover-foreground',
+  '--primary','--primary-foreground','--secondary','--secondary-foreground',
+  '--muted','--muted-foreground','--accent','--accent-foreground',
+  '--destructive','--border','--input','--ring',
+  '--surface-2','--primary-soft','--positive','--positive-soft',
+  '--code-bg','--code-text','--link'
+];
+const grid = document.getElementById('swatchGrid');
+function renderSwatches() {
+  const cs = getComputedStyle(document.body);
+  grid.innerHTML = '';
+  for (const t of TOKENS) {
+    const v = cs.getPropertyValue(t).trim();
+    const el = document.createElement('div');
+    el.className = 'swatch';
+    el.innerHTML = '<span class="swatch-chip" style="background:var(' + t + ')"></span>' +
+      '<span><div class="swatch-name">' + t + '</div><div class="swatch-value">' + (v || '⚠ missing') + '</div></span>';
+    grid.appendChild(el);
+  }
+}
+setTheme(root.dataset.theme);
+
+// copy buttons (real, tiny)
+for (const b of document.querySelectorAll('.copy-btn')) {
+  b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); b.textContent = 'copied'; setTimeout(() => b.textContent = 'copy', 1200); } catch {}
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dorkhub · design tuner (05 hybrid)</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; height: 100vh; display: flex; flex-direction: column; font-family: ui-sans-serif, system-ui, sans-serif; background: #0d0d0f; color: #e8e8ea; }
+  .bar {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding: 10px 16px; border-bottom: 1px solid #2a2a2e; font-size: 12.5px;
+  }
+  .bar strong { font-size: 13px; letter-spacing: .02em; }
+  .bar label { display: flex; align-items: center; gap: 7px; color: #9a9aa2; }
+  select, button.tbtn {
+    background: #1a1a1e; color: #e8e8ea; border: 1px solid #333338;
+    border-radius: 6px; padding: 5px 8px; font-size: 12.5px; font-family: inherit;
+  }
+  .readout { margin-left: auto; font-family: ui-monospace, monospace; font-size: 11.5px; color: #7cd9a6; user-select: all; }
+  iframe { flex: 1; border: 0; width: 100%; background: #111; }
+</style>
+</head>
+<body>
+<div class="bar">
+  <strong>dorkhub tuner</strong>
+  <label>heading font
+    <select id="font">
+      <option value="space-grotesk" selected>Space Grotesk (current)</option>
+      <option value="geist">Geist (quietest)</option>
+      <option value="instrument">Instrument Sans</option>
+      <option value="bricolage">Bricolage Grotesque</option>
+      <option value="familjen">Familjen Grotesk</option>
+      <option value="cabinet">Cabinet Grotesk</option>
+      <option value="general">General Sans</option>
+    </select>
+  </label>
+  <label>accent
+    <select id="accent">
+      <option value="mint" selected>mint (current)</option>
+      <option value="amber">amber / basehub</option>
+      <option value="periwinkle">periwinkle</option>
+      <option value="ice">ice cyan</option>
+      <option value="paper">paper white</option>
+    </select>
+  </label>
+  <label>neutral
+    <select id="neutral">
+      <option value="charcoal" selected>charcoal (current)</option>
+      <option value="black">true black</option>
+      <option value="warm">warm graphite</option>
+    </select>
+  </label>
+  <label>controls
+    <select id="shape">
+      <option value="rounded" selected>rounded (current)</option>
+      <option value="pill">pill</option>
+    </select>
+  </label>
+  <button class="tbtn" id="mode">toggle dark/light</button>
+  <span class="readout" id="readout"></span>
+</div>
+<iframe id="frame" src="05-quiet-dev-native.html"></iframe>
+
+<script>
+const FONTS = {
+  'space-grotesk': { label: 'Space Grotesk', css: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap', family: "'Space Grotesk'" },
+  geist:      { label: 'Geist',               css: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap', family: "'Geist'" },
+  instrument: { label: 'Instrument Sans',     css: 'https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap', family: "'Instrument Sans'" },
+  bricolage:  { label: 'Bricolage Grotesque', css: 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap', family: "'Bricolage Grotesque'" },
+  familjen:   { label: 'Familjen Grotesk',    css: 'https://fonts.googleapis.com/css2?family=Familjen+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap', family: "'Familjen Grotesk'" },
+  cabinet:    { label: 'Cabinet Grotesk',     css: 'https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&display=swap', family: "'Cabinet Grotesk'" },
+  general:    { label: 'General Sans',        css: 'https://api.fontshare.com/v2/css?f[]=general-sans@500,600,700&display=swap', family: "'General Sans'" },
+};
+
+/* accent: [dark vars, light vars] */
+const ACCENTS = {
+  mint: { label: 'mint', dark: {}, light: {} }, /* baked into the file */
+  amber: {
+    label: 'amber',
+    dark:  { '--primary': 'oklch(0.76 0.16 60)', '--primary-foreground': 'oklch(0.17 0.04 60)', '--ring': 'oklch(0.76 0.16 60)', '--primary-soft': 'oklch(0.28 0.06 60)', '--link': 'oklch(0.80 0.12 65)', '--code-text': 'oklch(0.86 0.05 75)' },
+    light: { '--primary': 'oklch(0.56 0.15 55)', '--primary-foreground': 'oklch(0.99 0.01 60)', '--ring': 'oklch(0.58 0.15 55)', '--primary-soft': 'oklch(0.95 0.045 65)', '--link': 'oklch(0.53 0.14 55)', '--code-text': 'oklch(0.87 0.05 75)' },
+  },
+  periwinkle: {
+    label: 'periwinkle',
+    dark:  { '--primary': 'oklch(0.72 0.14 275)', '--primary-foreground': 'oklch(0.15 0.035 275)', '--ring': 'oklch(0.72 0.14 275)', '--primary-soft': 'oklch(0.28 0.055 275)', '--link': 'oklch(0.78 0.11 275)', '--code-text': 'oklch(0.86 0.05 275)' },
+    light: { '--primary': 'oklch(0.48 0.17 270)', '--primary-foreground': 'oklch(0.99 0.005 270)', '--ring': 'oklch(0.52 0.16 270)', '--primary-soft': 'oklch(0.94 0.035 270)', '--link': 'oklch(0.47 0.16 270)', '--code-text': 'oklch(0.87 0.05 275)' },
+  },
+  ice: {
+    label: 'ice',
+    dark:  { '--primary': 'oklch(0.82 0.10 210)', '--primary-foreground': 'oklch(0.16 0.03 210)', '--ring': 'oklch(0.82 0.10 210)', '--primary-soft': 'oklch(0.27 0.045 210)', '--link': 'oklch(0.84 0.08 210)', '--code-text': 'oklch(0.87 0.05 200)' },
+    light: { '--primary': 'oklch(0.50 0.11 220)', '--primary-foreground': 'oklch(0.99 0.005 220)', '--ring': 'oklch(0.54 0.11 220)', '--primary-soft': 'oklch(0.94 0.03 215)', '--link': 'oklch(0.49 0.11 220)', '--code-text': 'oklch(0.87 0.05 200)' },
+  },
+  paper: {
+    label: 'paper-white',
+    dark:  { '--primary': 'oklch(0.96 0.004 250)', '--primary-foreground': 'oklch(0.17 0.005 250)', '--ring': 'oklch(0.85 0.004 250)', '--primary-soft': 'oklch(0.28 0.006 250)', '--link': 'oklch(0.92 0.004 250)', '--code-text': 'oklch(0.88 0.005 250)' },
+    light: { '--primary': 'oklch(0.22 0.006 250)', '--primary-foreground': 'oklch(0.99 0 0)', '--ring': 'oklch(0.35 0.006 250)', '--primary-soft': 'oklch(0.93 0.004 250)', '--link': 'oklch(0.25 0.006 250)', '--code-text': 'oklch(0.90 0.005 250)' },
+  },
+};
+
+const NEUTRALS = {
+  charcoal: { label: 'charcoal', dark: {}, light: {} }, /* baked in */
+  black: {
+    label: 'true-black',
+    dark: { '--background': 'oklch(0.115 0.003 250)', '--card': 'oklch(0.15 0.004 250)', '--popover': 'oklch(0.165 0.004 250)', '--secondary': 'oklch(0.19 0.004 250)', '--muted': 'oklch(0.18 0.004 250)', '--accent': 'oklch(0.205 0.005 250)', '--border': 'oklch(0.225 0.005 250)', '--input': 'oklch(0.27 0.005 250)', '--surface-2': 'oklch(0.095 0.003 250)', '--code-bg': 'oklch(0.09 0.003 250)' },
+    light: {},
+  },
+  warm: {
+    label: 'warm-graphite',
+    dark: { '--background': 'oklch(0.15 0.006 80)', '--card': 'oklch(0.18 0.007 80)', '--popover': 'oklch(0.195 0.007 80)', '--secondary': 'oklch(0.225 0.007 80)', '--muted': 'oklch(0.215 0.007 80)', '--accent': 'oklch(0.24 0.008 80)', '--border': 'oklch(0.26 0.009 80)', '--input': 'oklch(0.305 0.009 80)', '--surface-2': 'oklch(0.13 0.006 80)', '--code-bg': 'oklch(0.125 0.006 80)', '--foreground': 'oklch(0.93 0.008 85)', '--muted-foreground': 'oklch(0.645 0.012 85)' },
+    light: { '--background': 'oklch(0.982 0.005 85)', '--card': 'oklch(0.995 0.002 85)', '--secondary': 'oklch(0.952 0.006 85)', '--muted': 'oklch(0.952 0.006 85)', '--accent': 'oklch(0.94 0.008 85)', '--border': 'oklch(0.91 0.008 85)', '--input': 'oklch(0.865 0.009 85)', '--surface-2': 'oklch(0.962 0.006 85)' },
+  },
+};
+
+const SHAPES = {
+  rounded: { label: 'rounded', css: '' },
+  pill: {
+    label: 'pill',
+    css: `.btn, .stat-btn, .tag-chip, .theme-toggle, .input, .nav-search { border-radius: 999px !important; }
+          .clone-field { border-radius: 999px !important; }
+          .clone-field code { padding-left: 16px; }
+          .copy-btn { padding-right: 16px; }`,
+  },
+};
+
+const $ = (id) => document.getElementById(id);
+const frame = $('frame');
+
+function varsBlock(sel, vars) {
+  const body = Object.entries(vars).map(([k, v]) => `  ${k}: ${v};`).join('\n');
+  return body ? `${sel} {\n${body}\n}` : '';
+}
+
+function apply() {
+  const doc = frame.contentDocument;
+  if (!doc || !doc.documentElement) return;
+  const f = FONTS[$('font').value];
+  const a = ACCENTS[$('accent').value];
+  const n = NEUTRALS[$('neutral').value];
+  const s = SHAPES[$('shape').value];
+
+  doc.getElementById('tuner-font')?.remove();
+  doc.getElementById('tuner-style')?.remove();
+
+  const link = doc.createElement('link');
+  link.id = 'tuner-font'; link.rel = 'stylesheet'; link.href = f.css;
+  doc.head.appendChild(link);
+
+  const style = doc.createElement('style');
+  style.id = 'tuner-style';
+  style.textContent = [
+    `:root { --font-display: ${f.family}, ui-sans-serif, sans-serif; }`,
+    varsBlock(':root', { ...n.dark, ...a.dark }),
+    varsBlock('[data-theme="light"]', { ...n.light, ...a.light }),
+    s.css,
+  ].filter(Boolean).join('\n');
+  doc.head.appendChild(style);
+
+  $('readout').textContent = `font=${f.label} · accent=${a.label} · neutral=${n.label} · shape=${s.label}`;
+  frame.contentWindow.renderSwatches?.();
+}
+
+for (const id of ['font', 'accent', 'neutral', 'shape']) $(id).addEventListener('change', apply);
+$('mode').addEventListener('click', () => {
+  const cw = frame.contentWindow;
+  cw.setTheme?.(cw.document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+});
+frame.addEventListener('load', apply);
+</script>
+</body>
+</html>

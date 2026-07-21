@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dorkhub · direction comparison</title>
+<style>
+  body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: #111; color: #eee; }
+  header { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid #333; }
+  header span { color: #999; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px; }
+  figure { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  figcaption { font-size: 12.5px; color: #ccc; }
+  figcaption a { color: #7ab7ff; text-decoration: none; margin-left: 6px; }
+  iframe { width: 100%; height: 78vh; border: 1px solid #333; border-radius: 6px; background: #fff; }
+  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+</style></head>
+<body>
+<header><strong>dorkhub</strong> · design-language explorations <span>— same skeleton and content in every frame; only tokens, fonts, and voice differ. Use each frame's theme toggle for dark/light.</span></header>
+<div class="grid">
+    <figure>
+      <figcaption><strong>Playful dev-native</strong> — Leans into the dork: terminal-green accents, mono metadata everywhere, jokes in the microcopy — with grown-up layout discipline underneath. <a href="01-playful-dev-native.html" target="_blank">open ↗</a></figcaption>
+      <iframe src="01-playful-dev-native.html" loading="lazy" title="Playful dev-native"></iframe>
+    </figure>
+    <figure>
+      <figcaption><strong>Modern minimal</strong> — Immaculate neutral hierarchy with one deep-indigo accent — the content is the interface. <a href="02-modern-minimal.html" target="_blank">open ↗</a></figcaption>
+      <iframe src="02-modern-minimal.html" loading="lazy" title="Modern minimal"></iframe>
+    </figure>
+    <figure>
+      <figcaption><strong>Warm indie craft</strong> — Glitch-era generosity: cream paper, candy-but-grown-up color, chunky ink shadows — a hand-touched shelf for things you made. <a href="03-warm-indie-craft.html" target="_blank">open ↗</a></figcaption>
+      <iframe src="03-warm-indie-craft.html" loading="lazy" title="Warm indie craft"></iframe>
+    </figure>
+    <figure>
+      <figcaption><strong>Utilitarian brutalist</strong> — the projects are the interface: white, black, two-pixel borders — nothing decorative survives. <a href="04-utilitarian-brutalist.html" target="_blank">open ↗</a></figcaption>
+      <iframe src="04-utilitarian-brutalist.html" loading="lazy" title="Utilitarian brutalist"></iframe>
+    </figure>
+    <figure>
+      <figcaption><strong>Quiet dev-native (01+02 hybrid)</strong> — 01's soul at 02's volume: near-black restraint, mono metadata, one soft ice accent — the projects do the glowing. <a href="05-quiet-dev-native.html" target="_blank">open ↗</a></figcaption>
+      <iframe src="05-quiet-dev-native.html" loading="lazy" title="Quiet dev-native (01+02 hybrid)"></iframe>
+    </figure>
+</div>
+</body></html>
