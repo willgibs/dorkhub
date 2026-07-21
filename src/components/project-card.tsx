@@ -19,6 +19,11 @@ export type ProjectCardProps = {
   /** Whether the current viewer has liked this project. */
   liked?: boolean;
   onLikeToggle?: () => void;
+  /**
+   * Position within a card grid — staggers the star-count pop-in by 40ms/index
+   * so a grid doesn't fire every count in unison (reads as noise, not polish).
+   */
+  staggerIndex?: number;
   className?: string;
 };
 
@@ -92,6 +97,7 @@ export function ProjectCard({
   authorHref = '#',
   liked = false,
   onLikeToggle,
+  staggerIndex,
   className,
 }: ProjectCardProps) {
   const compact = variant === 'compact';
@@ -102,7 +108,7 @@ export function ProjectCard({
     <article
       className={cn(
         'edge-highlight flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground',
-        'transition-[border-color,transform] duration-150 ease-out hover:-translate-y-px hover:border-[color-mix(in_oklab,var(--foreground)_22%,var(--border))]',
+        'transition-[border-color,transform] duration-150 ease-quiet hover:-translate-y-px hover:border-[color-mix(in_oklab,var(--foreground)_22%,var(--border))]',
         className,
       )}
     >
@@ -140,7 +146,14 @@ export function ProjectCard({
         <div className="tabular-nums flex items-center gap-3.5 font-mono text-xs text-muted-foreground">
           <LanguageDot language={project.language} color={project.languageColor} />
           {project.stars !== null ? (
-            <span className="inline-flex items-center gap-[5px]">
+            <span
+              className="inline-flex animate-number-pop-in items-center gap-[5px] [animation-fill-mode:backwards]"
+              style={
+                staggerIndex !== undefined
+                  ? { animationDelay: `${staggerIndex * 40}ms` }
+                  : undefined
+              }
+            >
               ★ {formatCount(project.stars)}
             </span>
           ) : project.updatedAgo ? (

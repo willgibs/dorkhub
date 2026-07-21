@@ -20,6 +20,8 @@ breaks Next build) · Tailwind v4 (CSS-first `@theme`) · shadcn/ui · Supabase
 - `docs/design-system.md` — tokens, fonts, voice, micro-details, component index.
   Load for src/components/**, globals.css, src/app/design, copy.
 - `docs/conventions.md` — code patterns Biome can't enforce. Load for any new file.
+- `docs/motion.md` — motion tokens, CSS-vs-motion rule, reduced-motion policy,
+  adoption map. Load for ANY animation/transition work.
 - `docs/decisions.md` — dated one-line ADRs; append when you decide something real.
 - `docs/plan-master.md` — full original plan; deep rationale only.
 
@@ -31,6 +33,8 @@ breaks Next build) · Tailwind v4 (CSS-first `@theme`) · shadcn/ui · Supabase
 - RLS on every table; column grants + policies; `(select current_profile_id())`.
 - READMEs: sanitize-at-write, service-role-only column. User markdown: rehype-sanitize
   at render.
+- Animation work: read `.agents/skills/emil-design-eng/SKILL.md` first;
+  `review-animations` skill is the QA gate before motion-heavy milestone tags.
 - Model policy: orchestrator thinks (Fable); execution subagents run sonnet
   (haiku for trivial sweeps).
 - Update `docs/state.md` (rolling rewrite, ≤40 lines) at every session/milestone end.

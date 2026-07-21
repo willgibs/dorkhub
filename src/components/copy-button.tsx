@@ -1,5 +1,6 @@
 'use client';
 
+import { Copy } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +14,8 @@ export type CopyButtonProps = {
 
 const FEEDBACK_MS = 1200;
 
+/** Icon crossfade (docs/motion.md): copy glyph blur-crossfades into a check
+ * whose stroke draws on via `pathLength` + dashoffset — both 200ms ease-quiet. */
 export function CopyButton({ command, copyValue, className }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -46,8 +49,41 @@ export function CopyButton({ command, copyValue, className }: CopyButtonProps) {
         type="button"
         onClick={handleCopy}
         aria-live="polite"
-        className="border-l bg-secondary px-3 text-[11.5px] text-secondary-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:translate-y-px"
+        className="inline-flex items-center gap-1.5 border-l bg-secondary px-3 text-[11.5px] text-secondary-foreground outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset active:translate-y-px"
       >
+        <span
+          className="relative inline-grid size-3 shrink-0 place-items-center"
+          aria-hidden="true"
+        >
+          <Copy
+            className={cn(
+              'col-start-1 row-start-1 size-3 transition-[opacity,filter,transform] duration-200 ease-quiet',
+              copied ? 'scale-95 opacity-0 blur-[2px]' : 'scale-100 opacity-100 blur-0',
+            )}
+          />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className={cn(
+              'col-start-1 row-start-1 size-3 text-positive transition-[opacity,filter,transform] duration-200 ease-quiet',
+              copied ? 'scale-100 opacity-100 blur-0' : 'scale-95 opacity-0 blur-[2px]',
+            )}
+          >
+            <polyline
+              points="4 12 9 17 20 6"
+              pathLength={100}
+              className={cn(
+                '[stroke-dasharray:100] transition-[stroke-dashoffset] duration-200 ease-quiet',
+                copied ? '[stroke-dashoffset:0]' : '[stroke-dashoffset:100]',
+              )}
+            />
+          </svg>
+        </span>
         {copied ? 'copied' : 'copy'}
       </button>
     </span>

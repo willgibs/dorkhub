@@ -18,6 +18,11 @@
 - shadcn primitives live in `src/components/ui/` — composed and restyled via
   className, never edited (biome override relaxes a11y pedantry there only).
 
+## Motion
+- `motion`/`m` imports only inside files that are already `'use client'` leaf
+  islands — never inside a currently-server component in src/components/.
+  Timing/easing/springs come from docs/motion.md tokens; no bespoke physics.
+
 ## Styling
 - Tokens only (see docs/design-system.md). Arbitrary values allowed only when they
   wrap a token (`hover:border-[color-mix(in_oklab,var(--foreground)_22%,var(--border))]`)

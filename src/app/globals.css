@@ -1,5 +1,19 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 @import "../styles/prose.css";
+
+/*
+ * Gate ALL hover: variants behind real hover capability — on touch devices an
+ * ungated transform hover (card lift, avatar lift) sticks after tap until the
+ * user taps elsewhere. Redefining the variant fixes every usage at once.
+ */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover {
+      @slot;
+    }
+  }
+}
 
 /*
  * dorkhub design tokens — "Quiet dev-native"
@@ -72,7 +86,23 @@
   --shadow-overlay: 0 16px 40px oklch(0.2 0.01 250 / 0.16);
 }
 
+/*
+ * Motion tokens — docs/motion.md is the policy source. Durations name the values
+ * the codebase already standardized on; springs (JS-only) are documented there,
+ * not here. Never use ease-in; never animate high-frequency actions (⌘K).
+ */
+:root {
+  --motion-fast: 150ms; /* hover, press feedback, color */
+  --motion-base: 200ms; /* tooltips, dropdowns, modal enter/exit */
+  --motion-slow: 300ms; /* larger reveals, sheet exit */
+  --motion-enter: 500ms; /* large-surface entrances only (sheet open) */
+  --motion-ease-quiet: cubic-bezier(0.16, 1, 0.3, 1); /* strong ease-out: enters/exits */
+  --motion-ease-quiet-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* on-screen moves */
+}
+
 @theme inline {
+  --ease-quiet: var(--motion-ease-quiet);
+  --ease-quiet-in-out: var(--motion-ease-quiet-in-out);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -107,6 +137,53 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-display: var(--font-display);
+  /* M2.5 component-retrofit keyframes (docs/motion.md) — durations/easings all
+     resolve through the motion tokens above, never invented ad hoc. */
+  --animate-number-pop-in: number-pop-in var(--motion-base) var(--motion-ease-quiet);
+  --animate-stat-pop: stat-pop var(--motion-fast) var(--motion-ease-quiet);
+  --animate-stat-burst: stat-burst var(--motion-slow) var(--motion-ease-quiet) forwards;
+  --animate-shimmer-sweep: shimmer-sweep 1.6s linear infinite;
+}
+
+@keyframes number-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes stat-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes stat-burst {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) rotate(var(--burst-angle, 0deg)) translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--burst-angle, 0deg)) translateY(-14px) scale(0.4);
+  }
+}
+
+@keyframes shimmer-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @layer base {
@@ -124,6 +201,22 @@
   }
   a {
     text-underline-offset: 3px;
+  }
+  /* Reduced motion: kill decorative motion globally… */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+    /* …but functional loading indicators must stay visible (spinner carve-out). */
+    .animate-spin {
+      animation-duration: 1s !important;
+      animation-iteration-count: infinite !important;
+    }
   }
 }
 

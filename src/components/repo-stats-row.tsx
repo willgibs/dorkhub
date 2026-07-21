@@ -43,10 +43,14 @@ export function RepoStatsRow({
     >
       <LanguageDot language={language} color={languageColor} className="text-[12.5px]" />
       {stars !== null && (
-        <span className="inline-flex items-center gap-[5px]">★ {formatCount(stars)}</span>
+        <span className="inline-flex animate-number-pop-in items-center gap-[5px]">
+          ★ {formatCount(stars)}
+        </span>
       )}
       {typeof forks === 'number' && forks > 0 && (
-        <span className="inline-flex items-center gap-[5px]">⑂ {formatCount(forks)} forks</span>
+        <span className="inline-flex animate-number-pop-in items-center gap-[5px]">
+          ⑂ {formatCount(forks)} forks
+        </span>
       )}
       {license && <span>{license}</span>}
       {updatedAgo && <TimeAgo value={updatedLabel(updatedAgo)} className="text-[12.5px]" />}

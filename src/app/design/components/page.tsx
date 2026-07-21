@@ -270,12 +270,20 @@ export default function DesignComponentsPage() {
         <Group title="project-card">
           <Demo label="feed — with screenshot + tags">
             <div className="w-full max-w-sm">
-              <ProjectCard project={tinysynth} author={authors[tinysynth.author]} />
+              <ProjectCard
+                project={tinysynth}
+                author={authors[tinysynth.author]}
+                staggerIndex={0}
+              />
             </div>
           </Demo>
           <Demo label="feed — brand new (null stars/likes, no screenshot)">
             <div className="w-full max-w-sm">
-              <ProjectCard project={untitledMaze} author={authors[untitledMaze.author]} />
+              <ProjectCard
+                project={untitledMaze}
+                author={authors[untitledMaze.author]}
+                staggerIndex={1}
+              />
             </div>
           </Demo>
           <Demo label="compact — no media, no tags">
@@ -284,6 +292,7 @@ export default function DesignComponentsPage() {
                 project={gitgoblin}
                 author={authors[gitgoblin.author]}
                 variant="compact"
+                staggerIndex={2}
               />
             </div>
           </Demo>
@@ -294,6 +303,7 @@ export default function DesignComponentsPage() {
                 author={authors[plantdad.author]}
                 variant="featured"
                 labelText="pick of the week"
+                staggerIndex={3}
               />
             </div>
           </Demo>
