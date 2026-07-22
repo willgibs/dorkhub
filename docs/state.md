@@ -29,11 +29,24 @@
   (app) and (marketing) layouts, hero CTA wired to /auth/signin. Verified live
   against the real DB in-browser (mollybuilds, citext-insensitive lookup, 404
   for unknown usernames, OAuth redirect to github.com all confirmed working).
-- M3+ (projects/feed) ▶ UNBLOCKED
+- M3+ (projects/feed) ▶ IN PROGRESS — M4 waves 1A/1B/1C/2D landed (GitHub
+  fetch client, slug/tags/demo-url/throttle utils, live `/u/[username]/[slug]`
+  project page, `syncProject`). Wave 3E landed: `/new` repo picker —
+  server page annotates the caller's public repos as available/yours/taken
+  (service-role query so OTHER users' drafts are visible for the taken-check),
+  cmdk-based client picker (forks/archived hidden by default behind a Switch
+  toggle, per-row `<form action={createProject}>` + `useFormStatus` "adding…"
+  state), `createProject` server action (fresh ownership re-check via
+  `getRepoById`, slug/sort_order derivation, 23505 idempotent-redirect
+  handling, best-effort initial `syncProject`). `pnpm verify && pnpm test &&
+  pnpm build` green; live-verified the unauthenticated gate in-browser
+  (`/new` → `/auth/signin?next=%2Fnew` → GitHub OAuth, no server errors).
+  Waves 3F (settings/projects) and 3G (cron) have in-progress uncommitted
+  files from parallel sessions as of this writing — not reviewed here.
 
 ## Next steps
 1. Will: mirror the 3 app vars from .env.local into Vercel dashboard env.
-2. M4 (projects+GitHub sync — sanitizer already shipped+tested), M5, M6, M8.
+2. M4 remaining: confirm 3F/3G land clean, then Wave 4 (OG images), M5, M6, M8.
 
 ## Open blockers
 - (none)

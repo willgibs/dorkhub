@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
+import { refreshProjectFromGithub, setProjectStatus } from '@/app/(app)/settings/projects/actions';
 import { CopyButton } from '@/components/copy-button';
 import { EmptyState } from '@/components/empty-state';
 import { MarkdownProse } from '@/components/markdown-prose';
@@ -105,6 +106,29 @@ export default async function ProjectPage({
               {copy.projectDraftBadge}
             </Badge>
           ) : null}
+
+          {/* Plain server-rendered forms are deliberate here (no client
+              island): a throttled/failed refresh just silently no-ops on
+              this surface — /settings/projects is the full-feedback one. */}
+          <form action={setProjectStatus}>
+            <input type="hidden" name="project_id" value={project.id} />
+            <input
+              type="hidden"
+              name="intent"
+              value={project.status === 'draft' ? 'publish' : 'unpublish'}
+            />
+            <Button type="submit" variant="secondary" size="sm">
+              {project.status === 'draft' ? copy.actionPublish : copy.actionUnpublish}
+            </Button>
+          </form>
+
+          <form action={refreshProjectFromGithub}>
+            <input type="hidden" name="project_id" value={project.id} />
+            <Button type="submit" variant="ghost" size="sm">
+              {copy.actionRefresh}
+            </Button>
+          </form>
+
           <Link
             href="/settings/projects"
             className={cn(
