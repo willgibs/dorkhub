@@ -302,7 +302,11 @@ begin
 end;
 $$;
 
--- Housekeeping on every projects update: touch updated_at; on the
+-- Housekeeping on every projects update: touch updated_at — but ONLY when
+-- something other than the engagement counters changed. The counter triggers
+-- (bump_project_engagement) rewrite likes_count/saves_count/trending_score on
+-- every like/save; without this guard a drive-by like would bump updated_at
+-- and "updated X ago" would stop meaning content edits. On the
 -- draft→published transition, stamp published_at (kept across re-publishes)
 -- and seed the trending score.
 create or replace function public.projects_before_update()
@@ -310,8 +314,12 @@ returns trigger
 language plpgsql
 set search_path = public
 as $$
+declare
+  counters constant text[] := array['likes_count', 'saves_count', 'trending_score', 'updated_at'];
 begin
-  new.updated_at := now();
+  if (to_jsonb(new) - counters) is distinct from (to_jsonb(old) - counters) then
+    new.updated_at := now();
+  end if;
   if old.status = 'draft' and new.status = 'published' then
     new.published_at   := coalesce(new.published_at, now());
     new.trending_score := compute_trending(new.likes_count, new.saves_count, new.published_at);

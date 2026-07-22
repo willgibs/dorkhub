@@ -27,3 +27,6 @@
 - 2026-07-22 · Vercel: file-tree MCP deploy rejected (token-prohibitive, no git link); Will imports the repo in the dashboard — project reused for M9 Pro+DNS.
 - 2026-07-22 · sanitize: mailto stripped (https-only schemes), protocol-relative passthrough, scheme-regex exclusion before rewrite (superset guard). cursor: decode never throws.
 - 2026-07-22 · Manifesto FINAL (product gate): merged take — A's calm register + B's strongest lines (forking/shipping/steal tenets from B); closer 'go build a thing.' Switcher + losing draft deleted.
+- 2026-07-22 · DB lives in a DEDICATED Supabase account/org ("Dorkhub Team", fresh free tier) — Will's main org + its MCP stay reserved for other agents. Access = Management API PAT + psql over session pooler (both via .env.local); no MCP.
+- 2026-07-22 · projects_before_update() guard shipped in 0001 (jsonb-minus-counters comparison): likes/saves/trending recounts no longer bump updated_at; verified behaviorally.
+- 2026-07-22 · Advisor pass → 0002 hardening: revoked API-role EXECUTE on trigger/event functions, pinned compute_trending search_path. Accepted-by-design (documented in 0002): claim_invites deny-all, public screenshots bucket, current_profile_id executable by API roles (RLS needs it).
