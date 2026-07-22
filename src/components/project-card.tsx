@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { LanguageDot } from '@/components/language-dot';
 import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
@@ -16,9 +17,12 @@ export type ProjectCardProps = {
   href?: string;
   /** Link target for the author row. */
   authorHref?: string;
-  /** Whether the current viewer has liked this project. */
-  liked?: boolean;
-  onLikeToggle?: () => void;
+  /**
+   * Slot for the like control — defaults to a disabled-look, always-inactive
+   * StatButton (today's exact look, zero visual change for non-opted
+   * callers). Real callers pass a `LikeButtonIsland` (M5 decision 5/7).
+   */
+  likeSlot?: ReactNode;
   /**
    * Position within a card grid — staggers the star-count pop-in by 40ms/index
    * so a grid doesn't fire every count in unison (reads as noise, not polish).
@@ -95,8 +99,7 @@ export function ProjectCard({
   labelText,
   href = '#',
   authorHref = '#',
-  liked = false,
-  onLikeToggle,
+  likeSlot,
   staggerIndex,
   className,
 }: ProjectCardProps) {
@@ -186,7 +189,7 @@ export function ProjectCard({
           </span>
           @{author.username}
         </a>
-        <StatButton kind="like" count={project.likes} active={liked} onToggle={onLikeToggle} />
+        {likeSlot ?? <StatButton kind="like" active={false} count={project.likes} />}
       </div>
     </article>
   );

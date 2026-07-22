@@ -42,6 +42,29 @@ export function formatUpdatedAgo(iso: string, now: Date = new Date()): string {
 }
 
 /**
+ * The subset of a `projects` row `projectRowToCard` actually reads. Declared
+ * as a `Pick` (rather than the full `ProjectRow`) so both the profile page's
+ * full-row select AND the feed's lean `FeedRow` projection (`src/lib/feed/
+ * queries.ts` — deliberately omits `readme_html` and friends) satisfy it
+ * without a cast; a full row structurally has every field a `Pick` needs.
+ */
+export type ProjectCardSourceRow = Pick<
+  ProjectRow,
+  | 'slug'
+  | 'name'
+  | 'tagline'
+  | 'primary_language'
+  | 'stars_count'
+  | 'likes_count'
+  | 'tags'
+  | 'screenshots'
+  | 'license'
+  | 'forks_count'
+  | 'demo_url'
+  | 'updated_at'
+>;
+
+/**
  * Maps a `projects` row to ProjectCard's FixtureProject shape. `authorUsername`
  * is passed separately — the row only carries `profile_id`, and callers
  * (profile/feed pages) already have the author's username in hand.
@@ -50,7 +73,7 @@ export function formatUpdatedAgo(iso: string, now: Date = new Date()): string {
  * "0" — ProjectCard already gates rendering on `null`.
  */
 export function projectRowToCard(
-  row: ProjectRow,
+  row: ProjectCardSourceRow,
   authorUsername: string,
   now: Date = new Date(),
 ): FixtureProject {
