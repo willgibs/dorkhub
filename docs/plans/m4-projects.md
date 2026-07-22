@@ -1,9 +1,9 @@
 # M4 — Projects + GitHub sync (execution plan)
 
-Status: **code-complete** (2026-07-22) — all waves landed, 244 tests, RLS 26/26.
-Awaiting GITHUB_TOKEN (Will's PAT) + first-user signed-in QA. Distilled from the
-approved orchestrator plan; subagents onboard from THIS file plus the standard
-preamble (CLAUDE.md → docs/state.md → relevant modules).
+Status: **SHIPPED — E2E-proven** (2026-07-22). Will published willgibs/linkflow
+through the full /new → draft → publish flow on prod; cron verified with real
+PAT (ETag 304s). Kept for reference; subagents onboard from CLAUDE.md →
+docs/state.md → the active milestone plan.
 
 ## Goal
 

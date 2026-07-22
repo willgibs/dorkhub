@@ -9,22 +9,18 @@
 - M3 auth+identity ✅ — E2E-proven by first real signup (u/willgibs); 3 prod
   bugs fixed+regression-guarded (service_role grants 0003, server-only module
   split, layout router-cache revalidate) — details in decisions.md.
-- M4 projects+GitHub sync ✅ CODE-COMPLETE (full spec: docs/plans/m4-projects.md)
-  — GitHub client, syncProject, /new picker, /u/[username]/[slug], /settings/
-  projects, daily sync cron, dynamic OG cards. 244 tests; verify/test/build
-  green; RLS 26/26. NOT yet user-QA'd signed-in (needs GITHUB_TOKEN).
+- M4 projects+GitHub sync ✅ E2E-PROVEN (spec: docs/plans/m4-projects.md) —
+  Will added willgibs/linkflow via /new → draft → publish → live page; prod
+  cron verified (ETag 304s, errored:0). 244 tests; RLS 26/26. Seed-id
+  collision hazard caught+fixed pre-token (ids shifted +9e11).
 
 ## Next steps
-1. Will: create fine-grained PAT (Public repos, read-only) → GITHUB_TOKEN in
-   .env.local + Vercel env; mirror CRON_SECRET (in .env.local) to Vercel.
-2. Will: first-user QA of /new → draft → publish → project page (M4 E2E).
-3. M5 discovery+interactions (feed, tags, likes/saves/follows, caching pass:
+1. M5 discovery+interactions (feed, tags, likes/saves/follows, caching pass:
    de-dynamize SiteHeaderSession so ISR/revalidatePath do real work).
-4. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M8, M9.
+2. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M8, M9.
 
 ## Open blockers
-- GITHUB_TOKEN unset (local+prod): /new shows quiet empty state, cron tallies
-  errors — degrades gracefully, but M4 is unusable-by-design until the PAT.
+- (none)
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP (reserved for Will's other agents). Management

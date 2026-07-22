@@ -3,6 +3,7 @@ import { TimeAgo } from '@/components/time-ago';
 import { cn } from '@/lib/utils';
 
 export type RepoStatsRowProps = {
+  /** Empty string = repo has no detected language; the dot is omitted entirely — never a bare dot. */
   language: string;
   languageColor: string;
   /** null = brand new; the item is omitted entirely — never "0". */
@@ -41,7 +42,9 @@ export function RepoStatsRow({
         className,
       )}
     >
-      <LanguageDot language={language} color={languageColor} className="text-[12.5px]" />
+      {language && (
+        <LanguageDot language={language} color={languageColor} className="text-[12.5px]" />
+      )}
       {stars !== null && (
         <span className="inline-flex animate-number-pop-in items-center gap-[5px]">
           ★ {formatCount(stars)}
