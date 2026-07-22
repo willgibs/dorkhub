@@ -8,12 +8,7 @@ import type { Database } from './types';
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
 const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY as string;
 
-/**
- * Browser client — client components only. Cookie-based session via @supabase/ssr.
- */
-export function supabaseBrowser() {
-  return createBrowserClient<Database>(SUPABASE_URL, PUBLISHABLE_KEY);
-}
+// The browser client lives in ./browser.ts — this module is server-only.
 
 /**
  * Cookie-bound server client — server components, route handlers, server actions.
