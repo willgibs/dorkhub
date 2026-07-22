@@ -25,8 +25,5 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
+      - run: pnpm test
       - run: pnpm build
-
-      # Uncomment when vitest lands (first tests: trending score, cursor codecs,
-      # sanitizer — see docs/plan-master.md M4):
-      # - run: pnpm exec vitest run --passWithNoTests

@@ -11,7 +11,8 @@ breaks Next build) · Tailwind v4 (CSS-first `@theme`) · shadcn/ui · Supabase
 
 ## Commands
 `pnpm dev` · `pnpm build` · `pnpm verify` (biome + tsc — THE green gate) ·
-`pnpm lint:fix`. Run `pnpm verify` before calling any task done.
+`pnpm lint:fix` · `pnpm test` (vitest run) · `pnpm test:watch`. Run `pnpm verify`
+before calling any task done.
 
 ## Load a doc module before touching its area
 - `docs/state.md` — milestone status, next steps, blockers. **Load first, always.**
