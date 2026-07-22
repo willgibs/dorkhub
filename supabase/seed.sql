@@ -98,7 +98,7 @@ values
 -- 1 · tinysynth — @mollybuilds -----------------------------------------------
   ('b2000000-0000-4000-8000-000000000001',
    'a1000000-0000-4000-8000-000000000001',
-   'tinysynth', 712834501, 'mollybuilds/tinysynth',
+   'tinysynth', 900712834501, 'mollybuilds/tinysynth',
    'https://github.com/mollybuilds/tinysynth', 'tinysynth',
    'a 2KB web synth you can play with your keyboard',
    'no dependencies, no build step, no reason. press keys, get bleeps.',
@@ -120,7 +120,7 @@ values
 -- 2 · gitgoblin — @gremlinworks (no screenshots) ------------------------------
   ('b2000000-0000-4000-8000-000000000002',
    'a1000000-0000-4000-8000-000000000002',
-   'gitgoblin', 498112307, 'gremlinworks/gitgoblin',
+   'gitgoblin', 900498112307, 'gremlinworks/gitgoblin',
    'https://github.com/gremlinworks/gitgoblin', 'gitgoblin',
    'a cron job that writes passive-aggressive commit messages when you forget to push',
    'install it, forget about it, and let the goblin shame you at 6pm daily.',
@@ -138,7 +138,7 @@ values
 -- 3 · plantdad — @rosiehux (tag-heavy hardware) -------------------------------
   ('b2000000-0000-4000-8000-000000000003',
    'a1000000-0000-4000-8000-000000000003',
-   'plantdad', 355602188, 'rosiehux/plantdad',
+   'plantdad', 900355602188, 'rosiehux/plantdad',
    'https://github.com/rosiehux/plantdad', 'plantdad',
    'an e-ink dashboard that guilt-trips me into watering my monstera',
    'a raspberry pi, a soil sensor, and an e-ink panel that displays my monstera''s disappointment in real time.',
@@ -159,7 +159,7 @@ values
 -- 4 · untitled-maze-thing — @kevbot (zero social proof, just shipped) ---------
   ('b2000000-0000-4000-8000-000000000004',
    'a1000000-0000-4000-8000-000000000004',
-   'untitled-maze-thing', 901477263, 'kevbot/untitled-maze-thing',
+   'untitled-maze-thing', 900901477263, 'kevbot/untitled-maze-thing',
    'https://github.com/kevbot/untitled-maze-thing', 'untitled-maze-thing',
    'i made a maze generator. it makes mazes.',
    null,
@@ -177,7 +177,7 @@ values
 -- 5 · loudbutton — @mollybuilds -----------------------------------------------
   ('b2000000-0000-4000-8000-000000000005',
    'a1000000-0000-4000-8000-000000000001',
-   'loudbutton', 645220981, 'mollybuilds/loudbutton',
+   'loudbutton', 900645220981, 'mollybuilds/loudbutton',
    'https://github.com/mollybuilds/loudbutton', 'loudbutton',
    'a giant USB button that plays an airhorn in your CI channel when the build goes green',
    'firmware + a tiny webhook relay. the button is load-bearing for team morale.',
@@ -197,7 +197,7 @@ values
 -- 6 · tuberterm — @spudnik ----------------------------------------------------
   ('b2000000-0000-4000-8000-000000000006',
    'a1000000-0000-4000-8000-000000000005',
-   'tuberterm', 533019874, 'spudnik/tuberterm',
+   'tuberterm', 900533019874, 'spudnik/tuberterm',
    'https://github.com/spudnik/tuberterm', 'tuberterm',
    'a terminal dashboard for tracking my potato harvest',
    'ratatui frontend, sqlite backend, unreasonable devotion to root vegetables.',
@@ -215,7 +215,7 @@ values
 -- 7 · crateweight — @spudnik --------------------------------------------------
   ('b2000000-0000-4000-8000-000000000007',
    'a1000000-0000-4000-8000-000000000005',
-   'crateweight', 287465110, 'spudnik/crateweight',
+   'crateweight', 900287465110, 'spudnik/crateweight',
    'https://github.com/spudnik/crateweight', 'crateweight',
    'tells you how much your cargo dependencies weigh, emotionally',
    'binary size analysis with editorial commentary. `crateweight check` refuses to run if you depend on more than one async runtime.',
@@ -233,7 +233,7 @@ values
 -- 8 · screamsaver — @kevbot ---------------------------------------------------
   ('b2000000-0000-4000-8000-000000000008',
    'a1000000-0000-4000-8000-000000000004',
-   'screamsaver', 774391052, 'kevbot/screamsaver',
+   'screamsaver', 900774391052, 'kevbot/screamsaver',
    'https://github.com/kevbot/screamsaver', 'screamsaver',
    'a screensaver that screams',
    'it''s a screensaver. it screams. volume configurable, mercifully.',
@@ -251,7 +251,7 @@ values
 -- 9 · prcrastinator — @gremlinworks (the one draft) ---------------------------
   ('b2000000-0000-4000-8000-000000000009',
    'a1000000-0000-4000-8000-000000000002',
-   'prcrastinator', 812336479, 'gremlinworks/prcrastinator',
+   'prcrastinator', 900812336479, 'gremlinworks/prcrastinator',
    'https://github.com/gremlinworks/prcrastinator', 'prcrastinator',
    'a bot that opens the PR you keep talking about',
    'still deciding whether this is a joke.',
