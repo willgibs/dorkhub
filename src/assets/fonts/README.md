@@ -1,0 +1,1 @@
+Instrument Sans (Regular/Bold) and JetBrains Mono (Regular) TTF statics, vendored from Google Fonts (gstatic) for Satori's OG-image renderer; both are SIL Open Font License 1.1 (OFL) — see https://scripts.sil.org/OFL, upstream copyright The Instrument Sans Project Authors / The JetBrains Mono Project Authors.
