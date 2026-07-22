@@ -19,12 +19,25 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://dorkhub.com'),
   title: {
     default: 'dorkhub — a home for the things you build for fun',
     template: '%s · dorkhub',
   },
   description:
     'A social discovery platform for hobbyist developers. Connect GitHub, pick the repos you love, give each one a page. Free to browse, free to fork.',
+  openGraph: {
+    siteName: 'dorkhub',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
+  // noindex until M9 launch: placeholder copy + non-canonical *.vercel.app domain must not index. Flip at launch.
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

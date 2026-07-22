@@ -10,15 +10,14 @@ export type SiteFooterLink = {
 };
 
 export type SiteFooterProps = {
-  /** Override the right-side links; defaults to manifesto / colophon / github. */
+  /** Override the right-side links; defaults to manifesto / colophon. */
   links?: readonly SiteFooterLink[];
   className?: string;
 };
 
 const DEFAULT_LINKS: readonly SiteFooterLink[] = [
   { label: 'manifesto', href: '/manifesto' },
-  { label: 'colophon', href: '/colophon' },
-  { label: 'github', href: 'https://github.com/dorkhub' },
+  { label: 'colophon', href: '/manifesto#colophon' },
 ];
 
 export function SiteFooter({ links = DEFAULT_LINKS, className }: SiteFooterProps) {
