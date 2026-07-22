@@ -6,19 +6,13 @@
   manifesto (gate: merged take approved), brand OG, robots noindex-until-M9.
 - DB ✅ LIVE — dedicated Supabase org, ref xvorwdvsnbpujyzfowwu (us-east-1).
   Migrations 0001–0004 applied; seeds in; RLS suite 26/26; advisors clean.
-- M3 auth+identity ✅ — E2E-PROVEN by first real signup (u/willgibs). Three
-  prod bugs found+fixed+regression-guarded: service_role grants (0003),
-  client/server module split (browser.ts + server-only), layout router-cache
-  staleness (revalidatePath('/','layout') post-onboarding).
-- M4 projects+GitHub sync ✅ CODE-COMPLETE (plan: docs/plans/m4-projects.md) —
-  GitHub fetch client (PAT, ETags, numeric-id fetches), syncProject (pure
-  computeSyncUpdate core, 46 matrix tests), /new repo picker (ownership
-  re-verified by numeric id, idempotent 23505), live /u/[username]/[slug]
-  (README centerpiece, owner bar), /settings/projects (RLS-bound CRUD,
-  reorder, throttled refresh), /api/cron/sync (bearer-gated, 200-stalest,
-  rate-limit short-circuit) + vercel.json daily cron, dynamic OG cards with
-  brand fallback. 244 tests; verify/test/build green; RLS re-run 26/26.
-  NOT yet user-QA'd signed-in (needs GITHUB_TOKEN — see blockers).
+- M3 auth+identity ✅ — E2E-proven by first real signup (u/willgibs); 3 prod
+  bugs fixed+regression-guarded (service_role grants 0003, server-only module
+  split, layout router-cache revalidate) — details in decisions.md.
+- M4 projects+GitHub sync ✅ CODE-COMPLETE (full spec: docs/plans/m4-projects.md)
+  — GitHub client, syncProject, /new picker, /u/[username]/[slug], /settings/
+  projects, daily sync cron, dynamic OG cards. 244 tests; verify/test/build
+  green; RLS 26/26. NOT yet user-QA'd signed-in (needs GITHUB_TOKEN).
 
 ## Next steps
 1. Will: create fine-grained PAT (Public repos, read-only) → GITHUB_TOKEN in
