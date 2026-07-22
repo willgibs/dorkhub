@@ -132,6 +132,33 @@ begin
 end
 $$;
 
+-- service_role must hold full DML on every public table — 0001's revoke-all
+-- hardening once stripped it (production onboarding 42501, fixed in 0003);
+-- this assertion keeps that from regressing.
+do $$
+declare
+  v_bad text;
+begin
+  select string_agg(t.table_name || ' (missing ' || p.privilege_type || ')', ', ')
+    into v_bad
+    from (values ('profiles'), ('projects'), ('project_updates'), ('likes'), ('saves'),
+                 ('follows'), ('tags'), ('featured_slots'), ('claim_invites')) as t(table_name)
+   cross join (values ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE')) as p(privilege_type)
+   where not exists (
+     select 1 from information_schema.table_privileges tp
+      where tp.table_schema = 'public'
+        and tp.table_name   = t.table_name
+        and tp.grantee      = 'service_role'
+        and tp.privilege_type = p.privilege_type
+   );
+
+  if v_bad is not null then
+    raise exception 'RLS FAILURE: service_role lacks DML privileges: %', v_bad;
+  end if;
+  raise notice 'PASS: service_role holds full DML on all 9 public tables';
+end
+$$;
+
 
 -- ----------------------------------------------------------------------------
 -- Section 3 — expected policy set (name + cmd), per table
