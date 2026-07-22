@@ -26,3 +26,4 @@
 - 2026-07-22 · Footer: /colophon folded into /manifesto#colophon; dead github.com/dorkhub link removed.
 - 2026-07-22 · Vercel: file-tree MCP deploy rejected (token-prohibitive, no git link); Will imports the repo in the dashboard — project reused for M9 Pro+DNS.
 - 2026-07-22 · sanitize: mailto stripped (https-only schemes), protocol-relative passthrough, scheme-regex exclusion before rewrite (superset guard). cursor: decode never throws.
+- 2026-07-22 · Manifesto FINAL (product gate): merged take — A's calm register + B's strongest lines (forking/shipping/steal tenets from B); closer 'go build a thing.' Switcher + losing draft deleted.
