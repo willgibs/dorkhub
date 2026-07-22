@@ -5,6 +5,11 @@
 - M1 foundation ✅ (scaffold green; Supabase SQL written but **unapplied**)
 - M2 components ✅ — 24 components + shadcn primitives compile green; `/design`
   styleguide (overview/components/typography/voice) built and verified
+- M7 marketing+brand ✅ — signed-out home (staggered hero, is/isn't, fixture
+  feed preview, how-it-works, teaser), /manifesto (TWO draft tenet takes behind
+  a switcher — ⛔ GATE: Will picks; loser deleted), brand OG card + favicon,
+  robots noindex-until-M9 + sitemap, footer link fixes. M4-prep landed: vitest
+  in CI, sanitizeReadmeHtml (19 hostile-fixture tests), cursor codec (47 tests).
 - M2.5 motion retrofit ✅ — 6 overlay primitives retuned to tokens (dialog/
   dropdown/tooltip/sheet/select/hover-card); ui/collapsible grid-rows height
   animation; StatButton/CopyButton/ThemeToggle/AvatarStack/SkeletonCard/
@@ -15,8 +20,11 @@
 - M3+ (auth/projects/feed) ⏸ blocked on DB
 
 ## Next steps
-1. M7 marketing surfaces (manifesto → Will gate, signed-out home) — no DB.
-2. When a Supabase slot frees: unblock M3+ (see blockers).
+1. Will: pick manifesto take (A quieter / B punchier) → delete loser, finalize copy.
+2. Will: import willgibs/dorkhub at vercel.com/new (Hobby, defaults) → live URL
+   here; same project gets Pro + dorkhub.com DNS at M9.
+3. When a Supabase slot frees: unblock M3+ (see blockers). Everything remaining
+   (M3–M6, M8, M9) needs the DB.
 
 ## Open blockers
 - **Supabase**: org free-tier slots 2/2 used (hopper, qrcdn). Will chose to hold
@@ -46,4 +54,4 @@ Repo: github.com/willgibs/dorkhub (private, pre-existing — origin was already
 wired). CI green on main (verify + build). Tags m0/m1/m2 pushed. Dev server:
 `.claude/launch.json` "app" (autoPort — 3000 often taken by qrcdn).
 
-Last updated: 2026-07-21 (session 3 close: M2.5 motion retrofit complete, CI green).
+Last updated: 2026-07-22 (session 4 close: M7 tagged, M4-prep tests in CI).
