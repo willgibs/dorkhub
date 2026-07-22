@@ -24,6 +24,7 @@ before calling any task done.
 - `docs/motion.md` — motion tokens, CSS-vs-motion rule, reduced-motion policy,
   adoption map. Load for ANY animation/transition work.
 - `docs/decisions.md` — dated one-line ADRs; append when you decide something real.
+- `docs/plans/` — per-milestone execution plans (mN-*.md); load for that milestone's work.
 - `docs/plan-master.md` — full original plan; deep rationale only.
 
 ## Hard rules

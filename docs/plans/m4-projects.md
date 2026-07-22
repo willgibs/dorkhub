@@ -1,8 +1,9 @@
 # M4 — Projects + GitHub sync (execution plan)
 
-Status: **in progress** (started 2026-07-22). Distilled from the approved orchestrator
-plan; subagents onboard from THIS file plus the standard preamble (CLAUDE.md →
-docs/state.md → relevant modules). Update the Status line as waves land.
+Status: **code-complete** (2026-07-22) — all waves landed, 244 tests, RLS 26/26.
+Awaiting GITHUB_TOKEN (Will's PAT) + first-user signed-in QA. Distilled from the
+approved orchestrator plan; subagents onboard from THIS file plus the standard
+preamble (CLAUDE.md → docs/state.md → relevant modules).
 
 ## Goal
 
