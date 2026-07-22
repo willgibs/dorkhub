@@ -1,7 +1,8 @@
 # M5 — Discovery + interactions (execution plan)
 
-Status: **in progress** (started 2026-07-22). Subagents onboard: CLAUDE.md →
-docs/state.md → THIS file → the doc modules your slice touches.
+Status: **code-complete** (2026-07-22) — all 3 waves landed, 308 tests, anon
+browser QA green (feed/tags/cursor-chain/signin-redirect). Awaiting Will's
+signed-in QA, then tag m5.
 
 ## Goal
 

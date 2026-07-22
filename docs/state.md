@@ -7,16 +7,20 @@
 - DB ✅ LIVE — dedicated Supabase org, ref xvorwdvsnbpujyzfowwu (us-east-1).
   Migrations 0001–0004 applied; seeds in; RLS suite 26/26; advisors clean.
 - M3 auth+identity ✅ — E2E-proven by first real signup (u/willgibs); 3 prod
-  bugs fixed+regression-guarded (service_role grants 0003, server-only module
-  split, layout router-cache revalidate) — details in decisions.md.
+  bugs fixed + regression-guarded (details in decisions.md).
 - M4 projects+GitHub sync ✅ E2E-PROVEN (spec: docs/plans/m4-projects.md) —
   Will added willgibs/linkflow via /new → draft → publish → live page; prod
   cron verified (ETag 304s, errored:0). 244 tests; RLS 26/26. Seed-id
   collision hazard caught+fixed pre-token (ids shifted +9e11).
 
+- M5 discovery+interactions ✅ CODE-COMPLETE (spec: docs/plans/m5-discovery.md)
+  — caching pass (header client island, / static, proxy / → /home rewrite),
+  real feed + /trending + /t/[tag] + /tags + /api/feed, live likes/saves/
+  follows (browser-client RLS writes), /saved + /following. 308 tests; anon
+  browser QA green. Awaiting Will's signed-in QA, then tag m5.
+
 ## Next steps
-1. M5 discovery+interactions (feed, tags, likes/saves/follows, caching pass:
-   de-dynamize SiteHeaderSession so ISR/revalidatePath do real work).
+1. Will: signed-in M5 QA (feed on /, like/save/follow round-trips).
 2. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M8, M9.
 
 ## Open blockers
