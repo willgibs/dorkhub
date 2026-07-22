@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { fileToAvatarWebP } from '@/lib/avatars';
-import { supabaseBrowser } from '@/lib/supabase/clients';
+import { supabaseBrowser } from '@/lib/supabase/browser';
 import { createProfile, type OnboardingState } from './actions';
 
 export function OnboardingForm({
