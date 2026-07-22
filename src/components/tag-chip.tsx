@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 
 export type TagChipProps = {
   tag: string;
-  /** Defaults to `/tags/${tag}`. Pass explicitly for filter chips or external profile links. */
+  /** Defaults to `/t/${tag}`. Pass explicitly for filter chips or external profile links. */
   href?: string;
   active?: boolean;
   /**
@@ -23,7 +23,7 @@ export function TagChip({
 }: TagChipProps) {
   return (
     <Link
-      href={href ?? `/tags/${encodeURIComponent(tag)}`}
+      href={href ?? `/t/${encodeURIComponent(tag)}`}
       className={cn(
         'inline-flex items-center rounded-md border bg-surface-2 px-[11px] py-1 font-mono text-xs leading-[1.4] text-muted-foreground transition-colors hover:text-foreground',
         'outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',

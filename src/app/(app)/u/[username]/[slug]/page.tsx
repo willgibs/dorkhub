@@ -3,13 +3,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
+import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
+import { LikeButtonIsland } from '@/app/(app)/_engagement/like-button-island';
+import { SaveButtonIsland } from '@/app/(app)/_engagement/save-button-island';
 import { refreshProjectFromGithub, setProjectStatus } from '@/app/(app)/settings/projects/actions';
 import { CopyButton } from '@/components/copy-button';
 import { EmptyState } from '@/components/empty-state';
 import { MarkdownProse } from '@/components/markdown-prose';
 import { PageShell } from '@/components/page-shell';
 import { RepoStatsRow } from '@/components/repo-stats-row';
-import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -95,144 +97,147 @@ export default async function ProjectPage({
   const initial = displayName.charAt(0).toLowerCase();
 
   return (
-    <PageShell className="flex flex-col gap-8 py-10">
-      {isOwner ? (
-        <div className="flex flex-wrap items-center gap-3">
-          {project.status === 'draft' ? (
-            <Badge
-              variant="outline"
-              className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
-            >
-              {copy.projectDraftBadge}
-            </Badge>
-          ) : null}
+    <EngagementProvider projectIds={[project.id]}>
+      <PageShell className="flex flex-col gap-8 py-10">
+        {isOwner ? (
+          <div className="flex flex-wrap items-center gap-3">
+            {project.status === 'draft' ? (
+              <Badge
+                variant="outline"
+                className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
+              >
+                {copy.projectDraftBadge}
+              </Badge>
+            ) : null}
 
-          {/* Plain server-rendered forms are deliberate here (no client
+            {/* Plain server-rendered forms are deliberate here (no client
               island): a throttled/failed refresh just silently no-ops on
               this surface — /settings/projects is the full-feedback one. */}
-          <form action={setProjectStatus}>
-            <input type="hidden" name="project_id" value={project.id} />
-            <input
-              type="hidden"
-              name="intent"
-              value={project.status === 'draft' ? 'publish' : 'unpublish'}
-            />
-            <Button type="submit" variant="secondary" size="sm">
-              {project.status === 'draft' ? copy.actionPublish : copy.actionUnpublish}
-            </Button>
-          </form>
+            <form action={setProjectStatus}>
+              <input type="hidden" name="project_id" value={project.id} />
+              <input
+                type="hidden"
+                name="intent"
+                value={project.status === 'draft' ? 'publish' : 'unpublish'}
+              />
+              <Button type="submit" variant="secondary" size="sm">
+                {project.status === 'draft' ? copy.actionPublish : copy.actionUnpublish}
+              </Button>
+            </form>
 
-          <form action={refreshProjectFromGithub}>
-            <input type="hidden" name="project_id" value={project.id} />
-            <Button type="submit" variant="ghost" size="sm">
-              {copy.actionRefresh}
-            </Button>
-          </form>
+            <form action={refreshProjectFromGithub}>
+              <input type="hidden" name="project_id" value={project.id} />
+              <Button type="submit" variant="ghost" size="sm">
+                {copy.actionRefresh}
+              </Button>
+            </form>
 
-          <Link
-            href="/settings/projects"
-            className={cn(
-              'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
-              linkFocusRing,
-            )}
-          >
-            manage in settings
-          </Link>
-        </div>
-      ) : null}
-
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-3.5">
-          <h1 className="font-display text-[26px] font-extrabold">{project.name}</h1>
-          {/* Interactions ship in M5 — the slot is real, the toggle isn't wired up yet. */}
-          <StatButton
-            kind="like"
-            active={false}
-            count={project.likes_count > 0 ? project.likes_count : null}
-            disabled
-          />
-        </div>
-
-        {project.tagline ? (
-          <p className="max-w-[560px] text-[15px] text-muted-foreground">{project.tagline}</p>
-        ) : null}
-
-        <Link
-          href={`/u/${profile.username}`}
-          className={cn(
-            'inline-flex w-fit items-center gap-2 text-[13.5px] text-muted-foreground transition-colors hover:text-foreground',
-            linkFocusRing,
-          )}
-        >
-          {profile.avatar_url ? (
-            // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
-            <img
-              src={profile.avatar_url}
-              alt=""
-              width={24}
-              height={24}
-              className="size-6 flex-none rounded-full object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
+            <Link
+              href="/settings/projects"
+              className={cn(
+                'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+                linkFocusRing,
+              )}
             >
-              {initial}
-            </span>
-          )}
-          {displayName}
-        </Link>
-
-        <RepoStatsRow
-          language={project.primary_language ?? ''}
-          languageColor={languageColor(project.primary_language)}
-          stars={project.stars_count > 0 ? project.stars_count : null}
-          forks={project.forks_count > 0 ? project.forks_count : undefined}
-          license={project.license ?? undefined}
-          updatedAgo={formatUpdatedAgo(project.updated_at)}
-        />
-
-        {project.tags.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {project.tags.map((tag) => (
-              <TagChip key={tag} tag={tag} hashPrefix />
-            ))}
+              manage in settings
+            </Link>
           </div>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-3 pt-1">
-          {project.demo_url ? (
-            <Button asChild>
-              <a href={project.demo_url} target="_blank" rel="noopener">
-                visit the demo
-              </a>
-            </Button>
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-3.5">
+            <h1 className="font-display text-[26px] font-extrabold">{project.name}</h1>
+            <LikeButtonIsland
+              projectId={project.id}
+              initialCount={project.likes_count > 0 ? project.likes_count : null}
+            />
+            <SaveButtonIsland
+              projectId={project.id}
+              initialCount={project.saves_count > 0 ? project.saves_count : null}
+            />
+          </div>
+
+          {project.tagline ? (
+            <p className="max-w-[560px] text-[15px] text-muted-foreground">{project.tagline}</p>
           ) : null}
-          <CopyButton command={`git clone ${project.repo_url}.git`} />
-          <a
-            href={project.repo_url}
-            target="_blank"
-            rel="noopener"
+
+          <Link
+            href={`/u/${profile.username}`}
             className={cn(
-              'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+              'inline-flex w-fit items-center gap-2 text-[13.5px] text-muted-foreground transition-colors hover:text-foreground',
               linkFocusRing,
             )}
           >
-            {project.repo_full_name}
-          </a>
-        </div>
-      </div>
+            {profile.avatar_url ? (
+              // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
+              <img
+                src={profile.avatar_url}
+                alt=""
+                width={24}
+                height={24}
+                className="size-6 flex-none rounded-full object-cover"
+              />
+            ) : (
+              <span
+                aria-hidden="true"
+                className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
+              >
+                {initial}
+              </span>
+            )}
+            {displayName}
+          </Link>
 
-      {project.readme_html ? (
-        <MarkdownProse
-          html={project.readme_html}
-          label="README.md"
-          forkHref={`${project.repo_url}/fork`}
-        />
-      ) : (
-        <EmptyState message={copy.projectNoReadme} />
-      )}
-    </PageShell>
+          <RepoStatsRow
+            language={project.primary_language ?? ''}
+            languageColor={languageColor(project.primary_language)}
+            stars={project.stars_count > 0 ? project.stars_count : null}
+            forks={project.forks_count > 0 ? project.forks_count : undefined}
+            license={project.license ?? undefined}
+            updatedAgo={formatUpdatedAgo(project.updated_at)}
+          />
+
+          {project.tags.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {project.tags.map((tag) => (
+                <TagChip key={tag} tag={tag} hashPrefix />
+              ))}
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            {project.demo_url ? (
+              <Button asChild>
+                <a href={project.demo_url} target="_blank" rel="noopener">
+                  visit the demo
+                </a>
+              </Button>
+            ) : null}
+            <CopyButton command={`git clone ${project.repo_url}.git`} />
+            <a
+              href={project.repo_url}
+              target="_blank"
+              rel="noopener"
+              className={cn(
+                'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+                linkFocusRing,
+              )}
+            >
+              {project.repo_full_name}
+            </a>
+          </div>
+        </div>
+
+        {project.readme_html ? (
+          <MarkdownProse
+            html={project.readme_html}
+            label="README.md"
+            forkHref={`${project.repo_url}/fork`}
+          />
+        ) : (
+          <EmptyState message={copy.projectNoReadme} />
+        )}
+      </PageShell>
+    </EngagementProvider>
   );
 }

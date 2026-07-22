@@ -53,6 +53,31 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Signed-in home split (docs/plans/m5-discovery.md decision 2): same URL,
+  // different tree. Reuses the claims check above — no second Supabase call.
+  if (pathname === '/' && isAuthed) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/home';
+    const rewritten = NextResponse.rewrite(url, { request });
+    // Rewrite/redirect always build a NEW response object, so cookies set on
+    // `response` above (via the setAll callback, e.g. a refreshed session)
+    // would otherwise be silently dropped. The signin redirect above gets
+    // away with skipping this because it only fires when `!isAuthed` — no
+    // valid session ever means setAll had nothing to set. This branch is the
+    // opposite: it only fires when `isAuthed`, exactly where a token refresh
+    // is likely, so those cookies must be copied onto the new response.
+    for (const cookie of response.cookies.getAll()) {
+      rewritten.cookies.set(cookie);
+    }
+    return rewritten;
+  }
+
+  if (pathname === '/home' && !isAuthed) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url);
+  }
+
   return response;
 }
 
