@@ -34,7 +34,7 @@ export async function SiteHeaderSession() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('username, display_name')
+    .select('username, display_name, avatar_url')
     .eq('user_id', claims.sub)
     .maybeSingle();
 
@@ -48,9 +48,20 @@ export async function SiteHeaderSession() {
           <button
             type="button"
             aria-label="account menu"
-            className="flex size-8 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-sm font-bold text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="flex size-8 flex-none items-center justify-center overflow-hidden rounded-full bg-primary-soft font-mono text-sm font-bold text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            {initial}
+            {profile?.avatar_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={profile.avatar_url}
+                alt=""
+                width={32}
+                height={32}
+                className="size-8 rounded-full object-cover"
+              />
+            ) : (
+              initial
+            )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

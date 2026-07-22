@@ -31,6 +31,7 @@ export default async function OnboardingPage({
   const gh = githubIdentity(user);
   const login = gh?.login ?? '';
   const suggestedDisplayName = (user.user_metadata?.full_name as string | undefined) ?? login;
+  const githubAvatarUrl = (user.user_metadata?.avatar_url as string | undefined) ?? null;
 
   return (
     <PageShell className="flex flex-col items-center py-24">
@@ -51,6 +52,8 @@ export default async function OnboardingPage({
         <OnboardingForm
           login={login}
           suggestedDisplayName={suggestedDisplayName}
+          githubAvatarUrl={githubAvatarUrl}
+          userId={user.id}
           next={params.next ?? '/'}
         />
       </div>

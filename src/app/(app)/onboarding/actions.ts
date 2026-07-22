@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { githubIdentity } from '@/lib/auth/identity';
 import { safeNextPath } from '@/lib/auth/redirects';
 import { validateUsername } from '@/lib/auth/usernames';
+import { isAllowedAvatarUrl } from '@/lib/avatars';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 
 export type OnboardingState = { error: string } | null;
@@ -47,6 +48,14 @@ export async function createProfile(
   if (displayNameRaw.length > 80) return { error: 'display name: 80 characters max' };
   if (bioRaw.length > 500) return { error: 'bio: 500 characters max' };
 
+  // Avatar: the pulled GitHub default or an upload to OUR bucket — nothing
+  // else may enter avatar_url (host allowlist; this is the whole defense
+  // since the write is service-role).
+  const githubAvatar = (user.user_metadata?.avatar_url as string | undefined) ?? null;
+  const submittedAvatar = String(formData.get('avatar_url') ?? '').trim();
+  const avatarUrl =
+    submittedAvatar && isAllowedAvatarUrl(submittedAvatar) ? submittedAvatar : githubAvatar;
+
   const service = supabaseService();
   const next = safeNextPath(String(formData.get('next') ?? '/'));
 
@@ -64,7 +73,7 @@ export async function createProfile(
     display_name:
       displayNameRaw || ((user.user_metadata?.full_name as string | undefined) ?? gh.login),
     bio: bioRaw || null,
-    avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+    avatar_url: avatarUrl,
     github_id: gh.githubId,
     github_username: gh.login,
     claimed_at: new Date().toISOString(),

@@ -10,6 +10,12 @@ export type ProfileLink = {
 
 export type ProfileHeaderProps = {
   author: FixtureAuthor;
+  /**
+   * Avatar image (GitHub CDN or our storage bucket). Rendered as a plain <img>
+   * per the cost rules — never through an image optimizer. Falls back to the
+   * initial-letter avatar when absent.
+   */
+  avatarUrl?: string | null;
   /** Personal links rendered as clean chips (no hash prefix). */
   links?: ProfileLink[];
   /** Slot for a FollowButton (kept outside — this component holds no state). */
@@ -22,15 +28,32 @@ export type ProfileHeaderProps = {
  * slot, muted bio, mono stats row, link chips. Matches the reference
  * `.profile-header`; zero counts render as absence, never "0".
  */
-export function ProfileHeader({ author, links, followButton, className }: ProfileHeaderProps) {
+export function ProfileHeader({
+  author,
+  avatarUrl,
+  links,
+  followButton,
+  className,
+}: ProfileHeaderProps) {
   return (
     <header className={cn('flex items-start gap-[22px] max-md:flex-col', className)}>
-      <span
-        aria-hidden
-        className="flex size-[76px] flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[30px] font-bold text-primary"
-      >
-        {author.initial}
-      </span>
+      {avatarUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={avatarUrl}
+          alt=""
+          width={76}
+          height={76}
+          className="size-[76px] flex-none rounded-full border object-cover"
+        />
+      ) : (
+        <span
+          aria-hidden
+          className="flex size-[76px] flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[30px] font-bold text-primary"
+        >
+          {author.initial}
+        </span>
+      )}
       <div className="flex flex-1 flex-col gap-2">
         <div className="flex flex-wrap items-center gap-3.5">
           <h1 className="font-display text-[26px] font-extrabold">{author.displayName}</h1>

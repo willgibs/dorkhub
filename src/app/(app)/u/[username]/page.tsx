@@ -94,6 +94,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       ) : null}
 
       <ProfileHeader
+        avatarUrl={profile.avatar_url}
         author={author}
         links={parseProfileLinks(profile.links)}
         // Interactions ship in M5 — the slot is real, the toggle isn't wired up yet.
