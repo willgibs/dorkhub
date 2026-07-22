@@ -50,8 +50,19 @@ export function supabaseAnon() {
  * guarded by admin/cron/system checks (seeding, sync, claim flow, counters).
  */
 export function supabaseService() {
-  const secret = process.env.SUPABASE_SECRET_KEY;
+  const secret = process.env.SUPABASE_SECRET_KEY?.trim();
   if (!secret) throw new Error('SUPABASE_SECRET_KEY is not set');
+  // A pasted-in publishable/anon key here would silently demote every "service"
+  // write to anon privileges and RLS would reject them with confusing errors —
+  // fail loudly and descriptively instead.
+  if (!secret.startsWith('sb_secret_') && !secret.startsWith('eyJ')) {
+    throw new Error(
+      'SUPABASE_SECRET_KEY does not look like a secret key (expected sb_secret_… or a legacy service_role JWT)',
+    );
+  }
+  if (secret.startsWith('sb_publishable_')) {
+    throw new Error('SUPABASE_SECRET_KEY is set to a PUBLISHABLE key — use the secret key');
+  }
   return createClient<Database>(SUPABASE_URL, secret, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });

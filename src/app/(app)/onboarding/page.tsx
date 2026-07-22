@@ -5,7 +5,7 @@ import { githubIdentity } from '@/lib/auth/identity';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 import { OnboardingForm } from './onboarding-form';
 
-export const metadata: Metadata = { title: 'pick your name' };
+export const metadata: Metadata = { title: 'almost in' };
 
 export default async function OnboardingPage({
   searchParams,
@@ -29,7 +29,8 @@ export default async function OnboardingPage({
   if (mine) redirect(`/u/${mine.username}`);
 
   const gh = githubIdentity(user);
-  const suggested = gh?.login ?? '';
+  const login = gh?.login ?? '';
+  const suggestedDisplayName = (user.user_metadata?.full_name as string | undefined) ?? login;
 
   return (
     <PageShell className="flex flex-col items-center py-24">
@@ -37,18 +38,21 @@ export default async function OnboardingPage({
         <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
           <span aria-hidden="true">{'// '}</span>almost in
         </p>
-        <h1 className="mt-3 font-display text-4xl font-extrabold">pick your name</h1>
+        <h1 className="mt-3 font-display text-4xl font-extrabold">this is you</h1>
         <p className="mt-3 text-muted-foreground">
-          this is your <span className="font-mono text-sm">/u/username</span> — where your projects
-          live. letters, numbers, single hyphens.
+          your dorkhub name is your github name — no squatting, no impersonation. the rest is
+          optional and editable later.
         </p>
         {params.claim === 'pending' ? (
           <p className="mt-4 rounded-lg border border-primary/40 bg-primary-soft px-4 py-3 text-sm text-primary">
-            a curated profile is waiting for this GitHub account — claiming it ships soon. you can
-            pick a different name now, or hold tight.
+            a curated profile is waiting for this GitHub account — claiming it ships soon.
           </p>
         ) : null}
-        <OnboardingForm suggested={suggested} next={params.next ?? '/'} />
+        <OnboardingForm
+          login={login}
+          suggestedDisplayName={suggestedDisplayName}
+          next={params.next ?? '/'}
+        />
       </div>
     </PageShell>
   );

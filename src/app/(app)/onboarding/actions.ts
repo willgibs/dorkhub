@@ -9,10 +9,15 @@ import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 export type OnboardingState = { error: string } | null;
 
 /**
- * Creates the caller's profile. Service role is REQUIRED here by design:
- * profiles.INSERT has no RLS path for authenticated users, so github_id can
- * only ever come from the verified OAuth identity server-side — never from
- * client input (docs/architecture.md, RLS matrix).
+ * Creates the caller's profile.
+ *
+ * Username policy (Will, 2026-07-22): usernames ARE GitHub logins — locked, not
+ * chosen — so nobody can impersonate someone else's handle here. The form only
+ * customizes display_name and bio (both optional).
+ *
+ * Service role is REQUIRED by design: profiles.INSERT has no RLS path for
+ * authenticated users, so github_id/username can only ever come from the
+ * verified OAuth identity server-side — never from client input.
  */
 export async function createProfile(
   _prev: OnboardingState,
@@ -25,15 +30,25 @@ export async function createProfile(
   if (!user) redirect('/auth/signin?next=%2Fonboarding');
 
   const gh = githubIdentity(user);
-  if (!gh) {
+  if (!gh?.login) {
     return { error: 'your session has no GitHub identity — try signing in again' };
   }
 
-  const validation = validateUsername(String(formData.get('username') ?? ''));
-  if (!validation.ok) return { error: validation.reason };
+  // GitHub's own username rules match our DB CHECK; this also blocks the rare
+  // case of a GitHub login that collides with our reserved route names.
+  const validation = validateUsername(gh.login);
+  if (!validation.ok) {
+    return { error: `your github handle can’t be used here (${validation.reason}) — email us` };
+  }
   const username = validation.value;
 
+  const displayNameRaw = String(formData.get('display_name') ?? '').trim();
+  const bioRaw = String(formData.get('bio') ?? '').trim();
+  if (displayNameRaw.length > 80) return { error: 'display name: 80 characters max' };
+  if (bioRaw.length > 500) return { error: 'bio: 500 characters max' };
+
   const service = supabaseService();
+  const next = safeNextPath(String(formData.get('next') ?? '/'));
 
   // Already onboarded (double-submit, back button) → just continue.
   const { data: mine } = await service
@@ -41,43 +56,33 @@ export async function createProfile(
     .select('username')
     .eq('user_id', user.id)
     .maybeSingle();
-  const next = safeNextPath(String(formData.get('next') ?? '/'));
   if (mine) redirect(next);
-
-  // Usernames equal to an UNCLAIMED profile's github_username are reserved for
-  // that person (cold-start honesty) — unless the caller IS that person, which
-  // the M8 claim flow will handle properly; block here either way.
-  const { data: reservedFor } = await service
-    .from('profiles')
-    .select('id')
-    .is('user_id', null)
-    .eq('github_username', username)
-    .maybeSingle();
-  if (reservedFor) {
-    return { error: 'that name is reserved for its GitHub owner' };
-  }
 
   const { error: insertError } = await service.from('profiles').insert({
     user_id: user.id,
     username,
-    display_name: (user.user_metadata?.full_name as string | undefined) ?? gh.login ?? username,
+    display_name:
+      displayNameRaw || ((user.user_metadata?.full_name as string | undefined) ?? gh.login),
+    bio: bioRaw || null,
     avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
     github_id: gh.githubId,
-    github_username: gh.login ?? username,
+    github_username: gh.login,
     claimed_at: new Date().toISOString(),
   });
 
   if (insertError) {
-    // Unique-violation race on username → taken; on github_id → a curated
-    // profile exists for this account (claim lands in M8).
     if (insertError.code === '23505') {
-      if (insertError.message.includes('github_id')) {
-        return {
-          error: 'a curated profile is waiting for this GitHub account — claiming it lands soon',
-        };
-      }
-      return { error: 'that username just got taken — try another' };
+      // github_id or username collision → a seeded/unclaimed profile exists for
+      // this handle. The real claim flow is M8; until then, hold honestly.
+      return {
+        error: 'a curated profile is waiting for this GitHub account — claiming it lands soon',
+      };
     }
+    console.error('[onboarding] profile insert failed:', {
+      code: insertError.code,
+      message: insertError.message,
+      details: insertError.details,
+    });
     return { error: 'something broke on our end — not you, us. try again?' };
   }
 
