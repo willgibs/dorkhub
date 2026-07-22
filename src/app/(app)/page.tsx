@@ -1,23 +1,22 @@
-import Link from 'next/link';
+import { FeedPreview } from '@/app/(app)/_sections/feed-preview';
+import { Hero } from '@/app/(app)/_sections/hero';
+import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
+import { IsIsntStrip } from '@/app/(app)/_sections/is-isnt-strip';
+import { ManifestoTeaser } from '@/app/(app)/_sections/manifesto-teaser';
 
+/**
+ * Signed-out marketing home. The (app) group layout already renders
+ * SiteHeader/SiteFooter inside PageShell with bg-bloom — this page is
+ * sections only.
+ */
 export default function Home() {
   return (
-    <main className="bg-bloom flex min-h-screen flex-col items-center justify-center gap-6 px-6 text-center">
-      <p className="font-display text-2xl font-bold">
-        dorkhub<span className="text-primary">_</span>
-      </p>
-      <h1 className="font-display max-w-2xl text-5xl font-bold tracking-tight">
-        a home for the things you build for fun
-      </h1>
-      <p className="text-muted-foreground max-w-md">
-        connect github, pick the repos you love, give each one a page. free to browse, free to fork.
-      </p>
-      <p className="font-mono text-muted-foreground text-sm">
-        {'// under construction — '}
-        <Link href="/design" className="text-link hover:underline">
-          watch the design system grow
-        </Link>
-      </p>
-    </main>
+    <>
+      <Hero />
+      <IsIsntStrip />
+      <FeedPreview />
+      <HowItWorks />
+      <ManifestoTeaser />
+    </>
   );
 }

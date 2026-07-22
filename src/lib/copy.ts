@@ -21,4 +21,6 @@ export const copy = {
   footerLine: 'made by dorks, for dorks',
   browseCta: 'browse projects',
   signIn: 'sign in with GitHub',
+  isList: ['show-and-tell for things you built', 'forkable by design', 'free, forever'],
+  isntList: ['a leaderboard', 'a marketplace', 'a hiring portfolio'],
 } as const;

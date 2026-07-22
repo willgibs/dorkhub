@@ -143,6 +143,9 @@
   --animate-stat-pop: stat-pop var(--motion-fast) var(--motion-ease-quiet);
   --animate-stat-burst: stat-burst var(--motion-slow) var(--motion-ease-quiet) forwards;
   --animate-shimmer-sweep: shimmer-sweep 1.6s linear infinite;
+  /* M7 marketing hero (docs/motion.md) — staggered word reveal + one-shot shimmer accent. */
+  --animate-word-rise: word-rise var(--motion-slow) var(--motion-ease-quiet) both;
+  --animate-shimmer-sweep-once: shimmer-sweep 1.6s linear 1 both;
 }
 
 @keyframes number-pop-in {
@@ -183,6 +186,17 @@
   }
   to {
     transform: translateX(100%);
+  }
+}
+
+@keyframes word-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
