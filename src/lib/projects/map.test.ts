@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FALLBACK_LANGUAGE_COLOR } from '@/lib/lang-colors';
-import { formatUpdatedAgo, type ProjectRow, projectRowToCard } from './map';
+import { formatUpdatedAgo, type ProjectRow, profileRowToAuthor, projectRowToCard } from './map';
 
 const NOW = new Date('2026-07-21T12:00:00.000Z');
 
@@ -128,5 +128,50 @@ describe('formatUpdatedAgo', () => {
 
     const oneDayAgo = new Date(NOW.getTime() - 24 * 60 * 60 * 1000).toISOString();
     expect(formatUpdatedAgo(oneDayAgo, NOW)).toBe('1 day ago');
+  });
+});
+
+describe('profileRowToAuthor', () => {
+  const base = {
+    username: 'mollybuilds',
+    display_name: null as string | null,
+    avatar_url: null as string | null,
+    followers_count: 0,
+  };
+
+  it('falls back to username when display_name is null', () => {
+    const author = profileRowToAuthor(base);
+    expect(author.displayName).toBe('mollybuilds');
+    expect(author.initial).toBe('m');
+  });
+
+  it('prefers display_name over username, lowercased for the initial', () => {
+    const author = profileRowToAuthor({ ...base, display_name: 'Molly' });
+    expect(author.displayName).toBe('Molly');
+    expect(author.initial).toBe('m');
+  });
+
+  it('carries followers_count through as followers', () => {
+    const author = profileRowToAuthor({ ...base, followers_count: 340 });
+    expect(author.followers).toBe(340);
+  });
+
+  it('always sets projects to 0 (unused by ProjectCard render)', () => {
+    const author = profileRowToAuthor(base);
+    expect(author.projects).toBe(0);
+  });
+
+  it('falls back to empty-string bio when omitted or null', () => {
+    expect(profileRowToAuthor(base).bio).toBe('');
+    expect(profileRowToAuthor({ ...base, bio: null }).bio).toBe('');
+  });
+
+  it('carries a provided bio through untouched', () => {
+    const author = profileRowToAuthor({ ...base, bio: 'builds small loud things' });
+    expect(author.bio).toBe('builds small loud things');
+  });
+
+  it('carries username through untouched', () => {
+    expect(profileRowToAuthor(base).username).toBe('mollybuilds');
   });
 });

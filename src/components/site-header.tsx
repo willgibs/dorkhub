@@ -14,7 +14,7 @@ export type SiteHeaderProps = {
 };
 
 const NAV_LINKS = [
-  { label: 'browse', href: '/browse' },
+  { label: 'browse', href: '/' },
   { label: 'tags', href: '/tags' },
 ] as const;
 

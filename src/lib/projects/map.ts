@@ -1,8 +1,9 @@
-import type { FixtureProject } from '@/lib/fixtures';
+import type { FixtureAuthor, FixtureProject } from '@/lib/fixtures';
 import { languageColor } from '@/lib/lang-colors';
 import type { Tables } from '@/lib/supabase/types';
 
 export type ProjectRow = Tables<'projects'>;
+type ProfileRow = Tables<'profiles'>;
 
 const MINUTE = 60;
 const HOUR = 60 * MINUTE;
@@ -70,5 +71,30 @@ export function projectRowToCard(
     forks: row.forks_count,
     demoUrl: row.demo_url ?? undefined,
     updatedAgo: formatUpdatedAgo(row.updated_at, now),
+  };
+}
+
+/**
+ * Maps a `profiles` row (or the lean feed join projection — both shapes carry
+ * these columns) to ProjectCard's FixtureAuthor. `avatar_url` is accepted for
+ * shape-compatibility with those callers but isn't used: FixtureAuthor has no
+ * avatar field (ProjectCard renders the initial-letter avatar only; a real
+ * image is ProfileHeader's job, which reads avatar_url off the profile row
+ * directly). `projects` is always 0 here — ProjectCard never reads it.
+ */
+export function profileRowToAuthor(
+  p: Pick<ProfileRow, 'username' | 'display_name' | 'avatar_url' | 'followers_count'> & {
+    bio?: ProfileRow['bio'];
+  },
+): FixtureAuthor {
+  const displayName = p.display_name ?? p.username;
+
+  return {
+    username: p.username,
+    displayName,
+    bio: p.bio ?? '',
+    initial: displayName.charAt(0).toLowerCase(),
+    projects: 0,
+    followers: p.followers_count,
   };
 }
