@@ -154,24 +154,33 @@ export async function syncProject(
     return { status: 'error', detail: 'project not found' };
   }
 
-  const repoResult = await getRepoById(project.github_repo_id, {
-    etag: project.repo_etag,
-    fetchImpl: opts?.fetchImpl,
-  });
-
+  let repoResult: GithubResult<GithubRepo>;
   let readmeResult: GithubResult<string> | null = null;
-  if (repoResult.kind === 'ok' || repoResult.kind === 'not_modified') {
-    // Fresh owner/name when the repo call returned data (renames self-heal),
-    // else fall back to the last-known-good full_name we already have stored.
-    const fullName = repoResult.kind === 'ok' ? repoResult.data.full_name : project.repo_full_name;
-    const separatorIndex = fullName.indexOf('/');
-    const owner = separatorIndex === -1 ? fullName : fullName.slice(0, separatorIndex);
-    const name = separatorIndex === -1 ? '' : fullName.slice(separatorIndex + 1);
-
-    readmeResult = await getReadmeHtml(owner, name, {
-      etag: project.readme_etag,
+  try {
+    repoResult = await getRepoById(project.github_repo_id, {
+      etag: project.repo_etag,
       fetchImpl: opts?.fetchImpl,
     });
+
+    if (repoResult.kind === 'ok' || repoResult.kind === 'not_modified') {
+      // Fresh owner/name when the repo call returned data (renames self-heal),
+      // else fall back to the last-known-good full_name we already have stored.
+      const fullName =
+        repoResult.kind === 'ok' ? repoResult.data.full_name : project.repo_full_name;
+      const separatorIndex = fullName.indexOf('/');
+      const owner = separatorIndex === -1 ? fullName : fullName.slice(0, separatorIndex);
+      const name = separatorIndex === -1 ? '' : fullName.slice(separatorIndex + 1);
+
+      readmeResult = await getReadmeHtml(owner, name, {
+        etag: project.readme_etag,
+        fetchImpl: opts?.fetchImpl,
+      });
+    }
+  } catch (err) {
+    // GithubConfigError (missing GITHUB_TOKEN) — callers get a plain error
+    // outcome instead of a thrown 500; nothing is written, cron retries later.
+    console.error('[sync] github unavailable', { projectId, err });
+    return { status: 'error', detail: err instanceof Error ? err.message : String(err) };
   }
 
   const { patch, bumpSyncedAt } = computeSyncUpdate(

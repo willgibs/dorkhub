@@ -49,7 +49,14 @@ export async function createProject(
   // Always re-fetch fresh — never trust the repo metadata the picker rendered
   // client-side (it's already minutes old by the time a form submits, and it
   // was never authenticated as belonging to this caller in the first place).
-  const repoResult = await getRepoById(repoId);
+  let repoResult: Awaited<ReturnType<typeof getRepoById>>;
+  try {
+    repoResult = await getRepoById(repoId);
+  } catch (err) {
+    // GithubConfigError (missing GITHUB_TOKEN) → quiet error, loud log.
+    console.error('[new] repo fetch unavailable:', err);
+    return { error: copy.newRepoUnavailable };
+  }
   if (repoResult.kind !== 'ok') {
     return { error: copy.newRepoUnavailable };
   }

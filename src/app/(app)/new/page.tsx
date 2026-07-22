@@ -59,7 +59,21 @@ export default async function NewProjectPage() {
     );
   }
 
-  const result = await listPublicRepos(login);
+  // GithubConfigError (missing GITHUB_TOKEN) must degrade to the quiet empty
+  // state, not a 500 — env misconfiguration is ours to notice in logs, not
+  // the user's to hit as a crash.
+  let result: Awaited<ReturnType<typeof listPublicRepos>>;
+  try {
+    result = await listPublicRepos(login);
+  } catch (err) {
+    console.error('[new] repo listing unavailable:', err);
+    return (
+      <PageShell className="flex flex-col gap-8 py-10">
+        <NewPageHeader />
+        <EmptyState message={copy.newRepoUnavailable} />
+      </PageShell>
+    );
+  }
 
   if (result.kind !== 'ok') {
     return (
