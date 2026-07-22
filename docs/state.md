@@ -37,5 +37,4 @@ Repo github.com/willgibs/dorkhub · prod dorkhub-ten.vercel.app · CI green ·
 tags m0/m1/m2/m4. proxy MUST be src/proxy.ts (root is silently ignored).
 launch.json app has autoPort (3000 often taken). Stale .next dev cache can
 replay long-fixed compile errors — rm -rf .next before trusting dev errors.
-
 Last updated: 2026-07-22 (M4 code-complete; awaiting PAT + first-user QA).
