@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { githubIdentity } from '@/lib/auth/identity';
 import { safeNextPath } from '@/lib/auth/redirects';
@@ -65,7 +66,10 @@ export async function createProfile(
     .select('username')
     .eq('user_id', user.id)
     .maybeSingle();
-  if (mine) redirect(next);
+  if (mine) {
+    revalidatePath('/', 'layout');
+    redirect(next);
+  }
 
   const { error: insertError } = await service.from('profiles').insert({
     user_id: user.id,
@@ -95,5 +99,10 @@ export async function createProfile(
     return { error: 'something broke on our end — not you, us. try again?' };
   }
 
+  // The (app)/(marketing) layouts are SHARED with /onboarding, so a plain
+  // client navigation would reuse the pre-signup header render (the "?" avatar
+  // Will hit as first user). Purge the layout cache so the session-aware
+  // header re-renders with the fresh profile.
+  revalidatePath('/', 'layout');
   redirect(next);
 }
