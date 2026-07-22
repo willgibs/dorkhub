@@ -11,7 +11,7 @@ export type ProfileLink = {
 export type ProfileHeaderProps = {
   author: FixtureAuthor;
   /**
-   * Avatar image (GitHub CDN or our storage bucket). Rendered as a plain <img>
+   * Avatar image (GitHub CDN or our storage bucket). Rendered as a plain img
    * per the cost rules — never through an image optimizer. Falls back to the
    * initial-letter avatar when absent.
    */
@@ -38,7 +38,7 @@ export function ProfileHeader({
   return (
     <header className={cn('flex items-start gap-[22px] max-md:flex-col', className)}>
       {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
+        // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
         <img
           src={avatarUrl}
           alt=""

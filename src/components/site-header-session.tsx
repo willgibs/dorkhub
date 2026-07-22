@@ -51,7 +51,7 @@ export async function SiteHeaderSession() {
             className="flex size-8 flex-none items-center justify-center overflow-hidden rounded-full bg-primary-soft font-mono text-sm font-bold text-primary outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             {profile?.avatar_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
+              // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
               <img
                 src={profile.avatar_url}
                 alt=""

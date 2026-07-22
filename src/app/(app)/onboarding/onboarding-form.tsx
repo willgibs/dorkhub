@@ -65,9 +65,7 @@ export function OnboardingForm({
         </span>
         <div className="flex items-center gap-4">
           {avatarUrl ? (
-            // Cost rule: avatars render as plain <img> — GitHub CDN or our
-            // bucket — never through an image optimizer.
-            // eslint-disable-next-line @next/next/no-img-element
+            // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
             <img
               src={avatarUrl}
               alt=""
