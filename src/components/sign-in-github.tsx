@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ComponentProps } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -7,6 +8,8 @@ import { cn } from '@/lib/utils';
 export type SignInWithGitHubProps = {
   /** Optional click handler (client trees only); without one this renders a plain button for a form action. */
   onClick?: ComponentProps<'button'>['onClick'];
+  /** When set, renders as a link (Button asChild + next/link) to this destination instead of a plain button — e.g. "/auth/signin". */
+  href?: string;
   className?: string;
 };
 
@@ -20,19 +23,28 @@ function GitHubMark() {
 
 /**
  * "sign in with GitHub" secondary button (exploration `.btn-secondary`).
- * Server-safe: no handler required — wrap in a <form action> for real auth later.
+ * Server-safe: pass `href` (e.g. "/auth/signin") to render as a real link via
+ * Button asChild; without one it's a plain button for a client onClick/form action.
  */
-export function SignInWithGitHub({ onClick, className }: SignInWithGitHubProps) {
+export function SignInWithGitHub({ onClick, href, className }: SignInWithGitHubProps) {
+  const classes = cn(
+    'border font-semibold hover:bg-accent hover:text-accent-foreground active:translate-y-px',
+    className,
+  );
+
+  if (href) {
+    return (
+      <Button asChild variant="secondary" className={classes}>
+        <Link href={href}>
+          <GitHubMark />
+          {copy.signIn}
+        </Link>
+      </Button>
+    );
+  }
+
   return (
-    <Button
-      type="button"
-      variant="secondary"
-      onClick={onClick}
-      className={cn(
-        'border font-semibold hover:bg-accent hover:text-accent-foreground active:translate-y-px',
-        className,
-      )}
-    >
+    <Button type="button" variant="secondary" onClick={onClick} className={classes}>
       <GitHubMark />
       {copy.signIn}
     </Button>

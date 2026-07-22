@@ -12,6 +12,7 @@ export const copy = {
   follow: 'follow',
   following: 'following',
   emptyFeed: 'nothing here yet — go find something weird',
+  profileEmptyProjects: 'nothing published here yet',
   error: 'something broke on our end — not you, us. try again?',
   notFound: '404: page not found\n// maybe it shipped, maybe it never existed',
   forkNudge: 'fork it — it’s yours',

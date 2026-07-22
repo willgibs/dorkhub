@@ -1,4 +1,4 @@
-# Current state — 2026-07-21
+# Current state — 2026-07-22
 
 ## Milestones (master plan M0–M9)
 - M0 explorations ✅ (design locked: "quiet dev-native" — Instrument Sans · ice cyan · charcoal · rounded)
@@ -20,20 +20,23 @@
 - DB ✅ LIVE — dedicated Supabase org ("Dorkhub Team", free tier), project ref
   xvorwdvsnbpujyzfowwu (us-east-1). 0001+0002 applied; seed in; ALL RLS checks
   pass; advisors clean (4 accepted-by-design, documented in 0002 header).
-- M3+ (auth/projects/feed) ▶ UNBLOCKED
+- M3 auth + identity ✅ — proxy.ts (@supabase/ssr session refresh, presence-only
+  gating), GitHub OAuth App configured + /auth/{signin,callback,signout},
+  identity/username/redirect helpers, /onboarding username flow, live
+  `/u/[username]` profile page (supabaseAnon, ISR revalidate 300, unclaimed
+  badge, projectRowToCard + lang-colors mapping), session-aware
+  SiteHeaderSession (avatar dropdown: your page / sign out) swapped into both
+  (app) and (marketing) layouts, hero CTA wired to /auth/signin. Verified live
+  against the real DB in-browser (mollybuilds, citext-insensitive lookup, 404
+  for unknown usernames, OAuth redirect to github.com all confirmed working).
+- M3+ (projects/feed) ▶ UNBLOCKED
 
 ## Next steps
-1. M3 auth + identity: proxy.ts (@supabase/ssr updateSession), /auth/callback
-   (identity via numeric provider_id; claim branch deferred to M8), /onboarding
-   username flow, read-only /u/[username] profile. NEEDS from Will first: a
-   GitHub OAuth App (github.com/settings/developers → New OAuth App; callback
-   URL https://xvorwdvsnbpujyzfowwu.supabase.co/auth/v1/callback) — then the
-   orchestrator sets the provider config via Management API.
-2. Will: mirror the 3 app vars from .env.local into Vercel dashboard env.
-3. Then M4 (projects+GitHub sync — sanitizer already shipped+tested), M5, M6, M8.
+1. Will: mirror the 3 app vars from .env.local into Vercel dashboard env.
+2. M4 (projects+GitHub sync — sanitizer already shipped+tested), M5, M6, M8.
 
 ## Open blockers
-- (none for M3 beyond the GitHub OAuth App above)
+- (none)
 
 ## DB access (for agents)
 Dedicated Supabase account, NOT the MCP (that stays on Will's main org for
@@ -55,6 +58,13 @@ with PGPASSWORD=$SUPABASE_DB_PASSWORD. updated_at guard: counter-only updates
 - Follow-up spotted but out of this task's scope: `ui/button.tsx` and
   `ui/tabs.tsx` still use `transition-all` (motion.md hard-rule violation,
   pre-existing) — worth its own pass.
+- `SiteHeaderSession` (src/components/site-header-session.tsx) reads cookies
+  (supabase.auth.getClaims()) to render the per-user avatar/dropdown, and it's
+  now used by both (app) and (marketing) layouts — so every page under either
+  layout is forced dynamic (build output: `/`, `/manifesto`, `/u/[username]`
+  all `ƒ` now, confirmed via `pnpm build`). Accepted for M3; revisit at the M5
+  caching pass (e.g. hoist the header's auth read into a client-island overlay
+  so the page shells themselves can stay static/ISR again).
 - `.claude/launch.json`'s `app` config got `"autoPort": true` — port 3000 is
   often held by a sibling project's (qrcdn) dev server on this machine.
 
@@ -63,4 +73,6 @@ Repo: github.com/willgibs/dorkhub (private, pre-existing — origin was already
 wired). CI green on main (verify + build). Tags m0/m1/m2 pushed. Dev server:
 `.claude/launch.json` "app" (autoPort — 3000 often taken by qrcdn).
 
-Last updated: 2026-07-22 (DB live: migrations+seed+RLS verified; M3 unblocked).
+Note: proxy MUST live at src/proxy.ts (src-dir project) — at repo root Next silently ignores it and route gating vanishes; caught in browser QA when /settings 404d instead of redirecting.
+
+Last updated: 2026-07-22 (M3 shipped: live profile page, session-aware header, auth wiring — verified in-browser against the live DB; `pnpm verify && pnpm test && pnpm build` green).

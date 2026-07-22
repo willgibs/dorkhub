@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 export type FollowButtonProps = {
   following: boolean;
   onToggle?: () => void;
+  /** True while follow/unfollow isn't wired up yet (M5) — renders inert. */
+  disabled?: boolean;
   className?: string;
 };
 
@@ -14,7 +16,7 @@ export type FollowButtonProps = {
  * Follow toggle: primary CTA (with the phosphor halo primary buttons get) when
  * not yet following; quiet surface-2 "following" state once you are.
  */
-export function FollowButton({ following, onToggle, className }: FollowButtonProps) {
+export function FollowButton({ following, onToggle, disabled, className }: FollowButtonProps) {
   return (
     <Button
       type="button"
@@ -22,6 +24,7 @@ export function FollowButton({ following, onToggle, className }: FollowButtonPro
       variant={following ? 'secondary' : 'default'}
       aria-pressed={following}
       onClick={onToggle}
+      disabled={disabled}
       className={cn(
         'text-[13px] font-semibold active:translate-y-px',
         following

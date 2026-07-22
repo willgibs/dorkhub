@@ -69,7 +69,7 @@ export function Hero() {
         >
           <Link href="#feed">{copy.browseCta}</Link>
         </Button>
-        <SignInWithGitHub />
+        <SignInWithGitHub href="/auth/signin" />
       </div>
     </PageShell>
   );
