@@ -131,7 +131,11 @@ const FEED_COLUMNS = [
   'updated_at',
   'published_at',
   'trending_score',
-  'profiles!inner(username, display_name, avatar_url, followers_count)',
+  // The FK name is REQUIRED: projects↔profiles has three relationships (the
+  // direct FK plus many-to-many through likes and saves), so a bare
+  // `profiles!inner` is ambiguous and PostgREST 400s it (PGRST201) —
+  // verified against the live API.
+  'profiles!projects_profile_id_fkey!inner(username, display_name, avatar_url, followers_count)',
 ].join(', ');
 
 export type FeedPage = {
