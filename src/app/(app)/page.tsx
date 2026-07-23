@@ -21,7 +21,7 @@ export default function Home() {
       <IsIsntStrip />
       <section id="feed" className="scroll-mt-20">
         <PageShell className="py-16 sm:py-20">
-          <FeedSection sort="recent" />
+          <FeedSection sort="trending" />
         </PageShell>
       </section>
       <HowItWorks />

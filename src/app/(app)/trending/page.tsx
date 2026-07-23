@@ -1,17 +1,10 @@
-import type { Metadata } from 'next';
+import { permanentRedirect } from 'next/navigation';
 
-import { FeedSection } from '@/app/(app)/_feed/feed-section';
-import { PageShell } from '@/components/page-shell';
-
-/** Trending-sort feed, all tags (docs/plans/m5-discovery.md Wave 3B decision 1). */
-export const revalidate = 60;
-
-export const metadata: Metadata = { title: 'trending' };
-
+/**
+ * Retired route — trending is now the default sort at `/`
+ * (docs/plans/p2.5-self-running.md locked decision 9). 308 (not the 307
+ * `redirect()` gives) so search engines and bookmarks repoint permanently.
+ */
 export default function TrendingPage() {
-  return (
-    <PageShell className="flex flex-col gap-8 py-10">
-      <FeedSection sort="trending" />
-    </PageShell>
-  );
+  permanentRedirect('/');
 }

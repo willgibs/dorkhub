@@ -26,7 +26,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm verify
       - run: pnpm test
-      # Static prerender (/, /tags, /trending) queries Supabase at build time
+      # Static prerender (/, /tags, /newest) queries Supabase at build time
       # since the M5 caching pass. These are the PUBLIC client values (shipped
       # in every browser bundle) — repo Actions variables, not secrets.
       - run: pnpm build

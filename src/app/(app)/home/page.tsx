@@ -22,7 +22,7 @@ export default function HomePage() {
     <section id="feed" className="scroll-mt-20">
       <PageShell className="flex flex-col gap-16 py-16 sm:gap-20 sm:py-20">
         <RecsRail />
-        <FeedSection sort="recent" />
+        <FeedSection sort="trending" />
       </PageShell>
     </section>
   );

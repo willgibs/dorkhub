@@ -1,0 +1,31 @@
+# Secretless file — safe in the public repo. CRON_SECRET is a GitHub
+# Actions repository secret (Settings → Secrets and variables → Actions),
+# never checked in; setup step lives in docs/plans/p2.5-self-running.md
+# Wave 3. At launch (Vercel Pro) this file is deleted and vercel.json's
+# pipeline cron goes from daily to `*/15 * * * *` (docs/plans/p2.5-self-running.md
+# locked decision 7). GitHub auto-disables scheduled workflows after 60 days
+# of repo inactivity — the daily Vercel cron sweep (vercel.json) is the
+# safety net if that happens.
+#
+# NOTE: /api/cron/pipeline lands in Wave 2B — until then `curl -f` 404s and
+# fails this Actions run harmlessly.
+name: pipeline
+
+on:
+  schedule:
+    - cron: '4,19,34,49 * * * *' # offset minutes — GitHub delays top-of-hour jobs under load
+  workflow_dispatch:
+
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ping pipeline
+        run: |
+          curl -fsS --max-time 90 \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            https://dorkhub-ten.vercel.app/api/cron/pipeline

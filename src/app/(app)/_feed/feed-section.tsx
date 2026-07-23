@@ -24,9 +24,9 @@ export type FeedSectionProps = {
  * (`EngagementProvider`) around this page's own id set and hands off to the
  * client `FeedGrid` for "load more".
  *
- * Nothing mounts this yet (Wave 3 wires it into `/`, `/home`, `/trending`,
- * `/t/[tag]`, `/t/[tag]/trending`) — it only needs to compile and render
- * correctly in isolation for this wave.
+ * Mounted at `/`, `/home`, `/newest`, `/t/[tag]`, `/t/[tag]/newest` — sort
+ * defaults to 'trending' (docs/plans/p2.5-self-running.md locked decision 9);
+ * 'recent' is the secondary "newest" chip.
  */
 export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
   const { rows, nextCursor } = await getFeedPage({ sort, tag });
@@ -51,11 +51,17 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
     </>
   );
 
+  // Chip labels are the `hrefFor` vocabulary (feedHrefFor reads 'newest' /
+  // anything-else off the value it's handed) — activeSort has to speak the
+  // same label, not the raw FeedSort, or the base path (sort='trending')
+  // never lights up the default chip.
+  const activeSortLabel = sort === 'recent' ? copy.sortNewest : copy.sortTrending;
+
   const filters = (
     <FeedFilters
-      sort={[copy.sortRecent, copy.sortTrending]}
+      sort={[copy.sortTrending, copy.sortNewest]}
       tags={tag ? [tag] : []}
-      activeSort={sort}
+      activeSort={activeSortLabel}
       activeTag={tag ?? undefined}
       hrefFor={hrefFor}
       trailing={trailing}
