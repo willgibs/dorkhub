@@ -485,9 +485,35 @@ export async function deleteAndBlockProject(formData: FormData): Promise<void> {
     redirect(sourcesRedirectPath({ action: 'block', error: copy.error }));
   }
 
+  // Retro-moderation completion (P2.5 Wave 2A, docs/plans/p2.5-self-running.md):
+  // this action is also reachable from the admin queue's "published,
+  // unreviewed" section (a retro row's delete+block button), not just this
+  // page. If this project came from a still-unreviewed auto-approved
+  // candidate (decided_by IS NULL), deleting it here IS the review — stamp
+  // decided_by/decided_at so the retro queue stops listing a row whose
+  // project no longer exists. Guarded to `decided_by IS NULL` so it never
+  // clobbers a genuine human approval's provenance; harmless no-op when no
+  // matching candidate row exists (e.g. a hand-added-via-/new project) or
+  // the candidate was already reviewed. (The candidate's
+  // `materialized_project_id` FK is `on delete set null` — 0006_ingestion.sql —
+  // so the row survives this delete on its own; this stamp is purely about
+  // the review bookkeeping, not referential integrity.)
+  const { error: candidateStampError } = await service
+    .from('ingest_candidates')
+    .update({ decided_by: profileId, decided_at: new Date().toISOString() })
+    .eq('github_repo_id', project.github_repo_id)
+    .is('decided_by', null);
+  if (candidateStampError) {
+    console.error(
+      '[admin/sources] deleteAndBlockProject candidate stamp failed:',
+      candidateStampError.message,
+    );
+  }
+
   revalidatePath(`/u/${owner.username}`);
   revalidatePath(`/u/${owner.username}/${project.slug}`);
   revalidatePath('/', 'layout');
+  revalidatePath('/admin/queue');
 
   redirect(sourcesRedirectPath({ action: 'block', blocked: 1 }));
 }

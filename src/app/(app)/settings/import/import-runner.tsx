@@ -4,7 +4,13 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
-import { type ImportPageResult, type ImportTallies, importStarsPage } from './actions';
+import {
+  type ImportPageResult,
+  type ImportTallies,
+  importStarsPage,
+  type MaterializeImportsResult,
+  materializeImportsPage,
+} from './actions';
 
 /**
  * Hard safety cap on pages walked in one run (docs/plans/p1-gallery-engine.md,
@@ -12,6 +18,14 @@ import { type ImportPageResult, type ImportTallies, importStarsPage } from './ac
  * (100/page × 100), and this stops a runaway loop if `hasMore` ever lies.
  */
 const MAX_PAGES = 100;
+
+/**
+ * Hard safety cap on phase-2 materialize chunks (docs/plans/
+ * p2.5-self-running.md Wave 2C) — 30 × 5 = 150 materializations' worth of
+ * GitHub calls in one client run is already generous; the background
+ * pipeline drains whatever's left of the tail within the hour.
+ */
+const MAX_MATERIALIZE_CHUNKS = 30;
 
 const ZERO_TALLIES: ImportTallies = { own: 0, blocked: 0, here: 0, filtered: 0, queued: 0 };
 
@@ -30,10 +44,73 @@ type RunState =
   | { status: 'running'; nextPage: number; scanned: number; tallies: ImportTallies }
   | { status: 'error'; failedPage: number; scanned: number; tallies: ImportTallies }
   | { status: 'empty' }
-  | { status: 'done'; scanned: number; tallies: ImportTallies };
+  | { status: 'materializing'; scanned: number; tallies: ImportTallies; materialized: number }
+  | {
+      status: 'done';
+      scanned: number;
+      tallies: ImportTallies;
+      materialized: number;
+      /** Quiet aside from a stopped phase-2 chunk (e.g. github rate-limiting) — display-only, never an error state. */
+      note: string | null;
+    };
 
 export function ImportRunner() {
   const [state, setState] = useState<RunState>({ status: 'idle' });
+
+  /**
+   * Phase 2 — "putting them on the wall" (docs/plans/p2.5-self-running.md
+   * Wave 2C). Walks `materializeImportsPage` chunks sequentially, same
+   * shape as `run` below, until it runs dry, stops itself, or hits the
+   * safety cap — then always lands on `done` (a stopped chunk is a quiet
+   * note there, never its own error state; the pipeline finishes the job
+   * either way).
+   */
+  async function materialize(scanned: number, tallies: ImportTallies, materializedSoFar: number) {
+    let materialized = materializedSoFar;
+
+    setState({ status: 'materializing', scanned, tallies, materialized });
+
+    for (let i = 0; i < MAX_MATERIALIZE_CHUNKS; i++) {
+      let result: MaterializeImportsResult;
+      try {
+        result = await materializeImportsPage();
+      } catch (err) {
+        console.error('[import-runner] materialize chunk threw:', err);
+        setState({ status: 'done', scanned, tallies, materialized, note: null });
+        return;
+      }
+
+      materialized += result.materialized;
+
+      if (result.stopReason) {
+        setState({ status: 'done', scanned, tallies, materialized, note: result.stopReason });
+        return;
+      }
+
+      if (!result.hasMore) {
+        setState({ status: 'done', scanned, tallies, materialized, note: null });
+        return;
+      }
+
+      setState({ status: 'materializing', scanned, tallies, materialized });
+    }
+
+    // Safety cap reached — the pipeline drains the rest of the tail.
+    setState({ status: 'done', scanned, tallies, materialized, note: null });
+  }
+
+  /** Scan finished (either a real end-of-list or the page safety cap) — hand off to phase 2 when there's anything queued to materialize. */
+  function finishScan(scanned: number, tallies: ImportTallies) {
+    if (scanned === 0) {
+      setState({ status: 'empty' });
+      return;
+    }
+    if (tallies.queued > 0) {
+      materialize(scanned, tallies, 0);
+      return;
+    }
+    setState({ status: 'done', scanned, tallies, materialized: 0, note: null });
+  }
 
   /** Walks pages sequentially starting at `startPage`, awaiting each server call before requesting the next — never fires two pages concurrently. */
   async function run(startPage: number, scannedSoFar: number, talliesSoFar: ImportTallies) {
@@ -62,7 +139,7 @@ export function ImportRunner() {
       tallies = addTallies(tallies, result.tallies);
 
       if (!result.hasMore) {
-        setState(scanned === 0 ? { status: 'empty' } : { status: 'done', scanned, tallies });
+        finishScan(scanned, tallies);
         return;
       }
 
@@ -72,7 +149,7 @@ export function ImportRunner() {
 
     // Safety cap reached, not a real end-of-list — show what we have rather
     // than loop forever.
-    setState({ status: 'done', scanned, tallies });
+    finishScan(scanned, tallies);
   }
 
   if (state.status === 'idle') {
@@ -112,6 +189,17 @@ export function ImportRunner() {
     return <p className="text-muted-foreground">{copy.importEmpty}</p>;
   }
 
+  if (state.status === 'materializing') {
+    return (
+      <p aria-live="polite" className="font-mono text-sm text-muted-foreground">
+        {copy.importMaterializing}{' '}
+        <span className="tabular-nums">
+          {state.materialized} of {state.tallies.queued}
+        </span>
+      </p>
+    );
+  }
+
   // done
   return (
     <div aria-live="polite" className="flex flex-col gap-2 font-mono text-[13.5px]">
@@ -119,8 +207,15 @@ export function ImportRunner() {
         <span className="tabular-nums">{state.tallies.here}</span> {copy.importDoneHere}
       </p>
       <p>
-        <span className="tabular-nums">{state.tallies.queued}</span> {copy.importDoneQueued}
+        <span className="tabular-nums">{state.materialized}</span> {copy.importDoneLive}
       </p>
+      {state.materialized < state.tallies.queued ? (
+        <p>
+          <span className="tabular-nums">{state.tallies.queued - state.materialized}</span>{' '}
+          {copy.importDonePolishing}
+        </p>
+      ) : null}
+      {state.note ? <p className="text-muted-foreground">{state.note}</p> : null}
       {state.tallies.own > 0 ? (
         <p className="flex flex-wrap items-center gap-2">
           <span>
