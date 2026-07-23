@@ -44,7 +44,8 @@ Props are documented by the source + `/design` styleguide, deliberately not here
 (prevents doc drift). Categories:
 - atoms: tag-chip, language-dot, repo-stats-row, time-ago, copy-button, theme-toggle
 - social: stat-button, follow-button, avatar-stack, user-hover-card, sign-in-github
-- cards: project-card (feed/compact/featured), skeleton-card, empty-state
+- cards: project-card (feed/compact/featured), card-media (og hotlink +
+  placeholder underlay, 2/1), skeleton-card, empty-state
 - shell: site-header, site-footer, page-shell, section-header, callout
 - project: markdown-prose (+ src/styles/prose.css), screenshot-gallery, update-post,
   profile-header, feed-filters

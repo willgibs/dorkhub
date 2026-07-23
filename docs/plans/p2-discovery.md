@@ -1,12 +1,20 @@
 # P2 — Discovery mechanics + quality floor (execution plan)
 
-Status: **in progress** (2026-07-23). Board approved the roadmap resynthesis
-(publish-all → P2.5, public collections → P3, articles → P5 post-launch);
-P2 ships as designed — it is the prerequisite quality floor for P2.5.
+Status: **code-complete + orchestrator-QA'd** (2026-07-23). Board approved
+the roadmap resynthesis (publish-all → P2.5, public collections → P3,
+articles → P5 post-launch); P2 is the prerequisite quality floor for P2.5.
+Awaiting Will: AI_GATEWAY_API_KEY (enrichment E2E) + signed-in QA → tag p2.
+QA corrections: og media aspect is **2/1** (GitHub og-images are really
+1200×600, not the 1200×630 OG default); CSS aspect-ratio is only *preferred*
+— underlay layers must be absolutely positioned or in-flow SVG intrinsic
+height stretches the box (fixed in CardMedia + bare branch); the og endpoint
+returns 200 + a generic card even for missing repos, so onError is
+network-failure defense only.
 
 ## Locked decisions (validated against code — do not re-litigate)
 
-1. **og-image aspect: natural `aspect-[1200/630]`, object-cover, no crop** —
+1. **og-image aspect: natural `aspect-[2/1]`, object-cover, no crop** (was
+   planned 1200/630; corrected in QA — GitHub serves 1200×600) —
    GitHub's og layout puts title/stats near edges; filling the old 16/10
    slot would crop ~8% per side and clip text. Card media block +
    skeleton-card change aspect together. `MediaPlaceholder` SVG stays as

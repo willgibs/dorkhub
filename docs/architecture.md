@@ -57,6 +57,18 @@ gating only — NO DB calls; admin checks live in the /admin layout (server).
 
 ## Cost rules (verified July 2026)
 Screenshots: client-resize → WebP 1600w+400w → Supabase public bucket → serve
-unoptimized (never Vercel image optimization). GitHub avatars hotlinked. Vercel
-Hobby cron = daily only (sufficient by design). Supabase Storage transforms are
-Pro-only — never depend on them.
+unoptimized (never Vercel image optimization). GitHub avatars hotlinked. Card
+imagery: opengraph.githubassets.com/{token}/{owner}/{repo} hotlinked at 2/1
+(GitHub serves 1200×600; 200 + generic card even for missing repos — never a
+404). Vercel Hobby cron = daily only (sufficient by design). Supabase Storage
+transforms are Pro-only — never depend on them.
+
+## AI enrichment (P2)
+Vercel AI Gateway via plain fetch (`src/lib/ai/gateway.ts`): `AI_GATEWAY_API_KEY`
+(lazy, fail-loud AiConfigError), default model google/gemini-2.5-flash-lite
+(`AI_GATEWAY_MODEL` override). Usage rides the $5/mo recurring free credit —
+$0 actual. Candidates missing description OR topics get ai_tagline/ai_tags
+(0007; deny-all inherited) via admin batch on /admin/queue or a best-effort
+inline fallback at approval; real GitHub data always wins at publish.
+`/weird` = force-dynamic route handler, random single-row OFFSET pick
+(documented exception to the no-OFFSET feed rule) → 307 to the project page.

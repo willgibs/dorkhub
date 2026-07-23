@@ -1,32 +1,28 @@
-# Current state — 2026-07-22
+# Current state — 2026-07-23
 
-## Milestones (master plan M0–M9)
-- M0–M2.5, M7 ✅ — design locked ("quiet dev-native"), component library +
-  /design styleguide, motion system, marketing home + manifesto, brand OG.
-- DB ✅ LIVE — dedicated Supabase org, ref xvorwdvsnbpujyzfowwu (us-east-1).
-  Migrations 0001–0005 applied; seeds in; RLS suite 26/26; advisors clean.
-- M3 auth ✅ · M4 projects/sync ✅ · M5 discovery ✅ — each E2E-proven by
-  Will as first user; tags m4/m5; specs in docs/plans/; prod bugs + fixes
-  logged in decisions.md (service_role grants, layout cache, seed-id
-  collision, PGRST201 embed).
-- M5.5 curator round ✅ (search+discoverability; Will's "great work" QA) —
-  tag pending alongside p1.
-- VISION board-approved (docs/vision.md): curator-first, governance =
-  Will board / orchestrator CEO. Roadmap P1→P4 to dorkhub.com launch.
-- P1 gallery engine ✅ CODE-COMPLETE (spec: docs/plans/p1-gallery-engine.md)
-  — 0006 ingestion schema (live), /settings/import stars flow, /admin
-  (dashboard/queue/sources/claims), crawls, consent blocklist, claim flow.
-  407 tests; ingestion RLS 7/7 vs live DB; GitHub surfaces live-verified;
-  routes gated. Awaiting Will's admin QA, then tags m5.5 + p1.
+## Milestones
+- M0–M5.5 ✅ (design system, auth, projects/sync, discovery, search/curator).
+  P1 gallery engine ✅ (0006 ingestion, stars import, /admin, claim; +P1.1
+  enrichment mapping + queue filters). Tags through m5.5/p1 pushed.
+- VISION amended by board 2026-07-23 (docs/vision.md): quality = FLOOR not
+  throttle; roadmap now P2 → P2.5 self-running gallery (publish-all + AI
+  mod + reports) → P3 collections + rich pages → P4 slots/launch → P5
+  articles zone (post-launch).
+- P2 discovery + quality floor ✅ CODE-COMPLETE + orchestrator-QA'd
+  (docs/plans/p2-discovery.md): og-image card media (2/1, CardMedia
+  fallback), more-like-this, because-you-starred rail (ISR-safe island),
+  /weird, search demoted to icon, import CTAs (onboarding funnel), AI
+  enrichment lib + admin batch/inline (0007 live, both RLS suites green,
+  479 tests). Awaiting Will: AI_GATEWAY_API_KEY + signed-in QA → tag p2.
 
 ## Next steps
-1. Will: admin QA on prod — import stars, crawl, approve from queue, see
-   retroactive saves; claim-flow spot-check.
-2. P2 discovery mechanics (related/because-you-starred/something-weird,
-   search reframe). 3. P3 rich pages + design sweep. 4. P4 slots + launch.
+1. Will: create AI Gateway key (Vercel dash) → .env.local + Vercel envs;
+   signed-in QA (recs rail, onboarding→import, admin enrich round-trip).
+2. Tag p2. 3. Plan P2.5 self-running gallery. 4. P3 collections+rich pages.
 
 ## Open blockers
-- (none)
+- Enrichment E2E blocked on AI_GATEWAY_API_KEY (everything else degrades
+  gracefully: AiConfigError → quiet admin banner).
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP (reserved for Will's other agents). Management
@@ -35,8 +31,10 @@ postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5
 (PGPASSWORD=$SUPABASE_DB_PASSWORD).
 
 ## Infra + gotchas
-Repo github.com/willgibs/dorkhub · prod dorkhub-ten.vercel.app · CI green ·
-tags m0/m1/m2/m4. proxy MUST be src/proxy.ts (root is silently ignored).
-launch.json app has autoPort (3000 often taken). Stale .next dev cache can
-replay long-fixed compile errors — rm -rf .next before trusting dev errors.
-Last updated: 2026-07-22 (M4 code-complete; awaiting PAT + first-user QA).
+Repo github.com/willgibs/dorkhub (PUBLIC until near-launch) · prod
+dorkhub-ten.vercel.app · CI green. proxy MUST be src/proxy.ts. Stale .next
+replays old compile errors AND serves stale unstable_cache rows — rm -rf
+.next when dev data looks pre-change. CSS aspect-ratio yields to in-flow
+content height (underlays must be absolute). GitHub og endpoint never 404s.
+Run BOTH RLS suites after any schema milestone (inventory drift).
+Last updated: 2026-07-23 (P2 code-complete, awaiting key + Will QA).
