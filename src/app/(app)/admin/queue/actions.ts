@@ -7,8 +7,20 @@ import { requireAdmin } from '@/lib/auth/admin';
 import { validateUsername } from '@/lib/auth/usernames';
 import { getRepoById } from '@/lib/github/client';
 import { syncProject } from '@/lib/github/sync';
+import { isValidDemoUrl, parseTagsInput } from '@/lib/projects/fields';
 import { generateProjectSlug } from '@/lib/projects/slug';
 import { supabaseService } from '@/lib/supabase/clients';
+
+/**
+ * GitHub description → tagline, within the DB's 120-char check. Approved
+ * projects must never land as bare cards — the gallery's first impression is
+ * the product (first-user QA, 2026-07-23).
+ */
+function descriptionToTagline(description: string | null): string | null {
+  const trimmed = description?.trim() ?? '';
+  if (!trimmed) return null;
+  return trimmed.length > 120 ? `${trimmed.slice(0, 119).trimEnd()}…` : trimmed;
+}
 
 /**
  * Review-queue actions (P1 Wave 2B, docs/plans/p1-gallery-engine.md "Locked
@@ -210,7 +222,13 @@ export async function approveCandidate(formData: FormData): Promise<void> {
       license,
       status: 'published',
       sort_order: sortOrder,
-      tags: [],
+      // Curated-content mapping (first-user QA, 2026-07-23): approved projects
+      // arrive with the content GitHub already gives us — description as the
+      // tagline, topics normalized into browsable tags, homepage as the demo
+      // link. Without this every imported card lands bare.
+      tagline: descriptionToTagline(repo.description),
+      tags: parseTagsInput(repo.topics.join(', ')),
+      demo_url: repo.homepage && isValidDemoUrl(repo.homepage) ? repo.homepage : null,
       // `trg_projects_before_update` (0001_init.sql) only fires on UPDATE and
       // only stamps published_at/trending_score on a draft→published
       // transition — a direct INSERT as 'published' never runs it, so both

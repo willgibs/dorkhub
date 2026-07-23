@@ -136,10 +136,19 @@ function RejectedByDemandRow({ candidate }: { candidate: Candidate }) {
   );
 }
 
+const SOURCE_KEYS = ['star_import', 'topic_crawl', 'awesome_list', 'admin_manual'] as const;
+type SourceKey = (typeof SOURCE_KEYS)[number];
+
 export default async function AdminQueuePage({
   searchParams,
 }: {
-  searchParams: Promise<{ err?: string; ok?: string; username?: string; saves?: string }>;
+  searchParams: Promise<{
+    err?: string;
+    ok?: string;
+    username?: string;
+    saves?: string;
+    source?: string;
+  }>;
 }) {
   // /admin/layout.tsx already gates this route — defense in depth, since
   // server actions elsewhere on this page live outside that render tree.
@@ -147,25 +156,44 @@ export default async function AdminQueuePage({
   const params = await searchParams;
   const service = supabaseService();
 
-  const [{ data: pending }, { data: rejectedByDemand }] = await Promise.all([
-    service
-      .from('ingest_candidates')
-      .select('*')
-      .eq('status', 'pending')
-      .order('demand_count', { ascending: false })
-      .order('stars_count', { ascending: false })
-      .limit(PENDING_LIMIT),
-    service
-      .from('ingest_candidates')
-      .select('*')
-      .eq('status', 'rejected')
-      .gt('demand_count', 0)
-      .order('demand_count', { ascending: false })
-      .limit(REJECTED_BY_DEMAND_LIMIT),
-  ]);
+  // Source filter (first-user QA, 2026-07-23): demand-sorted ranking buried
+  // crawl results below the star-import mass — every star-import candidate
+  // has demand ≥ 1 and outranks every demand-0 crawl row, so with 100+
+  // star-import candidates the crawls were unreachable. Per-source filtering
+  // makes every source's slice of the queue directly viewable.
+  const activeSource: SourceKey | null = SOURCE_KEYS.includes(params.source as SourceKey)
+    ? (params.source as SourceKey)
+    : null;
+
+  let pendingQuery = service
+    .from('ingest_candidates')
+    .select('*')
+    .eq('status', 'pending')
+    .order('demand_count', { ascending: false })
+    .order('stars_count', { ascending: false })
+    .limit(PENDING_LIMIT);
+  if (activeSource) pendingQuery = pendingQuery.eq('source', activeSource);
+
+  const [{ data: pending }, { data: rejectedByDemand }, { data: pendingSources }] =
+    await Promise.all([
+      pendingQuery,
+      service
+        .from('ingest_candidates')
+        .select('*')
+        .eq('status', 'rejected')
+        .gt('demand_count', 0)
+        .order('demand_count', { ascending: false })
+        .limit(REJECTED_BY_DEMAND_LIMIT),
+      service.from('ingest_candidates').select('source').eq('status', 'pending'),
+    ]);
 
   const pendingRows = pending ?? [];
   const rejectedRows = rejectedByDemand ?? [];
+  const sourceCounts = new Map<string, number>();
+  for (const row of pendingSources ?? []) {
+    sourceCounts.set(row.source, (sourceCounts.get(row.source) ?? 0) + 1);
+  }
+  const totalPending = (pendingSources ?? []).length;
   const savesCount = Number(params.saves ?? '0');
 
   return (
@@ -184,6 +212,36 @@ export default async function AdminQueuePage({
           {savesCount > 0 ? ` · ${savesCount} retroactive save${savesCount === 1 ? '' : 's'}` : ''}
         </div>
       ) : null}
+
+      <nav aria-label="source filter" className="flex flex-wrap items-center gap-2">
+        <a
+          href="/admin/queue"
+          className={cn(
+            'rounded-lg border px-3 py-1 font-mono text-[12.5px] tabular-nums',
+            linkFocusRing,
+            activeSource === null
+              ? 'border-primary/50 bg-primary-soft text-primary'
+              : 'text-muted-foreground hover:text-foreground',
+          )}
+        >
+          all {totalPending}
+        </a>
+        {SOURCE_KEYS.map((key) => (
+          <a
+            key={key}
+            href={`/admin/queue?source=${key}`}
+            className={cn(
+              'rounded-lg border px-3 py-1 font-mono text-[12.5px] tabular-nums',
+              linkFocusRing,
+              activeSource === key
+                ? 'border-primary/50 bg-primary-soft text-primary'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {SOURCE_LABELS[key]} {sourceCounts.get(key) ?? 0}
+          </a>
+        ))}
+      </nav>
 
       {pendingRows.length === 0 ? (
         <EmptyState message="queue’s clear — go crawl something" />

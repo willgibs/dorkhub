@@ -163,6 +163,12 @@ function CrawlRunRow({ run, now }: { run: CrawlRun; now: Date }) {
         </Badge>
         <span className="tabular-nums text-muted-foreground">{run.candidates_created} created</span>
         <span className="tabular-nums text-muted-foreground">{run.candidates_touched} touched</span>
+        <a
+          href={`/admin/queue?source=${run.source}`}
+          className="rounded-sm text-link outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          review in queue
+        </a>
         <span className="text-muted-foreground">
           started {formatUpdatedAgo(run.started_at, now)}
           {run.finished_at
