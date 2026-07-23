@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/empty-state';
 import { RepoStatsRow } from '@/components/repo-stats-row';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { needsEnrichment } from '@/lib/ai/enrich';
 import { requireAdmin } from '@/lib/auth/admin';
 import { copy } from '@/lib/copy';
 import { languageColor } from '@/lib/lang-colors';
@@ -11,7 +12,7 @@ import { supabaseService } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 
-import { approveCandidate, rejectCandidate, reopenCandidate } from './actions';
+import { approveCandidate, enrichCandidates, rejectCandidate, reopenCandidate } from './actions';
 
 export const metadata: Metadata = { title: copy.adminQueueTitle };
 
@@ -38,6 +39,18 @@ const SOURCE_LABELS: Record<string, string> = {
 const linkFocusRing =
   'rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
+/** Tiny, quiet marker on any AI-generated field standing in for missing human data (P2 Wave 2D). */
+function AiBadge() {
+  return (
+    <Badge
+      variant="outline"
+      className="h-fit shrink-0 px-1.5 py-0 font-mono text-[9px] font-normal tracking-wide text-muted-foreground"
+    >
+      ai
+    </Badge>
+  );
+}
+
 function CandidateMeta({ candidate }: { candidate: Candidate }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -52,6 +65,14 @@ function CandidateMeta({ candidate }: { candidate: Candidate }) {
       >
         {SOURCE_LABELS[candidate.source] ?? candidate.source}
       </Badge>
+      {needsEnrichment(candidate) ? (
+        <Badge
+          variant="outline"
+          className="font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
+        >
+          needs content
+        </Badge>
+      ) : null}
       {candidate.demand_count > 0 ? (
         <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
           wanted by {candidate.demand_count}
@@ -99,6 +120,25 @@ function PendingRow({ candidate }: { candidate: Candidate }) {
 
       {candidate.description ? (
         <p className="line-clamp-2 text-[13.5px] text-muted-foreground">{candidate.description}</p>
+      ) : candidate.ai_tagline ? (
+        <div className="flex items-start gap-1.5">
+          <AiBadge />
+          <p className="line-clamp-2 text-[13.5px] text-muted-foreground">{candidate.ai_tagline}</p>
+        </div>
+      ) : null}
+
+      {candidate.topics.length === 0 && candidate.ai_tags.length > 0 ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <AiBadge />
+          {candidate.ai_tags.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center rounded-md border bg-surface-2 px-[9px] py-0.5 font-mono text-[11px] leading-[1.4] text-muted-foreground"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
       ) : null}
 
       <CandidateMeta candidate={candidate} />
@@ -147,6 +187,9 @@ export default async function AdminQueuePage({
     ok?: string;
     username?: string;
     saves?: string;
+    ai?: string;
+    enriched?: string;
+    aifailed?: string;
     source?: string;
   }>;
 }) {
@@ -174,18 +217,31 @@ export default async function AdminQueuePage({
     .limit(PENDING_LIMIT);
   if (activeSource) pendingQuery = pendingQuery.eq('source', activeSource);
 
-  const [{ data: pending }, { data: rejectedByDemand }, { data: pendingSources }] =
-    await Promise.all([
-      pendingQuery,
-      service
-        .from('ingest_candidates')
-        .select('*')
-        .eq('status', 'rejected')
-        .gt('demand_count', 0)
-        .order('demand_count', { ascending: false })
-        .limit(REJECTED_BY_DEMAND_LIMIT),
-      service.from('ingest_candidates').select('source').eq('status', 'pending'),
-    ]);
+  const [
+    { data: pending },
+    { data: rejectedByDemand },
+    { data: pendingSources },
+    { data: pendingEnrichable },
+  ] = await Promise.all([
+    pendingQuery,
+    service
+      .from('ingest_candidates')
+      .select('*')
+      .eq('status', 'rejected')
+      .gt('demand_count', 0)
+      .order('demand_count', { ascending: false })
+      .limit(REJECTED_BY_DEMAND_LIMIT),
+    service.from('ingest_candidates').select('source').eq('status', 'pending'),
+    // Lean projection — just enough for `needsEnrichment` — for the enrich
+    // button's count (P2 Wave 2D). Separate from `pending` above (which
+    // already carries every column for the visible rows) to keep this cheap
+    // even once the queue holds hundreds of candidates.
+    service
+      .from('ingest_candidates')
+      .select('description, topics')
+      .eq('status', 'pending')
+      .is('enriched_at', null),
+  ]);
 
   const pendingRows = pending ?? [];
   const rejectedRows = rejectedByDemand ?? [];
@@ -194,7 +250,9 @@ export default async function AdminQueuePage({
     sourceCounts.set(row.source, (sourceCounts.get(row.source) ?? 0) + 1);
   }
   const totalPending = (pendingSources ?? []).length;
+  const enrichableCount = (pendingEnrichable ?? []).filter(needsEnrichment).length;
   const savesCount = Number(params.saves ?? '0');
+  const aifailedCount = Number(params.aifailed ?? '0');
 
   return (
     <div className="flex flex-col gap-6">
@@ -210,38 +268,55 @@ export default async function AdminQueuePage({
           approved — {params.ok}
           {params.username ? ` · @${params.username}` : ''}
           {savesCount > 0 ? ` · ${savesCount} retroactive save${savesCount === 1 ? '' : 's'}` : ''}
+          {params.ai ? ` · published with ai tagline: “${params.ai}”` : ''}
+        </div>
+      ) : null}
+      {params.enriched !== undefined ? (
+        <div className="rounded-lg border bg-surface-2 px-4 py-3 font-mono text-[13px] text-muted-foreground">
+          enriched {params.enriched}
+          {aifailedCount > 0 ? ` — ${aifailedCount} failed` : ''}
         </div>
       ) : null}
 
-      <nav aria-label="source filter" className="flex flex-wrap items-center gap-2">
-        <a
-          href="/admin/queue"
-          className={cn(
-            'rounded-lg border px-3 py-1 font-mono text-[12.5px] tabular-nums',
-            linkFocusRing,
-            activeSource === null
-              ? 'border-primary/50 bg-primary-soft text-primary'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          all {totalPending}
-        </a>
-        {SOURCE_KEYS.map((key) => (
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <nav aria-label="source filter" className="flex flex-wrap items-center gap-2">
           <a
-            key={key}
-            href={`/admin/queue?source=${key}`}
+            href="/admin/queue"
             className={cn(
               'rounded-lg border px-3 py-1 font-mono text-[12.5px] tabular-nums',
               linkFocusRing,
-              activeSource === key
+              activeSource === null
                 ? 'border-primary/50 bg-primary-soft text-primary'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
-            {SOURCE_LABELS[key]} {sourceCounts.get(key) ?? 0}
+            all {totalPending}
           </a>
-        ))}
-      </nav>
+          {SOURCE_KEYS.map((key) => (
+            <a
+              key={key}
+              href={`/admin/queue?source=${key}`}
+              className={cn(
+                'rounded-lg border px-3 py-1 font-mono text-[12.5px] tabular-nums',
+                linkFocusRing,
+                activeSource === key
+                  ? 'border-primary/50 bg-primary-soft text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
+              )}
+            >
+              {SOURCE_LABELS[key]} {sourceCounts.get(key) ?? 0}
+            </a>
+          ))}
+        </nav>
+
+        {enrichableCount > 0 ? (
+          <form action={enrichCandidates}>
+            <Button type="submit" variant="secondary" size="sm">
+              enrich {enrichableCount}
+            </Button>
+          </form>
+        ) : null}
+      </div>
 
       {pendingRows.length === 0 ? (
         <EmptyState message="queue’s clear — go crawl something" />

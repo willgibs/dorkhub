@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react';
 import { LikeButtonIsland } from '@/app/(app)/_engagement/like-button-island';
-import { ProjectCard } from '@/components/project-card';
+import { ProjectCard, type ProjectCardVariant } from '@/components/project-card';
 import type { FeedRow } from '@/lib/feed/queries';
 import { profileRowToAuthor, projectRowToCard } from '@/lib/projects/map';
+
+export type RenderFeedCardsOptions = {
+  /** Card variant for every rendered row — defaults to 'feed' (today's exact look). */
+  variant?: ProjectCardVariant;
+};
 
 /**
  * Shared row -> ProjectCard rendering core (M5 decision 4/7) — used by both
@@ -13,7 +18,8 @@ import { profileRowToAuthor, projectRowToCard } from '@/lib/projects/map';
  * Cards keep like-only (docs/plans/m5-discovery.md scope cut) — save UI
  * lives on the project detail page only, wired up separately in Wave 3C.
  */
-export function renderFeedCards(rows: FeedRow[]): ReactNode {
+export function renderFeedCards(rows: FeedRow[], opts?: RenderFeedCardsOptions): ReactNode {
+  const variant = opts?.variant ?? 'feed';
   return (
     <>
       {rows.map((row, i) => {
@@ -24,6 +30,7 @@ export function renderFeedCards(rows: FeedRow[]): ReactNode {
             key={row.id}
             project={project}
             author={author}
+            variant={variant}
             staggerIndex={i}
             href={`/u/${author.username}/${row.slug}`}
             authorHref={`/u/${author.username}`}

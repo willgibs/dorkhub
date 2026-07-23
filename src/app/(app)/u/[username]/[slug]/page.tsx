@@ -7,6 +7,7 @@ import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { LikeButtonIsland } from '@/app/(app)/_engagement/like-button-island';
 import { SaveButtonIsland } from '@/app/(app)/_engagement/save-button-island';
 import { refreshProjectFromGithub, setProjectStatus } from '@/app/(app)/settings/projects/actions';
+import { RelatedProjects } from '@/app/(app)/u/[username]/[slug]/related-projects';
 import { CopyButton } from '@/components/copy-button';
 import { EmptyState } from '@/components/empty-state';
 import { MarkdownProse } from '@/components/markdown-prose';
@@ -18,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import { languageColor } from '@/lib/lang-colors';
 import { formatUpdatedAgo, type ProjectRow } from '@/lib/projects/map';
+import { getRelatedProjects } from '@/lib/related/queries';
 import { supabaseServer } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
@@ -96,8 +98,20 @@ export default async function ProjectPage({
   const displayName = profile.display_name ?? profile.username;
   const initial = displayName.charAt(0).toLowerCase();
 
+  // Drafts get no related fetch at all — the rail is gated on published
+  // (docs/plans/p2-discovery.md decision 5). Fetched once here (not inside
+  // the section component) so the resulting ids can also seed
+  // EngagementProvider — otherwise like/save state wouldn't hydrate on the
+  // related cards.
+  const relatedRows =
+    project.status === 'published'
+      ? await getRelatedProjects(project.id, project.tags, project.primary_language)
+      : [];
+
+  const engagementProjectIds = [project.id, ...relatedRows.map((row) => row.id)];
+
   return (
-    <EngagementProvider projectIds={[project.id]}>
+    <EngagementProvider projectIds={engagementProjectIds}>
       <PageShell className="flex flex-col gap-8 py-10">
         {isOwner ? (
           <div className="flex flex-wrap items-center gap-3">
@@ -237,6 +251,8 @@ export default async function ProjectPage({
         ) : (
           <EmptyState message={copy.projectNoReadme} />
         )}
+
+        <RelatedProjects rows={relatedRows} />
       </PageShell>
     </EngagementProvider>
   );

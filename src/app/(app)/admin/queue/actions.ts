@@ -3,9 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { buildEnrichmentPrompt, needsEnrichment, parseEnrichmentResult } from '@/lib/ai/enrich';
+import { AiConfigError, chatCompletion } from '@/lib/ai/gateway';
 import { requireAdmin } from '@/lib/auth/admin';
 import { validateUsername } from '@/lib/auth/usernames';
-import { getRepoById } from '@/lib/github/client';
+import { getReadmeRaw, getRepoById } from '@/lib/github/client';
 import { syncProject } from '@/lib/github/sync';
 import { isValidDemoUrl, parseTagsInput } from '@/lib/projects/fields';
 import { generateProjectSlug } from '@/lib/projects/slug';
@@ -40,10 +42,23 @@ function descriptionToTagline(description: string | null): string | null {
  * `rejectCandidate`/`reopenCandidate` have no comparable outcomes to report,
  * so they stay silent no-ops on precondition failure (revalidatePath only),
  * matching setProjectStatus's convention.
+ *
+ * `enrichCandidates` (P2 Wave 2D, docs/plans/p2-discovery.md) joins this
+ * file as the batch AI-enrichment trigger — same query-param redirect
+ * convention as `approveCandidate`.
  */
 
 /** GitHub's SPDX id for "no machine-detectable license" — mirrors src/app/(app)/new/actions.ts. */
 const NOASSERTION = 'NOASSERTION';
+
+/** Candidate rows considered per `enrichCandidates` invocation, before the `needsEnrichment` filter. */
+const ENRICH_FETCH_LIMIT = 60;
+
+/** Sequential AI calls per `enrichCandidates` run — quiet, cheap, rate-friendly (locked decision #9). */
+const ENRICH_BATCH_LIMIT = 20;
+
+/** Same token budget for every enrichment call, batch or inline — a tagline + up to 6 tags is short. */
+const ENRICHMENT_MAX_TOKENS = 300;
 
 function parseRepoId(formData: FormData): number | null {
   const raw = Number(formData.get('github_repo_id'));
@@ -53,6 +68,105 @@ function parseRepoId(formData: FormData): number | null {
 /** Sends the admin back to the queue with a short, human-readable reason in `?err=`. */
 function redirectWithError(message: string): never {
   redirect(`/admin/queue?err=${encodeURIComponent(message)}`);
+}
+
+/**
+ * Batch-enriches pending candidates missing a description or topics (P2
+ * Wave 2D, docs/plans/p2-discovery.md locked decisions #8–#9) — this is the
+ * PRIMARY enrichment path: an admin reviews `ai_tagline`/`ai_tags` on the
+ * pending row before approving. `approveCandidate`'s inline fallback only
+ * fires when this never ran (or the model came up empty).
+ *
+ * Fetches up to `ENRICH_FETCH_LIMIT` pending, not-yet-enriched candidates
+ * (demand desc, stars desc — same ranking as the queue itself), filters to
+ * `needsEnrichment` in JS (a static `.or()` filter would work here but house
+ * style avoids PostgREST `.or()` — see docs/decisions.md M5.5), and works
+ * through the first `ENRICH_BATCH_LIMIT` SEQUENTIALLY — never a concurrency
+ * pool; this is quiet, cheap, rate-friendly by design, not a throughput path.
+ *
+ * Per candidate: best-effort README fetch (any failure — a non-ok
+ * `GithubResult` OR a thrown `GithubConfigError` — degrades to a null
+ * readme, never aborts the candidate), then one `chatCompletion` call.
+ *  - `AiConfigError` (key missing) can only really happen on the very first
+ *    call — nothing's been written yet, so this redirects immediately with
+ *    the standard `?err=` banner instead of a partial batch.
+ *  - `rate_limited` stops the loop outright: this candidate AND every
+ *    candidate after it stay untouched (`enriched_at` NOT stamped) so the
+ *    next run picks them back up; it still counts toward `aifailed` so the
+ *    admin sees that *something* happened this run.
+ *  - every other outcome (a real `error`, or an `ok` response whose content
+ *    `parseEnrichmentResult` can't use) ALWAYS stamps `enriched_at` — even
+ *    with null/empty fields — so a bad batch never retries the same duds
+ *    forever.
+ */
+export async function enrichCandidates(_formData: FormData): Promise<void> {
+  await requireAdmin();
+  const service = supabaseService();
+
+  const { data: pendingRows } = await service
+    .from('ingest_candidates')
+    .select('*')
+    .eq('status', 'pending')
+    .is('enriched_at', null)
+    .order('demand_count', { ascending: false })
+    .order('stars_count', { ascending: false })
+    .limit(ENRICH_FETCH_LIMIT);
+
+  const toEnrich = (pendingRows ?? []).filter(needsEnrichment).slice(0, ENRICH_BATCH_LIMIT);
+
+  let enriched = 0;
+  let aifailed = 0;
+
+  for (const candidate of toEnrich) {
+    let readmeText: string | null = null;
+    try {
+      const readmeResult = await getReadmeRaw(candidate.owner_login, candidate.name);
+      if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
+    } catch (err) {
+      console.error('[admin/queue] enrichCandidates readme fetch failed:', err);
+    }
+
+    let chatResult: Awaited<ReturnType<typeof chatCompletion>>;
+    try {
+      chatResult = await chatCompletion({
+        messages: buildEnrichmentPrompt(candidate, readmeText),
+        maxTokens: ENRICHMENT_MAX_TOKENS,
+      });
+    } catch (err) {
+      if (err instanceof AiConfigError) {
+        console.error('[admin/queue] enrichCandidates:', err.message);
+        redirectWithError('ai gateway not configured — add AI_GATEWAY_API_KEY');
+      }
+      throw err;
+    }
+
+    if (chatResult.kind === 'rate_limited') {
+      aifailed += 1;
+      break; // no update — this row (and the rest of the batch) stays eligible for next run
+    }
+
+    const parsed = chatResult.kind === 'ok' ? parseEnrichmentResult(chatResult.content) : null;
+    if (parsed) {
+      enriched += 1;
+    } else {
+      aifailed += 1;
+    }
+
+    const { error } = await service
+      .from('ingest_candidates')
+      .update({
+        ai_tagline: parsed?.tagline ?? null,
+        ai_tags: parsed?.tags ?? [],
+        enriched_at: new Date().toISOString(),
+      })
+      .eq('github_repo_id', candidate.github_repo_id);
+    if (error) {
+      console.error('[admin/queue] enrichCandidates update failed:', error.message);
+    }
+  }
+
+  revalidatePath('/admin/queue');
+  redirect(`/admin/queue?enriched=${enriched}&aifailed=${aifailed}`);
 }
 
 /**
@@ -73,7 +187,7 @@ export async function approveCandidate(formData: FormData): Promise<void> {
 
   const { data: candidate } = await service
     .from('ingest_candidates')
-    .select('github_repo_id')
+    .select('github_repo_id, ai_tagline, ai_tags')
     .eq('github_repo_id', githubRepoId)
     .eq('status', 'pending')
     .maybeSingle();
@@ -206,6 +320,79 @@ export async function approveCandidate(formData: FormData): Promise<void> {
   const license = repo.license?.spdx_id === NOASSERTION ? null : (repo.license?.spdx_id ?? null);
   const publishedAt = new Date();
 
+  // Curated-content mapping (first-user QA, 2026-07-23), extended for AI
+  // enrichment (P2 Wave 2D, docs/plans/p2-discovery.md locked decision #9):
+  // real human data always wins. Real description beats `ai_tagline`; real
+  // topics beat `ai_tags`. `candidate.ai_*` was normalized once already
+  // (parseEnrichmentResult / descriptionToTagline-equivalent), but tags run
+  // through `parseTagsInput` again here — same idiom as `ghTags`, harmless
+  // on already-clean input, and keeps one normalization path for every tag
+  // source that reaches a project row.
+  const ghTags = parseTagsInput(repo.topics.join(', '));
+  let tagline = descriptionToTagline(repo.description) ?? candidate.ai_tagline ?? null;
+  let tags = ghTags.length > 0 ? ghTags : parseTagsInput(candidate.ai_tags.join(', '));
+
+  // Inline fallback (locked decision #9): only when queue-time enrichment
+  // never ran (or came up empty) AND the fresh repo itself has neither a
+  // description nor topics — i.e. there is truly nothing better to fall
+  // back on. One best-effort try; ANY failure (including AiConfigError,
+  // caught right here) proceeds with nulls — this must never fail
+  // approval. The og image + repo name still carry the card either way.
+  let inlineAiTagline: string | null = null;
+  const repoHasNoContent = !repo.description?.trim() && repo.topics.length === 0;
+  if (tagline === null && tags.length === 0 && repoHasNoContent) {
+    try {
+      let readmeText: string | null = null;
+      const readmeResult = await getReadmeRaw(repo.owner.login, repo.name);
+      if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
+
+      const chatResult = await chatCompletion({
+        messages: buildEnrichmentPrompt(
+          {
+            name: repo.name,
+            owner_login: repo.owner.login,
+            description: repo.description,
+            primary_language: repo.language,
+            topics: repo.topics,
+          },
+          readmeText,
+        ),
+        maxTokens: ENRICHMENT_MAX_TOKENS,
+      });
+
+      if (chatResult.kind === 'ok') {
+        const parsed = parseEnrichmentResult(chatResult.content);
+        if (parsed) {
+          tagline = parsed.tagline;
+          tags = parsed.tags;
+          inlineAiTagline = parsed.tagline;
+
+          // Audit trail — persist back to the candidate row even though its
+          // status flips to 'approved' below.
+          const { error: enrichWriteError } = await service
+            .from('ingest_candidates')
+            .update({
+              ai_tagline: parsed.tagline,
+              ai_tags: parsed.tags,
+              enriched_at: new Date().toISOString(),
+            })
+            .eq('github_repo_id', githubRepoId);
+          if (enrichWriteError) {
+            console.error(
+              '[admin/queue] inline enrichment audit write failed:',
+              enrichWriteError.message,
+            );
+          }
+        }
+      }
+    } catch (err) {
+      console.error(
+        '[admin/queue] inline enrichment fallback failed (publishing with nulls):',
+        err,
+      );
+    }
+  }
+
   const { data: insertedProject, error: insertError } = await service
     .from('projects')
     .insert({
@@ -222,12 +409,8 @@ export async function approveCandidate(formData: FormData): Promise<void> {
       license,
       status: 'published',
       sort_order: sortOrder,
-      // Curated-content mapping (first-user QA, 2026-07-23): approved projects
-      // arrive with the content GitHub already gives us — description as the
-      // tagline, topics normalized into browsable tags, homepage as the demo
-      // link. Without this every imported card lands bare.
-      tagline: descriptionToTagline(repo.description),
-      tags: parseTagsInput(repo.topics.join(', ')),
+      tagline,
+      tags,
       demo_url: repo.homepage && isValidDemoUrl(repo.homepage) ? repo.homepage : null,
       // `trg_projects_before_update` (0001_init.sql) only fires on UPDATE and
       // only stamps published_at/trending_score on a draft→published
@@ -333,6 +516,11 @@ export async function approveCandidate(formData: FormData): Promise<void> {
     username: profileUsername,
     saves: String(savesCreated),
   });
+  // Only set when the inline fallback above actually generated a tagline —
+  // lets the admin see what got published sight-unseen (locked decision #9).
+  if (inlineAiTagline) {
+    successParams.set('ai', inlineAiTagline);
+  }
   redirect(`/admin/queue?${successParams.toString()}`);
 }
 
