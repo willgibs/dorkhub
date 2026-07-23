@@ -151,11 +151,14 @@ export type Database = {
       };
       ingest_candidates: {
         Row: {
+          ai_tagline: string | null;
+          ai_tags: string[];
           created_at: string;
           decided_at: string | null;
           decided_by: string | null;
           demand_count: number;
           description: string | null;
+          enriched_at: string | null;
           fetched_at: string;
           forks_count: number;
           github_repo_id: number;
@@ -174,11 +177,14 @@ export type Database = {
           topics: string[];
         };
         Insert: {
+          ai_tagline?: string | null;
+          ai_tags?: string[];
           created_at?: string;
           decided_at?: string | null;
           decided_by?: string | null;
           demand_count?: number;
           description?: string | null;
+          enriched_at?: string | null;
           fetched_at?: string;
           forks_count?: number;
           github_repo_id: number;
@@ -197,11 +203,14 @@ export type Database = {
           topics?: string[];
         };
         Update: {
+          ai_tagline?: string | null;
+          ai_tags?: string[];
           created_at?: string;
           decided_at?: string | null;
           decided_by?: string | null;
           demand_count?: number;
           description?: string | null;
+          enriched_at?: string | null;
           fetched_at?: string;
           forks_count?: number;
           github_repo_id?: number;

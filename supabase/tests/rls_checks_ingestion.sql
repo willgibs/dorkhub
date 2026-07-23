@@ -187,6 +187,77 @@ $$;
 
 rollback;
 
+-- ----------------------------------------------------------------------------
+-- Section I6 — 0007 enrichment columns: present, and the deny-all posture
+-- survived the ALTER (no table- OR column-level API-role privileges).
+-- ----------------------------------------------------------------------------
+do $$
+declare
+  v_missing text;
+  v_bad int;
+begin
+  select string_agg(c.col, ', ')
+    into v_missing
+    from (values ('ai_tagline'), ('ai_tags'), ('enriched_at')) c(col)
+   where not exists (
+           select 1 from information_schema.columns k
+            where k.table_schema = 'public'
+              and k.table_name = 'ingest_candidates'
+              and k.column_name = c.col
+         );
+  if v_missing is not null then
+    raise exception 'RLS FAILURE: I6 ingest_candidates missing 0007 columns: %', v_missing;
+  end if;
+
+  select count(*) into v_bad
+    from information_schema.column_privileges
+   where table_schema = 'public'
+     and table_name = 'ingest_candidates'
+     and grantee in ('anon', 'authenticated');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I6 ingest_candidates has % API-role column privileges (expected 0)', v_bad;
+  end if;
+  raise notice 'PASS: I6 0007 columns present; deny-all posture intact post-ALTER';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I7 — behavioral (rolled back): ai_tagline length CHECK enforced;
+-- ai_tags defaults to empty array.
+-- ----------------------------------------------------------------------------
+begin;
+
+do $$
+declare
+  v_tags text[];
+begin
+  begin
+    insert into public.ingest_candidates
+      (github_repo_id, owner_github_id, owner_login, repo_full_name, repo_url, name, source, ai_tagline)
+    values
+      (990000000003, 990000000900, 'rls-check-owner', 'rls-check-owner/long',
+       'https://github.com/rls-check-owner/long', 'long', 'admin_manual', repeat('x', 121));
+    raise exception 'RLS FAILURE: I7 121-char ai_tagline accepted (CHECK missing)';
+  exception
+    when check_violation then
+      raise notice 'PASS: I7a ai_tagline >120 rejected by CHECK';
+  end;
+
+  insert into public.ingest_candidates
+    (github_repo_id, owner_github_id, owner_login, repo_full_name, repo_url, name, source, ai_tagline)
+  values
+    (990000000004, 990000000900, 'rls-check-owner', 'rls-check-owner/ok',
+     'https://github.com/rls-check-owner/ok', 'ok', 'admin_manual', repeat('x', 120));
+  select ai_tags into v_tags from public.ingest_candidates where github_repo_id = 990000000004;
+  if v_tags is null or v_tags <> '{}'::text[] then
+    raise exception 'RLS FAILURE: I7 ai_tags default is % (expected empty array)', v_tags;
+  end if;
+  raise notice 'PASS: I7b 120-char ai_tagline accepted; ai_tags defaults to {}';
+end
+$$;
+
+rollback;
+
 do $$
 begin
   raise notice '=== ALL INGESTION CHECKS PASSED — behavioral changes rolled back ===';

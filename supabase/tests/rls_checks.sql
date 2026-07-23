@@ -192,7 +192,13 @@ begin
       ('follows',         'follows_insert_own',               'INSERT'),
       ('follows',         'follows_delete_own',               'DELETE'),
       ('tags',            'tags_select_all',                  'SELECT'),
-      ('featured_slots',  'featured_slots_select_active',     'SELECT')
+      ('featured_slots',  'featured_slots_select_active',     'SELECT'),
+      -- 0006 ingestion: star_imports is the one API-facing ingestion table
+      -- (own-rows, like saves). The other three are deny-all with zero
+      -- policies — asserted in rls_checks_ingestion.sql.
+      ('star_imports',    'star_imports_select_own',          'SELECT'),
+      ('star_imports',    'star_imports_insert_own',          'INSERT'),
+      ('star_imports',    'star_imports_delete_own',          'DELETE')
   ),
   actual as (
     select tablename::text, policyname::text, cmd::text
@@ -214,7 +220,7 @@ begin
   if v_extra is not null then
     raise exception 'RLS FAILURE: unexpected policies present: %', v_extra;
   end if;
-  raise notice 'PASS: public-schema policy set matches the expected 20 policies exactly';
+  raise notice 'PASS: public-schema policy set matches the expected 23 policies exactly';
 
   -- 3b. claim_invites must have ZERO policies (deny-all; service-role only).
   --     Already implied by the exact match above, asserted explicitly anyway.
