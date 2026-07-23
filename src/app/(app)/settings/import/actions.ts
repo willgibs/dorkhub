@@ -294,7 +294,11 @@ export async function materializeImportsPage(): Promise<MaterializeImportsResult
   for (const candidate of candidates) {
     const outcome = await materializeCandidate(
       candidate.github_repo_id,
-      { decidedBy: null },
+      // P2.5.1 fast path: these candidate rows were written SECONDS ago by
+      // this same import run — trust the snapshot (falls back to a fetch if
+      // stale) and defer README sync to the pipeline's backfill pass. This
+      // is what turns "import took forever" into seconds (first-user QA).
+      { decidedBy: null, trustFreshSnapshot: true, skipSync: true },
       service,
     );
     if (outcome.kind === 'published') {

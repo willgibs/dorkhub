@@ -64,7 +64,7 @@ export const copy = {
   importSkip: 'later — take me home',
   importMaterializing: 'putting them on the wall…',
   importDoneLive: 'of your stars just went live',
-  importDonePolishing: 'are getting a tagline first — live within the hour',
+  importDonePolishing: 'more going live automatically — check back in a bit',
   sortNewest: 'newest',
   claimTitle: 'we hand-picked your work',
   claimBody: 'this page is yours if you want it — or we’ll remove it. no strings.',

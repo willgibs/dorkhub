@@ -103,7 +103,70 @@ export type MaterializeOpts = {
    * Defaults to `false` when omitted.
    */
   inlineEnrich?: boolean;
+  /**
+   * P2.5.1 fast path — when true AND the candidate snapshot is younger than
+   * `FRESH_SNAPSHOT_MS`, skip the fresh GitHub re-fetch and build the project
+   * from the snapshot. The "never trust snapshots" rule (locked arch #2,
+   * p1-gallery-engine.md) exists for QUEUE-STALE rows a human approves weeks
+   * later; import phase-2 materializes rows written SECONDS ago from the
+   * starred payload — re-fetching them burned ~0.5s/item for identical data
+   * (Will's "import took forever" QA). Stale snapshots silently fall back to
+   * the fetch path. Snapshot builds can't detect a just-deleted repo and
+   * carry no homepage → demo_url starts null and the first sync fills it
+   * (computeSyncUpdate's fill-only rule).
+   */
+  trustFreshSnapshot?: boolean;
+  /**
+   * P2.5.1 — skip the inline best-effort `syncProject` (repo re-fetch +
+   * README download + sanitize, ~1-2.5s). The pipeline's README-backfill
+   * pass and the daily sync cron pick these up (last_synced_at IS NULL sorts
+   * first). Human approve keeps the inline sync (single item, full fidelity).
+   */
+  skipSync?: boolean;
 };
+
+/** Snapshot age ceiling for `trustFreshSnapshot` — beyond this, re-fetch. */
+const FRESH_SNAPSHOT_MS = 60 * 60 * 1000;
+
+/**
+ * The repo facts materialization actually consumes, normalized from EITHER a
+ * fresh `getRepoById` fetch or a fresh-enough candidate snapshot (which has
+ * no homepage and a pre-normalized license string).
+ */
+type RepoFacts = {
+  id: number;
+  fullName: string;
+  htmlUrl: string;
+  name: string;
+  language: string | null;
+  topics: string[];
+  stars: number;
+  forks: number;
+  /** Already NOASSERTION-normalized. */
+  licenseSpdx: string | null;
+  ownerId: number;
+  ownerLogin: string;
+  description: string | null;
+  homepage: string | null;
+};
+
+function factsFromRepo(repo: GithubRepo): RepoFacts {
+  return {
+    id: repo.id,
+    fullName: repo.full_name,
+    htmlUrl: repo.html_url,
+    name: repo.name,
+    language: repo.language,
+    topics: repo.topics,
+    stars: repo.stargazers_count,
+    forks: repo.forks_count,
+    licenseSpdx: repo.license?.spdx_id === NOASSERTION ? null : (repo.license?.spdx_id ?? null),
+    ownerId: repo.owner.id,
+    ownerLogin: repo.owner.login,
+    description: repo.description,
+    homepage: repo.homepage,
+  };
+}
 
 /**
  * Turns one pending `ingest_candidates` row into a published `projects` row
@@ -117,41 +180,64 @@ export async function materializeCandidate(
 ): Promise<MaterializeResult> {
   const { data: candidate } = await service
     .from('ingest_candidates')
-    .select('github_repo_id, ai_tagline, ai_tags')
+    .select('*')
     .eq('github_repo_id', githubRepoId)
     .eq('status', 'pending')
     .maybeSingle();
   if (!candidate) return { kind: 'already_decided' }; // already decided elsewhere, or a stale double-submit
 
-  // Fresh fetch — candidate rows are disposable snapshots, never trusted at
-  // write time (locked arch #2, p1-gallery-engine.md).
-  let repoResult: Awaited<ReturnType<typeof getRepoById>>;
-  try {
-    repoResult = await getRepoById(githubRepoId);
-  } catch (err) {
-    // GithubConfigError (missing GITHUB_TOKEN) — candidate stays pending, caller retries.
-    console.error('[ingest/materialize] repo fetch unavailable:', err);
-    return { kind: 'github_unavailable' };
-  }
+  // Repo facts: fresh fetch by default (candidate rows are disposable
+  // snapshots, never trusted at write time — locked arch #2,
+  // p1-gallery-engine.md), OR the snapshot itself on the P2.5.1 fast path
+  // when it's provably fresh (see MaterializeOpts.trustFreshSnapshot).
+  let facts: RepoFacts;
+  const snapshotAgeMs = Date.now() - new Date(candidate.fetched_at).getTime();
+  if (opts.trustFreshSnapshot === true && snapshotAgeMs < FRESH_SNAPSHOT_MS) {
+    facts = {
+      id: candidate.github_repo_id,
+      fullName: candidate.repo_full_name,
+      htmlUrl: candidate.repo_url,
+      name: candidate.name,
+      language: candidate.primary_language,
+      topics: candidate.topics,
+      stars: candidate.stars_count,
+      forks: candidate.forks_count,
+      licenseSpdx: candidate.license === NOASSERTION ? null : candidate.license,
+      ownerId: candidate.owner_github_id,
+      ownerLogin: candidate.owner_login,
+      description: candidate.description,
+      homepage: null, // not snapshotted — first sync fills demo_url (fill-only)
+    };
+  } else {
+    let repoResult: Awaited<ReturnType<typeof getRepoById>>;
+    try {
+      repoResult = await getRepoById(githubRepoId);
+    } catch (err) {
+      // GithubConfigError (missing GITHUB_TOKEN) — candidate stays pending, caller retries.
+      console.error('[ingest/materialize] repo fetch unavailable:', err);
+      return { kind: 'github_unavailable' };
+    }
 
-  if (repoResult.kind === 'not_found') {
-    const { error } = await service
-      .from('ingest_candidates')
-      .update({
-        status: 'rejected',
-        rejection_reason: 'auto: repo unavailable at approval time',
-        decided_by: opts.decidedBy,
-        decided_at: new Date().toISOString(),
-      })
-      .eq('github_repo_id', githubRepoId);
-    if (error) console.error('[ingest/materialize] auto-reject (not_found) failed:', error.message);
-    return { kind: 'repo_gone' };
+    if (repoResult.kind === 'not_found') {
+      const { error } = await service
+        .from('ingest_candidates')
+        .update({
+          status: 'rejected',
+          rejection_reason: 'auto: repo unavailable at approval time',
+          decided_by: opts.decidedBy,
+          decided_at: new Date().toISOString(),
+        })
+        .eq('github_repo_id', githubRepoId);
+      if (error)
+        console.error('[ingest/materialize] auto-reject (not_found) failed:', error.message);
+      return { kind: 'repo_gone' };
+    }
+    if (repoResult.kind !== 'ok') {
+      // Covers rate_limited/error (not_modified can't happen — this call never sends an etag).
+      return { kind: 'github_unavailable' };
+    }
+    facts = factsFromRepo(repoResult.data);
   }
-  if (repoResult.kind !== 'ok') {
-    // Covers rate_limited/error (not_modified can't happen — this call never sends an etag).
-    return { kind: 'github_unavailable' };
-  }
-  const repo = repoResult.data;
 
   // Blocklist can change between candidate creation and this call — re-check
   // fresh. Consent is checked on EVERY candidate-creating/-materializing path
@@ -160,7 +246,7 @@ export async function materializeCandidate(
     .from('ingest_blocklist')
     .select('id')
     .or(
-      `and(scope.eq.repo,github_repo_id.eq.${repo.id}),and(scope.eq.owner,github_owner_id.eq.${repo.owner.id})`,
+      `and(scope.eq.repo,github_repo_id.eq.${facts.id}),and(scope.eq.owner,github_owner_id.eq.${facts.ownerId})`,
     )
     .limit(1)
     .maybeSingle();
@@ -183,7 +269,7 @@ export async function materializeCandidate(
   const { data: existingProfile } = await service
     .from('profiles')
     .select('id, username')
-    .eq('github_id', repo.owner.id)
+    .eq('github_id', facts.ownerId)
     .maybeSingle();
 
   let profileId: string;
@@ -193,7 +279,7 @@ export async function materializeCandidate(
     profileId = existingProfile.id;
     profileUsername = existingProfile.username;
   } else {
-    const usernameCheck = validateUsername(repo.owner.login);
+    const usernameCheck = validateUsername(facts.ownerLogin);
     if (!usernameCheck.ok) {
       return { kind: 'invalid_username', reason: usernameCheck.reason };
     }
@@ -202,9 +288,9 @@ export async function materializeCandidate(
       .from('profiles')
       .insert({
         username: usernameCheck.value,
-        display_name: repo.owner.login,
-        github_id: repo.owner.id,
-        github_username: repo.owner.login,
+        display_name: facts.ownerLogin,
+        github_id: facts.ownerId,
+        github_username: facts.ownerLogin,
         // claimed_at stays null (column default) — unclaimed seeded profile
         // until the real owner signs in via the claim flow, NOT
         // an onboarding-style self-claim.
@@ -226,7 +312,7 @@ export async function materializeCandidate(
       const { data: raceWinner } = await service
         .from('profiles')
         .select('id, username')
-        .eq('github_id', repo.owner.id)
+        .eq('github_id', facts.ownerId)
         .maybeSingle();
       if (!raceWinner) {
         // Genuinely the USERNAME unique constraint: a different existing
@@ -254,7 +340,7 @@ export async function materializeCandidate(
     .select('slug')
     .eq('profile_id', profileId);
   const existingSlugs = new Set((existingSlugRows ?? []).map((row) => row.slug));
-  const slug = generateProjectSlug(repo.name, existingSlugs);
+  const slug = generateProjectSlug(facts.name, existingSlugs);
 
   const { data: maxSortRow } = await service
     .from('projects')
@@ -265,12 +351,15 @@ export async function materializeCandidate(
     .maybeSingle();
   const sortOrder = (maxSortRow?.sort_order ?? -1) + 1;
 
-  const license = repo.license?.spdx_id === NOASSERTION ? null : (repo.license?.spdx_id ?? null);
+  const license = facts.licenseSpdx;
   const publishedAt = new Date();
 
   // Curated-content mapping (first-user QA, 2026-07-23; extended for AI
   // enrichment, locked decision #5): real human data always wins.
-  let { tagline, tags } = deriveContent(repo, candidate);
+  let { tagline, tags } = deriveContent(
+    { description: facts.description, topics: facts.topics },
+    candidate,
+  );
 
   // Inline fallback (decision #5 — opt-in, NOT unconditional): only when the
   // caller asked for it AND queue-time enrichment never ran (or came up
@@ -280,21 +369,21 @@ export async function materializeCandidate(
   // nulls — this must never fail materialization. The og image + repo name
   // still carry the card either way.
   let inlineAiTagline: string | null = null;
-  const repoHasNoContent = !repo.description?.trim() && repo.topics.length === 0;
+  const repoHasNoContent = !facts.description?.trim() && facts.topics.length === 0;
   if (opts.inlineEnrich === true && tagline === null && tags.length === 0 && repoHasNoContent) {
     try {
       let readmeText: string | null = null;
-      const readmeResult = await getReadmeRaw(repo.owner.login, repo.name);
+      const readmeResult = await getReadmeRaw(facts.ownerLogin, facts.name);
       if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
 
       const chatResult = await chatCompletion({
         messages: buildEnrichmentPrompt(
           {
-            name: repo.name,
-            owner_login: repo.owner.login,
-            description: repo.description,
-            primary_language: repo.language,
-            topics: repo.topics,
+            name: facts.name,
+            owner_login: facts.ownerLogin,
+            description: facts.description,
+            primary_language: facts.language,
+            topics: facts.topics,
           },
           readmeText,
         ),
@@ -345,20 +434,20 @@ export async function materializeCandidate(
     .insert({
       profile_id: profileId,
       slug,
-      github_repo_id: repo.id,
-      repo_full_name: repo.full_name,
-      repo_url: repo.html_url,
-      name: repo.name,
-      primary_language: repo.language,
-      topics: repo.topics,
-      stars_count: repo.stargazers_count,
-      forks_count: repo.forks_count,
+      github_repo_id: facts.id,
+      repo_full_name: facts.fullName,
+      repo_url: facts.htmlUrl,
+      name: facts.name,
+      primary_language: facts.language,
+      topics: facts.topics,
+      stars_count: facts.stars,
+      forks_count: facts.forks,
       license,
       status: 'published',
       sort_order: sortOrder,
       tagline,
       tags,
-      demo_url: repo.homepage && isValidDemoUrl(repo.homepage) ? repo.homepage : null,
+      demo_url: facts.homepage && isValidDemoUrl(facts.homepage) ? facts.homepage : null,
       // `trg_projects_before_update` (0001_init.sql) only fires on UPDATE and
       // only stamps published_at/trending_score on a draft→published
       // transition — a direct INSERT as 'published' never runs it, so both
@@ -386,7 +475,7 @@ export async function materializeCandidate(
       const { data: existingProject } = await service
         .from('projects')
         .select('id, slug')
-        .eq('github_repo_id', repo.id)
+        .eq('github_repo_id', facts.id)
         .maybeSingle();
       if (!existingProject) {
         console.error('[ingest/materialize] 23505 recovery found no existing row:', insertError);
@@ -403,11 +492,16 @@ export async function materializeCandidate(
     projectSlug = insertedProject.slug;
   }
 
-  // Best-effort initial sync — never blocks materialization (mirrors createProject).
-  try {
-    await syncProject(projectId);
-  } catch (err) {
-    console.error('[ingest/materialize] initial sync threw:', err);
+  // Best-effort initial sync — never blocks materialization (mirrors
+  // createProject). Skipped on the P2.5.1 fast path (README download is the
+  // single biggest per-item cost) — the pipeline's sync-backfill pass and the
+  // daily cron pick up last_synced_at-null projects promptly.
+  if (opts.skipSync !== true) {
+    try {
+      await syncProject(projectId);
+    } catch (err) {
+      console.error('[ingest/materialize] initial sync threw:', err);
+    }
   }
 
   // Decision #3 (supersede-trigger invariant) — this write is DELIBERATELY

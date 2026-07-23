@@ -31,9 +31,15 @@ const baseInput: SyncInput = {
   repoEtag: '"old-repo-etag"',
   readmeEtag: '"old-readme-etag"',
   repoFullName: 'octocat/my-repo',
+  // Non-null → the forbidden-keys matrix below keeps asserting sync NEVER
+  // touches an owner-set demo_url in ANY scenario. The one deliberate
+  // exception (fill-only when null, P2.5.1) has its own describe block.
+  demoUrl: 'https://demo.example.com',
 };
 
 // Forbidden keys — sync must NEVER touch owner-authored/curation fields.
+// demo_url is forbidden whenever it already has a value; the fill-only-when-
+// null carve-out (P2.5.1) is tested separately below.
 const FORBIDDEN_PATCH_KEYS = ['slug', 'demo_url', 'tagline', 'tags', 'status', 'description_md'];
 
 type RepoScenario = { label: string; result: GithubResult<GithubRepo> };
@@ -305,5 +311,45 @@ describe('computeSyncUpdate — readme: rate_limited / error / null', () => {
 
     expect(patch).not.toHaveProperty('readme_html');
     expect(patch).not.toHaveProperty('readme_etag');
+  });
+});
+
+describe('computeSyncUpdate — demo_url fill-only (P2.5.1)', () => {
+  const nullDemoInput: SyncInput = { ...baseInput, demoUrl: null };
+
+  it('fills demo_url from homepage when current demo_url is null', () => {
+    const { patch } = computeSyncUpdate(
+      nullDemoInput,
+      { kind: 'ok', data: makeRepo({ homepage: 'https://cool.example.com' }), etag: '"e"' },
+      null,
+    );
+
+    expect(patch.demo_url).toBe('https://cool.example.com');
+  });
+
+  it('never touches an existing demo_url even when homepage differs', () => {
+    const { patch } = computeSyncUpdate(
+      baseInput, // demoUrl already set
+      { kind: 'ok', data: makeRepo({ homepage: 'https://other.example.com' }), etag: '"e"' },
+      null,
+    );
+
+    expect(patch).not.toHaveProperty('demo_url');
+  });
+
+  it('skips invalid or absent homepages', () => {
+    for (const homepage of [null, '', 'javascript:alert(1)', 'ftp://x'] as const) {
+      const { patch } = computeSyncUpdate(
+        nullDemoInput,
+        { kind: 'ok', data: makeRepo({ homepage }), etag: '"e"' },
+        null,
+      );
+      expect(patch).not.toHaveProperty('demo_url');
+    }
+  });
+
+  it('does not fill on non-ok repo results', () => {
+    const { patch } = computeSyncUpdate(nullDemoInput, { kind: 'not_modified', etag: '"e"' }, null);
+    expect(patch).not.toHaveProperty('demo_url');
   });
 });

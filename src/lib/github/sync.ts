@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { sanitizeReadmeHtml } from '@/lib/github/sanitize';
+import { isValidDemoUrl } from '@/lib/projects/fields';
 import { supabaseService } from '@/lib/supabase/clients';
 import type { TablesUpdate } from '@/lib/supabase/types';
 import type { GithubRepo, GithubResult } from './client';
@@ -20,6 +21,13 @@ export type SyncInput = {
   readmeEtag: string | null;
   /** last-known-good "owner/name" — used as the README sanitizer fallback. */
   repoFullName: string;
+  /**
+   * Current demo_url — sync FILLS this from repo.homepage only when null
+   * (P2.5.1): fast-path materialization skips the fresh repo fetch, and
+   * candidates don't snapshot homepage, so the first sync heals it. Never
+   * overwrites — owners can edit demo_url and sync must not fight them.
+   */
+  demoUrl: string | null;
 };
 
 export type SyncPatch = {
@@ -73,6 +81,16 @@ export function computeSyncUpdate(
   switch (repoResult.kind) {
     case 'ok':
       Object.assign(patch, repoMetadataPatch(repoResult.data, repoResult.etag));
+      // Fill-only demo_url (P2.5.1): heal fast-path materializations (no
+      // homepage in candidate snapshots) without ever clobbering an
+      // owner-edited value.
+      if (
+        current.demoUrl === null &&
+        repoResult.data.homepage &&
+        isValidDemoUrl(repoResult.data.homepage)
+      ) {
+        patch.demo_url = repoResult.data.homepage;
+      }
       bumpSyncedAt = true;
       break;
     case 'not_modified':
@@ -142,7 +160,7 @@ export async function syncProject(
 
   const { data: project, error: selectError } = await service
     .from('projects')
-    .select('id, github_repo_id, repo_etag, readme_etag, repo_full_name')
+    .select('id, github_repo_id, repo_etag, readme_etag, repo_full_name, demo_url')
     .eq('id', projectId)
     .maybeSingle();
 
@@ -189,6 +207,7 @@ export async function syncProject(
       repoEtag: project.repo_etag,
       readmeEtag: project.readme_etag,
       repoFullName: project.repo_full_name,
+      demoUrl: project.demo_url,
     },
     repoResult,
     readmeResult,

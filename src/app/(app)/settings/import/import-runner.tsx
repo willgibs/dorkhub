@@ -20,12 +20,14 @@ import {
 const MAX_PAGES = 100;
 
 /**
- * Hard safety cap on phase-2 materialize chunks (docs/plans/
- * p2.5-self-running.md Wave 2C) — 30 × 5 = 150 materializations' worth of
- * GitHub calls in one client run is already generous; the background
- * pipeline drains whatever's left of the tail within the hour.
+ * Phase 2 is a FIRST SLICE, not a full drain (P2.5.1, after first-user QA:
+ * "that felt like it took forever"): 6 × 5 = the user's top 30 stars go
+ * live while they watch (~15s on the fast path), then the done state hands
+ * the tail to the background pipeline ("more going live automatically").
+ * The pipeline materializes 25 per 15-min tick, so even a huge import is
+ * fully live within a few hours — without holding the user hostage.
  */
-const MAX_MATERIALIZE_CHUNKS = 30;
+const MAX_MATERIALIZE_CHUNKS = 6;
 
 const ZERO_TALLIES: ImportTallies = { own: 0, blocked: 0, here: 0, filtered: 0, queued: 0 };
 

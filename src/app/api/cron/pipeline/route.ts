@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { needsEnrichment } from '@/lib/ai/enrich';
 import { ENRICH_PER_RUN, type EnrichBatchResult, enrichNextBatch } from '@/lib/enrich/run';
+import { syncProject } from '@/lib/github/sync';
 import { type MaterializeResult, materializeCandidate } from '@/lib/ingest/materialize';
 import { supabaseService } from '@/lib/supabase/clients';
 
@@ -38,8 +39,23 @@ import { supabaseService } from '@/lib/supabase/clients';
 export const maxDuration = 60;
 const SOFT_DEADLINE_MS = 50_000;
 
-/** Pass-1 batch size — small and sequential, never a worker pool (materializeCandidate does real writes per call). */
-const MATERIALIZE_PER_RUN = 10;
+/**
+ * Pass-1 batch size — sequential, never a worker pool. Raised 10 → 25 in
+ * P2.5.1: materialization skips the inline README sync now (`skipSync`), so
+ * each item costs one repo fetch + a handful of pooled queries (~1s), and a
+ * big star import drains in a couple of ticks instead of hours. The 50s soft
+ * deadline still governs.
+ */
+const MATERIALIZE_PER_RUN = 25;
+
+/**
+ * Pass-3 budget — README/metadata backfill for projects materialization
+ * skipped sync on (`last_synced_at IS NULL` sorts first in the daily cron
+ * too; this pass just gets READMEs onto fresh project pages within ~15-60
+ * min instead of by tomorrow). Also heals fast-path demo_url via
+ * computeSyncUpdate's fill-only rule.
+ */
+const SYNC_BACKFILL_PER_RUN = 5;
 
 /** The subset of a pending `ingest_candidates` row pass 1 needs to select and prioritize. */
 type PendingCandidateRow = {
@@ -107,7 +123,10 @@ export async function GET(request: Request) {
 
     const result = await materializeCandidate(
       candidate.github_repo_id,
-      { decidedBy: null }, // auto-approved encoding — locked decision #1.
+      // decidedBy null = auto-approved encoding (locked decision #1).
+      // skipSync (P2.5.1): READMEs land via pass 3 below — keeping the big
+      // per-item cost out of this loop is what lets the batch size be 25.
+      { decidedBy: null, skipSync: true },
       service,
     );
 
@@ -151,6 +170,36 @@ export async function GET(request: Request) {
     });
   }
 
+  // PASS 3 — sync backfill (P2.5.1): projects whose materialization skipped
+  // the inline sync have last_synced_at NULL — give a few of them their
+  // README (+ fill-only demo_url) now rather than waiting for the daily
+  // sync cron. Deadline-checked per item; failures are syncProject's own
+  // tallied outcomes, never thrown.
+  let synced = 0;
+  if (Date.now() < deadlineAt) {
+    const { data: unsyncedProjects } = await service
+      .from('projects')
+      .select('id')
+      .eq('status', 'published')
+      .is('last_synced_at', null)
+      .order('published_at', { ascending: false })
+      .limit(SYNC_BACKFILL_PER_RUN);
+    for (const project of unsyncedProjects ?? []) {
+      if (Date.now() >= deadlineAt) {
+        deadlineHit = true;
+        break;
+      }
+      try {
+        const outcome = await syncProject(project.id);
+        if (outcome.status === 'synced') synced++;
+        if (outcome.status === 'rate_limited') break;
+      } catch (err) {
+        console.error('[cron/pipeline] sync backfill threw:', err);
+        break;
+      }
+    }
+  }
+
   return NextResponse.json({
     materialized,
     savesCreated,
@@ -159,6 +208,7 @@ export async function GET(request: Request) {
     enrichedEmpty: enrichResult.empty,
     enrichHasMore: enrichResult.hasMore,
     enrichStopKind: enrichResult.stopKind,
+    synced,
     deadlineHit,
     tookMs: Date.now() - startedAt,
   });
