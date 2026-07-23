@@ -16,6 +16,7 @@ before calling any task done.
 
 ## Load a doc module before touching its area
 - `docs/state.md` — milestone status, next steps, blockers. **Load first, always.**
+- `docs/vision.md` — board-approved product vision + governance; the north star.
 - `docs/architecture.md` — DB schema/RLS/GitHub-sync/routes/auth. Load for
   supabase/**, src/lib/supabase/**, api/, auth work.
 - `docs/design-system.md` — tokens, fonts, voice, micro-details, component index.
