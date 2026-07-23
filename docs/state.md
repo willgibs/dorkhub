@@ -1,20 +1,14 @@
 # Current state — 2026-07-22
 
 ## Milestones (master plan M0–M9)
-- M0–M2.5, M7 ✅ — design locked ("quiet dev-native"), 24-component library +
-  /design styleguide (5 pages), motion system retrofitted, marketing home +
-  manifesto (gate: merged take approved), brand OG, robots noindex-until-M9.
+- M0–M2.5, M7 ✅ — design locked ("quiet dev-native"), component library +
+  /design styleguide, motion system, marketing home + manifesto, brand OG.
 - DB ✅ LIVE — dedicated Supabase org, ref xvorwdvsnbpujyzfowwu (us-east-1).
-  Migrations 0001–0004 applied; seeds in; RLS suite 26/26; advisors clean.
-- M3 auth+identity ✅ — E2E-proven by first real signup (u/willgibs); 3 prod
-  bugs fixed + regression-guarded (details in decisions.md).
-- M4 projects+GitHub sync ✅ E2E-PROVEN (spec: docs/plans/m4-projects.md) —
-  Will added willgibs/linkflow via /new → draft → publish → live page; prod
-  cron verified (ETag 304s, errored:0). 244 tests; RLS 26/26. Seed-id
-  collision hazard caught+fixed pre-token (ids shifted +9e11).
-
-- M5 discovery+interactions ✅ SHIPPED, tag m5 (Will's QA passed) — feed +
-  discovery routes + live likes/saves/follows + caching pass.
+  Migrations 0001–0005 applied; seeds in; RLS suite 26/26; advisors clean.
+- M3 auth ✅ · M4 projects/sync ✅ · M5 discovery ✅ — each E2E-proven by
+  Will as first user; tags m4/m5; specs in docs/plans/; prod bugs + fixes
+  logged in decisions.md (service_role grants, layout cache, seed-id
+  collision, PGRST201 embed).
 - M5.5 curator round ✅ CODE-COMPLETE (spec: docs/plans/m5.5-curator.md) —
   saved/following surfaced (dropdown, feed trailing links, empty-state
   exits), REAL ⌘K search (trgm indexes 0005, /api/search paired-ilike,
