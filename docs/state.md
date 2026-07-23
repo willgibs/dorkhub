@@ -13,15 +13,20 @@
   cron verified (ETag 304s, errored:0). 244 tests; RLS 26/26. Seed-id
   collision hazard caught+fixed pre-token (ids shifted +9e11).
 
-- M5 discovery+interactions ✅ CODE-COMPLETE (spec: docs/plans/m5-discovery.md)
-  — caching pass (header client island, / static, proxy / → /home rewrite),
-  real feed + /trending + /t/[tag] + /tags + /api/feed, live likes/saves/
-  follows (browser-client RLS writes), /saved + /following. 308 tests; anon
-  browser QA green. Awaiting Will's signed-in QA, then tag m5.
+- M5 discovery+interactions ✅ SHIPPED, tag m5 (Will's QA passed) — feed +
+  discovery routes + live likes/saves/follows + caching pass.
+- M5.5 curator round ✅ CODE-COMPLETE (spec: docs/plans/m5.5-curator.md) —
+  saved/following surfaced (dropdown, feed trailing links, empty-state
+  exits), REAL ⌘K search (trgm indexes 0005, /api/search paired-ilike,
+  root-mounted palette), wrapping mobile header (also fixes prod's clipped
+  sign-in at 375px). 336 tests; anon QA green. Awaiting Will's signed-in QA.
+- PRODUCT: curator-first strategy locked (decisions.md 2026-07-22) —
+  importer platform (ingestion → admin approval) is the NEXT planning round.
 
 ## Next steps
-1. Will: signed-in M5 QA (feed on /, like/save/follow round-trips).
-2. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M8, M9.
+1. Will: signed-in M5.5 QA (dropdown items, palette, mobile header feel).
+2. Importer platform planning round (reshapes M8; maybe separate admin app).
+3. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M9.
 
 ## Open blockers
 - (none)
