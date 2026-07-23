@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   GithubConfigError,
   getReadmeHtml,
+  getReadmeRaw,
   getRepoById,
   getRepoByOwnerName,
   listPublicRepos,
@@ -616,6 +617,92 @@ describe('getReadmeHtml', () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => new Response('<h1>Hi</h1>', { status: 200 }));
 
     await expect(getReadmeHtml('octocat', 'my-repo', { fetchImpl })).rejects.toThrow(
+      GithubConfigError,
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe('getReadmeRaw', () => {
+  it('requests the raw+json media type and returns the raw text body on 200', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () =>
+        new Response('# Hello\n\nA plain markdown readme.', {
+          status: 200,
+          headers: { etag: '"readme-etag"' },
+        }),
+    );
+
+    const result = await getReadmeRaw('octocat', 'my-repo', { fetchImpl });
+
+    expect(result).toEqual({
+      kind: 'ok',
+      data: '# Hello\n\nA plain markdown readme.',
+      etag: '"readme-etag"',
+    });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.github.com/repos/octocat/my-repo/readme');
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('accept')).toBe('application/vnd.github.raw+json');
+  });
+
+  it('sends If-None-Match when an etag is provided', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response(null, { status: 304 }));
+
+    await getReadmeRaw('octocat', 'my-repo', { etag: '"readme-etag"', fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('if-none-match')).toBe('"readme-etag"');
+  });
+
+  it('returns not_modified with the ETag on 304', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response(null, { status: 304, headers: { etag: '"same"' } }),
+    );
+
+    const result = await getReadmeRaw('octocat', 'my-repo', { etag: '"same"', fetchImpl });
+
+    expect(result).toEqual({ kind: 'not_modified', etag: '"same"' });
+  });
+
+  it('returns not_found when the repo has no README', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('{"message":"Not Found"}', { status: 404 }),
+    );
+
+    const result = await getReadmeRaw('octocat', 'no-readme', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'not_found' });
+  });
+
+  it('sends the required auth/version/UA headers', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response('readme text', { status: 200 }));
+
+    await getReadmeRaw('octocat', 'my-repo', { fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('authorization')).toBe('Bearer test-token');
+    expect(headers.get('x-github-api-version')).toBe('2022-11-28');
+    expect(headers.get('user-agent')).toBe('dorkhub');
+  });
+
+  it('returns an error kind with status 0 on a network-level fetch throw', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      throw new Error('network down');
+    });
+
+    const result = await getReadmeRaw('octocat', 'my-repo', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'error', status: 0, message: 'network down' });
+  });
+
+  it('throws GithubConfigError when GITHUB_TOKEN is missing', async () => {
+    delete process.env.GITHUB_TOKEN;
+    const fetchImpl = vi.fn<typeof fetch>(async () => new Response('readme text', { status: 200 }));
+
+    await expect(getReadmeRaw('octocat', 'my-repo', { fetchImpl })).rejects.toThrow(
       GithubConfigError,
     );
     expect(fetchImpl).not.toHaveBeenCalled();

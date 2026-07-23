@@ -62,6 +62,7 @@ export type ProjectCardSourceRow = Pick<
   | 'forks_count'
   | 'demo_url'
   | 'updated_at'
+  | 'repo_full_name'
 >;
 
 /**
@@ -89,6 +90,7 @@ export function projectRowToCard(
     likes: row.likes_count > 0 ? row.likes_count : null,
     tags: row.tags,
     hasScreenshot: (screenshots?.length ?? 0) > 0,
+    repoFullName: row.repo_full_name,
     author: authorUsername,
     license: row.license ?? undefined,
     forks: row.forks_count,

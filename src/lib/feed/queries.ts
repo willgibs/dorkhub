@@ -110,11 +110,16 @@ export type FeedRow = Pick<
   | 'updated_at'
   | 'published_at'
   | 'trending_score'
+  | 'repo_full_name'
 > & {
   profiles: Pick<ProfileRow, 'username' | 'display_name' | 'avatar_url' | 'followers_count'>;
 };
 
-const FEED_COLUMNS = [
+// Exported (not just used internally) so callers building their own embedded
+// select — e.g. /saved's `saves!inner(projects!inner(...))` — can reuse the
+// exact same lean projection instead of hand-mirroring it (docs/plans/
+// p2-discovery.md Wave 1A decision 4: a hand-mirrored copy is a drift hazard).
+export const FEED_COLUMNS = [
   'id',
   'slug',
   'profile_id',
@@ -131,6 +136,7 @@ const FEED_COLUMNS = [
   'updated_at',
   'published_at',
   'trending_score',
+  'repo_full_name',
   // The FK name is REQUIRED: projects↔profiles has three relationships (the
   // direct FK plus many-to-many through likes and saves), so a bare
   // `profiles!inner` is ambiguous and PostgREST 400s it (PGRST201) —

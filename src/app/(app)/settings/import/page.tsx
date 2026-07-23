@@ -1,13 +1,24 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { PageShell } from '@/components/page-shell';
+import { safeNextPath } from '@/lib/auth/redirects';
 import { copy } from '@/lib/copy';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 import { ImportRunner } from './import-runner';
 
 export const metadata: Metadata = { title: copy.importTitle };
 
-export default async function SettingsImportPage() {
+export default async function SettingsImportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; next?: string }>;
+}) {
+  const params = await searchParams;
+  // Query string is attacker-reachable — never trust `next` raw.
+  const fromOnboarding = params.from === 'onboarding';
+  const skipHref = safeNextPath(params.next);
+
   const supabase = await supabaseServer();
   const {
     data: { user },
@@ -46,6 +57,15 @@ export default async function SettingsImportPage() {
       </div>
 
       <ImportRunner />
+
+      {fromOnboarding ? (
+        <Link
+          href={skipHref}
+          className="w-fit rounded-sm font-mono text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          {copy.importSkip}
+        </Link>
+      ) : null}
     </PageShell>
   );
 }

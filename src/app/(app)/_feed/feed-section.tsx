@@ -66,7 +66,18 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
     return (
       <div className="flex flex-col gap-6">
         {filters}
-        <EmptyState message={copy.emptyFeed} />
+        <EmptyState>
+          <p>
+            {copy.emptyFeedLead}{' '}
+            <Link
+              href="/weird"
+              prefetch={false}
+              className="rounded-sm text-link outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {copy.emptyFeedLink}
+            </Link>
+          </p>
+        </EmptyState>
       </div>
     );
   }

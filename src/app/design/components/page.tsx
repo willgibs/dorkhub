@@ -286,6 +286,15 @@ export default function DesignComponentsPage() {
               />
             </div>
           </Demo>
+          <Demo label="feed — og-image media (GitHub hotlink, broken-image fallback on error)">
+            <div className="w-full max-w-sm">
+              <ProjectCard
+                project={{ ...tinysynth, repoFullName: 'vercel/next.js' }}
+                author={authors[tinysynth.author]}
+                staggerIndex={4}
+              />
+            </div>
+          </Demo>
           <Demo label="compact — no media, no tags">
             <div className="w-full max-w-xs">
               <ProjectCard

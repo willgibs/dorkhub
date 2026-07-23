@@ -104,5 +104,10 @@ export async function createProfile(
   // Will hit as first user). Purge the layout cache so the session-aware
   // header re-renders with the fresh profile.
   revalidatePath('/', 'layout');
-  redirect(next);
+
+  // Stars import is the activation moment (vision) — freshly-created profiles
+  // funnel through it before landing on `next`. `next` is already
+  // safeNextPath-validated above and gets re-validated on the way out of
+  // /settings/import (see that page's skip link).
+  redirect(`/settings/import?from=onboarding&next=${encodeURIComponent(next)}`);
 }

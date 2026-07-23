@@ -28,6 +28,10 @@ export type FixtureProject = {
   forks?: number;
   demoUrl?: string;
   updatedAgo?: string;
+  // "owner/repo" — drives the og-image hotlink (docs/plans/p2-discovery.md
+  // Wave 1A). Type-only here: fixture data stays untouched so /design never
+  // hotlinks a nonexistent repo; the one dedicated demo passes it directly.
+  repoFullName?: string;
 };
 
 export const authors: Record<string, FixtureAuthor> = {

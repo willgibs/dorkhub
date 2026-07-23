@@ -14,7 +14,7 @@ export type SkeletonCardProps = {
 export function SkeletonCard({ showMedia = true, className }: SkeletonCardProps) {
   return (
     <div aria-hidden="true" className={cn('flex w-full flex-col gap-2.5', className)}>
-      {showMedia ? <Skeleton className="aspect-[16/10] w-full rounded-md bg-surface-2" /> : null}
+      {showMedia ? <Skeleton className="aspect-[1200/630] w-full rounded-md bg-surface-2" /> : null}
       <Skeleton className="h-3.5 w-[55%] bg-surface-2" />
       <Skeleton className="h-[11px] w-[85%] bg-surface-2" />
       <div className="flex items-center gap-3.5">

@@ -134,6 +134,12 @@ export function ImportRunner() {
           </Link>
         </p>
       ) : null}
+      <Link
+        href="/"
+        className="w-fit rounded-sm text-primary outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        {copy.browseCta}
+      </Link>
     </div>
   );
 }

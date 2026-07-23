@@ -7,38 +7,12 @@ import { renderFeedCards } from '@/app/(app)/_feed/render-cards';
 import { EmptyState } from '@/components/empty-state';
 import { PageShell } from '@/components/page-shell';
 import { copy } from '@/lib/copy';
-import type { FeedRow } from '@/lib/feed/queries';
+import { FEED_COLUMNS, type FeedRow } from '@/lib/feed/queries';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = { title: copy.savedTitle };
-
-// Mirrors `FEED_COLUMNS` in `src/lib/feed/queries.ts` (LEAN explicit column
-// list — never select('*'), readme_html is huge) so the embedded `projects`
-// resource below matches `FeedRow` and can go straight into the shared
-// `renderFeedCards`. The FK name on the nested `profiles` embed is REQUIRED:
-// projects<->profiles has three relationships, so a bare `profiles!inner`
-// is ambiguous and PostgREST 400s it (PGRST201).
-const SAVED_PROJECT_COLUMNS = [
-  'id',
-  'slug',
-  'profile_id',
-  'name',
-  'tagline',
-  'primary_language',
-  'stars_count',
-  'forks_count',
-  'license',
-  'demo_url',
-  'tags',
-  'screenshots',
-  'likes_count',
-  'updated_at',
-  'published_at',
-  'trending_score',
-  'profiles!projects_profile_id_fkey!inner(username, display_name, avatar_url, followers_count)',
-].join(', ');
 
 type SaveRow = { created_at: string; projects: FeedRow };
 
@@ -64,16 +38,24 @@ export default async function SavedPage() {
   // drops out of the result. Unpaginated v1 (docs/plans/m5-discovery.md scope
   // cut): bounded by one user's own save activity, cap 100 is a sanity limit
   // not a real pagination boundary.
+  //
+  // `FEED_COLUMNS` (imported from `src/lib/feed/queries.ts`, its FK-qualified
+  // `profiles!projects_profile_id_fkey!inner(...)` clause included) is the
+  // single exported projection shared with the feed itself — no hand-mirrored
+  // copy to drift (docs/plans/p2-discovery.md Wave 1A decision 4). The FK
+  // name on that nested `profiles` embed is REQUIRED: projects<->profiles has
+  // three relationships, so a bare `profiles!inner` is ambiguous and
+  // PostgREST 400s it (PGRST201).
   const { data } = await supabase
     .from('saves')
-    .select(`created_at, projects!inner(${SAVED_PROJECT_COLUMNS})`)
+    .select(`created_at, projects!inner(${FEED_COLUMNS})`)
     .eq('profile_id', profile.id)
     .order('created_at', { ascending: false })
     .limit(100);
 
   // Same IO-boundary trust as `toFeedPage` in `src/lib/feed/queries.ts` —
   // postgrest-js's generic inference doesn't fully verify nested embeds; the
-  // shape is enforced by `SAVED_PROJECT_COLUMNS` above.
+  // shape is enforced by `FEED_COLUMNS` above.
   const rows = ((data ?? []) as unknown as SaveRow[]).map((row) => row.projects);
   const ids = rows.map((row) => row.id);
 

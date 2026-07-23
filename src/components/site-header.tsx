@@ -17,6 +17,10 @@ export type SiteHeaderProps = {
 const NAV_LINKS = [
   { label: 'browse', href: '/' },
   { label: 'tags', href: '/tags' },
+  // prefetch={false}: a prefetched /weird would resolve (and burn) its
+  // random redirect on every header render instead of on click
+  // (docs/plans/p2-discovery.md locked decision 7).
+  { label: copy.navWeird, href: '/weird', prefetch: false },
 ] as const;
 
 /**
@@ -49,6 +53,7 @@ export function SiteHeader({ ctaHref = '/new', children, className }: SiteHeader
           <Link
             key={link.href}
             href={link.href}
+            prefetch={'prefetch' in link ? link.prefetch : undefined}
             className="rounded-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
           >
             {link.label}

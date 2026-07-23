@@ -8,7 +8,8 @@ import 'server-only';
  *
  * Covers: listing a user's public repos, listing a user's starred repos
  * (one page at a time), fetching one repo by its immutable numeric id or by
- * owner/name, and fetching a repo's rendered README as HTML.
+ * owner/name, fetching a repo's rendered README as HTML or as raw markdown,
+ * and searching repositories by topic/stars.
  */
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -426,6 +427,38 @@ export async function getReadmeHtml(
 
   const html = await res.text();
   return { kind: 'ok', data: html, etag: status.etag };
+}
+
+/**
+ * Fetches a repo's README as raw markdown text (the `vnd.github.raw+json`
+ * media type) rather than GitHub's rendered HTML — used by AI enrichment
+ * (src/lib/ai/enrich.ts), which wants plain text to feed a model prompt, not
+ * markup. Clone of `getReadmeHtml` with a different Accept header; same
+ * result-object conventions and ETag support.
+ */
+export async function getReadmeRaw(
+  owner: string,
+  repo: string,
+  opts: GithubFetchOpts = {},
+): Promise<GithubResult<string>> {
+  const fetchImpl = opts.fetchImpl ?? fetch;
+  const url = `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/readme`;
+  const headers = buildHeaders('application/vnd.github.raw+json', opts.etag);
+
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { headers });
+  } catch (err) {
+    return { kind: 'error', status: 0, message: networkErrorMessage(err) };
+  }
+
+  const status = await classifyResponse(res);
+  if (status.kind !== 'ok') {
+    return status;
+  }
+
+  const text = await res.text();
+  return { kind: 'ok', data: text, etag: status.etag };
 }
 
 /** Options for `searchRepositories`. No `etag` — search results aren't conditionally re-validatable. */

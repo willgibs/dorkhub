@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react';
+import { CardMedia } from '@/components/card-media';
 import { LanguageDot } from '@/components/language-dot';
 import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
 import type { FixtureAuthor, FixtureProject } from '@/lib/fixtures';
+import { githubOgImageUrl } from '@/lib/projects/github-og';
 import { cn } from '@/lib/utils';
 
 export type ProjectCardVariant = 'feed' | 'compact' | 'featured';
@@ -104,7 +106,10 @@ export function ProjectCard({
   className,
 }: ProjectCardProps) {
   const compact = variant === 'compact';
-  const showMedia = project.hasScreenshot && !compact;
+  // og-image hotlinks take priority display-wise once a real screenshot
+  // exists (P3 TODO: prefer `hasScreenshot` over the og fallback when
+  // screenshots ship) — for now any repo with a `repoFullName` gets imagery.
+  const showMedia = !compact && (Boolean(project.repoFullName) || project.hasScreenshot);
   const showTags = !compact && project.tags.length > 0;
 
   return (
@@ -122,8 +127,14 @@ export function ProjectCard({
       ) : null}
 
       {showMedia ? (
-        <div className="aspect-[16/10] border-b bg-surface-2">
-          <MediaPlaceholder name={project.name} />
+        <div className="aspect-[1200/630] border-b bg-surface-2">
+          {project.repoFullName ? (
+            <CardMedia src={githubOgImageUrl(project.repoFullName)}>
+              <MediaPlaceholder name={project.name} />
+            </CardMedia>
+          ) : (
+            <MediaPlaceholder name={project.name} />
+          )}
         </div>
       ) : null}
 

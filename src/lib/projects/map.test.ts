@@ -98,6 +98,15 @@ describe('projectRowToCard — other fields', () => {
     expect(card.author).toBe('mollybuilds');
     expect(card.tags).toEqual(['audio', 'toy']);
   });
+
+  it('carries repo_full_name through as repoFullName', () => {
+    const card = projectRowToCard(
+      makeRow({ repo_full_name: 'mollybuilds/tinysynth' }),
+      'mollybuilds',
+      NOW,
+    );
+    expect(card.repoFullName).toBe('mollybuilds/tinysynth');
+  });
 });
 
 describe('formatUpdatedAgo', () => {
