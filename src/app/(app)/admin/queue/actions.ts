@@ -51,8 +51,12 @@ function descriptionToTagline(description: string | null): string | null {
 /** GitHub's SPDX id for "no machine-detectable license" — mirrors src/app/(app)/new/actions.ts. */
 const NOASSERTION = 'NOASSERTION';
 
-/** Sequential AI calls per `enrichCandidates` run — quiet, cheap, rate-friendly (locked decision #9). */
-const ENRICH_BATCH_LIMIT = 20;
+/**
+ * Sequential AI calls per `enrichCandidatesPage` chunk — small enough that
+ * each server-action round-trip stays a few seconds (readme fetch + one
+ * model call per row), so the runner's progress line moves visibly.
+ */
+const ENRICH_CHUNK_SIZE = 5;
 
 /** Same token budget for every enrichment call, batch or inline — a tagline + up to 6 tags is short. */
 const ENRICHMENT_MAX_TOKENS = 300;
@@ -67,38 +71,46 @@ function redirectWithError(message: string): never {
   redirect(`/admin/queue?err=${encodeURIComponent(message)}`);
 }
 
+/** One enrich-runner chunk — see `enrichCandidatesPage`. */
+export type EnrichPageResult = {
+  /** Rows this chunk wrote a usable ai_tagline/ai_tags for. */
+  enriched: number;
+  /** Rows the model answered but produced nothing usable for (stamped — won't retry). */
+  empty: number;
+  /** True when a full chunk was selected — more enrichable rows likely remain. */
+  hasMore: boolean;
+  /**
+   * Set when the chunk stopped early on a SYSTEMIC failure (rate limit,
+   * provider error, missing key). Unprocessed rows stay unstamped and are
+   * picked up by the next call — resume is safe.
+   */
+  stopReason: string | null;
+};
+
 /**
- * Batch-enriches pending candidates missing a description or topics (P2
- * Wave 2D, docs/plans/p2-discovery.md locked decisions #8–#9) — this is the
- * PRIMARY enrichment path: an admin reviews `ai_tagline`/`ai_tags` on the
- * pending row before approving. `approveCandidate`'s inline fallback only
- * fires when this never ran (or the model came up empty).
+ * One chunk of the client-driven enrichment loop (P2.1 rework — same shape
+ * as `importStarsPage`): the queue page's EnrichRunner calls this repeatedly
+ * until `hasMore` is false, showing live progress between calls. This is the
+ * PRIMARY enrichment path (docs/plans/p2-discovery.md locked decisions
+ * #8–#9): an admin reviews `ai_tagline`/`ai_tags` on the pending row before
+ * approving; `approveCandidate`'s inline fallback only fires when this never
+ * ran (or the model came up empty).
  *
  * Selection draws from the ACTUAL enrichable set — two lean queries
  * (`description is null` / `topics = '{}'`), merged and deduped, instead of
  * one `.or()` (house style avoids PostgREST `.or()` — docs/decisions.md
- * M5.5). P2.1 fix: the first cut fetched the top-60-by-demand and filtered
- * in JS, but enrichable rows are mostly demand-0 crawl candidates BELOW that
- * window — the button advertised 52 while the batch could only see 1. The
- * batch works through `ENRICH_BATCH_LIMIT` SEQUENTIALLY — never a
- * concurrency pool; quiet, cheap, rate-friendly by design.
+ * M5.5; the original top-60-by-demand window saw 1 of 52 enrichable rows).
+ * Chunks run SEQUENTIALLY — never a concurrency pool.
  *
- * Per candidate: best-effort README fetch (any failure — a non-ok
- * `GithubResult` OR a thrown `GithubConfigError` — degrades to a null
- * readme, never aborts the candidate), then one `chatCompletion` call.
- *  - `AiConfigError` (key missing) can only really happen on the very first
- *    call — nothing's been written yet, so this redirects immediately with
- *    the standard `?err=` banner instead of a partial batch.
- *  - `rate_limited` stops the loop outright: this candidate AND every
- *    candidate after it stay untouched (`enriched_at` NOT stamped) so the
- *    next run picks them back up; it still counts toward `aifailed` so the
- *    admin sees that *something* happened this run.
- *  - every other outcome (a real `error`, or an `ok` response whose content
- *    `parseEnrichmentResult` can't use) ALWAYS stamps `enriched_at` — even
- *    with null/empty fields — so a bad batch never retries the same duds
- *    forever.
+ * Stamping semantics (P2.1 hard lesson — a bad model id stamped 12 rows as
+ * "attempted" that were never really tried):
+ *  - SYSTEMIC failures (rate_limited, any provider `error`, AiConfigError)
+ *    stop the chunk WITHOUT stamping — nothing is consumed, the reason is
+ *    returned for the runner to display, and resume retries the same rows.
+ *  - Only an `ok` model reply stamps `enriched_at` — usable or not — so
+ *    genuinely-answered duds never retry forever, and nothing else burns.
  */
-export async function enrichCandidates(_formData: FormData): Promise<void> {
+export async function enrichCandidatesPage(): Promise<EnrichPageResult> {
   await requireAdmin();
   const service = supabaseService();
 
@@ -110,7 +122,7 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
       .is('enriched_at', null)
       .order('demand_count', { ascending: false })
       .order('stars_count', { ascending: false })
-      .limit(ENRICH_BATCH_LIMIT);
+      .limit(ENRICH_CHUNK_SIZE);
 
   const [{ data: noDescription }, { data: noTopics }] = await Promise.all([
     enrichableBase().is('description', null),
@@ -125,11 +137,14 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
   const toEnrich = [...byRepoId.values()]
     .filter(needsEnrichment) // belt-and-braces: whitespace-only descriptions
     .sort((a, b) => b.demand_count - a.demand_count || b.stars_count - a.stars_count)
-    .slice(0, ENRICH_BATCH_LIMIT);
+    .slice(0, ENRICH_CHUNK_SIZE);
 
-  let enriched = 0;
-  let aifailed = 0;
-  let firstFailure: string | null = null;
+  const result: EnrichPageResult = {
+    enriched: 0,
+    empty: 0,
+    hasMore: toEnrich.length === ENRICH_CHUNK_SIZE,
+    stopReason: null,
+  };
 
   for (const candidate of toEnrich) {
     let readmeText: string | null = null;
@@ -137,7 +152,7 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
       const readmeResult = await getReadmeRaw(candidate.owner_login, candidate.name);
       if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
     } catch (err) {
-      console.error('[admin/queue] enrichCandidates readme fetch failed:', err);
+      console.error('[admin/queue] enrichCandidatesPage readme fetch failed:', err);
     }
 
     let chatResult: Awaited<ReturnType<typeof chatCompletion>>;
@@ -148,29 +163,28 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
       });
     } catch (err) {
       if (err instanceof AiConfigError) {
-        console.error('[admin/queue] enrichCandidates:', err.message);
-        redirectWithError(
-          'ai not configured — set GEMINI_API_KEY (google ai studio, free) or AI_GATEWAY_API_KEY',
-        );
+        console.error('[admin/queue] enrichCandidatesPage:', err.message);
+        result.stopReason =
+          'ai not configured — set GEMINI_API_KEY (google ai studio, free) or AI_GATEWAY_API_KEY';
+        return result;
       }
       throw err;
     }
 
     if (chatResult.kind === 'rate_limited') {
-      aifailed += 1;
-      firstFailure ??= 'provider rate-limited — remaining candidates untouched, run again later';
-      break; // no update — this row (and the rest of the batch) stays eligible for next run
+      result.stopReason = 'provider rate-limited — nothing consumed, resume in a minute';
+      return result;
+    }
+    if (chatResult.kind === 'error') {
+      result.stopReason = `provider error${chatResult.status ? ` ${chatResult.status}` : ''}: ${chatResult.message.slice(0, 160)}`;
+      return result;
     }
 
-    const parsed = chatResult.kind === 'ok' ? parseEnrichmentResult(chatResult.content) : null;
+    const parsed = parseEnrichmentResult(chatResult.content);
     if (parsed) {
-      enriched += 1;
+      result.enriched += 1;
     } else {
-      aifailed += 1;
-      firstFailure ??=
-        chatResult.kind === 'error'
-          ? `provider error${chatResult.status ? ` ${chatResult.status}` : ''}: ${chatResult.message.slice(0, 120)}`
-          : 'model reply was unusable (bad json)';
+      result.empty += 1;
     }
 
     const { error } = await service
@@ -182,13 +196,12 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
       })
       .eq('github_repo_id', candidate.github_repo_id);
     if (error) {
-      console.error('[admin/queue] enrichCandidates update failed:', error.message);
+      console.error('[admin/queue] enrichCandidatesPage update failed:', error.message);
     }
   }
 
-  revalidatePath('/admin/queue');
-  const reason = firstFailure ? `&aireason=${encodeURIComponent(firstFailure)}` : '';
-  redirect(`/admin/queue?enriched=${enriched}&aifailed=${aifailed}${reason}`);
+  if (!result.hasMore) revalidatePath('/admin/queue');
+  return result;
 }
 
 /**

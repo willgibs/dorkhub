@@ -12,7 +12,8 @@ import { supabaseService } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 
-import { approveCandidate, enrichCandidates, rejectCandidate, reopenCandidate } from './actions';
+import { approveCandidate, rejectCandidate, reopenCandidate } from './actions';
+import { EnrichRunner } from './enrich-runner';
 
 export const metadata: Metadata = { title: copy.adminQueueTitle };
 
@@ -197,9 +198,6 @@ export default async function AdminQueuePage({
     username?: string;
     saves?: string;
     ai?: string;
-    enriched?: string;
-    aifailed?: string;
-    aireason?: string;
     source?: string;
   }>;
 }) {
@@ -262,7 +260,6 @@ export default async function AdminQueuePage({
   const totalPending = (pendingSources ?? []).length;
   const enrichableCount = (pendingEnrichable ?? []).filter(needsEnrichment).length;
   const savesCount = Number(params.saves ?? '0');
-  const aifailedCount = Number(params.aifailed ?? '0');
 
   return (
     <div className="flex flex-col gap-6">
@@ -281,14 +278,6 @@ export default async function AdminQueuePage({
           {params.ai ? ` · published with ai tagline: “${params.ai}”` : ''}
         </div>
       ) : null}
-      {params.enriched !== undefined ? (
-        <div className="rounded-lg border bg-surface-2 px-4 py-3 font-mono text-[13px] text-muted-foreground">
-          enriched {params.enriched}
-          {aifailedCount > 0 ? ` — ${aifailedCount} failed` : ''}
-          {params.aireason ? <span className="block text-[12px]">{params.aireason}</span> : null}
-        </div>
-      ) : null}
-
       <div className="flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="source filter" className="flex flex-wrap items-center gap-2">
           <a
@@ -320,13 +309,7 @@ export default async function AdminQueuePage({
           ))}
         </nav>
 
-        {enrichableCount > 0 ? (
-          <form action={enrichCandidates}>
-            <Button type="submit" variant="secondary" size="sm">
-              enrich {enrichableCount}
-            </Button>
-          </form>
-        ) : null}
+        <EnrichRunner enrichableCount={enrichableCount} />
       </div>
 
       {pendingRows.length === 0 ? (

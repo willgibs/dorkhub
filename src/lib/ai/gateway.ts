@@ -20,9 +20,16 @@ const AI_GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 const GOOGLE_OPENAI_URL =
   'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
 
-/** Per-provider default models (Google's endpoint takes unprefixed ids). */
+/**
+ * Per-provider default models (Google's endpoint takes unprefixed ids).
+ * Google default is a PINNED current-generation model: 2.5-flash-lite 404s
+ * for new API keys ("no longer available to new users", P2.1 QA) and the
+ * `gemini-flash-lite-latest` alias 403s — both probed live 2026-07-23 with
+ * a fresh key. If Google retires this one too, the runner surfaces the 404
+ * reason immediately and `AI_GATEWAY_MODEL` overrides without a deploy.
+ */
 const DEFAULT_MODEL_GATEWAY = 'google/gemini-2.5-flash-lite';
-const DEFAULT_MODEL_GOOGLE = 'gemini-2.5-flash-lite';
+const DEFAULT_MODEL_GOOGLE = 'gemini-3.5-flash-lite';
 
 /** Error message bodies are truncated to this many characters before being surfaced. */
 const ERROR_MESSAGE_CAP = 200;

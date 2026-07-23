@@ -137,7 +137,7 @@ describe('chatCompletion — config', () => {
     const [url, init] = fetchImpl.mock.calls[0];
     expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions');
     expect(new Headers(init?.headers).get('authorization')).toBe('Bearer google-key');
-    expect(JSON.parse(init?.body as string).model).toBe('gemini-2.5-flash-lite');
+    expect(JSON.parse(init?.body as string).model).toBe('gemini-3.5-flash-lite');
   });
 
   it('AI_GATEWAY_MODEL still overrides the model under the Google provider', async () => {
