@@ -21,8 +21,9 @@
 2. Tag p2. 3. Plan P2.5 self-running gallery. 4. P3 collections+rich pages.
 
 ## Open blockers
-- Enrichment E2E blocked on AI_GATEWAY_API_KEY (everything else degrades
-  gracefully: AiConfigError → quiet admin banner).
+- Enrichment E2E blocked on GEMINI_API_KEY (Google AI Studio, free, no card
+  — aistudio.google.com/apikey). Will's AI_GATEWAY_API_KEY is set but
+  Vercel's free tier 429s every model without a paid top-up (P2.1 finding).
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP (reserved for Will's other agents). Management

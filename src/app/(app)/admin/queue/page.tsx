@@ -73,6 +73,15 @@ function CandidateMeta({ candidate }: { candidate: Candidate }) {
           needs content
         </Badge>
       ) : null}
+      {/* Visible after-state for an enrich run that produced nothing usable —
+          without this, "attempted but empty" rows look identical to
+          never-attempted ones (first-admin QA, P2.1). */}
+      {candidate.enriched_at &&
+      needsEnrichment(candidate) &&
+      !candidate.ai_tagline &&
+      candidate.ai_tags.length === 0 ? (
+        <span className="font-mono text-[11.5px] text-muted-foreground">ai came up empty</span>
+      ) : null}
       {candidate.demand_count > 0 ? (
         <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
           wanted by {candidate.demand_count}
@@ -190,6 +199,7 @@ export default async function AdminQueuePage({
     ai?: string;
     enriched?: string;
     aifailed?: string;
+    aireason?: string;
     source?: string;
   }>;
 }) {
@@ -275,6 +285,7 @@ export default async function AdminQueuePage({
         <div className="rounded-lg border bg-surface-2 px-4 py-3 font-mono text-[13px] text-muted-foreground">
           enriched {params.enriched}
           {aifailedCount > 0 ? ` — ${aifailedCount} failed` : ''}
+          {params.aireason ? <span className="block text-[12px]">{params.aireason}</span> : null}
         </div>
       ) : null}
 

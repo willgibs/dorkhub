@@ -51,9 +51,6 @@ function descriptionToTagline(description: string | null): string | null {
 /** GitHub's SPDX id for "no machine-detectable license" — mirrors src/app/(app)/new/actions.ts. */
 const NOASSERTION = 'NOASSERTION';
 
-/** Candidate rows considered per `enrichCandidates` invocation, before the `needsEnrichment` filter. */
-const ENRICH_FETCH_LIMIT = 60;
-
 /** Sequential AI calls per `enrichCandidates` run — quiet, cheap, rate-friendly (locked decision #9). */
 const ENRICH_BATCH_LIMIT = 20;
 
@@ -77,12 +74,14 @@ function redirectWithError(message: string): never {
  * pending row before approving. `approveCandidate`'s inline fallback only
  * fires when this never ran (or the model came up empty).
  *
- * Fetches up to `ENRICH_FETCH_LIMIT` pending, not-yet-enriched candidates
- * (demand desc, stars desc — same ranking as the queue itself), filters to
- * `needsEnrichment` in JS (a static `.or()` filter would work here but house
- * style avoids PostgREST `.or()` — see docs/decisions.md M5.5), and works
- * through the first `ENRICH_BATCH_LIMIT` SEQUENTIALLY — never a concurrency
- * pool; this is quiet, cheap, rate-friendly by design, not a throughput path.
+ * Selection draws from the ACTUAL enrichable set — two lean queries
+ * (`description is null` / `topics = '{}'`), merged and deduped, instead of
+ * one `.or()` (house style avoids PostgREST `.or()` — docs/decisions.md
+ * M5.5). P2.1 fix: the first cut fetched the top-60-by-demand and filtered
+ * in JS, but enrichable rows are mostly demand-0 crawl candidates BELOW that
+ * window — the button advertised 52 while the batch could only see 1. The
+ * batch works through `ENRICH_BATCH_LIMIT` SEQUENTIALLY — never a
+ * concurrency pool; quiet, cheap, rate-friendly by design.
  *
  * Per candidate: best-effort README fetch (any failure — a non-ok
  * `GithubResult` OR a thrown `GithubConfigError` — degrades to a null
@@ -103,19 +102,34 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
   await requireAdmin();
   const service = supabaseService();
 
-  const { data: pendingRows } = await service
-    .from('ingest_candidates')
-    .select('*')
-    .eq('status', 'pending')
-    .is('enriched_at', null)
-    .order('demand_count', { ascending: false })
-    .order('stars_count', { ascending: false })
-    .limit(ENRICH_FETCH_LIMIT);
+  const enrichableBase = () =>
+    service
+      .from('ingest_candidates')
+      .select('*')
+      .eq('status', 'pending')
+      .is('enriched_at', null)
+      .order('demand_count', { ascending: false })
+      .order('stars_count', { ascending: false })
+      .limit(ENRICH_BATCH_LIMIT);
 
-  const toEnrich = (pendingRows ?? []).filter(needsEnrichment).slice(0, ENRICH_BATCH_LIMIT);
+  const [{ data: noDescription }, { data: noTopics }] = await Promise.all([
+    enrichableBase().is('description', null),
+    // .filter() escape hatch: .eq('topics', []) typechecks but serializes to
+    // the invalid `topics=eq.` (empty value, no braces) — probed live, P2.1.
+    enrichableBase().filter('topics', 'eq', '{}'),
+  ]);
+
+  const byRepoId = new Map(
+    [...(noDescription ?? []), ...(noTopics ?? [])].map((row) => [row.github_repo_id, row]),
+  );
+  const toEnrich = [...byRepoId.values()]
+    .filter(needsEnrichment) // belt-and-braces: whitespace-only descriptions
+    .sort((a, b) => b.demand_count - a.demand_count || b.stars_count - a.stars_count)
+    .slice(0, ENRICH_BATCH_LIMIT);
 
   let enriched = 0;
   let aifailed = 0;
+  let firstFailure: string | null = null;
 
   for (const candidate of toEnrich) {
     let readmeText: string | null = null;
@@ -135,13 +149,16 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
     } catch (err) {
       if (err instanceof AiConfigError) {
         console.error('[admin/queue] enrichCandidates:', err.message);
-        redirectWithError('ai gateway not configured — add AI_GATEWAY_API_KEY');
+        redirectWithError(
+          'ai not configured — set GEMINI_API_KEY (google ai studio, free) or AI_GATEWAY_API_KEY',
+        );
       }
       throw err;
     }
 
     if (chatResult.kind === 'rate_limited') {
       aifailed += 1;
+      firstFailure ??= 'provider rate-limited — remaining candidates untouched, run again later';
       break; // no update — this row (and the rest of the batch) stays eligible for next run
     }
 
@@ -150,6 +167,10 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
       enriched += 1;
     } else {
       aifailed += 1;
+      firstFailure ??=
+        chatResult.kind === 'error'
+          ? `provider error${chatResult.status ? ` ${chatResult.status}` : ''}: ${chatResult.message.slice(0, 120)}`
+          : 'model reply was unusable (bad json)';
     }
 
     const { error } = await service
@@ -166,7 +187,8 @@ export async function enrichCandidates(_formData: FormData): Promise<void> {
   }
 
   revalidatePath('/admin/queue');
-  redirect(`/admin/queue?enriched=${enriched}&aifailed=${aifailed}`);
+  const reason = firstFailure ? `&aireason=${encodeURIComponent(firstFailure)}` : '';
+  redirect(`/admin/queue?enriched=${enriched}&aifailed=${aifailed}${reason}`);
 }
 
 /**

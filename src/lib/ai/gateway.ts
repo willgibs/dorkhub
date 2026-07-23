@@ -11,8 +11,18 @@ import 'server-only';
 
 const AI_GATEWAY_URL = 'https://ai-gateway.vercel.sh/v1/chat/completions';
 
-/** Default chat model, overridable per-call (`opts.model`) or globally via `AI_GATEWAY_MODEL`. */
-const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite';
+/**
+ * Google's OpenAI-compatible endpoint — same request/response shape as the
+ * Vercel gateway, but rides Google AI Studio's genuinely-free tier
+ * (~1k requests/day on flash-lite; the Vercel gateway's free tier 429s every
+ * cheap model without a paid top-up — verified live 2026-07-23).
+ */
+const GOOGLE_OPENAI_URL =
+  'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+
+/** Per-provider default models (Google's endpoint takes unprefixed ids). */
+const DEFAULT_MODEL_GATEWAY = 'google/gemini-2.5-flash-lite';
+const DEFAULT_MODEL_GOOGLE = 'gemini-2.5-flash-lite';
 
 /** Error message bodies are truncated to this many characters before being surfaced. */
 const ERROR_MESSAGE_CAP = 200;
@@ -51,19 +61,29 @@ type ChatCompletionNotOk =
 
 export type ChatCompletionResult = ChatCompletionOk | ChatCompletionNotOk;
 
+type ResolvedProvider = { url: string; key: string; defaultModel: string };
+
 /**
- * Reads `AI_GATEWAY_API_KEY` lazily so import-time failures never happen —
- * only a call that actually needs the key can fail, and it fails loudly.
+ * Resolves which provider to call, lazily so import-time failures never
+ * happen — only a call that actually needs a key can fail, and it fails
+ * loudly. Precedence: `GEMINI_API_KEY` (Google AI Studio direct — free tier,
+ * $0) beats `AI_GATEWAY_API_KEY` (Vercel AI Gateway — needs paid credits;
+ * its free tier rate-limits every model). Same OpenAI-compatible wire shape
+ * either way.
  */
-function aiGatewayKey(): string {
-  const key = process.env.AI_GATEWAY_API_KEY?.trim();
-  if (!key) {
-    throw new AiConfigError(
-      'AI_GATEWAY_API_KEY is not set — required for AI enrichment (tagline/tags generation). ' +
-        'Create a key in the Vercel dashboard and set it in .env.local / Vercel envs.',
-    );
+function resolveProvider(): ResolvedProvider {
+  const geminiKey = process.env.GEMINI_API_KEY?.trim();
+  if (geminiKey) {
+    return { url: GOOGLE_OPENAI_URL, key: geminiKey, defaultModel: DEFAULT_MODEL_GOOGLE };
   }
-  return key;
+  const gatewayKey = process.env.AI_GATEWAY_API_KEY?.trim();
+  if (gatewayKey) {
+    return { url: AI_GATEWAY_URL, key: gatewayKey, defaultModel: DEFAULT_MODEL_GATEWAY };
+  }
+  throw new AiConfigError(
+    'No AI key set — AI enrichment needs GEMINI_API_KEY (Google AI Studio, free tier) ' +
+      'or AI_GATEWAY_API_KEY (Vercel AI Gateway, paid credits) in .env.local / Vercel envs.',
+  );
 }
 
 function networkErrorMessage(err: unknown): string {
@@ -89,12 +109,13 @@ async function shortBodySnippet(res: Response): Promise<string> {
  */
 export async function chatCompletion(opts: ChatCompletionOpts): Promise<ChatCompletionResult> {
   const fetchImpl = opts.fetchImpl ?? fetch;
-  const key = aiGatewayKey();
-  const model = opts.model ?? process.env.AI_GATEWAY_MODEL?.trim() ?? DEFAULT_MODEL;
+  const provider = resolveProvider();
+  const key = provider.key;
+  const model = opts.model ?? process.env.AI_GATEWAY_MODEL?.trim() ?? provider.defaultModel;
 
   let res: Response;
   try {
-    res = await fetchImpl(AI_GATEWAY_URL, {
+    res = await fetchImpl(provider.url, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${key}`,

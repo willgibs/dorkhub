@@ -9,11 +9,13 @@ function okResponse(content: string) {
 
 beforeEach(() => {
   process.env.AI_GATEWAY_API_KEY = 'test-key';
+  delete process.env.GEMINI_API_KEY;
   delete process.env.AI_GATEWAY_MODEL;
 });
 
 afterEach(() => {
   delete process.env.AI_GATEWAY_API_KEY;
+  delete process.env.GEMINI_API_KEY;
   delete process.env.AI_GATEWAY_MODEL;
 });
 
@@ -126,6 +128,38 @@ describe('chatCompletion — status classification', () => {
 });
 
 describe('chatCompletion — config', () => {
+  it('prefers GEMINI_API_KEY: posts to Google’s OpenAI-compatible endpoint with the unprefixed default model', async () => {
+    process.env.GEMINI_API_KEY = 'google-key';
+    const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
+
+    await chatCompletion({ messages: MESSAGES, fetchImpl });
+
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions');
+    expect(new Headers(init?.headers).get('authorization')).toBe('Bearer google-key');
+    expect(JSON.parse(init?.body as string).model).toBe('gemini-2.5-flash-lite');
+  });
+
+  it('AI_GATEWAY_MODEL still overrides the model under the Google provider', async () => {
+    process.env.GEMINI_API_KEY = 'google-key';
+    process.env.AI_GATEWAY_MODEL = 'gemini-2.5-flash';
+    const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
+
+    await chatCompletion({ messages: MESSAGES, fetchImpl });
+
+    expect(JSON.parse(fetchImpl.mock.calls[0][1]?.body as string).model).toBe('gemini-2.5-flash');
+  });
+
+  it('throws AiConfigError naming BOTH keys when neither is set, without calling fetch', async () => {
+    delete process.env.AI_GATEWAY_API_KEY;
+    const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
+
+    await expect(chatCompletion({ messages: MESSAGES, fetchImpl })).rejects.toThrow(
+      /GEMINI_API_KEY.*AI_GATEWAY_API_KEY/s,
+    );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
   it('throws AiConfigError when AI_GATEWAY_API_KEY is missing, without calling fetch', async () => {
     delete process.env.AI_GATEWAY_API_KEY;
     const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));

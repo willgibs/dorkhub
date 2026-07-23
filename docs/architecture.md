@@ -64,10 +64,12 @@ imagery: opengraph.githubassets.com/{token}/{owner}/{repo} hotlinked at 2/1
 transforms are Pro-only — never depend on them.
 
 ## AI enrichment (P2)
-Vercel AI Gateway via plain fetch (`src/lib/ai/gateway.ts`): `AI_GATEWAY_API_KEY`
-(lazy, fail-loud AiConfigError), default model google/gemini-2.5-flash-lite
-(`AI_GATEWAY_MODEL` override). Usage rides the $5/mo recurring free credit —
-$0 actual. Candidates missing description OR topics get ai_tagline/ai_tags
+Plain-fetch OpenAI-compatible client (`src/lib/ai/gateway.ts`), provider by
+key precedence: `GEMINI_API_KEY` (Google AI Studio direct — free tier ~1k
+req/day, $0, default model gemini-2.5-flash-lite) beats `AI_GATEWAY_API_KEY`
+(Vercel AI Gateway — needs PAID credits; its free tier 429s every model,
+probed 2026-07-23). `AI_GATEWAY_MODEL` overrides either. Lazy fail-loud
+AiConfigError. Candidates missing description OR topics get ai_tagline/ai_tags
 (0007; deny-all inherited) via admin batch on /admin/queue or a best-effort
 inline fallback at approval; real GitHub data always wins at publish.
 `/weird` = force-dynamic route handler, random single-row OFFSET pick
