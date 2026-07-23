@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { EmptyState } from '@/components/empty-state';
 import { FeedFilters } from '@/components/feed-filters';
@@ -32,6 +34,23 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
 
   const hrefFor = (kind: 'sort' | 'tag', value: string) => feedHrefFor({ sort, tag }, kind, value);
 
+  // Shown to everyone, signed in or not — signed-out clicks ride the proxy's
+  // existing signin redirect on /saved and /following (funnel, locked
+  // decision 5, docs/plans/m5.5-curator.md).
+  const quietLinkClassName =
+    'rounded-sm font-mono text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+
+  const trailing = (
+    <>
+      <Link href="/saved" className={quietLinkClassName}>
+        {copy.savedTitle}
+      </Link>
+      <Link href="/following" className={quietLinkClassName}>
+        {copy.followingTitle}
+      </Link>
+    </>
+  );
+
   const filters = (
     <FeedFilters
       sort={[copy.sortRecent, copy.sortTrending]}
@@ -39,6 +58,7 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
       activeSort={sort}
       activeTag={tag ?? undefined}
       hrefFor={hrefFor}
+      trailing={trailing}
     />
   );
 

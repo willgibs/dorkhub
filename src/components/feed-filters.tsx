@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { TagChip } from '@/components/tag-chip';
 import { cn } from '@/lib/utils';
 
@@ -10,6 +11,8 @@ export type FeedFiltersProps = {
   activeTag?: string;
   /** Builds the link target for a chip. Pure presentational — chips are links, not buttons. */
   hrefFor: (kind: 'sort' | 'tag', value: string) => string;
+  /** Right-docked cluster (e.g. saved/following links). Purely presentational — this component stays data-free. */
+  trailing?: ReactNode;
   className?: string;
 };
 
@@ -24,6 +27,7 @@ export function FeedFilters({
   activeSort,
   activeTag,
   hrefFor,
+  trailing,
   className,
 }: FeedFiltersProps) {
   return (
@@ -40,6 +44,7 @@ export function FeedFilters({
       {tags.map((tag) => (
         <TagChip key={tag} tag={tag} href={hrefFor('tag', tag)} active={tag === activeTag} />
       ))}
+      {trailing ? <div className="ml-auto flex items-center gap-3">{trailing}</div> : null}
     </nav>
   );
 }

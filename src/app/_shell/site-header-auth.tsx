@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
+import { copy } from '@/lib/copy';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -122,6 +123,12 @@ export function SiteHeaderAuth() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href="/saved">{copy.savedTitle}</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/following">{copy.followingTitle}</Link>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={destination}>your page</Link>
         </DropdownMenuItem>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
@@ -81,7 +82,23 @@ export default async function SavedPage() {
       <h1 className="font-display text-[26px] font-extrabold">{copy.savedTitle}</h1>
 
       {rows.length === 0 ? (
-        <EmptyState message={copy.savedEmpty} />
+        <EmptyState>
+          <p>{copy.savedEmpty}</p>
+          <div className="mt-3 flex items-center justify-center gap-3">
+            <Link
+              href="/"
+              className="rounded-sm font-mono text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {copy.browseCta}
+            </Link>
+            <Link
+              href="/tags"
+              className="rounded-sm font-mono text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {copy.tagsTitle}
+            </Link>
+          </div>
+        </EmptyState>
       ) : (
         <EngagementProvider projectIds={ids}>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
