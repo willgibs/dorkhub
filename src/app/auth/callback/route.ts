@@ -6,10 +6,11 @@ import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 /**
  * OAuth callback — the security-critical path (docs/architecture.md).
  * Exchanges the PKCE code, then routes on profile state:
- *   existing profile        → next/home
- *   unclaimed github_id hit → hold at /onboarding?claim=pending (full claim UX is M8;
- *                             the atomic github_id-keyed UPDATE never runs before then)
- *   no profile              → /onboarding
+ *   existing profile             → next/home
+ *   unclaimed github_id hit      → /claim (carries ?next= through)
+ *   unclaimed hit, but declined  → falls through to /onboarding (no nag —
+ *                                  see the decline-marker comment below)
+ *   no profile                  → /onboarding
  * Identity decisions key EXCLUSIVELY on GitHub's immutable numeric id.
  */
 export async function GET(request: Request) {
@@ -48,8 +49,25 @@ export async function GET(request: Request) {
       .is('user_id', null)
       .maybeSingle();
     if (unclaimed) {
-      // Seeded profile awaiting its owner — claim UX ships in M8.
-      return NextResponse.redirect(`${origin}/onboarding?claim=pending`);
+      // Decline-marker check (docs/plans/p1-gallery-engine.md Wave 3): a
+      // prior decline inserts a claim_invites row for this profile with
+      // used_at already set — repurposing that service-role-only table as a
+      // "the owner already said no" marker rather than a real invite
+      // redemption record (used_at semantics: "interacted with"). Without
+      // this check, a declined owner would be bounced to /claim on every
+      // sign-in forever. Falling through (no return here) sends them to the
+      // ordinary /onboarding path below, exactly as if there were no
+      // unclaimed match at all.
+      const { data: declineMarker } = await service
+        .from('claim_invites')
+        .select('token')
+        .eq('profile_id', unclaimed.id)
+        .not('used_at', 'is', null)
+        .limit(1)
+        .maybeSingle();
+      if (!declineMarker) {
+        return NextResponse.redirect(`${origin}/claim?next=${encodeURIComponent(next)}`);
+      }
     }
   }
 
