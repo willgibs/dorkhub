@@ -9,18 +9,21 @@
   Will as first user; tags m4/m5; specs in docs/plans/; prod bugs + fixes
   logged in decisions.md (service_role grants, layout cache, seed-id
   collision, PGRST201 embed).
-- M5.5 curator round ✅ CODE-COMPLETE (spec: docs/plans/m5.5-curator.md) —
-  saved/following surfaced (dropdown, feed trailing links, empty-state
-  exits), REAL ⌘K search (trgm indexes 0005, /api/search paired-ilike,
-  root-mounted palette), wrapping mobile header (also fixes prod's clipped
-  sign-in at 375px). 336 tests; anon QA green. Awaiting Will's signed-in QA.
-- PRODUCT: curator-first strategy locked (decisions.md 2026-07-22) —
-  importer platform (ingestion → admin approval) is the NEXT planning round.
+- M5.5 curator round ✅ (search+discoverability; Will's "great work" QA) —
+  tag pending alongside p1.
+- VISION board-approved (docs/vision.md): curator-first, governance =
+  Will board / orchestrator CEO. Roadmap P1→P4 to dorkhub.com launch.
+- P1 gallery engine ✅ CODE-COMPLETE (spec: docs/plans/p1-gallery-engine.md)
+  — 0006 ingestion schema (live), /settings/import stars flow, /admin
+  (dashboard/queue/sources/claims), crawls, consent blocklist, claim flow.
+  407 tests; ingestion RLS 7/7 vs live DB; GitHub surfaces live-verified;
+  routes gated. Awaiting Will's admin QA, then tags m5.5 + p1.
 
 ## Next steps
-1. Will: signed-in M5.5 QA (dropdown items, palette, mobile header feel).
-2. Importer platform planning round (reshapes M8; maybe separate admin app).
-3. Then M6 (screenshots, updates, edit polish incl. cmdk-row a11y), M9.
+1. Will: admin QA on prod — import stars, crawl, approve from queue, see
+   retroactive saves; claim-flow spot-check.
+2. P2 discovery mechanics (related/because-you-starred/something-weird,
+   search reframe). 3. P3 rich pages + design sweep. 4. P4 slots + launch.
 
 ## Open blockers
 - (none)

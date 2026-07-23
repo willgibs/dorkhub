@@ -1,8 +1,10 @@
 # P1 — The gallery engine (execution plan)
 
-Status: **in progress** (2026-07-22). Onboard: CLAUDE.md → docs/state.md →
-docs/vision.md → THIS file → modules your slice touches. Vision context:
-board-approved curator-first roadmap; P1 = ingestion + stars import + claim.
+Status: **code-complete** (2026-07-23) — all waves landed; 407 unit tests;
+ingestion RLS suite 7/7 vs live DB (incl. trigger behavior); GitHub surfaces
+(starred star+json, search bucket) live-verified with the real PAT; all new
+routes proxy-gated. Awaiting Will's admin QA (import → queue → approve →
+claim), then tag p1. Next: P2 discovery mechanics.
 
 ## Locked architecture (from the approved design — do not re-litigate)
 
