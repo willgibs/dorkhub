@@ -698,7 +698,7 @@ export default function DesignComponentsPage() {
           <Demo>
             <MountWhenVisible>
               <Command className="w-full max-w-xs rounded-lg border">
-                <CommandInput placeholder="search projects…" />
+                <CommandInput placeholder={copy.searchPlaceholder} />
                 <CommandList>
                   <CommandEmpty>{copy.emptyFeed}</CommandEmpty>
                   <CommandGroup heading="projects">

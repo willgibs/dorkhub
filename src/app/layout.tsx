@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
+import { CommandPalette } from '@/app/_shell/command-palette';
 import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 
@@ -48,7 +49,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${display.variable} ${sans.variable} ${mono.variable}`}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          {children}
+          <CommandPalette />
+        </ThemeProvider>
       </body>
     </html>
   );

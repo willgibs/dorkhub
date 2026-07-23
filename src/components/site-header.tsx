@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
+import { SearchTrigger } from '@/app/_shell/search-trigger';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import { cn } from '@/lib/utils';
@@ -26,7 +27,7 @@ export function SiteHeader({ ctaHref = '/new', children, className }: SiteHeader
   return (
     <header
       className={cn(
-        'edge-highlight flex items-center gap-[22px] rounded-lg border bg-card px-5 py-3.5',
+        'edge-highlight flex flex-wrap items-center gap-x-[18px] gap-y-2.5 rounded-lg border bg-card px-5 py-3.5 sm:gap-x-[22px]',
         className,
       )}
     >
@@ -40,7 +41,10 @@ export function SiteHeader({ ctaHref = '/new', children, className }: SiteHeader
         </span>
       </Link>
 
-      <nav aria-label="primary" className="hidden items-center gap-[18px] text-sm sm:flex">
+      <nav
+        aria-label="primary"
+        className="order-10 flex items-center gap-[18px] text-sm sm:order-none"
+      >
         {NAV_LINKS.map((link) => (
           <Link
             key={link.href}
@@ -52,11 +56,7 @@ export function SiteHeader({ ctaHref = '/new', children, className }: SiteHeader
         ))}
       </nav>
 
-      {/* search affordance — non-functional placeholder for now */}
-      <div className="hidden max-w-[260px] flex-1 items-center gap-2 rounded-lg border border-input bg-background px-3 py-1.5 text-[13px] text-muted-foreground sm:flex">
-        search projects…
-        <Kbd className="ml-auto">⌘K</Kbd>
-      </div>
+      <SearchTrigger />
 
       <div className="ml-auto flex items-center gap-3.5">
         <Button
@@ -72,7 +72,7 @@ export function SiteHeader({ ctaHref = '/new', children, className }: SiteHeader
   );
 }
 
-function Kbd({ children, className }: { children: ReactNode; className?: string }) {
+export function Kbd({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <kbd
       className={cn(
