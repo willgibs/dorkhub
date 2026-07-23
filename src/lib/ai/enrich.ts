@@ -15,7 +15,7 @@ import type { ChatMessage } from './gateway';
 /** README text is clipped to this many characters before being sent to the model. */
 const README_CLIP_CHARS = 4000;
 
-/** Same tagline length cap as `descriptionToTagline` in admin/queue/actions.ts. */
+/** Same tagline length cap as `descriptionToTagline` in src/lib/ingest/materialize.ts. */
 const TAGLINE_MAX_CHARS = 120;
 
 /** Enrichment tags are capped tighter than the general `parseTagsInput` cap (8) — 6 is plenty for a card. */

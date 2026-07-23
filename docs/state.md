@@ -1,29 +1,31 @@
-# Current state — 2026-07-23
+# Current state — 2026-07-23 (late)
 
 ## Milestones
-- M0–M5.5 ✅ (design system, auth, projects/sync, discovery, search/curator).
-  P1 gallery engine ✅ (0006 ingestion, stars import, /admin, claim; +P1.1
-  enrichment mapping + queue filters). Tags through m5.5/p1 pushed.
-- VISION amended by board 2026-07-23 (docs/vision.md): quality = FLOOR not
-  throttle; roadmap now P2 → P2.5 self-running gallery (publish-all + AI
-  mod + reports) → P3 collections + rich pages → P4 slots/launch → P5
-  articles zone (post-launch).
-- P2 discovery + quality floor ✅ CODE-COMPLETE + orchestrator-QA'd
-  (docs/plans/p2-discovery.md): og-image card media (2/1, CardMedia
-  fallback), more-like-this, because-you-starred rail (ISR-safe island),
-  /weird, search demoted to icon, import CTAs (onboarding funnel), AI
-  enrichment lib + admin batch/inline (0007 live, both RLS suites green,
-  479 tests). Awaiting Will: AI_GATEWAY_API_KEY + signed-in QA → tag p2.
+- M0–M5.5, P1 (+P1.1) ✅. P2 discovery + quality floor ✅ (+P2.1/P2.2
+  enrichment fixes: Gemini direct free tier, EnrichRunner, honest stamping).
+  Tags through p1 pushed; p2 + p2.5-w1 tags pending Will's green light.
+- P2.5 WAVE SET 1 ✅ CODE-COMPLETE + LIVE-E2E'd (docs/plans/
+  p2.5-self-running.md): PUBLISH-ALL + retro-mod (board ×3). Pipeline route
+  (/api/cron/pipeline: materialize ≤10 + paced enrich ≤8, 50s soft
+  deadline) driven by GitHub Actions cron :04/:19/:34/:49 + Vercel daily
+  9:07 fallback. Auto-approved = approved + decided_by NULL; retro queue in
+  admin (sub-20★). Import runner phase 2 "putting them on the wall".
+  Gallery default = trending (/newest, /trending 308s). E2E: 29 live
+  materializations, double-fire clean (0 dupes/strandings), 27 published,
+  180 pending draining ~10/tick, 0 bare published cards.
+- NEXT P2.5 round (not started): user reports + AI moderation screen.
+  P3: public collections + rich pages. P4 launch (Pro cron swap). P5
+  articles. Board note: comprehensive search/sort/filter slotted P3.
 
 ## Next steps
-1. Will: create AI Gateway key (Vercel dash) → .env.local + Vercel envs;
-   signed-in QA (recs rail, onboarding→import, admin enrich round-trip).
-2. Tag p2. 3. Plan P2.5 self-running gallery. 4. P3 collections+rich pages.
+1. Will: gh Actions secret CRON_SECRET (orchestrator attempts via gh CLI
+   first); QA — import phase 2, retro queue actions, EnrichRunner geometry/
+   auto-resume, trending default. 2. Tags p2 + p2.5-w1 on green light.
+3. Plan P2.5 round 2 (reports + AI screen). 4. P3.
 
 ## Open blockers
-- Enrichment E2E blocked on GEMINI_API_KEY (Google AI Studio, free, no card
-  — aistudio.google.com/apikey). Will's AI_GATEWAY_API_KEY is set but
-  Vercel's free tier 429s every model without a paid top-up (P2.1 finding).
+- (none — pipeline self-drains; Actions workflow needs the repo secret to
+  start ticking)
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP (reserved for Will's other agents). Management
@@ -32,10 +34,12 @@ postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5
 (PGPASSWORD=$SUPABASE_DB_PASSWORD).
 
 ## Infra + gotchas
-Repo github.com/willgibs/dorkhub (PUBLIC until near-launch) · prod
-dorkhub-ten.vercel.app · CI green. proxy MUST be src/proxy.ts. Stale .next
-replays old compile errors AND serves stale unstable_cache rows — rm -rf
-.next when dev data looks pre-change. CSS aspect-ratio yields to in-flow
-content height (underlays must be absolute). GitHub og endpoint never 404s.
-Run BOTH RLS suites after any schema milestone (inventory drift).
-Last updated: 2026-07-23 (P2 code-complete, awaiting key + Will QA).
+Repo PUBLIC until near-launch · prod dorkhub-ten.vercel.app · CI green.
+proxy MUST be src/proxy.ts. rm -rf .next when dev errors/data look stale
+(compile replays + stale unstable_cache rows). CSS aspect-ratio yields to
+in-flow content (underlays absolute). GitHub og endpoint never 404s.
+supabase-js .eq(col, []) serializes INVALID — use .filter(col,'eq','{}').
+Run BOTH RLS suites after any schema milestone. Gate chains: always
+if-green-then-commit (&&, never ;). Gemini: pinned current-gen model
+(aliases 403, retired models list-but-404 for new keys).
+Last updated: 2026-07-23 (P2.5 w1 live-verified; awaiting Will QA).
