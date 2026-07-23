@@ -12,8 +12,11 @@ board-approved curator-first roadmap; P1 = ingestion + stars import + claim.
    fresh (createProject rule). Candidate rows are disposable metadata.
 3. **Admin = service-role behind requireAdmin()**, deny-all RLS on admin
    tables (claim_invites pattern). star_imports is the exception: real
-   user data, own-rows RLS like saves. profiles.is_admin has NO authenticated
-   grant → requireAdmin() MUST read via supabaseService().
+   user data, own-rows RLS like saves. CORRECTION (1C fact-check, verified
+   live): profiles.is_admin IS readable by authenticated (table-wide SELECT
+   grant in 0001) — requireAdmin() reads via supabaseService() as posture,
+   not necessity. P4 hardening TODO: column-restrict the profiles SELECT
+   grant so is_admin stops being publicly enumerable.
 4. **Approval = publish** (no draft step). Upsert profile by owner_github_id
    (N repos/owner → 1 profile). 23505 on projects.github_repo_id → recover by
    re-pointing (createProject's branch). Retroactive saves: star_imports rows

@@ -6,8 +6,9 @@ import 'server-only';
  * dependency). Every exported function accepts an injectable `fetchImpl` so
  * callers (and tests) never touch the real network or mock a module.
  *
- * Covers: listing a user's public repos, fetching one repo by its immutable
- * numeric id, and fetching a repo's rendered README as HTML.
+ * Covers: listing a user's public repos, listing a user's starred repos
+ * (one page at a time), fetching one repo by its immutable numeric id or by
+ * owner/name, and fetching a repo's rendered README as HTML.
  */
 
 const GITHUB_API_BASE = 'https://api.github.com';
@@ -72,6 +73,21 @@ export type GithubFetchOpts = {
   fetchImpl?: typeof fetch;
 };
 
+/** One page of `listStarredRepos`. */
+export type StarredItem = { starredAt: string; repo: GithubRepo };
+
+/**
+ * Options for `listStarredRepos`. No `etag` — like `listPublicRepos`, a list
+ * response doesn't have a single stable ETag, and the import flow re-fetches
+ * pages by number rather than conditionally re-validating them.
+ */
+export type ListStarredOpts = {
+  /** 1-indexed GitHub page number; defaults to 1. */
+  page?: number;
+  /** Injectable for tests; defaults to the global `fetch`. */
+  fetchImpl?: typeof fetch;
+};
+
 type GithubOk<T> = { kind: 'ok'; data: T; etag: string | null };
 
 type GithubNotOk =
@@ -81,6 +97,16 @@ type GithubNotOk =
   | { kind: 'error'; status: number; message: string };
 
 export type GithubResult<T> = GithubOk<T> | GithubNotOk;
+
+/**
+ * Raw shape of one item in the `starred` list endpoint's response, WHEN
+ * requested with the `application/vnd.github.star+json` media type — the
+ * default media type returns bare repo objects with no `starred_at`.
+ */
+type RawStarredItem = {
+  starred_at: string;
+  repo: RawGithubRepo;
+};
 
 /** The subset of GitHub's repo payload we read fields from — see `pickRepoFields`. */
 type RawGithubRepo = {
@@ -269,6 +295,49 @@ export async function listPublicRepos(
 }
 
 /**
+ * Fetches ONE page of a user's starred repos (per_page=100), using the
+ * `star+json` media type to get `starred_at` alongside each repo. Unlike
+ * `listPublicRepos`, this deliberately does NOT auto-paginate — the import
+ * flow is a client-driven page loop (one page per server action call,
+ * resumable, no timeout/queue infra — see docs/plans/p1-gallery-engine.md,
+ * locked architecture #5), so the caller drives `opts.page` itself.
+ *
+ * `hasMore` reflects whether the response's `Link` header carries a
+ * `rel="next"` — the caller uses it to decide whether to request the next
+ * page rather than to fetch it here.
+ */
+export async function listStarredRepos(
+  login: string,
+  opts: ListStarredOpts = {},
+): Promise<GithubResult<{ items: StarredItem[]; hasMore: boolean }>> {
+  const fetchImpl = opts.fetchImpl ?? fetch;
+  const page = opts.page ?? 1;
+  const url = `${GITHUB_API_BASE}/users/${encodeURIComponent(login)}/starred?per_page=100&page=${page}`;
+  const headers = buildHeaders('application/vnd.github.star+json');
+
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { headers });
+  } catch (err) {
+    return { kind: 'error', status: 0, message: networkErrorMessage(err) };
+  }
+
+  const status = await classifyResponse(res);
+  if (status.kind !== 'ok') {
+    return status;
+  }
+
+  const body = (await res.json()) as RawStarredItem[];
+  const items: StarredItem[] = body.map((raw) => ({
+    starredAt: raw.starred_at,
+    repo: pickRepoFields(raw.repo),
+  }));
+  const hasMore = nextPageUrl(res.headers.get('link')) !== null;
+
+  return { kind: 'ok', data: { items, hasMore }, etag: null };
+}
+
+/**
  * Fetches one repo by its immutable numeric id rather than `owner/name` —
  * renames change `full_name` but never `id`, so sync jobs keyed on this
  * endpoint self-heal after an owner renames a repo (see decision #2).
@@ -279,6 +348,38 @@ export async function getRepoById(
 ): Promise<GithubResult<GithubRepo>> {
   const fetchImpl = opts.fetchImpl ?? fetch;
   const url = `${GITHUB_API_BASE}/repositories/${repoId}`;
+  const headers = buildHeaders('application/vnd.github+json', opts.etag);
+
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { headers });
+  } catch (err) {
+    return { kind: 'error', status: 0, message: networkErrorMessage(err) };
+  }
+
+  const status = await classifyResponse(res);
+  if (status.kind !== 'ok') {
+    return status;
+  }
+
+  const data = pickRepoFields(await res.json());
+  return { kind: 'ok', data, etag: status.etag };
+}
+
+/**
+ * Fetches one repo by `owner/name` — used by the awesome-list crawl, which
+ * only has owner/name pairs extracted from README links (not numeric ids)
+ * to resolve. Same `/repos/*` core rate-limit bucket (5k/hr) as `getRepoById`;
+ * NOT the separate 30/min `/search/repositories` bucket used by topic
+ * crawls, so it's safe to run through the same concurrency-5 pool.
+ */
+export async function getRepoByOwnerName(
+  owner: string,
+  name: string,
+  opts: GithubFetchOpts = {},
+): Promise<GithubResult<GithubRepo>> {
+  const fetchImpl = opts.fetchImpl ?? fetch;
+  const url = `${GITHUB_API_BASE}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
   const headers = buildHeaders('application/vnd.github+json', opts.etag);
 
   let res: Response;

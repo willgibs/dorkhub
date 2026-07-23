@@ -3,7 +3,9 @@ import {
   GithubConfigError,
   getReadmeHtml,
   getRepoById,
+  getRepoByOwnerName,
   listPublicRepos,
+  listStarredRepos,
   MAX_LIST_PAGES,
 } from './client';
 
@@ -32,6 +34,19 @@ function makeRawRepo(overrides: Record<string, unknown> = {}): Record<string, un
     updated_at: '2026-01-01T00:00:00Z',
     owner: { id: 999, login: 'octocat', avatar_url: 'https://example.com/a.png' },
     ...overrides,
+  };
+}
+
+/** A raw `star+json` list item — `{starred_at, repo}` — with an unknown top-level
+ * field (`user`) to prove the starred-item mapper only reads `starred_at`/`repo`. */
+function makeRawStarredItem(
+  starredAt: string,
+  repoOverrides: Record<string, unknown> = {},
+): Record<string, unknown> {
+  return {
+    starred_at: starredAt,
+    repo: makeRawRepo(repoOverrides),
+    user: { login: 'someone-else' },
   };
 }
 
@@ -307,6 +322,254 @@ describe('listPublicRepos', () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => Response.json([], { status: 200 }));
 
     await expect(listPublicRepos('octocat', { fetchImpl })).rejects.toThrow(GithubConfigError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe('listStarredRepos', () => {
+  it('parses star+json items, mapping starred_at to starredAt and picking repo fields', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json([makeRawStarredItem('2026-02-01T00:00:00Z')], { status: 200 }),
+    );
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.data.items).toHaveLength(1);
+    const [item] = result.data.items;
+    expect(item.starredAt).toBe('2026-02-01T00:00:00Z');
+    expect(Object.keys(item.repo).sort()).toEqual(EXPECTED_REPO_KEYS);
+    expect(item.repo).not.toHaveProperty('ssh_url');
+    expect(item.repo.full_name).toBe('octocat/my-repo');
+  });
+
+  it('sets hasMore true when the Link header carries rel="next"', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json([makeRawStarredItem('2026-02-01T00:00:00Z')], {
+        status: 200,
+        headers: { link: '<https://api.github.com/users/octocat/starred?page=2>; rel="next"' },
+      }),
+    );
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.data.hasMore).toBe(true);
+  });
+
+  it('sets hasMore false when there is no Link header (last/only page)', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json([makeRawStarredItem('2026-02-01T00:00:00Z')], { status: 200 }),
+    );
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.data.hasMore).toBe(false);
+  });
+
+  it('sets hasMore false when the Link header only carries rel="prev"', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json([makeRawStarredItem('2026-02-01T00:00:00Z')], {
+        status: 200,
+        headers: { link: '<https://api.github.com/users/octocat/starred?page=1>; rel="prev"' },
+      }),
+    );
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.data.hasMore).toBe(false);
+  });
+
+  it('defaults to page 1 and lands the page param in the URL, single request (no auto-pagination)', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => Response.json([], { status: 200 }));
+
+    await listStarredRepos('octocat', { fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.github.com/users/octocat/starred?per_page=100&page=1');
+  });
+
+  it('sends the requested page number in the URL and does not auto-fetch further pages', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json([makeRawStarredItem('2026-02-01T00:00:00Z')], {
+        status: 200,
+        headers: { link: '<https://api.github.com/users/octocat/starred?page=4>; rel="next"' },
+      }),
+    );
+
+    await listStarredRepos('octocat', { page: 3, fetchImpl });
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.github.com/users/octocat/starred?per_page=100&page=3');
+  });
+
+  it('encodes the login into the URL', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => Response.json([], { status: 200 }));
+
+    await listStarredRepos('weird/login', { fetchImpl });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toContain(encodeURIComponent('weird/login'));
+  });
+
+  it('requests the star+json Accept header, with the standard auth/version/UA headers', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => Response.json([], { status: 200 }));
+
+    await listStarredRepos('octocat', { fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('accept')).toBe('application/vnd.github.star+json');
+    expect(headers.get('authorization')).toBe('Bearer test-token');
+    expect(headers.get('x-github-api-version')).toBe('2022-11-28');
+    expect(headers.get('user-agent')).toBe('dorkhub');
+  });
+
+  it('returns not_found on 404', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('{"message":"Not Found"}', { status: 404 }),
+    );
+
+    const result = await listStarredRepos('nonexistent-user', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'not_found' });
+  });
+
+  it('returns rate_limited on 403', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('{"message":"rate limited"}', { status: 403 }),
+    );
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result.kind).toBe('rate_limited');
+  });
+
+  it('returns an error kind with status 0 on a network-level fetch throw', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      throw new Error('network down');
+    });
+
+    const result = await listStarredRepos('octocat', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'error', status: 0, message: 'network down' });
+  });
+
+  it('throws GithubConfigError when GITHUB_TOKEN is missing', async () => {
+    delete process.env.GITHUB_TOKEN;
+    const fetchImpl = vi.fn<typeof fetch>(async () => Response.json([], { status: 200 }));
+
+    await expect(listStarredRepos('octocat', { fetchImpl })).rejects.toThrow(GithubConfigError);
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe('getRepoByOwnerName', () => {
+  it('requests /repos/{owner}/{name} and returns ok with the ETag from the response header', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json(makeRawRepo(), { status: 200, headers: { etag: '"abc123"' } }),
+    );
+
+    const result = await getRepoByOwnerName('octocat', 'my-repo', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.etag).toBe('"abc123"');
+    expect(result.data.full_name).toBe('octocat/my-repo');
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.github.com/repos/octocat/my-repo');
+  });
+
+  it('encodes both owner and name into the URL', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json(makeRawRepo(), { status: 200 }),
+    );
+
+    await getRepoByOwnerName('weird owner', 'weird/name', { fetchImpl });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe(
+      `https://api.github.com/repos/${encodeURIComponent('weird owner')}/${encodeURIComponent('weird/name')}`,
+    );
+  });
+
+  it('sends If-None-Match when an etag is provided', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json(makeRawRepo(), { status: 304 }),
+    );
+
+    await getRepoByOwnerName('octocat', 'my-repo', { etag: '"abc123"', fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('if-none-match')).toBe('"abc123"');
+  });
+
+  it('returns not_modified with the ETag on 304', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response(null, { status: 304, headers: { etag: '"same"' } }),
+    );
+
+    const result = await getRepoByOwnerName('octocat', 'my-repo', {
+      etag: '"same"',
+      fetchImpl,
+    });
+
+    expect(result).toEqual({ kind: 'not_modified', etag: '"same"' });
+  });
+
+  it('returns not_found on 404', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () => new Response('{"message":"Not Found"}', { status: 404 }),
+    );
+
+    const result = await getRepoByOwnerName('octocat', 'no-such-repo', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'not_found' });
+  });
+
+  it('sends the required auth/version/UA/accept headers', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json(makeRawRepo(), { status: 200 }),
+    );
+
+    await getRepoByOwnerName('octocat', 'my-repo', { fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('authorization')).toBe('Bearer test-token');
+    expect(headers.get('x-github-api-version')).toBe('2022-11-28');
+    expect(headers.get('user-agent')).toBe('dorkhub');
+    expect(headers.get('accept')).toBe('application/vnd.github+json');
+  });
+
+  it('returns an error kind with status 0 on a network-level fetch throw', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      throw new Error('network down');
+    });
+
+    const result = await getRepoByOwnerName('octocat', 'my-repo', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'error', status: 0, message: 'network down' });
+  });
+
+  it('throws GithubConfigError when GITHUB_TOKEN is missing', async () => {
+    delete process.env.GITHUB_TOKEN;
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json(makeRawRepo(), { status: 200 }),
+    );
+
+    await expect(getRepoByOwnerName('octocat', 'my-repo', { fetchImpl })).rejects.toThrow(
+      GithubConfigError,
+    );
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 });
