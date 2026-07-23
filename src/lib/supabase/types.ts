@@ -410,6 +410,7 @@ export type Database = {
           created_at: string;
           demo_url: string | null;
           description_md: string | null;
+          enriched_at: string | null;
           forks_count: number;
           github_repo_id: number;
           id: string;
@@ -441,6 +442,7 @@ export type Database = {
           created_at?: string;
           demo_url?: string | null;
           description_md?: string | null;
+          enriched_at?: string | null;
           forks_count?: number;
           github_repo_id: number;
           id?: string;
@@ -472,6 +474,7 @@ export type Database = {
           created_at?: string;
           demo_url?: string | null;
           description_md?: string | null;
+          enriched_at?: string | null;
           forks_count?: number;
           github_repo_id?: number;
           id?: string;

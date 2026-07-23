@@ -9,6 +9,7 @@ function makeRow(overrides: Partial<ProjectRow> = {}): ProjectRow {
     created_at: '2026-01-01T00:00:00.000Z',
     demo_url: null,
     description_md: null,
+    enriched_at: null,
     forks_count: 0,
     github_repo_id: 1,
     id: 'project-1',

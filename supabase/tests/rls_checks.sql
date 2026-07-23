@@ -102,6 +102,20 @@ begin
   end if;
   raise notice 'PASS: authenticated UPDATE grants on profiles/projects match the expected 12 columns exactly';
 
+  -- 2a′. 0008 explicit: projects.enriched_at (AI-pipeline provenance) must
+  -- never be API-role-writable — covered by 2a's exact match, asserted by
+  -- name so a future grant fails with an unmistakable message.
+  if exists (
+    select 1 from information_schema.column_privileges
+     where table_schema = 'public' and table_name = 'projects'
+       and column_name = 'enriched_at'
+       and grantee in ('anon', 'authenticated')
+       and privilege_type in ('INSERT', 'UPDATE')
+  ) then
+    raise exception 'RLS FAILURE: projects.enriched_at is API-role-writable (0008: service-role only)';
+  end if;
+  raise notice 'PASS: projects.enriched_at is not API-role-writable';
+
   -- 2b. anon must hold zero write privileges anywhere in public.
   select string_agg(distinct table_name || ' (' || privilege_type || ')', ', ')
     into v_bad
