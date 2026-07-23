@@ -7,6 +7,7 @@ import {
   listPublicRepos,
   listStarredRepos,
   MAX_LIST_PAGES,
+  searchRepositories,
 } from './client';
 
 /** A realistic raw GitHub repo payload — includes fields GithubRepo does NOT declare
@@ -617,6 +618,111 @@ describe('getReadmeHtml', () => {
     await expect(getReadmeHtml('octocat', 'my-repo', { fetchImpl })).rejects.toThrow(
       GithubConfigError,
     );
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
+
+describe('searchRepositories', () => {
+  it('parses items (picking repo fields) and totalCount from a search response', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 1234, items: [makeRawRepo()] }, { status: 200 }),
+    );
+
+    const result = await searchRepositories('topic:cli stars:>=50', { fetchImpl });
+
+    expect(result.kind).toBe('ok');
+    if (result.kind !== 'ok') throw new Error('expected ok');
+    expect(result.data.totalCount).toBe(1234);
+    expect(result.data.items).toHaveLength(1);
+    expect(Object.keys(result.data.items[0]).sort()).toEqual(EXPECTED_REPO_KEYS);
+    expect(result.data.items[0]).not.toHaveProperty('ssh_url');
+    expect(result.data.items[0].full_name).toBe('octocat/my-repo');
+  });
+
+  it('builds the URL with encoded q, sort=stars, order=desc, and the requested per_page/page', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 0, items: [] }, { status: 200 }),
+    );
+
+    await searchRepositories('topic:cli stars:>=50', { perPage: 40, page: 3, fetchImpl });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toBe(
+      `https://api.github.com/search/repositories?q=${encodeURIComponent('topic:cli stars:>=50')}&per_page=40&sort=stars&order=desc&page=3`,
+    );
+  });
+
+  it('defaults to per_page=30 and page=1 when not provided', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 0, items: [] }, { status: 200 }),
+    );
+
+    await searchRepositories('topic:cli', { fetchImpl });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toContain('per_page=30');
+    expect(url).toContain('page=1');
+  });
+
+  it('caps per_page at 100 even when a larger value is requested', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 0, items: [] }, { status: 200 }),
+    );
+
+    await searchRepositories('topic:cli', { perPage: 250, fetchImpl });
+
+    const [url] = fetchImpl.mock.calls[0];
+    expect(url).toContain('per_page=100');
+  });
+
+  it('sends the required auth/version/UA headers', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 0, items: [] }, { status: 200 }),
+    );
+
+    await searchRepositories('topic:cli', { fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const headers = new Headers(init?.headers as HeadersInit);
+    expect(headers.get('authorization')).toBe('Bearer test-token');
+    expect(headers.get('x-github-api-version')).toBe('2022-11-28');
+    expect(headers.get('user-agent')).toBe('dorkhub');
+    expect(headers.get('accept')).toBe('application/vnd.github+json');
+  });
+
+  it('classifies a 403 response as rate_limited (the separate 30/min search bucket)', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(
+      async () =>
+        new Response('{"message":"API rate limit exceeded"}', {
+          status: 403,
+          headers: { 'retry-after': '60' },
+        }),
+    );
+
+    const result = await searchRepositories('topic:cli', { fetchImpl });
+
+    expect(result.kind).toBe('rate_limited');
+    if (result.kind !== 'rate_limited') throw new Error('expected rate_limited');
+    expect(result.retryAfterSeconds).toBe(60);
+  });
+
+  it('returns an error kind with status 0 on a network-level fetch throw', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => {
+      throw new Error('network down');
+    });
+
+    const result = await searchRepositories('topic:cli', { fetchImpl });
+
+    expect(result).toEqual({ kind: 'error', status: 0, message: 'network down' });
+  });
+
+  it('throws GithubConfigError when GITHUB_TOKEN is missing', async () => {
+    delete process.env.GITHUB_TOKEN;
+    const fetchImpl = vi.fn<typeof fetch>(async () =>
+      Response.json({ total_count: 0, items: [] }, { status: 200 }),
+    );
+
+    await expect(searchRepositories('topic:cli', { fetchImpl })).rejects.toThrow(GithubConfigError);
     expect(fetchImpl).not.toHaveBeenCalled();
   });
 });

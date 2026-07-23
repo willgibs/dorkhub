@@ -46,7 +46,15 @@ export default async function SettingsProjectsPage() {
 
   return (
     <PageShell className="flex flex-col gap-8 py-10">
-      <h1 className="font-display text-[26px] font-extrabold">{copy.settingsProjectsTitle}</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="font-display text-[26px] font-extrabold">{copy.settingsProjectsTitle}</h1>
+        <Link
+          href="/settings/import"
+          className="w-fit rounded-sm font-mono text-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+          {copy.importTitle}
+        </Link>
+      </div>
 
       {rows.length === 0 ? (
         <EmptyState>

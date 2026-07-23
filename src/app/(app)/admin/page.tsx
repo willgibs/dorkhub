@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -27,11 +28,28 @@ function AdminSection({ kicker, children }: { kicker: string; children: ReactNod
  * here 0 pending / 0 blocked / 0 crawls IS the useful signal ("the queue is
  * actually empty" vs. "we haven't checked"), so it stays a plain number.
  */
-function StatRow({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-1.5 font-mono text-[13px] last:border-b-0">
+function StatRow({ label, value, href }: { label: string; value: number; href?: string }) {
+  const content = (
+    <>
       <span className="text-muted-foreground">{label}</span>
       <span className="text-foreground tabular-nums">{value}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="flex items-baseline justify-between gap-4 rounded-sm border-border/60 border-b py-1.5 font-mono text-[13px] outline-none transition-colors last:border-b-0 hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-border/60 py-1.5 font-mono text-[13px] last:border-b-0">
+      {content}
     </div>
   );
 }
@@ -102,7 +120,7 @@ export default async function AdminDashboardPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminSection kicker="review queue">
-          <StatRow label="pending" value={candidateCounts.pending} />
+          <StatRow label="pending" value={candidateCounts.pending} href="/admin/queue" />
           <StatRow label="approved" value={candidateCounts.approved} />
           <StatRow label="rejected" value={candidateCounts.rejected} />
           <StatRow label="superseded" value={candidateCounts.superseded} />

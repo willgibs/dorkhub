@@ -427,3 +427,60 @@ export async function getReadmeHtml(
   const html = await res.text();
   return { kind: 'ok', data: html, etag: status.etag };
 }
+
+/** Options for `searchRepositories`. No `etag` — search results aren't conditionally re-validatable. */
+export type SearchReposOpts = {
+  /** Capped at 100 server-side, same as every other list endpoint here. */
+  perPage?: number;
+  /** 1-indexed GitHub page number; defaults to 1. */
+  page?: number;
+  /** Injectable for tests; defaults to the global `fetch`. */
+  fetchImpl?: typeof fetch;
+};
+
+/**
+ * Searches `/search/repositories` (topic crawls — docs/plans/p1-gallery-
+ * engine.md, "Locked architecture" #8). Sorted by stars desc, matching the
+ * quality-first ordering every other crawl/import path assumes.
+ *
+ * ============================================================================
+ * ‼️ RATE LIMIT: `/search/*` is a SEPARATE 30-requests-per-minute bucket —
+ * completely independent from the 5000/hr core REST budget that
+ * `getRepoById`/`getRepoByOwnerName`/`listPublicRepos`/`listStarredRepos`
+ * share. Callers MUST walk pages sequentially with a delay between calls
+ * (see `SEARCH_BUCKET_DELAY_MS` / `nextCrawlDelayMs` in
+ * src/lib/ingest/throttle.ts) and must NEVER run this through the
+ * concurrency-5 fetch pool used elsewhere (e.g. src/app/api/cron/sync/
+ * route.ts's worker pool, or the awesome-list crawl's `getRepoByOwnerName`
+ * pool) — that pool assumes the shared core budget and would blow through
+ * the 30/min search bucket almost immediately, tripping a hard rate limit
+ * for the whole app.
+ * ============================================================================
+ */
+export async function searchRepositories(
+  query: string,
+  opts: SearchReposOpts = {},
+): Promise<GithubResult<{ items: GithubRepo[]; totalCount: number }>> {
+  const fetchImpl = opts.fetchImpl ?? fetch;
+  const perPage = Math.min(opts.perPage ?? 30, 100);
+  const page = opts.page ?? 1;
+  const url = `${GITHUB_API_BASE}/search/repositories?q=${encodeURIComponent(query)}&per_page=${perPage}&sort=stars&order=desc&page=${page}`;
+  const headers = buildHeaders('application/vnd.github+json');
+
+  let res: Response;
+  try {
+    res = await fetchImpl(url, { headers });
+  } catch (err) {
+    return { kind: 'error', status: 0, message: networkErrorMessage(err) };
+  }
+
+  const status = await classifyResponse(res);
+  if (status.kind !== 'ok') {
+    return status;
+  }
+
+  const body = (await res.json()) as { total_count: number; items: unknown[] };
+  const items = body.items.map((item) => pickRepoFields(item));
+
+  return { kind: 'ok', data: { items, totalCount: body.total_count }, etag: null };
+}
