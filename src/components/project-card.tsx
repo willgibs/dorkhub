@@ -78,6 +78,7 @@ function MediaPlaceholder({ name }: { name: string }) {
   return (
     <svg
       viewBox="0 0 320 200"
+      preserveAspectRatio="none"
       role="img"
       aria-label={`${name} screenshot placeholder`}
       className="h-full w-full"
@@ -127,13 +128,19 @@ export function ProjectCard({
       ) : null}
 
       {showMedia ? (
-        <div className="aspect-[1200/630] border-b bg-surface-2">
+        // 2:1 = GitHub og-images' TRUE size (1200×600, verified in QA — not
+        // the 1200×630 OpenGraph default), so hotlinks render uncropped. The
+        // placeholder is absolutely positioned: aspect-ratio is only a
+        // preferred ratio and in-flow SVG content would stretch the box.
+        <div className="relative aspect-[2/1] border-b bg-surface-2">
           {project.repoFullName ? (
             <CardMedia src={githubOgImageUrl(project.repoFullName)}>
               <MediaPlaceholder name={project.name} />
             </CardMedia>
           ) : (
-            <MediaPlaceholder name={project.name} />
+            <div className="absolute inset-0">
+              <MediaPlaceholder name={project.name} />
+            </div>
           )}
         </div>
       ) : null}

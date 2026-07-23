@@ -20,8 +20,11 @@ export function CardMedia({ src, children }: CardMediaProps) {
   const [broken, setBroken] = useState(false);
 
   return (
-    <div className="relative h-full w-full">
-      {children}
+    <div className="relative h-full w-full overflow-hidden">
+      {/* Underlay is absolutely positioned: CSS aspect-ratio is only a
+          preferred ratio, and an in-flow placeholder SVG's intrinsic height
+          would stretch the caller's aspect box past it (caught in P2 QA). */}
+      <div className="absolute inset-0">{children}</div>
       {broken ? null : (
         // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
         <img
