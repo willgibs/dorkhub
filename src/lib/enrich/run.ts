@@ -23,17 +23,20 @@ import type { Database } from '@/lib/supabase/types';
  */
 
 /**
- * Budget knobs (locked decision #7). The pipeline cron fires on a 15-minute
- * offset schedule, 96 runs/day (`4,19,34,49 * * * *`), each calling
- * `enrichNextBatch` with `limit: ENRICH_PER_RUN`: 96 × 8 = 768 calls/day,
- * comfortably under Google AI Studio's genuinely-free ~1k-requests/day
- * budget (src/lib/ai/gateway.ts). Within one run, `ENRICH_PACE_MS` spaces
- * consecutive `chatCompletion` call STARTS 4.5s apart — 60_000 / 4500 ≈ 13.3
- * calls/minute, under the free tier's 15-RPM floor with headroom for the
- * readme-fetch + model-latency time each call already burns.
+ * Budget knobs (locked decision #7; rebalanced in P2.6 decision D3). The
+ * pipeline cron fires on a 15-minute offset schedule, 96 runs/day
+ * (`4,19,34,49 * * * *`). Since P2.6 each run spends AI calls on TWO passes —
+ * enrich (this file) and screen (screen.ts, SCREEN_PER_RUN = 3 in the cron
+ * route) — so ENRICH_PER_RUN dropped 8 → 5 to hold the combined ceiling at
+ * 96 × 8 = 768 calls/day, comfortably under Google AI Studio's
+ * genuinely-free ~1k-requests/day budget (src/lib/ai/gateway.ts). Within one
+ * run, `ENRICH_PACE_MS` spaces consecutive `chatCompletion` call STARTS 4.5s
+ * apart — 60_000 / 4500 ≈ 13.3 calls/minute, under the free tier's 15-RPM
+ * floor with headroom for the readme-fetch + model-latency time each call
+ * already burns.
  */
 export const ENRICH_PACE_MS = 4500;
-export const ENRICH_PER_RUN = 8;
+export const ENRICH_PER_RUN = 5;
 
 /** Same token budget as the P2.1 queue runner — a tagline + up to 6 tags is short. */
 const ENRICHMENT_MAX_TOKENS = 300;

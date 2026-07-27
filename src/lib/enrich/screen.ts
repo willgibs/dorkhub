@@ -1,0 +1,379 @@
+import 'server-only';
+
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { AiConfigError, chatCompletion } from '@/lib/ai/gateway';
+import {
+  buildScreenPrompt,
+  htmlToText,
+  type ParsedScreen,
+  parseScreenResult,
+  SCREEN_MAX_TOKENS,
+  type ScreenInput,
+  type ScreenVerdict,
+} from '@/lib/ai/moderate';
+import { autoApproveMinStars, needsReview } from '@/lib/ingest/policy';
+import type { Database } from '@/lib/supabase/types';
+import { ENRICH_PACE_MS } from './run';
+
+/**
+ * The AI-moderation screen engine (P2.6 Wave A2, docs/plans/
+ * p2.6-immune-system.md) — structural mirror of src/lib/enrich/run.ts's
+ * `enrichNextBatch`, walking a paced batch of screenable `projects` rows and
+ * calling the model. Two-priority queue: report-triggered rows (an open
+ * `project_reports` row newer than the last screen, or never screened) rank
+ * above retro-backlog rows (already-`approved`, still-`decided_by IS NULL`
+ * candidates the admin retro section would otherwise show unscreened) —
+ * `buildScreenQueue` dedupes by project id with `'report'` winning.
+ *
+ * Stamping discipline (same P2.1 lesson `enrichNextBatch` documents,
+ * locked decision #4): a SYSTEMIC failure (`AiConfigError`, `rate_limited`,
+ * or a provider `error`) stops the batch immediately WITHOUT writing — the
+ * row that hit it, and everything still queued behind it, is retried on the
+ * next call. Only a genuine `ok` model reply ever writes a
+ * `moderation_screens` row, via `planScreenStamp` — parseable or not, since
+ * `verdict` is `NOT NULL` and there is no null-safe fallback column the way
+ * `projects.tagline`/`tags` give `enrichNextBatch` room to skip a write.
+ *
+ * Budget context (locked decision #3): the pipeline route calls this with
+ * `limit: SCREEN_PER_RUN` (3); pass order is materialize → enrich → screen,
+ * total ≤8 AI calls/run across all three passes.
+ */
+
+/** Same select-string idiom as `PROJECT_SELECT` in ./run — every column `buildScreenPrompt`/`ScreenInput` needs. */
+export const SCREEN_PROJECT_SELECT =
+  'id, name, repo_full_name, tagline, description_md, topics, tags, primary_language, stars_count, readme_html';
+
+/** Row shape read from `projects` for screening — mirrors `EnrichableProjectRow` in ./run. */
+export type ScreenProjectRow = {
+  id: string;
+  name: string;
+  repo_full_name: string;
+  tagline: string | null;
+  description_md: string | null;
+  topics: string[];
+  tags: string[];
+  primary_language: string | null;
+  stars_count: number;
+  readme_html: string | null;
+};
+
+export type ScreenQueueItem = { source: 'report' | 'retro'; project: ScreenProjectRow };
+
+/**
+ * Merges pre-sorted reported + retro rows into one priority-ordered, capped
+ * queue: reported projects first (given order preserved), then retro (given
+ * order preserved), deduped by project id with `'report'` winning any
+ * collision (a project that's both reported AND retro-backlogged gets
+ * screened once, at report priority). Pure — callers pre-sort/pre-filter
+ * each input; this only prioritizes, dedupes, and caps. Structural mirror of
+ * `buildEnrichmentQueue` in ./run.
+ */
+export function buildScreenQueue(
+  reported: ScreenProjectRow[],
+  retro: ScreenProjectRow[],
+  limit: number,
+): ScreenQueueItem[] {
+  const seen = new Set<string>();
+  const queue: ScreenQueueItem[] = [];
+
+  for (const project of reported) {
+    if (seen.has(project.id)) continue;
+    seen.add(project.id);
+    queue.push({ source: 'report', project });
+  }
+  for (const project of retro) {
+    if (seen.has(project.id)) continue;
+    seen.add(project.id);
+    queue.push({ source: 'retro', project });
+  }
+
+  return queue.slice(0, Math.max(0, limit));
+}
+
+/**
+ * Pure "what do we write to `moderation_screens`" rule (locked decision #4
+ * — the P2.1 stamping lesson, generalized). `model`/`created_at` are always
+ * stamped, same provenance-always idiom as `planStamp`'s `enriched_at` — but
+ * UNLIKE `planStamp`, there is no fill-only/null-safe column to fall back on
+ * here: `moderation_screens.verdict` is `NOT NULL`, so a genuine-but-
+ * unusable model reply (`parsed === null` — valid JSON never arrived, or
+ * arrived without a recognized `verdict`) cannot be left unwritten without
+ * either silently treating the row as "ok" (never seen) or retrying it
+ * forever. Neither is acceptable for a safety net, so it stamps
+ * `verdict: 'review'` with a synthetic reason instead — a human sees it,
+ * exactly once, next admin visit.
+ */
+export function planScreenStamp(
+  parsed: ParsedScreen | null,
+  model: string,
+  todayIso: string,
+): { verdict: ScreenVerdict; reason: string | null; model: string; created_at: string } {
+  if (parsed) {
+    return { verdict: parsed.verdict, reason: parsed.reason, model, created_at: todayIso };
+  }
+  return {
+    verdict: 'review',
+    reason: 'model reply unusable — flagged for manual review',
+    model,
+    created_at: todayIso,
+  };
+}
+
+export type ScreenBatchResult = {
+  screened: number;
+  flagged: number;
+  hasMore: boolean;
+  stopKind: 'rate_limited' | 'config' | 'provider_error' | null;
+  stopReason: string | null;
+};
+
+export type ScreenNextBatchOpts = {
+  /** Max rows to process this call — also the per-priority selection window multiplier base. */
+  limit: number;
+  /** `Date.now()`-comparable deadline; checked before every item, not mid-call. */
+  deadlineAt?: number;
+};
+
+/** `project_reports`/`moderation_screens` row shapes read by the priority-1 (reported) selection. */
+type OpenReportRow = { project_id: string; created_at: string };
+type ScreenTimestampRow = { project_id: string; created_at: string };
+
+/**
+ * Priority 1: reported projects needing a (re-)screen. Two lean queries
+ * (never `.or()` — house ban): open reports (`resolved_at is null`), newest
+ * first, reduced to one "newest open report" timestamp per project (first
+ * occurrence wins given the `desc` order); then the existing screen row (if
+ * any) per reported project. A project needs screening when it has no screen
+ * row yet, OR its screen predates the newest open report (locked decision
+ * #5 — re-screen when an open report is newer than the last screen). Result
+ * rows are re-sorted newest-open-report-first so the most urgent reports
+ * lead the queue.
+ */
+async function selectReportedProjects(
+  service: SupabaseClient<Database>,
+  limit: number,
+): Promise<ScreenProjectRow[]> {
+  const { data: openReports } = await service
+    .from('project_reports')
+    .select('project_id, created_at')
+    .is('resolved_at', null)
+    .order('created_at', { ascending: false })
+    .limit(Math.max(limit * 5, 50));
+
+  const newestOpenReportAt = new Map<string, string>();
+  for (const row of (openReports ?? []) as OpenReportRow[]) {
+    if (!newestOpenReportAt.has(row.project_id)) {
+      newestOpenReportAt.set(row.project_id, row.created_at);
+    }
+  }
+
+  if (newestOpenReportAt.size === 0) return [];
+
+  const reportedIds = [...newestOpenReportAt.keys()];
+  const { data: existingScreens } = await service
+    .from('moderation_screens')
+    .select('project_id, created_at')
+    .in('project_id', reportedIds);
+
+  const screenedAt = new Map(
+    ((existingScreens ?? []) as ScreenTimestampRow[]).map((row) => [
+      row.project_id,
+      row.created_at,
+    ]),
+  );
+
+  const needsScreenIds = reportedIds.filter((id) => {
+    const lastScreenedAt = screenedAt.get(id);
+    return lastScreenedAt === undefined || lastScreenedAt < (newestOpenReportAt.get(id) as string);
+  });
+
+  if (needsScreenIds.length === 0) return [];
+
+  const { data: projectRows } = await service
+    .from('projects')
+    .select(SCREEN_PROJECT_SELECT)
+    .in('id', needsScreenIds);
+
+  return ((projectRows ?? []) as ScreenProjectRow[]).sort((a, b) => {
+    const atA = newestOpenReportAt.get(a.id) as string;
+    const atB = newestOpenReportAt.get(b.id) as string;
+    return atB > atA ? 1 : atB < atA ? -1 : 0;
+  });
+}
+
+/** `ingest_candidates` row shape read by the priority-2 (retro) selection. */
+type RetroCandidateRow = { materialized_project_id: string | null; decided_at: string | null };
+
+/**
+ * Priority 2: retro-backlog projects — already `approved`, still
+ * `decided_by IS NULL` candidates (auto-approved by publish-all, never
+ * human-reviewed) whose materialized project has never been screened.
+ * Filters on the LIVE `projects.stars_count` via `needsReview` +
+ * `autoApproveMinStars()` (locked decision #7) — the SAME population the
+ * admin retro section shows (src/app/(app)/admin/queue/page.tsx), not the
+ * candidate's stale snapshot. Order preserved from the candidate query
+ * (`decided_at` ascending — oldest-approved-and-never-screened first).
+ */
+async function selectRetroProjects(
+  service: SupabaseClient<Database>,
+  limit: number,
+): Promise<ScreenProjectRow[]> {
+  const { data: retroCandidates } = await service
+    .from('ingest_candidates')
+    .select('materialized_project_id, decided_at')
+    .eq('status', 'approved')
+    .is('decided_by', null)
+    .not('materialized_project_id', 'is', null)
+    .order('decided_at', { ascending: true })
+    .limit(limit * 3);
+
+  const retroIds: string[] = [];
+  const seen = new Set<string>();
+  for (const row of (retroCandidates ?? []) as RetroCandidateRow[]) {
+    const projectId = row.materialized_project_id;
+    if (projectId && !seen.has(projectId)) {
+      seen.add(projectId);
+      retroIds.push(projectId);
+    }
+  }
+
+  if (retroIds.length === 0) return [];
+
+  const [{ data: projectRows }, { data: existingScreens }] = await Promise.all([
+    service.from('projects').select(SCREEN_PROJECT_SELECT).in('id', retroIds),
+    service.from('moderation_screens').select('project_id').in('project_id', retroIds),
+  ]);
+
+  const alreadyScreened = new Set(
+    ((existingScreens ?? []) as { project_id: string }[]).map((row) => row.project_id),
+  );
+  const byId = new Map(((projectRows ?? []) as ScreenProjectRow[]).map((row) => [row.id, row]));
+  const threshold = autoApproveMinStars();
+
+  const result: ScreenProjectRow[] = [];
+  for (const id of retroIds) {
+    if (alreadyScreened.has(id)) continue;
+    const project = byId.get(id);
+    if (!project) continue;
+    if (!needsReview({ stars_count: project.stars_count }, threshold)) continue;
+    result.push(project);
+  }
+  return result;
+}
+
+/**
+ * Processes up to `opts.limit` screenable rows (reported then retro,
+ * priority-ordered by `buildScreenQueue`) sequentially, pacing
+ * `chatCompletion` call starts `ENRICH_PACE_MS` apart (same free-tier RPM
+ * budget `enrichNextBatch` paces to — imported from ./run rather than
+ * redefined). The pipeline cron (Wave 2C) is the intended caller.
+ *
+ * See the module doc comment above for the stamping discipline: systemic
+ * failures stop the batch WITHOUT writing (row + everything queued behind
+ * it retries next call); a genuine `ok` reply always writes, via
+ * `planScreenStamp`, whether or not the JSON parsed cleanly. Re-screens
+ * UPSERT-OVERWRITE (`{ onConflict: 'project_id' }`, no `ignoreDuplicates`)
+ * since `moderation_screens` is one row per project, not an append log.
+ */
+export async function screenNextBatch(
+  service: SupabaseClient<Database>,
+  opts: ScreenNextBatchOpts,
+): Promise<ScreenBatchResult> {
+  const [reportedProjects, retroProjects] = await Promise.all([
+    selectReportedProjects(service, opts.limit),
+    selectRetroProjects(service, opts.limit),
+  ]);
+
+  const queue = buildScreenQueue(reportedProjects, retroProjects, opts.limit);
+
+  const result: ScreenBatchResult = {
+    screened: 0,
+    flagged: 0,
+    hasMore: queue.length === opts.limit,
+    stopKind: null,
+    stopReason: null,
+  };
+
+  let lastCallAt: number | null = null;
+
+  for (const queueItem of queue) {
+    if (opts.deadlineAt !== undefined && Date.now() >= opts.deadlineAt) {
+      result.hasMore = true;
+      return result;
+    }
+
+    const { project } = queueItem;
+    const readmeText = project.readme_html ? htmlToText(project.readme_html) : null;
+    const input: ScreenInput = {
+      repo_full_name: project.repo_full_name,
+      name: project.name,
+      tagline: project.tagline,
+      description: project.description_md,
+      topics: project.topics,
+      tags: project.tags,
+      primary_language: project.primary_language,
+      stars_count: project.stars_count,
+    };
+
+    // PACING: consecutive chatCompletion call STARTS stay >= ENRICH_PACE_MS
+    // apart. First call is immediate (lastCallAt starts null).
+    if (lastCallAt !== null) {
+      const waitMs = ENRICH_PACE_MS - (Date.now() - lastCallAt);
+      if (waitMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+      }
+    }
+    lastCallAt = Date.now();
+
+    let chatResult: Awaited<ReturnType<typeof chatCompletion>>;
+    try {
+      chatResult = await chatCompletion({
+        messages: buildScreenPrompt(input, readmeText),
+        maxTokens: SCREEN_MAX_TOKENS,
+      });
+    } catch (err) {
+      if (err instanceof AiConfigError) {
+        result.stopKind = 'config';
+        result.stopReason = err.message;
+        result.hasMore = true;
+        return result;
+      }
+      throw err;
+    }
+
+    if (chatResult.kind === 'rate_limited') {
+      result.stopKind = 'rate_limited';
+      result.stopReason = 'provider rate-limited — nothing consumed, resume shortly';
+      result.hasMore = true;
+      return result;
+    }
+    if (chatResult.kind === 'error') {
+      result.stopKind = 'provider_error';
+      result.stopReason =
+        `provider error${chatResult.status ? ` ${chatResult.status}` : ''}: ${chatResult.message.trim()}`.trim();
+      result.hasMore = true;
+      return result;
+    }
+
+    const parsed = parseScreenResult(chatResult.content);
+    const stamp = planScreenStamp(parsed, chatResult.model, new Date().toISOString());
+
+    const { error } = await service
+      .from('moderation_screens')
+      .upsert(
+        { project_id: project.id, source: queueItem.source, ...stamp },
+        { onConflict: 'project_id' },
+      );
+    // Mirrors enrichNextBatch's write-error handling: log and move on — the
+    // model gave a genuine reply this call, so it still counts toward the
+    // tally, same as planStamp's write path. A failed upsert means the row
+    // stays unscreened in the DB and is picked up again next call (no
+    // `enriched_at`-equivalent "attempted" marker survives a failed write).
+    if (error) console.error('[enrich/screen] screen upsert failed:', error.message);
+
+    result.screened += 1;
+    if (stamp.verdict === 'flagged') result.flagged += 1;
+  }
+
+  return result;
+}

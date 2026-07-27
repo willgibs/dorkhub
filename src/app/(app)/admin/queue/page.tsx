@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/admin';
 import { copy } from '@/lib/copy';
 import { autoApproveMinStars, needsReview } from '@/lib/ingest/policy';
 import { languageColor } from '@/lib/lang-colors';
+import { sortByVerdict, type Verdict } from '@/lib/moderation/verdict';
 import { supabaseService } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
@@ -19,13 +20,30 @@ import {
   markReviewed,
   rejectCandidate,
   reopenCandidate,
+  resolveReports,
   unpublishProject,
 } from './actions';
 import { EnrichRunner } from './enrich-runner';
+import { VerdictChip } from './verdict-chip';
 
 export const metadata: Metadata = { title: copy.adminQueueTitle };
 
 type Candidate = Tables<'ingest_candidates'>;
+
+/**
+ * `moderation_screens` embedded 1:0..1 off a project (P2.6 Wave A2, migration
+ * 0009). postgrest-js's embed shape for a to-one relationship reached via a
+ * bare (unnamed-FK) join varies between a single object and a one-element
+ * array depending on how the surrounding select is shaped — UNVERIFIED live
+ * for either embed site added in this wave, so both the retro query and the
+ * reports query type it permissively here and normalize through
+ * `normalizeScreen` below rather than trusting either shape.
+ */
+type ScreenEmbed = { verdict: Verdict; reason: string | null };
+
+function normalizeScreen(raw: ScreenEmbed | ScreenEmbed[] | null | undefined): ScreenEmbed | null {
+  return Array.isArray(raw) ? (raw[0] ?? null) : (raw ?? null);
+}
 
 /**
  * Shape of a retro-moderation row (P2.5 Wave 2A, docs/plans/
@@ -47,13 +65,73 @@ type RetroCandidate = {
     tagline: string | null;
     status: string;
     profiles: { username: string };
+    moderation_screens: ScreenEmbed | ScreenEmbed[] | null;
   };
 };
+
+/**
+ * One `project_reports` row (P2.6 Wave A2C, docs/plans/
+ * p2.6-immune-system.md), joined to the project it's about and that
+ * project's owner username — same explicit-FK-name belt-and-suspenders style
+ * as `RetroCandidate` above (`projects` has exactly one FK off
+ * `project_reports`, `project_id`, but naming it is free and matches the
+ * page's existing convention).
+ */
+type ReportRow = {
+  id: string;
+  project_id: string;
+  reason: string;
+  note: string | null;
+  created_at: string;
+  projects: {
+    id: string;
+    github_repo_id: number;
+    name: string;
+    slug: string;
+    stars_count: number;
+    status: string;
+    profiles: { username: string };
+  };
+};
+
+/** Reports grouped by project (JS-side — see the fetch site for why). */
+type ReportGroup = {
+  project: ReportRow['projects'];
+  count: number;
+  reasons: string;
+  note: string | null;
+};
+
+/**
+ * Groups already-sorted-newest-first `ReportRow`s by `project_id`. Relies on
+ * the caller's query ordering `created_at desc` — the first row seen per
+ * project is therefore the newest, so the first non-null `note` encountered
+ * for a project is the newest non-null note without any extra sort here.
+ */
+function groupReports(rows: ReportRow[]): ReportGroup[] {
+  const byProject = new Map<string, { project: ReportRow['projects']; reports: ReportRow[] }>();
+  for (const row of rows) {
+    const existing = byProject.get(row.project_id);
+    if (existing) {
+      existing.reports.push(row);
+    } else {
+      byProject.set(row.project_id, { project: row.projects, reports: [row] });
+    }
+  }
+  return Array.from(byProject.values()).map(({ project, reports }) => ({
+    project,
+    count: reports.length,
+    reasons: Array.from(new Set(reports.map((r) => r.reason))).join(' · '),
+    note: reports.find((r) => r.note !== null)?.note ?? null,
+  }));
+}
 
 const PENDING_LIMIT = 100;
 const REJECTED_BY_DEMAND_LIMIT = 20;
 /** idx_ingest_candidates_retro (0008_self_running.sql) serves this exact shape — decided_at desc, no OFFSET. */
 const RETRO_LIMIT = 50;
+/** Reports section (P2.6 Wave A2C) — same order of magnitude as PENDING_LIMIT; grouped down to one row per reported project. */
+const REPORTS_LIMIT = 100;
 
 /**
  * Admin-only literal strings on this page (row labels, the empty-queue line,
@@ -61,7 +139,7 @@ const RETRO_LIMIT = 50;
  * (docs/conventions.md / CLAUDE.md) — that rule is about public-facing
  * copy; docs/plans/p1-gallery-engine.md Wave 2B explicitly calls this out for
  * the empty-state string and it applies equally to the rest of this
- * queue-only chrome.
+ * queue-only chrome, including the reports section added in P2.6 Wave A2C.
  */
 const SOURCE_LABELS: Record<string, string> = {
   star_import: 'star import',
@@ -231,19 +309,23 @@ function RejectedByDemandRow({ candidate }: { candidate: Candidate }) {
 function RetroModerationRow({ candidate }: { candidate: RetroCandidate }) {
   const project = candidate.projects;
   const username = project.profiles.username;
+  const screen = normalizeScreen(project.moderation_screens);
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-border/60 border-b py-3 last:border-b-0">
       <div className="flex flex-col gap-0.5">
-        <a
-          href={`/u/${username}/${project.slug}`}
-          className={cn(
-            'w-fit font-mono text-[13.5px] font-medium transition-colors hover:text-foreground',
-            linkFocusRing,
-          )}
-        >
-          {project.name}
-        </a>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={`/u/${username}/${project.slug}`}
+            className={cn(
+              'w-fit font-mono text-[13.5px] font-medium transition-colors hover:text-foreground',
+              linkFocusRing,
+            )}
+          >
+            {project.name}
+          </a>
+          <VerdictChip verdict={screen?.verdict ?? null} />
+        </div>
         {/* Absence, not zero (design-system.md) — 0 stars renders nothing, never "0 stars". */}
         <span className="font-mono text-[11.5px] text-muted-foreground">
           {`@${username}`}
@@ -251,6 +333,14 @@ function RetroModerationRow({ candidate }: { candidate: RetroCandidate }) {
           {` · ${project.tagline ?? 'no tagline yet'}`}
           {project.status !== 'published' ? ' · unpublished' : ''}
         </span>
+        {screen?.reason ? (
+          <span
+            className="line-clamp-1 max-w-[480px] font-mono text-[11px] text-muted-foreground/80"
+            title={screen.reason}
+          >
+            {screen.reason}
+          </span>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <form action={markReviewed}>
@@ -282,6 +372,92 @@ function RetroModerationRow({ candidate }: { candidate: RetroCandidate }) {
             className="text-destructive hover:text-destructive"
           >
             delete + block
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A grouped-report row (P2.6 Wave A2C, docs/plans/p2.6-immune-system.md) —
+ * one or more `project_reports` rows for the same project, grouped in JS
+ * (`groupReports` above) after the fetch. Same live-project situation as
+ * `RetroModerationRow` just above (project is already published, this is a
+ * "give it a human look" surface, not a gate) so it reuses the identical
+ * three actions — `resolveReports` in place of `markReviewed` (this project
+ * was flagged by a report, not auto-published unreviewed, so there's nothing
+ * to "stamp reviewed" on the candidate row), `unpublishProject`,
+ * `deleteAndBlockProject`.
+ */
+function ReportGroupRow({ group, screen }: { group: ReportGroup; screen: ScreenEmbed | null }) {
+  const project = group.project;
+  const username = project.profiles.username;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-border/60 border-b py-3 last:border-b-0">
+      <div className="flex flex-col gap-0.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href={`/u/${username}/${project.slug}`}
+            className={cn(
+              'w-fit font-mono text-[13.5px] font-medium transition-colors hover:text-foreground',
+              linkFocusRing,
+            )}
+          >
+            {project.name}
+          </a>
+          <VerdictChip verdict={screen?.verdict ?? null} />
+        </div>
+        {/* Absence, not zero (design-system.md) — 0 stars renders nothing, never "0 stars". */}
+        <span className="font-mono text-[11.5px] text-muted-foreground">
+          {`@${username}`}
+          {project.stars_count > 0 ? ` · ${project.stars_count} stars` : ''}
+          {` · ${group.count} report${group.count === 1 ? '' : 's'} · ${group.reasons}`}
+        </span>
+        {group.note ? (
+          <span
+            className="line-clamp-1 max-w-[480px] font-mono text-[11px] text-muted-foreground"
+            title={group.note}
+          >
+            {group.note}
+          </span>
+        ) : null}
+        {screen?.reason ? (
+          <span
+            className="line-clamp-1 max-w-[480px] font-mono text-[11px] text-muted-foreground/80"
+            title={screen.reason}
+          >
+            {screen.reason}
+          </span>
+        ) : null}
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <form action={resolveReports}>
+          <input type="hidden" name="project_id" value={project.id} />
+          <Button type="submit" variant="secondary" size="sm">
+            resolve
+          </Button>
+        </form>
+        <form action={unpublishProject}>
+          <input type="hidden" name="github_repo_id" value={project.github_repo_id} />
+          <input type="hidden" name="project_id" value={project.id} />
+          <Button type="submit" variant="ghost" size="sm">
+            unpublish
+          </Button>
+        </form>
+        {/* `deleteAndBlockProject` (../sources/actions.ts) — reused as-is, same
+            contract as RetroModerationRow's use above. */}
+        <form action={deleteAndBlockProject}>
+          <input type="hidden" name="project_id" value={project.id} />
+          <input type="hidden" name="scope" value="repo" />
+          <Button
+            type="submit"
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+          >
+            remove + block
           </Button>
         </form>
       </div>
@@ -334,6 +510,7 @@ export default async function AdminQueuePage({
     { data: pendingSources },
     { data: pendingEnrichable },
     { data: rawRetro },
+    { data: rawReports },
   ] = await Promise.all([
     pendingQuery,
     service
@@ -362,16 +539,34 @@ export default async function AdminQueuePage({
     // existing belt-and-suspenders style for projects↔profiles below, which
     // genuinely IS ambiguous (three relationships — direct FK plus
     // many-to-many through likes/saves — ref src/lib/feed/queries.ts
-    // FEED_COLUMNS / src/app/weird/route.ts).
+    // FEED_COLUMNS / src/app/weird/route.ts). `moderation_screens(verdict,
+    // reason)` (P2.6 Wave A2C) rides along inside the same embed — a bare
+    // to-one join off `projects`, no FK name needed (one FK exists,
+    // `moderation_screens_project_id_fkey`).
     service
       .from('ingest_candidates')
       .select(
-        'github_repo_id, decided_at, projects!ingest_candidates_materialized_project_id_fkey!inner(id, name, slug, stars_count, tagline, status, profiles!projects_profile_id_fkey!inner(username))',
+        'github_repo_id, decided_at, projects!ingest_candidates_materialized_project_id_fkey!inner(id, name, slug, stars_count, tagline, status, profiles!projects_profile_id_fkey!inner(username), moderation_screens(verdict, reason))',
       )
       .eq('status', 'approved')
       .is('decided_by', null)
       .order('decided_at', { ascending: false })
       .limit(RETRO_LIMIT),
+    // Reports section (P2.6 Wave A2C) — open (unresolved) reports, newest
+    // first, joined to the reported project + its owner's username. Explicit
+    // FK name on the projects embed per this page's belt-and-suspenders
+    // convention (see the retro query's comment above); `!inner` because a
+    // report with no matching project shouldn't render (and can't happen
+    // anyway — project_reports_project_id_fkey has no ON DELETE that leaves
+    // orphans).
+    service
+      .from('project_reports')
+      .select(
+        'id, project_id, reason, note, created_at, projects!project_reports_project_id_fkey!inner(id, github_repo_id, name, slug, stars_count, status, profiles!projects_profile_id_fkey!inner(username))',
+      )
+      .is('resolved_at', null)
+      .order('created_at', { ascending: false })
+      .limit(REPORTS_LIMIT),
   ]);
 
   const pendingRows = pending ?? [];
@@ -391,8 +586,43 @@ export default async function AdminQueuePage({
   // ... bounded by the retro query's LIMIT"). Above-threshold auto-approved
   // rows are popular enough already — they don't need eyes.
   const autoApproveThreshold = autoApproveMinStars();
-  const retroRows = ((rawRetro ?? []) as unknown as RetroCandidate[]).filter((row) =>
+  const retroFiltered = ((rawRetro ?? []) as unknown as RetroCandidate[]).filter((row) =>
     needsReview({ stars_count: row.projects.stars_count }, autoApproveThreshold),
+  );
+  // Triage ordering (P2.6 Wave A2C, docs/plans/p2.6-immune-system.md, "retro
+  // rows sort flagged → review → unscreened → ok") — stable, so rows sharing
+  // a verdict keep the filter's existing decided_at-desc order.
+  const retroRows = sortByVerdict(
+    retroFiltered,
+    (row) => normalizeScreen(row.projects.moderation_screens)?.verdict ?? null,
+  );
+
+  // Reports section (P2.6 Wave A2C) — grouped per-project in JS (groupReports
+  // above), then a second lean query for just the AI verdicts of the
+  // reported projects (can't fold into the Promise.all above: the ids it
+  // filters on only exist after the first query's grouping runs).
+  const reportGroups = groupReports((rawReports ?? []) as unknown as ReportRow[]);
+  const reportProjectIds = reportGroups.map((group) => group.project.id);
+  const { data: rawReportScreens } =
+    reportProjectIds.length > 0
+      ? await service
+          .from('moderation_screens')
+          .select('project_id, verdict, reason')
+          .in('project_id', reportProjectIds)
+      : { data: [] as { project_id: string; verdict: string; reason: string | null }[] };
+  const reportScreenByProject = new Map<string, ScreenEmbed>(
+    (rawReportScreens ?? []).map((row) => [
+      row.project_id,
+      { verdict: row.verdict as Verdict, reason: row.reason },
+    ]),
+  );
+  // Sort by report count first (most-reported first), then let sortByVerdict
+  // stably re-rank by triage severity on top of that — locked shape (task
+  // brief): "sortByVerdict on screen verdict, then report count desc within
+  // rank."
+  const sortedReportGroups = sortByVerdict(
+    [...reportGroups].sort((a, b) => b.count - a.count),
+    (group) => reportScreenByProject.get(group.project.id)?.verdict ?? null,
   );
 
   return (
@@ -455,6 +685,38 @@ export default async function AdminQueuePage({
           ))}
         </div>
       )}
+
+      {/* Reports (P2.6 Wave A2C): OPEN by default when non-empty, same
+          convention as "published, unreviewed" below — an open user report
+          on a live project wants eyes now, not just archival access. Rendered
+          ABOVE the retro section: a human-flagged project is a stronger
+          signal than an unattended auto-publish nobody has complained about. */}
+      <details
+        className="rounded-lg border border-dashed px-[22px] py-[14px]"
+        open={sortedReportGroups.length > 0}
+      >
+        <summary
+          className={cn(
+            'cursor-pointer select-none font-mono text-xs tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground',
+            linkFocusRing,
+          )}
+        >
+          <span aria-hidden="true">{'// '}</span>reports ({sortedReportGroups.length})
+        </summary>
+        <div className="mt-4 flex flex-col gap-1">
+          {sortedReportGroups.length === 0 ? (
+            <p className="py-1.5 font-mono text-[13px] text-muted-foreground">none</p>
+          ) : (
+            sortedReportGroups.map((group) => (
+              <ReportGroupRow
+                key={group.project.id}
+                group={group}
+                screen={reportScreenByProject.get(group.project.id) ?? null}
+              />
+            ))
+          )}
+        </div>
+      </details>
 
       {/* Retro-moderation (P2.5 Wave 2A): OPEN by default when non-empty —
           unlike "rejected, by demand" below, these are already LIVE on the

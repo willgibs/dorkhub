@@ -303,3 +303,28 @@ export async function unpublishProject(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/queue');
 }
+
+/**
+ * Report-resolution action (P2.6 Wave A2C, docs/plans/p2.6-immune-system.md)
+ * — shape-mirrors `markReviewed` exactly, one level down: a project can carry
+ * several open `project_reports` rows (one per reporter), and the admin
+ * queue's "reports" section groups them per-project, so "resolve" clears
+ * every currently-unresolved report for that project in one update rather
+ * than requiring a click per report.
+ */
+export async function resolveReports(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  const service = supabaseService();
+
+  const projectId = String(formData.get('project_id') ?? '').trim();
+  if (!UUID_PATTERN.test(projectId)) return;
+
+  const { error } = await service
+    .from('project_reports')
+    .update({ resolved_at: new Date().toISOString(), resolved_by: admin.profileId })
+    .eq('project_id', projectId)
+    .is('resolved_at', null);
+
+  if (error) console.error('[admin/queue] resolveReports failed:', error.message);
+  revalidatePath('/admin/queue');
+}

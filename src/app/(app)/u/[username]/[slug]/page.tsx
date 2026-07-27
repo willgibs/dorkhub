@@ -5,6 +5,7 @@ import { cache } from 'react';
 
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { LikeButtonIsland } from '@/app/(app)/_engagement/like-button-island';
+import { ReportButtonIsland } from '@/app/(app)/_engagement/report-button-island';
 import { SaveButtonIsland } from '@/app/(app)/_engagement/save-button-island';
 import { refreshProjectFromGithub, setProjectStatus } from '@/app/(app)/settings/projects/actions';
 import { RelatedProjects } from '@/app/(app)/u/[username]/[slug]/related-projects';
@@ -169,6 +170,7 @@ export default async function ProjectPage({
               projectId={project.id}
               initialCount={project.saves_count > 0 ? project.saves_count : null}
             />
+            {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
           </div>
 
           {project.tagline ? (

@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 import { needsEnrichment } from '@/lib/ai/enrich';
 import { ENRICH_PER_RUN, type EnrichBatchResult, enrichNextBatch } from '@/lib/enrich/run';
+import { type ScreenBatchResult, screenNextBatch } from '@/lib/enrich/screen';
 import { syncProject } from '@/lib/github/sync';
 import { type MaterializeResult, materializeCandidate } from '@/lib/ingest/materialize';
 import { supabaseService } from '@/lib/supabase/clients';
 
 /**
- * The pipeline worker (P2.5 Wave 2B, docs/plans/p2.5-self-running.md). Same
- * shell as src/app/api/cron/sync/route.ts (Bearer CRON_SECRET, service
- * client, fail-closed 401), two sequential passes per invocation:
+ * The pipeline worker (P2.5 Wave 2B, docs/plans/p2.5-self-running.md; screen
+ * pass added in P2.6, docs/plans/p2.6-immune-system.md). Same shell as
+ * src/app/api/cron/sync/route.ts (Bearer CRON_SECRET, service client,
+ * fail-closed 401), four sequential passes per invocation:
  *
  *  1. Materialize up to `MATERIALIZE_PER_RUN` pending `ingest_candidates`
  *     into published `projects` rows via `materializeCandidate` — publish-all
@@ -16,9 +18,16 @@ import { supabaseService } from '@/lib/supabase/clients';
  *     is the auto-approved encoding (locked decision #1 — a human always
  *     stamps `decided_by`; the retro queue reads `approved ∧ decided_by IS
  *     NULL ∧ stars_count < threshold`).
- *  2. Spend whatever's left of the 50s soft deadline calling
- *     `enrichNextBatch` (src/lib/enrich/run.ts, Wave 1B) across BOTH
+ *  2. Enrich via `enrichNextBatch` (src/lib/enrich/run.ts) across BOTH
  *     `projects` and `ingest_candidates`.
+ *  3. Screen via `screenNextBatch` (src/lib/enrich/screen.ts) — AI moderation
+ *     triage, reported projects first, retro backlog second. Runs BEFORE the
+ *     sync backfill on purpose: safety before cosmetics (P2.6 decision D3).
+ *  4. Sync backfill for projects whose materialization skipped inline sync.
+ *
+ * AI budget: passes 2+3 together spend at most ENRICH_PER_RUN (5) +
+ * SCREEN_PER_RUN (3) = 8 Gemini calls per run — the proven daily ceiling
+ * (768 scheduled < ~1k free tier) is unchanged from P2.5.
  *
  * Runs on the offset-minute GitHub Actions schedule (`4,19,34,49 * * * *`,
  * .github/workflows/pipeline.yml) plus a daily Vercel-cron fallback
@@ -49,7 +58,14 @@ const SOFT_DEADLINE_MS = 50_000;
 const MATERIALIZE_PER_RUN = 25;
 
 /**
- * Pass-3 budget — README/metadata backfill for projects materialization
+ * Pass-3 budget — AI moderation screens per run (P2.6 decision D3). Together
+ * with ENRICH_PER_RUN (5) this keeps the total AI spend at ≤8 calls/run, the
+ * ceiling the schedulers were budgeted against in P2.5.
+ */
+const SCREEN_PER_RUN = 3;
+
+/**
+ * Pass-4 budget — README/metadata backfill for projects materialization
  * skipped sync on (`last_synced_at IS NULL` sorts first in the daily cron
  * too; this pass just gets READMEs onto fresh project pages within ~15-60
  * min instead of by tomorrow). Also heals fast-path demo_url via
@@ -170,7 +186,26 @@ export async function GET(request: Request) {
     });
   }
 
-  // PASS 3 — sync backfill (P2.5.1): projects whose materialization skipped
+  // PASS 3 — screen (P2.6): AI moderation triage. Reported projects outrank
+  // the retro backlog inside screenNextBatch; verdicts only label and order
+  // the admin queues (triage-only, decision D2 — no auto-actions). Same
+  // stamping discipline as enrichment: systemic failures stop without
+  // writing, so nothing gets marked "screened" that wasn't.
+  let screenResult: ScreenBatchResult = {
+    screened: 0,
+    flagged: 0,
+    hasMore: false,
+    stopKind: null,
+    stopReason: null,
+  };
+  if (Date.now() < deadlineAt) {
+    screenResult = await screenNextBatch(service, {
+      limit: SCREEN_PER_RUN,
+      deadlineAt,
+    });
+  }
+
+  // PASS 4 — sync backfill (P2.5.1): projects whose materialization skipped
   // the inline sync have last_synced_at NULL — give a few of them their
   // README (+ fill-only demo_url) now rather than waiting for the daily
   // sync cron. Deadline-checked per item; failures are syncProject's own
@@ -208,6 +243,9 @@ export async function GET(request: Request) {
     enrichedEmpty: enrichResult.empty,
     enrichHasMore: enrichResult.hasMore,
     enrichStopKind: enrichResult.stopKind,
+    screened: screenResult.screened,
+    flagged: screenResult.flagged,
+    screenStopKind: screenResult.stopKind,
     synced,
     deadlineHit,
     tookMs: Date.now() - startedAt,
