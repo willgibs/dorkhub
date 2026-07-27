@@ -25,7 +25,11 @@ describe('chatCompletion — ok path', () => {
 
     const result = await chatCompletion({ messages: MESSAGES, fetchImpl });
 
-    expect(result).toEqual({ kind: 'ok', content: 'a tagline' });
+    expect(result).toEqual({
+      kind: 'ok',
+      content: 'a tagline',
+      model: 'google/gemini-2.5-flash-lite',
+    });
   });
 
   it('posts to the AI Gateway chat completions URL with a JSON body of model/messages/max_tokens', async () => {
@@ -192,32 +196,51 @@ describe('chatCompletion — model resolution', () => {
   it('defaults to google/gemini-2.5-flash-lite when no model or env override is given', async () => {
     const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
 
-    await chatCompletion({ messages: MESSAGES, fetchImpl });
+    const result = await chatCompletion({ messages: MESSAGES, fetchImpl });
 
     const [, init] = fetchImpl.mock.calls[0];
     const body = JSON.parse(init?.body as string);
     expect(body.model).toBe('google/gemini-2.5-flash-lite');
+    expect(result.kind === 'ok' && result.model).toBe('google/gemini-2.5-flash-lite');
+  });
+
+  it('defaults to gemini-3.5-flash-lite on the Gemini-direct path when no model or env override is given', async () => {
+    process.env.GEMINI_API_KEY = 'google-key';
+    const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
+
+    const result = await chatCompletion({ messages: MESSAGES, fetchImpl });
+
+    const [, init] = fetchImpl.mock.calls[0];
+    const body = JSON.parse(init?.body as string);
+    expect(body.model).toBe('gemini-3.5-flash-lite');
+    expect(result.kind === 'ok' && result.model).toBe('gemini-3.5-flash-lite');
   });
 
   it('uses AI_GATEWAY_MODEL when set and no per-call model is given', async () => {
     process.env.AI_GATEWAY_MODEL = 'openai/gpt-5-mini';
     const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
 
-    await chatCompletion({ messages: MESSAGES, fetchImpl });
+    const result = await chatCompletion({ messages: MESSAGES, fetchImpl });
 
     const [, init] = fetchImpl.mock.calls[0];
     const body = JSON.parse(init?.body as string);
     expect(body.model).toBe('openai/gpt-5-mini');
+    expect(result.kind === 'ok' && result.model).toBe('openai/gpt-5-mini');
   });
 
   it('prefers a per-call model over AI_GATEWAY_MODEL and the default', async () => {
     process.env.AI_GATEWAY_MODEL = 'openai/gpt-5-mini';
     const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
 
-    await chatCompletion({ messages: MESSAGES, model: 'anthropic/claude-haiku', fetchImpl });
+    const result = await chatCompletion({
+      messages: MESSAGES,
+      model: 'anthropic/claude-haiku',
+      fetchImpl,
+    });
 
     const [, init] = fetchImpl.mock.calls[0];
     const body = JSON.parse(init?.body as string);
     expect(body.model).toBe('anthropic/claude-haiku');
+    expect(result.kind === 'ok' && result.model).toBe('anthropic/claude-haiku');
   });
 });

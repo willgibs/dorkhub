@@ -60,7 +60,7 @@ export type ChatCompletionOpts = {
   fetchImpl?: typeof fetch;
 };
 
-type ChatCompletionOk = { kind: 'ok'; content: string };
+type ChatCompletionOk = { kind: 'ok'; content: string; model: string };
 
 type ChatCompletionNotOk =
   | { kind: 'rate_limited' }
@@ -168,5 +168,5 @@ export async function chatCompletion(opts: ChatCompletionOpts): Promise<ChatComp
     };
   }
 
-  return { kind: 'ok', content };
+  return { kind: 'ok', content, model };
 }
