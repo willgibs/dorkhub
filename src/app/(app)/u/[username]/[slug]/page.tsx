@@ -27,12 +27,20 @@ import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 
 /**
- * Tree is already dynamic today — SiteHeaderSession reads cookies on the
- * (app) layout for every page under it — so this revalidate is inert for
- * now. It documents intent for the M5 caching pass (docs/state.md), same as
- * the profile page. Using cookie-bound supabaseServer() here is deliberate
- * in the meantime: RLS "published-or-own" shows owners their fresh drafts
- * for free (decision 4, docs/plans/m4-projects.md).
+ * This revalidate is inert today: `supabaseServer()`'s `cookies()` read
+ * forces dynamic rendering, so the page is never actually served from the ISR
+ * cache. It documents intent for a future caching pass (docs/state.md).
+ * Using the cookie-bound client here is deliberate: RLS "published-or-own"
+ * shows owners their fresh drafts for free (decision 4,
+ * docs/plans/m4-projects.md).
+ *
+ * NOTE (P2.7): an earlier version of this comment credited SiteHeaderSession
+ * — a component that no longer exists; the (app) layout is cookie-free and
+ * its auth slot is a client island. The page is per-viewer (owners see
+ * drafts), so if a caching pass ever swaps this read to `supabaseAnon()` it
+ * MUST drop `revalidate` or add `force-dynamic` first, or one viewer's
+ * render can be served to another. The two lists pages took the explicit
+ * `force-dynamic` route for exactly this reason.
  */
 export const revalidate = 300;
 
@@ -171,8 +179,12 @@ export default async function ProjectPage({
               projectId={project.id}
               initialCount={project.saves_count > 0 ? project.saves_count : null}
             />
-            {/* Owners get this too — listing your own work is normal (P3-A). */}
-            <AddToListControl projectId={project.id} />
+            {/* Owners get this too — listing your own work is normal (P3-A) —
+                but only once published: collection_items_insert_own (0010)
+                requires a published target, so on a draft every toggle is
+                rejected by RLS with no path to success. Same publish gate the
+                related-projects rail above uses. */}
+            {project.status === 'published' ? <AddToListControl projectId={project.id} /> : null}
             {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
           </div>
 

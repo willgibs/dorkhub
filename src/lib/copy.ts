@@ -52,6 +52,9 @@ export const copy = {
   listsEmptyOwn: 'no lists yet — start one and put your favorite finds together',
   listsEmptyVisitor: 'no public lists yet',
   listAdd: 'add to list',
+  listsEmptyMenu: 'no lists yet',
+  listNameLabel: 'name',
+  listDescriptionLabel: 'description — optional',
   listCapHit: 'you’ve hit 50 lists — the cap for now',
   listItemCapHit: 'this list is full — 400 is the cap for now',
   listDeleteConfirm: 'delete this list? the projects in it stay put.',
@@ -91,6 +94,7 @@ export const copy = {
   reportAction: 'report',
   reportDialogTitle: 'report this project',
   reportReasonLabel: 'what’s wrong?',
+  reportReasonPlaceholder: 'pick one',
   reportReasons: {
     spam: 'spam or seo bait',
     malware: 'malware or sketchy code',

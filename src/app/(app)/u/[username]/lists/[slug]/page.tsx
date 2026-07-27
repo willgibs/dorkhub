@@ -41,7 +41,14 @@ type PageData = {
  * fields, and coupling metadata generation to the (possibly 400-row) items
  * query would be pure waste.
  */
-export const revalidate = 300;
+/**
+ * PER-VIEWER page: a private list must 404 for everyone but its owner, so
+ * this must never be cached across viewers. `supabaseServer()`'s `cookies()`
+ * read already forces dynamic rendering; declaring it makes the guarantee
+ * explicit rather than an implicit side effect, matching /saved and
+ * /following.
+ */
+export const dynamic = 'force-dynamic';
 
 const getPageData = cache(async (username: string, slug: string): Promise<PageData | null> => {
   const supabase = await supabaseServer();

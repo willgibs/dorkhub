@@ -75,7 +75,10 @@ export function ReportButtonIsland({ projectId }: ReportButtonIslandProps) {
           </DialogHeader>
 
           {state && 'ok' in state ? (
-            <p className="text-sm text-muted-foreground">
+            // aria-live: submitting unmounts the form (and the focused submit
+            // button with it), so without this the outcome of the dialog's
+            // primary action is never announced.
+            <p aria-live="polite" className="text-sm text-muted-foreground">
               {state.alreadyReported ? copy.reportAlready : copy.reportThanks}
             </p>
           ) : (
@@ -88,7 +91,7 @@ export function ReportButtonIsland({ projectId }: ReportButtonIslandProps) {
                 </Label>
                 <Select name="reason" required>
                   <SelectTrigger id="report-reason" className="w-full">
-                    <SelectValue />
+                    <SelectValue placeholder={copy.reportReasonPlaceholder} />
                   </SelectTrigger>
                   <SelectContent>
                     {REPORT_REASONS.map((reason) => (

@@ -5,6 +5,7 @@ import { type CreateListState, createList } from '@/app/(app)/u/[username]/lists
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { copy } from '@/lib/copy';
 
@@ -45,19 +46,34 @@ export function CreateListDialog({ open, onOpenChange, onCreated }: CreateListDi
         </DialogHeader>
 
         <form action={formAction} className="flex flex-col gap-4">
-          <Input
-            name="name"
-            placeholder={copy.listNewPlaceholder}
-            maxLength={60}
-            required
-            autoComplete="off"
-          />
+          {/* Labels, not placeholder-only: a placeholder is not a reliable
+              accessible name and disappears on the first keystroke. Mirrors
+              report-button-island.tsx's Label + htmlFor pairing. */}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="list-name" className="font-mono text-xs text-muted-foreground">
+              {copy.listNameLabel}
+            </Label>
+            <Input
+              id="list-name"
+              name="name"
+              placeholder={copy.listNewPlaceholder}
+              maxLength={60}
+              required
+              autoComplete="off"
+            />
+          </div>
 
-          <Textarea
-            name="description"
-            placeholder={copy.listDescriptionPlaceholder}
-            maxLength={280}
-          />
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="list-description" className="font-mono text-xs text-muted-foreground">
+              {copy.listDescriptionLabel}
+            </Label>
+            <Textarea
+              id="list-description"
+              name="description"
+              placeholder={copy.listDescriptionPlaceholder}
+              maxLength={280}
+            />
+          </div>
 
           {state && 'error' in state ? (
             <p aria-live="polite" className="text-sm text-destructive">

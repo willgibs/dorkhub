@@ -45,6 +45,10 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
 
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [lists, setLists] = useState<ListRow[] | null>(null);
+  // `lists === null` is the LOADING state, so a failed fetch needs its own
+  // flag — otherwise a 5xx leaves the menu on a permanent placeholder that
+  // never retries (the mount effect is keyed on projectId).
+  const [loadFailed, setLoadFailed] = useState(false);
   const [pending, setPending] = useState<Set<string>>(() => new Set());
   const [lastError, setLastError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -67,11 +71,16 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
 
       try {
         const res = await fetch(`/api/me/lists?projectId=${projectId}`);
-        if (!res.ok) return;
+        if (!res.ok) {
+          console.error('[lists] membership fetch failed', res.status);
+          if (!cancelled) setLoadFailed(true);
+          return;
+        }
         const body = (await res.json()) as { lists: ListRow[] };
         if (!cancelled) setLists(body.lists);
       } catch (err) {
         console.error('[lists] membership fetch failed', err);
+        if (!cancelled) setLoadFailed(true);
       }
     }
 
@@ -83,6 +92,17 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
   }, [projectId]);
 
   async function runToggle(collectionId: string, next: boolean) {
+    // House guard (cf. toggleSave): `disabled` on the item is UI-only and
+    // doesn't cover the onCreated auto-add path.
+    if (pending.has(collectionId)) return;
+
+    const revert = () =>
+      setLists((prev) =>
+        prev
+          ? prev.map((list) => (list.id === collectionId ? { ...list, hasProject: !next } : list))
+          : prev,
+      );
+
     setPending((prev) => new Set(prev).add(collectionId));
     setLists((prev) =>
       prev
@@ -93,15 +113,20 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
     try {
       const result = await toggleListItem(collectionId, projectId, next);
       if (result && 'error' in result) {
-        setLists((prev) =>
-          prev
-            ? prev.map((list) => (list.id === collectionId ? { ...list, hasProject: !next } : list))
-            : prev,
-        );
+        revert();
         setLastError(result.error);
       } else {
         setLastError(null);
       }
+    } catch (err) {
+      // A THROWN server action (network drop, 500, deserialization failure)
+      // used to skip the revert entirely and escape as an unhandled
+      // rejection, leaving the checkbox claiming a write that never landed.
+      // The toggleSave idiom this mirrors can't hit that: supabase-js returns
+      // `{ error }` rather than throwing.
+      console.error('[lists] toggleListItem threw', err);
+      revert();
+      setLastError(copy.error);
     } finally {
       setPending((prev) => {
         const next = new Set(prev);
@@ -134,9 +159,17 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          {lists === null ? (
+          {loadFailed ? (
+            <DropdownMenuItem disabled className="text-destructive">
+              {copy.error}
+            </DropdownMenuItem>
+          ) : lists === null ? (
             <DropdownMenuItem disabled className="text-muted-foreground">
-              …
+              {copy.loadingMore}
+            </DropdownMenuItem>
+          ) : lists.length === 0 ? (
+            <DropdownMenuItem disabled className="text-muted-foreground">
+              {copy.listsEmptyMenu}
             </DropdownMenuItem>
           ) : (
             lists.map((list) => (
@@ -153,9 +186,9 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
           )}
 
           {lastError ? (
-            <p aria-live="polite" className="px-2 py-1.5 text-xs text-destructive">
+            <DropdownMenuItem disabled className="text-destructive">
               {lastError}
-            </p>
+            </DropdownMenuItem>
           ) : null}
 
           <DropdownMenuSeparator />

@@ -14,12 +14,15 @@ import type { Tables } from '@/lib/supabase/types';
 export const metadata: Metadata = { title: copy.listsTitle };
 
 /**
- * Same revalidate-as-documentation note as the project page
- * (src/app/(app)/u/[username]/[slug]/page.tsx): the tree is already dynamic
- * (SiteHeaderSession reads cookies on every (app) page), so this is inert
- * today and records intent for the M5 caching pass.
+ * PER-VIEWER page: the owner sees their private lists here and a visitor must
+ * not, so it must never be cached across viewers. `supabaseServer()`'s
+ * `cookies()` read already forces dynamic rendering, but that is an implicit
+ * side effect — this makes it explicit and load-bearing, matching /saved and
+ * /following. (An earlier comment justified `revalidate = 300` by citing
+ * SiteHeaderSession keeping the tree dynamic; that component no longer
+ * exists, and the (app) layout is cookie-free with a client auth island.)
  */
-export const revalidate = 300;
+export const dynamic = 'force-dynamic';
 
 type ProfileRow = Tables<'profiles'>;
 
