@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
@@ -73,6 +74,24 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     .eq('status', 'published')
     .order('sort_order', { ascending: true });
 
+  // Public lists only — this page renders via the anon client for
+  // cacheability, and the explicit is_public filter is belt-and-suspenders on
+  // top of the RLS select policy (same style as the published filter above).
+  const { data: listRows } = await supabase
+    .from('collections')
+    .select('name, slug, description, collection_items(count)')
+    .eq('profile_id', profile.id)
+    .eq('is_public', true)
+    .order('created_at', { ascending: false });
+
+  const lists = (listRows ?? []).map((row) => ({
+    name: row.name,
+    slug: row.slug,
+    description: row.description,
+    // PostgREST count aggregate arrives as a one-element array (probed live, P3-A).
+    itemCount: (row.collection_items as unknown as Array<{ count: number }>)[0]?.count ?? 0,
+  }));
+
   // Keeps both the ProjectCard model AND the raw row (id/likes_count) around
   // per item — the card model alone can't back a LikeButtonIsland, which
   // needs the project id and the DB-trigger-maintained count directly.
@@ -131,6 +150,37 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         ) : (
           <EmptyState message={copy.profileEmptyProjects} />
         )}
+
+        {/* Public lists — quiet typographic rows, section absent entirely at
+            zero (absence, never an empty-state nudge on someone else's page). */}
+        {lists.length > 0 ? (
+          <section className="flex flex-col gap-3">
+            <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+              {'// '}
+              {copy.listsTitle}
+            </h2>
+            <ul className="flex flex-col gap-2">
+              {lists.map((list) => (
+                <li key={list.slug} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                  <Link
+                    href={`/u/${author.username}/lists/${list.slug}`}
+                    className="rounded-sm font-mono text-[15px] font-semibold outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    {list.name}
+                  </Link>
+                  {list.itemCount > 0 ? (
+                    <span className="text-xs text-muted-foreground tabular-nums">
+                      {list.itemCount} {list.itemCount === 1 ? 'item' : 'items'}
+                    </span>
+                  ) : null}
+                  {list.description ? (
+                    <span className="text-sm text-muted-foreground">{list.description}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </PageShell>
     </EngagementProvider>
   );

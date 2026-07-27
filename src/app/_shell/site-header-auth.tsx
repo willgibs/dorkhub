@@ -126,6 +126,12 @@ export function SiteHeaderAuth() {
         <DropdownMenuItem asChild>
           <Link href="/saved">{copy.savedTitle}</Link>
         </DropdownMenuItem>
+        {/* Omitted mid-onboarding (no profile yet) — never link /u/undefined/lists. */}
+        {profile ? (
+          <DropdownMenuItem asChild>
+            <Link href={`/u/${profile.username}/lists`}>{copy.listsTitle}</Link>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem asChild>
           <Link href="/following">{copy.followingTitle}</Link>
         </DropdownMenuItem>
