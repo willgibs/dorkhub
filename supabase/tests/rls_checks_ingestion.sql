@@ -1,7 +1,8 @@
 -- ============================================================================
--- dorkhub.com — RLS / grants assertion suite: 0006 ingestion tables (P1)
+-- dorkhub.com — RLS / grants assertion suite: ingestion + moderation tables
+-- (0006 ingestion · 0007 enrichment · 0009 immune system)
 -- ============================================================================
--- Companion to rls_checks.sql. Run privileged AFTER 0006_ingestion.sql.
+-- Companion to rls_checks.sql. Run privileged AFTER the latest migration.
 -- Behavioral checks run inside a rolled-back transaction. A clean run ends
 -- with the ALL INGESTION CHECKS PASSED notice.
 -- ============================================================================
@@ -253,6 +254,205 @@ begin
     raise exception 'RLS FAILURE: I7 ai_tags default is % (expected empty array)', v_tags;
   end if;
   raise notice 'PASS: I7b 120-char ai_tagline accepted; ai_tags defaults to {}';
+end
+$$;
+
+rollback;
+
+-- ----------------------------------------------------------------------------
+-- Section I8 — 0009: RLS enabled on both moderation tables
+-- ----------------------------------------------------------------------------
+do $$
+declare
+  v_missing text;
+begin
+  select string_agg(t.tbl, ', ' order by t.tbl)
+    into v_missing
+    from (values ('project_reports'), ('moderation_screens')) as t(tbl)
+   where not exists (
+           select 1
+             from pg_class c
+             join pg_namespace n on n.oid = c.relnamespace
+            where n.nspname = 'public'
+              and c.relname = t.tbl
+              and c.relkind = 'r'
+              and c.relrowsecurity
+         );
+  if v_missing is not null then
+    raise exception 'RLS FAILURE: I8 row security missing on: %', v_missing;
+  end if;
+  raise notice 'PASS: I8 RLS enabled on both moderation tables';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I9 — 0009: deny-all — zero API-role grants, table- and column-level
+-- ----------------------------------------------------------------------------
+do $$
+declare
+  v_bad int;
+begin
+  select count(*) into v_bad
+    from information_schema.role_table_grants
+   where table_schema = 'public'
+     and table_name in ('project_reports', 'moderation_screens')
+     and grantee in ('anon', 'authenticated');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I9 moderation tables have % API-role table grants (expected 0)', v_bad;
+  end if;
+
+  select count(*) into v_bad
+    from information_schema.column_privileges
+   where table_schema = 'public'
+     and table_name in ('project_reports', 'moderation_screens')
+     and grantee in ('anon', 'authenticated');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I9 moderation tables have % API-role column privileges (expected 0)', v_bad;
+  end if;
+  raise notice 'PASS: I9 deny-all grant surface on both moderation tables';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I10 — 0009: service_role has full DML on both (the 0003 bug class)
+-- ----------------------------------------------------------------------------
+do $$
+declare
+  v_missing text;
+begin
+  select string_agg(x.tbl || ':' || x.priv, ', ')
+    into v_missing
+    from (select t.tbl, p.priv
+            from (values ('project_reports'), ('moderation_screens')) t(tbl)
+           cross join (values ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE')) p(priv)) x
+   where not exists (
+           select 1 from information_schema.role_table_grants g
+            where g.table_schema = 'public'
+              and g.table_name = x.tbl
+              and g.grantee = 'service_role'
+              and g.privilege_type = x.priv
+         );
+  if v_missing is not null then
+    raise exception 'RLS FAILURE: I10 service_role missing DML: %', v_missing;
+  end if;
+  raise notice 'PASS: I10 service_role full DML on both moderation tables';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I11 — 0009 behavioral (rolled back): constraints + upsert-overwrite
+-- ----------------------------------------------------------------------------
+begin;
+
+do $$
+declare
+  v_profile_a uuid := 'a1000000-0000-4000-8000-000000000001'; -- mollybuilds (seed)
+  v_profile_b uuid := 'a1000000-0000-4000-8000-000000000002'; -- gremlinworks (seed)
+  v_project uuid;
+  v_verdict text;
+  v_count int;
+begin
+  insert into public.projects
+    (profile_id, slug, github_repo_id, repo_full_name, repo_url, name, status)
+  values
+    (v_profile_a, 'rls-check-immune', 990000000005, 'rls-check-owner/immune',
+     'https://github.com/rls-check-owner/immune', 'immune', 'draft')
+  returning id into v_project;
+
+  insert into public.project_reports (project_id, reporter_profile_id, reason)
+  values (v_project, v_profile_b, 'spam');
+
+  begin
+    insert into public.project_reports (project_id, reporter_profile_id, reason)
+    values (v_project, v_profile_b, 'other');
+    raise exception 'RLS FAILURE: I11 duplicate (project, reporter) report accepted';
+  exception
+    when unique_violation then
+      raise notice 'PASS: I11a duplicate (project, reporter) report rejected';
+  end;
+
+  begin
+    insert into public.project_reports (project_id, reporter_profile_id, reason)
+    values (v_project, v_profile_a, 'meh');
+    raise exception 'RLS FAILURE: I11 invalid report reason accepted';
+  exception
+    when check_violation then
+      raise notice 'PASS: I11b invalid report reason rejected by CHECK';
+  end;
+
+  begin
+    insert into public.project_reports (project_id, reporter_profile_id, reason, note)
+    values (v_project, v_profile_a, 'spam', repeat('x', 501));
+    raise exception 'RLS FAILURE: I11 501-char report note accepted';
+  exception
+    when check_violation then
+      raise notice 'PASS: I11c report note >500 rejected by CHECK';
+  end;
+
+  begin
+    insert into public.moderation_screens (project_id, source, verdict)
+    values (v_project, 'retro', 'maybe');
+    raise exception 'RLS FAILURE: I11 invalid screen verdict accepted';
+  exception
+    when check_violation then
+      raise notice 'PASS: I11d invalid screen verdict rejected by CHECK';
+  end;
+
+  begin
+    insert into public.moderation_screens (project_id, source, verdict)
+    values (v_project, 'cron', 'ok');
+    raise exception 'RLS FAILURE: I11 invalid screen source accepted';
+  exception
+    when check_violation then
+      raise notice 'PASS: I11e invalid screen source rejected by CHECK';
+  end;
+
+  begin
+    insert into public.moderation_screens (project_id, source, verdict, reason)
+    values (v_project, 'retro', 'ok', repeat('x', 241));
+    raise exception 'RLS FAILURE: I11 241-char screen reason accepted';
+  exception
+    when check_violation then
+      raise notice 'PASS: I11f screen reason >240 rejected by CHECK';
+  end;
+
+  -- Upsert-overwrite: re-screens replace, never duplicate (D5).
+  insert into public.moderation_screens (project_id, source, verdict)
+  values (v_project, 'retro', 'ok');
+  insert into public.moderation_screens (project_id, source, verdict, reason)
+  values (v_project, 'report', 'flagged', 'rls check overwrite')
+  on conflict (project_id) do update
+    set source = excluded.source, verdict = excluded.verdict, reason = excluded.reason;
+  select count(*), min(verdict) into v_count, v_verdict
+    from public.moderation_screens where project_id = v_project;
+  if v_count <> 1 or v_verdict <> 'flagged' then
+    raise exception 'RLS FAILURE: I11 upsert left count=% verdict=% (expected 1/flagged)', v_count, v_verdict;
+  end if;
+  raise notice 'PASS: I11g screen upsert overwrites in place (one row per project)';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I12 — API-role denial (behavioral, not just grant-level)
+-- ----------------------------------------------------------------------------
+do $$
+begin
+  set local role authenticated;
+  begin
+    perform 1 from public.project_reports limit 1;
+    raise exception 'RLS FAILURE: I12 authenticated could select project_reports';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I12a authenticated denied on project_reports';
+  end;
+  begin
+    perform 1 from public.moderation_screens limit 1;
+    raise exception 'RLS FAILURE: I12 authenticated could select moderation_screens';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I12b authenticated denied on moderation_screens';
+  end;
+  reset role;
 end
 $$;
 

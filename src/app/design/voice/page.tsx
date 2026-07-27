@@ -16,7 +16,13 @@ const RULES = [
 ] as const;
 
 export default function DesignVoicePage() {
-  const entries = Object.entries(copy);
+  // Values are strings, string arrays, or one-level string maps (e.g.
+  // reportReasons) — flatten to one row per leaf so the table stays honest.
+  const entries = Object.entries(copy).flatMap(([key, value]): [string, string][] => {
+    if (typeof value === 'string') return [[key, value]];
+    if (Array.isArray(value)) return [[key, value.join(' · ')]];
+    return Object.entries(value).map(([sub, leaf]) => [`${key}.${sub}`, leaf]);
+  });
 
   return (
     <div className="flex flex-col gap-16">

@@ -325,6 +325,41 @@ export type Database = {
           },
         ];
       };
+      moderation_screens: {
+        Row: {
+          created_at: string;
+          model: string | null;
+          project_id: string;
+          reason: string | null;
+          source: string;
+          verdict: string;
+        };
+        Insert: {
+          created_at?: string;
+          model?: string | null;
+          project_id: string;
+          reason?: string | null;
+          source: string;
+          verdict: string;
+        };
+        Update: {
+          created_at?: string;
+          model?: string | null;
+          project_id?: string;
+          reason?: string | null;
+          source?: string;
+          verdict?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'moderation_screens_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: true;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           avatar_url: string | null;
@@ -372,6 +407,61 @@ export type Database = {
           username?: string;
         };
         Relationships: [];
+      };
+      project_reports: {
+        Row: {
+          created_at: string;
+          id: string;
+          note: string | null;
+          project_id: string;
+          reason: string;
+          reporter_profile_id: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          project_id: string;
+          reason: string;
+          reporter_profile_id: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          note?: string | null;
+          project_id?: string;
+          reason?: string;
+          reporter_profile_id?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'project_reports_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reports_reporter_profile_id_fkey';
+            columns: ['reporter_profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'project_reports_resolved_by_fkey';
+            columns: ['resolved_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       project_updates: {
         Row: {

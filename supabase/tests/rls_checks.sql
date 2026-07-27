@@ -236,16 +236,18 @@ begin
   end if;
   raise notice 'PASS: public-schema policy set matches the expected 23 policies exactly';
 
-  -- 3b. claim_invites must have ZERO policies (deny-all; service-role only).
+  -- 3b. Deny-all tables must have ZERO policies (service-role only):
+  --     claim_invites (0001), project_reports + moderation_screens (0009).
   --     Already implied by the exact match above, asserted explicitly anyway.
   select count(*) into v_count
     from pg_policies
-   where schemaname = 'public' and tablename = 'claim_invites';
+   where schemaname = 'public'
+     and tablename in ('claim_invites', 'project_reports', 'moderation_screens');
 
   if v_count <> 0 then
-    raise exception 'RLS FAILURE: claim_invites has % policies; expected none (service-role only)', v_count;
+    raise exception 'RLS FAILURE: deny-all tables carry % policies; expected none (service-role only)', v_count;
   end if;
-  raise notice 'PASS: claim_invites has zero policies (deny-all for API roles)';
+  raise notice 'PASS: deny-all tables (claim_invites, project_reports, moderation_screens) have zero policies';
 
   -- 3c. storage.objects: our three screenshots policies must exist
   --     (containment check — other buckets may add their own policies).
