@@ -76,16 +76,27 @@ describe('resolveFeedFilterSpec — tag/language normalize', () => {
 });
 
 describe('resolveFeedFilterSpec — cursor decode per sort', () => {
+  // Uuid-shaped since P2.7 — the id element reaches a PostgREST `.or()` filter.
+  const PROJECT_1 = 'b2000000-0000-4000-8000-000000000001';
+  const PROJECT_2 = 'b2000000-0000-4000-8000-000000000002';
+
   it('round-trips a recent cursor under sort "recent"', () => {
-    const raw = encodeRecentCursor('2026-07-21T00:00:00.000Z', 'project-1');
+    const raw = encodeRecentCursor('2026-07-21T00:00:00.000Z', PROJECT_1);
     const spec = resolveFeedFilterSpec({ sort: 'recent', cursor: raw });
-    expect(spec.cursor).toEqual(['2026-07-21T00:00:00.000Z', 'project-1']);
+    expect(spec.cursor).toEqual(['2026-07-21T00:00:00.000Z', PROJECT_1]);
   });
 
   it('round-trips a trending cursor under sort "trending"', () => {
-    const raw = encodeTrendingCursor(42.5, 'project-2');
+    const raw = encodeTrendingCursor(42.5, PROJECT_2);
     const spec = resolveFeedFilterSpec({ sort: 'trending', cursor: raw });
-    expect(spec.cursor).toEqual([42.5, 'project-2']);
+    expect(spec.cursor).toEqual([42.5, PROJECT_2]);
+  });
+
+  it('a tampered cursor falls back to the first page rather than an empty feed', () => {
+    // Pre-P2.7 this decoded fine and the junk reached `buildFeedQuery`'s
+    // `.or(...)`, so /api/feed answered 200 with zero rows.
+    const raw = encodeRecentCursor('2026-07-21T00:00:00.000Z', 'zzz),(id.not.is.null');
+    expect(resolveFeedFilterSpec({ sort: 'recent', cursor: raw }).cursor).toBeNull();
   });
 
   it('missing cursor decodes to null (first page)', () => {

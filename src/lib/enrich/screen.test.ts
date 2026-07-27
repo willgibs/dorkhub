@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildScreenQueue, planScreenStamp, type ScreenProjectRow } from './screen';
+import {
+  buildScreenQueue,
+  collectRetroPages,
+  planScreenStamp,
+  type RetroPage,
+  type ScreenProjectRow,
+} from './screen';
 
 // Only the pure helpers are tested here — screenNextBatch takes a
 // SupabaseClient and drives real IO (chatCompletion); building a fake
@@ -134,5 +140,98 @@ describe('planScreenStamp', () => {
     const stamp = planScreenStamp(null, model, today);
     expect(stamp.model).toBe(model);
     expect(stamp.created_at).toBe(today);
+  });
+});
+
+/**
+ * P2.7 — the retro pass used ONE fixed `limit * 3` window and removed
+ * already-screened rows in JS afterwards, so once those oldest rows were all
+ * screened it returned [] on every subsequent run forever (reporting
+ * `screened: 0`, indistinguishable from "nothing to do"). Third occurrence of
+ * the same window-vs-population bug class (P2.1 enrich, P2.6 retro), so the
+ * advance rule gets pinned here rather than trusted.
+ */
+describe('collectRetroPages — the window must advance', () => {
+  function page(rowCount: number, eligibleIds: string[]): RetroPage {
+    return { rowCount, eligible: eligibleIds.map((id) => project(id)) };
+  }
+
+  it('walks past a full page whose rows are ALL already screened (the stall)', async () => {
+    const requested: Array<[number, number]> = [];
+    const result = await collectRetroPages(3, 9, 5, async (from, to) => {
+      requested.push([from, to]);
+      // Page 0: nine eligible-looking candidates, every one already screened.
+      if (from === 0) return page(9, []);
+      return page(9, ['p10', 'p11', 'p12']);
+    });
+
+    expect(result.map((r) => r.id)).toEqual(['p10', 'p11', 'p12']);
+    expect(requested[0]).toEqual([0, 8]);
+    expect(requested[1]).toEqual([9, 17]);
+  });
+
+  it('stops at the first page when it already satisfies the limit', async () => {
+    let calls = 0;
+    const result = await collectRetroPages(3, 9, 5, async () => {
+      calls++;
+      return page(9, ['a', 'b', 'c', 'd']);
+    });
+
+    expect(result.map((r) => r.id)).toEqual(['a', 'b', 'c']);
+    expect(calls).toBe(1);
+  });
+
+  it('stops on a short page — end of the eligible population', async () => {
+    let calls = 0;
+    const result = await collectRetroPages(3, 9, 5, async () => {
+      calls++;
+      return page(4, ['a']);
+    });
+
+    expect(result.map((r) => r.id)).toEqual(['a']);
+    expect(calls).toBe(1);
+  });
+
+  it('stops on an empty page', async () => {
+    let calls = 0;
+    const result = await collectRetroPages(3, 9, 5, async () => {
+      calls++;
+      return page(0, []);
+    });
+
+    expect(result).toEqual([]);
+    expect(calls).toBe(1);
+  });
+
+  it('gives up after maxPages rather than walking forever', async () => {
+    let calls = 0;
+    const result = await collectRetroPages(3, 9, 5, async () => {
+      calls++;
+      return page(9, []);
+    });
+
+    expect(result).toEqual([]);
+    expect(calls).toBe(5);
+  });
+
+  it('dedupes a project appearing on two pages', async () => {
+    const result = await collectRetroPages(3, 2, 5, async (from) =>
+      from === 0 ? page(2, ['dup']) : page(2, ['dup', 'fresh']),
+    );
+
+    expect(result.map((r) => r.id)).toEqual(['dup', 'fresh']);
+  });
+
+  it('returns empty for non-positive limit, pageSize, or maxPages without loading', async () => {
+    let calls = 0;
+    const loader = async () => {
+      calls++;
+      return page(9, ['a']);
+    };
+
+    expect(await collectRetroPages(0, 9, 5, loader)).toEqual([]);
+    expect(await collectRetroPages(3, 0, 5, loader)).toEqual([]);
+    expect(await collectRetroPages(3, 9, 0, loader)).toEqual([]);
+    expect(calls).toBe(0);
   });
 });

@@ -64,8 +64,38 @@ function base64UrlToBase64(base64Url: string): string {
 // Typed wrappers
 // ---------------------------------------------------------------------------
 
-function isString(value: unknown): value is string {
-  return typeof value === 'string';
+/**
+ * Cursor element validators (P2.7 — hardened).
+ *
+ * These are load-bearing SECURITY checks, not just shape hygiene: every
+ * decoded element is interpolated into a PostgREST `.or(...)` filter string by
+ * `buildFeedQuery` (src/lib/feed/queries.ts), and PostgREST's filter grammar
+ * treats `,` `(` `)` as syntax — the exact surface `searchAll` refuses `.or()`
+ * to avoid (docs/decisions.md 2026-07-22, M5.5). Validating as merely
+ * "is a string" let an attacker-supplied `?cursor=` reshape the filter tree,
+ * and let a non-timestamp string reach Postgres and error the query into a
+ * silently EMPTY feed rather than the documented first-page fallback.
+ *
+ * A uuid and an ISO-8601 timestamp both draw from character sets containing
+ * none of the grammar delimiters, so passing these makes the interpolation
+ * inert.
+ */
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Accepts what PostgREST emits for `timestamptz`, with or without fractional seconds and with `Z` or a `±HH:MM` offset. */
+const ISO_TIMESTAMP_PATTERN =
+  /^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$/i;
+
+function isUuid(value: unknown): value is string {
+  return typeof value === 'string' && UUID_PATTERN.test(value);
+}
+
+function isIsoTimestamp(value: unknown): value is string {
+  return (
+    typeof value === 'string' &&
+    ISO_TIMESTAMP_PATTERN.test(value) &&
+    !Number.isNaN(Date.parse(value))
+  );
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -80,7 +110,7 @@ export function encodeRecentCursor(publishedAtIso: string, id: string): string {
 }
 
 export function decodeRecentCursor(raw: string): RecentCursor | null {
-  const result = decodeCursor(raw, [isString, isString]);
+  const result = decodeCursor(raw, [isIsoTimestamp, isUuid]);
   if (!result) return null;
   return result as unknown as RecentCursor;
 }
@@ -93,7 +123,7 @@ export function encodeTrendingCursor(score: number, id: string): string {
 }
 
 export function decodeTrendingCursor(raw: string): TrendingCursor | null {
-  const result = decodeCursor(raw, [isFiniteNumber, isString]);
+  const result = decodeCursor(raw, [isFiniteNumber, isUuid]);
   if (!result) return null;
   return result as unknown as TrendingCursor;
 }

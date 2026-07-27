@@ -222,53 +222,123 @@ type RetroCandidateRow = { materialized_project_id: string | null; decided_at: s
  * between import and now drifts out via the live filter either way; the rare
  * reverse drift (snapshot ≥ threshold, live below) is missed here but still
  * surfaces in the admin retro queue for humans.
+ *
+ * P2.7 — the window now WALKS (third strike of the same bug class). A single
+ * fixed `limit * 3` window filtered the already-screened rows out in JS
+ * AFTERWARDS, so once those oldest rows were all screened the same rows were
+ * re-selected and re-discarded on every run and this returned `[]` forever,
+ * reporting `screened: 0` — indistinguishable from "nothing to do". Only an
+ * admin stamping `decided_by` ever released it. `.range()` paging over the
+ * stable `decided_at` order is a deliberate, scoped exception to the
+ * no-OFFSET rule (which governs user-facing FEEDS — cf. the documented
+ * `/weird` exception): this is an internal cron selection over a few hundred
+ * rows, and a non-unique `decided_at` makes true keyset paging tie-skip.
+ * Rows shifting mid-walk can at worst defer one row to the next run — the
+ * pass is self-healing, unlike the stall it replaces.
  */
+export const RETRO_PAGE_MULTIPLIER = 3;
+export const RETRO_MAX_PAGES = 5;
+
+/** What one page of the retro walk yields: how many candidate rows the page held (to detect the last page) and which of them still need screening. */
+export type RetroPage = { rowCount: number; eligible: ScreenProjectRow[] };
+
+/**
+ * The page-advance rule, with the page loader INJECTED (same dependency-
+ * injection idiom as the GitHub layer's `fetchImpl` — keeps this unit-testable
+ * without a Supabase fake, which the house test conventions rule out).
+ *
+ * Keeps walking while pages come back full and `limit` is unmet; stops on an
+ * empty page, a short page (end of the population), or `maxPages`. The stall
+ * this replaces came from never advancing at all, so the advance itself is
+ * the behavior worth pinning in a test.
+ */
+export async function collectRetroPages(
+  limit: number,
+  pageSize: number,
+  maxPages: number,
+  loadPage: (from: number, to: number) => Promise<RetroPage>,
+): Promise<ScreenProjectRow[]> {
+  if (limit <= 0 || pageSize <= 0 || maxPages <= 0) return [];
+
+  const collected: ScreenProjectRow[] = [];
+  const seen = new Set<string>();
+
+  for (let page = 0; page < maxPages && collected.length < limit; page++) {
+    const from = page * pageSize;
+    const { rowCount, eligible } = await loadPage(from, from + pageSize - 1);
+    if (rowCount === 0) break;
+
+    for (const project of eligible) {
+      if (collected.length >= limit) break;
+      if (seen.has(project.id)) continue;
+      seen.add(project.id);
+      collected.push(project);
+    }
+
+    // Short page = end of the eligible population; nothing left to walk to.
+    if (rowCount < pageSize) break;
+  }
+
+  return collected;
+}
+
 async function selectRetroProjects(
   service: SupabaseClient<Database>,
   limit: number,
 ): Promise<ScreenProjectRow[]> {
-  const { data: retroCandidates } = await service
-    .from('ingest_candidates')
-    .select('materialized_project_id, decided_at')
-    .eq('status', 'approved')
-    .is('decided_by', null)
-    .not('materialized_project_id', 'is', null)
-    .lt('stars_count', autoApproveMinStars())
-    .order('decided_at', { ascending: true })
-    .limit(limit * 3);
-
-  const retroIds: string[] = [];
-  const seen = new Set<string>();
-  for (const row of (retroCandidates ?? []) as RetroCandidateRow[]) {
-    const projectId = row.materialized_project_id;
-    if (projectId && !seen.has(projectId)) {
-      seen.add(projectId);
-      retroIds.push(projectId);
-    }
-  }
-
-  if (retroIds.length === 0) return [];
-
-  const [{ data: projectRows }, { data: existingScreens }] = await Promise.all([
-    service.from('projects').select(SCREEN_PROJECT_SELECT).in('id', retroIds),
-    service.from('moderation_screens').select('project_id').in('project_id', retroIds),
-  ]);
-
-  const alreadyScreened = new Set(
-    ((existingScreens ?? []) as { project_id: string }[]).map((row) => row.project_id),
-  );
-  const byId = new Map(((projectRows ?? []) as ScreenProjectRow[]).map((row) => [row.id, row]));
   const threshold = autoApproveMinStars();
 
-  const result: ScreenProjectRow[] = [];
-  for (const id of retroIds) {
-    if (alreadyScreened.has(id)) continue;
-    const project = byId.get(id);
-    if (!project) continue;
-    if (!needsReview({ stars_count: project.stars_count }, threshold)) continue;
-    result.push(project);
-  }
-  return result;
+  return collectRetroPages(
+    limit,
+    Math.max(limit * RETRO_PAGE_MULTIPLIER, 1),
+    RETRO_MAX_PAGES,
+    async (from, to) => {
+      const { data: retroCandidates } = await service
+        .from('ingest_candidates')
+        .select('materialized_project_id, decided_at')
+        .eq('status', 'approved')
+        .is('decided_by', null)
+        .not('materialized_project_id', 'is', null)
+        .lt('stars_count', threshold)
+        .order('decided_at', { ascending: true })
+        .range(from, to);
+
+      const rows = (retroCandidates ?? []) as RetroCandidateRow[];
+      if (rows.length === 0) return { rowCount: 0, eligible: [] };
+
+      const pageIds: string[] = [];
+      const seenOnPage = new Set<string>();
+      for (const row of rows) {
+        const projectId = row.materialized_project_id;
+        if (projectId && !seenOnPage.has(projectId)) {
+          seenOnPage.add(projectId);
+          pageIds.push(projectId);
+        }
+      }
+      if (pageIds.length === 0) return { rowCount: rows.length, eligible: [] };
+
+      const [{ data: projectRows }, { data: existingScreens }] = await Promise.all([
+        service.from('projects').select(SCREEN_PROJECT_SELECT).in('id', pageIds),
+        service.from('moderation_screens').select('project_id').in('project_id', pageIds),
+      ]);
+
+      const alreadyScreened = new Set(
+        ((existingScreens ?? []) as { project_id: string }[]).map((row) => row.project_id),
+      );
+      const byId = new Map(((projectRows ?? []) as ScreenProjectRow[]).map((row) => [row.id, row]));
+
+      const eligible: ScreenProjectRow[] = [];
+      for (const id of pageIds) {
+        if (alreadyScreened.has(id)) continue;
+        const project = byId.get(id);
+        if (!project) continue;
+        if (!needsReview({ stars_count: project.stars_count }, threshold)) continue;
+        eligible.push(project);
+      }
+
+      return { rowCount: rows.length, eligible };
+    },
+  );
 }
 
 /**

@@ -90,7 +90,20 @@ async function tryOwnProfile(): Promise<OwnProfile | null> {
   return result.status === 'ok' ? result : null;
 }
 
+/**
+ * The profile page is the load-bearing one here (P2.7): it renders a
+ * public-lists section off the cookie-free anon client under ISR
+ * `revalidate = 300`, so WITHOUT this a list flipped public→private kept
+ * being served — name, description, item count and link — to every anonymous
+ * visitor for up to five minutes after the owner made it private, while the
+ * detail page 404'd correctly. Same staleness for a deleted list (dead link)
+ * and for create/toggle (missing list, wrong count). Mirrors
+ * `revalidateProjectPaths` in src/app/(app)/settings/projects/actions.ts and
+ * the invariant in docs/architecture.md ("ISR revalidate 300 +
+ * revalidatePath on owner writes").
+ */
 function revalidateListPaths(username: string, slug: string) {
+  revalidatePath(`/u/${username}`);
   revalidatePath(`/u/${username}/lists`);
   revalidatePath(`/u/${username}/lists/${slug}`);
 }
@@ -142,7 +155,7 @@ export async function createList(
     }
 
     if (inserted) {
-      revalidatePath(`/u/${profile.username}/lists`);
+      revalidateListPaths(profile.username, inserted.slug);
       return { list: inserted };
     }
   }
@@ -259,7 +272,7 @@ export async function deleteList(formData: FormData): Promise<void> {
   }
 
   if (deleted) {
-    revalidatePath(`/u/${profile.username}/lists`);
+    revalidateListPaths(profile.username, deleted.slug);
     redirect(`/u/${profile.username}/lists`);
   }
 
