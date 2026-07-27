@@ -75,6 +75,20 @@ inline fallback at approval; real GitHub data always wins at publish.
 `/weird` = force-dynamic route handler, random single-row OFFSET pick
 (documented exception to the no-OFFSET feed rule) → 307 to the project page.
 
+## Lists (P3-A)
+`collections`/`collection_items` (0010) — RLS-first user-owned (saves
+pattern): select `is_public OR own`; items require owner-of-parent AND a
+published target project. Slugs are stable: suffixed once at creation
+(src/lib/lists/slug.ts), renames never re-slug, and `slug` is deliberately
+absent from the UPDATE column grant. Caps (50 lists / 400 items) live in
+src/lib/lists/policy.ts — NOT in the `'use server'` actions file (Next only
+allows async-function exports there). Routes `/u/[username]/lists[/slug]`
+use the cookie-bound client + revalidate 300 (project-page pattern — RLS
+does the owner/visitor split); the profile page's public-lists section stays
+on the anon client with an explicit `is_public` filter. `lists` is a
+reserved project slug (route shadowing). Membership overlay: GET
+/api/me/lists. PostgREST count embeds return `[{count: N}]`.
+
 ## Moderation (P2.6)
 Two deny-all tables (0009; zero policies/grants — service role behind
 `reportProject()` / `requireAdmin()` / cron only): `project_reports` (user

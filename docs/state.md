@@ -1,26 +1,27 @@
-# Current state — 2026-07-27
+# Current state — 2026-07-27 (late)
 
 ## Milestones
-- M0–M5.5, P1(+.1), P2(+.1/.2), P2.5 w1(+.5.1) ✅ LIVE. 207 published, 0
-  pending — queue fully drained by the schedulers (Actions :04/:19/:34/:49 +
-  Vercel daily). Launch content bar (150–300) exceeded.
-- P2.6 IMMUNE SYSTEM ✅ code-complete + live-E2E'd (docs/plans/
-  p2.6-immune-system.md): user reports (deny-all project_reports, server
-  action, ≤5/day, no self/re-reports) + AI triage (moderation_screens,
-  ok/review/flagged, TRIAGE-ONLY — no auto-actions) as pipeline pass 3
-  (ENRICH 5 + SCREEN 3 = 8 AI calls/run, ceiling unchanged). Admin queue:
-  reports section + verdict chips + flagged-first retro sort. E2E: reported
-  project screened live (source=report, verdict=ok, model stamped); retro
-  window bug (P2.1 class) found+fixed — snapshot-stars prefilter.
-- NEXT (executors, from the Fable handoff master plan in the session plan
-  file — read it FIRST): P3-A lists (waves B0–B3), then HARD STOP for
-  Fable re-entry (no tags, no P3-B search/filter, no launch work).
+- M0–P2.5.1 ✅ LIVE (207 published, 0 pending; schedulers self-running).
+- P2.6 IMMUNE SYSTEM ✅ live-E2E'd: reports (deny-all, server action,
+  ≤5/day) + AI triage (ok/review/flagged, TRIAGE-ONLY) as pipeline pass 3
+  (5 enrich + 3 screen = 8 AI calls/run). Admin: reports section, verdict
+  chips, flagged-first retro sort. E2E: report screened source=report;
+  retro window bug (P2.1 class) fixed with snapshot-stars prefilter;
+  4 retro screens live, all verdict ok.
+- P3-A LISTS ✅ browser-E2E'd: collections/collection_items (0010, 30
+  policies), stable slugs (no UPDATE grant), caps in lib/lists/policy.ts
+  ('use server' export constraint — build-caught), reserved slug 'lists',
+  add-to-list dropdown + report button on project pages, nav item, profile
+  section. Signed-out: public list + items render, private 404s.
+- BOTH handoff-plan rounds are COMPLETE (Fable executed them before the
+  limit). Post-limit models: only Will-QA follow-ups — nothing structural.
 
-## Next steps
-1. Executors: Round B per master plan (B0 migration 0010 → B1 core → B2
-   integration → B3 E2E/docs → STOP with '## for fable' note here).
-2. Will QA (needs real session): report dialog e2e, already-reported +
-   rate-limit copy; then B: lists flows. 3. Fable: review, tags, P3-B plan.
+## for fable (re-entry agenda)
+Review both rounds in situ · signed-in QA results from Will (report dialog,
+lists CRUD/dropdown/auto-add, caps copy) · tags p2/p2.5-w1/p2.6/p3a ·
+plan P3-B (search/sort/filter + appears-in-N-lists signal + rich pages +
+design QA) · pre-existing dev-console noise: "script tag while rendering
+React component" on every page (theme init?) — triage at design-QA time.
 
 ## Open blockers
 - (none)
@@ -33,10 +34,9 @@ postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5
 
 ## Infra + gotchas
 Repo PUBLIC until near-launch · prod dorkhub-ten.vercel.app · CI green.
-proxy MUST be src/proxy.ts. rm -rf .next when dev errors/data look stale.
-supabase-js .eq(col, []) INVALID — .filter(col,'eq','{}'). NO .or(). Window
-bugs: prefilter selection windows in SQL (P2.1 enrich, P2.6 retro screen).
-Run BOTH RLS suites after any schema milestone. Gates: if-green-then-commit
-(&&, never ;). Regenerated types.ts needs lint:fix. Gemini: pinned
-current-gen model. copy.ts may nest one level (voice page flattens).
-Last updated: 2026-07-27 (P2.6 live; handoff plan active — Fable limit near).
+proxy MUST be src/proxy.ts. rm -rf .next on stale weirdness. .eq(col,[])
+INVALID → .filter(col,'eq','{}'). NO .or(). Prefilter selection windows in
+SQL (P2.1, P2.6). BOTH RLS suites after schema changes. 'use server' files:
+async exports only. Seed projects are UNPUBLISHED on prod — behavioral tests
+resolve published targets at runtime. if-green-then-commit (&&, never ;).
+Last updated: 2026-07-27 late (P2.6 + P3-A shipped; Fable limit imminent).

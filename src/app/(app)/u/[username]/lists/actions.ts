@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { copy } from '@/lib/copy';
+import { ITEM_CAP, LIST_CAP } from '@/lib/lists/policy';
 import { MAX_SLUG_ATTEMPTS, nextListSlugCandidate } from '@/lib/lists/slug';
 import { slugify } from '@/lib/projects/slug';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
@@ -29,9 +30,6 @@ import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
  */
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-export const LIST_CAP = 50;
-export const ITEM_CAP = 400;
 
 type OwnProfile = {
   supabase: Awaited<ReturnType<typeof supabaseServer>>;

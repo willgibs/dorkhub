@@ -12,14 +12,13 @@ import { PageShell } from '@/components/page-shell';
 import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
 import { FEED_COLUMNS, type FeedRow } from '@/lib/feed/queries';
-import { supabaseServer } from '@/lib/supabase/clients';
-import type { Tables } from '@/lib/supabase/types';
-import { cn } from '@/lib/utils';
-
 // Sibling-owned actions module (docs/plans/p3-lists.md) — one level up in the
 // same feature tree, same relative-import idiom `edit-list-form.tsx` and
 // `delete-list-button.tsx` use to pull the action functions themselves.
-import { ITEM_CAP } from '../actions';
+import { ITEM_CAP } from '@/lib/lists/policy';
+import { supabaseServer } from '@/lib/supabase/clients';
+import type { Tables } from '@/lib/supabase/types';
+import { cn } from '@/lib/utils';
 
 type ProfileRow = Tables<'profiles'>;
 type CollectionRow = Pick<
