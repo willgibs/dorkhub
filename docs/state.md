@@ -1,31 +1,29 @@
-# Current state — 2026-07-23 (late)
+# Current state — 2026-07-27
 
 ## Milestones
-- M0–M5.5, P1 (+P1.1) ✅. P2 discovery + quality floor ✅ (+P2.1/P2.2
-  enrichment fixes: Gemini direct free tier, EnrichRunner, honest stamping).
-  Tags through p1 pushed; p2 + p2.5-w1 tags pending Will's green light.
-- P2.5 WAVE SET 1 ✅ CODE-COMPLETE + LIVE-E2E'd (docs/plans/
-  p2.5-self-running.md): PUBLISH-ALL + retro-mod (board ×3). Pipeline route
-  (/api/cron/pipeline: materialize ≤10 + paced enrich ≤8, 50s soft
-  deadline) driven by GitHub Actions cron :04/:19/:34/:49 + Vercel daily
-  9:07 fallback. Auto-approved = approved + decided_by NULL; retro queue in
-  admin (sub-20★). Import runner phase 2 "putting them on the wall".
-  Gallery default = trending (/newest, /trending 308s). E2E: 29 live
-  materializations, double-fire clean (0 dupes/strandings), 27 published,
-  180 pending draining ~10/tick, 0 bare published cards.
-- NEXT P2.5 round (not started): user reports + AI moderation screen.
-  P3: public collections + rich pages. P4 launch (Pro cron swap). P5
-  articles. Board note: comprehensive search/sort/filter slotted P3.
+- M0–M5.5, P1(+.1), P2(+.1/.2), P2.5 w1(+.5.1) ✅ LIVE. 207 published, 0
+  pending — queue fully drained by the schedulers (Actions :04/:19/:34/:49 +
+  Vercel daily). Launch content bar (150–300) exceeded.
+- P2.6 IMMUNE SYSTEM ✅ code-complete + live-E2E'd (docs/plans/
+  p2.6-immune-system.md): user reports (deny-all project_reports, server
+  action, ≤5/day, no self/re-reports) + AI triage (moderation_screens,
+  ok/review/flagged, TRIAGE-ONLY — no auto-actions) as pipeline pass 3
+  (ENRICH 5 + SCREEN 3 = 8 AI calls/run, ceiling unchanged). Admin queue:
+  reports section + verdict chips + flagged-first retro sort. E2E: reported
+  project screened live (source=report, verdict=ok, model stamped); retro
+  window bug (P2.1 class) found+fixed — snapshot-stars prefilter.
+- NEXT (executors, from the Fable handoff master plan in the session plan
+  file — read it FIRST): P3-A lists (waves B0–B3), then HARD STOP for
+  Fable re-entry (no tags, no P3-B search/filter, no launch work).
 
 ## Next steps
-1. Will: gh Actions secret CRON_SECRET (orchestrator attempts via gh CLI
-   first); QA — import phase 2, retro queue actions, EnrichRunner geometry/
-   auto-resume, trending default. 2. Tags p2 + p2.5-w1 on green light.
-3. Plan P2.5 round 2 (reports + AI screen). 4. P3.
+1. Executors: Round B per master plan (B0 migration 0010 → B1 core → B2
+   integration → B3 E2E/docs → STOP with '## for fable' note here).
+2. Will QA (needs real session): report dialog e2e, already-reported +
+   rate-limit copy; then B: lists flows. 3. Fable: review, tags, P3-B plan.
 
 ## Open blockers
-- (none — pipeline self-drains; Actions workflow needs the repo secret to
-  start ticking)
+- (none)
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP (reserved for Will's other agents). Management
@@ -35,11 +33,10 @@ postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5
 
 ## Infra + gotchas
 Repo PUBLIC until near-launch · prod dorkhub-ten.vercel.app · CI green.
-proxy MUST be src/proxy.ts. rm -rf .next when dev errors/data look stale
-(compile replays + stale unstable_cache rows). CSS aspect-ratio yields to
-in-flow content (underlays absolute). GitHub og endpoint never 404s.
-supabase-js .eq(col, []) serializes INVALID — use .filter(col,'eq','{}').
-Run BOTH RLS suites after any schema milestone. Gate chains: always
-if-green-then-commit (&&, never ;). Gemini: pinned current-gen model
-(aliases 403, retired models list-but-404 for new keys).
-Last updated: 2026-07-23 (P2.5 w1 live-verified; awaiting Will QA).
+proxy MUST be src/proxy.ts. rm -rf .next when dev errors/data look stale.
+supabase-js .eq(col, []) INVALID — .filter(col,'eq','{}'). NO .or(). Window
+bugs: prefilter selection windows in SQL (P2.1 enrich, P2.6 retro screen).
+Run BOTH RLS suites after any schema milestone. Gates: if-green-then-commit
+(&&, never ;). Regenerated types.ts needs lint:fix. Gemini: pinned
+current-gen model. copy.ts may nest one level (voice page flattens).
+Last updated: 2026-07-27 (P2.6 live; handoff plan active — Fable limit near).

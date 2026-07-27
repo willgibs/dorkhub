@@ -74,3 +74,16 @@ AiConfigError. Candidates missing description OR topics get ai_tagline/ai_tags
 inline fallback at approval; real GitHub data always wins at publish.
 `/weird` = force-dynamic route handler, random single-row OFFSET pick
 (documented exception to the no-OFFSET feed rule) → 307 to the project page.
+
+## Moderation (P2.6)
+Two deny-all tables (0009; zero policies/grants — service role behind
+`reportProject()` / `requireAdmin()` / cron only): `project_reports` (user
+reports; unique (project, reporter) for life; ≤5/profile/24h enforced in the
+action) and `moderation_screens` (one AI triage verdict per project,
+`ok`/`review`/`flagged` + reason, upsert-overwrite). `screenNextBatch`
+(src/lib/enrich/screen.ts) runs as pipeline pass 3 — reported projects first,
+then the sub-threshold retro backlog — sharing enrichment's pacing, deadline,
+and stamping discipline (systemic failures stop WITHOUT writing; unusable
+replies stamp `review`, never silent-ok). TRIAGE-ONLY: verdicts label/order
+the admin queues; AI never unpublishes (vision permits reversible automation
+— deliberately unused until verdict quality is proven on real data).

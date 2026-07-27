@@ -213,6 +213,15 @@ type RetroCandidateRow = { materialized_project_id: string | null; decided_at: s
  * admin retro section shows (src/app/(app)/admin/queue/page.tsx), not the
  * candidate's stale snapshot. Order preserved from the candidate query
  * (`decided_at` ascending — oldest-approved-and-never-screened first).
+ *
+ * The candidate query ALSO prefilters on the snapshot `stars_count` — a
+ * window-narrowing heuristic, not the decider (the P2.1 window-bug class,
+ * re-hit live in P2.6 E2E: approved-and-undecided is dominated by high-star
+ * auto-publishes, so an unfiltered `limit * 3` window of oldest-decided rows
+ * contained ZERO actual retro items). A repo that crossed the threshold
+ * between import and now drifts out via the live filter either way; the rare
+ * reverse drift (snapshot ≥ threshold, live below) is missed here but still
+ * surfaces in the admin retro queue for humans.
  */
 async function selectRetroProjects(
   service: SupabaseClient<Database>,
@@ -224,6 +233,7 @@ async function selectRetroProjects(
     .eq('status', 'approved')
     .is('decided_by', null)
     .not('materialized_project_id', 'is', null)
+    .lt('stars_count', autoApproveMinStars())
     .order('decided_at', { ascending: true })
     .limit(limit * 3);
 
