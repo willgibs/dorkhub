@@ -101,3 +101,32 @@ describe('generateProjectSlug — collision suffixing', () => {
     expect(generateProjectSlug('日本語', existing)).toBe('project-2');
   });
 });
+
+describe('generateProjectSlug — reserved slugs (P3-A route shadowing)', () => {
+  it('suffixes a repo literally named "lists" even with no existing slugs', () => {
+    expect(generateProjectSlug('lists', new Set())).toBe('lists-2');
+  });
+
+  it('keeps walking suffixes when the reserved escape is also taken', () => {
+    expect(generateProjectSlug('lists', new Set(['lists-2']))).toBe('lists-3');
+  });
+
+  it('never emits a reserved slug via suffix collision either', () => {
+    // Sanity: unrelated names are unaffected by the reserved set.
+    expect(generateProjectSlug('checklists', new Set())).toBe('checklists');
+  });
+});
+
+describe('slugify — custom fallback (P3-A list names)', () => {
+  it('uses the provided fallback for all-unicode input', () => {
+    expect(slugify('🚀', 'list')).toBe('list');
+  });
+
+  it('default fallback stays "project" (backward compat)', () => {
+    expect(slugify('🚀')).toBe('project');
+  });
+
+  it('fallback is ignored when input normalizes to something', () => {
+    expect(slugify('My List!', 'list')).toBe('my-list');
+  });
+});

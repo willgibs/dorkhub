@@ -40,6 +40,77 @@ export type Database = {
           },
         ];
       };
+      collection_items: {
+        Row: {
+          added_at: string;
+          collection_id: string;
+          project_id: string;
+        };
+        Insert: {
+          added_at?: string;
+          collection_id: string;
+          project_id: string;
+        };
+        Update: {
+          added_at?: string;
+          collection_id?: string;
+          project_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'collection_items_collection_id_fkey';
+            columns: ['collection_id'];
+            isOneToOne: false;
+            referencedRelation: 'collections';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'collection_items_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'projects';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      collections: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          id: string;
+          is_public: boolean;
+          name: string;
+          profile_id: string;
+          slug: string;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_public?: boolean;
+          name: string;
+          profile_id: string;
+          slug: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          id?: string;
+          is_public?: boolean;
+          name?: string;
+          profile_id?: string;
+          slug?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'collections_profile_id_fkey';
+            columns: ['profile_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       featured_slots: {
         Row: {
           created_at: string;

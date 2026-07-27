@@ -20,16 +20,27 @@ const MAX_BASE_SLUG_LENGTH = 100;
 const FALLBACK_SLUG = 'project';
 
 /**
+ * Slugs that collide with static route segments under /u/[username]/ — Next
+ * resolves static segments before dynamic ones, so a project actually slugged
+ * `lists` would be unreachable at its own URL (shadowed by the lists index,
+ * P3-A). Treated as always-taken during generation; live data pre-flighted
+ * clean before 0010 shipped.
+ */
+export const RESERVED_PROJECT_SLUGS: ReadonlySet<string> = new Set(['lists']);
+
+/**
  * Lowercases, replaces every run of non-[a-z0-9] characters with a single
  * hyphen, and trims leading/trailing hyphens. Exported separately so tests
  * can exercise the normalization step independent of collision handling.
+ * `fallback` lets other slug consumers (list names, P3-A) supply their own
+ * all-unicode-input fallback without inheriting 'project'.
  */
-export function slugify(input: string): string {
+export function slugify(input: string, fallback: string = FALLBACK_SLUG): string {
   const normalized = input
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-  return normalized.length > 0 ? normalized : FALLBACK_SLUG;
+  return normalized.length > 0 ? normalized : fallback;
 }
 
 /**
@@ -45,11 +56,13 @@ export function generateProjectSlug(repoName: string, existingSlugs: ReadonlySet
   const base =
     slugify(repoName).slice(0, MAX_BASE_SLUG_LENGTH).replace(/-+$/g, '') || FALLBACK_SLUG;
 
-  if (!existingSlugs.has(base)) return base;
+  const taken = (slug: string) => existingSlugs.has(slug) || RESERVED_PROJECT_SLUGS.has(slug);
+
+  if (!taken(base)) return base;
 
   let suffix = 2;
   let candidate = `${base}-${suffix}`;
-  while (existingSlugs.has(candidate)) {
+  while (taken(candidate)) {
     suffix += 1;
     candidate = `${base}-${suffix}`;
   }

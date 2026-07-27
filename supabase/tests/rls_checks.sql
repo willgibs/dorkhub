@@ -26,7 +26,8 @@ begin
     from (values
             ('profiles'), ('projects'), ('project_updates'),
             ('likes'), ('saves'), ('follows'),
-            ('tags'), ('featured_slots'), ('claim_invites')
+            ('tags'), ('featured_slots'), ('claim_invites'),
+            ('collections'), ('collection_items')
          ) as t(tbl)
    where not exists (
            select 1
@@ -41,7 +42,7 @@ begin
   if v_missing is not null then
     raise exception 'RLS FAILURE: row security not enabled on: %', v_missing;
   end if;
-  raise notice 'PASS: RLS enabled on all 9 expected tables';
+  raise notice 'PASS: RLS enabled on all 11 expected tables';
 end
 $$;
 
@@ -116,6 +117,58 @@ begin
   end if;
   raise notice 'PASS: projects.enriched_at is not API-role-writable';
 
+  -- 2a″. 0010 lists: exact column-grant surface for collections tables.
+  with expected(table_name, privilege_type, column_name) as (
+    values
+      ('collections',      'INSERT', 'profile_id'),
+      ('collections',      'INSERT', 'name'),
+      ('collections',      'INSERT', 'slug'),
+      ('collections',      'INSERT', 'description'),
+      ('collections',      'INSERT', 'is_public'),
+      ('collections',      'UPDATE', 'name'),
+      ('collections',      'UPDATE', 'description'),
+      ('collections',      'UPDATE', 'is_public'),
+      ('collection_items', 'INSERT', 'collection_id'),
+      ('collection_items', 'INSERT', 'project_id')
+  ),
+  actual as (
+    select table_name::text, privilege_type::text, column_name::text
+      from information_schema.column_privileges
+     where table_schema   = 'public'
+       and grantee        = 'authenticated'
+       and privilege_type in ('INSERT', 'UPDATE')
+       and table_name in ('collections', 'collection_items')
+  )
+  select
+    (select string_agg(m.table_name || '.' || m.column_name || ' [' || m.privilege_type || ']', ', '
+                       order by m.table_name, m.privilege_type, m.column_name)
+       from (select * from expected except select * from actual) m),
+    (select string_agg(x.table_name || '.' || x.column_name || ' [' || x.privilege_type || ']', ', '
+                       order by x.table_name, x.privilege_type, x.column_name)
+       from (select * from actual except select * from expected) x)
+    into v_missing, v_extra;
+
+  if v_extra is not null then
+    raise exception 'RLS FAILURE: unexpected collections write grants: %', v_extra;
+  end if;
+  if v_missing is not null then
+    raise exception 'RLS FAILURE: expected collections write grants missing: %', v_missing;
+  end if;
+  raise notice 'PASS: collections/collection_items write grants match exactly (10 columns)';
+
+  -- 2a‴. 0010 explicit: collections.slug must never be API-role-UPDATEable
+  -- (stable list URLs — suffixed once at creation, renames never re-slug).
+  if exists (
+    select 1 from information_schema.column_privileges
+     where table_schema = 'public' and table_name = 'collections'
+       and column_name = 'slug'
+       and grantee in ('anon', 'authenticated')
+       and privilege_type = 'UPDATE'
+  ) then
+    raise exception 'RLS FAILURE: collections.slug is API-role-updatable (breaks stable list URLs — 0010)';
+  end if;
+  raise notice 'PASS: collections.slug is not API-role-updatable';
+
   -- 2b. anon must hold zero write privileges anywhere in public.
   select string_agg(distinct table_name || ' (' || privilege_type || ')', ', ')
     into v_bad
@@ -156,7 +209,8 @@ begin
   select string_agg(t.table_name || ' (missing ' || p.privilege_type || ')', ', ')
     into v_bad
     from (values ('profiles'), ('projects'), ('project_updates'), ('likes'), ('saves'),
-                 ('follows'), ('tags'), ('featured_slots'), ('claim_invites')) as t(table_name)
+                 ('follows'), ('tags'), ('featured_slots'), ('claim_invites'),
+                 ('collections'), ('collection_items')) as t(table_name)
    cross join (values ('SELECT'), ('INSERT'), ('UPDATE'), ('DELETE')) as p(privilege_type)
    where not exists (
      select 1 from information_schema.table_privileges tp
@@ -169,7 +223,7 @@ begin
   if v_bad is not null then
     raise exception 'RLS FAILURE: service_role lacks DML privileges: %', v_bad;
   end if;
-  raise notice 'PASS: service_role holds full DML on all 9 public tables';
+  raise notice 'PASS: service_role holds full DML on all 11 public tables';
 end
 $$;
 
@@ -212,7 +266,15 @@ begin
       -- policies — asserted in rls_checks_ingestion.sql.
       ('star_imports',    'star_imports_select_own',          'SELECT'),
       ('star_imports',    'star_imports_insert_own',          'INSERT'),
-      ('star_imports',    'star_imports_delete_own',          'DELETE')
+      ('star_imports',    'star_imports_delete_own',          'DELETE'),
+      -- 0010 lists: user-owned, RLS-first (saves pattern).
+      ('collections',      'collections_select_public_or_own', 'SELECT'),
+      ('collections',      'collections_insert_own',           'INSERT'),
+      ('collections',      'collections_update_own',           'UPDATE'),
+      ('collections',      'collections_delete_own',           'DELETE'),
+      ('collection_items', 'collection_items_select',          'SELECT'),
+      ('collection_items', 'collection_items_insert_own',      'INSERT'),
+      ('collection_items', 'collection_items_delete_own',      'DELETE')
   ),
   actual as (
     select tablename::text, policyname::text, cmd::text
@@ -234,7 +296,7 @@ begin
   if v_extra is not null then
     raise exception 'RLS FAILURE: unexpected policies present: %', v_extra;
   end if;
-  raise notice 'PASS: public-schema policy set matches the expected 23 policies exactly';
+  raise notice 'PASS: public-schema policy set matches the expected 30 policies exactly';
 
   -- 3b. Deny-all tables must have ZERO policies (service-role only):
   --     claim_invites (0001), project_reports + moderation_screens (0009).
@@ -548,7 +610,104 @@ begin
 end
 $$;
 
--- Switch to anon for the last two checks.
+-- T17/T18 · 0010 lists: own list creation (public default + explicit private)
+-- and adding published projects to them, all under RLS. Inserts use the
+-- app-shaped column list — `id` is deliberately NOT in the INSERT grant
+-- (gen_random_uuid default only), so later tests resolve ids by slug.
+do $$
+declare
+  n int;
+begin
+  insert into public.collections (profile_id, name, slug)
+  values (public.current_profile_id(), 'rls check public', 'rls-check-public');
+  insert into public.collections (profile_id, name, slug, is_public)
+  values (public.current_profile_id(), 'rls check private', 'rls-check-private', false);
+  -- Items target a LIVE published project resolved at runtime — the seed
+  -- fixture projects were unpublished on prod (P2.1 cleanup), so hardcoding
+  -- b2000000-… ids here would trip the published-only WITH CHECK.
+  insert into public.collection_items (collection_id, project_id)
+  values ((select id from public.collections
+            where slug = 'rls-check-public' and profile_id = public.current_profile_id()),
+          (select id from public.projects
+            where status = 'published' order by created_at asc limit 1)),
+         ((select id from public.collections
+            where slug = 'rls-check-private' and profile_id = public.current_profile_id()),
+          (select id from public.projects
+            where status = 'published' order by created_at asc limit 1));
+  select count(*) into n
+    from public.collections
+   where profile_id = public.current_profile_id()
+     and slug like 'rls-check-%';
+  if n <> 2 then
+    raise exception 'RLS FAILURE: T17 own list creation left % rows (expected 2)', n;
+  end if;
+  raise notice 'PASS: T17/T18 own public + private lists created with published items';
+end
+$$;
+
+-- T19 setup (privileged detour): a list owned by gremlinworks, then resume
+-- the claimed mollybuilds identity.
+reset role;
+insert into public.collections (id, profile_id, name, slug)
+values ('c0999999-0000-4000-8000-000000000001',
+        'a1000000-0000-4000-8000-000000000002',
+        'rls check other', 'rls-check-other');
+set local role authenticated;
+set local request.jwt.claims =
+  '{"sub": "f0000000-0000-4000-8000-00000000feed", "role": "authenticated"}';
+
+-- T19 · cannot add items to someone else's list (WITH CHECK owner guard).
+-- Uses a LIVE published project so the rejection isolates ownership, not the
+-- published-only clause.
+do $$
+begin
+  begin
+    insert into public.collection_items (collection_id, project_id)
+    values ('c0999999-0000-4000-8000-000000000001',
+            (select id from public.projects
+              where status = 'published' order by created_at asc limit 1));
+    raise exception 'RLS FAILURE: T19 adding an item to another profile''s list was allowed';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: T19 cross-owner item insert rejected (RLS with-check)';
+  end;
+end
+$$;
+
+-- T20 · cannot add a DRAFT project to own list (published-only WITH CHECK,
+-- mirrors T11's likes guard).
+do $$
+begin
+  begin
+    insert into public.collection_items (collection_id, project_id)
+    values ((select id from public.collections
+              where slug = 'rls-check-public' and profile_id = public.current_profile_id()),
+            'b2000000-0000-4000-8000-000000000009');
+    raise exception 'RLS FAILURE: T20 adding a draft project to a list was allowed';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: T20 draft project rejected from lists (RLS with-check)';
+  end;
+end
+$$;
+
+-- T22 · owner cannot rewrite a list slug (column deliberately absent from the
+-- UPDATE grant — stable URLs, 0010).
+do $$
+begin
+  begin
+    update public.collections
+       set slug = 'hijacked-slug'
+     where slug = 'rls-check-public' and profile_id = public.current_profile_id();
+    raise exception 'RLS FAILURE: T22 collections.slug update was allowed';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: T22 collections.slug update rejected (no column grant)';
+  end;
+end
+$$;
+
+-- Switch to anon for the last checks.
 set local role anon;
 set local request.jwt.claims = '{"role": "anon"}';
 
@@ -582,6 +741,33 @@ begin
     when insufficient_privilege then
       raise notice 'PASS: T16 anon profile update rejected (insufficient_privilege)';
   end;
+end
+$$;
+
+-- T21 · anon sees public lists (and their items) but never private ones.
+-- (Both T17/T18 lists carry exactly one item each — a visible total of 1
+-- proves the private list's item is hidden along with the list itself.)
+do $$
+declare
+  n_priv int;
+  n_lists int;
+  n_items int;
+begin
+  select count(*) filter (where slug = 'rls-check-private'), count(*)
+    into n_priv, n_lists
+    from public.collections
+   where slug in ('rls-check-public', 'rls-check-private');
+  if n_priv <> 0 or n_lists <> 1 then
+    raise exception 'RLS FAILURE: T21 anon list visibility total=% private=% (expected 1/0)', n_lists, n_priv;
+  end if;
+  select count(*) into n_items
+    from public.collection_items ci
+    join public.collections c on c.id = ci.collection_id
+   where c.slug in ('rls-check-public', 'rls-check-private');
+  if n_items <> 1 then
+    raise exception 'RLS FAILURE: T21 anon sees % list items (expected 1, the public list''s)', n_items;
+  end if;
+  raise notice 'PASS: T21 anon sees the public list + its item, private list fully hidden';
 end
 $$;
 
