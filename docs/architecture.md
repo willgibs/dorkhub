@@ -101,3 +101,25 @@ and stamping discipline (systemic failures stop WITHOUT writing; unusable
 replies stamp `review`, never silent-ok). TRIAGE-ONLY: verdicts label/order
 the admin queues; AI never unpublishes (vision permits reversible automation
 — deliberately unused until verdict quality is proven on real data).
+
+## Untrusted input boundaries (P2.7)
+Two places where user-controlled text reaches an interpreter, both hardened
+after shipping loose:
+- **Model prompts** (`src/lib/ai/moderate.ts`): `description_md` and `tagline`
+  are in 0001's `authenticated` UPDATE grant — writable over the REST API even
+  where no dorkhub UI exposes them. Every untrusted field is whitespace-
+  collapsed + clipped, and the block is fenced with a per-call random nonce the
+  system prompt names as data (a fixed marker is forgeable — the repo is
+  public). A forged verdict would be permanent: screened rows never re-enter
+  the retro queue.
+- **PostgREST filter grammar** (`src/lib/feed/cursor.ts` → `buildFeedQuery`):
+  `,` `(` `)` are syntax, which is why `searchAll` refuses `.or()` entirely.
+  The feed's keyset `.or()` is the one internal exception, and it is only safe
+  because the cursor decoders validate uuid + ISO-8601 — character sets that
+  contain no delimiters. `?cursor=` is attacker-reachable and unauthenticated.
+
+Related standing rule: **prefilter selection windows in SQL.** A fixed window
+plus a JS filter applied afterwards has produced the same silent-stall bug
+three times (P2.1 enrichment, P2.6 retro, P2.7 retro). `collectRetroPages`
+(src/lib/enrich/screen.ts) is the corrected shape — it pages until it has what
+it needs, with an injected loader so the advance rule is unit-testable.
