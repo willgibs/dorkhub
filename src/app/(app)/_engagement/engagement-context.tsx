@@ -12,6 +12,7 @@ import {
   useState,
 } from 'react';
 
+import { MAX_IDS_PARAM } from '@/lib/engagement/parse-ids';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 
 type EngagementOverlay = {
@@ -21,9 +22,9 @@ type EngagementOverlay = {
   isOwnProfile: boolean;
 };
 
-/** Fetches the overlay for a set of project ids (+ optional followee). Never
- * throws — a failed/aborted fetch just means "nothing new to merge in". */
-async function fetchEngagementOverlay(
+/** One request's worth of ids. Never throws — a failed/aborted fetch just
+ * means "nothing new to merge in". */
+async function fetchOverlayChunk(
   ids: string[],
   followeeId: string | undefined,
 ): Promise<EngagementOverlay | null> {
@@ -40,6 +41,52 @@ async function fetchEngagementOverlay(
     console.error('[engagement] overlay fetch failed', err);
     return null;
   }
+}
+
+/**
+ * Fetches the overlay for a set of project ids (+ optional followee),
+ * CHUNKED at the route's own `MAX_IDS_PARAM` (P2.7).
+ *
+ * `parseIdsParam` hard-truncates past that cap with no error, and a list can
+ * now render up to `ITEM_CAP` = 400 cards — so a single request silently
+ * dropped every id past the 100th, leaving those cards with empty
+ * hearts/bookmarks even though the rows exist. Clicking one then inserts,
+ * hits 23505, which this provider treats as success: the optimistic count
+ * moves while the DB count doesn't. At the top end 400 uuids (~14.8KB) plus
+ * auth cookies also overruns Node's default header budget, which failed the
+ * request outright and lost engagement state for the WHOLE page.
+ *
+ * Chunks run concurrently and merge; a failed chunk contributes nothing
+ * rather than nulling the whole overlay. `following`/`isOwnProfile` are
+ * per-request scalars, so the first non-null chunk that carries them wins
+ * (only the followee-bearing chunk can set them — see the call sites).
+ */
+async function fetchEngagementOverlay(
+  ids: string[],
+  followeeId: string | undefined,
+): Promise<EngagementOverlay | null> {
+  if (ids.length <= MAX_IDS_PARAM) return fetchOverlayChunk(ids, followeeId);
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += MAX_IDS_PARAM) {
+    chunks.push(ids.slice(i, i + MAX_IDS_PARAM));
+  }
+
+  // followeeId rides along on the first chunk only — it's not id-scoped, and
+  // repeating it would re-run the same follow lookup per chunk.
+  const results = await Promise.all(
+    chunks.map((chunk, index) => fetchOverlayChunk(chunk, index === 0 ? followeeId : undefined)),
+  );
+
+  const ok = results.filter((r): r is EngagementOverlay => r !== null);
+  if (ok.length === 0) return null;
+
+  return {
+    liked: ok.flatMap((r) => r.liked),
+    saved: ok.flatMap((r) => r.saved),
+    following: ok[0].following,
+    isOwnProfile: ok[0].isOwnProfile,
+  };
 }
 
 export type EngagementContextValue = {

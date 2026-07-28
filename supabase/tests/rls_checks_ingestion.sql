@@ -5,7 +5,11 @@
 -- Companion to rls_checks.sql. Run privileged AFTER the latest migration.
 -- Behavioral checks run inside a rolled-back transaction. A clean run ends
 -- with the ALL INGESTION CHECKS PASSED notice.
+--
+-- ON_ERROR_STOP makes that last sentence true — without it psql runs on past a
+-- raised exception and still prints the final PASSED notice (P2.7).
 -- ============================================================================
+\set ON_ERROR_STOP on
 
 -- ----------------------------------------------------------------------------
 -- Section I1 — RLS enabled on all four new tables

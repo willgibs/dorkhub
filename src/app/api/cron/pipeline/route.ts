@@ -245,6 +245,10 @@ export async function GET(request: Request) {
     enrichStopKind: enrichResult.stopKind,
     screened: screenResult.screened,
     flagged: screenResult.flagged,
+    // Mirrors enrichHasMore (P2.7): screenNextBatch returns hasMore with a
+    // null stopKind when it bails on the deadline, so without this a
+    // truncated safety pass reads identically to a complete one.
+    screenHasMore: screenResult.hasMore,
     screenStopKind: screenResult.stopKind,
     synced,
     deadlineHit,

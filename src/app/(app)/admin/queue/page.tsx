@@ -9,6 +9,7 @@ import { requireAdmin } from '@/lib/auth/admin';
 import { copy } from '@/lib/copy';
 import { autoApproveMinStars, needsReview } from '@/lib/ingest/policy';
 import { languageColor } from '@/lib/lang-colors';
+import { OPEN_REPORTS_WINDOW } from '@/lib/moderation/report-policy';
 import { sortByVerdict, type Verdict } from '@/lib/moderation/verdict';
 import { supabaseService } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
@@ -130,8 +131,8 @@ const PENDING_LIMIT = 100;
 const REJECTED_BY_DEMAND_LIMIT = 20;
 /** idx_ingest_candidates_retro (0008_self_running.sql) serves this exact shape — decided_at desc, no OFFSET. */
 const RETRO_LIMIT = 50;
-/** Reports section (P2.6 Wave A2C) — same order of magnitude as PENDING_LIMIT; grouped down to one row per reported project. */
-const REPORTS_LIMIT = 100;
+/** Reports section (P2.6 Wave A2C) — grouped down to one row per reported project. Shared with the screen engine's priority-1 window so the two can't drift (P2.7, src/lib/moderation/report-policy.ts). */
+const REPORTS_LIMIT = OPEN_REPORTS_WINDOW;
 
 /**
  * Admin-only literal strings on this page (row labels, the empty-queue line,
@@ -550,6 +551,18 @@ export default async function AdminQueuePage({
       )
       .eq('status', 'approved')
       .is('decided_by', null)
+      // P2.7: the sub-threshold filter runs HERE, in SQL, on the embedded
+      // LIVE `projects.stars_count` — before the LIMIT. It used to run only
+      // in JS after a newest-50 fetch, and sub-threshold rows are a tiny
+      // minority of approved-and-undecided (probed live: 4 of 200, sitting at
+      // ranks 43-46 of the window), so ~4 more auto-publishes would have
+      // pushed every real backlog row past position 50 and rendered the
+      // human safety net permanently empty with no signal. Fourth sighting of
+      // the window-then-filter class (P2.1, P2.6, P2.7 screen engine).
+      // Filtering the embedded column rather than the candidate's stale
+      // `stars_count` snapshot keeps live data the decider, so this narrows
+      // the window without changing which rows qualify.
+      .lt('projects.stars_count', autoApproveMinStars())
       .order('decided_at', { ascending: false })
       .limit(RETRO_LIMIT),
     // Reports section (P2.6 Wave A2C) — open (unresolved) reports, newest
@@ -579,12 +592,10 @@ export default async function AdminQueuePage({
   const enrichableCount = (pendingEnrichable ?? []).filter(needsEnrichment).length;
   const savesCount = Number(params.saves ?? '0');
 
-  // Sub-threshold filter applied IN APPLICATION CODE, after the LIMIT-50
-  // fetch above (not a SQL WHERE — the retro index is decided_at-only, no
-  // stars_count column, and locked decision #1 explicitly accepts this:
-  // "raising the threshold retroactively surfaces [previously-clean] items
-  // ... bounded by the retro query's LIMIT"). Above-threshold auto-approved
-  // rows are popular enough already — they don't need eyes.
+  // Kept as a belt-and-suspenders re-check of the SQL prefilter above (same
+  // predicate, same live column) — cheap, and it keeps `needsReview` the
+  // single named definition of "sub-threshold" for readers. Above-threshold
+  // auto-approved rows are popular enough already; they don't need eyes.
   const autoApproveThreshold = autoApproveMinStars();
   const retroFiltered = ((rawRetro ?? []) as unknown as RetroCandidate[]).filter((row) =>
     needsReview({ stars_count: row.projects.stars_count }, autoApproveThreshold),

@@ -127,10 +127,16 @@ export async function createList(
   if (descriptionRaw.length > 280) return { error: copy.error };
   const description = descriptionRaw.length > 0 ? descriptionRaw : null;
 
-  const { count } = await supabase
+  // Fail closed on a failed count (P2.7): `count: null` used to read as
+  // "zero lists so far", skipping the cap entirely.
+  const { count, error: countError } = await supabase
     .from('collections')
     .select('*', { count: 'exact', head: true })
     .eq('profile_id', profile.id);
+  if (countError) {
+    console.error('[lists] createList cap count failed:', countError.message);
+    return { error: copy.error };
+  }
   if ((count ?? 0) >= LIST_CAP) return { error: copy.listCapHit };
 
   const base = slugify(name, 'list');
@@ -297,10 +303,15 @@ export async function toggleListItem(
   }
 
   if (on) {
-    const { count } = await supabase
+    // Fail closed on a failed count — see createList (P2.7).
+    const { count, error: countError } = await supabase
       .from('collection_items')
       .select('*', { count: 'exact', head: true })
       .eq('collection_id', collectionId);
+    if (countError) {
+      console.error('[lists] toggleListItem cap count failed:', countError.message);
+      return { error: copy.error };
+    }
     if ((count ?? 0) >= ITEM_CAP) return { error: copy.listItemCapHit };
 
     const { error: insertError } = await supabase

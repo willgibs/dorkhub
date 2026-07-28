@@ -75,11 +75,22 @@ export async function reportProject(_prev: ReportState, formData: FormData): Pro
   }
 
   const windowStart = new Date(Date.now() - REPORT_RATE_LIMIT_WINDOW_MS).toISOString();
-  const { count } = await service
+  const { count, error: countError } = await service
     .from('project_reports')
     .select('*', { count: 'exact', head: true })
     .eq('reporter_profile_id', reporter.id)
     .gt('created_at', windowStart);
+
+  // FAIL CLOSED (P2.7). This count is the only control bounding how many
+  // DISTINCT projects one account can report — the unique (project, reporter)
+  // constraint caps repeats per project, not breadth. A failed count returns
+  // `count: null`, and the old `count ?? 0` read that as "zero reports so
+  // far", skipping the limit exactly when DB pressure (a burst of reports)
+  // makes the failure most likely.
+  if (countError) {
+    console.error('[report] rate-limit count failed:', countError.message);
+    return { error: copy.reportRateLimited };
+  }
 
   if (reachedReportRateLimit(count ?? 0)) {
     return { error: copy.reportRateLimited };

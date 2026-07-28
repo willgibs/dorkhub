@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { LIST_CAP } from '@/lib/lists/policy';
 import { supabaseServer } from '@/lib/supabase/clients';
 
 export type MyListsResponse = {
@@ -55,7 +56,10 @@ export async function GET(request: Request) {
       .select('id, name')
       .eq('profile_id', me.id)
       .order('created_at', { ascending: false })
-      .limit(50),
+      // LIST_CAP, not a literal 50 — a bare literal silently truncates the
+      // dropdown (and every `hasProject` state with it) the moment the cap
+      // moves. The list detail page already imports ITEM_CAP this way.
+      .limit(LIST_CAP),
     projectId
       ? supabase
           .from('collection_items')

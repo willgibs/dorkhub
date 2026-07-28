@@ -59,3 +59,14 @@ export const REPORT_RATE_LIMIT_WINDOW_MS = 86_400_000;
 export function reachedReportRateLimit(countInWindow: number): boolean {
   return countInWindow >= REPORT_RATE_LIMIT_MAX;
 }
+
+/**
+ * How many open (unresolved) reports the admin queue renders AND the screen
+ * engine's priority-1 selection reads. Shared so the two cannot drift (P2.7):
+ * the screen engine used `Math.max(limit * 5, 50)` = 50 while the admin page
+ * rendered 100, so reports 51-100 were visible to a human but never fed to
+ * the AI triage that exists to prioritize them. Because `resolved_at` is only
+ * ever set by a human, unresolved reports accumulate and keep the window
+ * saturated — the same window-vs-population mismatch as P2.1/P2.6/P2.7.
+ */
+export const OPEN_REPORTS_WINDOW = 100;

@@ -12,6 +12,7 @@ import {
   type ScreenVerdict,
 } from '@/lib/ai/moderate';
 import { autoApproveMinStars, needsReview } from '@/lib/ingest/policy';
+import { OPEN_REPORTS_WINDOW } from '@/lib/moderation/report-policy';
 import type { Database } from '@/lib/supabase/types';
 import { ENRICH_PACE_MS } from './run';
 
@@ -158,7 +159,10 @@ async function selectReportedProjects(
     .select('project_id, created_at')
     .is('resolved_at', null)
     .order('created_at', { ascending: false })
-    .limit(Math.max(limit * 5, 50));
+    // Shared with the admin reports section (P2.7) — this used to be
+    // `Math.max(limit * 5, 50)` = 50 against the admin page's 100, so reports
+    // 51-100 rendered for a human but were never fed to the AI triage.
+    .limit(OPEN_REPORTS_WINDOW);
 
   const newestOpenReportAt = new Map<string, string>();
   for (const row of (openReports ?? []) as OpenReportRow[]) {
@@ -192,6 +196,11 @@ async function selectReportedProjects(
   const { data: projectRows } = await service
     .from('projects')
     .select(SCREEN_PROJECT_SELECT)
+    // Published only (P2.7): an admin can unpublish a reported project
+    // without resolving its report (the two are separate actions), which
+    // otherwise leaves the now-draft row spending one of the three screen
+    // calls per run triaging content nobody can see.
+    .eq('status', 'published')
     .in('id', needsScreenIds);
 
   return ((projectRows ?? []) as ScreenProjectRow[]).sort((a, b) => {
@@ -318,7 +327,11 @@ async function selectRetroProjects(
       if (pageIds.length === 0) return { rowCount: rows.length, eligible: [] };
 
       const [{ data: projectRows }, { data: existingScreens }] = await Promise.all([
-        service.from('projects').select(SCREEN_PROJECT_SELECT).in('id', pageIds),
+        service
+          .from('projects')
+          .select(SCREEN_PROJECT_SELECT)
+          .eq('status', 'published') // see selectReportedProjects (P2.7)
+          .in('id', pageIds),
         service.from('moderation_screens').select('project_id').in('project_id', pageIds),
       ]);
 

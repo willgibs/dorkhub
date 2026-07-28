@@ -10,6 +10,13 @@
 -- Every check prints a "PASS: ..." notice. Any failure raises an exception
 -- prefixed "RLS FAILURE:" (or "SETUP FAILURE:") and aborts the script, so a
 -- clean run ends with the final ALL CHECKS PASSED notice.
+--
+-- ON_ERROR_STOP is what MAKES the sentence above true (P2.7). Without it psql
+-- continues past a raised exception, and since the final notice sits after
+-- `rollback;` — outside the aborted transaction — the suite happily printed
+-- ALL CHECKS PASSED on a run that had already failed a check. Caught while
+-- negative-controlling T21/T23 against deliberately widened policies.
+\set ON_ERROR_STOP on
 -- ============================================================================
 
 
@@ -707,6 +714,99 @@ begin
 end
 $$;
 
+-- T23 · cross-owner UPDATE/DELETE on someone else's list (P2.7).
+--
+-- Everything above tests INSERT `with check` clauses or column grants; before
+-- this, NOTHING in either suite exercised the `using` clause of
+-- collections_update_own, collections_delete_own, or
+-- collection_items_delete_own. Section 3a compares policy name + cmd only,
+-- never the expression — so rewriting any of those three to `using (true)`
+-- passed every check in both files while letting any signed-in user rename or
+-- delete any other user's list. That is not theoretical: renameList /
+-- editListDescription / setListVisibility / deleteList all take the
+-- collection id straight from a form field or positional arg and filter only
+-- on `.eq('id', …)`, delegating authorization ENTIRELY to these policies
+-- (see the header of src/app/(app)/u/[username]/lists/actions.ts).
+--
+-- Still gremlinworks' list from the T19 setup; session is mollybuilds.
+do $$
+declare
+  victim constant uuid := 'c0999999-0000-4000-8000-000000000001';
+  affected int;
+  survived int;
+begin
+  update public.collections set name = 'hijacked' where id = victim;
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'RLS FAILURE: T23a renamed another profile''s list (% rows)', affected;
+  end if;
+
+  update public.collections set is_public = false where id = victim;
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'RLS FAILURE: T23b flipped visibility on another profile''s list (% rows)', affected;
+  end if;
+
+  delete from public.collections where id = victim;
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'RLS FAILURE: T23c deleted another profile''s list (% rows)', affected;
+  end if;
+
+  -- The row must still be there, under its original name.
+  select count(*) into survived
+    from public.collections where id = victim and name = 'rls check other';
+  reset role;
+  if survived <> 1 then
+    raise exception 'RLS FAILURE: T23 victim list did not survive intact (% rows)', survived;
+  end if;
+  set local role authenticated;
+
+  raise notice 'PASS: T23 cross-owner list rename/visibility/delete all rejected (0 rows)';
+end
+$$;
+
+-- T24 · cannot delete items out of someone else's list (collection_items
+-- _delete_own `using` clause — likewise previously uncovered).
+do $$
+declare
+  victim constant uuid := 'c0999999-0000-4000-8000-000000000001';
+  affected int;
+  survived int;
+begin
+  -- Privileged detour to plant an item in the victim's list, then resume.
+  reset role;
+  insert into public.collection_items (collection_id, project_id)
+  values (victim, (select id from public.projects
+                    where status = 'published' order by created_at asc limit 1));
+  set local role authenticated;
+
+  delete from public.collection_items where collection_id = victim;
+  get diagnostics affected = row_count;
+  if affected <> 0 then
+    raise exception 'RLS FAILURE: T24 deleted items from another profile''s list (% rows)', affected;
+  end if;
+
+  reset role;
+  select count(*) into survived from public.collection_items where collection_id = victim;
+  set local role authenticated;
+  if survived <> 1 then
+    raise exception 'RLS FAILURE: T24 victim item did not survive (% rows)', survived;
+  end if;
+
+  raise notice 'PASS: T24 cross-owner item delete rejected (0 rows)';
+end
+$$;
+
+-- Capture both list ids while the OWNER can still see them, so T21 can assert
+-- against `collection_items` directly instead of through a join that the
+-- collections policy already filters (P2.7 — see T21).
+reset role;
+create temp table rls_check_list_ids as
+  select slug, id from public.collections
+   where slug in ('rls-check-public', 'rls-check-private');
+grant select on rls_check_list_ids to anon;
+
 -- Switch to anon for the last checks.
 set local role anon;
 set local request.jwt.claims = '{"role": "anon"}';
@@ -752,6 +852,8 @@ declare
   n_priv int;
   n_lists int;
   n_items int;
+  n_priv_items int;
+  n_pub_items int;
 begin
   select count(*) filter (where slug = 'rls-check-private'), count(*)
     into n_priv, n_lists
@@ -767,7 +869,30 @@ begin
   if n_items <> 1 then
     raise exception 'RLS FAILURE: T21 anon sees % list items (expected 1, the public list''s)', n_items;
   end if;
-  raise notice 'PASS: T21 anon sees the public list + its item, private list fully hidden';
+
+  -- The join above is a POSITIVE CONTROL only: it reads through
+  -- `collections`, which `collections_select_public_or_own` has already
+  -- filtered, so the private list's item drops out because its LIST is
+  -- hidden — whatever `collection_items_select` says. Rewriting that policy
+  -- to `using (true)` still produced n_items = 1 and a PASS, while anon could
+  -- read /rest/v1/collection_items?collection_id=eq.<private-uuid> and
+  -- enumerate exactly which projects sit in a private list. These two
+  -- unjoined assertions are what actually pin the item policy (P2.7).
+  select count(*) into n_priv_items
+    from public.collection_items
+   where collection_id = (select id from rls_check_list_ids where slug = 'rls-check-private');
+  if n_priv_items <> 0 then
+    raise exception 'RLS FAILURE: T21 anon read % item(s) of a PRIVATE list directly (expected 0)', n_priv_items;
+  end if;
+
+  select count(*) into n_pub_items
+    from public.collection_items
+   where collection_id = (select id from rls_check_list_ids where slug = 'rls-check-public');
+  if n_pub_items <> 1 then
+    raise exception 'RLS FAILURE: T21 anon read % item(s) of the PUBLIC list directly (expected 1)', n_pub_items;
+  end if;
+
+  raise notice 'PASS: T21 anon sees the public list + its item; private list and its items hidden (direct, unjoined)';
 end
 $$;
 
