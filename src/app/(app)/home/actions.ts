@@ -10,10 +10,29 @@ import { supabaseAnon, supabaseServer, supabaseService } from '@/lib/supabase/cl
 const SAVES_SIGNAL_LIMIT = 100;
 const STAR_IMPORT_SIGNAL_LIMIT = 200;
 const STAR_IMPORT_PROJECT_LIMIT = 100;
-const CANDIDATE_FETCH_LIMIT = 12;
 const RECS_LIMIT = 6;
 const TOP_TAG_COUNT = 5;
 const EXCLUSION_CAP = 100;
+
+/**
+ * The window has to survive the exclusion set, not merely exceed the output
+ * (P3-B). This was a flat 12 while up to EXCLUSION_CAP (100) already-saved or
+ * already-starred ids get filtered out of it IN JS afterwards — the
+ * window-then-filter class that has now bitten four times (P2.1 enrichment,
+ * P2.6 retro, P2.7 retro, P2.7 admin retro).
+ *
+ * It is not an edge case here, it is the COMMON case: the exclusion set is
+ * the user's own saves, and the candidates are the top-trending projects in
+ * the user's own top tags — precisely the rows an engaged curator has already
+ * saved. Every candidate could be excluded and the rail would render nothing,
+ * indistinguishable from "we have no recommendations for you".
+ *
+ * Expressed as the arithmetic rather than a magic number: fetching
+ * RECS_LIMIT + EXCLUSION_CAP guarantees RECS_LIMIT survivors whenever that
+ * many candidates exist at all. FEED_COLUMNS is the lean projection (no
+ * readme_html), so the extra rows are cheap.
+ */
+const CANDIDATE_FETCH_LIMIT = RECS_LIMIT + EXCLUSION_CAP;
 
 export type LoadHomeRecsResult =
   | { state: 'import-cta' }

@@ -4,6 +4,7 @@ import {
   collectRetroPages,
   planScreenStamp,
   type RetroPage,
+  resolveScreenWrite,
   type ScreenProjectRow,
 } from './screen';
 
@@ -233,5 +234,64 @@ describe('collectRetroPages — the window must advance', () => {
     expect(await collectRetroPages(3, 0, 5, loader)).toEqual([]);
     expect(await collectRetroPages(3, 9, 0, loader)).toEqual([]);
     expect(calls).toBe(0);
+  });
+});
+
+/**
+ * D22 — a re-screen never auto-downgrades `flagged`. Screens upsert-overwrite
+ * (D5), and the cheapest way to trigger a re-screen is to REPORT the project
+ * you want de-flagged, so without this the safety net could be cleared by the
+ * very mechanism meant to raise it.
+ */
+describe('resolveScreenWrite — flagged is sticky until a human acts', () => {
+  const stamp = (verdict: 'ok' | 'review' | 'flagged', reason: string | null = 'fresh reason') => ({
+    verdict,
+    reason,
+    model: 'gemini-3.5-flash-lite',
+    created_at: '2026-07-29T00:00:00.000Z',
+  });
+
+  it('keeps flagged when a re-screen comes back ok', () => {
+    const out = resolveScreenWrite('flagged', stamp('ok'), 'malware in the install script');
+    expect(out.verdict).toBe('flagged');
+  });
+
+  it('keeps flagged when a re-screen comes back review', () => {
+    expect(resolveScreenWrite('flagged', stamp('review'), 'spam').verdict).toBe('flagged');
+  });
+
+  it('preserves the ORIGINAL reason — it is what a human still has to act on', () => {
+    const out = resolveScreenWrite(
+      'flagged',
+      stamp('ok', 'looks fine now'),
+      'malware in postinstall',
+    );
+    expect(out.reason).toBe('malware in postinstall');
+  });
+
+  it('still advances model + created_at, so the same open report stops re-queueing it', () => {
+    const out = resolveScreenWrite('flagged', stamp('ok'), 'spam');
+    expect(out.created_at).toBe('2026-07-29T00:00:00.000Z');
+    expect(out.model).toBe('gemini-3.5-flash-lite');
+  });
+
+  it('ESCALATION is untouched: ok -> flagged writes through', () => {
+    const out = resolveScreenWrite('ok', stamp('flagged', 'crypto miner'), 'was fine');
+    expect(out.verdict).toBe('flagged');
+    expect(out.reason).toBe('crypto miner');
+  });
+
+  it('review -> ok writes through (only flagged is sticky)', () => {
+    expect(resolveScreenWrite('review', stamp('ok', 'fine')).verdict).toBe('ok');
+  });
+
+  it('a never-screened project takes the fresh stamp verbatim', () => {
+    const s = stamp('review', 'purpose unclear');
+    expect(resolveScreenWrite(null, s)).toEqual(s);
+  });
+
+  it('flagged -> flagged takes the NEW reason (a genuine re-assessment)', () => {
+    const out = resolveScreenWrite('flagged', stamp('flagged', 'now also phishing'), 'was spam');
+    expect(out.reason).toBe('now also phishing');
   });
 });

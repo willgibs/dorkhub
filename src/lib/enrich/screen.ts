@@ -120,6 +120,37 @@ export function planScreenStamp(
   };
 }
 
+/**
+ * D22 (P3-B, resolving a P2.7 deferral): a re-screen NEVER auto-downgrades a
+ * `flagged` verdict.
+ *
+ * Screens upsert-overwrite (P2.6 decision D5), so before this a project
+ * flagged on Monday could be re-screened on Tuesday — a new report is enough
+ * to trigger it — come back `ok`, and silently lose the flag. Nobody had
+ * looked. `flagged` exists to summon a human, so erasing it without a human
+ * having seen it defeats the entire mechanism, and the P2.7 audit showed the
+ * cheapest way to trigger a re-screen is to report the project you want
+ * de-flagged.
+ *
+ * The original reason is preserved, not the new one: it is the assessment a
+ * human still needs to act on. `model`/`created_at` DO advance, because the
+ * row genuinely was re-screened — and advancing `created_at` is what stops
+ * the same open report from re-queueing it forever.
+ *
+ * Escalation is unaffected: ok/review -> flagged writes through normally.
+ * Only a human (resolving the report, or acting on the project) clears it.
+ */
+export function resolveScreenWrite(
+  existingVerdict: ScreenVerdict | null,
+  stamp: { verdict: ScreenVerdict; reason: string | null; model: string; created_at: string },
+  existingReason: string | null = null,
+): { verdict: ScreenVerdict; reason: string | null; model: string; created_at: string } {
+  if (existingVerdict === 'flagged' && stamp.verdict !== 'flagged') {
+    return { ...stamp, verdict: 'flagged', reason: existingReason };
+  }
+  return stamp;
+}
+
 export type ScreenBatchResult = {
   screened: number;
   flagged: number;
@@ -450,10 +481,26 @@ export async function screenNextBatch(
     const parsed = parseScreenResult(chatResult.content);
     const stamp = planScreenStamp(parsed, chatResult.model, new Date().toISOString());
 
+    // One lean read per item so `flagged` can't be auto-downgraded (D22).
+    // Cheap by construction: the batch is SCREEN_PER_RUN (3) at most, and the
+    // queue dedupes by project id, so there is no concurrent-write race to
+    // lose here.
+    const { data: existing } = await service
+      .from('moderation_screens')
+      .select('verdict, reason')
+      .eq('project_id', project.id)
+      .maybeSingle();
+
+    const write = resolveScreenWrite(
+      (existing?.verdict as ScreenVerdict | undefined) ?? null,
+      stamp,
+      existing?.reason ?? null,
+    );
+
     const { error } = await service
       .from('moderation_screens')
       .upsert(
-        { project_id: project.id, source: queueItem.source, ...stamp },
+        { project_id: project.id, source: queueItem.source, ...write },
         { onConflict: 'project_id' },
       );
     // Mirrors enrichNextBatch's write-error handling: log and move on — the
@@ -464,7 +511,9 @@ export async function screenNextBatch(
     if (error) console.error('[enrich/screen] screen upsert failed:', error.message);
 
     result.screened += 1;
-    if (stamp.verdict === 'flagged') result.flagged += 1;
+    // Counts what was actually WRITTEN, not what the model said — a sustained
+    // flag (D22) is still a flagged row in the admin queue.
+    if (write.verdict === 'flagged') result.flagged += 1;
   }
 
   return result;
