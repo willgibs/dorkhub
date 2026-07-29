@@ -15,8 +15,15 @@ export async function GET(request: Request) {
   try {
     const q = normalizeSearchQuery(searchParams.get('q'));
 
+    // `limit` is a request for MORE projects than the palette's default; it is
+    // clamped inside searchAll to SEARCH_PROJECT_LIMIT_MAX, so a hand-crafted
+    // `?limit=100000` cannot widen the scan. Garbage parses to NaN and falls
+    // back to the default.
+    const rawLimit = Number.parseInt(searchParams.get('limit') ?? '', 10);
+    const projectLimit = Number.isFinite(rawLimit) ? rawLimit : undefined;
+
     const results = q
-      ? await searchAll(q, supabaseAnon())
+      ? await searchAll(q, supabaseAnon(), { projectLimit })
       : { projects: [], profiles: [], tags: [] };
 
     return NextResponse.json(results, {

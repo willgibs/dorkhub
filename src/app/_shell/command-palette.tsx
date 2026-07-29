@@ -148,6 +148,21 @@ export function CommandPalette() {
           <CommandList>
             {showEmpty ? <CommandEmpty>{copy.searchEmpty}</CommandEmpty> : null}
 
+            {/* The palette hard-caps each group, so a query with 40 matches
+                showed 8 and offered no next step. This row IS how /search is
+                discovered — search stays demoted (D28), so it gets no nav
+                entry of its own. */}
+            {query.trim().length >= 2 ? (
+              <CommandGroup>
+                <CommandItem
+                  value="see-all-results"
+                  onSelect={() => handleSelect(`/search?q=${encodeURIComponent(query.trim())}`)}
+                >
+                  <span className="font-mono text-[13px]">{copy.searchSeeAll}</span>
+                </CommandItem>
+              </CommandGroup>
+            ) : null}
+
             {results.projects.length > 0 ? (
               <CommandGroup heading={copy.searchGroupProjects}>
                 {results.projects.map((project) => (

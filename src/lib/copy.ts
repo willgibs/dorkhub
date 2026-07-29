@@ -91,6 +91,20 @@ export const copy = {
   searchGroupProjects: 'projects',
   searchGroupPeople: 'people',
   searchGroupTags: 'tags',
+  searchTitle: 'search',
+  searchStart: 'type something — a name, an owner, a tag',
+  // Static, not interpolated: /design/voice flattens copy as
+  // string | string[] | one-level map, so a formatter would vanish from it.
+  searchCapped: 'showing the strongest matches — narrow it down to see others',
+  searchSeeAll: 'see all results',
+  // Deliberately does not promise full-text: readme_html has no anon grant
+  // and is unindexed, so "everything" would be a lie.
+  searchScopeNote: 'searches names, owners, taglines and tags',
+  searchFilterLanguage: 'language',
+  searchFilterTag: 'tag',
+  searchFilterStars: 'stars',
+  searchFilterDemo: 'has a demo',
+  searchFilterClear: 'clear filters',
   importTitle: 'bring your stars',
   importSubtitle:
     'we’ll match your public github stars against the gallery — the rest go live right after',

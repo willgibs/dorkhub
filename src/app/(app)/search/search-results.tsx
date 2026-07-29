@@ -1,0 +1,205 @@
+'use client';
+
+import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
+
+import { EmptyState } from '@/components/empty-state';
+import { TagChip } from '@/components/tag-chip';
+import { Input } from '@/components/ui/input';
+import { copy } from '@/lib/copy';
+// `import type` from a `server-only` module is erased at compile time, so
+// nothing reaches the client bundle — and it means there is exactly ONE
+// definition of the response shape (the palette used to hand-mirror it and
+// drifted). A value import here would fail loudly, which is the point.
+import type { SearchResults } from '@/lib/search/queries';
+
+const EMPTY: SearchResults = { projects: [], profiles: [], tags: [] };
+
+/** Matches SEARCH_PROJECT_LIMIT_MAX. Results are capped by relevance, not paginated (D25). */
+const PAGE_PROJECT_LIMIT = 48;
+
+const DEBOUNCE_MS = 150;
+
+const rowLink =
+  'block rounded-sm outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+
+/**
+ * The whole of `/search`'s behaviour. Reads `?q=` with `useSearchParams()` so
+ * the enclosing route stays statically prerendered (D27), and mirrors typing
+ * back into the URL so a result set is shareable.
+ *
+ * The fetch loop is lifted from the command palette rather than reinvented:
+ * debounce, an AbortController that cancels a still-in-flight request, and a
+ * `settled` flag so "nothing found" can't flash while a request is in the air.
+ */
+export function SearchResultsIsland() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const initialQ = searchParams.get('q') ?? '';
+  const [query, setQuery] = useState(initialQ);
+  const [results, setResults] = useState<SearchResults>(EMPTY);
+  const [settled, setSettled] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Keep the URL in step with the input, but with `replace` — a history entry
+  // per keystroke would make Back unusable.
+  useEffect(() => {
+    const trimmed = query.trim();
+    const current = searchParams.get('q') ?? '';
+    if (trimmed === current) return;
+
+    const timer = setTimeout(() => {
+      const next = new URLSearchParams(searchParams.toString());
+      if (trimmed) next.set('q', trimmed);
+      else next.delete('q');
+      const qs = next.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }, DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [query, searchParams, router, pathname]);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+
+    if (trimmed.length < 2) {
+      abortRef.current?.abort();
+      setResults(EMPTY);
+      setSettled(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    abortRef.current?.abort();
+    abortRef.current = controller;
+
+    const timer = setTimeout(async () => {
+      try {
+        const params = new URLSearchParams({ q: trimmed, limit: String(PAGE_PROJECT_LIMIT) });
+        const response = await fetch(`/api/search?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        const data: SearchResults = response.ok ? await response.json() : EMPTY;
+        if (!controller.signal.aborted) {
+          setResults(data);
+          setSettled(true);
+        }
+      } catch {
+        // Abort is the common path here (every keystroke cancels the last
+        // request); a real failure degrades to "nothing found" rather than
+        // breaking the page.
+        if (!controller.signal.aborted) {
+          setResults(EMPTY);
+          setSettled(true);
+        }
+      }
+    }, DEBOUNCE_MS);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
+
+  const total = results.projects.length + results.profiles.length + results.tags.length;
+  const capped = results.projects.length >= PAGE_PROJECT_LIMIT;
+
+  return (
+    <div className="flex w-full max-w-[780px] flex-col gap-6">
+      <div className="flex flex-col gap-1.5">
+        <Input
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={copy.searchPlaceholder}
+          autoComplete="off"
+          // Autofocus is right here and nowhere else: arriving at /search is an
+          // explicit act, unlike the palette which is summoned over other work.
+          // biome-ignore lint/a11y/noAutofocus: the page exists to be typed into
+          autoFocus
+          aria-label={copy.searchTitle}
+        />
+        <p className="font-mono text-[12.5px] text-muted-foreground">{copy.searchScopeNote}</p>
+      </div>
+
+      {query.trim().length < 2 ? (
+        <p className="text-[15px] text-muted-foreground">{copy.searchStart}</p>
+      ) : settled && total === 0 ? (
+        <EmptyState message={copy.searchEmpty} />
+      ) : (
+        <div className="flex flex-col gap-8">
+          {results.projects.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <span aria-hidden="true">{'// '}</span>
+                {copy.searchGroupProjects}
+              </h2>
+              <ul className="flex flex-col divide-y divide-border">
+                {results.projects.map((project) => (
+                  <li key={project.id} className="py-3">
+                    <Link
+                      href={`/u/${project.profiles.username}/${project.slug}`}
+                      className={rowLink}
+                    >
+                      <span className="font-mono text-[15px] font-semibold">{project.name}</span>
+                      <span className="ml-2 font-mono text-[12.5px] text-muted-foreground">
+                        {project.repo_full_name}
+                      </span>
+                      {project.tagline ? (
+                        <span className="mt-0.5 block text-[13.5px] text-muted-foreground">
+                          {project.tagline}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              {capped ? (
+                <p className="font-mono text-[12.5px] text-muted-foreground">{copy.searchCapped}</p>
+              ) : null}
+            </section>
+          ) : null}
+
+          {results.profiles.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <span aria-hidden="true">{'// '}</span>
+                {copy.searchGroupPeople}
+              </h2>
+              <ul className="flex flex-col gap-2">
+                {results.profiles.map((profile) => (
+                  <li key={profile.id}>
+                    <Link href={`/u/${profile.username}`} className={rowLink}>
+                      <span className="font-mono text-[15px]">@{profile.username}</span>
+                      {profile.display_name ? (
+                        <span className="ml-2 text-[13.5px] text-muted-foreground">
+                          {profile.display_name}
+                        </span>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          {results.tags.length > 0 ? (
+            <section className="flex flex-col gap-3">
+              <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+                <span aria-hidden="true">{'// '}</span>
+                {copy.searchGroupTags}
+              </h2>
+              <div className="flex flex-wrap gap-1.5">
+                {results.tags.map((tag) => (
+                  <TagChip key={tag.slug} tag={tag.slug} hashPrefix />
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+}
