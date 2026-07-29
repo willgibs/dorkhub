@@ -12,6 +12,7 @@ import { copy } from '@/lib/copy';
 // nothing reaches the client bundle — and it means there is exactly ONE
 // definition of the response shape (the palette used to hand-mirror it and
 // drifted). A value import here would fail loudly, which is the point.
+import { collectFacetOptions, type FacetOption, STAR_BUCKETS } from '@/lib/search/facets';
 import type { SearchResults } from '@/lib/search/queries';
 
 const EMPTY: SearchResults = { projects: [], profiles: [], tags: [] };
@@ -43,6 +44,38 @@ export function SearchResultsIsland() {
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [settled, setSettled] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+
+  const lang = searchParams.get('lang') ?? '';
+  const tag = searchParams.get('tag') ?? '';
+  const stars = searchParams.get('stars') ?? '';
+  const demo = searchParams.get('demo') ?? '';
+
+  /**
+   * Refinements are derived from the UNFACETED response and remembered. If they
+   * were read from the current (already-narrowed) results, picking "Rust" would
+   * delete every other language from the UI — the classic faceted-search dead
+   * end where the only way out is the browser Back button.
+   */
+  const vocabRef = useRef<{ languages: FacetOption[]; tags: FacetOption[] }>({
+    languages: [],
+    tags: [],
+  });
+  if (!lang && !tag && results.projects.length > 0) {
+    vocabRef.current = collectFacetOptions(results.projects);
+  }
+  const vocab = vocabRef.current;
+
+  /**
+   * An ACTIVE language always gets a chip, even when it isn't in the
+   * remembered vocabulary — which is exactly what happens when someone lands
+   * on a shared `?lang=` URL, since no unfaceted response was ever seen.
+   * Without this the filter is applied but invisible: you can see it worked
+   * and have no way to switch or remove it.
+   */
+  const languageOptions =
+    lang && !vocab.languages.some((option) => option.value === lang)
+      ? [{ value: lang, label: lang, count: 0 }, ...vocab.languages]
+      : vocab.languages;
 
   // Keep the URL in step with the input, but with `replace` — a history entry
   // per keystroke would make Back unusable.
@@ -79,6 +112,10 @@ export function SearchResultsIsland() {
     const timer = setTimeout(async () => {
       try {
         const params = new URLSearchParams({ q: trimmed, limit: String(PAGE_PROJECT_LIMIT) });
+        if (lang) params.set('lang', lang);
+        if (tag) params.set('tag', tag);
+        if (stars) params.set('stars', stars);
+        if (demo) params.set('demo', demo);
         const response = await fetch(`/api/search?${params.toString()}`, {
           signal: controller.signal,
         });
@@ -102,10 +139,34 @@ export function SearchResultsIsland() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [query]);
+  }, [query, lang, tag, stars, demo]);
 
   const total = results.projects.length + results.profiles.length + results.tags.length;
   const capped = results.projects.length >= PAGE_PROJECT_LIMIT;
+  const facetsActive = Boolean(lang || tag || stars || demo);
+
+  function setFacet(key: string, value: string | null) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (value) next.set(key, value);
+    else next.delete(key);
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  function clearFacets() {
+    const next = new URLSearchParams();
+    const currentQ = searchParams.get('q');
+    if (currentQ) next.set('q', currentQ);
+    const qs = next.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  const chip = (active: boolean) =>
+    `rounded-lg border px-[11px] py-[5px] font-mono text-[12.5px] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:translate-y-px ${
+      active
+        ? 'border-primary/40 bg-accent text-foreground'
+        : 'bg-transparent text-muted-foreground hover:bg-accent hover:text-foreground'
+    }`;
 
   return (
     <div className="flex w-full max-w-[780px] flex-col gap-6">
@@ -123,6 +184,70 @@ export function SearchResultsIsland() {
         />
         <p className="font-mono text-[12.5px] text-muted-foreground">{copy.searchScopeNote}</p>
       </div>
+
+      {/* Facets narrow the query IN SQL (applyFacets), never the returned set —
+          filtering 48 already-capped rows down to "Rust only" would show
+          whichever handful happened to land in those 48. */}
+      {query.trim().length >= 2 && (languageOptions.length > 0 || facetsActive) ? (
+        <div className="flex flex-col gap-2">
+          {languageOptions.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {copy.searchFilterLanguage}
+              </span>
+              {languageOptions.slice(0, 8).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={chip(lang === option.value)}
+                  onClick={() => setFacet('lang', lang === option.value ? null : option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+              {copy.searchFilterStars}
+            </span>
+            {STAR_BUCKETS.map((bucket) => (
+              <button
+                key={bucket}
+                type="button"
+                className={chip(stars === String(bucket))}
+                onClick={() => setFacet('stars', stars === String(bucket) ? null : String(bucket))}
+              >
+                {bucket >= 1000 ? `${bucket / 1000}k+` : `${bucket}+`}
+              </button>
+            ))}
+            <button
+              type="button"
+              className={chip(demo === '1')}
+              onClick={() => setFacet('demo', demo === '1' ? null : '1')}
+            >
+              {copy.searchFilterDemo}
+            </button>
+            {facetsActive ? (
+              <button type="button" className={chip(false)} onClick={clearFacets}>
+                {copy.searchFilterClear}
+              </button>
+            ) : null}
+          </div>
+
+          {tag ? (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                {copy.searchFilterTag}
+              </span>
+              <button type="button" className={chip(true)} onClick={() => setFacet('tag', null)}>
+                #{tag}
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       {query.trim().length < 2 ? (
         <p className="text-[15px] text-muted-foreground">{copy.searchStart}</p>

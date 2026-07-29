@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-import { normalizeSearchQuery, searchAll } from '@/lib/search/queries';
+import { normalizeSearchQuery, resolveSearchFacets, searchAll } from '@/lib/search/queries';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
 /**
@@ -22,8 +22,18 @@ export async function GET(request: Request) {
     const rawLimit = Number.parseInt(searchParams.get('limit') ?? '', 10);
     const projectLimit = Number.isFinite(rawLimit) ? rawLimit : undefined;
 
+    // Facets narrow the query IN SQL (see applyFacets) — never the returned
+    // set. Every value is validated here first, so nothing user-shaped reaches
+    // a filter.
+    const facets = resolveSearchFacets({
+      language: searchParams.get('lang'),
+      tag: searchParams.get('tag'),
+      stars: searchParams.get('stars'),
+      demo: searchParams.get('demo'),
+    });
+
     const results = q
-      ? await searchAll(q, supabaseAnon(), { projectLimit })
+      ? await searchAll(q, supabaseAnon(), { projectLimit, facets })
       : { projects: [], profiles: [], tags: [] };
 
     return NextResponse.json(results, {

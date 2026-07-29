@@ -3,6 +3,16 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database, Tables } from '@/lib/supabase/types';
 import { resolveTagSlug } from '@/lib/tags/slug';
+import { EMPTY_FACETS, type SearchFacets } from './facets';
+
+export {
+  collectFacetOptions,
+  EMPTY_FACETS,
+  type FacetOption,
+  resolveSearchFacets,
+  type SearchFacets,
+  STAR_BUCKETS,
+} from './facets';
 
 /**
  * Search data layer (docs/plans/m5.5-curator.md Wave 1A, locked decision 1).
@@ -123,7 +133,17 @@ export function mergeSearchHits<T>(
 
 export type SearchProjectResult = Pick<
   Tables<'projects'>,
-  'id' | 'slug' | 'name' | 'tagline' | 'trending_score' | 'repo_full_name' | 'tags'
+  | 'id'
+  | 'slug'
+  | 'name'
+  | 'tagline'
+  | 'trending_score'
+  | 'repo_full_name'
+  | 'tags'
+  | 'primary_language'
+  | 'language_slug'
+  | 'stars_count'
+  | 'demo_url'
 > & {
   profiles: Pick<Tables<'profiles'>, 'username' | 'display_name'>;
 };
@@ -131,8 +151,8 @@ export type SearchProjectResult = Pick<
 /**
  * Relevance tier for one row against the query. PURE — scored from the row's
  * own data rather than from which leg produced it, so it stays correct however
- * the legs are merged or reordered (leg provenance is lost to `mergeSearchHits`'s
- * first-seen dedupe anyway).
+ * the legs are merged or reordered (leg provenance is lost to
+ * `mergeSearchHits`'s first-seen dedupe anyway).
  */
 export function relevanceTier(row: SearchProjectResult, q: string): number {
   const needle = q.trim().toLowerCase();
@@ -187,9 +207,15 @@ const SEARCH_PROJECT_COLUMNS = [
   'name',
   'tagline',
   'trending_score',
-  // Both are read by `relevanceTier`, not just displayed.
+  // Read by `relevanceTier`, not just displayed.
   'repo_full_name',
   'tags',
+  // Facet keys + their display labels (S3). language_slug is the filter
+  // target; primary_language is what a chip shows.
+  'primary_language',
+  'language_slug',
+  'stars_count',
+  'demo_url',
   // FK name REQUIRED — projects↔profiles has multiple relationships (direct
   // FK plus many-to-many through likes/saves), so a bare `profiles!inner`
   // is ambiguous and PostgREST 400s it (PGRST201). Same pattern as
@@ -246,7 +272,39 @@ async function execLeg<T>(
 export type SearchOptions = {
   /** Projects returned. Defaults to the palette's 8; the /search page asks for SEARCH_PROJECT_LIMIT_MAX. */
   projectLimit?: number;
+  /** Already-normalized facets (see `resolveSearchFacets`). */
+  facets?: SearchFacets;
 };
+
+/**
+ * Narrows a project leg by the active facets — IN SQL, before the LIMIT.
+ *
+ * This is the load-bearing detail: filtering the merged RESULT set instead
+ * would be the window-then-filter bug this codebase has hit five times
+ * (P2.1, P2.6, P2.7 ×2, P3-B recs). A leg capped at 48 and then filtered to
+ * "Rust only" would return whichever handful of Rust rows happened to land in
+ * those 48, and could return none while plenty exist.
+ *
+ * Every value is pre-validated by `resolveSearchFacets`, so nothing
+ * user-shaped reaches a filter string.
+ */
+function applyFacets<T>(query: T, facets: SearchFacets): T {
+  // The supabase-js builder is chainable but not generically typed here; each
+  // call returns the same builder, so the cast is confined to this helper.
+  let q = query as unknown as {
+    eq: (c: string, v: unknown) => typeof q;
+    gte: (c: string, v: unknown) => typeof q;
+    contains: (c: string, v: unknown) => typeof q;
+    not: (c: string, op: string, v: unknown) => typeof q;
+  };
+
+  if (facets.language) q = q.eq('language_slug', facets.language);
+  if (facets.tag) q = q.contains('tags', [facets.tag]);
+  if (facets.minStars !== null) q = q.gte('stars_count', facets.minStars);
+  if (facets.hasDemo) q = q.not('demo_url', 'is', null);
+
+  return q as unknown as T;
+}
 
 /**
  * Runs eight independent `.ilike()`/`.contains()` legs (project
@@ -277,6 +335,7 @@ export async function searchAll(
     Math.max(1, Math.trunc(opts.projectLimit ?? SEARCH_PROJECT_LIMIT)),
     SEARCH_PROJECT_LIMIT_MAX,
   );
+  const facets = opts.facets ?? EMPTY_FACETS;
 
   // Exact-tag leg, gated on the query actually looking like a tag slug.
   // `resolveTagSlug` is the same validator the /t/[tag] route uses, and its
@@ -296,21 +355,27 @@ export async function searchAll(
     tagsByLabel,
   ] = await Promise.all([
     execLeg<SearchProjectResult>(
-      client
-        .from('projects')
-        .select(SEARCH_PROJECT_COLUMNS)
-        .eq('status', 'published')
-        .ilike('name', pattern)
+      applyFacets(
+        client
+          .from('projects')
+          .select(SEARCH_PROJECT_COLUMNS)
+          .eq('status', 'published')
+          .ilike('name', pattern),
+        facets,
+      )
         .order('trending_score', { ascending: false })
         .limit(projectLimit),
       'projects by name',
     ),
     execLeg<SearchProjectResult>(
-      client
-        .from('projects')
-        .select(SEARCH_PROJECT_COLUMNS)
-        .eq('status', 'published')
-        .ilike('tagline', pattern)
+      applyFacets(
+        client
+          .from('projects')
+          .select(SEARCH_PROJECT_COLUMNS)
+          .eq('status', 'published')
+          .ilike('tagline', pattern),
+        facets,
+      )
         .order('trending_score', { ascending: false })
         .limit(projectLimit),
       'projects by tagline',
@@ -318,22 +383,28 @@ export async function searchAll(
     // "owner/repo" is the most-typed query shape on a GitHub-derived product
     // and was entirely unsearchable before P3-B (idx_projects_repo_full_name_trgm, 0012).
     execLeg<SearchProjectResult>(
-      client
-        .from('projects')
-        .select(SEARCH_PROJECT_COLUMNS)
-        .eq('status', 'published')
-        .ilike('repo_full_name', pattern)
+      applyFacets(
+        client
+          .from('projects')
+          .select(SEARCH_PROJECT_COLUMNS)
+          .eq('status', 'published')
+          .ilike('repo_full_name', pattern),
+        facets,
+      )
         .order('trending_score', { ascending: false })
         .limit(projectLimit),
       'projects by repo_full_name',
     ),
     tagSlug
       ? execLeg<SearchProjectResult>(
-          client
-            .from('projects')
-            .select(SEARCH_PROJECT_COLUMNS)
-            .eq('status', 'published')
-            .contains('tags', [tagSlug])
+          applyFacets(
+            client
+              .from('projects')
+              .select(SEARCH_PROJECT_COLUMNS)
+              .eq('status', 'published')
+              .contains('tags', [tagSlug]),
+            facets,
+          )
             .order('trending_score', { ascending: false })
             .limit(projectLimit),
           'projects by tag',
