@@ -107,7 +107,9 @@ export type FeedRow = Pick<
   | 'tags'
   | 'screenshots'
   | 'likes_count'
+  | 'lists_count'
   | 'updated_at'
+  | 'github_pushed_at'
   | 'published_at'
   | 'trending_score'
   | 'repo_full_name'
@@ -133,7 +135,9 @@ export const FEED_COLUMNS = [
   'tags',
   'screenshots',
   'likes_count',
+  'lists_count',
   'updated_at',
+  'github_pushed_at',
   'published_at',
   'trending_score',
   'repo_full_name',

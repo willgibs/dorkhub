@@ -186,6 +186,15 @@ export default async function ProjectPage({
                 related-projects rail above uses. */}
             {project.status === 'published' ? <AddToListControl projectId={project.id} /> : null}
             {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
+            {/* The dorkhub-native signal belongs HERE, alongside the other
+                dorkhub actions — not in RepoStatsRow, where every field is a
+                GitHub fact. Public lists only (D18); absence, never "0". */}
+            {project.lists_count > 0 ? (
+              <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
+                {copy.listedInLabel} {project.lists_count}{' '}
+                {project.lists_count === 1 ? copy.listedInUnitOne : copy.listedInUnit}
+              </span>
+            ) : null}
           </div>
 
           {project.tagline ? (
@@ -219,13 +228,19 @@ export default async function ProjectPage({
             {displayName}
           </Link>
 
+          {/* `updatedAgo` is GitHub's pushed_at, not projects.updated_at
+              (P3-B D21) — the latter bumps on our own sync writes, so every
+              project claimed to be freshly updated. Absent until the repo has
+              been re-fetched since 0011; show nothing rather than a guess. */}
           <RepoStatsRow
             language={project.primary_language ?? ''}
             languageColor={languageColor(project.primary_language)}
             stars={project.stars_count > 0 ? project.stars_count : null}
             forks={project.forks_count > 0 ? project.forks_count : undefined}
             license={project.license ?? undefined}
-            updatedAgo={formatUpdatedAgo(project.updated_at)}
+            updatedAgo={
+              project.github_pushed_at ? formatUpdatedAgo(project.github_pushed_at) : undefined
+            }
           />
 
           {project.tags.length > 0 ? (

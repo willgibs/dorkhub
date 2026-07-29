@@ -61,7 +61,8 @@ export type ProjectCardSourceRow = Pick<
   | 'license'
   | 'forks_count'
   | 'demo_url'
-  | 'updated_at'
+  | 'github_pushed_at'
+  | 'lists_count'
   | 'repo_full_name'
 >;
 
@@ -70,8 +71,14 @@ export type ProjectCardSourceRow = Pick<
  * is passed separately — the row only carries `profile_id`, and callers
  * (profile/feed pages) already have the author's username in hand.
  *
- * Absence rule (docs/design-system.md): 0 stars/likes render as `null`, never
- * "0" — ProjectCard already gates rendering on `null`.
+ * Absence rule (docs/design-system.md): 0 stars/likes/lists render as `null`,
+ * never "0" — ProjectCard already gates rendering on `null`. The rule lives
+ * here, in the mapper, not in the component.
+ *
+ * Recency comes from `github_pushed_at` (P3-B D21), NOT `projects.updated_at`:
+ * the latter bumps on our own sync writes, so every project read "updated
+ * hours ago" no matter how long the repo had been dormant. Null until a repo
+ * has been re-fetched since migration 0011 — absence, not a guess.
  */
 export function projectRowToCard(
   row: ProjectCardSourceRow,
@@ -88,6 +95,7 @@ export function projectRowToCard(
     languageColor: languageColor(row.primary_language),
     stars: row.stars_count > 0 ? row.stars_count : null,
     likes: row.likes_count > 0 ? row.likes_count : null,
+    lists: row.lists_count > 0 ? row.lists_count : null,
     tags: row.tags,
     hasScreenshot: (screenshots?.length ?? 0) > 0,
     repoFullName: row.repo_full_name,
@@ -95,7 +103,7 @@ export function projectRowToCard(
     license: row.license ?? undefined,
     forks: row.forks_count,
     demoUrl: row.demo_url ?? undefined,
-    updatedAgo: formatUpdatedAgo(row.updated_at, now),
+    updatedAgo: row.github_pushed_at ? formatUpdatedAgo(row.github_pushed_at, now) : undefined,
   };
 }
 

@@ -21,6 +21,7 @@ function makeRepo(overrides: Partial<GithubRepo> = {}): GithubRepo {
     archived: false,
     private: false,
     updated_at: '2026-01-01T00:00:00Z',
+    pushed_at: '2026-01-01T00:00:00Z',
     owner: { id: 100, login: 'someone' },
     ...overrides,
   };

@@ -57,6 +57,10 @@ function repoMetadataPatch(repo: GithubRepo, etag: string | null): Record<string
     topics: repo.topics,
     stars_count: repo.stargazers_count,
     forks_count: repo.forks_count,
+    // Real upstream activity (P3-B D21). projects.updated_at is not this: it
+    // bumps on our own sync writes, so it read "hours ago" for every project
+    // regardless of whether the repo had moved in years.
+    github_pushed_at: repo.pushed_at,
     // NOASSERTION means GitHub couldn't detect a license, not that one exists — treat as absent.
     license: repo.license?.spdx_id === NOASSERTION ? null : (repo.license?.spdx_id ?? null),
   };

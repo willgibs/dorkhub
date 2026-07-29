@@ -21,6 +21,8 @@ export type FixtureProject = {
   languageColor: string;
   stars: number | null; // null = brand new; render absence, never "0"
   likes: number | null;
+  /** How many public lists hold this project (P3-B). null = none yet; render absence, never "0". */
+  lists: number | null;
   tags: string[];
   hasScreenshot: boolean;
   author: string; // username
@@ -78,6 +80,7 @@ export const projects: FixtureProject[] = [
     languageColor: '#3178c6',
     stars: 214,
     likes: 89,
+    lists: 7,
     tags: ['audio', 'webaudio', 'tiny', 'toy'],
     hasScreenshot: true,
     author: 'mollybuilds',
@@ -94,6 +97,8 @@ export const projects: FixtureProject[] = [
     languageColor: '#00ADD8',
     stars: 67,
     likes: 31,
+    // Absence case: on the wall, but nobody has listed it yet.
+    lists: null,
     tags: ['cli', 'git', 'humor'],
     hasScreenshot: false,
     author: 'gremlinworks',
@@ -107,6 +112,7 @@ export const projects: FixtureProject[] = [
     languageColor: '#3572A5',
     stars: 1200,
     likes: 412,
+    lists: 23,
     tags: ['hardware', 'raspberry-pi', 'e-ink', 'plants', 'iot', 'sensors', 'dashboard'],
     hasScreenshot: true,
     author: 'rosiehux',
@@ -120,6 +126,7 @@ export const projects: FixtureProject[] = [
     languageColor: '#f1e05a',
     stars: null,
     likes: null,
+    lists: null,
     tags: ['generative'],
     hasScreenshot: false,
     author: 'kevbot',

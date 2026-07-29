@@ -69,6 +69,7 @@ const EXPECTED_REPO_KEYS = [
   'archived',
   'private',
   'updated_at',
+  'pushed_at',
   'owner',
 ].sort();
 

@@ -60,6 +60,14 @@ export type GithubRepo = {
   archived: boolean;
   private: boolean;
   updated_at: string;
+  /**
+   * Last push to the repo — real upstream activity, and what dorkhub displays
+   * as recency (P3-B D21). Strictly better than the two alternatives:
+   * GitHub's `updated_at` moves on metadata churn (a star, a description
+   * edit), and `projects.updated_at` moves on OUR sync writes, which is why
+   * every project read "updated hours ago" before this.
+   */
+  pushed_at: string;
   owner: { id: number; login: string };
 };
 
@@ -127,6 +135,7 @@ type RawGithubRepo = {
   archived: boolean;
   private: boolean;
   updated_at: string;
+  pushed_at: string;
   owner: { id: number; login: string };
 };
 
@@ -235,6 +244,7 @@ function pickRepoFields(raw: unknown): GithubRepo {
     archived: r.archived,
     private: r.private,
     updated_at: r.updated_at,
+    pushed_at: r.pushed_at,
     owner: { id: r.owner.id, login: r.owner.login },
   };
 }

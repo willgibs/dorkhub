@@ -52,6 +52,13 @@ export const copy = {
   listsEmptyOwn: 'no lists yet — start one and put your favorite finds together',
   listsEmptyVisitor: 'no public lists yet',
   listAdd: 'add to list',
+  // The lists discovery signal (P3-B). Static strings only — /design/voice
+  // flattens copy.ts as string | string[] | one-level map, so a pluralizer
+  // function would silently vanish from the styleguide. The component picks
+  // the unit and composes; only public lists count (D18).
+  listedInUnitOne: 'list',
+  listedInUnit: 'lists',
+  listedInLabel: 'in',
   listsEmptyMenu: 'no lists yet',
   listNameLabel: 'name',
   listDescriptionLabel: 'description — optional',

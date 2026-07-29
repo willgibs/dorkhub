@@ -21,6 +21,7 @@ function makeRepo(overrides: Partial<GithubRepo> = {}): GithubRepo {
     archived: false,
     private: false,
     updated_at: '2026-01-01T00:00:00Z',
+    pushed_at: '2026-01-01T00:00:00Z',
     owner: { id: 999, login: 'octocat' },
     ...overrides,
   };
@@ -134,8 +135,16 @@ describe('computeSyncUpdate — repo: ok', () => {
       stars_count: 100,
       forks_count: 7,
       license: 'Apache-2.0',
+      github_pushed_at: '2026-01-01T00:00:00Z',
     });
     expect(bumpSyncedAt).toBe(true);
+  });
+
+  it('persists GitHub pushed_at as the recency signal (P3-B D21)', () => {
+    const repo = makeRepo({ pushed_at: '2025-03-04T05:06:07Z' });
+    const { patch } = computeSyncUpdate(baseInput, { kind: 'ok', data: repo, etag: '"e"' }, null);
+
+    expect(patch.github_pushed_at).toBe('2025-03-04T05:06:07Z');
   });
 
   it('normalizes a NOASSERTION license to null', () => {
@@ -163,6 +172,18 @@ describe('computeSyncUpdate — repo: not_modified', () => {
 
     expect(patch).toEqual({});
     expect(bumpSyncedAt).toBe(true);
+  });
+
+  // Why migration 0011 clears repo_etag: a 304 writes NO metadata, so a newly
+  // added column would stay NULL forever on every already-synced project.
+  it('does NOT write github_pushed_at on a 304 (the reason 0011 clears repo_etag)', () => {
+    const { patch } = computeSyncUpdate(
+      baseInput,
+      { kind: 'not_modified', etag: '"old-repo-etag"' },
+      null,
+    );
+
+    expect(patch).not.toHaveProperty('github_pushed_at');
   });
 });
 

@@ -3,6 +3,7 @@ import { CardMedia } from '@/components/card-media';
 import { LanguageDot } from '@/components/language-dot';
 import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
+import { copy } from '@/lib/copy';
 import type { FixtureAuthor, FixtureProject } from '@/lib/fixtures';
 import { githubOgImageUrl } from '@/lib/projects/github-og';
 import { cn } from '@/lib/utils';
@@ -41,6 +42,11 @@ function hashSeed(input: string): number {
     h = Math.imul(h, 16777619);
   }
   return h >>> 0;
+}
+
+/** Singular/plural unit for the lists signal. Kept here (not in copy.ts) because copy values are static strings by contract — /design/voice can't flatten a function. */
+function listUnit(n: number): string {
+  return n === 1 ? copy.listedInUnitOne : copy.listedInUnit;
 }
 
 /** 1200 -> "1.2k", 214 -> "214". Never renders 0 — callers gate on null first. */
@@ -179,6 +185,18 @@ export function ProjectCard({
             </span>
           ) : project.updatedAgo ? (
             <span>{project.updatedAgo}</span>
+          ) : null}
+          {/* A THIRD PEER after stars, not part of the stars-else-recency
+              fallback: a listed-but-unstarred project is exactly the case
+              this signal exists to surface, so it must survive the branch
+              above. ★/⑂ get away with bare glyphs because they're universal;
+              this one is dorkhub-native, so it spells itself out ("in 7
+              lists") — which also means the text is already its own
+              accessible name, no aria-label needed. */}
+          {project.lists !== null ? (
+            <span>
+              {copy.listedInLabel} {formatCount(project.lists)} {listUnit(project.lists)}
+            </span>
           ) : null}
         </div>
 
