@@ -124,6 +124,21 @@ begin
   end if;
   raise notice 'PASS: projects.enriched_at is not API-role-writable';
 
+  -- 2a‴. 0011: lists_count is trigger-written and github_pushed_at is
+  -- sync-written. Both are covered by 2a's exact match; asserted by name so a
+  -- future grant fails with an unmistakable message. A writable lists_count
+  -- would let anyone forge a project's discovery signal outright.
+  if exists (
+    select 1 from information_schema.column_privileges
+     where table_schema = 'public' and table_name = 'projects'
+       and column_name in ('lists_count', 'github_pushed_at')
+       and grantee in ('anon', 'authenticated')
+       and privilege_type in ('INSERT', 'UPDATE')
+  ) then
+    raise exception 'RLS FAILURE: projects.lists_count/github_pushed_at are API-role-writable (0011: trigger/service-role only)';
+  end if;
+  raise notice 'PASS: projects.lists_count + github_pushed_at are not API-role-writable';
+
   -- 2a″. 0010 lists: exact column-grant surface for collections tables.
   with expected(table_name, privilege_type, column_name) as (
     values
@@ -649,6 +664,36 @@ begin
     raise exception 'RLS FAILURE: T17 own list creation left % rows (expected 2)', n;
   end if;
   raise notice 'PASS: T17/T18 own public + private lists created with published items';
+end
+$$;
+
+-- T25 · 0011 lists signal: PUBLIC membership counts, PRIVATE does not (D18).
+--
+-- T17/T18 above put the SAME published project into one public list AND one
+-- private list, so the correct answer is exactly 1 — which makes this the
+-- sharpest possible statement of the privacy rule: a naive `count(*)` over
+-- collection_items would say 2. lists_count is written by the
+-- trg_collection_items_signal trigger via recount_project_signals(), so this
+-- also proves the trigger fired under the authenticated role.
+--
+-- The count is read through a privileged detour because projects.lists_count
+-- is readable by anon, but we want the recount's own answer, not an RLS view.
+do $$
+declare
+  v_project uuid;
+  n int;
+begin
+  select id into v_project
+    from public.projects where status = 'published' order by created_at asc limit 1;
+
+  reset role;
+  select lists_count into n from public.projects where id = v_project;
+  set local role authenticated;
+
+  if n <> 1 then
+    raise exception 'RLS FAILURE: T25 (D18) lists_count = % for a project in 1 public + 1 private list (expected 1)', n;
+  end if;
+  raise notice 'PASS: T25 lists_count counts the public list only, not the private one (D18)';
 end
 $$;
 

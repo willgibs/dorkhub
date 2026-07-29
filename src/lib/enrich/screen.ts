@@ -152,7 +152,6 @@ type ScreenTimestampRow = { project_id: string; created_at: string };
  */
 async function selectReportedProjects(
   service: SupabaseClient<Database>,
-  limit: number,
 ): Promise<ScreenProjectRow[]> {
   const { data: openReports } = await service
     .from('project_reports')
@@ -373,7 +372,7 @@ export async function screenNextBatch(
   opts: ScreenNextBatchOpts,
 ): Promise<ScreenBatchResult> {
   const [reportedProjects, retroProjects] = await Promise.all([
-    selectReportedProjects(service, opts.limit),
+    selectReportedProjects(service),
     selectRetroProjects(service, opts.limit),
   ]);
 

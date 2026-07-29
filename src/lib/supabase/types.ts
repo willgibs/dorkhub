@@ -573,11 +573,13 @@ export type Database = {
           description_md: string | null;
           enriched_at: string | null;
           forks_count: number;
+          github_pushed_at: string | null;
           github_repo_id: number;
           id: string;
           last_synced_at: string | null;
           license: string | null;
           likes_count: number;
+          lists_count: number;
           name: string;
           primary_language: string | null;
           profile_id: string;
@@ -605,11 +607,13 @@ export type Database = {
           description_md?: string | null;
           enriched_at?: string | null;
           forks_count?: number;
+          github_pushed_at?: string | null;
           github_repo_id: number;
           id?: string;
           last_synced_at?: string | null;
           license?: string | null;
           likes_count?: number;
+          lists_count?: number;
           name: string;
           primary_language?: string | null;
           profile_id: string;
@@ -637,11 +641,13 @@ export type Database = {
           description_md?: string | null;
           enriched_at?: string | null;
           forks_count?: number;
+          github_pushed_at?: string | null;
           github_repo_id?: number;
           id?: string;
           last_synced_at?: string | null;
           license?: string | null;
           likes_count?: number;
+          lists_count?: number;
           name?: string;
           primary_language?: string | null;
           profile_id?: string;
@@ -766,6 +772,10 @@ export type Database = {
         Returns: number;
       };
       current_profile_id: { Args: never; Returns: string };
+      recount_project_signals: {
+        Args: { p_project_id: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       project_status: 'draft' | 'published';
