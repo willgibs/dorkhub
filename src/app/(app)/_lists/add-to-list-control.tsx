@@ -136,6 +136,11 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
     }
   }
 
+  // Derived from state already in hand — recomputed on every optimistic
+  // toggle, so the trigger updates the instant a checkbox flips rather than
+  // waiting on the server round trip.
+  const memberCount = (lists ?? []).filter((list) => list.hasProject).length;
+
   return (
     <>
       <DropdownMenu
@@ -155,7 +160,18 @@ export function AddToListControl({ projectId }: AddToListControlProps) {
       >
         <DropdownMenuTrigger asChild>
           <button type="button" className={TRIGGER_CLASS}>
-            {copy.listAdd}
+            {/* Membership at a glance, so checking whether you already have a
+                project doesn't mean opening the menu on every project page.
+                Costs NOTHING extra: the control already fetches
+                /api/me/lists?projectId= on mount to render the checkmarks, so
+                the count comes from data that was previously unused. This is
+                the caller's OWN membership (private lists included) — the
+                global public signal lives on cards, not here. */}
+            {memberCount > 0
+              ? `${copy.listedInLabel} ${memberCount} ${
+                  memberCount === 1 ? copy.listedInUnitOne : copy.listedInUnit
+                }`
+              : copy.listAdd}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

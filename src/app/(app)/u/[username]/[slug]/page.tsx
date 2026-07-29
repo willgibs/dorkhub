@@ -195,15 +195,12 @@ export default async function ProjectPage({
                 related-projects rail above uses. */}
               {project.status === 'published' ? <AddToListControl projectId={project.id} /> : null}
               {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
-              {/* The dorkhub-native signal belongs HERE, alongside the other
-                dorkhub actions — not in RepoStatsRow, where every field is a
-                GitHub fact. Public lists only (D18); absence, never "0". */}
-              {project.lists_count > 0 ? (
-                <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
-                  {copy.listedInLabel} {project.lists_count}{' '}
-                  {project.lists_count === 1 ? copy.listedInUnitOne : copy.listedInUnit}
-                </span>
-              ) : null}
+              {/* The GLOBAL lists_count deliberately does NOT render here.
+                  AddToListControl's trigger now shows the viewer's OWN
+                  membership in this exact spot, and two similar counts side by
+                  side ("in 23 lists" vs "in 2 lists") read as a contradiction.
+                  The global discovery signal still ships on ProjectCard, where
+                  browsing happens. Will's call after QA. */}
             </div>
 
             {project.tagline ? (

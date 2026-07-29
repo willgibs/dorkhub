@@ -87,18 +87,28 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
         />
       </div>
 
-      <div className="flex items-center gap-2">
-        <Switch
-          id={`list-visibility-${collectionId}`}
-          checked={isPublicValue}
-          onCheckedChange={setIsPublicValue}
-        />
-        <Label
-          htmlFor={`list-visibility-${collectionId}`}
-          className="text-sm text-muted-foreground"
-        >
-          {isPublicValue ? copy.listVisibilityPublic : copy.listVisibilityPrivate}
-        </Label>
+      {/* The label names what the switch CONTROLS and never changes; the
+          switch position carries the state. It used to swap public/private
+          with the value, so "off / private" read as "private is off, so it's
+          public" — flipping it then showed "public", which is the opposite of
+          what you just asked for (D30). */}
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-center gap-2">
+          <Switch
+            id={`list-visibility-${collectionId}`}
+            checked={isPublicValue}
+            onCheckedChange={setIsPublicValue}
+          />
+          <Label
+            htmlFor={`list-visibility-${collectionId}`}
+            className="text-sm text-muted-foreground"
+          >
+            {copy.listVisibilityPublic}
+          </Label>
+        </div>
+        {!isPublicValue ? (
+          <p className="text-[12.5px] text-muted-foreground">{copy.listVisibilityHelp}</p>
+        ) : null}
       </div>
 
       {error ? (

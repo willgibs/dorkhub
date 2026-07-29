@@ -71,8 +71,17 @@ export const copy = {
   listItemCapHit: 'this list is full — 400 is the cap for now',
   listDeleteConfirm: 'delete this list? the projects in it stay put.',
   listPrivateBadge: 'private',
+  // ONE stable label for the visibility switch (D30). It used to swap between
+  // 'public' and 'private' with the state, so "off / private" read as
+  // "private is off, therefore public" — Will hit exactly that in QA. The
+  // label now names what the switch CONTROLS and the switch position carries
+  // the state, matching the is_public column so nothing inverts anywhere.
   listVisibilityPublic: 'public',
-  listVisibilityPrivate: 'private',
+  // States both halves of the promise: what private means, and the D18
+  // guarantee that private membership doesn't feed a project's public signal —
+  // said where the choice is made, not only in an ADR.
+  listVisibilityHelp:
+    'private lists stay yours — hidden from your profile, and they don’t count toward a project’s list total',
   tagsTitle: 'browse by tag',
   tagsStackLabel: 'stacks',
   tagsTopicLabel: 'topics',
