@@ -205,3 +205,62 @@ describe('sanitizeReadmeHtml — benign kitchen sink', () => {
     expect(out).toContain(`src="${RAW_BASE}/assets/logo.png"`);
   });
 });
+
+/**
+ * P3-B: README images are lazy-loaded and badges are marked at write time.
+ * Sanitize-at-write means both are free at render — but it also means these
+ * only apply to READMEs re-synced after migration 0011 cleared repo_etag.
+ */
+describe('sanitizeReadmeHtml — image loading + badge marking', () => {
+  it('lazy-loads every image, overwriting an eager author value', () => {
+    const out = sanitizeReadmeHtml(
+      '<p><img src="https://example.com/shot.png" loading="eager" decoding="sync"></p>',
+      OPTS,
+    );
+
+    expect(out).toContain('loading="lazy"');
+    expect(out).toContain('decoding="async"');
+    expect(out).not.toContain('loading="eager"');
+    expect(out).not.toContain('decoding="sync"');
+  });
+
+  it('marks shields.io badges so CSS can drop the screenshot card treatment', () => {
+    const out = sanitizeReadmeHtml(
+      '<p><img src="https://img.shields.io/badge/build-passing-green?style=flat"></p>',
+      OPTS,
+    );
+
+    expect(out).toContain('data-badge="1"');
+  });
+
+  it('marks any .svg (self-hosted badges and logos look wrong boxed) even with a query string', () => {
+    const out = sanitizeReadmeHtml(
+      '<p><img src="https://github.com/o/r/actions/workflows/ci.yml/badge.svg?branch=main"></p>',
+      OPTS,
+    );
+
+    expect(out).toContain('data-badge="1"');
+  });
+
+  it('leaves raster screenshots unmarked so they keep the card border', () => {
+    const out = sanitizeReadmeHtml('<p><img src="https://example.com/screenshot.png"></p>', OPTS);
+
+    expect(out).not.toContain('data-badge');
+  });
+
+  it('strips an author-supplied data-badge — a README cannot opt its own screenshots out', () => {
+    const out = sanitizeReadmeHtml(
+      '<p><img src="https://example.com/screenshot.png" data-badge="1"></p>',
+      OPTS,
+    );
+
+    expect(out).not.toContain('data-badge');
+  });
+
+  it('marks a relative .svg after it is rewritten to raw.githubusercontent.com', () => {
+    const out = sanitizeReadmeHtml('<p><img src="assets/logo.svg"></p>', OPTS);
+
+    expect(out).toContain(`src="${RAW_BASE}/assets/logo.svg"`);
+    expect(out).toContain('data-badge="1"');
+  });
+});

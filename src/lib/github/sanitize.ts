@@ -80,7 +80,10 @@ const ALLOWED_TAGS = [
  */
 const ALLOWED_ATTRIBUTES: sanitizeHtml.IOptions['allowedAttributes'] = {
   a: ['href', 'rel', 'target'],
-  img: ['src', 'alt', 'title', 'width', 'height'],
+  // `loading`/`decoding` are OURS, not the author's — transformTags below
+  // overwrites them unconditionally. They're listed here only because the
+  // allowlist is applied after transformTags and would otherwise strip them.
+  img: ['src', 'alt', 'title', 'width', 'height', 'loading', 'decoding', 'data-badge'],
   // Harmless structural attributes for merged table cells — GitHub markdown
   // tables occasionally need these; never carries executable content.
   th: ['colspan', 'rowspan'],
@@ -115,6 +118,48 @@ function rewriteRelativeUrl(value: string, opts: SanitizeReadmeOptions): string 
     path = path.slice(1);
   }
   return `https://raw.githubusercontent.com/${opts.repoFullName}/${opts.branch}/${path}`;
+}
+
+/**
+ * Status-badge hosts, plus the `.svg` heuristic. Badges are the overwhelming
+ * majority of images in a README and they are ~20px tall, so the card border
+ * and radius `.prose img` applies to screenshots draws a box around each one.
+ * CSS cannot select on rendered size, so we mark them at WRITE time — where
+ * the URL is already in hand — and let CSS key off `[data-badge]`.
+ *
+ * `.svg` catches the long tail (self-hosted badges, project logos, which also
+ * look wrong boxed); raster screenshots are png/jpg/gif/webp and keep the
+ * card treatment. False positives cost only a missing border.
+ */
+const BADGE_HOSTS = [
+  'img.shields.io',
+  'shields.io',
+  'badgen.net',
+  'badge.fury.io',
+  'codecov.io',
+  'coveralls.io',
+  'travis-ci.org',
+  'travis-ci.com',
+  'circleci.com',
+  'app.netlify.com',
+  'api.netlify.com',
+  'forthebadge.com',
+  'badges.gitter.im',
+];
+
+function isBadgeSrc(src: unknown): boolean {
+  if (typeof src !== 'string') return false;
+  try {
+    const url = new URL(src, 'https://github.com');
+    if (BADGE_HOSTS.includes(url.hostname)) return true;
+    if (url.pathname.toLowerCase().endsWith('.svg')) return true;
+    // GitHub Actions workflow badges: /owner/repo/actions/workflows/x/badge.svg
+    // and the older /owner/repo/workflows/name/badge.svg — both covered by the
+    // .svg check above, but keep the intent explicit for readers.
+    return false;
+  } catch {
+    return false;
+  }
 }
 
 function transformUrlAttribute(
@@ -162,10 +207,26 @@ export function sanitizeReadmeHtml(rawHtml: string, opts: SanitizeReadmeOptions)
           target: '_blank',
         },
       }),
-      img: (_tagName, attribs) => ({
-        tagName: 'img',
-        attribs: transformUrlAttribute(attribs, 'src', opts),
-      }),
+      // A 25KB-average README (max 210KB observed) can carry dozens of
+      // badges and screenshots; without these every one of them loaded
+      // eagerly on first paint. Set here rather than in CSS because the
+      // README is sanitized ONCE at write time, so this costs nothing per
+      // render. Author-supplied values are deliberately overwritten.
+      img: (_tagName, attribs) => {
+        // Drop any author-supplied data-badge before deciding — it is in the
+        // allowlist (so OUR value survives) and would otherwise let a README
+        // opt its own screenshots out of the card treatment.
+        const { 'data-badge': _authorBadge, ...rest } = transformUrlAttribute(attribs, 'src', opts);
+        return {
+          tagName: 'img',
+          attribs: {
+            ...rest,
+            loading: 'lazy',
+            decoding: 'async',
+            ...(isBadgeSrc(rest.src) ? { 'data-badge': '1' } : {}),
+          },
+        };
+      },
     },
   });
 }

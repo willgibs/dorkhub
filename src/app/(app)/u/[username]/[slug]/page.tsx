@@ -123,166 +123,176 @@ export default async function ProjectPage({
   return (
     <EngagementProvider projectIds={engagementProjectIds}>
       <PageShell className="flex flex-col gap-8 py-10">
-        {isOwner ? (
-          <div className="flex flex-wrap items-center gap-3">
-            {project.status === 'draft' ? (
-              <Badge
-                variant="outline"
-                className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
-              >
-                {copy.projectDraftBadge}
-              </Badge>
-            ) : null}
+        {/* READING COLUMN (P3-B). The locked reference
+            (explorations/05-quiet-dev-native.html) sets `.project-page` to a
+            780px measure; shipping it inside the 1120px PageShell put README
+            prose at ~122 characters per line, roughly double a comfortable
+            measure and the most visible deviation from the locked design.
+            Scoped to the header + README only — the related rail keeps the
+            full shell width, since a 4-card grid squeezed to 780px would
+            fight its own layout. */}
+        <div className="flex w-full max-w-[780px] flex-col gap-8">
+          {isOwner ? (
+            <div className="flex flex-wrap items-center gap-3">
+              {project.status === 'draft' ? (
+                <Badge
+                  variant="outline"
+                  className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
+                >
+                  {copy.projectDraftBadge}
+                </Badge>
+              ) : null}
 
-            {/* Plain server-rendered forms are deliberate here (no client
+              {/* Plain server-rendered forms are deliberate here (no client
               island): a throttled/failed refresh just silently no-ops on
               this surface — /settings/projects is the full-feedback one. */}
-            <form action={setProjectStatus}>
-              <input type="hidden" name="project_id" value={project.id} />
-              <input
-                type="hidden"
-                name="intent"
-                value={project.status === 'draft' ? 'publish' : 'unpublish'}
+              <form action={setProjectStatus}>
+                <input type="hidden" name="project_id" value={project.id} />
+                <input
+                  type="hidden"
+                  name="intent"
+                  value={project.status === 'draft' ? 'publish' : 'unpublish'}
+                />
+                <Button type="submit" variant="secondary" size="sm">
+                  {project.status === 'draft' ? copy.actionPublish : copy.actionUnpublish}
+                </Button>
+              </form>
+
+              <form action={refreshProjectFromGithub}>
+                <input type="hidden" name="project_id" value={project.id} />
+                <Button type="submit" variant="ghost" size="sm">
+                  {copy.actionRefresh}
+                </Button>
+              </form>
+
+              <Link
+                href="/settings/projects"
+                className={cn(
+                  'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+                  linkFocusRing,
+                )}
+              >
+                manage in settings
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-3.5">
+              <h1 className="font-display text-[26px] font-extrabold">{project.name}</h1>
+              <LikeButtonIsland
+                projectId={project.id}
+                initialCount={project.likes_count > 0 ? project.likes_count : null}
               />
-              <Button type="submit" variant="secondary" size="sm">
-                {project.status === 'draft' ? copy.actionPublish : copy.actionUnpublish}
-              </Button>
-            </form>
-
-            <form action={refreshProjectFromGithub}>
-              <input type="hidden" name="project_id" value={project.id} />
-              <Button type="submit" variant="ghost" size="sm">
-                {copy.actionRefresh}
-              </Button>
-            </form>
-
-            <Link
-              href="/settings/projects"
-              className={cn(
-                'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
-                linkFocusRing,
-              )}
-            >
-              manage in settings
-            </Link>
-          </div>
-        ) : null}
-
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-3.5">
-            <h1 className="font-display text-[26px] font-extrabold">{project.name}</h1>
-            <LikeButtonIsland
-              projectId={project.id}
-              initialCount={project.likes_count > 0 ? project.likes_count : null}
-            />
-            <SaveButtonIsland
-              projectId={project.id}
-              initialCount={project.saves_count > 0 ? project.saves_count : null}
-            />
-            {/* Owners get this too — listing your own work is normal (P3-A) —
+              <SaveButtonIsland
+                projectId={project.id}
+                initialCount={project.saves_count > 0 ? project.saves_count : null}
+              />
+              {/* Owners get this too — listing your own work is normal (P3-A) —
                 but only once published: collection_items_insert_own (0010)
                 requires a published target, so on a draft every toggle is
                 rejected by RLS with no path to success. Same publish gate the
                 related-projects rail above uses. */}
-            {project.status === 'published' ? <AddToListControl projectId={project.id} /> : null}
-            {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
-            {/* The dorkhub-native signal belongs HERE, alongside the other
+              {project.status === 'published' ? <AddToListControl projectId={project.id} /> : null}
+              {!isOwner ? <ReportButtonIsland projectId={project.id} /> : null}
+              {/* The dorkhub-native signal belongs HERE, alongside the other
                 dorkhub actions — not in RepoStatsRow, where every field is a
                 GitHub fact. Public lists only (D18); absence, never "0". */}
-            {project.lists_count > 0 ? (
-              <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
-                {copy.listedInLabel} {project.lists_count}{' '}
-                {project.lists_count === 1 ? copy.listedInUnitOne : copy.listedInUnit}
-              </span>
-            ) : null}
-          </div>
-
-          {project.tagline ? (
-            <p className="max-w-[560px] text-[15px] text-muted-foreground">{project.tagline}</p>
-          ) : null}
-
-          <Link
-            href={`/u/${profile.username}`}
-            className={cn(
-              'inline-flex w-fit items-center gap-2 text-[13.5px] text-muted-foreground transition-colors hover:text-foreground',
-              linkFocusRing,
-            )}
-          >
-            {profile.avatar_url ? (
-              // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
-              <img
-                src={profile.avatar_url}
-                alt=""
-                width={24}
-                height={24}
-                className="size-6 flex-none rounded-full object-cover"
-              />
-            ) : (
-              <span
-                aria-hidden="true"
-                className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
-              >
-                {initial}
-              </span>
-            )}
-            {displayName}
-          </Link>
-
-          {/* `updatedAgo` is GitHub's pushed_at, not projects.updated_at
-              (P3-B D21) — the latter bumps on our own sync writes, so every
-              project claimed to be freshly updated. Absent until the repo has
-              been re-fetched since 0011; show nothing rather than a guess. */}
-          <RepoStatsRow
-            language={project.primary_language ?? ''}
-            languageColor={languageColor(project.primary_language)}
-            stars={project.stars_count > 0 ? project.stars_count : null}
-            forks={project.forks_count > 0 ? project.forks_count : undefined}
-            license={project.license ?? undefined}
-            updatedAgo={
-              project.github_pushed_at ? formatUpdatedAgo(project.github_pushed_at) : undefined
-            }
-          />
-
-          {project.tags.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {project.tags.map((tag) => (
-                <TagChip key={tag} tag={tag} hashPrefix />
-              ))}
+              {project.lists_count > 0 ? (
+                <span className="font-mono text-[12.5px] text-muted-foreground tabular-nums">
+                  {copy.listedInLabel} {project.lists_count}{' '}
+                  {project.lists_count === 1 ? copy.listedInUnitOne : copy.listedInUnit}
+                </span>
+              ) : null}
             </div>
-          ) : null}
 
-          <div className="flex flex-wrap items-center gap-3 pt-1">
-            {project.demo_url ? (
-              <Button asChild>
-                <a href={project.demo_url} target="_blank" rel="noopener">
-                  visit the demo
-                </a>
-              </Button>
+            {project.tagline ? (
+              <p className="max-w-[560px] text-[15px] text-muted-foreground">{project.tagline}</p>
             ) : null}
-            <CopyButton command={`git clone ${project.repo_url}.git`} />
-            <a
-              href={project.repo_url}
-              target="_blank"
-              rel="noopener"
+
+            <Link
+              href={`/u/${profile.username}`}
               className={cn(
-                'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+                'inline-flex w-fit items-center gap-2 text-[13.5px] text-muted-foreground transition-colors hover:text-foreground',
                 linkFocusRing,
               )}
             >
-              {project.repo_full_name}
-            </a>
-          </div>
-        </div>
+              {profile.avatar_url ? (
+                // biome-ignore lint/performance/noImgElement: cost rule — user images never go through the image optimizer (docs/architecture.md)
+                <img
+                  src={profile.avatar_url}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="size-6 flex-none rounded-full object-cover"
+                />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
+                >
+                  {initial}
+                </span>
+              )}
+              {displayName}
+            </Link>
 
-        {project.readme_html ? (
-          <MarkdownProse
-            html={project.readme_html}
-            label="README.md"
-            forkHref={`${project.repo_url}/fork`}
-          />
-        ) : (
-          <EmptyState message={copy.projectNoReadme} />
-        )}
+            {/* `updatedAgo` is GitHub's pushed_at, not projects.updated_at
+              (P3-B D21) — the latter bumps on our own sync writes, so every
+              project claimed to be freshly updated. Absent until the repo has
+              been re-fetched since 0011; show nothing rather than a guess. */}
+            <RepoStatsRow
+              language={project.primary_language ?? ''}
+              languageColor={languageColor(project.primary_language)}
+              stars={project.stars_count > 0 ? project.stars_count : null}
+              forks={project.forks_count > 0 ? project.forks_count : undefined}
+              license={project.license ?? undefined}
+              updatedAgo={
+                project.github_pushed_at ? formatUpdatedAgo(project.github_pushed_at) : undefined
+              }
+            />
+
+            {project.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {project.tags.map((tag) => (
+                  <TagChip key={tag} tag={tag} hashPrefix />
+                ))}
+              </div>
+            ) : null}
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              {project.demo_url ? (
+                <Button asChild>
+                  <a href={project.demo_url} target="_blank" rel="noopener">
+                    visit the demo
+                  </a>
+                </Button>
+              ) : null}
+              <CopyButton command={`git clone ${project.repo_url}.git`} />
+              <a
+                href={project.repo_url}
+                target="_blank"
+                rel="noopener"
+                className={cn(
+                  'font-mono text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+                  linkFocusRing,
+                )}
+              >
+                {project.repo_full_name}
+              </a>
+            </div>
+          </div>
+
+          {project.readme_html ? (
+            <MarkdownProse
+              html={project.readme_html}
+              label="README.md"
+              forkHref={`${project.repo_url}/fork`}
+            />
+          ) : (
+            <EmptyState message={copy.projectNoReadme} />
+          )}
+        </div>
 
         <RelatedProjects rows={relatedRows} />
       </PageShell>

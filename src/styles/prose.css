@@ -27,6 +27,35 @@
   margin: 28px 0 10px;
 }
 
+/*
+ * h3–h6 (P3-B). The exploration only ever showed h1/h2, and Tailwind's
+ * preflight resets every heading to inherit — so before this, a README's
+ * `### Install` rendered as undifferentiated body text on all 207 project
+ * pages. The scale continues h1 28 / h2 20 down to the body's 15px, and h4–h6
+ * stop shrinking (they'd go sub-body) and lean on the mono/caps treatment the
+ * design system already uses for quiet labels.
+ */
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 22px 0 8px;
+}
+
+.prose h4,
+.prose h5,
+.prose h6 {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: var(--muted-foreground);
+  line-height: 1.3;
+  margin: 18px 0 6px;
+}
+
 .prose p {
   margin: 12px 0;
 }
@@ -78,7 +107,18 @@
   font-size: inherit;
 }
 
+/*
+ * `display: block` turns the table into its own scroll container. Only `pre`
+ * had one before, so a wide README comparison table pushed the whole page
+ * sideways — the same overflow rule the design system applies to code.
+ * Trade-off accepted deliberately: a block-level table no longer stretches
+ * column widths to the container, which reads fine for the narrow tables
+ * READMEs actually contain.
+ */
 .prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
   border-collapse: collapse;
   margin: 14px 0;
   font-size: 13.5px;
@@ -127,6 +167,88 @@
   max-width: 100%;
   border-radius: calc(var(--radius) * 0.8);
   border: 1px solid var(--border);
+}
+
+/*
+ * Status badges and SVG logos, marked at sanitize time (src/lib/github/
+ * sanitize.ts). The card border above is meant for screenshots; on a ~20px
+ * shields.io badge it draws a box around every one, and a README header
+ * routinely carries six of them in a row.
+ */
+.prose img[data-badge] {
+  border: none;
+  border-radius: 0;
+  vertical-align: middle;
+}
+
+/*
+ * `details`/`summary` — allowed by the sanitizer since M4, unstyled until
+ * P3-B. READMEs use them for "click to expand" install/FAQ blocks, which
+ * rendered as a bare bullet-less list with an unclickable-looking label.
+ */
+.prose details {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 0.8);
+  padding: 10px 14px;
+  margin: 14px 0;
+  background: var(--surface-2);
+}
+
+.prose summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted-foreground);
+}
+
+.prose summary:hover {
+  color: var(--foreground);
+}
+
+.prose summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: calc(var(--radius) * 0.45);
+}
+
+/* An open block needs air between the label and its content. */
+.prose details[open] > summary {
+  margin-bottom: 10px;
+}
+
+/* Keyboard keys — README install/shortcut docs use these constantly. */
+.prose kbd {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: calc(var(--radius) * 0.45);
+  background: var(--surface-2);
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+/*
+ * sup/sub — footnote markers. Preflight strips the browser default that keeps
+ * them from affecting line-height, so without this a single footnote marker
+ * visibly opens up its whole paragraph.
+ */
+.prose sup,
+.prose sub {
+  font-size: 11px;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+.prose sup {
+  top: -0.45em;
+}
+
+.prose sub {
+  bottom: -0.2em;
 }
 
 .prose hr {
