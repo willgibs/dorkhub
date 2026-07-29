@@ -75,6 +75,27 @@ inline fallback at approval; real GitHub data always wins at publish.
 `/weird` = force-dynamic route handler, random single-row OFFSET pick
 (documented exception to the no-OFFSET feed rule) → 307 to the project page.
 
+## Lists signal + recency (P3-B, 0011)
+`projects.lists_count` counts PUBLIC list membership only (D18 — private
+membership would disclose a single curator at this scale, and the number has
+to match the reachable set). Denormalized, not a query-time aggregate: PostgREST
+returns PGRST118 for `order=collection_items(count)`, so an aggregate can never
+order or keyset-paginate a feed, and it is RLS-scoped to the viewer.
+`recount_project_signals()` recounts likes + saves + public lists from scratch
+(SECURITY DEFINER, search_path pinned, EXECUTE revoked); `bump_project_engagement()`
+delegates to it so the three counters can't diverge. Triggers fire on
+`collection_items` membership AND on `collections.is_public` — the latter has
+no likes/saves analogue and is what makes the public-only rule self-healing.
+`lists_count` is in `projects_before_update()`'s counters guard, so membership
+changes never bump `updated_at`. Display-only: it does NOT feed
+`compute_trending` (D20) and has no index (D23).
+
+`projects.github_pushed_at` is real upstream activity and is what the UI shows
+as recency. `projects.updated_at` is NOT that — it bumps on our own sync
+writes, so every project used to read "updated hours ago". Sync writes
+pushed_at via `repoMetadataPatch`; note that a 304 writes no metadata at all,
+which is why 0011 had to clear `repo_etag` to force one full re-fetch.
+
 ## Lists (P3-A)
 `collections`/`collection_items` (0010) — RLS-first user-owned (saves
 pattern): select `is_public OR own`; items require owner-of-parent AND a
