@@ -15,6 +15,7 @@ function makeRow(overrides: Partial<ProjectRow> = {}): ProjectRow {
     github_repo_id: 1,
     id: 'project-1',
     lists_count: 0,
+    language_slug: null,
     last_synced_at: null,
     license: null,
     likes_count: 0,

@@ -119,3 +119,37 @@ describe('resolveFeedFilterSpec — cursor decode per sort', () => {
     expect(resolveFeedFilterSpec({ sort: 'trending', cursor: recentRaw }).cursor).toBeNull();
   });
 });
+
+/**
+ * The language filter was DEAD from M5 until migration 0012:
+ * `resolveFeedFilterSpec` lowercases the incoming value (correct — URL and
+ * cache-key hygiene) and `buildFeedQuery` then exact-matched
+ * `primary_language`, which stores GitHub's casing ("TypeScript"). Verified on
+ * prod immediately before the fix: `/api/feed?language=` returned 0 rows for
+ * EVERY casing, against 76 published TypeScript projects. The fix is the
+ * generated `language_slug` column; these pin the contract that made it dead,
+ * so a future refactor can't quietly re-introduce a casing mismatch.
+ */
+describe('language filter — the normalizer and the column must agree on case', () => {
+  it('normalizes every casing to the same lowercase key', () => {
+    for (const raw of ['TypeScript', 'typescript', 'TYPESCRIPT', '  TypeScript  ']) {
+      expect(resolveFeedFilterSpec({ language: raw }).language).toBe('typescript');
+    }
+  });
+
+  it('preserves languages a slugify would collide (C# vs C++ both slug to "c-")', () => {
+    // lower() keeps these distinct, which is why 0012 uses it rather than a
+    // slugify — probed against live data before choosing.
+    expect(resolveFeedFilterSpec({ language: 'C#' }).language).toBe('c#');
+    expect(resolveFeedFilterSpec({ language: 'C++' }).language).toBe('c++');
+    expect(resolveFeedFilterSpec({ language: 'C#' }).language).not.toBe(
+      resolveFeedFilterSpec({ language: 'C++' }).language,
+    );
+  });
+
+  it('keeps multi-word languages intact (Jupyter Notebook)', () => {
+    expect(resolveFeedFilterSpec({ language: 'Jupyter Notebook' }).language).toBe(
+      'jupyter notebook',
+    );
+  });
+});

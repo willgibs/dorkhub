@@ -139,6 +139,21 @@ begin
   end if;
   raise notice 'PASS: projects.lists_count + github_pushed_at are not API-role-writable';
 
+  -- 2a⁗. 0012: language_slug is GENERATED, so Postgres rejects writes to it
+  -- outright — but assert the grant surface too, so replacing it with a plain
+  -- column later can't quietly make it writable. SELECT is expected and
+  -- required (anon reads it for the language facet).
+  if exists (
+    select 1 from information_schema.column_privileges
+     where table_schema = 'public' and table_name = 'projects'
+       and column_name = 'language_slug'
+       and grantee in ('anon', 'authenticated')
+       and privilege_type in ('INSERT', 'UPDATE')
+  ) then
+    raise exception 'RLS FAILURE: projects.language_slug is API-role-writable (0012: generated column)';
+  end if;
+  raise notice 'PASS: projects.language_slug is not API-role-writable';
+
   -- 2a″. 0010 lists: exact column-grant surface for collections tables.
   with expected(table_name, privilege_type, column_name) as (
     values

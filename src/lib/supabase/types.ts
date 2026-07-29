@@ -576,6 +576,7 @@ export type Database = {
           github_pushed_at: string | null;
           github_repo_id: number;
           id: string;
+          language_slug: string | null;
           last_synced_at: string | null;
           license: string | null;
           likes_count: number;
@@ -610,6 +611,7 @@ export type Database = {
           github_pushed_at?: string | null;
           github_repo_id: number;
           id?: string;
+          language_slug?: string | null;
           last_synced_at?: string | null;
           license?: string | null;
           likes_count?: number;
@@ -644,6 +646,7 @@ export type Database = {
           github_pushed_at?: string | null;
           github_repo_id?: number;
           id?: string;
+          language_slug?: string | null;
           last_synced_at?: string | null;
           license?: string | null;
           likes_count?: number;

@@ -162,18 +162,20 @@ export type FeedPage = {
  * core of `fetchFeedPage` and `fetchFollowingFeedPage`. Keyset pagination via
  * `.or(...)` on the ordering-index tuple; NEVER OFFSET (docs/architecture.md).
  *
- * Note: language matching is exact-case (GitHub's own casing, e.g.
- * "TypeScript" not "typescript") — `resolveFeedFilterSpec` lowercases the
- * filter value for URL/cache-key hygiene, so an exact `.eq()` here will only
- * match a language that happens to be all-lowercase already. Documented scope
- * cut (docs/plans/m5-discovery.md): language filter is query-layer +
- * `/api/feed?language=` only, no UI, so this is acceptable for v1.
+ * Language matches `language_slug` (migration 0012), a generated
+ * `lower(primary_language)` column. This filter was DEAD before that:
+ * `resolveFeedFilterSpec` lowercases the incoming value for URL/cache-key
+ * hygiene and this then exact-matched the GitHub-cased column, so
+ * `/api/feed?language=typescript` returned an empty page for every casing —
+ * verified 0 rows on prod against 76 published TypeScript projects.
+ * `lower()` rather than a slugify because a slugify collides (`C#` and `C++`
+ * both → `c-`); see the column comment in 0012.
  */
 function buildFeedQuery(client: SupabaseClient<Database>, spec: FeedFilterSpec) {
   let query = client.from('projects').select(FEED_COLUMNS).eq('status', 'published');
 
   if (spec.tag) query = query.contains('tags', [spec.tag]);
-  if (spec.language) query = query.eq('primary_language', spec.language);
+  if (spec.language) query = query.eq('language_slug', spec.language);
 
   if (spec.sort === 'trending') {
     query = query.order('trending_score', { ascending: false }).order('id', { ascending: false });
