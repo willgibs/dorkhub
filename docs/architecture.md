@@ -75,6 +75,29 @@ inline fallback at approval; real GitHub data always wins at publish.
 `/weird` = force-dynamic route handler, random single-row OFFSET pick
 (documented exception to the no-OFFSET feed rule) → 307 to the project page.
 
+## Search (P3-B part 2, 0012)
+Eight independent legs (`searchAll`, src/lib/search/queries.ts) — project
+name/tagline/repo_full_name/exact-tag, profile username/display_name, tag
+slug/label — never PostgREST `.or()` on user text. Ranking is RELEVANCE, not
+popularity: `relevanceTier` scores a row against the query and
+`buildProjectRanker` adds `trending_score` normalized to [0,1], so popularity
+orders within a tier and never across one (raw trending is ~39,661 with a
+spread under 2 — un-normalized it swamps everything).
+
+`/search` is a STATIC shell + client island reading `useSearchParams()` under
+Suspense (build emits `○ /search`); reading searchParams server-side would make
+every distinct query its own function invocation. It is reached from the
+palette's "see all results" row — search stays demoted, with no nav entry.
+
+Facets (language/tag/stars/demo) apply IN SQL inside each leg before the LIMIT,
+never to the returned set. Pure facet helpers live in
+src/lib/search/facets.ts — NOT queries.ts, which is `server-only` while the
+island needs them as values. `language_slug` is a generated
+`lower(primary_language)`: a slugify would collide (`C#`/`C++` → `c-`).
+Results are capped top-N by relevance, not keyset-paginated (a set merged from
+independently-ranked legs has no cursor key). NOT searched: `readme_html` has
+no anon grant and averages 25KB/row.
+
 ## Lists signal + recency (P3-B, 0011)
 `projects.lists_count` counts PUBLIC list membership only (D18 — private
 membership would disclose a single curator at this scale, and the number has
