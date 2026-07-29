@@ -24,34 +24,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { copy } from '@/lib/copy';
+import type { SearchResults } from '@/lib/search/queries';
 
-// Local mirror of src/lib/search/queries.ts's SearchResults (a `server-only`
-// module — not imported here so this stays a plain client-safe type). Keep
-// in sync with the /api/search response shape.
-type SearchProjectHit = {
-  id: string;
-  slug: string;
-  name: string;
-  tagline: string | null;
-  profiles: { username: string; display_name: string | null };
-};
-
-type SearchProfileHit = {
-  id: string;
-  username: string;
-  display_name: string | null;
-};
-
-type SearchTagHit = {
-  slug: string;
-  label: string;
-};
-
-type SearchResults = {
-  projects: SearchProjectHit[];
-  profiles: SearchProfileHit[];
-  tags: SearchTagHit[];
-};
+// Imported as a TYPE from the `server-only` search module. `import type` is
+// erased at compile time, so no runtime import of that module reaches the
+// client bundle — and this replaces a hand-written mirror that could silently
+// desync from the real /api/search response shape (it already lacked the
+// fields P3-B added). Turning this into a value import would fail loudly,
+// which is the point.
 
 const EMPTY_RESULTS: SearchResults = { projects: [], profiles: [], tags: [] };
 

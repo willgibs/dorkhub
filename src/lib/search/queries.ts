@@ -1,8 +1,8 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-
 import type { Database, Tables } from '@/lib/supabase/types';
+import { resolveTagSlug } from '@/lib/tags/slug';
 
 /**
  * Search data layer (docs/plans/m5.5-curator.md Wave 1A, locked decision 1).
@@ -12,6 +12,37 @@ import type { Database, Tables } from '@/lib/supabase/types';
 export const SEARCH_PROJECT_LIMIT = 8;
 export const SEARCH_PROFILE_LIMIT = 5;
 export const SEARCH_TAG_LIMIT = 5;
+
+/**
+ * Ceiling for the /search results page (P3-B D25). Results are capped top-N by
+ * relevance, NOT keyset-paginated: the no-OFFSET rule governs FEEDS, and a set
+ * merged from independently-ranked legs cannot keyset-paginate by
+ * construction — there is no single ordering key to cursor on.
+ */
+export const SEARCH_PROJECT_LIMIT_MAX = 48;
+
+/**
+ * Relevance tiers, spaced 5 apart so the popularity tiebreak (normalized to
+ * [0,1] by `buildProjectRanker`) can order within a tier but never across one.
+ *
+ * This is the fix for the actual complaint: ranking used to be
+ * `trending_score` alone, so an exact name match sorted BELOW a popular
+ * project whose tagline merely contained the substring. Popularity now only
+ * separates equally-relevant matches.
+ *
+ * Ordering note: `repo_full_name` is "owner/name", so any name match is also a
+ * repo match — the repo tier therefore only fires for OWNER matches, which is
+ * why it sits below the name tiers rather than above them.
+ */
+export const RELEVANCE = {
+  nameExact: 50,
+  namePrefix: 45,
+  nameContains: 40,
+  tagExact: 35,
+  repoContains: 30,
+  taglineContains: 25,
+  other: 0,
+} as const;
 
 // ---------------------------------------------------------------------------
 // normalizeSearchQuery — pure param normalization
@@ -92,10 +123,50 @@ export function mergeSearchHits<T>(
 
 export type SearchProjectResult = Pick<
   Tables<'projects'>,
-  'id' | 'slug' | 'name' | 'tagline' | 'trending_score'
+  'id' | 'slug' | 'name' | 'tagline' | 'trending_score' | 'repo_full_name' | 'tags'
 > & {
   profiles: Pick<Tables<'profiles'>, 'username' | 'display_name'>;
 };
+
+/**
+ * Relevance tier for one row against the query. PURE — scored from the row's
+ * own data rather than from which leg produced it, so it stays correct however
+ * the legs are merged or reordered (leg provenance is lost to `mergeSearchHits`'s
+ * first-seen dedupe anyway).
+ */
+export function relevanceTier(row: SearchProjectResult, q: string): number {
+  const needle = q.trim().toLowerCase();
+  if (!needle) return RELEVANCE.other;
+
+  const name = row.name.toLowerCase();
+  if (name === needle) return RELEVANCE.nameExact;
+  if (name.startsWith(needle)) return RELEVANCE.namePrefix;
+  if (name.includes(needle)) return RELEVANCE.nameContains;
+  if (row.tags.some((tag) => tag.toLowerCase() === needle)) return RELEVANCE.tagExact;
+  if (row.repo_full_name.toLowerCase().includes(needle)) return RELEVANCE.repoContains;
+  if ((row.tagline ?? '').toLowerCase().includes(needle)) return RELEVANCE.taglineContains;
+  return RELEVANCE.other;
+}
+
+/**
+ * Builds the `rankOf` for `mergeSearchHits`: relevance tier plus popularity
+ * normalized across the candidate set to [0,1].
+ *
+ * Normalizing matters — raw `trending_score` is ~39,661 with a spread under 2
+ * (it is dominated by an epoch term), so adding it un-normalized would swamp
+ * every tier and reproduce the exact bug this replaces.
+ */
+export function buildProjectRanker(
+  q: string,
+  candidates: readonly SearchProjectResult[],
+): (row: SearchProjectResult) => number {
+  const scores = candidates.map((row) => row.trending_score);
+  const min = scores.length > 0 ? Math.min(...scores) : 0;
+  const max = scores.length > 0 ? Math.max(...scores) : 0;
+  const span = max - min;
+
+  return (row) => relevanceTier(row, q) + (span > 0 ? (row.trending_score - min) / span : 0);
+}
 
 export type SearchProfileResult = Pick<
   Tables<'profiles'>,
@@ -116,6 +187,9 @@ const SEARCH_PROJECT_COLUMNS = [
   'name',
   'tagline',
   'trending_score',
+  // Both are read by `relevanceTier`, not just displayed.
+  'repo_full_name',
+  'tags',
   // FK name REQUIRED — projects↔profiles has multiple relationships (direct
   // FK plus many-to-many through likes/saves), so a bare `profiles!inner`
   // is ambiguous and PostgREST 400s it (PGRST201). Same pattern as
@@ -169,29 +243,53 @@ async function execLeg<T>(
 // searchAll — the six-leg fan-out
 // ---------------------------------------------------------------------------
 
+export type SearchOptions = {
+  /** Projects returned. Defaults to the palette's 8; the /search page asks for SEARCH_PROJECT_LIMIT_MAX. */
+  projectLimit?: number;
+};
+
 /**
- * Runs six independent `.ilike()` legs (project name/tagline, profile
- * username/display_name, tag slug/label) in one `Promise.all`, then merges
- * each pair with `mergeSearchHits`.
+ * Runs eight independent `.ilike()`/`.contains()` legs (project
+ * name/tagline/repo_full_name/tags, profile username/display_name, tag
+ * slug/label) in one `Promise.all`, then merges each group with
+ * `mergeSearchHits`.
  *
  * Deliberately NOT PostgREST `.or()`: its filter grammar treats `,` and `()`
  * as syntax delimiters, so a user-typed query containing those characters
  * could reshape the filter itself — an injection surface beyond plain SQL
- * wildcard escaping. Six single-column `.ilike()` calls sidestep that
- * grammar entirely (docs/plans/m5.5-curator.md locked decision 1).
+ * wildcard escaping. Independent single-column legs sidestep that grammar
+ * entirely (docs/plans/m5.5-curator.md locked decision 1).
  *
  * `q` is assumed already normalized (2–64 chars) by the caller; this escapes
  * it for ILIKE and wraps it in `%…%` once, shared by every leg.
+ *
+ * NOT searched, deliberately: `readme_html` has no anon column grant and is
+ * ~25KB/row (max 210KB). Full-text over it needs a service-role-written
+ * derived column and is its own milestone — copy must not imply otherwise.
  */
 export async function searchAll(
   q: string,
   client: SupabaseClient<Database>,
+  opts: SearchOptions = {},
 ): Promise<SearchResults> {
   const pattern = `%${escapeIlikeValue(q)}%`;
+  const projectLimit = Math.min(
+    Math.max(1, Math.trunc(opts.projectLimit ?? SEARCH_PROJECT_LIMIT)),
+    SEARCH_PROJECT_LIMIT_MAX,
+  );
+
+  // Exact-tag leg, gated on the query actually looking like a tag slug.
+  // `resolveTagSlug` is the same validator the /t/[tag] route uses, and its
+  // contract is explicitly that a valid slug is safe to `.contains()` — so
+  // this rides the existing idx_projects_tags_gin with no new index and no
+  // hand-built filter string.
+  const tagSlug = resolveTagSlug(q.trim());
 
   const [
     projectsByName,
     projectsByTagline,
+    projectsByRepo,
+    projectsByTag,
     profilesByUsername,
     profilesByDisplayName,
     tagsBySlug,
@@ -204,7 +302,7 @@ export async function searchAll(
         .eq('status', 'published')
         .ilike('name', pattern)
         .order('trending_score', { ascending: false })
-        .limit(SEARCH_PROJECT_LIMIT),
+        .limit(projectLimit),
       'projects by name',
     ),
     execLeg<SearchProjectResult>(
@@ -214,9 +312,33 @@ export async function searchAll(
         .eq('status', 'published')
         .ilike('tagline', pattern)
         .order('trending_score', { ascending: false })
-        .limit(SEARCH_PROJECT_LIMIT),
+        .limit(projectLimit),
       'projects by tagline',
     ),
+    // "owner/repo" is the most-typed query shape on a GitHub-derived product
+    // and was entirely unsearchable before P3-B (idx_projects_repo_full_name_trgm, 0012).
+    execLeg<SearchProjectResult>(
+      client
+        .from('projects')
+        .select(SEARCH_PROJECT_COLUMNS)
+        .eq('status', 'published')
+        .ilike('repo_full_name', pattern)
+        .order('trending_score', { ascending: false })
+        .limit(projectLimit),
+      'projects by repo_full_name',
+    ),
+    tagSlug
+      ? execLeg<SearchProjectResult>(
+          client
+            .from('projects')
+            .select(SEARCH_PROJECT_COLUMNS)
+            .eq('status', 'published')
+            .contains('tags', [tagSlug])
+            .order('trending_score', { ascending: false })
+            .limit(projectLimit),
+          'projects by tag',
+        )
+      : Promise.resolve(null),
     execLeg<SearchProfileResult>(
       client
         .from('profiles')
@@ -249,12 +371,20 @@ export async function searchAll(
     ),
   ]);
 
+  // Relevance is scored from the ROW against `q` (see relevanceTier), not from
+  // which leg produced it — leg provenance is lost to mergeSearchHits'
+  // first-seen dedupe, and row-derived scoring stays correct however the legs
+  // are reordered. The ranker is built over ALL candidates so the popularity
+  // tiebreak normalizes across the real set.
+  const projectGroups = [projectsByName, projectsByTagline, projectsByRepo, projectsByTag];
+  const projectCandidates = projectGroups.flatMap((group) => group ?? []);
+
   return {
     projects: mergeSearchHits(
-      [projectsByName, projectsByTagline],
+      projectGroups,
       (row) => row.id,
-      (row) => row.trending_score,
-      SEARCH_PROJECT_LIMIT,
+      buildProjectRanker(q, projectCandidates),
+      projectLimit,
     ),
     profiles: mergeSearchHits(
       [profilesByUsername, profilesByDisplayName],
