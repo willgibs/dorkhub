@@ -122,7 +122,7 @@ export default async function ClaimPage() {
           variant="outline"
           className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
         >
-          curated by dorkhub from public github data · not yet claimed
+          {copy.unclaimedBadge}
         </Badge>
 
         <ProfileHeader avatarUrl={profile.avatar_url} author={author} />

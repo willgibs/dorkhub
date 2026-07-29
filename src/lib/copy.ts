@@ -59,6 +59,11 @@ export const copy = {
   listedInUnitOne: 'list',
   listedInUnit: 'lists',
   listedInLabel: 'in',
+  // List item counts — one source for the three surfaces that render them
+  // (lists index, list detail, profile lists section), which had drifted into
+  // two different inline expressions and two different type treatments.
+  listItemUnitOne: 'item',
+  listItemUnit: 'items',
   listsEmptyMenu: 'no lists yet',
   listNameLabel: 'name',
   listDescriptionLabel: 'description — optional',
@@ -90,6 +95,12 @@ export const copy = {
   importDoneLive: 'of your stars just went live',
   importDonePolishing: 'more going live automatically — check back in a bit',
   sortNewest: 'newest',
+  // Consent surface (vision principle 4). Wording is UNCHANGED from the two
+  // hardcoded copies this replaced — it was duplicated verbatim in the profile
+  // page and the claim page, which is exactly how a consent string drifts.
+  // Changing the words is a product decision, not a refactor.
+  unclaimedBadge: 'curated by dorkhub from public github data · not yet claimed',
+  unclaimedIsThisYou: 'is this you?',
   claimTitle: 'we hand-picked your work',
   claimBody: 'this page is yours if you want it — or we’ll remove it. no strings.',
   claimAccept: 'claim my page',
@@ -102,6 +113,8 @@ export const copy = {
   reportDialogTitle: 'report this project',
   reportReasonLabel: 'what’s wrong?',
   reportReasonPlaceholder: 'pick one',
+  projectVisitDemo: 'visit the demo',
+  projectManageInSettings: 'manage in settings',
   reportReasons: {
     spam: 'spam or seo bait',
     malware: 'malware or sketchy code',

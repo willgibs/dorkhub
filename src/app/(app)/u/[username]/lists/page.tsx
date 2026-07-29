@@ -138,7 +138,8 @@ export default async function ListsIndexPage({
                 {/* Absence rule: 0 items renders nothing, never "0 items". */}
                 {list.itemCount > 0 ? (
                   <span className="tabular-nums font-mono text-[12.5px] text-muted-foreground">
-                    {list.itemCount} item{list.itemCount === 1 ? '' : 's'}
+                    {list.itemCount}{' '}
+                    {list.itemCount === 1 ? copy.listItemUnitOne : copy.listItemUnit}
                   </span>
                 ) : null}
               </div>

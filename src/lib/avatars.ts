@@ -25,6 +25,25 @@ export function isAllowedAvatarUrl(raw: string): boolean {
   }
 }
 
+/** Rendered avatar size for the pulled GitHub default — matches ProfileHeader's 76px at 2x. */
+const GITHUB_AVATAR_SIZE = 200;
+
+/**
+ * The public GitHub avatar for a numeric account id, or null if the result
+ * somehow fails the allowlist (it can't today, but building the URL and then
+ * validating it keeps `isAllowedAvatarUrl` the single gate — a bare
+ * string-concat at the call site would quietly route around the one defense
+ * `avatar_url` has).
+ *
+ * Derived from `github_id` alone, so it costs no API call and stays correct
+ * across username changes — the same immutable-numeric-id rule the claim flow
+ * is built on.
+ */
+export function githubAvatarUrl(githubId: number): string | null {
+  const url = `https://avatars.githubusercontent.com/u/${githubId}?s=${GITHUB_AVATAR_SIZE}`;
+  return isAllowedAvatarUrl(url) ? url : null;
+}
+
 /** Client-side: center-crop + resize an image file to a square WebP blob. */
 export async function fileToAvatarWebP(file: File, size = 256): Promise<Blob> {
   const bitmap = await createImageBitmap(file);

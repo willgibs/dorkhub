@@ -112,13 +112,25 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   return (
     <EngagementProvider projectIds={projectItems.map(({ row }) => row.id)} followeeId={profile.id}>
       <PageShell className="flex flex-col gap-8 py-10">
+        {/* Unclaimed honesty (vision principle 4): the badge says the page is
+            curated rather than authored, and the claim link is the "and here
+            is what you can do about it" half the master plan specifies — a
+            badge with no route to act on it is disclosure without agency. */}
         {profile.user_id === null ? (
-          <Badge
-            variant="outline"
-            className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
-          >
-            curated by dorkhub from public github data · not yet claimed
-          </Badge>
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge
+              variant="outline"
+              className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
+            >
+              {copy.unclaimedBadge}
+            </Badge>
+            <Link
+              href="/claim"
+              className="rounded-sm font-mono text-[11px] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              {copy.unclaimedIsThisYou}
+            </Link>
+          </div>
         ) : null}
 
         <ProfileHeader
@@ -170,7 +182,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                   </Link>
                   {list.itemCount > 0 ? (
                     <span className="text-xs text-muted-foreground tabular-nums">
-                      {list.itemCount} {list.itemCount === 1 ? 'item' : 'items'}
+                      {list.itemCount}{' '}
+                      {list.itemCount === 1 ? copy.listItemUnitOne : copy.listItemUnit}
                     </span>
                   ) : null}
                   {list.description ? (

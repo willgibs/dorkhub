@@ -157,7 +157,7 @@ export default async function ListDetailPage({
           {/* Absence rule: 0 items renders nothing, never "0 items". */}
           {rows.length > 0 ? (
             <span className="tabular-nums font-mono text-[12.5px]">
-              {rows.length} item{rows.length === 1 ? '' : 's'}
+              {rows.length} {rows.length === 1 ? copy.listItemUnitOne : copy.listItemUnit}
             </span>
           ) : null}
         </div>

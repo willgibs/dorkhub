@@ -4,6 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { buildEnrichmentPrompt, parseEnrichmentResult } from '@/lib/ai/enrich';
 import { AiConfigError, chatCompletion } from '@/lib/ai/gateway';
 import { validateUsername } from '@/lib/auth/usernames';
+import { githubAvatarUrl } from '@/lib/avatars';
 import type { GithubRepo } from '@/lib/github/client';
 import { getReadmeRaw, getRepoById } from '@/lib/github/client';
 import { syncProject } from '@/lib/github/sync';
@@ -291,6 +292,11 @@ export async function materializeCandidate(
         display_name: facts.ownerLogin,
         github_id: facts.ownerId,
         github_username: facts.ownerLogin,
+        // Free, derivable from the immutable numeric id, no API call, and the
+        // host is already on the avatar allowlist. Without it a seeded profile
+        // is a letter avatar + a name, which is what 196 of 197 profiles
+        // looked like before P3-B backfilled them.
+        avatar_url: githubAvatarUrl(facts.ownerId),
         // claimed_at stays null (column default) — unclaimed seeded profile
         // until the real owner signs in via the claim flow, NOT
         // an onboarding-style self-claim.

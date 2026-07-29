@@ -172,7 +172,7 @@ export default async function ProjectPage({
                   linkFocusRing,
                 )}
               >
-                manage in settings
+                {copy.projectManageInSettings}
               </Link>
             </div>
           ) : null}
@@ -264,7 +264,7 @@ export default async function ProjectPage({
               {project.demo_url ? (
                 <Button asChild>
                   <a href={project.demo_url} target="_blank" rel="noopener">
-                    visit the demo
+                    {copy.projectVisitDemo}
                   </a>
                 </Button>
               ) : null}
