@@ -68,6 +68,7 @@ export default async function AdminDashboardPage() {
     crawlRunsRes,
     unclaimedRes,
     publishedRes,
+    featuredActiveRes,
   ] = await Promise.all([
     service
       .from('ingest_candidates')
@@ -97,6 +98,11 @@ export default async function AdminDashboardPage() {
       .limit(5),
     service.from('profiles').select('*', { count: 'exact', head: true }).is('user_id', null),
     service.from('projects').select('*', { count: 'exact', head: true }).eq('status', 'published'),
+    service
+      .from('featured_slots')
+      .select('*', { count: 'exact', head: true })
+      .lte('starts_at', new Date().toISOString())
+      .gte('ends_at', new Date().toISOString()),
   ]);
 
   const candidateCounts = {
@@ -112,6 +118,7 @@ export default async function AdminDashboardPage() {
   const crawlRuns = crawlRunsRes.data ?? [];
   const unclaimedCount = unclaimedRes.count ?? 0;
   const publishedCount = publishedRes.count ?? 0;
+  const featuredActiveCount = featuredActiveRes.count ?? 0;
   const now = new Date();
 
   return (
@@ -133,6 +140,10 @@ export default async function AdminDashboardPage() {
 
         <AdminSection kicker="blocklist">
           <StatRow label="blocked repos + owners" value={blocklistCount} />
+        </AdminSection>
+
+        <AdminSection kicker="featured">
+          <StatRow label="manage slots" value={featuredActiveCount} href="/admin/featured" />
         </AdminSection>
 
         <AdminSection kicker="claims">

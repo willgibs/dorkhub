@@ -14,6 +14,14 @@ export type FeedSectionProps = {
   sort: FeedSort;
   /** Active tag filter, if any — omitted/undefined and `null` both mean "no tag". */
   tag?: string | null;
+  /**
+   * Project ids already shown above this section (the FeaturedStrip, P4 L1)
+   * — filtered from PAGE-1 DISPLAY only. The keyset cursor still derives
+   * from the unfiltered page, so pagination never skips or gaps; a featured
+   * project that also ranks on a deeper page will show there again, which
+   * is rare and harmless (the strip is far above by then).
+   */
+  excludeIds?: readonly string[];
 };
 
 /**
@@ -28,9 +36,12 @@ export type FeedSectionProps = {
  * defaults to 'trending' (docs/plans/p2.5-self-running.md locked decision 9);
  * 'recent' is the secondary "newest" chip.
  */
-export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
+export async function FeedSection({ sort, tag = null, excludeIds }: FeedSectionProps) {
   const { rows, nextCursor } = await getFeedPage({ sort, tag });
-  const ids = rows.map((row) => row.id);
+  const visibleRows = excludeIds?.length
+    ? rows.filter((row) => !excludeIds.includes(row.id))
+    : rows;
+  const ids = visibleRows.map((row) => row.id);
 
   const hrefFor = (kind: 'sort' | 'tag', value: string) => feedHrefFor({ sort, tag }, kind, value);
 
@@ -68,7 +79,7 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
     />
   );
 
-  if (rows.length === 0) {
+  if (visibleRows.length === 0) {
     return (
       <div className="flex flex-col gap-6">
         {filters}
@@ -102,7 +113,7 @@ export async function FeedSection({ sort, tag = null }: FeedSectionProps) {
       {filters}
       <EngagementProvider projectIds={ids}>
         <FeedGrid
-          initialCards={renderFeedCards(rows)}
+          initialCards={renderFeedCards(visibleRows)}
           initialIds={ids}
           initialCursor={nextCursor}
           loadMore={loadMore}

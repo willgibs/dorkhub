@@ -1,6 +1,9 @@
+import { FeaturedStrip } from '@/app/(app)/_feed/featured-strip';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { RecsRail } from '@/app/(app)/home/recs-rail';
 import { PageShell } from '@/components/page-shell';
+import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';
+import { supabaseAnon } from '@/lib/supabase/clients';
 
 export const revalidate = 60;
 
@@ -17,12 +20,17 @@ export const revalidate = 60;
  * who's looking at it client-side, after mount, via a server action. No
  * `await`/branching on it here, or the page would poison its own cache.
  */
-export default function HomePage() {
+export default async function HomePage() {
+  // Anon client on purpose — the strip is the same for every viewer, so the
+  // page stays ISR-60 cacheable (the cookie rule above).
+  const featured = await fetchActiveFeaturedSlots(supabaseAnon());
+
   return (
     <section id="feed" className="scroll-mt-20">
       <PageShell className="flex flex-col gap-16 py-16 sm:gap-20 sm:py-20">
         <RecsRail />
-        <FeedSection sort="trending" />
+        <FeaturedStrip slots={featured} />
+        <FeedSection sort="trending" excludeIds={featured.map((slot) => slot.project.id)} />
       </PageShell>
     </section>
   );

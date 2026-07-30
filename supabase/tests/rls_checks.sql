@@ -761,6 +761,51 @@ begin
 end
 $$;
 
+-- T29 setup (privileged detour): a window matrix on the provisioned
+-- published project — one active, one expired, one future slot.
+reset role;
+insert into public.featured_slots (id, project_id, sponsor_label, starts_at, ends_at)
+values
+  ('e5999999-0000-4000-8000-000000000001',
+   (select id from rls_check_ids where key = 'other_pub'),
+   'rls-check active', now() - interval '1 hour', now() + interval '1 hour'),
+  ('e5999999-0000-4000-8000-000000000002',
+   (select id from rls_check_ids where key = 'other_pub'),
+   'rls-check expired', now() - interval '2 days', now() - interval '1 day'),
+  ('e5999999-0000-4000-8000-000000000003',
+   (select id from rls_check_ids where key = 'other_pub'),
+   'rls-check future', now() + interval '1 day', now() + interval '2 days');
+set local role authenticated;
+set local request.jwt.claims =
+  '{"sub": "f0000000-0000-4000-8000-00000000feed", "role": "authenticated"}';
+
+-- T29 · featured_slots window matrix (P4 L1): of the three provisioned
+-- slots, exactly the ACTIVE one is visible; and the API roles hold no write
+-- path (the strip is service-role-curated only).
+do $$
+declare
+  n_visible int;
+  v_label text;
+begin
+  select count(*), min(sponsor_label) into n_visible, v_label
+    from public.featured_slots
+   where id::text like 'e5999999-%';
+  if n_visible <> 1 or v_label <> 'rls-check active' then
+    raise exception 'RLS FAILURE: T29 window matrix visible=% label=% (expected 1 / rls-check active)', n_visible, v_label;
+  end if;
+
+  begin
+    insert into public.featured_slots (project_id, starts_at, ends_at)
+    values ((select id from rls_check_ids where key = 'other_pub'), now(), now() + interval '1 day');
+    raise exception 'RLS FAILURE: T29 authenticated could INSERT a featured slot';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+  raise notice 'PASS: T29 featured window matrix (only active visible) + API-role writes denied';
+end
+$$;
+
 -- T17/T18 · 0010 lists: own list creation (public default + explicit private)
 -- and adding published projects to them, all under RLS. Inserts use the
 -- app-shaped column list — `id` is deliberately NOT in the INSERT grant

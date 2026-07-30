@@ -7,6 +7,12 @@ import { profileRowToAuthor, projectRowToCard } from '@/lib/projects/map';
 export type RenderFeedCardsOptions = {
   /** Card variant for every rendered row — defaults to 'feed' (today's exact look). */
   variant?: ProjectCardVariant;
+  /**
+   * Per-row label bar text (featured variant only — e.g. a slot's
+   * sponsor_label). Kept here so the featured strip rides this exact core
+   * instead of hand-mirroring the card markup.
+   */
+  labelTextFor?: (row: FeedRow) => string | undefined;
 };
 
 /**
@@ -31,6 +37,7 @@ export function renderFeedCards(rows: FeedRow[], opts?: RenderFeedCardsOptions):
             project={project}
             author={author}
             variant={variant}
+            labelText={opts?.labelTextFor?.(row)}
             staggerIndex={i}
             href={`/u/${author.username}/${row.slug}`}
             authorHref={`/u/${author.username}`}
