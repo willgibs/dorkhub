@@ -4,6 +4,7 @@ import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
 import { IsIsntStrip } from '@/app/(app)/_sections/is-isnt-strip';
 import { ManifestoTeaser } from '@/app/(app)/_sections/manifesto-teaser';
 import { PageShell } from '@/components/page-shell';
+import { serializeJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
 
 export const revalidate = 60;
 
@@ -17,6 +18,11 @@ export const revalidate = 60;
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(webSiteJsonLd()) }}
+      />
       <Hero />
       <IsIsntStrip />
       <section id="feed" className="scroll-mt-20">

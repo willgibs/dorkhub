@@ -23,6 +23,7 @@ import { languageColor } from '@/lib/lang-colors';
 import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { formatUpdatedAgo, type ProjectRow } from '@/lib/projects/map';
 import { getRelatedProjects } from '@/lib/related/queries';
+import { serializeJsonLd, softwareSourceCodeJsonLd } from '@/lib/seo/jsonld';
 import { supabaseServer } from '@/lib/supabase/clients';
 import { cn } from '@/lib/utils';
 
@@ -121,6 +122,29 @@ export default async function ProjectPage({
   return (
     <EngagementProvider projectIds={engagementProjectIds}>
       <PageShell className="flex flex-col gap-8 py-10">
+        {/* JSON-LD (P4 L3) — published pages only; a draft is an owner-only
+            view with no business emitting public structured data. */}
+        {project.status === 'published' ? (
+          <script
+            type="application/ld+json"
+            // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
+            dangerouslySetInnerHTML={{
+              __html: serializeJsonLd(
+                softwareSourceCodeJsonLd({
+                  name: project.name,
+                  tagline: project.tagline,
+                  username: profile.username,
+                  slug: project.slug,
+                  repoUrl: project.repo_url,
+                  primaryLanguage: project.primary_language,
+                  license: project.license,
+                  githubPushedAt: project.github_pushed_at,
+                  authorDisplayName: profile.display_name,
+                }),
+              ),
+            }}
+          />
+        ) : null}
         {/* READING COLUMN (P3-B). The locked reference
             (explorations/05-quiet-dev-native.html) sets `.project-page` to a
             780px measure; shipping it inside the 1120px PageShell put README

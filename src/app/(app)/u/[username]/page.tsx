@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
 import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { PROJECT_CARD_COLUMNS, projectRowToCard } from '@/lib/projects/map';
+import { profilePageJsonLd, serializeJsonLd } from '@/lib/seo/jsonld';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
 /**
@@ -117,6 +118,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   return (
     <EngagementProvider projectIds={projectItems.map(({ row }) => row.id)} followeeId={profile.id}>
       <PageShell className="flex flex-col gap-8 py-10">
+        <script
+          type="application/ld+json"
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(
+              profilePageJsonLd({
+                username: profile.username,
+                displayName: profile.display_name,
+                avatarUrl: profile.avatar_url,
+              }),
+            ),
+          }}
+        />
         {/* Unclaimed honesty (vision principle 4): the badge says the page is
             curated rather than authored, and the claim link is the "and here
             is what you can do about it" half the master plan specifies — a

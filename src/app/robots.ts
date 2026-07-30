@@ -1,12 +1,16 @@
 import type { MetadataRoute } from 'next';
 
-// noindex until M9 launch: placeholder copy + non-canonical *.vercel.app domain must not index. Flip at launch.
+import { SITE_URL } from '@/lib/site';
+
+// noindex until launch-go (P4 L5): the robots FLIP is this rule swapping to
+// `allow: '/'` — in the SAME commit as removing layout.tsx's
+// `robots: { index: false }` metadata. Both halves or neither.
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: '*',
       disallow: '/',
     },
-    sitemap: 'https://dorkhub.com/sitemap.xml',
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

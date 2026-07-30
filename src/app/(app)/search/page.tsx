@@ -5,7 +5,13 @@ import { PageShell } from '@/components/page-shell';
 import { copy } from '@/lib/copy';
 import { SearchResultsIsland } from './search-results';
 
-export const metadata: Metadata = { title: copy.searchTitle };
+// Page-level noindex (P4 L3): results are client-rendered, so a crawler sees
+// an empty shell — thin content that should stay out of the index even after
+// the sitewide robots flip at launch. follow:true keeps link equity flowing.
+export const metadata: Metadata = {
+  title: copy.searchTitle,
+  robots: { index: false, follow: true },
+};
 
 /**
  * The results page is a STATIC shell (P3-B D27). Nothing here reads
@@ -22,8 +28,9 @@ export const metadata: Metadata = { title: copy.searchTitle };
  * a CDN hit rather than a database round trip.
  *
  * Cost named honestly: results are client-rendered, so there is no RSC card
- * markup and nothing for a crawler. Free today — robots is noindex sitewide
- * until launch — and revisitable at P4 if search should be indexed.
+ * markup and nothing for a crawler — which is why this page carries its OWN
+ * `robots: { index: false }` (P4 L3) that survives the launch flip. Revisit
+ * only if search ever grows server-rendered results worth indexing.
  */
 export default function SearchPage() {
   return (

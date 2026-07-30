@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import { CommandPalette } from '@/app/_shell/command-palette';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SITE_URL } from '@/lib/site';
 import './globals.css';
 
 const display = Instrument_Sans({
@@ -20,7 +21,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://dorkhub.com'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'dorkhub — a home for the things you build for fun',
     template: '%s · dorkhub',
@@ -34,7 +35,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
   },
-  // noindex until M9 launch: placeholder copy + non-canonical *.vercel.app domain must not index. Flip at launch.
+  // noindex until launch-go (P4 L5). The flip removes this block in the SAME
+  // commit that swaps robots.ts to allow — both halves or neither.
   robots: {
     index: false,
     follow: false,

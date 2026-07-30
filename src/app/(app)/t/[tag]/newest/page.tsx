@@ -22,7 +22,10 @@ export async function generateMetadata({ params }: TagNewestPageProps): Promise<
   if (!tag) return {};
 
   const label = await resolveTagLabel(tag, supabaseAnon());
-  return { title: `#${label}` };
+  return {
+    title: `#${label}`,
+    description: `open-source ${label} projects, newest first — on dorkhub`,
+  };
 }
 
 export default async function TagNewestPage({ params }: TagNewestPageProps) {

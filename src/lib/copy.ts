@@ -153,7 +153,9 @@ export const copy = {
   reportAlready: 'you already reported this one — it’s on the list',
   reportRateLimited: 'that’s a lot of reports for one day — try again tomorrow',
   error: 'something broke on our end — not you, us. try again?',
+  errorRetry: 'try again',
   notFound: '404: page not found\n// maybe it shipped, maybe it never existed',
+  notFoundCta: 'back to the gallery',
   forkNudge: 'fork it — it’s yours',
   heroHeadline: 'a home for the things you build for fun',
   heroSub:
