@@ -72,11 +72,24 @@ async function main() {
         }
       }
     }
+    const publishedBefore = tallies.get('published') ?? 0;
     await Promise.all(Array.from({ length: concurrency }, () => worker()));
     processed += batch.length;
 
     const summary = [...tallies.entries()].map(([k, v]) => `${k}=${v}`).join(' ');
     console.log(`progress ${processed}: ${summary}`);
+
+    // Termination guard (found live): permanent failures — invalid usernames,
+    // wedged inserts — stay `pending` and re-enter every selection. A batch
+    // that publishes NOTHING means only that immortal residue remains, and
+    // looping on it would spin forever (21 such rows after the first
+    // 15k-candidate drain). Stamp/triage those rows out-of-band instead.
+    if ((tallies.get('published') ?? 0) === publishedBefore) {
+      console.log(
+        `stopping: batch of ${batch.length} produced zero publishes (immortal residue only)`,
+      );
+      break;
+    }
 
     // A run of github_unavailable results usually means the rate limit —
     // back off a minute rather than burning the queue into skip-tallies.
