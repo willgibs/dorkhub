@@ -27,12 +27,12 @@ Vercel Pro cron swap, robots flip, sitemap+JSON-LD) — carries board gates.
 The big import can start any time: pipeline drains ~3,840 materializations/day.
 
 ## Deferred, with reasons (read before the next round)
-p2.7-hardening.md + p3b-*.md + p3c-scale.md "Known / deferred" sections.
-Load-bearing: NO search rate limiter (D29 — ai_usage is now the shared-state
-pattern to reuse); no per-call AI timeout; screen-vs-admin decided_at ASC/DESC
-divergence; list item counts include unpublished; multi-word search is one
-substring. RESOLVED by P3-C: admin drain outside budget, pass-3 starvation,
-sync 50-day refresh.
+p2.7-hardening.md + p3b-*.md + p3c-scale.md + p3d-guardrails.md "Known /
+deferred" sections. Load-bearing: NO search rate limiter (D29 — ai_usage is
+the shared-state pattern to reuse); multi-word search is one substring.
+RESOLVED by P3-C: admin drain outside budget, pass-3 starvation, sync
+50-day refresh. RESOLVED by P3-D: per-call AI timeout, viewer-visible list
+counts, screen/admin order divergence (documented intentional, D42).
 
 ## Will-QA (needs a real signed-in session)
 Report dialog e2e · lists CRUD · the two S4 fixes · private-list revalidation
