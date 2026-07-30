@@ -37,16 +37,23 @@ const ENRICHMENT_MAX_TOKENS = 300;
 /**
  * GitHub description → tagline, within the DB's 120-char check. Approved
  * projects must never land as bare cards — the gallery's first impression is
- * the product (first-user QA, 2026-07-23).
+ * the product (first-user QA, 2026-07-23). Canonical home; admin/queue's old
+ * duplicate was rewired to consume this via materialize.
  *
- * CANONICAL HOME: this function lives here now. `admin/queue/actions.ts`
- * still has its own copy (Wave 2A rewires that file to re-import from here
- * instead — until then the duplicate is intentional, not drift).
+ * Clip by CODE POINTS ([...str]), never by UTF-16 units: a unit-index slice
+ * can split an astral char's surrogate pair, and the resulting lone
+ * surrogate makes the whole insert payload unserializable as JSON (PostgREST
+ * PGRST102 — found live: dawid-szewc/perplexity-cli, moshang-ax/lottery
+ * wedged as immortal insert_failed candidates). GitHub itself can never send
+ * a lone surrogate (UTF-8 cannot encode one) — this clip was the only mint.
+ * Code points also match char_length(), the unit the DB CHECK counts in.
  */
 export function descriptionToTagline(description: string | null): string | null {
   const trimmed = description?.trim() ?? '';
   if (!trimmed) return null;
-  return trimmed.length > 120 ? `${trimmed.slice(0, 119).trimEnd()}…` : trimmed;
+  const points = [...trimmed];
+  if (points.length <= 120) return trimmed;
+  return `${points.slice(0, 119).join('').trimEnd()}…`;
 }
 
 /** The subset of an `ingest_candidates` row `deriveContent` reads from. */

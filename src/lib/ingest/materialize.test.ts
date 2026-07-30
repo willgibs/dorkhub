@@ -43,6 +43,31 @@ describe('descriptionToTagline', () => {
     const result = descriptionToTagline(desc);
     expect(result?.endsWith(' …')).toBe(false);
   });
+
+  it('never splits a surrogate pair at the clip boundary (PGRST102 wedge, found live)', () => {
+    // 118 ASCII chars, then an emoji (2 UTF-16 units) straddling the old
+    // unit-119 cut: a unit slice would keep only the high surrogate, making
+    // the string unserializable as JSON. Code-point clipping keeps it whole.
+    const desc = `${'a'.repeat(118)}🎰${'b'.repeat(30)}`;
+    const result = descriptionToTagline(desc) ?? '';
+    expect(result.isWellFormed()).toBe(true);
+    expect(result).toBe(`${'a'.repeat(118)}🎰…`);
+  });
+
+  it('counts the clip threshold in code points, not UTF-16 units', () => {
+    // 60 emoji = 120 UTF-16 units but only 60 code points — under the DB's
+    // char_length(120) budget, so it must pass through unclipped.
+    const desc = '🎯'.repeat(60);
+    expect(descriptionToTagline(desc)).toBe(desc);
+  });
+
+  it('clipped astral-heavy output stays within the DB 120 char_length budget', () => {
+    const desc = '🎯'.repeat(130);
+    const result = descriptionToTagline(desc) ?? '';
+    expect([...result].length).toBeLessThanOrEqual(120);
+    expect(result.isWellFormed()).toBe(true);
+    expect(result.endsWith('…')).toBe(true);
+  });
 });
 
 describe('deriveContent — precedence matrix', () => {
