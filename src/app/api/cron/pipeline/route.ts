@@ -119,6 +119,24 @@ export async function GET(request: Request) {
     }
   }
 
+  // BUDGET OBSERVABILITY (P3-D): the ledger's consumption in every run's
+  // response, next to dbSizeMb — so "how much of the AI budget is gone"
+  // is a log line, not a psql session. Tiny read (one row per UTC day).
+  let aiCallsToday: number | null = null;
+  let aiCallsTotal: number | null = null;
+  {
+    const { data: usageRows, error: usageError } = await service
+      .from('ai_usage')
+      .select('day, calls');
+    if (usageError) {
+      console.error('[cron/pipeline] ai_usage read failed', { message: usageError.message });
+    } else if (usageRows) {
+      const todayUtc = new Date().toISOString().slice(0, 10);
+      aiCallsToday = usageRows.find((row) => row.day === todayUtc)?.calls ?? 0;
+      aiCallsTotal = usageRows.reduce((sum, row) => sum + row.calls, 0);
+    }
+  }
+
   return NextResponse.json({
     enriched: enrichResult.enriched,
     enrichedEmpty: enrichResult.empty,
@@ -131,6 +149,8 @@ export async function GET(request: Request) {
     // truncated safety pass reads identically to a complete one.
     screenHasMore: screenResult.hasMore,
     screenStopKind: screenResult.stopKind,
+    aiCallsToday,
+    aiCallsTotal,
     dbSizeMb,
     deadlineHit: Date.now() >= deadlineAt,
     tookMs: Date.now() - startedAt,

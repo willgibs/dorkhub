@@ -785,7 +785,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      claim_ai_call: { Args: { p_max: number }; Returns: boolean };
+      claim_ai_call: {
+        Args: { p_max: number; p_total_max: number };
+        Returns: boolean;
+      };
       compute_trending: {
         Args: { likes: number; pub: string; saves: number };
         Returns: number;

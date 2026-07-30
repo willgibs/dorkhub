@@ -11,12 +11,14 @@ beforeEach(() => {
   process.env.AI_GATEWAY_API_KEY = 'test-key';
   delete process.env.GEMINI_API_KEY;
   delete process.env.AI_GATEWAY_MODEL;
+  delete process.env.AI_CALL_TIMEOUT_MS;
 });
 
 afterEach(() => {
   delete process.env.AI_GATEWAY_API_KEY;
   delete process.env.GEMINI_API_KEY;
   delete process.env.AI_GATEWAY_MODEL;
+  delete process.env.AI_CALL_TIMEOUT_MS;
 });
 
 describe('chatCompletion — ok path', () => {
@@ -242,5 +244,33 @@ describe('chatCompletion — model resolution', () => {
     const body = JSON.parse(init?.body as string);
     expect(body.model).toBe('anthropic/claude-haiku');
     expect(result.kind === 'ok' && result.model).toBe('anthropic/claude-haiku');
+  });
+});
+
+describe('chatCompletion — per-call timeout (P3-D)', () => {
+  it('a hung provider call is aborted and surfaces as kind "error" naming the knob', async () => {
+    // Real short timeout, not fake timers (house rule) — 25ms of wall clock.
+    process.env.AI_CALL_TIMEOUT_MS = '25';
+    // A fetchImpl that only settles when the harness aborts it — the shape
+    // of a hung upstream socket.
+    const fetchImpl: typeof fetch = (_url, init) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+      });
+
+    const result = await chatCompletion({ messages: MESSAGES, fetchImpl });
+
+    expect(result.kind).toBe('error');
+    if (result.kind === 'error') {
+      expect(result.message).toContain('timed out after 25ms');
+      expect(result.message).toContain('AI_CALL_TIMEOUT_MS');
+    }
+  });
+
+  it('hands fetch an AbortSignal so the request is genuinely cancellable', async () => {
+    const fetchImpl = vi.fn<typeof fetch>(async () => okResponse('x'));
+    await chatCompletion({ messages: MESSAGES, fetchImpl });
+    const [, init] = fetchImpl.mock.calls[0];
+    expect(init?.signal).toBeInstanceOf(AbortSignal);
   });
 });

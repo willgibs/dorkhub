@@ -35,6 +35,27 @@ const DEFAULT_MODEL_GOOGLE = 'gemini-3.5-flash-lite';
 const ERROR_MESSAGE_CAP = 200;
 
 /**
+ * Per-call wall-clock ceiling (P3-D wave D1 — the last spend door). A hung
+ * provider call used to hold its engine until the route's soft deadline,
+ * eating the whole window; on a metered gateway that's also billable time.
+ * 30 s is generous against observed flash-lite latencies (~2–5 s) while
+ * still guaranteeing a run can never lose more than one call's slot to a
+ * hang. `AI_CALL_TIMEOUT_MS` overrides without a deploy; same parse
+ * contract as the budget ceilings (junk degrades to the default — but 0 is
+ * NOT honored here, a zero timeout would just break every call; the budget
+ * kill-switch is AI_DAILY_MAX=0).
+ */
+const AI_CALL_TIMEOUT_MS_DEFAULT = 30_000;
+
+function aiCallTimeoutMs(): number {
+  const raw = process.env.AI_CALL_TIMEOUT_MS?.trim();
+  if (!raw) return AI_CALL_TIMEOUT_MS_DEFAULT;
+  const parsed = Number(raw);
+  if (!Number.isInteger(parsed) || parsed <= 0) return AI_CALL_TIMEOUT_MS_DEFAULT;
+  return parsed;
+}
+
+/**
  * Thrown when `AI_GATEWAY_API_KEY` is missing/empty. Read lazily at call
  * time (not import time) so this module can be imported anywhere without
  * requiring the env var to already be configured — mirrors `GithubConfigError`
@@ -93,7 +114,13 @@ function resolveProvider(): ResolvedProvider {
   );
 }
 
-function networkErrorMessage(err: unknown): string {
+function networkErrorMessage(err: unknown, timeoutMs: number): string {
+  // AbortSignal.timeout rejects with a DOMException named TimeoutError —
+  // name the cause and the knob rather than surfacing "The operation was
+  // aborted due to timeout" with no actionable context.
+  if (err instanceof DOMException && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+    return `AI call timed out after ${timeoutMs}ms (AI_CALL_TIMEOUT_MS)`;
+  }
   return err instanceof Error ? err.message : String(err);
 }
 
@@ -120,6 +147,7 @@ export async function chatCompletion(opts: ChatCompletionOpts): Promise<ChatComp
   const key = provider.key;
   const model = opts.model ?? process.env.AI_GATEWAY_MODEL?.trim() ?? provider.defaultModel;
 
+  const timeoutMs = aiCallTimeoutMs();
   let res: Response;
   try {
     res = await fetchImpl(provider.url, {
@@ -133,9 +161,13 @@ export async function chatCompletion(opts: ChatCompletionOpts): Promise<ChatComp
         messages: opts.messages,
         max_tokens: opts.maxTokens,
       }),
+      // Hard per-call ceiling — a timeout rejects and surfaces as
+      // `kind: 'error'` below, which both engines already treat as a
+      // systemic stop WITHOUT stamping (row retries next run).
+      signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (err) {
-    return { kind: 'error', message: networkErrorMessage(err) };
+    return { kind: 'error', message: networkErrorMessage(err, timeoutMs) };
   }
 
   if (res.status === 429) {

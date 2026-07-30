@@ -541,20 +541,21 @@ do $$
 declare
   v_claim boolean;
 begin
-  -- Fresh ledger for today inside this rolled-back transaction.
+  -- Fresh ledger for today inside this rolled-back transaction. Lifetime
+  -- cap passed as NULL here = daily-ceiling-only semantics (0013 behavior).
   delete from public.ai_usage where day = (now() at time zone 'utc')::date;
 
   -- Ceiling of 2: claim, claim, then refuse — and the refusal must not
   -- increment the ledger past the cap.
-  select public.claim_ai_call(2) into v_claim;
+  select public.claim_ai_call(2, null) into v_claim;
   if v_claim is distinct from true then
     raise exception 'RLS FAILURE: I14 first claim under a ceiling of 2 was refused';
   end if;
-  select public.claim_ai_call(2) into v_claim;
+  select public.claim_ai_call(2, null) into v_claim;
   if v_claim is distinct from true then
     raise exception 'RLS FAILURE: I14 second claim under a ceiling of 2 was refused';
   end if;
-  select public.claim_ai_call(2) into v_claim;
+  select public.claim_ai_call(2, null) into v_claim;
   if v_claim is distinct from false then
     raise exception 'RLS FAILURE: I14 third claim under a ceiling of 2 was NOT refused';
   end if;
@@ -562,10 +563,10 @@ begin
     raise exception 'RLS FAILURE: I14 ledger overshot the ceiling';
   end if;
 
-  -- Zero ceiling = kill-switch: refused even on an empty ledger (the INSERT
-  -- arm must be guarded too, or the first call of the day sneaks past).
+  -- Zero daily ceiling = kill-switch: refused even on an empty ledger (the
+  -- INSERT arm must be guarded too, or the first call of the day sneaks past).
   delete from public.ai_usage where day = (now() at time zone 'utc')::date;
-  select public.claim_ai_call(0) into v_claim;
+  select public.claim_ai_call(0, null) into v_claim;
   if v_claim is distinct from false then
     raise exception 'RLS FAILURE: I14 zero-ceiling claim was NOT refused on an empty ledger';
   end if;
@@ -573,7 +574,36 @@ begin
     raise exception 'RLS FAILURE: I14 zero-ceiling claim wrote a ledger row';
   end if;
 
-  raise notice 'PASS: I14a ledger enforces the ceiling atomically, zero-ceiling refuses';
+  raise notice 'PASS: I14a ledger enforces the daily ceiling atomically, zero-ceiling refuses';
+
+  -- LIFETIME cap (0017, P3-D "~$5 max"): seed past days, then prove the
+  -- total is enforced across days — including today's lock-held count.
+  delete from public.ai_usage;
+  insert into public.ai_usage (day, calls) values ('2026-01-01', 3), ('2026-01-02', 4); -- total 7
+  select public.claim_ai_call(10, 7) into v_claim;
+  if v_claim is distinct from false then
+    raise exception 'RLS FAILURE: I14 lifetime-at-cap claim (7/7) was NOT refused';
+  end if;
+  select public.claim_ai_call(10, 8) into v_claim;
+  if v_claim is distinct from true then
+    raise exception 'RLS FAILURE: I14 lifetime one-under claim (7/8) was refused';
+  end if;
+  select public.claim_ai_call(10, 8) into v_claim;
+  if v_claim is distinct from false then
+    raise exception 'RLS FAILURE: I14 lifetime now-at-cap claim (8/8) was NOT refused';
+  end if;
+
+  -- Zero lifetime ceiling = kill-switch, and it writes NOTHING.
+  delete from public.ai_usage where day = (now() at time zone 'utc')::date;
+  select public.claim_ai_call(10, 0) into v_claim;
+  if v_claim is distinct from false then
+    raise exception 'RLS FAILURE: I14 zero-lifetime claim was NOT refused';
+  end if;
+  if exists (select 1 from public.ai_usage where day = (now() at time zone 'utc')::date) then
+    raise exception 'RLS FAILURE: I14 zero-lifetime claim wrote a ledger row';
+  end if;
+
+  raise notice 'PASS: I14e lifetime cap enforced across days; zero-lifetime refuses and writes nothing';
 end
 $$;
 
@@ -588,7 +618,7 @@ begin
       raise notice 'PASS: I14b authenticated denied on ai_usage';
   end;
   begin
-    perform public.claim_ai_call(10);
+    perform public.claim_ai_call(10, null);
     raise exception 'RLS FAILURE: I14 authenticated could execute claim_ai_call (budget DoS surface)';
   exception
     when insufficient_privilege then
@@ -597,7 +627,7 @@ begin
   reset role;
   set local role anon;
   begin
-    perform public.claim_ai_call(10);
+    perform public.claim_ai_call(10, null);
     raise exception 'RLS FAILURE: I14 anon could execute claim_ai_call (budget DoS surface)';
   exception
     when insufficient_privilege then
