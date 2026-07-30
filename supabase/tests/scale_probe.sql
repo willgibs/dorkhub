@@ -27,10 +27,11 @@
 --
 -- Data is DETERMINISTIC (modulo patterns, no random()) so plans and numbers
 -- are comparable across runs. Synthetic id ranges are far above real GitHub
--- ids: projects 900000000000+n, candidates 910000000000+n. CAUTION: the SEED
--- FIXTURES also live in the 900-billion range (900287465110+, drafts like
--- spudnik/crateweight) — the synthetic ranges below stop at 900000010000 /
--- 910000100000, safely under them; keep it that way if you resize the probe.
+-- ids: projects 900000000000+n, candidates 910000000000+n. CAUTION: seed.sql's
+-- FIXTURES also live in the 900-billion range (900287465110+) — purged from
+-- PROD in P4 L0c but still seeded on LOCAL dev DBs — so the synthetic ranges
+-- below stop at 900000010000 / 910000100000, safely under them; keep it that
+-- way if you resize the probe.
 -- ============================================================================
 
 \set ON_ERROR_STOP on
@@ -219,8 +220,9 @@ rollback;
 select
   (select count(*) from public.projects) as projects_after,
   (select count(*) from public.ingest_candidates) as candidates_after,
-  -- Exact synthetic ranges — NOT a broad >= 9e11 sweep, which would catch the
-  -- real seed fixtures (fabricated ids at 900287465110+).
+  -- Exact synthetic ranges — NOT a broad >= 9e11 sweep, which would catch
+  -- seed.sql's fixtures (900287465110+) on a LOCAL dev DB (prod's were
+  -- purged in P4 L0c).
   (select count(*) from public.projects
     where github_repo_id between 900000000001 and 900000010000) as probe_project_leftovers,
   (select count(*) from public.ingest_candidates
