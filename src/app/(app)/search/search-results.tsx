@@ -183,7 +183,6 @@ export function SearchResultsIsland() {
           autoComplete="off"
           // Autofocus is right here and nowhere else: arriving at /search is an
           // explicit act, unlike the palette which is summoned over other work.
-          // biome-ignore lint/a11y/noAutofocus: the page exists to be typed into
           autoFocus
           aria-label={copy.searchTitle}
         />

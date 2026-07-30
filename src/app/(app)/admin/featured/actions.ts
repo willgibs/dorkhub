@@ -70,7 +70,7 @@ export async function createFeaturedSlot(formData: FormData): Promise<void> {
     .eq('profile_id', profile.id)
     .eq('slug', ref.slug)
     .maybeSingle();
-  if (!project || project.status !== 'published') {
+  if (project?.status !== 'published') {
     console.error('[admin/featured] createFeaturedSlot: no published project', ref);
     return;
   }

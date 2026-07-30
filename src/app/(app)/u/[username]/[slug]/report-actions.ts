@@ -68,7 +68,7 @@ export async function reportProject(_prev: ReportState, formData: FormData): Pro
     .eq('id', projectId)
     .maybeSingle();
 
-  if (!project || project.status !== 'published' || project.profile_id === reporter.id) {
+  if (project?.status !== 'published' || project.profile_id === reporter.id) {
     // Missing project, unpublished project, and a self-report all fall
     // through to the same generic error — see file header.
     return { error: copy.error };

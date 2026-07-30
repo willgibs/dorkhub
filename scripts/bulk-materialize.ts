@@ -48,13 +48,15 @@ async function main() {
       .limit(Math.min(200, max - processed));
     if (error) throw new Error(`candidate select failed: ${error.message}`);
     if (!batch || batch.length === 0) break;
+    // Narrowed rebind: TS won't carry the null-guard into the hoisted worker.
+    const rows = batch;
 
     let cursor = 0;
     async function worker() {
       while (true) {
         const index = cursor++;
-        if (index >= batch.length) return;
-        const id = batch[index];
+        if (index >= rows.length) return;
+        const id = rows[index];
         if (!id) return;
         const result = await materializeCandidate(id.github_repo_id, {
           decidedBy: null,

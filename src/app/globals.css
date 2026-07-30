@@ -221,14 +221,23 @@
     *,
     *::before,
     *::after {
+      /* The !importants here are LOAD-BEARING: this kill switch must beat
+         every utility and inline declaration or reduced-motion is a lie
+         (docs/motion.md). Suppressions, not removals, on purpose. */
+      /* biome-ignore lint/complexity/noImportantStyles: reduced-motion kill switch must win every cascade */
       animation-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: reduced-motion kill switch must win every cascade */
       animation-iteration-count: 1 !important;
+      /* biome-ignore lint/complexity/noImportantStyles: reduced-motion kill switch must win every cascade */
       transition-duration: 0.01ms !important;
+      /* biome-ignore lint/complexity/noImportantStyles: reduced-motion kill switch must win every cascade */
       scroll-behavior: auto !important;
     }
     /* …but functional loading indicators must stay visible (spinner carve-out). */
     .animate-spin {
+      /* biome-ignore lint/complexity/noImportantStyles: carve-out must out-specify the kill switch above */
       animation-duration: 1s !important;
+      /* biome-ignore lint/complexity/noImportantStyles: carve-out must out-specify the kill switch above */
       animation-iteration-count: infinite !important;
     }
   }
