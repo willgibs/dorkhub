@@ -11,7 +11,16 @@ import { copy } from '@/lib/copy';
 import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { supabaseServer } from '@/lib/supabase/clients';
 
-export const metadata: Metadata = { title: copy.listsTitle };
+// Titled by OWNER (P2.7: every user's lists page shared one anonymous
+// "lists · dorkhub" tab title). The template appends "· dorkhub".
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}): Promise<Metadata> {
+  const { username } = await params;
+  return { title: `@${username} — ${copy.listsTitle}` };
+}
 
 /**
  * PER-VIEWER page: the owner sees their private lists here and a visitor must
@@ -106,11 +115,13 @@ const getPageData = cache(async (username: string): Promise<PageData | null> => 
 
 export default async function ListsIndexPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ username: string }>;
+  searchParams: Promise<{ err?: string }>;
 }) {
   const { username } = await params;
-  const data = await getPageData(username);
+  const [data, { err }] = await Promise.all([getPageData(username), searchParams]);
   if (!data) notFound();
 
   const { profile, lists, isOwner } = data;
@@ -121,6 +132,15 @@ export default async function ListsIndexPage({
         <h1 className="font-display text-[26px] font-extrabold">{copy.listsTitle}</h1>
         {isOwner ? <NewListButton /> : null}
       </div>
+
+      {/* deleteList redirects here with ?err=delete on a genuine failure
+          (P4 L4) — the page is already force-dynamic, so reading
+          searchParams costs nothing it wasn't paying. */}
+      {err === 'delete' ? (
+        <p role="alert" className="text-sm text-destructive">
+          {copy.error}
+        </p>
+      ) : null}
 
       {lists.length === 0 ? (
         <EmptyState message={isOwner ? copy.listsEmptyOwn : copy.listsEmptyVisitor} />

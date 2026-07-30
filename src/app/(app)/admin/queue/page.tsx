@@ -415,6 +415,10 @@ function ReportGroupRow({ group, screen }: { group: ReportGroup; screen: ScreenE
           {`@${username}`}
           {project.stars_count > 0 ? ` · ${project.stars_count} stars` : ''}
           {` · ${group.count} report${group.count === 1 ? '' : 's'} · ${group.reasons}`}
+          {/* Mirrors RetroModerationRow: without this, hitting "unpublish"
+              looked like a no-op — the row's status never changed on screen
+              (P2.7 finding, fixed P4 L4). */}
+          {project.status !== 'published' ? ' · unpublished' : ''}
         </span>
         {group.note ? (
           <span

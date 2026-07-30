@@ -172,9 +172,13 @@ function normalizeReason(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  return trimmed.length > REASON_MAX_CHARS
-    ? `${trimmed.slice(0, REASON_MAX_CHARS - 1).trimEnd()}…`
-    : trimmed;
+  if (trimmed.length <= REASON_MAX_CHARS) return trimmed;
+  // Clip by CODE POINTS, not UTF-16 units — a plain .slice() can cut a
+  // surrogate pair in half and store a lone surrogate (P2.7 finding,
+  // fixed P4 L4). Spread iterates code points; length stays bounded by
+  // REASON_MAX_CHARS either way since a code point is ≥1 UTF-16 unit.
+  const clipped = [...trimmed].slice(0, REASON_MAX_CHARS - 1).join('');
+  return `${clipped.trimEnd()}…`;
 }
 
 /**

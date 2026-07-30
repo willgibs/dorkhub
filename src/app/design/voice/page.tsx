@@ -79,7 +79,7 @@ export default function DesignVoicePage() {
           <StatButton kind="like" active={false} count={12} />
           <StatButton kind="save" active count={null} />
           <span className="font-mono text-xs text-muted-foreground">
-            {'// '}
+            <span aria-hidden="true">{'// '}</span>
             {copy.forkNudge}
           </span>
         </div>

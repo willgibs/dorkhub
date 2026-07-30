@@ -17,8 +17,14 @@ export type VerdictChipProps = { verdict: 'ok' | 'review' | 'flagged' | null };
  */
 export function VerdictChip({ verdict }: VerdictChipProps) {
   if (verdict === 'flagged') {
+    // Same mono metadata treatment as 'review' — only the COLOR carries the
+    // severity (P2.7 typography-drift note, fixed P4 L4; the chip previously
+    // rendered in the Badge default sans/medium next to its mono sibling).
     return (
-      <Badge variant="outline" className="border-destructive/40 text-destructive">
+      <Badge
+        variant="outline"
+        className="border-destructive/40 font-mono text-[11px] font-normal tracking-wide text-destructive"
+      >
         {verdictLabel(verdict)}
       </Badge>
     );

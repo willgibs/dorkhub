@@ -187,20 +187,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         {lists.length > 0 ? (
           <section className="flex flex-col gap-3">
             <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              {'// '}
+              <span aria-hidden="true">{'// '}</span>
               {copy.listsTitle}
             </h2>
             <ul className="flex flex-col gap-2">
               {lists.map((list) => (
                 <li key={list.slug} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                  {/* Class strings match the lists-index row EXACTLY (P2.7:
+                      this link had the app's only hover:text-primary, and the
+                      count span drifted to sans/text-xs — one idiom now). */}
                   <Link
                     href={`/u/${author.username}/lists/${list.slug}`}
-                    className="rounded-sm font-mono text-[15px] font-semibold outline-none hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    className="rounded-sm font-mono text-[15px] font-semibold outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   >
                     {list.name}
                   </Link>
                   {list.itemCount > 0 ? (
-                    <span className="text-xs text-muted-foreground tabular-nums">
+                    <span className="tabular-nums font-mono text-[12.5px] text-muted-foreground">
                       {list.itemCount}{' '}
                       {list.itemCount === 1 ? copy.listItemUnitOne : copy.listItemUnit}
                     </span>

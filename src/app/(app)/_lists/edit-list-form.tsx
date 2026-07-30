@@ -34,21 +34,54 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
   const [isPublicValue, setIsPublicValue] = useState(isPublic);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
 
   async function handleSave() {
     setSaving(true);
+    setSaved(false);
 
-    const calls: Promise<ListActionResult>[] = [];
-    if (nameValue !== name) calls.push(renameList(collectionId, nameValue));
-    if (descriptionValue !== description) {
-      calls.push(editListDescription(collectionId, descriptionValue));
+    // Fires only the changed fields, in parallel (D6) — and REPORTS per
+    // field (P4 L4; the P2.7 finding: one generic error hid which field
+    // failed and that the others actually saved).
+    const attempts: Array<{ field: string; call: Promise<ListActionResult> }> = [];
+    if (nameValue !== name) {
+      attempts.push({ field: 'name', call: renameList(collectionId, nameValue) });
     }
-    if (isPublicValue !== isPublic) calls.push(setListVisibility(collectionId, isPublicValue));
+    if (descriptionValue !== description) {
+      attempts.push({
+        field: 'description',
+        call: editListDescription(collectionId, descriptionValue),
+      });
+    }
+    if (isPublicValue !== isPublic) {
+      attempts.push({ field: 'visibility', call: setListVisibility(collectionId, isPublicValue) });
+    }
 
     try {
-      const results = await Promise.all(calls);
-      const failed = results.find((result) => result && 'error' in result);
-      setError(failed && 'error' in failed ? failed.error : null);
+      const results = await Promise.all(attempts.map((attempt) => attempt.call));
+      const failedFields = attempts
+        .filter((_, i) => {
+          const result = results[i];
+          return result !== null && result !== undefined && 'error' in result;
+        })
+        .map((attempt) => attempt.field);
+
+      if (failedFields.length === 0) {
+        setError(null);
+        setSaved(attempts.length > 0);
+      } else {
+        const partial = failedFields.length < attempts.length;
+        setError(
+          `${copy.listSaveFailedLead} ${failedFields.join(' + ')} ${
+            partial ? copy.listSavePartialTail : copy.listSaveAllTail
+          }`,
+        );
+      }
+    } catch {
+      // A THROWN action (vs a returned {error}) previously escaped as an
+      // unhandled rejection — the add-to-list control's P2.7 lesson, same
+      // fix: catch and land on the generic error.
+      setError(copy.error);
     } finally {
       setSaving(false);
     }
@@ -66,7 +99,10 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
         <Input
           id={`list-name-${collectionId}`}
           value={nameValue}
-          onChange={(event) => setNameValue(event.target.value)}
+          onChange={(event) => {
+            setNameValue(event.target.value);
+            setSaved(false);
+          }}
           maxLength={60}
           autoComplete="off"
         />
@@ -82,7 +118,10 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
         <Textarea
           id={`list-description-${collectionId}`}
           value={descriptionValue}
-          onChange={(event) => setDescriptionValue(event.target.value)}
+          onChange={(event) => {
+            setDescriptionValue(event.target.value);
+            setSaved(false);
+          }}
           maxLength={280}
         />
       </div>
@@ -97,7 +136,10 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
           <Switch
             id={`list-visibility-${collectionId}`}
             checked={isPublicValue}
-            onCheckedChange={setIsPublicValue}
+            onCheckedChange={(checked) => {
+              setIsPublicValue(checked);
+              setSaved(false);
+            }}
           />
           <Label
             htmlFor={`list-visibility-${collectionId}`}
@@ -117,16 +159,26 @@ export function EditListForm({ collectionId, name, description, isPublic }: Edit
         </p>
       ) : null}
 
-      <Button
-        type="button"
-        variant="secondary"
-        size="sm"
-        disabled={saving}
-        onClick={handleSave}
-        className="w-fit"
-      >
-        {copy.actionSave}
-      </Button>
+      <div className="flex items-center gap-3">
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={saving}
+          onClick={handleSave}
+          className="w-fit"
+        >
+          {copy.actionSave}
+        </Button>
+        {/* Success confirmation (P4 L4 — the form previously confirmed
+            nothing). Cleared by the next edit; text-only, deliberately
+            unanimated (motion policy: no animation on rapid form feedback). */}
+        {saved ? (
+          <span aria-live="polite" className="font-mono text-[12.5px] text-positive">
+            {copy.actionSaved}
+          </span>
+        ) : null}
+      </div>
     </div>
   );
 }

@@ -166,8 +166,12 @@ export async function createList(
     }
   }
 
+  // Exhausting every suffix means the USER's namespace is crowded with
+  // similar names — that's their situation to resolve, not a server fault,
+  // so the copy says so instead of hiding behind the generic error (P4 L4;
+  // was a P2.7-flagged dead-end).
   console.error('[lists] createList failed: exhausted slug attempts for base', base);
-  return { error: copy.error };
+  return { error: copy.listNameTaken };
 }
 
 export type ListActionResult = { error: string } | null;
@@ -274,7 +278,11 @@ export async function deleteList(formData: FormData): Promise<void> {
     .maybeSingle();
 
   if (deleteError) {
+    // Stay IN CONTEXT with a visible signal (P4 L4; was a P2.7-flagged
+    // dead-end: a genuine failure silently landed the user on the home
+    // feed). The lists page is force-dynamic, so ?err renders immediately.
     console.error('[lists] deleteList failed:', deleteError.message);
+    redirect(`/u/${profile.username}/lists?err=delete`);
   }
 
   if (deleted) {
@@ -282,10 +290,10 @@ export async function deleteList(formData: FormData): Promise<void> {
     redirect(`/u/${profile.username}/lists`);
   }
 
-  // Unreachable in normal use — the delete form only ever renders for a list
-  // the caller owns, so a zero-row delete here means the id was stale or
-  // tampered with. Mirrors deleteProject's defensive-redirect comment style.
-  redirect('/');
+  // Zero-row delete with no error = the id was stale or tampered with (the
+  // delete form only renders for lists the caller owns). Back to their
+  // lists page — the list they meant is provably not theirs or not there.
+  redirect(`/u/${profile.username}/lists`);
 }
 
 /** Add/remove-from-list checkbox (add-to-list-control island). */
