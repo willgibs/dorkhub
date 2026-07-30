@@ -833,6 +833,13 @@ export type Database = {
         Args: { p_project_id: string };
         Returns: undefined;
       };
+      tag_tally: {
+        Args: never;
+        Returns: {
+          count: number;
+          slug: string;
+        }[];
+      };
     };
     Enums: {
       project_status: 'draft' | 'published';

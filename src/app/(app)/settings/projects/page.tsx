@@ -34,10 +34,12 @@ export default async function SettingsProjectsPage() {
   if (!profile) redirect('/onboarding');
 
   // Cookie-bound client under RLS: `projects_select_published_or_own` surfaces
-  // this owner's drafts too, no app-level status filter needed.
+  // this owner's drafts too, no app-level status filter needed. Explicit
+  // columns — exactly what this management list renders (P3-C C2); the row
+  // is edited via EditProjectForm, never displayed whole.
   const { data: projects } = await supabase
     .from('projects')
-    .select('*')
+    .select('id, name, slug, status, last_synced_at, tagline, tags, demo_url')
     .eq('profile_id', profile.id)
     .order('sort_order', { ascending: true });
 

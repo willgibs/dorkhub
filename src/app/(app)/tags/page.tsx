@@ -6,15 +6,18 @@ import { PageShell } from '@/components/page-shell';
 import { copy } from '@/lib/copy';
 import { supabaseAnon } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
-import { tallyProjectTags } from '@/lib/tags/tally';
 
 /**
  * Tag index (docs/plans/m5-discovery.md Wave 3B): full taxonomy browse, not
  * just the active-tag chip `FeedSection` shows inline. Counts come from a
- * live tally over published projects, not a stored counter — cheap enough at
- * this scale and always exactly right.
+ * live tally over published projects, not a stored counter — always exactly
+ * right. Since P3-C C2 the tally is the `tag_tally()` SQL aggregate
+ * (migration 0015): the page used to fetch EVERY published row's tags array
+ * and count in JS, an O(projects) payload per revalidation; the aggregate
+ * returns one row per distinct tag instead. Window raised 300 → 900 —
+ * counts move slowly, and each window costs one server-side scan.
  */
-export const revalidate = 300;
+export const revalidate = 900;
 
 export const metadata: Metadata = { title: copy.tagsTitle };
 
@@ -54,13 +57,16 @@ function TagGroup({ label, entries }: { label: string; entries: TagEntry[] }) {
 export default async function TagsPage() {
   const supabase = supabaseAnon();
 
-  const [{ data: tagRows }, { data: projectRows }] = await Promise.all([
+  const [{ data: tagRows }, { data: tallyRows }] = await Promise.all([
     supabase.from('tags').select('slug, label, kind').order('label', { ascending: true }),
-    supabase.from('projects').select('tags').eq('status', 'published'),
+    supabase.rpc('tag_tally'),
   ]);
 
   const taxonomy = (tagRows ?? []) as TagRow[];
-  const tally = tallyProjectTags(projectRows ?? []);
+  // Same Map shape tallyProjectTags produced — the aggregate mirrors its
+  // semantics exactly (see migration 0015); recs still use the JS tally on
+  // their own page-sized row sets.
+  const tally = new Map<string, number>((tallyRows ?? []).map((row) => [row.slug, row.count]));
 
   const stacks: TagEntry[] = taxonomy
     .filter((row) => row.kind === 'stack')

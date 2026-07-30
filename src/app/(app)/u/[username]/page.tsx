@@ -12,7 +12,7 @@ import { ProfileHeader, type ProfileLink } from '@/components/profile-header';
 import { ProjectCard } from '@/components/project-card';
 import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
-import { projectRowToCard } from '@/lib/projects/map';
+import { PROJECT_CARD_COLUMNS, projectRowToCard } from '@/lib/projects/map';
 import { supabaseAnon } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 
@@ -67,9 +67,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   if (!profile) notFound();
 
   const supabase = supabaseAnon();
+  // Card projection + id (EngagementProvider/LikeButtonIsland need the id and
+  // the trigger-maintained likes_count) — never select('*') on a card-only
+  // surface, which drags readme_html (~8.4 KB/row) into every profile render.
   const { data: projectRows } = await supabase
     .from('projects')
-    .select('*')
+    .select(`id, ${PROJECT_CARD_COLUMNS}`)
     .eq('profile_id', profile.id)
     .eq('status', 'published')
     .order('sort_order', { ascending: true });

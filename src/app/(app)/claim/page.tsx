@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { githubIdentity } from '@/lib/auth/identity';
 import { copy } from '@/lib/copy';
-import { projectRowToCard } from '@/lib/projects/map';
+import { PROJECT_CARD_COLUMNS, projectRowToCard } from '@/lib/projects/map';
 import { supabaseServer, supabaseService } from '@/lib/supabase/clients';
 
 import { acceptClaim, declineClaim } from './actions';
@@ -91,9 +91,11 @@ export default async function ClaimPage() {
     );
   }
 
+  // Card projection only (P3-C C2) — this page previews the profile's cards;
+  // select('*') dragged readme_html for every project into the claim render.
   const { data: projectRows } = await service
     .from('projects')
-    .select('*')
+    .select(PROJECT_CARD_COLUMNS)
     .eq('profile_id', profile.id)
     .eq('status', 'published')
     .order('sort_order', { ascending: true });

@@ -67,6 +67,22 @@ export type ProjectCardSourceRow = Pick<
 >;
 
 /**
+ * Select-string companion to `ProjectCardSourceRow` — the exact columns a
+ * card render needs, for surfaces that list cards and nothing else (P3-C
+ * wave C2). Exists for the same drift-hazard reason as `FEED_COLUMNS`
+ * (src/lib/feed/queries.ts): one definition, not hand-mirrored copies.
+ * `select('*')` on card-only surfaces dragged `readme_html` (~8.4 KB/row
+ * stored) plus etags/description into every profile render for nothing.
+ *
+ * ONE literal string (not an array `.join()`, which erases literality):
+ * postgrest-js parses literal select strings into real row types, so
+ * callers get typed rows with no IO-boundary cast — tsc itself verifies
+ * these columns exist.
+ */
+export const PROJECT_CARD_COLUMNS =
+  'slug, name, tagline, primary_language, stars_count, likes_count, tags, screenshots, license, forks_count, demo_url, github_pushed_at, lists_count, repo_full_name';
+
+/**
  * Maps a `projects` row to ProjectCard's FixtureProject shape. `authorUsername`
  * is passed separately — the row only carries `profile_id`, and callers
  * (profile/feed pages) already have the author's username in hand.
