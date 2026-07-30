@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 
+import { copy } from '@/lib/copy';
 import { normalizeSearchQuery, resolveSearchFacets, searchAll } from '@/lib/search/queries';
-import { supabaseAnon } from '@/lib/supabase/clients';
+import {
+  hashClientIp,
+  interpretSearchClaim,
+  SEARCH_RATE_LIMIT_WINDOW_S,
+  searchRateLimitMax,
+} from '@/lib/search/rate-limit';
+import { supabaseAnon, supabaseService } from '@/lib/supabase/clients';
 
 /**
  * Public search endpoint (docs/plans/m5.5-curator.md Wave 1A). Backs the
@@ -14,6 +21,37 @@ export async function GET(request: Request) {
 
   try {
     const q = normalizeSearchQuery(searchParams.get('q'));
+
+    // Rate limit only real searches — an under-floor `q` never touches the DB
+    // and shouldn't burn a window slot. FAIL-OPEN (see rate-limit.ts): a
+    // limiter error logs and the search proceeds; only an explicit `false`
+    // claim 429s.
+    if (q) {
+      try {
+        const { data, error } = await supabaseService().rpc('claim_search_call', {
+          p_ip_hash: hashClientIp(request.headers.get('x-forwarded-for')),
+          p_max: searchRateLimitMax(),
+          p_window_seconds: SEARCH_RATE_LIMIT_WINDOW_S,
+        });
+        if (error) {
+          console.error(
+            '[api/search] rate-limit ledger unreachable (failing open):',
+            error.message,
+          );
+        }
+        if (interpretSearchClaim(data, error) === 'limited') {
+          return NextResponse.json(
+            { error: copy.searchRateLimited },
+            { status: 429, headers: { 'Cache-Control': 'no-store' } },
+          );
+        }
+      } catch (limiterError) {
+        console.error(
+          '[api/search] rate-limit check threw (failing open):',
+          limiterError instanceof Error ? limiterError.message : String(limiterError),
+        );
+      }
+    }
 
     // `limit` is a request for MORE projects than the palette's default; it is
     // clamped inside searchAll to SEARCH_PROJECT_LIMIT_MAX, so a hand-crafted

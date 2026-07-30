@@ -88,6 +88,7 @@ export const copy = {
   signInPrompt: 'sign in to join in',
   searchPlaceholder: 'search projects…',
   searchEmpty: 'nothing yet — try fewer letters',
+  searchRateLimited: 'a lot of searching just now — give it a minute?',
   searchGroupProjects: 'projects',
   searchGroupPeople: 'people',
   searchGroupTags: 'tags',

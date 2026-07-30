@@ -697,6 +697,24 @@ export type Database = {
           },
         ];
       };
+      search_rate_limit: {
+        Row: {
+          calls: number;
+          ip_hash: string;
+          window_start: string;
+        };
+        Insert: {
+          calls?: number;
+          ip_hash: string;
+          window_start: string;
+        };
+        Update: {
+          calls?: number;
+          ip_hash?: string;
+          window_start?: string;
+        };
+        Relationships: [];
+      };
       saves: {
         Row: {
           created_at: string;
@@ -787,6 +805,10 @@ export type Database = {
     Functions: {
       claim_ai_call: {
         Args: { p_max: number; p_total_max: number };
+        Returns: boolean;
+      };
+      claim_search_call: {
+        Args: { p_ip_hash: string; p_max: number; p_window_seconds: number };
         Returns: boolean;
       };
       compute_trending: {

@@ -54,6 +54,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults>(EMPTY_RESULTS);
   const [settled, setSettled] = useState(false);
+  const [limited, setLimited] = useState(false);
   const router = useRouter();
 
   // ⌘K / Ctrl+K toggles from anywhere in the app. Registered once — reads the
@@ -100,11 +101,15 @@ export function CommandPalette() {
             signal: controller.signal,
           });
           const data: SearchResults = response.ok ? await response.json() : EMPTY_RESULTS;
+          // 429 = the rate limiter (P4); the empty row says so rather than
+          // pretending nothing matched.
+          setLimited(response.status === 429);
           setResults(data);
           setSettled(true);
         } catch (error) {
           if (controller.signal.aborted) return;
           console.error('[command-palette] search failed', error);
+          setLimited(false);
           setResults(EMPTY_RESULTS);
           setSettled(true);
         }
@@ -146,7 +151,9 @@ export function CommandPalette() {
             placeholder={copy.searchPlaceholder}
           />
           <CommandList>
-            {showEmpty ? <CommandEmpty>{copy.searchEmpty}</CommandEmpty> : null}
+            {showEmpty ? (
+              <CommandEmpty>{limited ? copy.searchRateLimited : copy.searchEmpty}</CommandEmpty>
+            ) : null}
 
             {/* The palette hard-caps each group, so a query with 40 matches
                 showed 8 and offered no next step. This row IS how /search is

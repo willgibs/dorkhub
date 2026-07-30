@@ -657,6 +657,89 @@ $$;
 
 rollback;
 
+-- ----------------------------------------------------------------------------
+-- Section I15 — 0019 search rate limiter: deny-all posture + fixed-window
+-- behavior (rolled back). Clones I13/I14's assertion shapes.
+-- ----------------------------------------------------------------------------
+begin;
+
+do $$
+declare
+  v bool;
+  n int;
+  v_bucket timestamptz;
+begin
+  -- I15a · cap matrix in one window: 3 claims at cap 3, then refusal; a
+  -- DIFFERENT ip is an independent budget.
+  perform public.claim_search_call('rls-check-ip-1', 3, 3600);
+  perform public.claim_search_call('rls-check-ip-1', 3, 3600);
+  select public.claim_search_call('rls-check-ip-1', 3, 3600) into v;
+  if not v then
+    raise exception 'RLS FAILURE: I15a third claim under cap 3 refused';
+  end if;
+  select public.claim_search_call('rls-check-ip-1', 3, 3600) into v;
+  if v then
+    raise exception 'RLS FAILURE: I15a fourth claim over cap 3 allowed';
+  end if;
+  select public.claim_search_call('rls-check-ip-2', 3, 3600) into v;
+  if not v then
+    raise exception 'RLS FAILURE: I15a second ip shares the first ip''s window budget';
+  end if;
+  raise notice 'PASS: I15a per-ip fixed-window cap enforced (3 yes, 4th no, other ip independent)';
+
+  -- I15b · window bucketing is epoch-floored arithmetic: the stored
+  -- window_start sits exactly on a p_window_seconds boundary.
+  select window_start into v_bucket
+    from public.search_rate_limit where ip_hash = 'rls-check-ip-1';
+  if extract(epoch from v_bucket)::bigint % 3600 <> 0 then
+    raise exception 'RLS FAILURE: I15b window_start % not on the 3600s bucket boundary', v_bucket;
+  end if;
+  raise notice 'PASS: I15b window bucket lands on the boundary';
+
+  -- I15c · zero ceiling refuses AND writes nothing (guarded INSERT arm —
+  -- claim_ai_call's kill-switch discipline).
+  select public.claim_search_call('rls-check-ip-3', 0, 3600) into v;
+  select count(*) into n from public.search_rate_limit where ip_hash = 'rls-check-ip-3';
+  if v or n <> 0 then
+    raise exception 'RLS FAILURE: I15c zero ceiling claimed=% rows=% (expected false/0)', v, n;
+  end if;
+  raise notice 'PASS: I15c zero ceiling refuses and writes nothing';
+end
+$$;
+
+-- I15d · API-role denial: table select + function execute, both roles.
+do $$
+begin
+  set local role authenticated;
+  begin
+    perform 1 from public.search_rate_limit limit 1;
+    raise exception 'RLS FAILURE: I15d authenticated could select search_rate_limit';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I15d authenticated denied on search_rate_limit';
+  end;
+  begin
+    perform public.claim_search_call('x', 10, 60);
+    raise exception 'RLS FAILURE: I15d authenticated could execute claim_search_call (window-exhaustion DoS surface)';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I15e authenticated denied execute on claim_search_call';
+  end;
+  reset role;
+  set local role anon;
+  begin
+    perform public.claim_search_call('x', 10, 60);
+    raise exception 'RLS FAILURE: I15d anon could execute claim_search_call (window-exhaustion DoS surface)';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I15f anon denied execute on claim_search_call';
+  end;
+  reset role;
+end
+$$;
+
+rollback;
+
 do $$
 begin
   raise notice '=== ALL INGESTION CHECKS PASSED — behavioral changes rolled back ===';

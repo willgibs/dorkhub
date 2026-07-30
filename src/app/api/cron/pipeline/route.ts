@@ -119,6 +119,24 @@ export async function GET(request: Request) {
     }
   }
 
+  // SEARCH-LIMITER PRUNE (P4 L2d): expired fixed windows are dead rows the
+  // moment their minute passes; one cheap DELETE per run keeps the ledger at
+  // roughly one row per active-searcher-minute instead of growing forever.
+  // Piggybacked here rather than a new cron (Hobby's 2-cron cap) — and like
+  // the storage probe, a prune failure logs and never takes down the run.
+  {
+    const cutoff = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    const { error: pruneError } = await service
+      .from('search_rate_limit')
+      .delete()
+      .lt('window_start', cutoff);
+    if (pruneError) {
+      console.error('[cron/pipeline] search-limiter prune failed', {
+        message: pruneError.message,
+      });
+    }
+  }
+
   // BUDGET OBSERVABILITY (P3-D): the ledger's consumption in every run's
   // response, next to dbSizeMb — so "how much of the AI budget is gone"
   // is a log line, not a psql session. Tiny read (one row per UTC day).

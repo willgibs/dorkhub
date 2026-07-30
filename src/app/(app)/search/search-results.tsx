@@ -43,6 +43,7 @@ export function SearchResultsIsland() {
   const [query, setQuery] = useState(initialQ);
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [settled, setSettled] = useState(false);
+  const [limited, setLimited] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const lang = searchParams.get('lang') ?? '';
@@ -121,6 +122,9 @@ export function SearchResultsIsland() {
         });
         const data: SearchResults = response.ok ? await response.json() : EMPTY;
         if (!controller.signal.aborted) {
+          // A 429 is the rate limiter speaking (P4) — same empty shape, but
+          // the empty state must say so instead of pretending "no results".
+          setLimited(response.status === 429);
           setResults(data);
           setSettled(true);
         }
@@ -129,6 +133,7 @@ export function SearchResultsIsland() {
         // request); a real failure degrades to "nothing found" rather than
         // breaking the page.
         if (!controller.signal.aborted) {
+          setLimited(false);
           setResults(EMPTY);
           setSettled(true);
         }
@@ -252,7 +257,7 @@ export function SearchResultsIsland() {
       {query.trim().length < 2 ? (
         <p className="text-[15px] text-muted-foreground">{copy.searchStart}</p>
       ) : settled && total === 0 ? (
-        <EmptyState message={copy.searchEmpty} />
+        <EmptyState message={limited ? copy.searchRateLimited : copy.searchEmpty} />
       ) : (
         <div className="flex flex-col gap-8">
           {results.projects.length > 0 ? (
