@@ -1,29 +1,26 @@
-# Current state — 2026-07-30 (P4 late-round; overnight autonomous push done)
+# Current state — 2026-07-30 (P4: library at ~17k; README backfill running)
 
 ## Milestones
-- Everything through P3-D ✅ tagged. **P4 launch round ~85% shipped** — full
-  record: docs/plans/p4-launch.md (waves L0a/b/c, L1, L2a–e, L3, L4 all
-  deployed; 752 tests; both RLS suites green on PURGED prod; 17 commits).
-  Purge EXECUTED (Will-approved live): prod has zero fixtures, gallery 207.
-  Featured mechanism live (strip renders only when a slot is active — none
-  are; /admin/featured manages). CSP report-only burning in. Search limiter
-  wire-proven. Sitemap/JSON-LD/error pages/legal drafts shipped.
+- Through P3-D ✅ tagged. **P4 ~90%**: waves L0–L4 deployed (record:
+  docs/plans/p4-launch.md); 756 tests; suites green on purged prod.
+- **RAMP EXECUTED** (board directive): 2 sourcing waves (117 topics/lists,
+  search bucket) + pipelined bulk drain → **16,951 published / ~14k
+  profiles / 0 pending**. Immortal-residue guard added; D51 username
+  policy (0020: GitHub's FULL envelope — LingDong-/Rob--W/f legal) shipped,
+  19 rejections reversed, 21-row redrain queued behind the rate window.
+- **README backfill IN PROGRESS**: scripts/bulk-sync.ts on the 5k/hr core
+  budget (15,083 never-synced at start; ~5-7h; monitor re-armed hourly).
+  Then: storage checkpoint → Supabase Pro call with MEASURED numbers
+  (100MB/500MB pre-READMEs).
 
 ## Waiting on Will
-1. EMAIL (2 min): Cloudflare dash → dorkhub.com → Email → Email Routing →
-   destination dorkhub1@gmail.com (verify link lands there) → address
-   hi@dorkhub.com → Enable. Then I swap the terms/privacy contact.
+1. EMAIL (2 min): Cloudflare dash → dorkhub.com → Email Routing →
+   destination dorkhub1@gmail.com → address hi@dorkhub.com → Enable.
+   Then I swap the terms/privacy contact.
 2. FEATURED LABEL wording nod ('featured' default) · TERMS/PRIVACY review.
-3. Then: DEDICATED L5 PLANNING ROUND (board steer: bar = final-product
-   feel; signups-off toggle available; many polish rounds expected after).
-DONE since his reply: BIG IMPORT ran (3,792 created; hopper 3,733 pending).
-DRAIN CORRECTION: GH Actions schedules are BEST-EFFORT and currently fire
-~1-2h apart, not */15 → scheduler-only drain ≈560/day (~6-7 days). Manual
-ticks work perfectly (40/tick, proven). The already-planned L5 Vercel Pro
-cron swap IS the permanent fix; local boost loop ran overnight. SENTRY LIVE
-(dedicated dorkhub org; DSN in Vercel; CSP carries ingest origin; burn-in
-caught vercel.live toolbar [disable on prod at enforce] + an Electron-pane
-prefetch artifact [no action]).
+3. Then: DEDICATED L5 PLANNING ROUND (bar = final-product feel;
+   signups-off toggle available; Pro/domain/robots-flip/cron-swap live
+   there). CSP burn-in: enforce step also disables vercel.live toolbar.
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP. psql session pooler
@@ -32,16 +29,13 @@ postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5
 verified ops; migrations `psql --single-transaction -v ON_ERROR_STOP=1`.
 Backups: docs/ops-backup.md (snapshot before every destructive op).
 
-## Gotchas (new this round first; older ones live in docs/plans/* + git)
-PROFILES: never star-select under API roles (0018; use PROFILE_COLUMNS /
-ProfileRow) — and grep app projections BEFORE any grant change. Search
-limiter fail-OPEN vs AI budget fail-CLOSED: both deliberate, don't "align".
-Robots flip = robots.ts + layout.tsx metadata TOGETHER (comments
-cross-reference). /search noindex is page-level and must survive the flip.
-SITE_URL: src/lib/site.ts only. Suites self-provision (991…/990…09xx
-bands); seed.sql = LOCAL dev only now. Featured: dedupe is page-1 display
-only; published-only is enforced twice (create + !inner). CSP: img-src
-https:-wide is LOAD-BEARING (README images); flip via CSP_ENFORCE=1 env.
-Browser-pane screenshots can return black frames — verify via DOM/read_page
-(P3-D tooling note, extended).
-Last updated: 2026-07-30 late night (P4 overnight push complete).
+## Gotchas (new first; older live in docs/plans/* + git)
+Bulk drivers = app libs headless (`NODE_OPTIONS='--conditions
+react-server' pnpm dlx tsx`); same-lib rule — never bypass materialize/
+sync. `unset GITHUB_TOKEN` before git push (read-only PAT hijacks gh
+creds). PROFILES: never star-select under API roles (PROFILE_COLUMNS);
+grep projections BEFORE grant changes. Search limiter fail-OPEN vs AI
+budget fail-CLOSED — both deliberate. Robots flip = robots.ts + layout.tsx
+TOGETHER; /search noindex survives it. SITE_URL: src/lib/site.ts only.
+CSP img-src https:-wide is LOAD-BEARING; flip via CSP_ENFORCE=1.
+Last updated: 2026-07-30 eve (post-ramp; backfill + redrain in flight).
