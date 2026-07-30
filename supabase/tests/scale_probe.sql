@@ -197,8 +197,9 @@ select github_repo_id from public.ingest_candidates
  order by demand_count desc, stars_count desc
  limit 50;
 
-\echo '=== P8b: ingest queue, the pipeline''s ACTUAL order (stars desc only) ==='
-\echo '=== does NOT match idx_ingest_candidates_queue''s prefix — C3 decides the fix'
+\echo '=== P8b: ingest queue, the PRE-C3 order (stars desc only) — regression tell ==='
+\echo '=== ~270-320ms parallel seq scan at 100k; C3 moved the ingest route to the'
+\echo '=== index order (P8a). If the app ever orders stars-only again, this is the cost.'
 explain (analyze, buffers)
 select github_repo_id, description, stars_count from public.ingest_candidates
  where status = 'pending'

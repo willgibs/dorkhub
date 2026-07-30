@@ -28,9 +28,11 @@ One fine-grained server PAT (`GITHUB_TOKEN`, public-repos read-only) powers ALL
 reads via a singleton Octokit: onboarding repo listing, seeding, sync. Supabase
 GitHub OAuth is identity-only (zero extra scopes); provider_token is never used.
 `syncProject(id)` entry points: on add/claim/seed · manual refresh (5-min throttle
-via last_synced_at) · daily Vercel cron `/api/cron/sync` (CRON_SECRET) syncing the
-~200 stalest published projects. ETags stored per repo/readme; 304s don't count
-against rate limits. README = GitHub-rendered HTML (`Accept: application/vnd.github.html`)
+via last_synced_at) · daily Vercel cron `/api/cron/sync` (CRON_SECRET), deadline-
+governed since P3-C (50s soft deadline over a 1000-cap queue slice, not a fixed
+200) · a 50-item slice per 15-min `/api/cron/ingest` tick (P3-C D34) so fresh
+materializations get READMEs in minutes and a 10k gallery refreshes in ~2 days,
+not 50. ETags stored per repo/readme; 304s don't count against rate limits. README = GitHub-rendered HTML (`Accept: application/vnd.github.html`)
 → sanitize-at-write with `sanitize-html` (strict allowlist, https-only img,
 rel="nofollow ugc noopener", relative URLs rewritten to raw.githubusercontent.com,
 ~200KB cap) → stored in service-role-only `readme_html`. User-authored markdown
@@ -38,11 +40,21 @@ rel="nofollow ugc noopener", relative URLs rewritten to raw.githubusercontent.co
 
 ## Feed & caching
 Keyset pagination everywhere (page 24, cursor = base64url tuple over the ordering
-index). Trending is a stored, indexed, write-time score — never recomputed by cron.
-Public reads use the cookie-LESS anon client (`supabaseAnon()` in
-`src/lib/supabase/clients.ts`) so RSCs stay cacheable; per-user liked/saved state
-is a separate client-island overlay (`/api/me/engagement?ids=…`). Project/profile
-pages: ISR revalidate 300 + revalidatePath on owner writes. /saved, /following: dynamic.
+index), served by the `feed_page` RPC since P3-C (migration 0014, D31/D32): the
+PostgREST `.or()` emulation could not emit a row comparison, so deep pages
+scanned-and-discarded from the top of the index (O(offset)); the RPC seeks via
+`(sort_key, id) < (cursor)` — `Index Cond: ROW(...)`, flat with depth. SECURITY
+INVOKER on purpose (RLS applies as the caller; must never become DEFINER).
+Dynamic SQL from constant fragments + USING binds — typed args are the filter
+boundary, nothing user-shaped reaches SQL text (cursor validators in
+`src/lib/feed/cursor.ts` stay as defense in depth). Trending is a stored,
+indexed, write-time score — never recomputed by cron. Public reads use the
+cookie-LESS anon client (`supabaseAnon()` in `src/lib/supabase/clients.ts`) so
+RSCs stay cacheable; per-user liked/saved state is a separate client-island
+overlay (`/api/me/engagement?ids=…`). Project/profile pages: ISR revalidate 300 +
+revalidatePath on owner writes. /saved, /following: dynamic. Card-only surfaces
+select `PROJECT_CARD_COLUMNS` (src/lib/projects/map.ts), never `*` — measured
+219,774 B → 556 B for one profile's list.
 
 ## Routes & auth flow
 Route map + first-sign-in/claim/onboarding flow: docs/plan-master.md Part 2
@@ -145,6 +157,24 @@ and stamping discipline (systemic failures stop WITHOUT writing; unusable
 replies stamp `review`, never silent-ok). TRIAGE-ONLY: verdicts label/order
 the admin queues; AI never unpublishes (vision permits reversible automation
 — deliberately unused until verdict quality is proven on real data).
+
+## Scale (P3-C, 0013–0016)
+`supabase/tests/scale_probe.sql` re-measures every hot path at 10k projects /
+100k candidates in one rolled-back command — run it before trusting any perf
+change; pass/fail tells in its header. AI spend: `ai_usage` ledger + atomic
+`claim_ai_call(p_max)` (D33) — every `chatCompletion` path claims first, fails
+CLOSED, `AI_DAILY_MAX` env (default 800, `0` = kill-switch); execute revoked
+from API roles (budget-DoS surface). Cron split (D34): GH Actions pings
+`/api/cron/pipeline` (enrich+screen, safety) then `/api/cron/ingest`
+(materialize demand-first per D38 + sync slice); Vercel's 2 Hobby fallback
+crons stay on sync + pipeline. Storage: `db_size_bytes()` in every pipeline
+response (`dbSizeMb`), warn at 400 MB; read trends, not single samples (bloat
+counts until autovacuum). `/weird` picks via uuid pivot (D35) — no OFFSET
+exception anymore. `/tags` counts via `tag_tally()` aggregate. TRIGGER RULE
+(D37): generated columns are NULL on NEW in BEFORE UPDATE triggers — any
+to_jsonb row-comparison guard must exclude them, or every update of a row with
+a populated generated column reads as an edit (this bit `language_slug` the day
+0012 shipped; T26 pins it).
 
 ## Untrusted input boundaries (P2.7)
 Two places where user-controlled text reaches an interpreter, both hardened
