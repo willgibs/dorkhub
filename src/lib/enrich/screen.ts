@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { claimAiCall } from '@/lib/ai/budget';
 import { AiConfigError, chatCompletion } from '@/lib/ai/gateway';
 import {
   buildScreenPrompt,
@@ -155,7 +156,7 @@ export type ScreenBatchResult = {
   screened: number;
   flagged: number;
   hasMore: boolean;
-  stopKind: 'rate_limited' | 'config' | 'provider_error' | null;
+  stopKind: 'rate_limited' | 'config' | 'provider_error' | 'budget' | null;
   stopReason: string | null;
 };
 
@@ -421,6 +422,19 @@ export async function screenNextBatch(
 
   for (const queueItem of queue) {
     if (opts.deadlineAt !== undefined && Date.now() >= opts.deadlineAt) {
+      result.hasMore = true;
+      return result;
+    }
+
+    // AI SPEND CEILING (P3-C D33): claim from the shared DB ledger before
+    // every model call — fail closed, mirroring enrichNextBatch. Nothing is
+    // written for the row that hit the ceiling; it re-queues when budget
+    // returns. The safety net stays honest: an unscreened row stays VISIBLY
+    // unscreened rather than being stamped in any way.
+    const claim = await claimAiCall(service);
+    if (!claim.ok) {
+      result.stopKind = 'budget';
+      result.stopReason = claim.reason;
       result.hasMore = true;
       return result;
     }

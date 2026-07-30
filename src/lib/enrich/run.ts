@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { claimAiCall } from '@/lib/ai/budget';
 import {
   buildEnrichmentPrompt,
   type EnrichmentCandidate,
@@ -34,6 +35,12 @@ import type { Database } from '@/lib/supabase/types';
  * apart — 60_000 / 4500 ≈ 13.3 calls/minute, under the free tier's 15-RPM
  * floor with headroom for the readme-fetch + model-latency time each call
  * already burns.
+ *
+ * Since P3-C these schedule-derived numbers are backstopped by a HARD daily
+ * ceiling: every call claims a slot from the `ai_usage` DB ledger
+ * (src/lib/ai/budget.ts, AI_DAILY_MAX) and a refused claim stops the batch
+ * with `stopKind: 'budget'` — so raising throughput is an env change with a
+ * real cap, not an honor-system calculation.
  */
 export const ENRICH_PACE_MS = 4500;
 export const ENRICH_PER_RUN = 5;
@@ -158,7 +165,7 @@ export type EnrichBatchResult = {
   enriched: number;
   empty: number;
   hasMore: boolean;
-  stopKind: 'rate_limited' | 'config' | 'provider_error' | null;
+  stopKind: 'rate_limited' | 'config' | 'provider_error' | 'budget' | null;
   stopReason: string | null;
 };
 
@@ -328,6 +335,19 @@ export async function enrichNextBatch(
 
   for (const queueItem of queue) {
     if (opts.deadlineAt !== undefined && Date.now() >= opts.deadlineAt) {
+      result.hasMore = true;
+      return result;
+    }
+
+    // AI SPEND CEILING (P3-C D33): claim a slot from the shared DB ledger
+    // BEFORE any per-item cost (the readme fetch included). Fail closed —
+    // no slot, no call. Same discipline as the systemic stops below: the row
+    // that hit it stays unstamped and retries when budget returns (tomorrow,
+    // or after AI_DAILY_MAX is raised).
+    const claim = await claimAiCall(service);
+    if (!claim.ok) {
+      result.stopKind = 'budget';
+      result.stopReason = claim.reason;
       result.hasMore = true;
       return result;
     }

@@ -27,7 +27,11 @@ import { supabaseService } from '@/lib/supabase/clients';
  *
  * AI budget: passes 2+3 together spend at most ENRICH_PER_RUN (5) +
  * SCREEN_PER_RUN (3) = 8 Gemini calls per run — the proven daily ceiling
- * (768 scheduled < ~1k free tier) is unchanged from P2.5.
+ * (768 scheduled < ~1k free tier) is unchanged from P2.5. Since P3-C the
+ * schedule-derived ceiling is also HARD-enforced: every model call claims a
+ * slot from the `ai_usage` DB ledger first (src/lib/ai/budget.ts, decision
+ * D33) and a refused claim surfaces here as
+ * `enrichStopKind`/`screenStopKind: 'budget'`.
  *
  * Runs on the offset-minute GitHub Actions schedule (`4,19,34,49 * * * *`,
  * .github/workflows/pipeline.yml) plus a daily Vercel-cron fallback
@@ -72,6 +76,14 @@ const SCREEN_PER_RUN = 3;
  * computeSyncUpdate's fill-only rule.
  */
 const SYNC_BACKFILL_PER_RUN = 5;
+
+/**
+ * Storage monitoring threshold (P3-C C0; board: monitor now, Supabase Pro
+ * when forced). 80% of the 500 MB free-tier ceiling — at ~14 KB/project the
+ * warning fires with tens of thousands of projects of headroom left, not at
+ * the wall.
+ */
+const STORAGE_WARN_MB = 400;
 
 /** The subset of a pending `ingest_candidates` row pass 1 needs to select and prioritize. */
 type PendingCandidateRow = {
@@ -235,6 +247,30 @@ export async function GET(request: Request) {
     }
   }
 
+  // STORAGE MONITORING (P3-C C0): one cheap RPC per run — 96/day — so growth
+  // toward the free-tier ceiling is visible in every pipeline response (and
+  // the GH Actions log trail) with headroom, instead of being discovered at
+  // the wall. Probe failures are logged, never fatal: monitoring must not be
+  // able to take down the pipeline it monitors.
+  let dbSizeMb: number | null = null;
+  {
+    const { data: dbBytes, error: dbSizeError } = await service.rpc('db_size_bytes');
+    if (dbSizeError) {
+      console.error('[cron/pipeline] db size probe failed', { message: dbSizeError.message });
+    } else if (typeof dbBytes === 'number' && Number.isFinite(dbBytes)) {
+      dbSizeMb = Math.round(dbBytes / (1024 * 1024));
+      if (dbSizeMb >= STORAGE_WARN_MB) {
+        console.warn(
+          '[cron/pipeline] database size past warn threshold — plan the Supabase Pro upgrade',
+          {
+            dbSizeMb,
+            warnAtMb: STORAGE_WARN_MB,
+          },
+        );
+      }
+    }
+  }
+
   return NextResponse.json({
     materialized,
     savesCreated,
@@ -251,6 +287,7 @@ export async function GET(request: Request) {
     screenHasMore: screenResult.hasMore,
     screenStopKind: screenResult.stopKind,
     synced,
+    dbSizeMb,
     deadlineHit,
     tookMs: Date.now() - startedAt,
   });

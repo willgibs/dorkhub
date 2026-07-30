@@ -8,6 +8,21 @@ export type Database = {
   };
   public: {
     Tables: {
+      ai_usage: {
+        Row: {
+          calls: number;
+          day: string;
+        };
+        Insert: {
+          calls?: number;
+          day: string;
+        };
+        Update: {
+          calls?: number;
+          day?: string;
+        };
+        Relationships: [];
+      };
       claim_invites: {
         Row: {
           created_at: string;
@@ -770,11 +785,13 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      claim_ai_call: { Args: { p_max: number }; Returns: boolean };
       compute_trending: {
         Args: { likes: number; pub: string; saves: number };
         Returns: number;
       };
       current_profile_id: { Args: never; Returns: string };
+      db_size_bytes: { Args: never; Returns: number };
       recount_project_signals: {
         Args: { p_project_id: string };
         Returns: undefined;

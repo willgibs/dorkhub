@@ -1,6 +1,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { claimAiCall } from '@/lib/ai/budget';
 import { buildEnrichmentPrompt, parseEnrichmentResult } from '@/lib/ai/enrich';
 import { AiConfigError, chatCompletion } from '@/lib/ai/gateway';
 import { validateUsername } from '@/lib/auth/usernames';
@@ -378,50 +379,62 @@ export async function materializeCandidate(
   const repoHasNoContent = !facts.description?.trim() && facts.topics.length === 0;
   if (opts.inlineEnrich === true && tagline === null && tags.length === 0 && repoHasNoContent) {
     try {
-      let readmeText: string | null = null;
-      const readmeResult = await getReadmeRaw(facts.ownerLogin, facts.name);
-      if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
+      // AI SPEND CEILING (P3-C D33): inline enrichment is best-effort sugar,
+      // so a denied claim just skips it — the og image + repo name still
+      // carry the card, and the pipeline's paced enrich pass picks the row
+      // up when budget returns (enriched_at stays null). Claimed BEFORE the
+      // readme fetch so a dry budget doesn't spend GitHub calls either.
+      // Inside the try on purpose: a ledger throw must never fail
+      // materialization, same as every other failure in this block.
+      const claim = await claimAiCall(service);
+      if (!claim.ok) {
+        console.warn('[ingest/materialize] inline enrichment skipped:', claim.reason);
+      } else {
+        let readmeText: string | null = null;
+        const readmeResult = await getReadmeRaw(facts.ownerLogin, facts.name);
+        if (readmeResult.kind === 'ok') readmeText = readmeResult.data;
 
-      const chatResult = await chatCompletion({
-        messages: buildEnrichmentPrompt(
-          {
-            name: facts.name,
-            owner_login: facts.ownerLogin,
-            description: facts.description,
-            primary_language: facts.language,
-            topics: facts.topics,
-          },
-          readmeText,
-        ),
-        maxTokens: ENRICHMENT_MAX_TOKENS,
-      });
+        const chatResult = await chatCompletion({
+          messages: buildEnrichmentPrompt(
+            {
+              name: facts.name,
+              owner_login: facts.ownerLogin,
+              description: facts.description,
+              primary_language: facts.language,
+              topics: facts.topics,
+            },
+            readmeText,
+          ),
+          maxTokens: ENRICHMENT_MAX_TOKENS,
+        });
 
-      if (chatResult.kind === 'ok') {
-        const parsed = parseEnrichmentResult(chatResult.content);
-        if (parsed) {
-          tagline = parsed.tagline;
-          tags = parsed.tags;
-          inlineAiTagline = parsed.tagline;
+        if (chatResult.kind === 'ok') {
+          const parsed = parseEnrichmentResult(chatResult.content);
+          if (parsed) {
+            tagline = parsed.tagline;
+            tags = parsed.tags;
+            inlineAiTagline = parsed.tagline;
 
-          // Audit trail — persist back to the candidate row even though its
-          // status flips to 'approved' below.
-          const { error: enrichWriteError } = await service
-            .from('ingest_candidates')
-            .update({
-              ai_tagline: parsed.tagline,
-              ai_tags: parsed.tags,
-              enriched_at: new Date().toISOString(),
-            })
-            .eq('github_repo_id', githubRepoId);
-          if (enrichWriteError) {
-            console.error(
-              '[ingest/materialize] inline enrichment audit write failed:',
-              enrichWriteError.message,
-            );
+            // Audit trail — persist back to the candidate row even though its
+            // status flips to 'approved' below.
+            const { error: enrichWriteError } = await service
+              .from('ingest_candidates')
+              .update({
+                ai_tagline: parsed.tagline,
+                ai_tags: parsed.tags,
+                enriched_at: new Date().toISOString(),
+              })
+              .eq('github_repo_id', githubRepoId);
+            if (enrichWriteError) {
+              console.error(
+                '[ingest/materialize] inline enrichment audit write failed:',
+                enrichWriteError.message,
+              );
+            }
           }
         }
+        // chatResult.kind === 'rate_limited' | 'error' — swallowed, publish with nulls.
       }
-      // chatResult.kind === 'rate_limited' | 'error' — swallowed, publish with nulls.
     } catch (err) {
       // Covers AiConfigError (no key configured) and any other throw.
       if (err instanceof AiConfigError) {

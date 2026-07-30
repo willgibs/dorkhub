@@ -462,6 +462,153 @@ $$;
 
 rollback;
 
+-- ----------------------------------------------------------------------------
+-- Section I13 — 0013 AI budget ledger: deny-all posture + fail-closed claims
+-- ----------------------------------------------------------------------------
+do $$
+declare
+  v_bad int;
+  v_grants int;
+begin
+  -- RLS enabled, zero policies (deny-all's second gate).
+  if not exists (
+    select 1 from pg_class c
+      join pg_namespace n on n.oid = c.relnamespace
+     where n.nspname = 'public' and c.relname = 'ai_usage' and c.relrowsecurity
+  ) then
+    raise exception 'RLS FAILURE: I13 ai_usage does not have RLS enabled';
+  end if;
+  select count(*) into v_bad from pg_policies
+   where schemaname = 'public' and tablename = 'ai_usage';
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I13 ai_usage has % policies (expected 0 — deny-all)', v_bad;
+  end if;
+
+  -- Zero API-role grants, table- and column-level (deny-all's first gate).
+  select count(*) into v_bad
+    from information_schema.role_table_grants
+   where table_schema = 'public' and table_name = 'ai_usage'
+     and grantee in ('anon', 'authenticated');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I13 ai_usage has % API-role table grants (expected 0)', v_bad;
+  end if;
+  select count(*) into v_bad
+    from information_schema.column_privileges
+   where table_schema = 'public' and table_name = 'ai_usage'
+     and grantee in ('anon', 'authenticated');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I13 ai_usage has % API-role column privileges (expected 0)', v_bad;
+  end if;
+
+  -- service_role keeps full DML (the 0003 bug class).
+  select count(distinct privilege_type) into v_grants
+    from information_schema.role_table_grants
+   where table_schema = 'public' and table_name = 'ai_usage'
+     and grantee = 'service_role'
+     and privilege_type in ('SELECT', 'INSERT', 'UPDATE', 'DELETE');
+  if v_grants < 4 then
+    raise exception 'RLS FAILURE: I13 service_role missing DML on ai_usage (% of 4)', v_grants;
+  end if;
+
+  -- claim_ai_call / db_size_bytes: service_role may execute, API roles may not.
+  if not exists (
+    select 1 from information_schema.routine_privileges
+     where routine_schema = 'public' and routine_name = 'claim_ai_call'
+       and grantee = 'service_role' and privilege_type = 'EXECUTE'
+  ) then
+    raise exception 'RLS FAILURE: I13 service_role cannot execute claim_ai_call';
+  end if;
+  select count(*) into v_bad
+    from information_schema.routine_privileges
+   where routine_schema = 'public'
+     and routine_name in ('claim_ai_call', 'db_size_bytes')
+     and grantee in ('anon', 'authenticated', 'PUBLIC');
+  if v_bad > 0 then
+    raise exception 'RLS FAILURE: I13 budget functions have % API-role/PUBLIC execute grants (expected 0)', v_bad;
+  end if;
+
+  raise notice 'PASS: I13 ai_usage deny-all posture + function grant surface';
+end
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Section I14 — 0013 behavioral (rolled back): the ledger's atomic ceiling +
+-- API-role denial
+-- ----------------------------------------------------------------------------
+begin;
+
+do $$
+declare
+  v_claim boolean;
+begin
+  -- Fresh ledger for today inside this rolled-back transaction.
+  delete from public.ai_usage where day = (now() at time zone 'utc')::date;
+
+  -- Ceiling of 2: claim, claim, then refuse — and the refusal must not
+  -- increment the ledger past the cap.
+  select public.claim_ai_call(2) into v_claim;
+  if v_claim is distinct from true then
+    raise exception 'RLS FAILURE: I14 first claim under a ceiling of 2 was refused';
+  end if;
+  select public.claim_ai_call(2) into v_claim;
+  if v_claim is distinct from true then
+    raise exception 'RLS FAILURE: I14 second claim under a ceiling of 2 was refused';
+  end if;
+  select public.claim_ai_call(2) into v_claim;
+  if v_claim is distinct from false then
+    raise exception 'RLS FAILURE: I14 third claim under a ceiling of 2 was NOT refused';
+  end if;
+  if (select calls from public.ai_usage where day = (now() at time zone 'utc')::date) <> 2 then
+    raise exception 'RLS FAILURE: I14 ledger overshot the ceiling';
+  end if;
+
+  -- Zero ceiling = kill-switch: refused even on an empty ledger (the INSERT
+  -- arm must be guarded too, or the first call of the day sneaks past).
+  delete from public.ai_usage where day = (now() at time zone 'utc')::date;
+  select public.claim_ai_call(0) into v_claim;
+  if v_claim is distinct from false then
+    raise exception 'RLS FAILURE: I14 zero-ceiling claim was NOT refused on an empty ledger';
+  end if;
+  if exists (select 1 from public.ai_usage where day = (now() at time zone 'utc')::date) then
+    raise exception 'RLS FAILURE: I14 zero-ceiling claim wrote a ledger row';
+  end if;
+
+  raise notice 'PASS: I14a ledger enforces the ceiling atomically, zero-ceiling refuses';
+end
+$$;
+
+do $$
+begin
+  set local role authenticated;
+  begin
+    perform 1 from public.ai_usage limit 1;
+    raise exception 'RLS FAILURE: I14 authenticated could select ai_usage';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I14b authenticated denied on ai_usage';
+  end;
+  begin
+    perform public.claim_ai_call(10);
+    raise exception 'RLS FAILURE: I14 authenticated could execute claim_ai_call (budget DoS surface)';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I14c authenticated denied execute on claim_ai_call';
+  end;
+  reset role;
+  set local role anon;
+  begin
+    perform public.claim_ai_call(10);
+    raise exception 'RLS FAILURE: I14 anon could execute claim_ai_call (budget DoS surface)';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: I14d anon denied execute on claim_ai_call';
+  end;
+  reset role;
+end
+$$;
+
+rollback;
+
 do $$
 begin
   raise notice '=== ALL INGESTION CHECKS PASSED — behavioral changes rolled back ===';
