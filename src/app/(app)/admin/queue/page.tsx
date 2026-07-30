@@ -563,6 +563,10 @@ export default async function AdminQueuePage({
       // `stars_count` snapshot keeps live data the decider, so this narrows
       // the window without changing which rows qualify.
       .lt('projects.stars_count', autoApproveMinStars())
+      // DESC on purpose — newest exposure first, where a human's attention
+      // matters most. The screen ENGINE walks this same population ASC
+      // (oldest debt first, src/lib/enrich/screen.ts) — same population,
+      // intentionally different order; don't "align" them (P3-D).
       .order('decided_at', { ascending: false })
       .limit(RETRO_LIMIT),
     // Reports section (P2.6 Wave A2C) — open (unresolved) reports, newest

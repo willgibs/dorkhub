@@ -253,6 +253,10 @@ type RetroCandidateRow = { materialized_project_id: string | null; decided_at: s
  * admin retro section shows (src/app/(app)/admin/queue/page.tsx), not the
  * candidate's stale snapshot. Order preserved from the candidate query
  * (`decided_at` ascending — oldest-approved-and-never-screened first).
+ * SAME POPULATION ≠ SAME ORDER, on purpose (P3-D clarification): the admin
+ * section walks DESC (newest exposure first — where a human's attention
+ * matters most) while this engine drains ASC so no row waits forever. Don't
+ * "align" them; each order serves its audience.
  *
  * The candidate query ALSO prefilters on the snapshot `stars_count` — a
  * window-narrowing heuristic, not the decider (the P2.1 window-bug class,

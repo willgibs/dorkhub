@@ -41,11 +41,12 @@ type PageData = {
   isOwner: boolean;
 };
 
-// Live-verified shape (Wave B1B curl probe against PostgREST) of the
-// `collection_items(count)` aggregate embed: it comes back as a ONE-ELEMENT
-// ARRAY, `collection_items: [{ count: N }]` — not a bare `{ count: N }`
-// object. postgrest-js's generic inference doesn't fully verify this either
-// way, so the cast below is a deliberate IO-boundary trust, same idiom as
+// Live-verified shape (P3-D curl probe against PostgREST) of the id-only
+// visible-members embed: `collection_items: [{ projects: { id } }, ...]` —
+// one entry per item WHOSE PROJECT THE VIEWER CAN SEE (the nested `!inner`
+// join runs under RLS, so an unpublished member simply drops out).
+// postgrest-js's generic inference doesn't fully verify nested embeds, so
+// the cast below is a deliberate IO-boundary trust, same idiom as
 // `toFeedPage` in src/lib/feed/queries.ts.
 type CollectionCountRow = {
   id: string;
@@ -53,7 +54,7 @@ type CollectionCountRow = {
   slug: string;
   description: string | null;
   is_public: boolean;
-  collection_items: Array<{ count: number }>;
+  collection_items: Array<{ projects: { id: string } }>;
 };
 
 /**
@@ -76,9 +77,18 @@ const getPageData = cache(async (username: string): Promise<PageData | null> => 
 
   if (!profile) return null;
 
+  // VIEWER-VISIBLE count (P3-D): a bare `collection_items(count)` counts
+  // every member row, but the detail page renders through an RLS-filtered
+  // `projects!inner` join — so "3 items" could render 2 when a member
+  // project is unpublished. Counting the same RLS-filtered join makes the
+  // number BY CONSTRUCTION what the detail page will show this viewer
+  // (proved on real data: naive 2 vs visible 1 with one drafted member).
+  // ≤ ITEM_CAP (400) id-only entries per list — trivial payload.
   const { data } = await supabase
     .from('collections')
-    .select('id, name, slug, description, is_public, created_at, collection_items(count)')
+    .select(
+      'id, name, slug, description, is_public, created_at, collection_items(projects!collection_items_project_id_fkey!inner(id))',
+    )
     .eq('profile_id', profile.id)
     .order('created_at', { ascending: false });
 
@@ -88,7 +98,7 @@ const getPageData = cache(async (username: string): Promise<PageData | null> => 
     slug: row.slug,
     description: row.description,
     is_public: row.is_public,
-    itemCount: row.collection_items[0]?.count ?? 0,
+    itemCount: row.collection_items.length,
   }));
 
   const isOwner = Boolean(profile.user_id) && claimsData?.claims?.sub === profile.user_id;

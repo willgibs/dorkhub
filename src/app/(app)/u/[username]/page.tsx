@@ -80,9 +80,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   // Public lists only — this page renders via the anon client for
   // cacheability, and the explicit is_public filter is belt-and-suspenders on
   // top of the RLS select policy (same style as the published filter above).
+  // Item counts count VISIBLE members only (P3-D): the id-only
+  // `projects!inner` embed runs under RLS, so an unpublished member drops
+  // out of the count exactly as it drops off the list page.
   const { data: listRows } = await supabase
     .from('collections')
-    .select('name, slug, description, collection_items(count)')
+    .select(
+      'name, slug, description, collection_items(projects!collection_items_project_id_fkey!inner(id))',
+    )
     .eq('profile_id', profile.id)
     .eq('is_public', true)
     .order('created_at', { ascending: false });
@@ -91,8 +96,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     name: row.name,
     slug: row.slug,
     description: row.description,
-    // PostgREST count aggregate arrives as a one-element array (probed live, P3-A).
-    itemCount: (row.collection_items as unknown as Array<{ count: number }>)[0]?.count ?? 0,
+    itemCount: (row.collection_items as unknown as Array<{ projects: { id: string } }>).length,
   }));
 
   // Keeps both the ProjectCard model AND the raw row (id/likes_count) around
