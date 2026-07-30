@@ -19,11 +19,13 @@
   ceiling; 30s per-call timeout (AI_CALL_TIMEOUT_MS); pipeline reports
   aiCallsToday/aiCallsTotal; viewer-visible list counts; screen/admin order
   divergence documented as intentional; motion sweep verdict Approve (zero
-  findings). **Tag p3d awaits Will's green light.**
+  findings). Tagged p3d (Will's green light, 2026-07-30).
 
 ## Next (not started)
 P4 launch round (featured slots, fixture purge, is_admin column-restrict,
 Vercel Pro cron swap, robots flip, sitemap+JSON-LD) — carries board gates.
+BOARD DIRECTIVE (2026-07-30): P4 gets its OWN dedicated planning round —
+do not fold it into another round or start it without Will kicking it off.
 The big import can start any time: pipeline drains ~3,840 materializations/day.
 
 ## Deferred, with reasons (read before the next round)
