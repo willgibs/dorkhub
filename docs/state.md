@@ -16,8 +16,11 @@
 2. FEATURED LABEL wording nod ('featured' default) · TERMS/PRIVACY review.
 3. Then: DEDICATED L5 PLANNING ROUND (board steer: bar = final-product
    feel; signups-off toggle available; many polish rounds expected after).
-DONE since his reply: BIG IMPORT ran (3,792 created; hopper 3,733 pending
-≈23h drain — star threshold only gates screening, NOT drain). SENTRY LIVE
+DONE since his reply: BIG IMPORT ran (3,792 created; hopper 3,733 pending).
+DRAIN CORRECTION: GH Actions schedules are BEST-EFFORT and currently fire
+~1-2h apart, not */15 → scheduler-only drain ≈560/day (~6-7 days). Manual
+ticks work perfectly (40/tick, proven). The already-planned L5 Vercel Pro
+cron swap IS the permanent fix; local boost loop ran overnight. SENTRY LIVE
 (dedicated dorkhub org; DSN in Vercel; CSP carries ingest origin; burn-in
 caught vercel.live toolbar [disable on prod at enforce] + an Electron-pane
 prefetch artifact [no action]).
