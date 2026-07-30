@@ -8,8 +8,8 @@ import { EmptyState } from '@/components/empty-state';
 import { PageShell } from '@/components/page-shell';
 import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
+import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { supabaseServer } from '@/lib/supabase/clients';
-import type { Tables } from '@/lib/supabase/types';
 
 export const metadata: Metadata = { title: copy.listsTitle };
 
@@ -23,8 +23,6 @@ export const metadata: Metadata = { title: copy.listsTitle };
  * exists, and the (app) layout is cookie-free with a client auth island.)
  */
 export const dynamic = 'force-dynamic';
-
-type ProfileRow = Tables<'profiles'>;
 
 type ListRow = {
   id: string;
@@ -72,7 +70,7 @@ const getPageData = cache(async (username: string): Promise<PageData | null> => 
 
   const [{ data: claimsData }, { data: profile }] = await Promise.all([
     supabase.auth.getClaims(),
-    supabase.from('profiles').select('*').eq('username', username).maybeSingle(),
+    supabase.from('profiles').select(PROFILE_COLUMNS).eq('username', username).maybeSingle(),
   ]);
 
   if (!profile) return null;

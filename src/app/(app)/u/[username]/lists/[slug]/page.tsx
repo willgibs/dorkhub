@@ -16,11 +16,11 @@ import { FEED_COLUMNS, type FeedRow } from '@/lib/feed/queries';
 // same feature tree, same relative-import idiom `edit-list-form.tsx` and
 // `delete-list-button.tsx` use to pull the action functions themselves.
 import { ITEM_CAP } from '@/lib/lists/policy';
+import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { supabaseServer } from '@/lib/supabase/clients';
 import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 
-type ProfileRow = Tables<'profiles'>;
 type CollectionRow = Pick<
   Tables<'collections'>,
   'id' | 'name' | 'slug' | 'description' | 'is_public'
@@ -55,7 +55,7 @@ const getPageData = cache(async (username: string, slug: string): Promise<PageDa
 
   const [{ data: claimsData }, { data: profile }] = await Promise.all([
     supabase.auth.getClaims(),
-    supabase.from('profiles').select('*').eq('username', username).maybeSingle(),
+    supabase.from('profiles').select(PROFILE_COLUMNS).eq('username', username).maybeSingle(),
   ]);
 
   if (!profile) return null;

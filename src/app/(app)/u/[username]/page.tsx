@@ -12,9 +12,9 @@ import { ProfileHeader, type ProfileLink } from '@/components/profile-header';
 import { ProjectCard } from '@/components/project-card';
 import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
+import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { PROJECT_CARD_COLUMNS, projectRowToCard } from '@/lib/projects/map';
 import { supabaseAnon } from '@/lib/supabase/clients';
-import type { Tables } from '@/lib/supabase/types';
 
 /**
  * ISR (docs/architecture.md, "Feed & caching"): fetched via the cookie-LESS
@@ -24,13 +24,11 @@ import type { Tables } from '@/lib/supabase/types';
  */
 export const revalidate = 300;
 
-type ProfileRow = Tables<'profiles'>;
-
 const getProfile = cache(async (username: string): Promise<ProfileRow | null> => {
   const supabase = supabaseAnon();
   const { data } = await supabase
     .from('profiles')
-    .select('*')
+    .select(PROFILE_COLUMNS)
     .eq('username', username) // citext column — case-insensitive match
     .maybeSingle();
   return data;

@@ -20,10 +20,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import { languageColor } from '@/lib/lang-colors';
+import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { formatUpdatedAgo, type ProjectRow } from '@/lib/projects/map';
 import { getRelatedProjects } from '@/lib/related/queries';
 import { supabaseServer } from '@/lib/supabase/clients';
-import type { Tables } from '@/lib/supabase/types';
 import { cn } from '@/lib/utils';
 
 /**
@@ -44,8 +44,6 @@ import { cn } from '@/lib/utils';
  */
 export const revalidate = 300;
 
-type ProfileRow = Tables<'profiles'>;
-
 type PageData = {
   profile: ProfileRow;
   project: ProjectRow;
@@ -57,7 +55,7 @@ const getPageData = cache(async (username: string, slug: string): Promise<PageDa
 
   const [{ data: claimsData }, { data: profile }] = await Promise.all([
     supabase.auth.getClaims(),
-    supabase.from('profiles').select('*').eq('username', username).maybeSingle(),
+    supabase.from('profiles').select(PROFILE_COLUMNS).eq('username', username).maybeSingle(),
   ]);
 
   if (!profile) return null;

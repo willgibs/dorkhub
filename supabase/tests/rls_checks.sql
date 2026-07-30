@@ -155,6 +155,45 @@ begin
   end if;
   raise notice 'PASS: projects.language_slug is not API-role-writable';
 
+  -- 2b. 0018: profiles SELECT is COLUMN-LISTED for both API roles — exactly
+  -- the 12 public columns, is_admin absent. column_privileges expands a stray
+  -- table-wide GRANT SELECT into all 13 columns, so a regression to 0001's
+  -- table-level grant shows up here as an "extra" is_admin row.
+  with expected(grantee, column_name) as (
+    select r, c
+      from unnest(array['anon', 'authenticated']) r
+     cross join unnest(array['id', 'user_id', 'username', 'display_name',
+                             'avatar_url', 'bio', 'links', 'github_id',
+                             'github_username', 'followers_count',
+                             'claimed_at', 'created_at']) c
+  ),
+  actual as (
+    select grantee::text, column_name::text
+      from information_schema.column_privileges
+     where table_schema   = 'public'
+       and table_name     = 'profiles'
+       and grantee in ('anon', 'authenticated')
+       and privilege_type = 'SELECT'
+  )
+  select
+    (select string_agg(m.grantee || ':' || m.column_name, ', '
+                       order by m.grantee, m.column_name)
+       from (select * from expected except select * from actual) m),
+    (select string_agg(x.grantee || ':' || x.column_name, ', '
+                       order by x.grantee, x.column_name)
+       from (select * from actual except select * from expected) x)
+    into v_missing, v_extra;
+
+  if v_extra is not null then
+    raise exception
+      'RLS FAILURE: unexpected SELECT column grants on profiles (0018 — is_admin must never be API-readable): %',
+      v_extra;
+  end if;
+  if v_missing is not null then
+    raise exception 'RLS FAILURE: expected SELECT column grants missing on profiles (0018): %', v_missing;
+  end if;
+  raise notice 'PASS: profiles SELECT grants are the exact 12-column public surface (is_admin absent, 0018)';
+
   -- 2a″. 0010 lists: exact column-grant surface for collections tables.
   with expected(table_name, privilege_type, column_name) as (
     values
@@ -517,6 +556,24 @@ begin
   exception
     when insufficient_privilege then
       raise notice 'PASS: T3 is_admin update rejected (insufficient_privilege)';
+  end;
+end
+$$;
+
+-- T27 · is_admin is not READABLE either (0018): the SELECT grant is
+-- column-listed, so admin identities can't be enumerated over the API. The
+-- paired positive (granted columns still read fine) is every other test in
+-- this section that selects from profiles.
+do $$
+declare
+  v boolean;
+begin
+  begin
+    select is_admin into v from public.profiles limit 1;
+    raise exception 'RLS FAILURE: T27 authenticated can read profiles.is_admin (0018 regression)';
+  exception
+    when insufficient_privilege then
+      raise notice 'PASS: T27 is_admin select rejected for authenticated (insufficient_privilege)';
   end;
 end
 $$;
@@ -998,6 +1055,28 @@ begin
     when insufficient_privilege then
       raise notice 'PASS: T16 anon profile update rejected (insufficient_privilege)';
   end;
+end
+$$;
+
+-- T28 · anon: is_admin unreadable, while the granted profile columns still
+-- read fine (the positive half keeps the negative non-vacuous).
+do $$
+declare
+  v boolean;
+  n int;
+begin
+  begin
+    select is_admin into v from public.profiles limit 1;
+    raise exception 'RLS FAILURE: T28 anon can read profiles.is_admin (0018 regression)';
+  exception
+    when insufficient_privilege then
+      null;
+  end;
+  select count(*) into n from (select username from public.profiles limit 1) s;
+  if n <> 1 then
+    raise exception 'RLS FAILURE: T28 anon cannot read granted profile columns (over-revoked?)';
+  end if;
+  raise notice 'PASS: T28 anon: is_admin unreadable, granted columns readable (0018)';
 end
 $$;
 
