@@ -9,16 +9,18 @@
   are; /admin/featured manages). CSP report-only burning in. Search limiter
   wire-proven. Sitemap/JSON-LD/error pages/legal drafts shipped.
 
-## Waiting on Will (morning review)
-1. SENTRY: create the DEDICATED account/org (his call: separate from
-   partyreel) → NEXT_PUBLIC_SENTRY_DSN into Vercel env (code is inert till
-   then; CSP entries derive automatically).
-2. SEED LIST: approve/edit the crawl proposal in p4-launch.md → crawls run
-   from /admin/sources (≈4–5k candidates ≈ 1.5 days of drain).
-3. FEATURED LABEL wording nod ('featured' default) · TERMS/PRIVACY draft
-   review (contact addr = hi@willgibs.com?) · then L5 launch window
-   (ordered checklist in p4-launch.md; Pro upgrade + domain are his
-   dashboard actions; robots flip = BOTH halves in one commit).
+## Waiting on Will
+1. EMAIL (2 min): Cloudflare dash → dorkhub.com → Email → Email Routing →
+   destination dorkhub1@gmail.com (verify link lands there) → address
+   hi@dorkhub.com → Enable. Then I swap the terms/privacy contact.
+2. FEATURED LABEL wording nod ('featured' default) · TERMS/PRIVACY review.
+3. Then: DEDICATED L5 PLANNING ROUND (board steer: bar = final-product
+   feel; signups-off toggle available; many polish rounds expected after).
+DONE since his reply: BIG IMPORT ran (3,792 created; hopper 3,733 pending
+≈23h drain — star threshold only gates screening, NOT drain). SENTRY LIVE
+(dedicated dorkhub org; DSN in Vercel; CSP carries ingest origin; burn-in
+caught vercel.live toolbar [disable on prod at enforce] + an Electron-pane
+prefetch artifact [no action]).
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP. psql session pooler
