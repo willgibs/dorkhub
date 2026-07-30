@@ -154,59 +154,100 @@ export type FeedPage = {
 };
 
 // ---------------------------------------------------------------------------
-// fetchFeedPage / fetchFollowingFeedPage
+// fetchFeedPage / fetchFollowingFeedPage — via the feed_page RPC
 // ---------------------------------------------------------------------------
 
+type FeedPageArgs = Database['public']['Functions']['feed_page']['Args'];
+
 /**
- * Builds the shared filtered+ordered (but not yet limited) query — the common
- * core of `fetchFeedPage` and `fetchFollowingFeedPage`. Keyset pagination via
- * `.or(...)` on the ordering-index tuple; NEVER OFFSET (docs/architecture.md).
+ * The flattened row `feed_page` (migration 0014) returns — every `FeedRow`
+ * project column plus `author_*` columns instead of a nested embed (an RPC
+ * returns a flat table). Derived FROM `FeedRow` so there is exactly one
+ * definition of what a feed row carries; the generated RPC `Returns` type is
+ * not used directly because function table-returns lose nullability in
+ * codegen (`tagline: string`, not `string | null`).
+ */
+export type FeedPageRpcRow = Omit<FeedRow, 'profiles'> & {
+  author_username: string;
+  author_display_name: string | null;
+  author_avatar_url: string | null;
+  author_followers_count: number;
+};
+
+/**
+ * Builds the typed argument object for the `feed_page` RPC (P3-C wave C1,
+ * decision D31). This replaced a PostgREST `.or()` cursor emulation that
+ * COULD NOT SEEK — it scanned the ordering index from the top and discarded
+ * every row before the cursor (`Rows Removed by Filter: 7001` at 10k rows,
+ * 42× slower, O(offset)); the RPC's row comparison seeks directly
+ * (`Index Cond: ROW(...)` — scale_probe.sql P2a/P2b). Deleting the `.or()`
+ * also removed the last interpolated filter string built from user-derived
+ * input: these TYPED args are the boundary now, and the P2.7 cursor
+ * validators in `resolveFeedFilterSpec` stay as defense in depth.
+ *
+ * Optional filters are OMITTED (not passed as null) — the SQL side builds
+ * the exact predicate set it receives.
  *
  * Language matches `language_slug` (migration 0012), a generated
  * `lower(primary_language)` column. This filter was DEAD before that:
- * `resolveFeedFilterSpec` lowercases the incoming value for URL/cache-key
- * hygiene and this then exact-matched the GitHub-cased column, so
- * `/api/feed?language=typescript` returned an empty page for every casing —
- * verified 0 rows on prod against 76 published TypeScript projects.
- * `lower()` rather than a slugify because a slugify collides (`C#` and `C++`
- * both → `c-`); see the column comment in 0012.
+ * `resolveFeedFilterSpec` lowercases the incoming value and the pre-0012
+ * filter exact-matched the GitHub-cased column, so `?language=typescript`
+ * returned an empty page for every casing. `lower()` rather than a slugify
+ * because a slugify collides (`C#` and `C++` both → `c-`).
  */
-function buildFeedQuery(client: SupabaseClient<Database>, spec: FeedFilterSpec) {
-  let query = client.from('projects').select(FEED_COLUMNS).eq('status', 'published');
+export function buildFeedRpcArgs(spec: FeedFilterSpec, followeeIds: string[] | null): FeedPageArgs {
+  // limit + 1: the look-ahead row `toFeedPage` uses to derive `nextCursor`.
+  const args: FeedPageArgs = { p_sort: spec.sort, p_limit: spec.limit + 1 };
+  if (spec.tag) args.p_tag = spec.tag;
+  if (spec.language) args.p_language = spec.language;
+  if (followeeIds) args.p_profile_ids = followeeIds;
 
-  if (spec.tag) query = query.contains('tags', [spec.tag]);
-  if (spec.language) query = query.eq('language_slug', spec.language);
-
-  if (spec.sort === 'trending') {
-    query = query.order('trending_score', { ascending: false }).order('id', { ascending: false });
-    if (spec.cursor) {
+  if (spec.cursor) {
+    if (spec.sort === 'trending') {
       const [score, id] = spec.cursor as TrendingCursor;
-      query = query.or(`trending_score.lt.${score},and(trending_score.eq.${score},id.lt.${id})`);
-    }
-  } else {
-    query = query.order('published_at', { ascending: false }).order('id', { ascending: false });
-    if (spec.cursor) {
+      args.p_cursor_score = score;
+      args.p_cursor_id = id;
+    } else {
       const [publishedAtIso, id] = spec.cursor as RecentCursor;
-      query = query.or(
-        `published_at.lt.${publishedAtIso},and(published_at.eq.${publishedAtIso},id.lt.${id})`,
-      );
+      args.p_cursor_at = publishedAtIso;
+      args.p_cursor_id = id;
     }
   }
 
-  return query;
+  return args;
+}
+
+/** Re-nests the RPC's flattened `author_*` columns into the `profiles` embed shape every feed consumer renders. */
+export function flattenedToFeedRow(row: FeedPageRpcRow): FeedRow {
+  const {
+    author_username,
+    author_display_name,
+    author_avatar_url,
+    author_followers_count,
+    ...project
+  } = row;
+  return {
+    ...project,
+    profiles: {
+      username: author_username,
+      display_name: author_display_name,
+      avatar_url: author_avatar_url,
+      followers_count: author_followers_count,
+    },
+  };
 }
 
 /**
- * Fetches limit+1 rows, slices back to `spec.limit`, and derives `nextCursor`
- * from the last KEPT row. The select-string embed (`profiles!inner(...)`)
- * isn't fully verified by postgrest-js's generic inference, so the cast to
- * `FeedRow[]` is an explicit, deliberate IO-boundary trust — the shape is
- * enforced by `FEED_COLUMNS` above and covered by the caller's own tests.
+ * Takes the RPC's limit+1 look-ahead rows, slices back to `spec.limit`, and
+ * derives `nextCursor` from the last KEPT row. The cast to
+ * `FeedPageRpcRow[]` is an explicit, deliberate IO-boundary trust — the
+ * shape is enforced by the migration's `returns table` and proven
+ * row-identical to the old embed path on live data (C1 parity check).
  */
 function toFeedPage(data: unknown, spec: FeedFilterSpec): FeedPage {
-  const rows = (data ?? []) as unknown as FeedRow[];
-  const hasMore = rows.length > spec.limit;
-  const page = hasMore ? rows.slice(0, spec.limit) : rows;
+  const flat = (data ?? []) as unknown as FeedPageRpcRow[];
+  const hasMore = flat.length > spec.limit;
+  const page = (hasMore ? flat.slice(0, spec.limit) : flat).map(flattenedToFeedRow);
   const last = page[page.length - 1];
 
   const nextCursor =
@@ -223,7 +264,7 @@ export async function fetchFeedPage(
   spec: FeedFilterSpec,
   client: SupabaseClient<Database>,
 ): Promise<FeedPage> {
-  const { data, error } = await buildFeedQuery(client, spec).limit(spec.limit + 1);
+  const { data, error } = await client.rpc('feed_page', buildFeedRpcArgs(spec, null));
   if (error) {
     console.error('[feed/queries] fetchFeedPage failed', { message: error.message });
     return { rows: [], nextCursor: null };
@@ -231,7 +272,7 @@ export async function fetchFeedPage(
   return toFeedPage(data, spec);
 }
 
-/** Same as `fetchFeedPage`, scoped to a set of followed profiles. Empty `followeeIds` short-circuits WITHOUT querying (an empty `.in()` would otherwise round-trip for nothing). */
+/** Same as `fetchFeedPage`, scoped to a set of followed profiles. Empty `followeeIds` short-circuits WITHOUT querying (the RPC treats a null array as "no filter", so an empty one must never reach it). */
 export async function fetchFollowingFeedPage(
   spec: FeedFilterSpec,
   followeeIds: string[],
@@ -241,9 +282,7 @@ export async function fetchFollowingFeedPage(
     return { rows: [], nextCursor: null };
   }
 
-  const { data, error } = await buildFeedQuery(client, spec)
-    .in('profile_id', followeeIds)
-    .limit(spec.limit + 1);
+  const { data, error } = await client.rpc('feed_page', buildFeedRpcArgs(spec, followeeIds));
   if (error) {
     console.error('[feed/queries] fetchFollowingFeedPage failed', { message: error.message });
     return { rows: [], nextCursor: null };

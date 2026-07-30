@@ -141,6 +141,19 @@ select id from public.projects
  order by trending_score desc, id desc
  limit 24;
 
+\echo '=== P2c: feed_page RPC end-to-end at the same deep cursor (C1) ==='
+\echo '=== the function scan is opaque to EXPLAIN — judge by Execution Time, and'
+\echo '=== judge the SECOND call: the first pays one-time session costs (plpgsql'
+\echo '=== compile, ~2.6ms measured). Warm steady state ≈0.64ms for the FULL'
+\echo '=== column set + author join + per-call dynamic plan, vs 3.57ms for the'
+\echo '=== old full-shape OR query — and flat with depth instead of linear.'
+explain (analyze, buffers)
+select id from public.feed_page('trending', 25,
+  p_cursor_score => :trend_cur_score, p_cursor_id => :'trend_cur_id');
+explain (analyze, buffers)
+select id from public.feed_page('trending', 25,
+  p_cursor_score => :trend_cur_score, p_cursor_id => :'trend_cur_id');
+
 \echo '=== P3: deep recent-feed cursor, row-comparison shape ==='
 explain (analyze, buffers)
 select id from public.projects

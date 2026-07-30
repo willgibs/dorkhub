@@ -792,6 +792,43 @@ export type Database = {
       };
       current_profile_id: { Args: never; Returns: string };
       db_size_bytes: { Args: never; Returns: number };
+      feed_page: {
+        Args: {
+          p_cursor_at?: string;
+          p_cursor_id?: string;
+          p_cursor_score?: number;
+          p_language?: string;
+          p_limit: number;
+          p_profile_ids?: string[];
+          p_sort: string;
+          p_tag?: string;
+        };
+        Returns: {
+          author_avatar_url: string;
+          author_display_name: string;
+          author_followers_count: number;
+          author_username: string;
+          demo_url: string;
+          forks_count: number;
+          github_pushed_at: string;
+          id: string;
+          license: string;
+          likes_count: number;
+          lists_count: number;
+          name: string;
+          primary_language: string;
+          profile_id: string;
+          published_at: string;
+          repo_full_name: string;
+          screenshots: Json;
+          slug: string;
+          stars_count: number;
+          tagline: string;
+          tags: string[];
+          trending_score: number;
+          updated_at: string;
+        }[];
+      };
       recount_project_signals: {
         Args: { p_project_id: string };
         Returns: undefined;
