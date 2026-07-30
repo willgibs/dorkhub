@@ -3,9 +3,10 @@
 -- ============================================================================
 -- Run as a privileged role (Supabase SQL editor, or MCP execute_sql) AFTER
 -- applying supabase/migrations/0001_init.sql. Sections 1–3 are structural and
--- have no prerequisites; Section 4 is behavioral and requires supabase/seed.sql
--- (it references the fixed seed UUIDs) — everything it touches happens inside
--- a transaction that is ROLLED BACK at the end.
+-- have no prerequisites; Section 4 is behavioral and SELF-PROVISIONS every row
+-- it needs (P4: no seed.sql dependency — runs identically on seeded dev and
+-- purged prod) — everything it touches happens inside a transaction that is
+-- ROLLED BACK at the end.
 --
 -- Every check prints a "PASS: ..." notice. Any failure raises an exception
 -- prefixed "RLS FAILURE:" (or "SETUP FAILURE:") and aborts the script, so a
@@ -377,37 +378,88 @@ $$;
 -- Section 4 — negative behavioral tests (rolled back)
 -- ----------------------------------------------------------------------------
 -- Impersonates a signed-in user by (a) creating a throwaway auth.users row,
--- (b) claiming the seeded @mollybuilds profile with it, then (c) switching to
--- the `authenticated` role with a matching JWT claim. Everything is undone by
--- the ROLLBACK at the end.
+-- (b) claiming a SELF-PROVISIONED throwaway profile with it, then (c) switching
+-- to the `authenticated` role with a matching JWT claim. Everything is undone
+-- by the ROLLBACK at the end.
 --
--- Fixed seed UUIDs used below:
---   mollybuilds profile: a1000000-0000-4000-8000-000000000001
---   gremlinworks draft project (prcrastinator): b2000000-0000-4000-8000-000000000009
+-- The suite provisions every row it needs (P4: the prod seed fixtures are
+-- purged, so nothing here may depend on seed.sql). Provisioned github_ids sit
+-- far OUTSIDE GitHub's real id space — the old fixtures carried real-range ids
+-- and were therefore claimable by strangers, the exact hazard the purge closed.
+-- Captured ids live in a temp table because psql vars don't reach into $$
+-- bodies and the role-switched blocks below need to read them.
+--
+-- Fixed UUID used below:
 --   throwaway auth user: f0000000-0000-4000-8000-00000000feed
 
 begin;
 
--- Guard: seeds must be present.
-do $$
-begin
-  if not exists (select 1 from public.profiles where username = 'mollybuilds') then
-    raise exception 'SETUP FAILURE: seed.sql has not been applied (mollybuilds profile missing)';
-  end if;
-end
-$$;
-
--- Setup (privileged): throwaway auth user + claim mollybuilds.
+-- Setup (privileged): throwaway auth user + self-provisioned profiles/projects.
 insert into auth.users (id, instance_id, aud, role, email, created_at, updated_at)
 values ('f0000000-0000-4000-8000-00000000feed',
         '00000000-0000-0000-0000-000000000000',
         'authenticated', 'authenticated',
         'rls-check@example.com', now(), now());
 
-update public.profiles
-   set user_id = 'f0000000-0000-4000-8000-00000000feed',
-       claimed_at = now()
- where username = 'mollybuilds';
+create temp table rls_check_ids (key text primary key, id uuid not null);
+
+do $$
+declare
+  v_a uuid;
+  v_b uuid;
+  v_own_draft uuid;
+  v_other_pub uuid;
+  v_other_draft uuid;
+begin
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-owner-a', 'rls-check-owner-a', 991000000001)
+  returning id into v_a;
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-owner-b', 'rls-check-owner-b', 991000000002)
+  returning id into v_b;
+
+  -- Claim A with the throwaway auth user (the M8 claim shape).
+  update public.profiles
+     set user_id = 'f0000000-0000-4000-8000-00000000feed', claimed_at = now()
+   where id = v_a;
+
+  -- A's own draft — positive-control target for T6/T7/T8.
+  insert into public.projects
+    (profile_id, slug, github_repo_id, repo_full_name, repo_url, name, status)
+  values (v_a, 'rls-check-own-project', 991000000101, 'rls-check-owner-a/own',
+          'https://github.com/rls-check-owner-a/own', 'own', 'draft')
+  returning id into v_own_draft;
+
+  -- B's PUBLISHED project — T9 targets a row the user can SEE but not write,
+  -- which exercises projects_update_own's USING against a visible row (sharper
+  -- than the old draft target, where 0 rows also followed from invisibility).
+  -- Direct-published inserts must stamp published_at + trending_score
+  -- explicitly: the trigger that does so is UPDATE-only (P1 note).
+  insert into public.projects
+    (profile_id, slug, github_repo_id, repo_full_name, repo_url, name,
+     status, published_at, trending_score)
+  values (v_b, 'rls-check-other-pub', 991000000102, 'rls-check-owner-b/pub',
+          'https://github.com/rls-check-owner-b/pub', 'pub',
+          'published', now(), 0)
+  returning id into v_other_pub;
+
+  -- B's draft — invisible/unlikeable/unlistable target for T11/T12/T20.
+  insert into public.projects
+    (profile_id, slug, github_repo_id, repo_full_name, repo_url, name, status)
+  values (v_b, 'rls-check-other-draft', 991000000103, 'rls-check-owner-b/draft',
+          'https://github.com/rls-check-owner-b/draft', 'draft', 'draft')
+  returning id into v_other_draft;
+
+  -- One like row owned by A, so T10's own-rows assertion is non-vacuous.
+  insert into public.likes (profile_id, project_id) values (v_a, v_other_pub);
+
+  insert into rls_check_ids values
+    ('profile_a', v_a), ('profile_b', v_b), ('own_draft', v_own_draft),
+    ('other_pub', v_other_pub), ('other_draft', v_other_draft);
+end
+$$;
+
+grant select on rls_check_ids to authenticated, anon;
 
 -- Become that user.
 set local role authenticated;
@@ -421,8 +473,8 @@ declare
   v uuid;
 begin
   v := public.current_profile_id();
-  if v is distinct from 'a1000000-0000-4000-8000-000000000001'::uuid then
-    raise exception 'SETUP FAILURE: current_profile_id() = %, expected mollybuilds profile — JWT wiring broken', v;
+  if v is distinct from (select id from rls_check_ids where key = 'profile_a') then
+    raise exception 'SETUP FAILURE: current_profile_id() = %, expected the claimed throwaway profile — JWT wiring broken', v;
   end if;
   raise notice 'PASS: T0 current_profile_id() resolves to the claimed profile';
 end
@@ -433,7 +485,7 @@ do $$
 declare
   n int;
 begin
-  update public.profiles set bio = 'rls-check own bio write' where username = 'mollybuilds';
+  update public.profiles set bio = 'rls-check own bio write' where username = 'rls-check-owner-a';
   get diagnostics n = row_count;
   if n <> 1 then
     raise exception 'RLS FAILURE: T1 expected to update own bio (1 row), got % rows', n;
@@ -447,7 +499,7 @@ do $$
 declare
   n int;
 begin
-  update public.profiles set bio = 'hijacked' where username = 'gremlinworks';
+  update public.profiles set bio = 'hijacked' where username = 'rls-check-owner-b';
   get diagnostics n = row_count;
   if n <> 0 then
     raise exception 'RLS FAILURE: T2 updated % rows of another profile''s bio', n;
@@ -460,7 +512,7 @@ $$;
 do $$
 begin
   begin
-    update public.profiles set is_admin = true where username = 'mollybuilds';
+    update public.profiles set is_admin = true where username = 'rls-check-owner-a';
     raise exception 'RLS FAILURE: T3 is_admin update was allowed for authenticated';
   exception
     when insufficient_privilege then
@@ -475,7 +527,7 @@ begin
   begin
     update public.profiles
        set user_id = '00000000-0000-0000-0000-000000000001'
-     where username = 'mollybuilds';
+     where username = 'rls-check-owner-a';
     raise exception 'RLS FAILURE: T4 user_id update was allowed for authenticated';
   exception
     when insufficient_privilege then
@@ -491,9 +543,9 @@ begin
     insert into public.projects
       (profile_id, slug, github_repo_id, repo_full_name, repo_url, name)
     values
-      ('a1000000-0000-4000-8000-000000000001', 'sneaky-project', 999999999,
-       'mollybuilds/sneaky-project', 'https://github.com/mollybuilds/sneaky-project',
-       'sneaky-project');
+      ((select id from rls_check_ids where key = 'profile_a'), 'sneaky-project',
+       991000000199, 'rls-check-owner-a/sneaky-project',
+       'https://github.com/rls-check-owner-a/sneaky-project', 'sneaky-project');
     raise exception 'RLS FAILURE: T5 direct project INSERT was allowed for authenticated';
   exception
     when insufficient_privilege then
@@ -508,7 +560,7 @@ begin
   begin
     update public.projects
        set readme_html = '<script>alert(1)</script>'
-     where slug = 'tinysynth'
+     where slug = 'rls-check-own-project'
        and profile_id = public.current_profile_id();
     raise exception 'RLS FAILURE: T6 readme_html update was allowed for authenticated';
   exception
@@ -524,7 +576,7 @@ begin
   begin
     update public.projects
        set stars_count = 999999
-     where slug = 'tinysynth'
+     where slug = 'rls-check-own-project'
        and profile_id = public.current_profile_id();
     raise exception 'RLS FAILURE: T7 stars_count update was allowed for authenticated';
   exception
@@ -540,8 +592,8 @@ declare
   n int;
 begin
   update public.projects
-     set tagline = 'a 2KB web synth you can play with your keyboard'
-   where slug = 'tinysynth'
+     set tagline = 'rls-check own tagline write'
+   where slug = 'rls-check-own-project'
      and profile_id = public.current_profile_id();
   get diagnostics n = row_count;
   if n <> 1 then
@@ -551,12 +603,15 @@ begin
 end
 $$;
 
--- T9 · cannot update someone else's project (0 rows).
+-- T9 · cannot update someone else's project (0 rows). The target is B's
+-- PUBLISHED project — visible to this user through the select policy, so the
+-- 0 rows can only come from projects_update_own's USING clause, not from the
+-- row being invisible.
 do $$
 declare
   n int;
 begin
-  update public.projects set tagline = 'hijacked' where slug = 'gitgoblin';
+  update public.projects set tagline = 'hijacked' where slug = 'rls-check-other-pub';
   get diagnostics n = row_count;
   if n <> 0 then
     raise exception 'RLS FAILURE: T9 updated % rows of another profile''s project', n;
@@ -582,7 +637,7 @@ begin
     from public.likes
    where profile_id = public.current_profile_id();
   if n_own < 1 then
-    raise exception 'RLS FAILURE: T10 cannot see own like rows (seeded rows expected) — select policy too strict or JWT wiring broken';
+    raise exception 'RLS FAILURE: T10 cannot see own like rows (setup provisions one) — select policy too strict or JWT wiring broken';
   end if;
   raise notice 'PASS: T10 likes visibility limited to own rows (% own, 0 others)', n_own;
 end
@@ -593,7 +648,8 @@ do $$
 begin
   begin
     insert into public.likes (profile_id, project_id)
-    values (public.current_profile_id(), 'b2000000-0000-4000-8000-000000000009');
+    values (public.current_profile_id(),
+            (select id from rls_check_ids where key = 'other_draft'));
     raise exception 'RLS FAILURE: T11 liking a draft project was allowed';
   exception
     when insufficient_privilege then
@@ -609,7 +665,7 @@ declare
 begin
   select count(*) into n
     from public.projects
-   where id = 'b2000000-0000-4000-8000-000000000009';
+   where id = (select id from rls_check_ids where key = 'other_draft');
   if n <> 0 then
     raise exception 'RLS FAILURE: T12 another profile''s draft project is visible';
   end if;
@@ -632,7 +688,8 @@ begin
 end
 $$;
 
--- T14 · featured_slots exposes only the active window (seed has 1 active + 1 future).
+-- T14 · featured_slots exposes only the active window: any visible
+-- out-of-window row, whatever created it, is a policy failure.
 do $$
 declare
   n int;
@@ -693,20 +750,30 @@ $$;
 --
 -- The count is read through a privileged detour because projects.lists_count
 -- is readable by anon, but we want the recount's own answer, not an RLS view.
+-- Asserted as a DELTA against the pre-existing count: the target is a LIVE
+-- published row, and real users' public lists may legitimately include it —
+-- only this transaction's +1 (public) / +0 (private) is ours to demand.
 do $$
 declare
   v_project uuid;
   n int;
+  n_before int;
 begin
   select id into v_project
     from public.projects where status = 'published' order by created_at asc limit 1;
 
   reset role;
+  select coalesce((
+    select count(*) from public.collection_items ci
+      join public.collections c on c.id = ci.collection_id
+     where ci.project_id = v_project and c.is_public
+       and c.slug not in ('rls-check-public', 'rls-check-private')), 0)
+    into n_before;
   select lists_count into n from public.projects where id = v_project;
   set local role authenticated;
 
-  if n <> 1 then
-    raise exception 'RLS FAILURE: T25 (D18) lists_count = % for a project in 1 public + 1 private list (expected 1)', n;
+  if n <> n_before + 1 then
+    raise exception 'RLS FAILURE: T25 (D18) lists_count = % for a project this txn put in 1 public + 1 private list (expected pre-existing % + 1)', n, n_before;
   end if;
   raise notice 'PASS: T25 lists_count counts the public list only, not the private one (D18)';
 end
@@ -742,12 +809,12 @@ begin
 end
 $$;
 
--- T19 setup (privileged detour): a list owned by gremlinworks, then resume
--- the claimed mollybuilds identity.
+-- T19 setup (privileged detour): a list owned by profile B, then resume
+-- the claimed profile-A identity.
 reset role;
 insert into public.collections (id, profile_id, name, slug)
 values ('c0999999-0000-4000-8000-000000000001',
-        'a1000000-0000-4000-8000-000000000002',
+        (select id from rls_check_ids where key = 'profile_b'),
         'rls check other', 'rls-check-other');
 set local role authenticated;
 set local request.jwt.claims =
@@ -779,7 +846,7 @@ begin
     insert into public.collection_items (collection_id, project_id)
     values ((select id from public.collections
               where slug = 'rls-check-public' and profile_id = public.current_profile_id()),
-            'b2000000-0000-4000-8000-000000000009');
+            (select id from rls_check_ids where key = 'other_draft'));
     raise exception 'RLS FAILURE: T20 adding a draft project to a list was allowed';
   exception
     when insufficient_privilege then
@@ -818,7 +885,7 @@ $$;
 -- on `.eq('id', …)`, delegating authorization ENTIRELY to these policies
 -- (see the header of src/app/(app)/u/[username]/lists/actions.ts).
 --
--- Still gremlinworks' list from the T19 setup; session is mollybuilds.
+-- Still profile B's list from the T19 setup; session is profile A.
 do $$
 declare
   victim constant uuid := 'c0999999-0000-4000-8000-000000000001';
@@ -915,7 +982,7 @@ begin
     raise exception 'RLS FAILURE: T15 anon can see % draft projects', n_draft;
   end if;
   if n_pub < 1 then
-    raise exception 'RLS FAILURE: T15 anon sees no published projects (seeds expected) — select policy too strict';
+    raise exception 'RLS FAILURE: T15 anon sees no published projects (setup provisions one; live rows expected too) — select policy too strict';
   end if;
   raise notice 'PASS: T15 anon sees % published projects and 0 drafts', n_pub;
 end
@@ -925,7 +992,7 @@ $$;
 do $$
 begin
   begin
-    update public.profiles set bio = 'anon was here' where username = 'mollybuilds';
+    update public.profiles set bio = 'anon was here' where username = 'rls-check-owner-a';
     raise exception 'RLS FAILURE: T16 anon profile update was allowed';
   exception
     when insufficient_privilege then

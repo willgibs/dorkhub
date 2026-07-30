@@ -115,13 +115,23 @@ begin;
 
 do $$
 declare
-  v_profile_a uuid := 'a1000000-0000-4000-8000-000000000001'; -- mollybuilds (seed)
-  v_profile_b uuid := 'a1000000-0000-4000-8000-000000000002'; -- gremlinworks (seed)
+  v_profile_a uuid;
+  v_profile_b uuid;
   v_repo bigint := 990000000001;
   v_demand int;
   v_status text;
   v_project uuid;
 begin
+  -- Self-provisioned actors — no seed.sql dependency (P4: prod fixtures
+  -- purged). github_ids sit far outside GitHub's real id space, so unlike the
+  -- old fixtures these rows could never be claimed by a real account.
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-ingest-a', 'rls-check-ingest-a', 990000000901)
+  returning id into v_profile_a;
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-ingest-b', 'rls-check-ingest-b', 990000000902)
+  returning id into v_profile_b;
+
   insert into public.ingest_candidates
     (github_repo_id, owner_github_id, owner_login, repo_full_name, repo_url, name, source)
   values
@@ -350,12 +360,20 @@ begin;
 
 do $$
 declare
-  v_profile_a uuid := 'a1000000-0000-4000-8000-000000000001'; -- mollybuilds (seed)
-  v_profile_b uuid := 'a1000000-0000-4000-8000-000000000002'; -- gremlinworks (seed)
+  v_profile_a uuid;
+  v_profile_b uuid;
   v_project uuid;
   v_verdict text;
   v_count int;
 begin
+  -- Self-provisioned actors (see I4's note — no seed.sql dependency).
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-ingest-a', 'rls-check-ingest-a', 990000000903)
+  returning id into v_profile_a;
+  insert into public.profiles (username, github_username, github_id)
+  values ('rls-check-ingest-b', 'rls-check-ingest-b', 990000000904)
+  returning id into v_profile_b;
+
   insert into public.projects
     (profile_id, slug, github_repo_id, repo_full_name, repo_url, name, status)
   values
