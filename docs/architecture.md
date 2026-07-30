@@ -162,9 +162,12 @@ the admin queues; AI never unpublishes (vision permits reversible automation
 `supabase/tests/scale_probe.sql` re-measures every hot path at 10k projects /
 100k candidates in one rolled-back command — run it before trusting any perf
 change; pass/fail tells in its header. AI spend: `ai_usage` ledger + atomic
-`claim_ai_call(p_max)` (D33) — every `chatCompletion` path claims first, fails
-CLOSED, `AI_DAILY_MAX` env (default 800, `0` = kill-switch); execute revoked
-from API roles (budget-DoS surface). Cron split (D34): GH Actions pings
+`claim_ai_call(p_max, p_total_max)` (D33/D39) — every `chatCompletion` path
+claims first, fails CLOSED, dollar-honest ceilings: `AI_DAILY_MAX` (default
+800 ≈ ≤$0.48/day) and `AI_TOTAL_MAX` lifetime (default 5,000 ≈ ≤$3), `0` =
+kill-switch on either; execute revoked from API roles (budget-DoS surface).
+Per-call `AbortSignal.timeout` 30s (`AI_CALL_TIMEOUT_MS`, D40). Pipeline
+reports `aiCallsToday`/`aiCallsTotal`. Cron split (D34): GH Actions pings
 `/api/cron/pipeline` (enrich+screen, safety) then `/api/cron/ingest`
 (materialize demand-first per D38 + sync slice); Vercel's 2 Hobby fallback
 crons stay on sync + pipeline. Storage: `db_size_bytes()` in every pipeline
