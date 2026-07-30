@@ -712,6 +712,36 @@ begin
 end
 $$;
 
+-- T26 · counters guard vs generated columns (0016 regression pin). 0012's
+-- generated `language_slug` is NULL on NEW inside BEFORE triggers (generated
+-- columns compute after they run), which made every update of a
+-- language-having row read as a real edit — so likes/saves/list toggles
+-- bumped updated_at: "just shipped on every like", the exact bug the guard
+-- was written for in 0001, silently reintroduced. This sets a language,
+-- performs a counter-only update, and demands updated_at hold.
+do $$
+declare
+  v_project uuid;
+  t_before timestamptz;
+  t_after timestamptz;
+begin
+  reset role;
+  select id into v_project
+    from public.projects where status = 'published' order by created_at asc limit 1;
+  update public.projects set primary_language = 'TypeScript' where id = v_project;
+  select updated_at into t_before from public.projects where id = v_project;
+
+  update public.projects set likes_count = likes_count + 1 where id = v_project;
+
+  select updated_at into t_after from public.projects where id = v_project;
+  if t_after is distinct from t_before then
+    raise exception 'RLS FAILURE: T26 counter-only update bumped updated_at on a language-having row (generated-column guard regression, 0016)';
+  end if;
+  raise notice 'PASS: T26 counter-only update leaves updated_at alone with language_slug set (0016)';
+  set local role authenticated;
+end
+$$;
+
 -- T19 setup (privileged detour): a list owned by gremlinworks, then resume
 -- the claimed mollybuilds identity.
 reset role;

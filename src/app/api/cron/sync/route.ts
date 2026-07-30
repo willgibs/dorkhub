@@ -5,8 +5,22 @@ import { supabaseService } from '@/lib/supabase/clients';
 // Vercel Hobby cron budget is 60s max — matches vercel.json's daily schedule.
 export const maxDuration = 60;
 
-const BATCH_SIZE = 200;
+/**
+ * P3-C wave C3: the batch is DEADLINE-governed, not count-governed. The old
+ * fixed BATCH_SIZE=200 with no deadline meant a 10k gallery took 50 days to
+ * refresh while the route used a fraction of its window (200 mostly-304
+ * items × ~0.25 s ÷ 5 workers ≈ 10 s of a 60 s budget). Now the window is
+ * the budget: pull a generous queue slice, process until the soft deadline,
+ * and let unfinished items retry next run (last_synced_at only bumps on a
+ * processed item, so the queue order self-heals). 304s dominate a steady-
+ * state walk — ~1,000+/run at 5 workers — and the daily total stays trivial
+ * against GitHub's 5k/HOUR limit. The 15-min ingest route's 50-item slice
+ * (P3-C D34) does the intra-day freshness work; this daily walk is the
+ * backstop that touches everything.
+ */
+const BATCH_SIZE = 1000;
 const CONCURRENCY = 5;
+const SOFT_DEADLINE_MS = 50_000;
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -15,6 +29,8 @@ export async function GET(request: Request) {
     return new Response('unauthorized', { status: 401 });
   }
 
+  const startedAt = Date.now();
+  const deadlineAt = startedAt + SOFT_DEADLINE_MS;
   const service = supabaseService();
 
   // Matches idx_projects_sync_queue; drafts are excluded on purpose (they sync on demand).
@@ -38,9 +54,11 @@ export async function GET(request: Request) {
 
   async function worker() {
     while (true) {
-      if (stop) {
-        // Remaining items are skipped once a rate_limited outcome is seen —
-        // in-flight items still finish, but nothing new starts.
+      if (stop || Date.now() >= deadlineAt) {
+        // Remaining items are skipped once a rate_limited outcome (or the
+        // soft deadline) is seen — in-flight items still finish, but nothing
+        // new starts. Skipped items keep their old last_synced_at and lead
+        // the queue next run.
         while (cursor < ids.length) {
           cursor++;
           tally.skipped++;
@@ -81,5 +99,5 @@ export async function GET(request: Request) {
 
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
-  return NextResponse.json({ batch: ids.length, ...tally });
+  return NextResponse.json({ batch: ids.length, ...tally, tookMs: Date.now() - startedAt });
 }
