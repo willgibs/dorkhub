@@ -41,24 +41,12 @@ async function allRows<Row>(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = supabaseAnon();
 
-  const [projects, profiles, tags] = await Promise.all([
+  const [projects, tags] = await Promise.all([
     allRows((from, to) =>
       supabase
         .from('projects')
         .select('slug, github_pushed_at, profiles!projects_profile_id_fkey!inner(username)')
         .eq('status', 'published')
-        .order('id')
-        .range(from, to),
-    ),
-    // Profiles WITH a published project only (FK-named empty !inner embed =
-    // pure filter; bare `projects` is PGRST201-ambiguous via likes/saves —
-    // probed live). Unfiltered, this pushed the file to 55,679 URLs — over
-    // the 50k/sitemap spec limit — and indexed thin zero-project pages.
-    allRows((from, to) =>
-      supabase
-        .from('profiles')
-        .select('username, projects!projects_profile_id_fkey!inner()')
-        .eq('projects.status', 'published')
         .order('id')
         .range(from, to),
     ),
@@ -90,8 +78,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  const profileEntries: MetadataRoute.Sitemap = profiles.map((row) => ({
-    url: `${SITE_URL}/u/${row.username}`,
+  // Profiles = the DISTINCT authors of the projects above — exactly the
+  // "has a published project" set (14,020 at 16,972 projects), derived from
+  // rows already fetched. A separate embed-filtered profiles walk was tried
+  // and cut off at exactly 4,000: with an inner-embed filter a .range() page
+  // can come back short because the FILTER dropped rows from that page, not
+  // because the set is exhausted — the pagination-layer form of the
+  // window-then-filter class. Deriving from the project rows has no
+  // pagination semantics to get wrong and can't disagree with the listing.
+  const authorUsernames = new Set(
+    projects.map((row) => (row.profiles as unknown as { username: string }).username),
+  );
+  const profileEntries: MetadataRoute.Sitemap = [...authorUsernames].map((username) => ({
+    url: `${SITE_URL}/u/${username}`,
     priority: 0.4,
   }));
 
