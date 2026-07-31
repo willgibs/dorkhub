@@ -20,7 +20,10 @@
 
 ## Waiting on Will
 1. Announce timing + claim invites — his clock entirely.
-2. UI-upgrade round scoping (his direction; rendered options per his style).
+2. **U1 pick (R2)**: https://dorkhub.com/design/directions is LIVE —
+   warm-terminal / paper-zine / electric-depth vs current, real content,
+   noindexed (docs/plans/u1-ui-refresh.md). His pick (or hybrid, or keep
+   current) → R3 adoption wave.
 
 ## Post-launch watch (first month)
 GSC coverage as 36k URLs index · Vercel Usage weekly (bandwidth/analytics
