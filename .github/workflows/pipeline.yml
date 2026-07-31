@@ -1,14 +1,17 @@
 # Secretless file — safe in the public repo. CRON_SECRET is a GitHub
 # Actions repository secret (Settings → Secrets and variables → Actions),
-# never checked in; setup step lives in docs/plans/p2.5-self-running.md
-# Wave 3. At launch (Vercel Pro) this file is deleted and vercel.json's
-# pipeline cron goes from daily to `*/15 * * * *` (docs/plans/p2.5-self-running.md
-# locked decision 7). GitHub auto-disables scheduled workflows after 60 days
-# of repo inactivity — the daily Vercel cron sweep (vercel.json) is the
-# safety net if that happens.
+# never checked in; setup in docs/plans/p2.5-self-running.md Wave 3.
 #
-# NOTE: /api/cron/pipeline lands in Wave 2B — until then `curl -f` 404s and
-# fails this Actions run harmlessly.
+# PERMANENT scheduler (D54, $0 launch posture 2026-07-31): sub-daily Vercel
+# crons need Pro, so this workflow IS the */15 heartbeat and is NOT deleted
+# at launch; vercel.json's two daily crons stay as the fallback safety net.
+# GitHub auto-disables scheduled workflows after 60 days of repo inactivity
+# (any push resets the clock) — the daily Vercel sweep covers that gap.
+#
+# The curl targets stay on the permanent dorkhub-ten.vercel.app alias ON
+# PURPOSE: these are Bearer-auth API routes with zero SEO/branding stake,
+# and pinning them to the alias decouples the ingest/moderation loop from
+# dorkhub.com's DNS/cert health.
 name: pipeline
 
 on:

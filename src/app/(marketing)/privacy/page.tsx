@@ -8,10 +8,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * DRAFT copy (P4 L3) — written for Will's review at the launch-go gate.
- * Every claim in here is checked against how the system actually works
- * (likes/saves private by design, hashed rate-limit ips, cookieless
- * analytics) — if the system changes, this page changes in the same round.
+ * Board-approved copy (Will, 2026-07-30); edits are a product decision —
+ * pause and ask. Every claim in here is checked against how the system
+ * actually works (likes/saves private by design, hashed rate-limit ips,
+ * cookieless analytics via @vercel/analytics) — if the system changes,
+ * this page changes in the same round.
  */
 const SECTIONS: Array<{ title: string; body: string[] }> = [
   {

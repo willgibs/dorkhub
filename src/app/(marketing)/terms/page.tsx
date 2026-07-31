@@ -8,10 +8,9 @@ export const metadata: Metadata = {
 };
 
 /**
- * DRAFT copy (P4 L3) — indie-standard terms in the house register, written
- * for Will's review at the launch-go gate. Edits to these strings after his
- * approval are a product decision; pause and ask. The contact address is
- * hi@dorkhub.com (live via Cloudflare Email Routing, 2026-07-31).
+ * Board-approved copy (Will, 2026-07-30 — "terms and privacy look good").
+ * Edits to these strings are a product decision; pause and ask. The contact
+ * address is hi@dorkhub.com (live via Cloudflare Email Routing, 2026-07-31).
  */
 const SECTIONS: Array<{ title: string; body: string[] }> = [
   {
