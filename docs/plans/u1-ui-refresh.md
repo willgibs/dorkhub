@@ -22,7 +22,26 @@ actual product.
   design-system.md rewrite). If incumbent wins: targeted evolution round
   instead (density/hierarchy/micro-detail sharpening).
 
-## Directions (candidates — "similar yet distinctively new")
+## R2 verdict (Will, 2026-07-31)
+
+**Finalists: `current` and `electric-depth`** — "would love to see deepened
+variations of each." **Hard no: `warm-terminal`, `paper-zine`** (skins
+deleted; warm/paper palettes are settled OUT for dorkhub). R2.5 rebuilds the
+page as two families of variations:
+
+- current family: `current` (control) · `current · deeper` (lights lower,
+  glow richer — bg/card drop ~0.02 L, primary +brightness/chroma, deeper
+  shadows) · `current · sharper` (machined: tighter 0.3rem radius, stronger
+  borders/edge rings, brighter metadata; palette untouched).
+- electric family: `electric` (v1 reference) · `electric · abyss` (further
+  down: deeper blue-blacks, brighter cyan, stronger violet undertow) ·
+  `electric · violet` (violet-forward primary, cyan demoted to links —
+  the v1 pairing inverted).
+
+Type: current family keeps Instrument Sans (its identity); electric family
+keeps Outfit. Fraunces/Space Grotesk unloaded with their skins.
+
+## Original candidate set (R1, for the record)
 
 All keep: dark-first, mono metadata, restraint-with-glow thesis, EVERY
 micro-detail (hard rule — details re-tune, never disappear), voice.

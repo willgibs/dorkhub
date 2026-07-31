@@ -1,136 +1,155 @@
 /*
- * U1 refresh round — candidate direction skins (docs/plans/u1-ui-refresh.md).
- * Each block re-declares the SAME variable contract globals.css defines, so
- * every Tailwind utility, bloom, halftone, and edge-highlight re-resolves
- * inside a [data-skin] wrapper with zero component changes. Loaded only by
- * /design/directions — the app never sees these until a winner is adopted.
+ * U1 refresh round — R2.5 finalist variations (docs/plans/u1-ui-refresh.md).
+ * Board verdict: finalists are CURRENT and ELECTRIC-DEPTH; warm-terminal and
+ * paper-zine were hard-no'd and their skins deleted. Each block re-declares
+ * the variable contract globals.css defines, so every utility, bloom,
+ * halftone, and edge-highlight re-resolves inside a [data-skin] wrapper.
+ * Loaded only by /design/directions.
  *
- * Theme mapping: the bare [data-skin] block answers the site's default dark
- * theme; `[data-theme="light"] [data-skin]` answers the light toggle.
- * paper-zine is deliberately light-FIRST: paper is its true face in both
- * themes (the toggle deepens the paper slightly rather than inverting).
- *
- * Micro-details are re-tuned, never removed (hard rule): blooms/halftone/
- * edge highlights read these vars and follow each direction automatically.
+ * The bare [data-skin] block answers the default dark theme;
+ * `[data-theme="light"] [data-skin]` answers the light toggle.
+ * `current` (control) is the absence of a data-skin — globals.css as-is.
+ * Current-family variants keep Instrument Sans (identity); electric-family
+ * variants remap --font-display to Outfit (loaded route-locally).
  */
 
 /* ---------------------------------------------------------------- */
-/* 01 · warm-terminal — a beloved old terminal, not a cold one.      */
-/* Warm graphite neutrals, phosphor-green accent, amber save-state,  */
-/* crisper radius, Space Grotesk display.                            */
+/* current · deeper — same room, lights lower, glow richer. Charcoal */
+/* drops ~0.02 L across the stack, primary gains a hair of light and */
+/* chroma, shadows sink further. Radius and type untouched.          */
 /* ---------------------------------------------------------------- */
-[data-skin="warm-terminal"] {
-  --font-display: var(--font-display-terminal);
-  --background: oklch(0.15 0.008 80);
-  --foreground: oklch(0.93 0.01 90);
-  --card: oklch(0.18 0.01 80);
-  --card-foreground: oklch(0.93 0.01 90);
-  --popover: oklch(0.195 0.011 80);
-  --popover-foreground: oklch(0.93 0.01 90);
-  --primary: oklch(0.84 0.16 150);
-  --primary-foreground: oklch(0.17 0.05 150);
-  --secondary: oklch(0.225 0.012 80);
-  --secondary-foreground: oklch(0.9 0.01 90);
-  --muted: oklch(0.215 0.012 80);
-  --muted-foreground: oklch(0.65 0.018 85);
-  --accent: oklch(0.24 0.015 80);
-  --accent-foreground: oklch(0.95 0.01 90);
+[data-skin="current-deeper"] {
+  --background: oklch(0.12 0.006 250);
+  --foreground: oklch(0.94 0.005 250);
+  --card: oklch(0.155 0.007 250);
+  --card-foreground: oklch(0.94 0.005 250);
+  --popover: oklch(0.17 0.007 250);
+  --popover-foreground: oklch(0.94 0.005 250);
+  --primary: oklch(0.85 0.115 205);
+  --primary-foreground: oklch(0.15 0.03 205);
+  --secondary: oklch(0.2 0.007 250);
+  --secondary-foreground: oklch(0.9 0.005 250);
+  --muted: oklch(0.19 0.007 250);
+  --muted-foreground: oklch(0.66 0.008 250);
+  --accent: oklch(0.215 0.009 250);
+  --accent-foreground: oklch(0.95 0.005 250);
   --destructive: oklch(0.68 0.19 25);
-  --border: oklch(0.26 0.016 80);
-  --input: oklch(0.31 0.016 80);
-  --ring: oklch(0.84 0.16 150);
-  --radius: 0.3rem;
-  --surface-2: oklch(0.13 0.008 80);
-  --primary-soft: oklch(0.27 0.055 150);
-  --positive: oklch(0.82 0.12 85);
-  --positive-soft: oklch(0.27 0.05 85);
-  --code-bg: oklch(0.125 0.01 80);
-  --code-text: oklch(0.85 0.09 150);
-  --link: oklch(0.82 0.11 155);
-  --shadow-card: 0 1px 2px oklch(0.08 0.01 70 / 0.55), 0 0 0 1px oklch(0.9 0.05 100 / 0.03);
-  --shadow-overlay: 0 16px 40px oklch(0.08 0.01 70 / 0.6);
+  --border: oklch(0.235 0.009 250);
+  --input: oklch(0.28 0.009 250);
+  --ring: oklch(0.85 0.115 205);
+  --surface-2: oklch(0.1 0.006 250);
+  --primary-soft: oklch(0.25 0.05 207);
+  --positive: oklch(0.8 0.12 160);
+  --positive-soft: oklch(0.24 0.045 160);
+  --code-bg: oklch(0.1 0.005 250);
+  --code-text: oklch(0.87 0.05 200);
+  --link: oklch(0.85 0.09 208);
+  --shadow-card: 0 1px 3px oklch(0 0 0 / 0.6), 0 0 0 1px oklch(1 0 0 / 0.025);
+  --shadow-overlay: 0 20px 48px oklch(0 0 0 / 0.65);
 }
 
-[data-theme="light"] [data-skin="warm-terminal"] {
-  --background: oklch(0.977 0.008 90);
-  --foreground: oklch(0.23 0.015 65);
-  --card: oklch(0.995 0.004 90);
-  --card-foreground: oklch(0.23 0.015 65);
-  --popover: oklch(0.995 0.004 90);
-  --popover-foreground: oklch(0.23 0.015 65);
-  --primary: oklch(0.47 0.12 152);
-  --primary-foreground: oklch(0.98 0.008 150);
-  --secondary: oklch(0.945 0.01 90);
-  --secondary-foreground: oklch(0.31 0.015 65);
-  --muted: oklch(0.945 0.01 90);
-  --muted-foreground: oklch(0.5 0.02 75);
-  --accent: oklch(0.935 0.012 90);
-  --accent-foreground: oklch(0.22 0.015 65);
+[data-theme="light"] [data-skin="current-deeper"] {
+  --background: oklch(0.98 0.002 250);
+  --foreground: oklch(0.2 0.006 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.006 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.006 250);
+  --primary: oklch(0.48 0.115 215);
+  --primary-foreground: oklch(0.99 0.005 220);
+  --secondary: oklch(0.95 0.003 250);
+  --secondary-foreground: oklch(0.3 0.006 250);
+  --muted: oklch(0.95 0.003 250);
+  --muted-foreground: oklch(0.49 0.008 250);
+  --accent: oklch(0.94 0.005 250);
+  --accent-foreground: oklch(0.2 0.006 250);
   --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.9 0.012 85);
-  --input: oklch(0.86 0.014 85);
-  --ring: oklch(0.5 0.12 152);
-  --surface-2: oklch(0.958 0.009 90);
-  --primary-soft: oklch(0.93 0.045 150);
-  --positive: oklch(0.55 0.11 85);
-  --positive-soft: oklch(0.94 0.045 88);
-  --code-bg: oklch(0.22 0.015 70);
-  --code-text: oklch(0.85 0.09 150);
-  --link: oklch(0.47 0.11 155);
-  --shadow-card: 0 1px 2px oklch(0.25 0.02 70 / 0.07);
-  --shadow-overlay: 0 16px 40px oklch(0.25 0.02 70 / 0.17);
+  --border: oklch(0.91 0.004 250);
+  --input: oklch(0.865 0.005 250);
+  --ring: oklch(0.5 0.115 215);
+  --surface-2: oklch(0.962 0.003 250);
+  --primary-soft: oklch(0.935 0.032 213);
+  --positive: oklch(0.5 0.11 160);
+  --positive-soft: oklch(0.94 0.03 160);
+  --code-bg: oklch(0.2 0.01 250);
+  --code-text: oklch(0.87 0.05 200);
+  --link: oklch(0.47 0.115 215);
+  --shadow-card: 0 1px 3px oklch(0.2 0.01 250 / 0.08);
+  --shadow-overlay: 0 20px 48px oklch(0.2 0.01 250 / 0.19);
 }
 
 /* ---------------------------------------------------------------- */
-/* 02 · paper-zine — dev-zine editorial: cream paper, espresso ink,  */
-/* calm coral accent, drawn borders, offset ink shadows, Fraunces    */
-/* display. Light-FIRST: paper is its face in both themes.           */
+/* current · sharper — machined. The exact current palette with more */
+/* definition: tighter radius, stronger borders and edge rings,      */
+/* brighter metadata. Nothing about the color story changes.         */
 /* ---------------------------------------------------------------- */
-[data-skin="paper-zine"],
-[data-theme="light"] [data-skin="paper-zine"] {
-  --font-display: var(--font-display-zine);
-  --background: oklch(0.968 0.015 84);
-  --foreground: oklch(0.3 0.04 40);
-  --card: oklch(0.985 0.01 84);
-  --card-foreground: oklch(0.3 0.04 40);
-  --popover: oklch(0.99 0.008 84);
-  --popover-foreground: oklch(0.3 0.04 40);
-  --primary: oklch(0.55 0.16 35);
-  --primary-foreground: oklch(0.99 0.01 80);
-  --secondary: oklch(0.94 0.022 80);
-  --secondary-foreground: oklch(0.32 0.04 40);
-  --muted: oklch(0.94 0.02 82);
-  --muted-foreground: oklch(0.5 0.035 45);
-  --accent: oklch(0.925 0.035 62);
-  --accent-foreground: oklch(0.3 0.045 40);
-  --destructive: oklch(0.54 0.19 28);
-  --border: oklch(0.82 0.03 55);
-  --input: oklch(0.78 0.032 55);
-  --ring: oklch(0.55 0.16 35);
-  --radius: 0.4rem;
-  --surface-2: oklch(0.952 0.016 84);
-  --primary-soft: oklch(0.93 0.045 45);
-  --positive: oklch(0.5 0.1 172);
-  --positive-soft: oklch(0.93 0.04 172);
-  --code-bg: oklch(0.3 0.035 40);
-  --code-text: oklch(0.92 0.05 84);
-  --link: oklch(0.45 0.11 245);
-  --shadow-card: 2px 2px 0 oklch(0.37 0.04 42 / 0.35);
-  --shadow-overlay: 6px 6px 0 oklch(0.37 0.04 42 / 0.3);
+[data-skin="current-sharper"] {
+  --background: oklch(0.145 0.005 250);
+  --foreground: oklch(0.95 0.005 250);
+  --card: oklch(0.18 0.006 250);
+  --card-foreground: oklch(0.95 0.005 250);
+  --popover: oklch(0.195 0.006 250);
+  --popover-foreground: oklch(0.95 0.005 250);
+  --primary: oklch(0.82 0.1 210);
+  --primary-foreground: oklch(0.16 0.03 210);
+  --secondary: oklch(0.225 0.006 250);
+  --secondary-foreground: oklch(0.92 0.005 250);
+  --muted: oklch(0.215 0.006 250);
+  --muted-foreground: oklch(0.68 0.008 250);
+  --accent: oklch(0.24 0.008 250);
+  --accent-foreground: oklch(0.96 0.005 250);
+  --destructive: oklch(0.68 0.19 25);
+  --border: oklch(0.3 0.01 250);
+  --input: oklch(0.35 0.01 250);
+  --ring: oklch(0.82 0.1 210);
+  --radius: 0.3rem;
+  --surface-2: oklch(0.125 0.005 250);
+  --primary-soft: oklch(0.27 0.045 210);
+  --positive: oklch(0.8 0.12 160);
+  --positive-soft: oklch(0.26 0.045 160);
+  --code-bg: oklch(0.12 0.005 250);
+  --code-text: oklch(0.87 0.05 200);
+  --link: oklch(0.84 0.08 210);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.55), 0 0 0 1px oklch(1 0 0 / 0.05);
+  --shadow-overlay: 0 16px 40px oklch(0 0 0 / 0.55);
 }
 
-/* the light toggle deepens the paper a touch instead of inverting */
-[data-theme="light"] [data-skin="paper-zine"] {
-  --background: oklch(0.982 0.01 84);
-  --surface-2: oklch(0.962 0.013 84);
+[data-theme="light"] [data-skin="current-sharper"] {
+  --background: oklch(0.985 0.002 250);
+  --foreground: oklch(0.19 0.006 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.006 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.006 250);
+  --primary: oklch(0.5 0.11 220);
+  --primary-foreground: oklch(0.99 0.005 220);
+  --secondary: oklch(0.955 0.003 250);
+  --secondary-foreground: oklch(0.28 0.006 250);
+  --muted: oklch(0.955 0.003 250);
+  --muted-foreground: oklch(0.47 0.008 250);
+  --accent: oklch(0.945 0.005 250);
+  --accent-foreground: oklch(0.19 0.006 250);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.87 0.006 250);
+  --input: oklch(0.82 0.007 250);
+  --ring: oklch(0.54 0.11 220);
+  --surface-2: oklch(0.965 0.003 250);
+  --primary-soft: oklch(0.94 0.03 215);
+  --positive: oklch(0.5 0.11 160);
+  --positive-soft: oklch(0.94 0.03 160);
+  --code-bg: oklch(0.22 0.01 250);
+  --code-text: oklch(0.87 0.05 200);
+  --link: oklch(0.49 0.11 220);
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 250 / 0.07), 0 0 0 1px oklch(0.2 0.01 250 / 0.05);
+  --shadow-overlay: 0 16px 40px oklch(0.2 0.01 250 / 0.16);
 }
 
 /* ---------------------------------------------------------------- */
-/* 03 · electric-depth — near-black kept, chroma raised: blue-black  */
-/* depths, brighter cyan + violet undertow, rounder glassier cards,  */
-/* Outfit display. The 2026 glow direction at dorkhub volume.        */
+/* electric — the R1 finalist, unchanged: blue-black depths, bright  */
+/* cyan primary, violet undertow in links and overlay glow, rounder  */
+/* cards, Outfit display. The family's reference point.              */
 /* ---------------------------------------------------------------- */
-[data-skin="electric-depth"] {
+[data-skin="electric"] {
   --font-display: var(--font-display-electric);
   --background: oklch(0.135 0.02 265);
   --foreground: oklch(0.93 0.008 260);
@@ -162,7 +181,7 @@
   --shadow-overlay: 0 16px 44px oklch(0.18 0.09 290 / 0.5);
 }
 
-[data-theme="light"] [data-skin="electric-depth"] {
+[data-theme="light"] [data-skin="electric"] {
   --background: oklch(0.982 0.004 250);
   --foreground: oklch(0.21 0.012 262);
   --card: oklch(1 0 0);
@@ -190,4 +209,138 @@
   --link: oklch(0.5 0.14 292);
   --shadow-card: 0 1px 2px oklch(0.25 0.03 265 / 0.07);
   --shadow-overlay: 0 16px 44px oklch(0.3 0.08 290 / 0.18);
+}
+
+/* ---------------------------------------------------------------- */
+/* electric · abyss — further down. Deeper blue-blacks, a brighter   */
+/* and more saturated cyan, the violet undertow turned up in links,  */
+/* rings, and the overlay glow.                                      */
+/* ---------------------------------------------------------------- */
+[data-skin="electric-abyss"] {
+  --font-display: var(--font-display-electric);
+  --background: oklch(0.108 0.024 268);
+  --foreground: oklch(0.93 0.01 262);
+  --card: oklch(0.14 0.028 267);
+  --card-foreground: oklch(0.93 0.01 262);
+  --popover: oklch(0.155 0.028 267);
+  --popover-foreground: oklch(0.93 0.01 262);
+  --primary: oklch(0.87 0.14 198);
+  --primary-foreground: oklch(0.15 0.04 210);
+  --secondary: oklch(0.185 0.03 267);
+  --secondary-foreground: oklch(0.9 0.01 262);
+  --muted: oklch(0.175 0.028 267);
+  --muted-foreground: oklch(0.62 0.022 264);
+  --accent: oklch(0.2 0.034 269);
+  --accent-foreground: oklch(0.95 0.01 262);
+  --destructive: oklch(0.68 0.19 25);
+  --border: oklch(0.235 0.034 268);
+  --input: oklch(0.275 0.034 268);
+  --ring: oklch(0.87 0.14 198);
+  --radius: 0.55rem;
+  --surface-2: oklch(0.09 0.022 268);
+  --primary-soft: oklch(0.25 0.075 213);
+  --positive: oklch(0.8 0.12 160);
+  --positive-soft: oklch(0.24 0.045 160);
+  --code-bg: oklch(0.09 0.02 268);
+  --code-text: oklch(0.87 0.08 203);
+  --link: oklch(0.8 0.12 292);
+  --shadow-card: 0 1px 3px oklch(0.04 0.02 270 / 0.65), 0 0 0 1px oklch(0.78 0.11 245 / 0.06);
+  --shadow-overlay: 0 20px 52px oklch(0.16 0.1 290 / 0.55);
+}
+
+[data-theme="light"] [data-skin="electric-abyss"] {
+  --background: oklch(0.978 0.005 252);
+  --foreground: oklch(0.2 0.014 263);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0.014 263);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0.014 263);
+  --primary: oklch(0.49 0.13 212);
+  --primary-foreground: oklch(0.99 0.005 220);
+  --secondary: oklch(0.948 0.007 256);
+  --secondary-foreground: oklch(0.29 0.014 263);
+  --muted: oklch(0.948 0.007 256);
+  --muted-foreground: oklch(0.49 0.016 263);
+  --accent: oklch(0.936 0.011 259);
+  --accent-foreground: oklch(0.19 0.014 263);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.905 0.009 259);
+  --input: oklch(0.862 0.011 259);
+  --ring: oklch(0.51 0.13 212);
+  --surface-2: oklch(0.958 0.006 256);
+  --primary-soft: oklch(0.925 0.04 210);
+  --positive: oklch(0.5 0.11 160);
+  --positive-soft: oklch(0.94 0.03 160);
+  --code-bg: oklch(0.19 0.028 266);
+  --code-text: oklch(0.87 0.08 203);
+  --link: oklch(0.5 0.15 292);
+  --shadow-card: 0 1px 3px oklch(0.24 0.035 266 / 0.08);
+  --shadow-overlay: 0 20px 52px oklch(0.28 0.09 290 / 0.2);
+}
+
+/* ---------------------------------------------------------------- */
+/* electric · violet — the v1 pairing inverted: violet becomes the   */
+/* primary voice (CTAs, rings, glow), cyan steps back into links     */
+/* and code. Surfaces shift a few hue degrees toward violet.         */
+/* ---------------------------------------------------------------- */
+[data-skin="electric-violet"] {
+  --font-display: var(--font-display-electric);
+  --background: oklch(0.13 0.022 278);
+  --foreground: oklch(0.93 0.008 272);
+  --card: oklch(0.165 0.026 278);
+  --card-foreground: oklch(0.93 0.008 272);
+  --popover: oklch(0.182 0.027 278);
+  --popover-foreground: oklch(0.93 0.008 272);
+  --primary: oklch(0.78 0.135 288);
+  --primary-foreground: oklch(0.14 0.04 290);
+  --secondary: oklch(0.212 0.028 278);
+  --secondary-foreground: oklch(0.9 0.008 272);
+  --muted: oklch(0.202 0.027 278);
+  --muted-foreground: oklch(0.64 0.02 275);
+  --accent: oklch(0.225 0.032 280);
+  --accent-foreground: oklch(0.95 0.008 272);
+  --destructive: oklch(0.68 0.19 25);
+  --border: oklch(0.255 0.032 279);
+  --input: oklch(0.295 0.032 279);
+  --ring: oklch(0.78 0.135 288);
+  --radius: 0.55rem;
+  --surface-2: oklch(0.11 0.02 278);
+  --primary-soft: oklch(0.27 0.075 288);
+  --positive: oklch(0.8 0.12 160);
+  --positive-soft: oklch(0.26 0.045 160);
+  --code-bg: oklch(0.105 0.02 278);
+  --code-text: oklch(0.86 0.06 240);
+  --link: oklch(0.83 0.1 205);
+  --shadow-card: 0 1px 2px oklch(0.05 0.02 285 / 0.6), 0 0 0 1px oklch(0.72 0.11 288 / 0.05);
+  --shadow-overlay: 0 16px 44px oklch(0.2 0.1 288 / 0.5);
+}
+
+[data-theme="light"] [data-skin="electric-violet"] {
+  --background: oklch(0.981 0.005 275);
+  --foreground: oklch(0.21 0.014 275);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.014 275);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.014 275);
+  --primary: oklch(0.5 0.15 290);
+  --primary-foreground: oklch(0.99 0.005 290);
+  --secondary: oklch(0.951 0.008 276);
+  --secondary-foreground: oklch(0.3 0.014 275);
+  --muted: oklch(0.951 0.008 276);
+  --muted-foreground: oklch(0.5 0.016 276);
+  --accent: oklch(0.938 0.012 278);
+  --accent-foreground: oklch(0.2 0.014 275);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.908 0.01 277);
+  --input: oklch(0.865 0.012 277);
+  --ring: oklch(0.52 0.15 290);
+  --surface-2: oklch(0.961 0.007 276);
+  --primary-soft: oklch(0.93 0.045 288);
+  --positive: oklch(0.5 0.11 160);
+  --positive-soft: oklch(0.94 0.03 160);
+  --code-bg: oklch(0.2 0.025 280);
+  --code-text: oklch(0.86 0.06 240);
+  --link: oklch(0.48 0.12 210);
+  --shadow-card: 0 1px 2px oklch(0.25 0.035 280 / 0.07);
+  --shadow-overlay: 0 16px 44px oklch(0.3 0.09 288 / 0.18);
 }

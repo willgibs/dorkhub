@@ -36,7 +36,7 @@ export default async function DirectionsPage() {
       <SectionHeader
         kicker="directions"
         title="candidate looks, real content"
-        note="same page, four skins — only the tokens change. pick a world (or keep this one)."
+        note="two finalist families, six skins — only the tokens change. pick a world (or keep this one)."
       />
       <DirectionSwitcher>
         {/* type + action specimen */}
