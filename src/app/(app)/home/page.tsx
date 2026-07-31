@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { RecsRail } from '@/app/(app)/home/recs-rail';
 import { PageShell } from '@/components/page-shell';
@@ -5,6 +7,13 @@ import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
 export const revalidate = 60;
+
+// This page SERVES at `/` via the proxy rewrite — without an explicit
+// canonical the layout's './' would claim '/home' for the signed-in render
+// of the homepage. Pin the bare apex (same fix as the signed-out page).
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 /**
  * Signed-in home. `src/proxy.ts` rewrites authed hits to `/` here (URL bar

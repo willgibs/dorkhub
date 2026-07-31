@@ -16,16 +16,40 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  */
 export const revalidate = 3600;
 
+// PostgREST caps every response at 1,000 rows — an un-ranged select here
+// silently truncated the sitemap to 3,011 URLs at 16,972 projects (caught
+// live at launch; the cap was invisible when everything fit under 1,000).
+// Walk in pages until a short page. Rows shifting mid-walk cost at most a
+// dup/miss for one hourly revalidation — same acceptance as the cron
+// walkers. RPCs are range-capped the same way, so tag_tally walks too.
+const PAGE = 1000;
+
+async function allRows<Row>(
+  page: (from: number, to: number) => PromiseLike<{ data: Row[] | null }>,
+): Promise<Row[]> {
+  const rows: Row[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data } = await page(from, from + PAGE - 1);
+    const batch = data ?? [];
+    rows.push(...batch);
+    if (batch.length < PAGE) return rows;
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = supabaseAnon();
 
-  const [{ data: projects }, { data: profiles }, { data: tags }] = await Promise.all([
-    supabase
-      .from('projects')
-      .select('slug, github_pushed_at, profiles!projects_profile_id_fkey!inner(username)')
-      .eq('status', 'published'),
-    supabase.from('profiles').select('username'),
-    supabase.rpc('tag_tally'),
+  const [projects, profiles, tags] = await Promise.all([
+    allRows((from, to) =>
+      supabase
+        .from('projects')
+        .select('slug, github_pushed_at, profiles!projects_profile_id_fkey!inner(username)')
+        .eq('status', 'published')
+        .order('id')
+        .range(from, to),
+    ),
+    allRows((from, to) => supabase.from('profiles').select('username').order('id').range(from, to)),
+    allRows((from, to) => supabase.rpc('tag_tally').range(from, to)),
   ]);
 
   const statics: MetadataRoute.Sitemap = [
@@ -42,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/design/voice`, priority: 0.3 },
   ];
 
-  const projectEntries: MetadataRoute.Sitemap = (projects ?? []).map((row) => {
+  const projectEntries: MetadataRoute.Sitemap = projects.map((row) => {
     // postgrest-js types the FK-named !inner embed as an array shape; at
     // runtime a to-one embed is a single object (house cast idiom).
     const author = row.profiles as unknown as { username: string };
@@ -53,12 +77,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  const profileEntries: MetadataRoute.Sitemap = (profiles ?? []).map((row) => ({
+  const profileEntries: MetadataRoute.Sitemap = profiles.map((row) => ({
     url: `${SITE_URL}/u/${row.username}`,
     priority: 0.4,
   }));
 
-  const tagEntries: MetadataRoute.Sitemap = (tags ?? []).map((row) => ({
+  const tagEntries: MetadataRoute.Sitemap = tags.map((row) => ({
     url: `${SITE_URL}/t/${row.slug}`,
     priority: 0.5,
   }));

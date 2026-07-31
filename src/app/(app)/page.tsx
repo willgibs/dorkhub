@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { Hero } from '@/app/(app)/_sections/hero';
 import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
@@ -9,6 +11,12 @@ import { serializeJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
 export const revalidate = 60;
+
+// The layout's relative canonical ('./') resolves to '/index' for the root
+// route in production builds — pin the bare apex explicitly (caught live).
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+};
 
 /**
  * Signed-out marketing home. The (app) group layout already renders
