@@ -10,6 +10,7 @@ const LINKS = [
   { label: 'motion', href: '/design/motion' },
   { label: 'typography', href: '/design/typography' },
   { label: 'voice', href: '/design/voice' },
+  { label: 'directions', href: '/design/directions' },
 ] as const;
 
 /** Side nav for the /design styleguide — active link tracked from the route. */
