@@ -1,17 +1,22 @@
-# Current state — 2026-07-30 (P4: library at ~17k; README backfill running)
+# Current state — 2026-07-30 (P4: content thread COMPLETE at 16,972)
 
 ## Milestones
 - Through P3-D ✅ tagged. **P4 ~90%**: waves L0–L4 deployed (record:
-  docs/plans/p4-launch.md); 756 tests; suites green on purged prod.
-- **RAMP EXECUTED** (board directive): 2 sourcing waves (117 topics/lists,
-  search bucket) + pipelined bulk drain → **16,951 published / ~14k
-  profiles / 0 pending**. Immortal-residue guard added; D51 username
-  policy (0020: GitHub's FULL envelope — LingDong-/Rob--W/f legal) shipped,
-  19 rejections reversed, 21-row redrain queued behind the rate window.
-- **README backfill IN PROGRESS**: scripts/bulk-sync.ts on the 5k/hr core
-  budget (15,083 never-synced at start; ~5-7h; monitor re-armed hourly).
-  Then: storage checkpoint → Supabase Pro call with MEASURED numbers
-  (100MB/500MB pre-READMEs).
+  docs/plans/p4-launch.md); 759 tests; suites green on purged prod.
+- **CONTENT THREAD DONE**: 2 sourcing waves + bulk drain + README backfill
+  → **16,972 published / 14,020 profiles / 0 pending / 0 never-synced**
+  (47 repos legitimately have no README — absence shown). ALL 21 immortals
+  resolved: D51 username envelope (0020) freed 19 (LingDong-/Rob--W/f live,
+  URLs 200); last 2 were a REAL bug — code-unit tagline clip minted a lone
+  surrogate → PGRST102 payload rejection — fixed code-point-safe (same
+  idiom as L4 normalizeReason) + 3 regression tests.
+- **STORAGE CHECKPOINT (measured)**: db 191 MB / 500 MB free tier (38%);
+  projects rel 144 MB; README logical 249 MB → TOAST-compressed; avg 15 kB;
+  ~11 kB/project all-in → free tier fits to roughly ~40k projects.
+  Recommendation: stay free through launch; Pro trigger = 300 MB (60%) OR
+  launch+real users (PITR value). GitHub throttling note: SECONDARY (burst)
+  403s never show in core-budget numbers — don't chase "5000/5000 yet
+  rate-limited" as a contradiction.
 
 ## Waiting on Will
 1. EMAIL (2 min): Cloudflare dash → dorkhub.com → Email Routing →
