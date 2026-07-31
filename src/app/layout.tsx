@@ -35,11 +35,12 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
   },
-  // noindex until launch-go (P4 L5). The flip removes this block in the SAME
-  // commit that swaps robots.ts to allow — both halves or neither.
-  robots: {
-    index: false,
-    follow: false,
+  // Every page claims its canonical dorkhub.com URL ('./' resolves against
+  // metadataBase + the current route): the *.vercel.app aliases keep serving
+  // after the domain attach, and without a canonical they'd compete with the
+  // real domain in the index. /search layers its own noindex on top.
+  alternates: {
+    canonical: './',
   },
 };
 
