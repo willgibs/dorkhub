@@ -10,9 +10,11 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  * Revalidates hourly; content churn is cron-paced, not request-paced.
  *
  * Deliberately absent: /search (client-rendered thin results, page-level
- * noindex), list pages (0 public lists today; add when real ones exist).
- * At ~10k projects this single file is still well under the 50k-URL sitemap
- * limit; shard via generateSitemaps() when the gallery approaches that.
+ * noindex), list pages (0 public lists today; add when real ones exist),
+ * zero-project profiles (thin pages; also what keeps the file legal —
+ * see the profiles query). At 16,972 projects the file runs ~32k of the
+ * 50k-URL sitemap cap; shard via generateSitemaps() before the gallery
+ * nears ~30k projects.
  */
 export const revalidate = 3600;
 
@@ -48,7 +50,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .order('id')
         .range(from, to),
     ),
-    allRows((from, to) => supabase.from('profiles').select('username').order('id').range(from, to)),
+    // Profiles WITH a published project only (FK-named empty !inner embed =
+    // pure filter; bare `projects` is PGRST201-ambiguous via likes/saves —
+    // probed live). Unfiltered, this pushed the file to 55,679 URLs — over
+    // the 50k/sitemap spec limit — and indexed thin zero-project pages.
+    allRows((from, to) =>
+      supabase
+        .from('profiles')
+        .select('username, projects!projects_profile_id_fkey!inner()')
+        .eq('projects.status', 'published')
+        .order('id')
+        .range(from, to),
+    ),
     allRows((from, to) => supabase.rpc('tag_tally').range(from, to)),
   ]);
 
