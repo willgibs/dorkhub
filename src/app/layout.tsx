@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import type { Metadata } from 'next';
 import { Geist, Instrument_Sans, JetBrains_Mono } from 'next/font/google';
 import { CommandPalette } from '@/app/_shell/command-palette';
@@ -56,6 +57,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <CommandPalette />
         </ThemeProvider>
+        {/* Cookieless aggregate pageviews (what /privacy already promises).
+            Beacon + script are same-origin /_vercel/insights/* — inside CSP
+            'self', no policy change. Free Hobby tier; dashboard-enabled. */}
+        <Analytics />
       </body>
     </html>
   );
