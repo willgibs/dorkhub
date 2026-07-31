@@ -15,9 +15,10 @@ export type SiteFooterProps = {
   className?: string;
 };
 
+// No colophon entry (board, 2026-07-31): it's a section of /manifesto, not a
+// destination — reachable by scrolling, not worth nav weight.
 const DEFAULT_LINKS: readonly SiteFooterLink[] = [
   { label: 'manifesto', href: '/manifesto' },
-  { label: 'colophon', href: '/manifesto#colophon' },
   { label: 'sponsor', href: '/sponsor' },
   { label: 'terms', href: '/terms' },
   { label: 'privacy', href: '/privacy' },

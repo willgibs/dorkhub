@@ -1,4 +1,3 @@
-import { FeaturedStrip } from '@/app/(app)/_feed/featured-strip';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { RecsRail } from '@/app/(app)/home/recs-rail';
 import { PageShell } from '@/components/page-shell';
@@ -21,16 +20,16 @@ export const revalidate = 60;
  * `await`/branching on it here, or the page would poison its own cache.
  */
 export default async function HomePage() {
-  // Anon client on purpose — the strip is the same for every viewer, so the
-  // page stays ISR-60 cacheable (the cookie rule above).
+  // Anon client on purpose — featured slots are the same for every viewer,
+  // so the page stays ISR-60 cacheable (the cookie rule above). They render
+  // inline as the feed's first cells (board direction 2026-07-31).
   const featured = await fetchActiveFeaturedSlots(supabaseAnon());
 
   return (
     <section id="feed" className="scroll-mt-20">
       <PageShell className="flex flex-col gap-16 py-16 sm:gap-20 sm:py-20">
         <RecsRail />
-        <FeaturedStrip slots={featured} />
-        <FeedSection sort="trending" excludeIds={featured.map((slot) => slot.project.id)} />
+        <FeedSection sort="trending" featured={featured} />
       </PageShell>
     </section>
   );

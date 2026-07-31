@@ -1,4 +1,3 @@
-import { FeaturedStrip } from '@/app/(app)/_feed/featured-strip';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { Hero } from '@/app/(app)/_sections/hero';
 import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
@@ -19,8 +18,8 @@ export const revalidate = 60;
  * `FeedPreview` used (Hero's "browse" CTA still anchors to `#feed`).
  */
 export default async function Home() {
-  // The featured strip leads the feed section ("the featured strip IS real
-  // cards" — master plan marketing IA). Anon client keeps ISR-60 intact.
+  // Featured slots render INLINE as the feed's first cells (real, labeled
+  // cards — board direction 2026-07-31). Anon client keeps ISR-60 intact.
   const featured = await fetchActiveFeaturedSlots(supabaseAnon());
 
   return (
@@ -34,8 +33,7 @@ export default async function Home() {
       <IsIsntStrip />
       <section id="feed" className="scroll-mt-20">
         <PageShell className="flex flex-col gap-16 py-16 sm:py-20">
-          <FeaturedStrip slots={featured} />
-          <FeedSection sort="trending" excludeIds={featured.map((slot) => slot.project.id)} />
+          <FeedSection sort="trending" featured={featured} />
         </PageShell>
       </section>
       <HowItWorks />

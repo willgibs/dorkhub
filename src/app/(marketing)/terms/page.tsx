@@ -11,7 +11,7 @@ export const metadata: Metadata = {
  * DRAFT copy (P4 L3) — indie-standard terms in the house register, written
  * for Will's review at the launch-go gate. Edits to these strings after his
  * approval are a product decision; pause and ask. The contact address is
- * hi@willgibs.com pending his confirmation.
+ * hi@dorkhub.com (live via Cloudflare Email Routing, 2026-07-31).
  */
 const SECTIONS: Array<{ title: string; body: string[] }> = [
   {
@@ -60,7 +60,7 @@ const SECTIONS: Array<{ title: string; body: string[] }> = [
   },
   {
     title: 'talk to us',
-    body: ['questions, removals, anything: hi@willgibs.com.'],
+    body: ['questions, removals, anything: hi@dorkhub.com.'],
   },
 ];
 

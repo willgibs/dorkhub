@@ -4,6 +4,7 @@ import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { EmptyState } from '@/components/empty-state';
 import { FeedFilters } from '@/components/feed-filters';
 import { copy } from '@/lib/copy';
+import type { FeaturedSlot } from '@/lib/featured/queries';
 import { feedHrefFor } from '@/lib/feed/hrefs';
 import { type FeedSort, getFeedPage } from '@/lib/feed/queries';
 import { loadMoreFeed } from './actions';
@@ -15,13 +16,17 @@ export type FeedSectionProps = {
   /** Active tag filter, if any — omitted/undefined and `null` both mean "no tag". */
   tag?: string | null;
   /**
-   * Project ids already shown above this section (the FeaturedStrip, P4 L1)
-   * — filtered from PAGE-1 DISPLAY only. The keyset cursor still derives
-   * from the unfiltered page, so pagination never skips or gaps; a featured
-   * project that also ranks on a deeper page will show there again, which
-   * is rare and harmless (the strip is far above by then).
+   * Active featured slots rendered INLINE as the first cells of this grid
+   * (board direction 2026-07-31: a separate band above the feed reads as an
+   * ad row and gets scroll-trained away; a labeled card inside the gallery
+   * does not). Each renders the `featured` card variant with its label ON
+   * the card. Organic rows matching a featured project are filtered from
+   * PAGE-1 DISPLAY only — the keyset cursor still derives from the
+   * unfiltered page, so pagination never skips or gaps; a featured project
+   * that also ranks on a deeper page will show there again, which is rare
+   * and harmless (the featured cell is far above by then).
    */
-  excludeIds?: readonly string[];
+  featured?: readonly FeaturedSlot[];
 };
 
 /**
@@ -36,12 +41,12 @@ export type FeedSectionProps = {
  * defaults to 'trending' (docs/plans/p2.5-self-running.md locked decision 9);
  * 'recent' is the secondary "newest" chip.
  */
-export async function FeedSection({ sort, tag = null, excludeIds }: FeedSectionProps) {
+export async function FeedSection({ sort, tag = null, featured = [] }: FeedSectionProps) {
   const { rows, nextCursor } = await getFeedPage({ sort, tag });
-  const visibleRows = excludeIds?.length
-    ? rows.filter((row) => !excludeIds.includes(row.id))
-    : rows;
-  const ids = visibleRows.map((row) => row.id);
+  const featuredRows = featured.map((slot) => slot.project);
+  const featuredIds = new Set(featuredRows.map((row) => row.id));
+  const organicRows = featuredIds.size ? rows.filter((row) => !featuredIds.has(row.id)) : rows;
+  const ids = [...featuredRows, ...organicRows].map((row) => row.id);
 
   const hrefFor = (kind: 'sort' | 'tag', value: string) => feedHrefFor({ sort, tag }, kind, value);
 
@@ -79,7 +84,7 @@ export async function FeedSection({ sort, tag = null, excludeIds }: FeedSectionP
     />
   );
 
-  if (visibleRows.length === 0) {
+  if (organicRows.length === 0 && featuredRows.length === 0) {
     return (
       <div className="flex flex-col gap-6">
         {filters}
@@ -108,12 +113,27 @@ export async function FeedSection({ sort, tag = null, excludeIds }: FeedSectionP
     return loadMoreFeed({ sort, tag, cursor });
   }
 
+  // One grid, two render calls: featured cells first (labeled on-card),
+  // organic after with a stagger offset so the entrance reads as one sweep.
+  const labelBySlotProject = new Map(
+    featured.map((slot) => [slot.project.id, slot.sponsorLabel ?? copy.featuredLabel]),
+  );
+  const initialCards = (
+    <>
+      {renderFeedCards(featuredRows, {
+        variant: 'featured',
+        labelTextFor: (row) => labelBySlotProject.get(row.id),
+      })}
+      {renderFeedCards(organicRows, { staggerOffset: featuredRows.length })}
+    </>
+  );
+
   return (
     <div className="flex flex-col gap-6">
       {filters}
       <EngagementProvider projectIds={ids}>
         <FeedGrid
-          initialCards={renderFeedCards(visibleRows)}
+          initialCards={initialCards}
           initialIds={ids}
           initialCursor={nextCursor}
           loadMore={loadMore}

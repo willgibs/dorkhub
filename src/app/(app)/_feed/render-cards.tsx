@@ -9,10 +9,17 @@ export type RenderFeedCardsOptions = {
   variant?: ProjectCardVariant;
   /**
    * Per-row label bar text (featured variant only — e.g. a slot's
-   * sponsor_label). Kept here so the featured strip rides this exact core
+   * sponsor_label). Kept here so featured placement rides this exact core
    * instead of hand-mirroring the card markup.
    */
   labelTextFor?: (row: FeedRow) => string | undefined;
+  /**
+   * Added to each row's staggerIndex. When one grid is composed from two
+   * renderFeedCards calls (featured head + organic, P4 inline placement),
+   * the second call passes the first's length so the entrance stagger reads
+   * as one continuous sweep instead of restarting mid-grid.
+   */
+  staggerOffset?: number;
 };
 
 /**
@@ -38,7 +45,7 @@ export function renderFeedCards(rows: FeedRow[], opts?: RenderFeedCardsOptions):
             author={author}
             variant={variant}
             labelText={opts?.labelTextFor?.(row)}
-            staggerIndex={i}
+            staggerIndex={i + (opts?.staggerOffset ?? 0)}
             href={`/u/${author.username}/${row.slug}`}
             authorHref={`/u/${author.username}`}
             likeSlot={

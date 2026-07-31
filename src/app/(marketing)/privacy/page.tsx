@@ -54,7 +54,7 @@ const SECTIONS: Array<{ title: string; body: string[] }> = [
   },
   {
     title: 'talk to us',
-    body: ['privacy questions or requests: hi@willgibs.com.'],
+    body: ['privacy questions or requests: hi@dorkhub.com.'],
   },
 ];
 
