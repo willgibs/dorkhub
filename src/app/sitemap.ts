@@ -95,10 +95,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  const tagEntries: MetadataRoute.Sitemap = tags.map((row) => ({
-    url: `${SITE_URL}/t/${row.slug}`,
-    priority: 0.5,
-  }));
+  // Only tags with a real listing behind them (≥3 published projects) get a
+  // sitemap slot — AI enrichment mints a huge one-project long tail (15,656
+  // in-use tags at 16,972 projects) that is textbook thin content AND was
+  // eating the 50k cap. Thin tags stay crawlable via /tags, just unpromoted.
+  const tagEntries: MetadataRoute.Sitemap = tags
+    .filter((row) => row.count >= 3)
+    .map((row) => ({
+      url: `${SITE_URL}/t/${row.slug}`,
+      priority: 0.5,
+    }));
 
   return [...statics, ...projectEntries, ...profileEntries, ...tagEntries];
 }
