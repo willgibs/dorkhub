@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 
 import { PageShell } from '@/components/page-shell';
 import { SectionHeader } from '@/components/section-header';
@@ -43,14 +44,34 @@ const TENETS = [
 
 const CLOSER = 'go build a thing.';
 
-const COLOPHON = [
-  { label: 'built', value: 'a solo founder + AI agents' },
+/**
+ * Colophon rows — 'built' carries the personal credit (board direction,
+ * 2026-07-30: name + portfolio link, not "solo founder"); the old
+ * `references` row was removed the same day (moodboard sites we didn't
+ * actually build from). The motion attribution stays: transitions.dev is
+ * genuinely adapted-from (docs/motion.md, "adapt don't vendor").
+ */
+const COLOPHON: Array<{ label: string; value: ReactNode }> = [
+  {
+    label: 'built',
+    value: (
+      <>
+        <a
+          href="https://willgibson.com"
+          rel="noreferrer"
+          className="rounded-sm text-link transition-colors hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
+        >
+          Will Gibson
+        </a>
+        {' + AI agents'}
+      </>
+    ),
+  },
   { label: 'stack', value: 'Next.js · Tailwind · Supabase · Vercel' },
   { label: 'type', value: 'Instrument Sans · Geist · JetBrains Mono' },
   { label: 'motion', value: 'UI transitions adapted from transitions.dev' },
-  { label: 'references', value: 'paper.design · resend.com · basehub.com · cosmos.network' },
   { label: 'license', value: 'free to browse, free to fork.' },
-] as const;
+];
 
 export default function ManifestoPage() {
   return (

@@ -18,6 +18,7 @@ export type SiteFooterProps = {
 const DEFAULT_LINKS: readonly SiteFooterLink[] = [
   { label: 'manifesto', href: '/manifesto' },
   { label: 'colophon', href: '/manifesto#colophon' },
+  { label: 'sponsor', href: '/sponsor' },
   { label: 'terms', href: '/terms' },
   { label: 'privacy', href: '/privacy' },
 ];

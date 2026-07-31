@@ -35,6 +35,8 @@ export const RESERVED_USERNAMES = new Set([
   'root',
   'saved',
   'settings',
+  'sponsor',
+  'sponsors',
   'support',
   'tags',
   'terms',
