@@ -13,14 +13,14 @@
   vercel.json daily crons = fallback. Pro triggers: first PAID slot (same
   day — Hobby ToS), resource ceilings, chronic Actions failures. Supabase
   Pro separately at 300 MB (now ~191 MB) or PITR-worthy UGC.
-- Tag `p4` on Will's green light. **Announce/claim invites = Will's move.**
+- **Tag `p4` pushed** (Will's green light 2026-07-31). Post-launch cleanups
+  DONE same day: stale wildcard A deleted; DMARC live (_dmarc p=none,
+  rua→hi@dorkhub.com — tighten to quarantine/reject after clean reports);
+  GitHub OAuth app homepage → dorkhub.com. **Next round: UI upgrade (Will).**
 
 ## Waiting on Will
-1. Eyeball the live domain (https://dorkhub.com) → green-light the `p4` tag.
-2. Announce timing + claim invites — his clock entirely.
-3. Optional 30s cosmetics: GitHub OAuth app homepage URL → dorkhub.com;
-   delete the stale `*.dorkhub.com` wildcard A (old Oracle parking box) in
-   Cloudflare DNS; consider a DMARC record (Cloudflare suggests one).
+1. Announce timing + claim invites — his clock entirely.
+2. UI-upgrade round scoping (his direction; rendered options per his style).
 
 ## Post-launch watch (first month)
 GSC coverage as 36k URLs index · Vercel Usage weekly (bandwidth/analytics
