@@ -1,46 +1,46 @@
-# Current state — 2026-07-30 (P4: content thread COMPLETE at 16,972)
+# Current state — 2026-07-31 (LAUNCHED: dorkhub.com live, P4 COMPLETE)
 
 ## Milestones
-- Through P3-D ✅ tagged. **P4 ~90%**: waves L0–L4 deployed (record:
-  docs/plans/p4-launch.md); 759 tests; suites green on purged prod.
-- **CONTENT THREAD DONE**: 2 sourcing waves + bulk drain + README backfill
-  → **16,972 published / 14,020 profiles / 0 pending / 0 never-synced**
-  (47 repos legitimately have no README — absence shown). ALL 21 immortals
-  resolved: D51 username envelope (0020) freed 19 (LingDong-/Rob--W/f live,
-  URLs 200); last 2 were a REAL bug — code-unit tagline clip minted a lone
-  surrogate → PGRST102 payload rejection — fixed code-point-safe (same
-  idiom as L4 normalizeReason) + 3 regression tests.
-- **STORAGE CHECKPOINT (measured)**: db 191 MB / 500 MB free tier (38%);
-  projects rel 144 MB; README logical 249 MB → TOAST-compressed; avg 15 kB;
-  ~11 kB/project all-in → free tier fits to roughly ~40k projects.
-  Recommendation: stay free through launch; Pro trigger = 300 MB (60%) OR
-  launch+real users (PITR value). GitHub throttling note: SECONDARY (burst)
-  403s never show in core-budget numbers — don't chase "5000/5000 yet
-  rate-limited" as a contradiction.
+- **P4 COMPLETE — dorkhub.com IS LIVE** at $0 (D54 posture, D55 execution
+  record): domain attached (Cloudflare grey-cloud CNAMEs → Vercel, mail
+  MX/SPF/DKIM untouched), CSP ENFORCED (+HSTS), robots flipped + per-route
+  canonicals, sitemap 36,202 URLs submitted on a VERIFIED GSC domain
+  property (dorkhub1@gmail.com account), auth round-trips on both hosts,
+  Sentry uptime monitor green (1-min), Web Analytics on (free Hobby tier),
+  weekly backup launchd agent smoke-tested. 761 tests; content: 16,972
+  published / 14,020 profiles / 5,199 sitemap-worthy tags.
+- **NO Vercel Pro (D54)** — GH Actions is the PERMANENT */15 scheduler;
+  vercel.json daily crons = fallback. Pro triggers: first PAID slot (same
+  day — Hobby ToS), resource ceilings, chronic Actions failures. Supabase
+  Pro separately at 300 MB (now ~191 MB) or PITR-worthy UGC.
+- Tag `p4` on Will's green light. **Announce/claim invites = Will's move.**
 
 ## Waiting on Will
-1. EMAIL (2 min): Cloudflare dash → dorkhub.com → Email Routing →
-   destination dorkhub1@gmail.com → address hi@dorkhub.com → Enable.
-   Then I swap the terms/privacy contact.
-2. FEATURED LABEL wording nod ('featured' default) · TERMS/PRIVACY review.
-3. Then: DEDICATED L5 PLANNING ROUND (bar = final-product feel;
-   signups-off toggle available; Pro/domain/robots-flip/cron-swap live
-   there). CSP burn-in: enforce step also disables vercel.live toolbar.
+1. Eyeball the live domain (https://dorkhub.com) → green-light the `p4` tag.
+2. Announce timing + claim invites — his clock entirely.
+3. Optional 30s cosmetics: GitHub OAuth app homepage URL → dorkhub.com;
+   delete the stale `*.dorkhub.com` wildcard A (old Oracle parking box) in
+   Cloudflare DNS; consider a DMARC record (Cloudflare suggests one).
+
+## Post-launch watch (first month)
+GSC coverage as 36k URLs index · Vercel Usage weekly (bandwidth/analytics
+events) · GitHub Actions cadence (observed ~90-min throttled gaps 07-31;
+daily fallback covers; chronic = Pro trigger) · Sentry issues + uptime ·
+dbSizeMb in pipeline responses (warn 400).
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP. psql session pooler
 postgresql://postgres.xvorwdvsnbpujyzfowwu@aws-0-us-east-1.pooler.supabase.com:5432/postgres
 (PGPASSWORD=$SUPABASE_DB_PASSWORD). Prod LIVE — reads free; writes only as
 verified ops; migrations `psql --single-transaction -v ON_ERROR_STOP=1`.
-Backups: docs/ops-backup.md (snapshot before every destructive op).
+Backups: docs/ops-backup.md + scripts/backup-prod.sh (launchd Sun 09:00).
 
 ## Gotchas (new first; older live in docs/plans/* + git)
-Bulk drivers = app libs headless (`NODE_OPTIONS='--conditions
-react-server' pnpm dlx tsx`); same-lib rule — never bypass materialize/
-sync. `unset GITHUB_TOKEN` before git push (read-only PAT hijacks gh
-creds). PROFILES: never star-select under API roles (PROFILE_COLUMNS);
-grep projections BEFORE grant changes. Search limiter fail-OPEN vs AI
-budget fail-CLOSED — both deliberate. Robots flip = robots.ts + layout.tsx
-TOGETHER; /search noindex survives it. SITE_URL: src/lib/site.ts only.
-CSP img-src https:-wide is LOAD-BEARING; flip via CSP_ENFORCE=1.
-Last updated: 2026-07-30 eve (post-ramp; backfill + redrain in flight).
+PostgREST 1,000-row cap: un-ranged selects TRUNCATE SILENTLY (sitemap hit
+it at 3,011); .range() walks terminate on short page ONLY without embed
+filters — an inner-embed filter makes pages short mid-set (walk to zero, or
+derive from already-fetched rows). Layout-relative canonical ('./') resolves
+to '/index' on the root route in PROD builds only — home pages pin '/'.
+SITE_URL: src/lib/site.ts only. Robots flip DONE; /search noindex survives.
+`unset GITHUB_TOKEN` before git push. Bulk drivers = app libs headless.
+Last updated: 2026-07-31 (launch session).

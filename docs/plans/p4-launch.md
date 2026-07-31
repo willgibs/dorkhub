@@ -78,14 +78,18 @@ over mega-frameworks.
   · awesome-neovim · awesome-userscripts · open-source-games lists (pick at
   run time by README quality)
 
-## Remaining
+## L5 as-executed (2026-07-31 — see D54/D55 for the full record)
 
-- CSP burn-in devtools pass → CSP_ENFORCE=1 (launch window).
-- Sentry dedicated-account setup (Will) → DSN env → test event.
-- Featured label wording nod (Will) · terms/privacy review (Will) ·
-  seed-list approval (Will) → run crawls.
-- L5 launch window checklist (plan file): gates+Lighthouse → Pro+Spend Mgmt
-  → domain+www → Supabase auth URLs (keep vercel.app alias) → real-domain
-  verify → Search Console TXT → robots flip (BOTH halves) + sitemap submit →
-  cron swap two-step (verify Vercel fire, then delete workflow) → uptime +
-  analytics → backup cadence → **LAUNCH GO**.
+EXECUTED at $0 under the D54 no-Pro pivot (supersedes this file's original
+Pro+cron-swap steps — GH Actions is the permanent scheduler; vercel.json
+dailies stay as fallback). Order run: snapshot+gates+baselines → toolbar off
+→ CSP ENFORCE (burn-in clean) → domain attach (Cloudflare grey-cloud CNAMEs
+→ per-project vercel-dns-017 target; mail untouched) → Supabase site_url →
+robots flip + per-route canonicals + @vercel/analytics + comment hygiene →
+GSC domain-property verify (dorkhub1 account, manual TXT) + sitemap submit
+(36,202 URLs, arithmetic-exact) → Sentry uptime monitor → backup launchd
+agent. Launch-verify caught 4 real defects (root '/index' canonical; 1k-row
+sitemap truncation; 50k-cap overflow; embed-paged walk cutoff) — all fixed
+and live same-session. Earlier board gates (Sentry account, featured label,
+terms/privacy, seed list) had already cleared in D49/D52. Remaining:
+Will's `p4`-tag green light + announce, on his clock.
