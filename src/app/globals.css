@@ -251,6 +251,44 @@
   }
 }
 
+/* Skeleton → content reveal: the resolved grid fades up out of the
+   placeholder rather than snapping in (deferred motion backlog). Layout is
+   already stable — the skeleton grid mirrors the resolved grid's classes —
+   so this only animates opacity/blur/transform. */
+@keyframes u2-reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Error shake: one short, decaying wobble when a form error appears —
+   transform-only, well under the 300ms UI budget (docs/motion.md).
+   Technique adapted from transitions.dev's error-state shake. */
+@keyframes u2-error-shake {
+  0% {
+    transform: translateX(0);
+  }
+  22% {
+    transform: translateX(-4px);
+  }
+  44% {
+    transform: translateX(3px);
+  }
+  66% {
+    transform: translateX(-2px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
 /* Hero ticker: constant motion, linear by rule (docs/motion.md). The track
    holds the list twice so -50% loops seamlessly. */
 @keyframes u2-ticker {
@@ -347,5 +385,36 @@
   /* Mobile-menu rows: each carries its own animation-delay inline. */
   .u2-menu-item {
     animation: u2-menu-item-in var(--motion-base) var(--motion-ease-quiet) both;
+  }
+  /* Content arriving where a skeleton was. */
+  .u2-reveal {
+    animation: u2-reveal-in var(--motion-slow) var(--motion-ease-quiet) both;
+  }
+  /* Form errors: shake once on appearance. */
+  .u2-error {
+    animation: u2-error-shake var(--motion-slow) var(--motion-ease-quiet-in-out) both;
+  }
+  /* Digit reel (counter). The column height IS the cell height; the strip
+     translates by whole cells, so one transition drives the whole roll. */
+  .u2-reel {
+    display: inline-flex;
+    font-variant-numeric: tabular-nums;
+  }
+  .u2-reel-col {
+    height: 1.25em;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent);
+  }
+  .u2-reel-strip {
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--motion-slow) var(--motion-ease-quiet);
+  }
+  .u2-reel-digit {
+    display: flex;
+    height: 1.25em;
+    align-items: center;
+    justify-content: center;
   }
 }

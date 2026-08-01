@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { CounterReel } from '@/components/counter-reel';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import {
@@ -165,7 +166,7 @@ export function ImportRunner() {
   if (state.status === 'running') {
     return (
       <p aria-live="polite" className="font-mono text-sm text-muted-foreground">
-        {copy.importRunning} <span className="tabular-nums">{state.scanned}</span>
+        {copy.importRunning} <CounterReel value={state.scanned} />
       </p>
     );
   }
@@ -195,8 +196,8 @@ export function ImportRunner() {
     return (
       <p aria-live="polite" className="font-mono text-sm text-muted-foreground">
         {copy.importMaterializing}{' '}
-        <span className="tabular-nums">
-          {state.materialized} of {state.tallies.queued}
+        <span className="tabular-nums inline-flex items-center gap-1">
+          <CounterReel value={state.materialized} /> of {state.tallies.queued}
         </span>
       </p>
     );

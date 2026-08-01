@@ -111,7 +111,7 @@ export function ReportButtonIsland({ projectId }: ReportButtonIslandProps) {
               </div>
 
               {state && 'error' in state ? (
-                <p aria-live="polite" className="text-sm text-destructive">
+                <p aria-live="polite" className="u2-error text-sm text-destructive">
                   {state.error}
                 </p>
               ) : null}

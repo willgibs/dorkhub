@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useState, useTransition } from 'react';
 import { useEngagement } from '@/app/(app)/_engagement/engagement-context';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
+import { cn } from '@/lib/utils';
 
 export type FeedGridLoadMoreResult = {
   cards: ReactNode;
@@ -67,7 +68,29 @@ export function FeedGrid({ initialCards, initialIds, initialCursor, loadMore }: 
           disabled={isPending}
           className="mx-auto w-fit"
         >
-          {isPending ? copy.loadingMore : copy.loadMore}
+          {/* Label swap blur-crossfades in place instead of snapping — the
+              two states are grid-stacked so the button never resizes
+              mid-transition (U2 motion pass; CopyButton's icon-swap idiom
+              applied to text). */}
+          <span className="inline-grid place-items-center">
+            <span
+              className={cn(
+                'col-start-1 row-start-1 transition-[opacity,filter] duration-200 ease-quiet',
+                isPending ? 'opacity-0 blur-[2px]' : 'opacity-100 blur-0',
+              )}
+            >
+              {copy.loadMore}
+            </span>
+            <span
+              aria-hidden={!isPending}
+              className={cn(
+                'col-start-1 row-start-1 transition-[opacity,filter] duration-200 ease-quiet',
+                isPending ? 'opacity-100 blur-0' : 'opacity-0 blur-[2px]',
+              )}
+            >
+              {copy.loadingMore}
+            </span>
+          </span>
         </Button>
       ) : null}
     </div>

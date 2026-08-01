@@ -118,6 +118,7 @@ export const copy = {
   searchFilterStars: 'stars',
   searchFilterDemo: 'has a demo',
   searchFilterClear: 'clear filters',
+  searchClear: 'clear search',
   importTitle: 'bring your stars',
   importSubtitle:
     'we’ll match your public github stars against the gallery — the rest go live right after',

@@ -1,5 +1,6 @@
 'use client';
 
+import { X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -14,6 +15,7 @@ import { copy } from '@/lib/copy';
 // drifted). A value import here would fail loudly, which is the point.
 import { collectFacetOptions, type FacetOption, STAR_BUCKETS } from '@/lib/search/facets';
 import type { SearchResults } from '@/lib/search/queries';
+import { cn } from '@/lib/utils';
 
 const EMPTY: SearchResults = { projects: [], profiles: [], tags: [] };
 
@@ -176,16 +178,37 @@ export function SearchResultsIsland() {
   return (
     <div className="flex w-full max-w-[780px] flex-col gap-6">
       <div className="flex flex-col gap-1.5">
-        <Input
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={copy.searchPlaceholder}
-          autoComplete="off"
-          // Autofocus is right here and nowhere else: arriving at /search is an
-          // explicit act, unlike the palette which is summoned over other work.
-          autoFocus
-          aria-label={copy.searchTitle}
-        />
+        <div className="relative">
+          <Input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={copy.searchPlaceholder}
+            autoComplete="off"
+            // Autofocus is right here and nowhere else: arriving at /search is an
+            // explicit act, unlike the palette which is summoned over other work.
+            autoFocus
+            aria-label={copy.searchTitle}
+            className="pr-10"
+          />
+          {/* Clear affordance (U2 motion pass): dissolves in with the query
+              rather than popping, and stays mounted so it dissolves back out
+              — `pointer-events-none` when empty keeps it untappable. */}
+          <button
+            type="button"
+            aria-label={copy.searchClear}
+            aria-hidden={query.length === 0}
+            tabIndex={query.length === 0 ? -1 : undefined}
+            onClick={() => setQuery('')}
+            className={cn(
+              'absolute inset-y-0 right-0 mr-1 inline-flex w-8 items-center justify-center rounded-md text-muted-foreground outline-none transition-[opacity,filter,transform] duration-200 ease-quiet hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring active:translate-y-px',
+              query.length > 0
+                ? 'scale-100 opacity-100 blur-0'
+                : 'pointer-events-none scale-90 opacity-0 blur-[2px]',
+            )}
+          >
+            <X className="size-3.5" aria-hidden="true" />
+          </button>
+        </div>
         <p className="font-mono text-[12.5px] text-muted-foreground">{copy.searchScopeNote}</p>
       </div>
 
