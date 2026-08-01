@@ -10,7 +10,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen flex-col">
       {/* Sticky nav (U2) — same treatment as the (app) layout. */}
-      <div className="z-40 bg-background/85 backdrop-blur-md sm:sticky sm:top-0">
+      <div className="sticky top-0 z-40 bg-background/85 backdrop-blur-md">
         <PageShell className="pt-3 pb-3">
           <SiteHeader>
             <SiteHeaderAuth />

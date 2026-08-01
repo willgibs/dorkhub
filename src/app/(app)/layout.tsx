@@ -11,10 +11,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="bg-bloom flex min-h-screen flex-col">
-      {/* Sticky nav (U2 board direction: "navigation always a click away").
-          The veil keeps the floating card-bar readable over scrolling
-          content; overlays portal at z-50 and stay above. */}
-      <div className="z-40 bg-background/85 backdrop-blur-md sm:sticky sm:top-0">
+      {/* Sticky nav (U2 board direction: "navigation always a click away") —
+          now at every width, since the header collapses to a single row
+          under `sm`. The veil keeps the floating card-bar readable over
+          scrolling content; overlays portal at z-50 and stay above. */}
+      <div className="sticky top-0 z-40 bg-background/85 backdrop-blur-md">
         <PageShell className="pt-3 pb-3">
           <SiteHeader>
             <SiteHeaderAuth />

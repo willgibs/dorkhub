@@ -233,6 +233,24 @@
   }
 }
 
+/* Mobile menu items stagger in behind the sheet's own slide (technique
+   adapted from transitions.dev's stagger reveal onto our tokens). A keyframe,
+   not a transition: the sheet content mounts already open, so there's no
+   start frame for a transition to interpolate from. Killed by the
+   reduced-motion switch, which leaves the items simply present. */
+@keyframes u2-menu-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
 /* Hero ticker: constant motion, linear by rule (docs/motion.md). The track
    holds the list twice so -50% loops seamlessly. */
 @keyframes u2-ticker {
@@ -325,5 +343,9 @@
   /* Hovering the hero ticker pauses it so items can be read and clicked. */
   .u2-ticker:hover .u2-ticker-track {
     animation-play-state: paused;
+  }
+  /* Mobile-menu rows: each carries its own animation-delay inline. */
+  .u2-menu-item {
+    animation: u2-menu-item-in var(--motion-base) var(--motion-ease-quiet) both;
   }
 }
