@@ -152,6 +152,13 @@ export const copy = {
   searchFilterDemo: 'has a demo',
   searchFilterClear: 'clear filters',
   searchClear: 'clear search',
+  // W4: search states. Both the "haven't typed yet" and "found nothing" cases
+  // now offer a way onward instead of a dead end.
+  searchKicker: 'find something',
+  searchTryTags: 'or start from a tag',
+  searchElsewhereLead: 'or',
+  searchElsewhereRandom: 'take a random one',
+  searchElsewhereBrowse: 'browse everything',
   importTitle: 'bring your stars',
   importSubtitle:
     'we’ll match your public github stars against the gallery — the rest go live right after',

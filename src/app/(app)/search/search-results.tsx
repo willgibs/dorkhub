@@ -16,6 +16,7 @@ import { copy } from '@/lib/copy';
 import { collectFacetOptions, type FacetOption, STAR_BUCKETS } from '@/lib/search/facets';
 import type { SearchResults } from '@/lib/search/queries';
 import { cn } from '@/lib/utils';
+import { SearchResultRow, SearchResultRowSkeleton } from './search-result-row';
 
 const EMPTY: SearchResults = { projects: [], profiles: [], tags: [] };
 
@@ -27,6 +28,9 @@ const DEBOUNCE_MS = 150;
 const rowLink =
   'block rounded-sm outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 
+/** Placeholder rows shown before the first result set lands. */
+const SKELETON_ROWS = 5;
+
 /**
  * The whole of `/search`'s behaviour. Reads `?q=` with `useSearchParams()` so
  * the enclosing route stays statically prerendered (D27), and mirrors typing
@@ -36,7 +40,12 @@ const rowLink =
  * debounce, an AbortController that cancels a still-in-flight request, and a
  * `settled` flag so "nothing found" can't flash while a request is in the air.
  */
-export function SearchResultsIsland() {
+export type SearchResultsIslandProps = {
+  /** Popular tag slugs, fetched by the static shell — the way out of an empty result. */
+  suggestedTags?: string[];
+};
+
+export function SearchResultsIsland({ suggestedTags = [] }: SearchResultsIslandProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -45,6 +54,11 @@ export function SearchResultsIsland() {
   const [query, setQuery] = useState(initialQ);
   const [results, setResults] = useState<SearchResults>(EMPTY);
   const [settled, setSettled] = useState(false);
+  // Distinct from `settled`: a request is in the air RIGHT NOW. Before the
+  // first result set it draws skeleton rows; after one, it dims the results
+  // in place — replacing a list someone is reading with skeletons on every
+  // keystroke is worse than a moment of stale content.
+  const [pending, setPending] = useState(false);
   const [limited, setLimited] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -105,8 +119,11 @@ export function SearchResultsIsland() {
       abortRef.current?.abort();
       setResults(EMPTY);
       setSettled(false);
+      setPending(false);
       return;
     }
+
+    setPending(true);
 
     const controller = new AbortController();
     abortRef.current?.abort();
@@ -129,6 +146,7 @@ export function SearchResultsIsland() {
           setLimited(response.status === 429);
           setResults(data);
           setSettled(true);
+          setPending(false);
         }
       } catch {
         // Abort is the common path here (every keystroke cancels the last
@@ -138,6 +156,7 @@ export function SearchResultsIsland() {
           setLimited(false);
           setResults(EMPTY);
           setSettled(true);
+          setPending(false);
         }
       }
     }, DEBOUNCE_MS);
@@ -277,35 +296,54 @@ export function SearchResultsIsland() {
       ) : null}
 
       {query.trim().length < 2 ? (
-        <p className="text-[15px] text-muted-foreground">{copy.searchStart}</p>
+        <Nothing
+          lead={copy.searchStart}
+          suggestedTags={suggestedTags}
+          tagsLabel={copy.searchTryTags}
+        />
+      ) : pending && !settled ? (
+        <ul className="flex flex-col divide-y divide-border">
+          {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length placeholder list, no identity to key on
+            <SearchResultRowSkeleton key={i} />
+          ))}
+        </ul>
       ) : settled && total === 0 ? (
-        <EmptyState message={limited ? copy.searchRateLimited : copy.searchEmpty} />
+        <Nothing
+          lead={limited ? copy.searchRateLimited : copy.searchEmpty}
+          // A rate limit is temporary and about US — offering tags there would
+          // read as "your query was bad". Only a genuine miss gets escape hatches.
+          suggestedTags={limited ? [] : suggestedTags}
+          tagsLabel={copy.searchTryTags}
+        />
       ) : (
-        <div className="flex flex-col gap-8">
+        <div
+          // Keyed on `settled` so the first result set reveals once, and
+          // refining an existing search doesn't re-animate under the reader.
+          key={String(settled)}
+          className={cn(
+            'u2-reveal flex flex-col gap-8 transition-opacity duration-200 ease-quiet',
+            pending && 'opacity-60',
+          )}
+        >
           {results.projects.length > 0 ? (
             <section className="flex flex-col gap-3">
-              <h2 className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+              <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
                 <span aria-hidden="true">{'// '}</span>
                 {copy.searchGroupProjects}
               </h2>
               <ul className="flex flex-col divide-y divide-border">
                 {results.projects.map((project) => (
-                  <li key={project.id} className="py-3">
-                    <Link
-                      href={`/u/${project.profiles.username}/${project.slug}`}
-                      className={rowLink}
-                    >
-                      <span className="font-mono text-[15px] font-semibold">{project.name}</span>
-                      <span className="ml-2 font-mono text-[12.5px] text-muted-foreground">
-                        {project.repo_full_name}
-                      </span>
-                      {project.tagline ? (
-                        <span className="mt-0.5 block text-[13.5px] text-muted-foreground">
-                          {project.tagline}
-                        </span>
-                      ) : null}
-                    </Link>
-                  </li>
+                  <SearchResultRow
+                    key={project.id}
+                    name={project.name}
+                    href={`/u/${project.profiles.username}/${project.slug}`}
+                    repoFullName={project.repo_full_name}
+                    tagline={project.tagline}
+                    language={project.primary_language}
+                    stars={project.stars_count}
+                    tags={project.tags}
+                  />
                 ))}
               </ul>
               {capped ? (
@@ -353,5 +391,59 @@ export function SearchResultsIsland() {
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * The two states where there is nothing to list — before a query, and after
+ * one that missed. Both used to be a single muted sentence, which is a dead
+ * end on the one page someone reaches when they already know what they want.
+ * The tags come from the static shell, so this offers real routes onward
+ * without the island needing any data of its own.
+ */
+function Nothing({
+  lead,
+  suggestedTags,
+  tagsLabel,
+}: {
+  lead: string;
+  suggestedTags: string[];
+  tagsLabel: string;
+}) {
+  const elsewhere =
+    'rounded-sm text-link outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+
+  return (
+    <EmptyState className="text-left">
+      <div className="flex flex-col gap-5">
+        <p className="text-[15px]">{lead}</p>
+
+        {suggestedTags.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            <p className="font-mono text-[11px] tracking-widest text-muted-foreground uppercase">
+              {tagsLabel}
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {suggestedTags.map((tag) => (
+                <TagChip key={tag} tag={tag} hashPrefix />
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <p className="font-mono text-[12.5px] text-muted-foreground">
+          {copy.searchElsewhereLead}{' '}
+          <Link href="/random" prefetch={false} className={elsewhere}>
+            {copy.searchElsewhereRandom}
+          </Link>
+          <span aria-hidden="true" className="mx-2 opacity-50">
+            ·
+          </span>
+          <Link href="/" className={elsewhere}>
+            {copy.searchElsewhereBrowse}
+          </Link>
+        </p>
+      </div>
+    </EmptyState>
   );
 }

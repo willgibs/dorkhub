@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import { SearchResultRow, SearchResultRowSkeleton } from '@/app/(app)/search/search-result-row';
 import { MakerCard } from '@/app/(app)/u/[username]/[slug]/maker-card';
 import { ProjectVitals } from '@/app/(app)/u/[username]/[slug]/project-vitals';
 import { ReadmeContents } from '@/app/(app)/u/[username]/[slug]/readme-contents';
@@ -537,6 +538,39 @@ export default function DesignComponentsPage() {
                 followButton={<FollowButtonDemo />}
               />
             </div>
+          </Demo>
+        </Group>
+
+        <Group title="search-result-row">
+          <Demo label="a result you can actually choose between — language, stars and tags were always in the payload">
+            <ul className="flex w-full flex-col divide-y divide-border">
+              <SearchResultRow
+                name={tinysynth.name}
+                href="#result"
+                repoFullName={`${authors[tinysynth.author].username}/${tinysynth.slug}`}
+                tagline={tinysynth.tagline}
+                language={tinysynth.language}
+                stars={tinysynth.stars ?? 0}
+                tags={tinysynth.tags}
+              />
+              <SearchResultRow
+                name={untitledMaze.name}
+                href="#result-2"
+                repoFullName={`${authors[untitledMaze.author].username}/${untitledMaze.slug}`}
+                tagline={untitledMaze.tagline}
+                language={untitledMaze.language}
+                // Brand new: no stars renders as absence, never “0”.
+                stars={0}
+                tags={untitledMaze.tags}
+              />
+            </ul>
+          </Demo>
+          <Demo label="loading — same rhythm, so results don’t shift on arrival">
+            <ul className="flex w-full flex-col divide-y divide-border">
+              <SearchResultRowSkeleton />
+              <SearchResultRowSkeleton />
+              <SearchResultRowSkeleton />
+            </ul>
           </Demo>
         </Group>
 
