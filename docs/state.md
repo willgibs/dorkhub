@@ -23,9 +23,11 @@
   how-it-works v2, footer v2, following rail. 762 tests green.
 
 ## Waiting on Will
-1. **U2 R2 pick**: review /preview-home + /preview-feed on prod — pick hero
-   fork (shelf/ticker) + rhythm fork (clusters/spans) + any changes → R3
-   adoption + autonomous W-waves (W1-W8).
+1. **U2 R2.5 final look**: /preview-home + /preview-feed updated per his R2
+   review (hero both+entrance, quick-hits re-homed, spotlight vertical,
+   sticky nav sm+, weird→random, is/isnt+capture, 'list my project', H1
+   reframe A/B discover-vs-count) → pick headline + green-light R3
+   adoption + autonomous W-waves.
 2. Announce timing + claim invites — his clock entirely. Tag `u1`/`u2` on
    green lights.
 

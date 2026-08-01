@@ -1,11 +1,18 @@
+import Link from 'next/link';
+
 import { PageShell } from '@/components/page-shell';
+import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
+import { cn } from '@/lib/utils';
 
 /**
- * How-it-works v2 (U2 R1): the three steps stop restating the subhead as
- * bare text — each gets a node on a connecting line plus a tiny abstract UI
- * vignette (bars and shapes, no words) sketching what actually happens at
- * that step. Vignettes are decorative and aria-hidden.
+ * How-it-works v2.1 (R2.5): one closing section instead of two — the three
+ * connected steps, then the is/isn't split panel folded in beneath them
+ * (R2: expectation-setting belongs inside the story, not as its own
+ * symmetric block), ending in the bottom conversion capture: a
+ * display-scale line + "list my project" CTA into /new (the proxy streams
+ * signed-out visitors through /auth/signin?next=/new — one GitHub click
+ * and back). Vignettes are decorative and aria-hidden.
  */
 const STEPS = [
   { ordinal: '01', label: 'connect github', vignette: <ConnectVignette /> },
@@ -13,35 +20,113 @@ const STEPS = [
   { ordinal: '03', label: 'give each one a page', vignette: <PageVignette /> },
 ] as const;
 
+type Column = {
+  title: string;
+  tone: 'positive' | 'destructive';
+  mark: string;
+  items: readonly string[];
+};
+
+const COLUMNS: readonly Column[] = [
+  { title: 'dorkhub is', tone: 'positive', mark: '✓', items: copy.isList },
+  { title: "dorkhub isn't", tone: 'destructive', mark: '✗', items: copy.isntList },
+];
+
 export function HowItWorksV2() {
   return (
-    <PageShell as="section" className="border-t py-14 sm:py-18">
-      <p className="mb-8 font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
-        <span aria-hidden="true">{'// '}</span>
-        {copy.howKicker}
-      </p>
-      <div className="relative mx-auto grid max-w-[900px] gap-10 sm:grid-cols-3 sm:gap-8">
-        {/* the connecting line — runs behind the ordinal nodes on sm+ */}
-        <div
-          aria-hidden="true"
-          className="absolute top-[14px] right-[12%] left-[12%] hidden h-px bg-gradient-to-r from-border via-[color-mix(in_oklab,var(--primary)_36%,var(--border))] to-border sm:block"
-        />
-        {STEPS.map((step) => (
-          <div key={step.ordinal} className="flex flex-col gap-3.5">
-            <div className="flex items-center gap-3">
-              <span className="tabular-nums relative z-10 inline-flex size-7 items-center justify-center rounded-full border bg-card font-mono text-[11px] text-primary shadow-[0_0_0_3px_var(--background)]">
-                {step.ordinal}
-              </span>
-              <p className="text-[15px] text-foreground">{step.label}</p>
+    <PageShell as="section" className="flex flex-col gap-12 border-t py-14 sm:py-18">
+      <div className="flex flex-col gap-8">
+        <p className="font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
+          <span aria-hidden="true">{'// '}</span>
+          {copy.howKicker}
+        </p>
+        <div className="relative mx-auto grid w-full max-w-[900px] gap-10 sm:grid-cols-3 sm:gap-8">
+          {/* the connecting line — runs behind the ordinal nodes on sm+ */}
+          <div
+            aria-hidden="true"
+            className="absolute top-[14px] right-[12%] left-[12%] hidden h-px bg-gradient-to-r from-border via-[color-mix(in_oklab,var(--primary)_36%,var(--border))] to-border sm:block"
+          />
+          {STEPS.map((step) => (
+            <div key={step.ordinal} className="flex flex-col gap-3.5">
+              <div className="flex items-center gap-3">
+                <span className="tabular-nums relative z-10 inline-flex size-7 items-center justify-center rounded-full border bg-card font-mono text-[11px] text-primary shadow-[0_0_0_3px_var(--background)]">
+                  {step.ordinal}
+                </span>
+                <p className="text-[15px] text-foreground">{step.label}</p>
+              </div>
+              <div
+                aria-hidden="true"
+                className="edge-highlight flex h-[96px] items-center justify-center rounded-md border bg-surface-2/70"
+              >
+                {step.vignette}
+              </div>
             </div>
-            <div
+          ))}
+        </div>
+      </div>
+
+      {/* is/isn't — compacted split panel, expectation-setting mid-beat */}
+      <div className="edge-highlight mx-auto grid w-full max-w-[860px] overflow-hidden rounded-lg border bg-card sm:grid-cols-2">
+        {COLUMNS.map((col, i) => (
+          <div
+            key={col.title}
+            className={cn(
+              'relative overflow-hidden px-6 py-5',
+              i === 1 && 'border-t sm:border-t-0 sm:border-l',
+            )}
+          >
+            <span
               aria-hidden="true"
-              className="edge-highlight flex h-[96px] items-center justify-center rounded-md border bg-surface-2/70"
+              className={cn(
+                'pointer-events-none absolute -top-8 -right-2 select-none font-mono text-[7rem] font-bold leading-none',
+                col.tone === 'positive'
+                  ? 'text-[color-mix(in_oklab,var(--positive)_11%,transparent)]'
+                  : 'text-[color-mix(in_oklab,var(--destructive)_11%,transparent)]',
+              )}
             >
-              {step.vignette}
-            </div>
+              {col.mark}
+            </span>
+            <h2
+              className={cn(
+                'font-mono text-xs font-semibold tracking-[0.1em] uppercase',
+                col.tone === 'positive' ? 'text-positive' : 'text-destructive',
+              )}
+            >
+              {col.title}
+            </h2>
+            <ul className="relative mt-3 flex flex-col gap-1.5">
+              {col.items.map((item) => (
+                <li key={item} className="flex items-baseline gap-2.5 text-[14px]">
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'font-mono',
+                      col.tone === 'positive' ? 'text-positive' : 'text-destructive',
+                    )}
+                  >
+                    {col.mark}
+                  </span>
+                  <span className="text-card-foreground">{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         ))}
+      </div>
+
+      {/* the bottom capture — the page's closing ask */}
+      <div className="flex flex-col items-center gap-4 pt-2 text-center">
+        <p className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+          {copy.captureTitle}
+        </p>
+        <Button
+          asChild
+          size="lg"
+          className="shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_45%,transparent),0_4px_18px_color-mix(in_oklab,var(--primary)_20%,transparent)] active:translate-y-px"
+        >
+          <Link href="/new">{copy.ctaPrimary}</Link>
+        </Button>
+        <p className="font-mono text-xs text-muted-foreground">{copy.captureSubline}</p>
       </div>
     </PageShell>
   );

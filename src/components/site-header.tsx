@@ -17,10 +17,10 @@ export type SiteHeaderProps = {
 const NAV_LINKS = [
   { label: 'browse', href: '/' },
   { label: 'tags', href: '/tags' },
-  // prefetch={false}: a prefetched /weird would resolve (and burn) its
+  // prefetch={false}: a prefetched /random would resolve (and burn) its
   // random redirect on every header render instead of on click
   // (docs/plans/p2-discovery.md locked decision 7).
-  { label: copy.navWeird, href: '/weird', prefetch: false },
+  { label: copy.navWeird, href: '/random', prefetch: false },
 ] as const;
 
 /**

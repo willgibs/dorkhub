@@ -5,7 +5,9 @@
  * Zero-stat projects show absence, never "0".
  */
 export const copy = {
-  ctaPrimary: 'show your thing',
+  // 'list my project' (was 'show your thing') — U2 R2 board direction:
+  // conceptually cleaner nav CTA.
+  ctaPrimary: 'list my project',
   like: '++',
   save: 'save',
   saved: 'saved',
@@ -17,7 +19,9 @@ export const copy = {
   relatedTitle: 'more like this',
   recsTitle: 'because you starred',
   recsImportNudge: 'bring your github stars — we’ll find more like them',
-  navWeird: 'weird',
+  // 'random' (was 'weird') — U2 R2 board direction: conceptually clearer
+  // nav name. Voice-flavor strings keep "weird" (that's vocabulary, not nav).
+  navWeird: 'random',
   profileEmptyProjects: 'nothing published here yet',
   projectNoReadme: 'no readme yet — the code speaks for itself',
   projectDraftBadge: 'draft — only you can see this',
@@ -192,6 +196,15 @@ export const copy = {
   howKicker: 'how it works',
   previewBadge: 'u2 preview',
   previewNote: 'a proposed home on real data — the live page is unchanged. pick your favorites.',
+  // R2.5 hero reframe (discovery-first H1, creator tail in the sub). The
+  // count variant's number is composed in the component (formatCount) —
+  // copy stays static strings by contract.
+  heroHeadlineDiscover: 'discover the things devs build for fun',
+  heroHeadlineCountTail: 'things devs built for fun — find yours',
+  heroSubDiscover:
+    'a curated gallery of dev side projects. browse, fork, follow the makers — and when you’re ready, list your own.',
+  captureTitle: 'made something for fun?',
+  captureSubline: 'sign in with github — takes a minute',
   footerColBrowse: 'browse',
   footerColYours: 'yours',
   footerColMeta: 'dorkhub',

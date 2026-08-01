@@ -92,7 +92,7 @@ export async function FeedSection({ sort, tag = null, featured = [] }: FeedSecti
           <p>
             {copy.emptyFeedLead}{' '}
             <Link
-              href="/weird"
+              href="/random"
               prefetch={false}
               className="rounded-sm text-link outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >

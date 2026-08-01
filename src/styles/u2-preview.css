@@ -1,24 +1,40 @@
 /*
- * U2 R1 preview-only styles (docs/plans/u2-rework.md) — loaded by
- * /preview-home and /preview-feed. Harness fork-toggles hide the un-picked
- * variant tree; decorative keyframes for the hero shelf/ticker; rail
- * scrollbar suppression. Tokens only. Deleted (or graduated into
- * globals.css) at adoption.
+ * U2 R2.5 preview-only styles (docs/plans/u2-rework.md) — loaded by
+ * /preview-home and /preview-feed. One remaining harness fork (headline
+ * A/B); hero shelf enter + drift keyframes; ticker; rail scrollbar
+ * suppression. Tokens only. Deleted (or graduated into globals.css) at
+ * adoption. R2 resolved the hero (both variants compose) and rhythm
+ * (spans-only; quick hits moved to the discovery band) forks — their
+ * toggle rules are gone.
  */
 
-/* Contested-fork toggles: the harness sets data-u2-hero / data-u2-rhythm on
- * the frame; each variant tree tags itself with data-v2-only. */
-[data-u2-hero="shelf"] [data-v2-only="ticker"] {
+/* Headline fork: the harness sets data-u2-headline on the frame; each H1
+ * tree tags itself with data-v2-headline. display toggling re-triggers the
+ * word-rise animation, so a switch replays the entrance. */
+[data-u2-headline="discover"] [data-v2-headline="count"] {
   display: none;
 }
-[data-u2-hero="ticker"] [data-v2-only="shelf"] {
+[data-u2-headline="count"] [data-v2-headline="discover"] {
   display: none;
 }
-[data-u2-rhythm="clusters"] [data-v2-only="spans"] {
-  display: none;
-}
-[data-u2-rhythm="spans"] [data-v2-only="clusters"] {
-  display: none;
+
+/* Hero shelf entrance — stacked → fan on load (Will's R2 pick; technique
+ * adapted from transitions.dev's card-stack reveal onto our tokens, per
+ * the adapt-don't-vendor rule). Each card starts near the stack origin
+ * (per-card --u2-from-x/y), rotation flat, slightly shrunk; lands on its
+ * seat tilt. Large-surface entrance budget: 500ms ease-quiet
+ * (docs/motion.md). The drift loop chains after via its own
+ * animation-delay; the reduced-motion kill switch collapses both.
+ */
+@keyframes u2-shelf-enter {
+  from {
+    opacity: 0;
+    transform: translate(var(--u2-from-x, 0px), var(--u2-from-y, 0px)) rotate(0deg) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--u2-tilt, 0deg)) scale(1);
+  }
 }
 
 /* Hero ticker — constant decorative motion, linear by rule (docs/motion.md);
@@ -34,7 +50,8 @@
 }
 
 /* Hero shelf drift — slow decorative float; rotation rides a var so each
- * card keeps its own tilt while sharing the keyframes. */
+ * card keeps its own tilt while sharing the keyframes. Starts from the
+ * enter animation's landed state (translate 0 / seat tilt / scale 1). */
 @keyframes u2-drift {
   0%,
   100% {

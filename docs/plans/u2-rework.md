@@ -71,11 +71,36 @@ Dev-pane caveat: the embedded pane black-tiles very tall composited pages
 at desktop width (raster limit, DOM verified healthy; mobile width paints
 fully) — re-verified on prod in real Chrome.
 
-## R2 — board pick (NEXT: Will)
+## R2 — board verdict (Will, 2026-07-31/08-01)
 
-Will reviews both preview routes on prod, picks the forks (hero, rhythm),
-flags anything to change (R2.5 refinement expected per U1 precedent).
-Nothing user-facing changes until his pick.
+"Seriously great push in a beautiful direction… engaging and creatively
+correct." Forks: hero = **BOTH** (shelf beside headline + ticker beneath,
+shelf animates out on load — transitions.dev card-stack reference — with
+breathing room); rhythm = quick-hits strip loved but broke the gallery →
+**re-home it, gallery goes spans-only**. Also directed: og-image/card
+combos always stack VERTICALLY (2:1 never crops); navbar fixed; 'weird' →
+'random' nav name; is/isn't folds under how-it-works as a /new conversion
+capture; nav CTA → 'list my project'; H1 reframed discovery-first (creator
+framing is the minority audience); shimmer word treatment dropped (its
+baseline bug too); card v2 designs + more discovery pages encouraged
+(deep-discoverability platform is the goal); feed page inherits all.
+
+## R2.5 — revisions (EXECUTED 2026-08-01)
+
+All R2 items applied: hero composes shelf (stacked→fan entrance chained
+into drift, u2-shelf-enter on motion tokens) + ticker; H1 A/B harness
+('discover the things devs build for fun' vs live-count '17k things devs
+built for fun — find yours') over shared discovery sub; quick hits → 
+DiscoveryBand module fed by the 'active' sort; FeedRhythm = lead-span +
+uniform only; spotlight restacked media-top (og uncropped); sticky navbar
+product-wide at sm+ (mobile header too tall to pin — compact mobile header
+is a W-wave item) with backdrop veil; /random route + /weird 308 alias +
+nav/footer/empty-state hrefs; how-it-works v2.1 = steps + is/isn't panel +
+'made something for fun?' capture → /new; ctaPrimary = 'list my project'.
+Product-wide bits shipped live (sticky, renames) per explicit direction.
+Voice-flavor "weird" strings kept (nav-name clarity, not vocabulary purge)
+— board can override. Gates: verify + 762 tests + build green; QA matrix
+per the R2.5 plan. NEXT: Will's final look → R3 adoption.
 
 ## R3 + W-waves (post-pick, each independently shippable)
 

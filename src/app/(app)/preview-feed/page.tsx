@@ -56,30 +56,26 @@ export default async function PreviewFeed() {
   ];
 
   return (
-    <PreviewFrame showHeroToggle={false}>
+    <PreviewFrame showHeadlineToggle={false}>
       <PageShell className="flex flex-col gap-10 py-4">
         <RecsRail />
         <FollowingRail />
       </PageShell>
 
       <EngagementProvider projectIds={engagementIds}>
-        <DiscoveryBand weird={weird} makers={makers} rails={[]} />
+        <DiscoveryBand
+          weird={weird}
+          makers={makers}
+          quickHits={activeRows.slice(0, 4)}
+          rails={[]}
+        />
 
         <section id="feed" className="scroll-mt-20 border-t">
           <PageShell className="flex flex-col gap-8 py-12 sm:py-14">
             <FeedV2
-              trending={
-                <>
-                  <div data-v2-only="clusters">
-                    <FeedRhythm rows={trendingPage.rows} featured={featured} variant="clusters" />
-                  </div>
-                  <div data-v2-only="spans">
-                    <FeedRhythm rows={trendingPage.rows} featured={featured} variant="spans" />
-                  </div>
-                </>
-              }
-              newest={<FeedRhythm rows={newestPage.rows} featured={[]} variant="spans" />}
-              active={<FeedRhythm rows={activeRows} featured={[]} variant="spans" />}
+              trending={<FeedRhythm rows={trendingPage.rows} featured={featured} />}
+              newest={<FeedRhythm rows={newestPage.rows} featured={[]} />}
+              active={<FeedRhythm rows={activeRows} featured={[]} />}
             />
           </PageShell>
         </section>

@@ -19,7 +19,6 @@ import { FeedV2 } from './_v2/feed-v2';
 import { FooterV2 } from './_v2/footer-v2';
 import { HeroV2 } from './_v2/hero-v2';
 import { HowItWorksV2 } from './_v2/how-it-works-v2';
-import { IsIsntV2 } from './_v2/is-isnt-v2';
 import { PreviewFrame } from './_v2/preview-frame';
 
 export const revalidate = 300;
@@ -80,29 +79,24 @@ export default async function PreviewHome() {
       <HeroV2 stats={stats} shelfRows={trendingPage.rows} tickerRows={trendingPage.rows} />
 
       <EngagementProvider projectIds={engagementIds}>
-        <DiscoveryBand weird={weird} makers={makers} rails={rails} />
+        <DiscoveryBand
+          weird={weird}
+          makers={makers}
+          quickHits={activeRows.slice(0, 4)}
+          rails={rails}
+        />
 
         <section id="feed" className="scroll-mt-20 border-t">
           <PageShell className="flex flex-col gap-8 py-12 sm:py-14">
             <FeedV2
-              trending={
-                <>
-                  <div data-v2-only="clusters">
-                    <FeedRhythm rows={trendingPage.rows} featured={featured} variant="clusters" />
-                  </div>
-                  <div data-v2-only="spans">
-                    <FeedRhythm rows={trendingPage.rows} featured={featured} variant="spans" />
-                  </div>
-                </>
-              }
-              newest={<FeedRhythm rows={newestPage.rows} featured={[]} variant="spans" />}
-              active={<FeedRhythm rows={activeRows} featured={[]} variant="spans" />}
+              trending={<FeedRhythm rows={trendingPage.rows} featured={featured} />}
+              newest={<FeedRhythm rows={newestPage.rows} featured={[]} />}
+              active={<FeedRhythm rows={activeRows} featured={[]} />}
             />
           </PageShell>
         </section>
       </EngagementProvider>
 
-      <IsIsntV2 />
       <HowItWorksV2 />
       <FooterV2 stats={stats} />
     </PreviewFrame>

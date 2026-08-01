@@ -23,7 +23,7 @@ export function FooterV2({ stats }: { stats: PlatformStats | null }) {
       links: [
         { label: 'browse', href: '/' },
         { label: 'tags', href: '/tags' },
-        { label: 'weird', href: '/weird' },
+        { label: copy.navWeird, href: '/random' },
         { label: 'search', href: '/search' },
       ],
     },
@@ -72,7 +72,7 @@ export function FooterV2({ stats }: { stats: PlatformStats | null }) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  prefetch={link.href === '/weird' ? false : undefined}
+                  prefetch={link.href === '/random' ? false : undefined}
                   className={QUIET_LINK}
                 >
                   {link.label}

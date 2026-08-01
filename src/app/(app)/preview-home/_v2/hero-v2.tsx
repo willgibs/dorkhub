@@ -12,10 +12,8 @@ import { languageColor } from '@/lib/lang-colors';
 import { cn } from '@/lib/utils';
 
 const WORD_STAGGER_MS = 40;
-const RISE_DURATION_MS = 300;
-const SHIMMER_WORD = 'fun';
 
-/** 1200 -> "1.2k" — mirrors ProjectCard's formatter for the shelf meta rows. */
+/** 1200 -> "1.2k" — mirrors ProjectCard's formatter for the shelf meta rows + count headline. */
 function formatCount(n: number): string {
   if (n >= 1000) {
     const k = n / 1000;
@@ -26,11 +24,13 @@ function formatCount(n: number): string {
 }
 
 /**
- * U2 hero: the word-rise headline + halftone identity kept, recomposed
- * left-anchored beside a LIVE product moment — variant A "shelf" (three real
- * trending cards drifting under the bloom) or variant B "ticker" (a linear
- * marquee of real projects). Both render; the harness toggle picks. Below
- * the CTAs: the platform proof line from platform_stats (absence-gated).
+ * U2 hero, R2.5: BOTH product moments compose (Will's R2 pick) — the shelf
+ * of real trending cards beside the headline, the ticker running beneath.
+ * The shelf enters stacked → fan (adapted from transitions.dev's card-stack
+ * reveal onto our motion tokens), then hands off to the drift loop. The H1
+ * is reframed discovery-first with a harness A/B (discover / live-count);
+ * the shimmer word treatment is gone (R2: motion now lives in the shelf +
+ * ticker; also removes the baseline misalignment it caused).
  */
 export function HeroV2({
   stats,
@@ -41,47 +41,31 @@ export function HeroV2({
   shelfRows: FeedRow[];
   tickerRows: FeedRow[];
 }) {
-  const words = copy.heroHeadline.split(' ');
-  const shimmerDelayMs = words.length * WORD_STAGGER_MS + RISE_DURATION_MS;
+  const countHeadline =
+    stats && stats.projects > 0
+      ? `${formatCount(stats.projects)} ${copy.heroHeadlineCountTail}`
+      : copy.heroHeadlineDiscover;
 
   return (
     <section className="relative">
-      {/* halftone field, now anchored behind the headline column */}
+      {/* halftone field behind the headline column */}
       <div
         aria-hidden="true"
         className="bg-halftone pointer-events-none absolute inset-x-0 -top-2.5 -z-10 h-[340px] [mask-image:radial-gradient(560px_260px_at_32%_36%,black,transparent_72%)] [-webkit-mask-image:radial-gradient(560px_260px_at_32%_36%,black,transparent_72%)]"
       />
 
-      <PageShell className="grid items-center gap-10 pt-10 pb-10 sm:pt-16 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6">
+      <PageShell className="grid items-center gap-10 pt-10 pb-12 sm:pt-16 sm:pb-16 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6">
         <div className="flex flex-col items-start gap-[18px] text-left">
-          <h1 className="max-w-[640px] font-display text-4xl font-extrabold tracking-[-0.02em] sm:text-[54px] sm:leading-[1.05]">
-            {words.map((word, i) => {
-              const isShimmer = word === SHIMMER_WORD;
-              return (
-                // biome-ignore lint/suspicious/noArrayIndexKey: fixed, never-reordered word list; some words repeat (e.g. "for")
-                <Fragment key={`${word}-${i}`}>
-                  <span
-                    className={cn(
-                      'inline-block animate-word-rise [animation-fill-mode:backwards]',
-                      isShimmer &&
-                        'relative isolate overflow-hidden after:absolute after:inset-0 after:animate-shimmer-sweep-once after:bg-gradient-to-r after:from-transparent after:via-primary/60 after:to-transparent after:[animation-delay:var(--shimmer-delay)]',
-                    )}
-                    style={
-                      {
-                        animationDelay: `${i * WORD_STAGGER_MS}ms`,
-                        ...(isShimmer ? { '--shimmer-delay': `${shimmerDelayMs}ms` } : {}),
-                      } as CSSProperties
-                    }
-                  >
-                    {word}
-                  </span>
-                  {i < words.length - 1 ? ' ' : null}
-                </Fragment>
-              );
-            })}
-          </h1>
+          <div data-v2-headline="discover">
+            <RisingHeadline text={copy.heroHeadlineDiscover} />
+          </div>
+          <div data-v2-headline="count">
+            <RisingHeadline text={countHeadline} />
+          </div>
 
-          <p className="max-w-[520px] text-[17.5px] text-muted-foreground">{copy.heroSub}</p>
+          <p className="max-w-[520px] text-[17.5px] text-muted-foreground">
+            {copy.heroSubDiscover}
+          </p>
 
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <Button
@@ -102,6 +86,27 @@ export function HeroV2({
 
       <Ticker rows={tickerRows} />
     </section>
+  );
+}
+
+/** The staggered word-rise H1 (identity entrance kept; shimmer removed). */
+function RisingHeadline({ text }: { text: string }) {
+  const words = text.split(' ');
+  return (
+    <h1 className="max-w-[640px] font-display text-4xl font-extrabold tracking-[-0.02em] sm:text-[54px] sm:leading-[1.05]">
+      {words.map((word, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: fixed, never-reordered word list; some words repeat
+        <Fragment key={`${word}-${i}`}>
+          <span
+            className="inline-block animate-word-rise [animation-fill-mode:backwards]"
+            style={{ animationDelay: `${i * WORD_STAGGER_MS}ms` }}
+          >
+            {word}
+          </span>
+          {i < words.length - 1 ? ' ' : null}
+        </Fragment>
+      ))}
+    </h1>
   );
 }
 
@@ -131,36 +136,68 @@ function Dot() {
 }
 
 /**
- * Variant A — the shelf: three real trending cards fanned + slowly drifting
- * (u2-drift keyframes; constant decorative motion, killed by the global
- * reduced-motion switch). Mini bespoke card markup — the full ProjectCard
- * belongs to the feed below; the shelf is scenery with real names on it.
+ * The shelf: three real trending cards, entering stacked → fan (once, on
+ * load), then drifting. Animation shorthand is inline because it chains two
+ * named keyframes with per-card delays/durations; both resolve through
+ * motion tokens and the global reduced-motion kill switch (!important)
+ * overrides inline values, so the switch still wins.
  */
 function CardShelf({ rows }: { rows: FeedRow[] }) {
   const cards = rows.slice(0, 3);
   if (cards.length < 3) return null;
 
-  const seats: Array<{ tilt: string; className: string; duration: string }> = [
-    { tilt: '-4deg', className: 'left-0 top-6 z-10', duration: '9s' },
-    { tilt: '2.5deg', className: 'left-16 top-32 z-20', duration: '11s' },
-    { tilt: '-1.5deg', className: 'left-6 top-60 z-30', duration: '10s' },
-  ];
+  // fromX/fromY point each seat back at a common stack origin (~the middle
+  // card), so the fan visibly deals outward from one pile.
+  const seats = [
+    {
+      tilt: '-4deg',
+      className: 'left-0 top-6',
+      z: 'z-10',
+      fromX: '64px',
+      fromY: '104px',
+      drift: '9s',
+    },
+    {
+      tilt: '2.5deg',
+      className: 'left-16 top-32',
+      z: 'z-20',
+      fromX: '0px',
+      fromY: '8px',
+      drift: '11s',
+    },
+    {
+      tilt: '-1.5deg',
+      className: 'left-6 top-60',
+      z: 'z-30',
+      fromX: '40px',
+      fromY: '-112px',
+      drift: '10s',
+    },
+  ] as const;
 
   return (
     <div
-      data-v2-only="shelf"
       aria-hidden="true"
       className="pointer-events-none relative hidden h-[400px] select-none lg:block"
     >
       {cards.map((row, i) => {
         const seat = seats[i];
+        const enterDelay = i * 70;
         return (
           <div
             key={row.id}
-            style={{ '--u2-tilt': seat.tilt, animationDuration: seat.duration } as CSSProperties}
+            style={
+              {
+                '--u2-tilt': seat.tilt,
+                '--u2-from-x': seat.fromX,
+                '--u2-from-y': seat.fromY,
+                animation: `u2-shelf-enter var(--motion-enter) var(--motion-ease-quiet) ${enterDelay}ms both, u2-drift ${seat.drift} ease-in-out ${enterDelay + 500}ms infinite`,
+              } as CSSProperties
+            }
             className={cn(
-              'edge-highlight absolute w-[300px] animate-[u2-drift_10s_ease-in-out_infinite] rounded-lg border bg-card px-4 py-3.5 shadow-overlay',
+              'edge-highlight absolute w-[300px] rounded-lg border bg-card px-4 py-3.5 shadow-overlay',
               seat.className,
+              seat.z,
             )}
           >
             <p className="truncate font-display text-sm font-bold">{row.name}</p>
@@ -183,9 +220,9 @@ function CardShelf({ rows }: { rows: FeedRow[] }) {
 }
 
 /**
- * Variant B — the ticker: one full-bleed marquee row of real projects.
- * Linear by rule (constant motion); the track holds the list twice so the
- * -50% translate loops seamlessly; duplicate copy is aria-hidden.
+ * The ticker: one full-bleed marquee row of real projects, running beneath
+ * the hero (R2: composes WITH the shelf; the pb above provides breathing
+ * room). Linear by rule; duplicate copy is aria-hidden; -50% loops.
  */
 function Ticker({ rows }: { rows: FeedRow[] }) {
   if (rows.length === 0) return null;
@@ -214,10 +251,7 @@ function Ticker({ rows }: { rows: FeedRow[] }) {
   );
 
   return (
-    <div
-      data-v2-only="ticker"
-      className="relative overflow-hidden border-y py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-    >
+    <div className="relative overflow-hidden border-y py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
       <div className="flex w-max animate-[u2-ticker_48s_linear_infinite]">
         {list(false)}
         {list(true)}
