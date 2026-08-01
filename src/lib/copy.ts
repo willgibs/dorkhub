@@ -171,4 +171,28 @@ export const copy = {
   signIn: 'sign in with GitHub',
   isList: ['show-and-tell for things you built', 'forkable by design', 'free, forever'],
   isntList: ['a leaderboard', 'a marketplace', 'a hiring portfolio'],
+  // U2 home+feed exemplar (docs/plans/u2-rework.md R1). Preview-scoped today;
+  // these graduate with the composition at adoption. Static strings only —
+  // /design/voice flattens copy as string | string[] | one-level map.
+  statsUnitProjects: 'projects',
+  statsUnitMakers: 'makers',
+  statsZeroPitch: 'zero sales pitches',
+  railTrendingIn: 'trending in',
+  railSeeAll: 'see all',
+  weirdSpotKicker: 'today’s weird pick',
+  weirdSpotHint: 'no algorithm, just dice — a new one every day',
+  weirdSpotCta: 'roll your own',
+  weirdSpotVisit: 'see the thing',
+  risingKicker: 'makers getting love right now',
+  followingRailKicker: 'from people you follow',
+  followingRailNudge: 'follow a few makers and their new stuff lands here',
+  sortActive: 'active',
+  discoverKicker: 'discover',
+  clusterKicker: 'quick hits',
+  howKicker: 'how it works',
+  previewBadge: 'u2 preview',
+  previewNote: 'a proposed home on real data — the live page is unchanged. pick your favorites.',
+  footerColBrowse: 'browse',
+  footerColYours: 'yours',
+  footerColMeta: 'dorkhub',
 } as const;

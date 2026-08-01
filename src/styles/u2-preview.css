@@ -1,0 +1,55 @@
+/*
+ * U2 R1 preview-only styles (docs/plans/u2-rework.md) — loaded by
+ * /preview-home and /preview-feed. Harness fork-toggles hide the un-picked
+ * variant tree; decorative keyframes for the hero shelf/ticker; rail
+ * scrollbar suppression. Tokens only. Deleted (or graduated into
+ * globals.css) at adoption.
+ */
+
+/* Contested-fork toggles: the harness sets data-u2-hero / data-u2-rhythm on
+ * the frame; each variant tree tags itself with data-v2-only. */
+[data-u2-hero="shelf"] [data-v2-only="ticker"] {
+  display: none;
+}
+[data-u2-hero="ticker"] [data-v2-only="shelf"] {
+  display: none;
+}
+[data-u2-rhythm="clusters"] [data-v2-only="spans"] {
+  display: none;
+}
+[data-u2-rhythm="spans"] [data-v2-only="clusters"] {
+  display: none;
+}
+
+/* Hero ticker — constant decorative motion, linear by rule (docs/motion.md);
+ * the reduced-motion kill switch in globals.css freezes it. Track holds two
+ * copies of the list; -50% loops seamlessly. */
+@keyframes u2-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Hero shelf drift — slow decorative float; rotation rides a var so each
+ * card keeps its own tilt while sharing the keyframes. */
+@keyframes u2-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--u2-tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-7px) rotate(var(--u2-tilt, 0deg));
+  }
+}
+
+/* Discovery rails scroll horizontally without a visible scrollbar (the rail
+ * edge fade + snap points carry the affordance instead). */
+.u2-rail {
+  scrollbar-width: none;
+}
+.u2-rail::-webkit-scrollbar {
+  display: none;
+}

@@ -1,4 +1,4 @@
-# Current state — 2026-07-31 (LIVE at $0 · U1 abyss ADOPTED)
+# Current state — 2026-07-31 (LIVE at $0 · U1 abyss ADOPTED · U2 R1 built)
 
 ## Milestones
 - **P4 COMPLETE — dorkhub.com LIVE** at $0 (D54 posture, D55 record): domain
@@ -11,17 +11,23 @@
 - **NO Vercel Pro (D54)** — GH Actions PERMANENT */15 scheduler; vercel.json
   daily crons fallback. Pro triggers: first PAID slot (same day), resource
   ceilings, chronic Actions failures. Supabase Pro at 300 MB (~191 MB now).
-- **U1 DONE — "Quiet dev-native · abyss" (D56)**: R1 bake-off → R2 finalists
-  → R2.5 families → R3 Will picked ABYSS + current type (no font swap).
-  Abyss dark+light tokens in globals.css (radius 0.55rem, violet links);
-  og-tokens.ts re-sampled; /design/directions = adopted-vs-legacy closer
-  (DELETE page + directions.css once Will's done comparing). Motion
-  untouched. 761 tests; verify + prod build green.
+- **U1 DONE — "Quiet dev-native · abyss" (D56)**: abyss tokens product-wide,
+  type unchanged; /design/directions = adopted-vs-legacy closer (delete when
+  done). **U2 IN FLIGHT (docs/plans/u2-rework.md)**: full atoms→pages rework;
+  GO WIDE product round; LIKES STAY PRIVATE (board). R0 migrations 0021-0023
+  LIVE (active sort, rising_makers aggregate RPC, platform_stats, daily
+  weird pick, tags.description). R1 exemplar BUILT + deployed noindexed:
+  /preview-home + /preview-feed — hero shelf/ticker fork, discovery band
+  (weird spotlight, rising makers, tag rails), feed v2 (sliding-pill chips,
+  3 live sorts incl. 'active', rhythm clusters/spans fork), is-isnt v2,
+  how-it-works v2, footer v2, following rail. 762 tests green.
 
 ## Waiting on Will
-1. Announce timing + claim invites — his clock entirely.
-2. Eyeball the adopted look on prod (live after this deploy); legacy
-   before/after at /design/directions. Tag `u1` on his green light.
+1. **U2 R2 pick**: review /preview-home + /preview-feed on prod — pick hero
+   fork (shelf/ticker) + rhythm fork (clusters/spans) + any changes → R3
+   adoption + autonomous W-waves (W1-W8).
+2. Announce timing + claim invites — his clock entirely. Tag `u1`/`u2` on
+   green lights.
 
 ## Post-launch watch (first month)
 GSC coverage as 36k URLs index · Vercel Usage weekly · GH Actions cadence
