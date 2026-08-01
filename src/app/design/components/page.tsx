@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
-
+import { MakerCard } from '@/app/(app)/u/[username]/[slug]/maker-card';
+import { ProjectVitals } from '@/app/(app)/u/[username]/[slug]/project-vitals';
+import { ReadmeContents } from '@/app/(app)/u/[username]/[slug]/readme-contents';
 import {
   FollowButtonDemo,
   MountWhenVisible,
@@ -21,7 +23,7 @@ import { ProfileHeader } from '@/components/profile-header';
 import { ProjectCard } from '@/components/project-card';
 import { RepoStatsRow } from '@/components/repo-stats-row';
 import { ScreenshotGallery } from '@/components/screenshot-gallery';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { SignInWithGitHub } from '@/components/sign-in-github';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -150,7 +152,7 @@ export default function DesignComponentsPage() {
 
       {/* ---------------------------------------------------------------- atoms */}
       <section className="flex flex-col gap-6">
-        <SectionHeader kicker="01 · atoms" title="Atoms" />
+        <SectionHead kicker="01 · atoms" title="Atoms" />
 
         <Group title="tag-chip">
           <Demo label="default / active / hash-prefixed / active + hash-prefixed">
@@ -233,7 +235,7 @@ export default function DesignComponentsPage() {
 
       {/* --------------------------------------------------------------- social */}
       <section className="flex flex-col gap-6">
-        <SectionHeader kicker="02 · social" title="Social" />
+        <SectionHead kicker="02 · social" title="Social" />
 
         <Group title="stat-button">
           <Demo label="like — inactive / active / count-null (absence) / disabled">
@@ -284,7 +286,7 @@ export default function DesignComponentsPage() {
 
       {/* ---------------------------------------------------------------- cards */}
       <section className="flex flex-col gap-6">
-        <SectionHeader kicker="03 · cards" title="Cards" />
+        <SectionHead kicker="03 · cards" title="Cards" />
 
         <Group title="project-card">
           <Demo label="feed — with screenshot + tags">
@@ -369,7 +371,7 @@ export default function DesignComponentsPage() {
 
       {/* ---------------------------------------------------------------- shell */}
       <section className="flex flex-col gap-6">
-        <SectionHeader kicker="04 · shell" title="Shell" />
+        <SectionHead kicker="04 · shell" title="Shell" />
 
         <Group title="site-header">
           <Demo>
@@ -398,7 +400,7 @@ export default function DesignComponentsPage() {
         <Group title="section-header">
           <Demo>
             <div className="w-full">
-              <SectionHeader
+              <SectionHead
                 kicker="00 · example"
                 title="A section header"
                 note="With an optional note."
@@ -420,7 +422,7 @@ export default function DesignComponentsPage() {
 
       {/* -------------------------------------------------------------- project */}
       <section className="flex flex-col gap-6">
-        <SectionHeader kicker="05 · project" title="Project" />
+        <SectionHead kicker="05 · project" title="Project" />
 
         <Group title="markdown-prose">
           <Demo label="bare">
@@ -432,6 +434,70 @@ export default function DesignComponentsPage() {
             <div className="w-full">
               <MarkdownProse html={sampleReadmeHtml} forkHref="#" />
             </div>
+          </Demo>
+        </Group>
+
+        <Group title="project-vitals">
+          <Demo label="full">
+            <ProjectVitals
+              stars={52_900}
+              forks={1200}
+              license="MIT"
+              language="Rust"
+              pushedAgo="3 days ago"
+            />
+          </Demo>
+          <Demo label="absence — a brand-new repo with nothing to report">
+            <ProjectVitals stars={0} forks={0} license={null} language="Rust" pushedAgo={null} />
+          </Demo>
+        </Group>
+
+        <Group title="maker-card">
+          <Demo label="claimed">
+            <div className="w-[260px]">
+              <MakerCard
+                username={authors[plantdad.author].username}
+                displayName={authors[plantdad.author].displayName}
+                avatarUrl={null}
+                bio={authors[plantdad.author].bio}
+                followers={authors[plantdad.author].followers}
+                unclaimed={false}
+                followButton={<FollowButtonDemo />}
+              />
+            </div>
+          </Demo>
+          <Demo label="unclaimed — the dominant state (16,971 of 16,972 projects)">
+            <div className="w-[260px]">
+              <MakerCard
+                username={authors[tinysynth.author].username}
+                displayName={authors[tinysynth.author].displayName}
+                avatarUrl={null}
+                bio={authors[tinysynth.author].bio}
+                followers={0}
+                unclaimed
+              />
+            </div>
+          </Demo>
+        </Group>
+
+        <Group title="readme-contents">
+          <Demo label="the reading rail (active state follows scroll on a real page)">
+            <div className="w-[260px]">
+              <ReadmeContents
+                headings={[
+                  { id: 'design-install', text: 'Install', depth: 0 },
+                  { id: 'design-usage', text: 'Usage', depth: 0 },
+                  { id: 'design-cli', text: 'From the CLI', depth: 1 },
+                  { id: 'design-config', text: 'Configuration', depth: 1 },
+                  { id: 'design-license', text: 'License', depth: 0 },
+                ]}
+              />
+            </div>
+          </Demo>
+          <Demo label="under three headings — renders nothing rather than a stub">
+            <ReadmeContents
+              headings={[{ id: 'design-only', text: 'Only one section', depth: 0 }]}
+            />
           </Demo>
         </Group>
 
@@ -486,7 +552,7 @@ export default function DesignComponentsPage() {
 
       {/* ------------------------------------------------------------ primitives */}
       <section className="flex flex-col gap-6">
-        <SectionHeader
+        <SectionHead
           kicker="06 · primitives"
           title="shadcn primitives"
           note="src/components/ui/* — restyled via className, never edited directly."

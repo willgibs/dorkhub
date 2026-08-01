@@ -6,6 +6,7 @@ import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
 import { copy } from '@/lib/copy';
 import type { FixtureAuthor, FixtureProject } from '@/lib/fixtures';
+import { formatCount } from '@/lib/format';
 import { githubOgImageUrl } from '@/lib/projects/github-og';
 import { cn } from '@/lib/utils';
 
@@ -48,16 +49,6 @@ function hashSeed(input: string): number {
 /** Singular/plural unit for the lists signal. Kept here (not in copy.ts) because copy values are static strings by contract — /design/voice can't flatten a function. */
 function listUnit(n: number): string {
   return n === 1 ? copy.listedInUnitOne : copy.listedInUnit;
-}
-
-/** 1200 -> "1.2k", 214 -> "214". Never renders 0 — callers gate on null first. */
-function formatCount(n: number): string {
-  if (n >= 1000) {
-    const k = n / 1000;
-    const rounded = k >= 10 ? Math.round(k) : Math.round(k * 10) / 10;
-    return `${rounded}k`;
-  }
-  return String(n);
 }
 
 /**

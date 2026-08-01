@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { SectionHead } from '@/app/(app)/_discovery/section-head';
 import { PageShell } from '@/components/page-shell';
+import { SectionHead } from '@/components/section-head';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import { cn } from '@/lib/utils';

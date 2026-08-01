@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { copy } from '@/lib/copy';
 import { projects } from '@/lib/fixtures';
 
@@ -202,7 +202,7 @@ export default function DesignTypographyPage() {
       </div>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader kicker="01 · families" title="The three faces" />
+        <SectionHead kicker="01 · families" title="The three faces" />
         <div className="flex flex-col gap-6">
           <div className="edge-highlight rounded-lg border bg-card p-6">
             <p className="font-mono text-[11px] text-muted-foreground uppercase">
@@ -230,7 +230,7 @@ export default function DesignTypographyPage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="02 · scale"
           title="Sizes in use"
           note="Every text size found in the codebase, smallest to largest, with where it lives."
@@ -253,7 +253,7 @@ export default function DesignTypographyPage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="03 · weight"
           title="Weights"
           note="font-display at each weight in use."
@@ -268,7 +268,7 @@ export default function DesignTypographyPage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="04 · tabular-nums"
           title="Numeric alignment"
           note="Every metadata number in the system gets tabular-nums so columns of stats line up."

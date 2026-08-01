@@ -1,5 +1,6 @@
 import { LanguageDot } from '@/components/language-dot';
 import { TimeAgo } from '@/components/time-ago';
+import { formatCount } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
 export type RepoStatsRowProps = {
@@ -13,13 +14,6 @@ export type RepoStatsRowProps = {
   updatedAgo?: string;
   className?: string;
 };
-
-/** 1200 → "1.2k", matching the reference's "★ 1.2k". */
-function formatCount(n: number): string {
-  if (n < 1000) return String(n);
-  const k = n / 1000;
-  return `${k >= 10 ? Math.round(k) : Math.round(k * 10) / 10}k`;
-}
 
 /** "3 days ago" → "updated 3 days ago"; standalone phrases ("just shipped") pass through. */
 function updatedLabel(updatedAgo: string): string {

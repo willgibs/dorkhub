@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import type { PlatformStats } from '@/lib/discovery/queries';
 import type { FeedRow } from '@/lib/feed/queries';
+import { formatCount } from '@/lib/format';
 import { languageColor } from '@/lib/lang-colors';
 import { cn } from '@/lib/utils';
 
@@ -20,16 +21,6 @@ const WORD_BASE_DELAY_MS = 120;
 const SHELF_BASE_DELAY_MS = 300;
 const SHELF_STAGGER_MS = 160;
 const SHELF_ENTER_MS = 700;
-
-/** 1200 -> "1.2k" — mirrors ProjectCard's formatter for the shelf meta rows. */
-function formatCount(n: number): string {
-  if (n >= 1000) {
-    const k = n / 1000;
-    const rounded = k >= 10 ? Math.round(k) : Math.round(k * 10) / 10;
-    return `${rounded}k`;
-  }
-  return String(n);
-}
 
 const ASCII = /^[\x20-\x7E’—–-]+$/;
 

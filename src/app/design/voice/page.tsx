@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { EmptyState } from '@/components/empty-state';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { StatButton } from '@/components/stat-button';
 import { copy } from '@/lib/copy';
 
@@ -42,7 +42,7 @@ export default function DesignVoicePage() {
       </div>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader kicker="01 · rules" title="The rules" />
+        <SectionHead kicker="01 · rules" title="The rules" />
         <ul className="edge-highlight flex flex-col gap-2.5 rounded-lg border bg-card p-6 text-sm">
           {RULES.map((rule) => (
             <li key={rule} className="flex gap-2.5">
@@ -56,7 +56,7 @@ export default function DesignVoicePage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader kicker="02 · strings" title="Every string in copy.ts" />
+        <SectionHead kicker="02 · strings" title="Every string in copy.ts" />
         <div className="flex flex-col divide-y divide-border overflow-x-auto rounded-lg border">
           {entries.map(([key, value]) => (
             <div key={key} className="flex flex-col gap-1 bg-card px-5 py-3.5 sm:flex-row sm:gap-6">
@@ -70,7 +70,7 @@ export default function DesignVoicePage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="03 · in the wild"
           title="Voice in context"
           note="The same strings, rendered by the real components that ship them."

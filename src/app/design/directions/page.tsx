@@ -5,7 +5,7 @@ import '@/styles/directions.css';
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { renderFeedCards } from '@/app/(app)/_feed/render-cards';
 import { DirectionSwitcher } from '@/app/design/directions/direction-switcher';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { TagChip } from '@/components/tag-chip';
 import { Button } from '@/components/ui/button';
 import { getFeedPage } from '@/lib/feed/queries';
@@ -33,7 +33,7 @@ export default async function DirectionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <SectionHeader
+      <SectionHead
         kicker="directions"
         title="abyss, adopted"
         note="U1 closed 2026-07-31 — abyss won, with our type. legacy stays for the before/after."

@@ -146,6 +146,30 @@
 }
 
 /* quiet link underlines that resolve on hover */
+/*
+ * Heading targets (W3). `buildReadmeOutline` puts ids back on headings at
+ * render time — the write-time sanitizer strips them — so both the reading
+ * rail and a README's own table of contents can jump here. The offset clears
+ * the sticky header, which would otherwise land every jump with the heading
+ * hidden behind the nav bar.
+ */
+.prose :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--header-offset) + 22px);
+}
+
+/*
+ * In-page jump links, re-tagged by the same pass. They keep the link color but
+ * drop the underline: a README's contents list is navigation, and 40 underlined
+ * rows read as a wall of links.
+ */
+.prose a.prose-jump {
+  text-decoration: none;
+}
+.prose a.prose-jump:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--link);
+}
+
 .prose a {
   color: var(--link);
   text-decoration: underline;

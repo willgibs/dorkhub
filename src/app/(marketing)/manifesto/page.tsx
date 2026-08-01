@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 
 import { PageShell } from '@/components/page-shell';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { cn } from '@/lib/utils';
 
 export const metadata: Metadata = {
@@ -102,7 +102,7 @@ export default function ManifestoPage() {
         </section>
 
         <section id="colophon" className="mt-24 max-w-2xl scroll-mt-8 sm:mt-28">
-          <SectionHeader kicker="colophon" title="how this got made" />
+          <SectionHead kicker="colophon" title="how this got made" />
           <div className="edge-highlight mt-5 flex flex-col divide-y divide-border overflow-hidden rounded-lg border">
             {COLOPHON.map((row) => (
               <div

@@ -6,7 +6,7 @@ import { AvatarStack } from '@/components/avatar-stack';
 import { CopyButton } from '@/components/copy-button';
 import { ProjectCard } from '@/components/project-card';
 import { RepoStatsRow } from '@/components/repo-stats-row';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 import { SkeletonCard } from '@/components/skeleton-card';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
@@ -133,7 +133,7 @@ export default function DesignMotionPage() {
 
       {/* ------------------------------------------------------------ 01 tokens */}
       <section className="flex flex-col gap-6">
-        <SectionHeader
+        <SectionHead
           kicker="01 · tokens"
           title="Duration & easing"
           note="Hover a card to replay it. No component is allowed to invent its own timing or curve — everything ships from these four durations and two easings."
@@ -182,7 +182,7 @@ export default function DesignMotionPage() {
 
       {/* ------------------------------------------------------- 02 reduced motion */}
       <section className="flex flex-col gap-6">
-        <SectionHeader
+        <SectionHead
           kicker="02 · reduced motion"
           title="The kill switch"
           note="Decorative motion is skipped entirely under prefers-reduced-motion, never just played shorter — functional loading indicators (the spinner) are the one carve-out."
@@ -192,7 +192,7 @@ export default function DesignMotionPage() {
 
       {/* --------------------------------------------------------- 03 adopted */}
       <section className="flex flex-col gap-6">
-        <SectionHeader
+        <SectionHead
           kicker="03 · adopted transitions"
           title="Every shipped motion, in one place"
           note="The six overlay primitives below are adapted from transitions.dev's free-tier catalog — re-implemented on our own tokens and class names, never vendored (their terms forbid redistributing the library). Everything past the overlays is original to this system."
@@ -390,7 +390,7 @@ export default function DesignMotionPage() {
 
       {/* --------------------------------------------------------- 04 rejected */}
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="04 · rejected"
           title="Considered, not shipped"
           note="Every one of these was a real idea before it wasn't — the reason is the point."

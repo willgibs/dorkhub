@@ -6,6 +6,8 @@ export type AvatarBadgeProps = {
   initial: string;
   /** Circle size utility (default `size-6`). */
   sizeClassName?: string;
+  /** Type scale for the fallback initial — override when the circle grows past ~32px. */
+  initialClassName?: string;
   className?: string;
 };
 
@@ -27,6 +29,7 @@ export function AvatarBadge({
   src,
   initial,
   sizeClassName = 'size-6',
+  initialClassName,
   className,
 }: AvatarBadgeProps) {
   return (
@@ -39,7 +42,10 @@ export function AvatarBadge({
     >
       <span
         aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center bg-primary-soft font-mono text-[11px] font-bold text-primary"
+        className={cn(
+          'absolute inset-0 flex items-center justify-center bg-primary-soft font-mono text-[11px] font-bold text-primary',
+          initialClassName,
+        )}
       >
         {initial}
       </span>

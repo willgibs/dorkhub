@@ -51,6 +51,10 @@
   --input: oklch(0.275 0.034 268);
   --ring: oklch(0.87 0.14 198);
   --radius: 0.55rem;
+  /* Height of the sticky header bar (card bar + the layout's 12px padding,
+     measured). Anything that has to clear it — sticky rails, in-page jump
+     targets — offsets from here so one measurement stays in one place. */
+  --header-offset: 90px;
   --surface-2: oklch(0.09 0.022 268);
   --primary-soft: oklch(0.25 0.075 213);
   --positive: oklch(0.8 0.12 160);
@@ -315,6 +319,12 @@
   }
   a {
     text-underline-offset: 3px;
+  }
+  /* In-page jumps (README headings, the project page's reading rail) glide
+     rather than teleport. The reduced-motion block below forces this back to
+     `auto`, which is why it can be set globally. */
+  html {
+    scroll-behavior: smooth;
   }
   /* Reduced motion: kill decorative motion globally… */
   @media (prefers-reduced-motion: reduce) {

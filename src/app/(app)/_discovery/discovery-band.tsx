@@ -1,10 +1,10 @@
 import { PageShell } from '@/components/page-shell';
+import { SectionHead } from '@/components/section-head';
 import { copy } from '@/lib/copy';
 import type { RisingMaker } from '@/lib/discovery/queries';
 import type { FeedRow } from '@/lib/feed/queries';
 import { QuickHits } from './quick-hits';
 import { RisingMakers } from './rising-makers';
-import { SectionHead } from './section-head';
 import { TagRail } from './tag-rail';
 import { WeirdSpotlight } from './weird-spotlight';
 

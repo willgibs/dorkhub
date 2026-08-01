@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SectionHeader } from '@/components/section-header';
+import { SectionHead } from '@/components/section-head';
 
 export const metadata: Metadata = { title: 'design system' };
 
@@ -62,7 +62,7 @@ export default function DesignOverviewPage() {
       </div>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="01 · tokens"
           title="Color tokens"
           note="Every swatch below is a live var() read from globals.css — not a copy-pasted hex."
@@ -84,7 +84,7 @@ export default function DesignOverviewPage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="02 · radius"
           title="Radius scale"
           note="One --radius (0.55rem) drives every corner in the system via calc()."
@@ -103,7 +103,7 @@ export default function DesignOverviewPage() {
       </section>
 
       <section className="flex flex-col gap-5">
-        <SectionHeader
+        <SectionHead
           kicker="03 · shadow"
           title="Elevation"
           note="Cards combine shadow-card with edge-highlight's 1px inner top edge; overlays float on shadow-overlay."

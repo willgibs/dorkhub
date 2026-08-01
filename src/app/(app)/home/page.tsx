@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 
 import { DiscoveryBand } from '@/app/(app)/_discovery/discovery-band';
 import { QuickHits } from '@/app/(app)/_discovery/quick-hits';
-import { SectionHead } from '@/app/(app)/_discovery/section-head';
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { FollowingRail } from '@/app/(app)/home/following-rail';
 import { RecsRail } from '@/app/(app)/home/recs-rail';
 import { PageShell } from '@/components/page-shell';
+import { SectionHead } from '@/components/section-head';
 import { copy } from '@/lib/copy';
 import { getActiveFeedRows, getRisingMakers, getWeirdDailyPick } from '@/lib/discovery/queries';
 import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';

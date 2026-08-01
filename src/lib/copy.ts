@@ -19,6 +19,8 @@ export const copy = {
   emptyFeedLead: 'nothing here yet —',
   emptyFeedLink: 'try a random find',
   relatedTitle: 'more like this',
+  relatedKicker: 'related',
+  relatedNote: 'same languages, same corners of github',
   recsTitle: 'because you starred',
   recsImportNudge: 'bring your github stars — we’ll find more like them',
   // 'random' (was 'weird') — U2 R2 board direction: conceptually clearer
@@ -27,6 +29,11 @@ export const copy = {
   profileEmptyProjects: 'nothing published here yet',
   projectNoReadme: 'no readme yet — the code speaks for itself',
   projectDraftBadge: 'draft — only you can see this',
+  // W3: project page rail — the README's own shape, plus its maker.
+  projectContents: 'contents',
+  projectMadeBy: 'made by',
+  followerUnit: 'followers',
+  followerUnitOne: 'follower',
   projectRefreshThrottled: 'just synced — give github five minutes to breathe',
   newTitle: 'pick a thing to show',
   newSubtitle: 'public repos only — drafts stay yours until you publish',
@@ -200,8 +207,6 @@ export const copy = {
   galleryTitle: 'browse everything',
   howTitle: 'three steps, no strings',
   howKicker: 'how it works',
-  previewBadge: 'u2 preview',
-  previewNote: 'a proposed home on real data — the live page is unchanged. pick your favorites.',
   // R3 hero (board-picked H1, 2026-08-01). Tone note: dorkhub is a real
   // resource for ALL projects — playful register stays, "fun/side-project"
   // exclusivity language does not.

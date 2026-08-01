@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
 import { DiscoveryBand } from '@/app/(app)/_discovery/discovery-band';
-import { SectionHead } from '@/app/(app)/_discovery/section-head';
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { Hero } from '@/app/(app)/_sections/hero';
 import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
 import { PageShell } from '@/components/page-shell';
+import { SectionHead } from '@/components/section-head';
 import { copy } from '@/lib/copy';
 import {
   getActiveFeedRows,

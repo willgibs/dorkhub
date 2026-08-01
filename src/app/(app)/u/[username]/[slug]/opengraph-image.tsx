@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
+import { formatCount } from '@/lib/format';
 import { LANGUAGE_COLORS } from '@/lib/lang-colors';
 import { ogTokens } from '@/lib/og-tokens';
 import { supabaseAnon } from '@/lib/supabase/clients';
@@ -101,13 +102,6 @@ function WordmarkCorner() {
       <span style={{ fontSize: 24, fontWeight: 700, color: ogTokens.primary }}>_</span>
     </div>
   );
-}
-
-/** 1200 → "1.2k", matching RepoStatsRow's "★ 1.2k". */
-function formatCount(n: number): string {
-  if (n < 1000) return String(n);
-  const k = n / 1000;
-  return `${k >= 10 ? Math.round(k) : Math.round(k * 10) / 10}k`;
 }
 
 /**
