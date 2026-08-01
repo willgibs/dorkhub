@@ -391,7 +391,7 @@ export default function DesignComponentsPage() {
         <Group title="callout">
           <Demo label="default / positive / destructive">
             <div className="flex w-full flex-col gap-3">
-              <Callout>{copy.heroSub}</Callout>
+              <Callout>{copy.heroSubDiscover}</Callout>
               <Callout tone="positive">{copy.forkNudge}</Callout>
               <Callout tone="destructive">{copy.error}</Callout>
             </div>

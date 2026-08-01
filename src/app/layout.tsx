@@ -23,12 +23,14 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  // Positioning follows the board-picked H1 (U2): discovery first — the
+  // majority of visitors come to FIND projects, not to list their own.
   title: {
-    default: 'dorkhub — a home for the things you build for fun',
+    default: 'dorkhub — discover the best tools for your next project',
     template: '%s · dorkhub',
   },
   description:
-    'A social discovery platform for hobbyist developers. Connect GitHub, pick the repos you love, give each one a page. Free to browse, free to fork.',
+    'A curated gallery of developer projects. Browse, fork, and follow the makers — and when you’re ready, list your own. Free to browse, free to fork.',
   openGraph: {
     siteName: 'dorkhub',
     type: 'website',

@@ -206,6 +206,44 @@
   }
 }
 
+/* U2 home hero — the card shelf deals out of a stack on load, then drifts.
+   Technique adapted from transitions.dev's card-stack reveal onto our own
+   tokens (adapt-don't-vendor). Each card starts at the shared stack origin
+   (--u2-from-x/y), flat and slightly shrunk, and lands on its seat tilt;
+   the drift loop chains after via animation-delay. Both are decorative and
+   collapse under the reduced-motion kill switch above. */
+@keyframes u2-shelf-enter {
+  from {
+    opacity: 0;
+    transform: translate(var(--u2-from-x, 0px), var(--u2-from-y, 0px)) rotate(0deg) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--u2-tilt, 0deg)) scale(1);
+  }
+}
+
+@keyframes u2-drift {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--u2-tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-7px) rotate(var(--u2-tilt, 0deg));
+  }
+}
+
+/* Hero ticker: constant motion, linear by rule (docs/motion.md). The track
+   holds the list twice so -50% loops seamlessly. */
+@keyframes u2-ticker {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @layer base {
   * {
     border-color: var(--border);
@@ -275,5 +313,17 @@
   }
   .tabular-nums {
     font-variant-numeric: tabular-nums;
+  }
+  /* Horizontal discovery rails scroll without a visible scrollbar — the
+     edge fade + scroll-snap carry the affordance instead. */
+  .u2-rail {
+    scrollbar-width: none;
+  }
+  .u2-rail::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hovering the hero ticker pauses it so items can be read and clicked. */
+  .u2-ticker:hover .u2-ticker-track {
+    animation-play-state: paused;
   }
 }

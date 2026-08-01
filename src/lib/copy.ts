@@ -169,9 +169,6 @@ export const copy = {
   notFound: '404: page not found\n// maybe it shipped, maybe it never existed',
   notFoundCta: 'back to the gallery',
   forkNudge: 'fork it — it’s yours',
-  heroHeadline: 'a home for the things you build for fun',
-  heroSub:
-    'connect github, pick the repos you love, give each one a page. free to browse, free to fork.',
   footerLine: 'made by dorks, for dorks',
   browseCta: 'browse projects',
   signIn: 'sign in with GitHub',

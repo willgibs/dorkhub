@@ -205,7 +205,7 @@ export default async function Image({ params }: { params: Promise<{ username: st
               color: ogTokens.mutedForeground,
             }}
           >
-            a home for the things you build for fun
+            discover the best tools for your next project
           </div>
         </div>
         <div

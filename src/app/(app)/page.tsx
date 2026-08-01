@@ -1,12 +1,21 @@
 import type { Metadata } from 'next';
 
+import { DiscoveryBand } from '@/app/(app)/_discovery/discovery-band';
+import { SectionHead } from '@/app/(app)/_discovery/section-head';
+import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { Hero } from '@/app/(app)/_sections/hero';
 import { HowItWorks } from '@/app/(app)/_sections/how-it-works';
-import { IsIsntStrip } from '@/app/(app)/_sections/is-isnt-strip';
-import { ManifestoTeaser } from '@/app/(app)/_sections/manifesto-teaser';
 import { PageShell } from '@/components/page-shell';
+import { copy } from '@/lib/copy';
+import {
+  getActiveFeedRows,
+  getPlatformStats,
+  getRisingMakers,
+  getWeirdDailyPick,
+} from '@/lib/discovery/queries';
 import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';
+import { getFeedPage } from '@/lib/feed/queries';
 import { serializeJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
@@ -18,17 +27,43 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
 };
 
+/** Curated rails — all three are real, populated tag chips in production. */
+const RAIL_TAGS = ['generative-art', 'cli', 'homelab'] as const;
+const RAIL_LIMIT = 8;
+const QUICK_HITS_LIMIT = 4;
+
 /**
- * Signed-out marketing home. The (app) group layout already renders
- * SiteHeader/SiteFooter inside PageShell with bg-bloom — this page is
- * sections only. The feed section wraps `FeedSection` in the same
- * `id="feed"` scroll target + `PageShell` container the old fixture-backed
- * `FeedPreview` used (Hero's "browse" CTA still anchors to `#feed`).
+ * Signed-out home (U2 adoption): hero with a live product moment, the
+ * discovery band, the gallery, and the how-it-works → capture close. The
+ * group layout supplies header/footer chrome.
+ *
+ * Every read here is anon + cached, so the page stays ISR-60 for everyone.
+ * The hero's trending fetch deliberately uses the SAME cache key as
+ * `FeedSection`'s own page-1 read, so the two share one query per window
+ * rather than paying twice.
  */
 export default async function Home() {
-  // Featured slots render INLINE as the feed's first cells (real, labeled
-  // cards — board direction 2026-07-31). Anon client keeps ISR-60 intact.
-  const featured = await fetchActiveFeaturedSlots(supabaseAnon());
+  const [stats, weird, makers, trending, quickHits, featured, ...railPages] = await Promise.all([
+    getPlatformStats(),
+    getWeirdDailyPick(),
+    getRisingMakers(),
+    getFeedPage({ sort: 'trending', tag: null }),
+    getActiveFeedRows(QUICK_HITS_LIMIT),
+    fetchActiveFeaturedSlots(supabaseAnon()),
+    ...RAIL_TAGS.map((tag) => getFeedPage({ sort: 'trending', tag, limit: RAIL_LIMIT })),
+  ]);
+
+  const rails = RAIL_TAGS.map((tag, i) => ({ tag, rows: railPages[i]?.rows ?? [] }));
+
+  // One provider for the discovery modules; FeedSection brings its own for
+  // the gallery (each island owns its id set — the established pattern).
+  const discoveryIds = [
+    ...new Set(
+      [...(weird ? [weird] : []), ...quickHits, ...rails.flatMap((rail) => rail.rows)].map(
+        (row) => row.id,
+      ),
+    ),
+  ];
 
   return (
     <>
@@ -37,15 +72,20 @@ export default async function Home() {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(webSiteJsonLd()) }}
       />
-      <Hero />
-      <IsIsntStrip />
-      <section id="feed" className="scroll-mt-20">
-        <PageShell className="flex flex-col gap-16 py-16 sm:py-20">
+      <Hero stats={stats} shelfRows={trending.rows} tickerRows={trending.rows} />
+
+      <EngagementProvider projectIds={discoveryIds}>
+        <DiscoveryBand weird={weird} makers={makers} quickHits={quickHits} rails={rails} />
+      </EngagementProvider>
+
+      <section id="feed" className="scroll-mt-20 border-t">
+        <PageShell className="flex flex-col gap-8 py-16 sm:py-20">
+          <SectionHead kicker={copy.galleryKicker} title={copy.galleryTitle} />
           <FeedSection sort="trending" featured={featured} />
         </PageShell>
       </section>
+
       <HowItWorks />
-      <ManifestoTeaser />
     </>
   );
 }

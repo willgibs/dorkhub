@@ -209,14 +209,14 @@ export default function DesignTypographyPage() {
               font-display — Instrument Sans
             </p>
             <p className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              {copy.heroHeadline}
+              {copy.heroHeadlineTools}
             </p>
           </div>
           <div className="edge-highlight rounded-lg border bg-card p-6">
             <p className="font-mono text-[11px] text-muted-foreground uppercase">
               font-sans — Geist
             </p>
-            <p className="mt-2 max-w-lg text-base leading-relaxed">{copy.heroSub}</p>
+            <p className="mt-2 max-w-lg text-base leading-relaxed">{copy.heroSubDiscover}</p>
           </div>
           <div className="edge-highlight rounded-lg border bg-card p-6">
             <p className="font-mono text-[11px] text-muted-foreground uppercase">

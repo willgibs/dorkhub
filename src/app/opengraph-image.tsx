@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import { ogTokens } from '@/lib/og-tokens';
 
-export const alt = 'dorkhub — a home for the things you build for fun';
+export const alt = 'dorkhub — discover the best tools for your next project';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -129,7 +129,7 @@ export default async function Image() {
             color: ogTokens.mutedForeground,
           }}
         >
-          a home for the things you build for fun
+          discover the best tools for your next project
         </div>
       </div>
 

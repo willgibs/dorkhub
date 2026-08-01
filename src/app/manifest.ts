@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'dorkhub',
     short_name: 'dorkhub',
-    description: 'a home for the things you build for fun',
+    description: 'discover the best tools for your next project',
     start_url: '/',
     display: 'browser',
     background_color: ogTokens.background,
