@@ -95,7 +95,11 @@ describe('RESERVED_PROJECT_SLUGS covers every static route under /u/[username]/'
   const staticSegments = readdirSync(routeDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
-    .filter((name) => !name.startsWith('[') && !name.startsWith('_'));
+    // `[param]` is dynamic and `_private` isn't routable. `(group)` is a route
+    // GROUP — it organises files (W4 put the profile page in one so its
+    // `loading.tsx` would stop covering its siblings) and contributes nothing
+    // to the URL, so it can never collide with a project slug.
+    .filter((name) => !name.startsWith('[') && !name.startsWith('_') && !name.startsWith('('));
 
   it('finds the route directory (guards against a moved route tree)', () => {
     expect(staticSegments.length).toBeGreaterThan(0);

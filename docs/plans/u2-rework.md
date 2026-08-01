@@ -196,3 +196,23 @@ ListRow, StatBlock).
 Verified in-browser at 1440 and 390, dark + light: no horizontal overflow,
 sticky rail clears the header by 16px, jump targets by 22px, scroll-spy
 marks the section you're inside on a deep link, console clean on a fresh tab.
+
+## W4 — the discovery layer (EXECUTED 2026-08-01)
+
+Board: "proceed with cuts and next round of work." Four commits — tag pages,
+the tags directory, search, and the states layer — each independently green.
+Full record in decisions.md (2026-08-01 W4 entry).
+
+Ground truth that shaped it: 24,678 distinct tags in use (146 with ≥100
+projects, 21,678 with fewer than 5); `/t/[tag]` had no `<h1>`; `/tags` shipped
+977 KB of an arbitrary, unordered ~1,000-tag slice; `tags.description` was
+0/22 populated; `/search` rows carried no language, stars or tags.
+
+**Plan deviation, deliberate**: the plan said render search results as cards
+via `renderFeedCards`. That's unreachable from a client island AND wrong —
+search results are RANKED, and a card grid destroys rank. Search kept rows and
+gained the metadata that makes twenty results distinguishable, at no payload
+cost (everything was already in the response).
+
+**Copy gate**: migration 0024's 22 tag descriptions are public voice-bearing
+copy on indexable pages. Drafted, applied, and flagged for Will to edit.

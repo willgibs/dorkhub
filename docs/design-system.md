@@ -65,7 +65,14 @@ it read as one product: a full-width **masthead band** (halftone atmosphere,
 260px right column, and the actions on a hairline row below — then a body whose
 left column lines up under the identity and whose 260px rail lines up under the
 figures. A reading surface (README) keeps its 780px measure and spends the
-leftover width on a sticky rail instead of empty margin.
+leftover width on a sticky rail instead of empty margin. W4 extended the same
+spine to tags, the tag directory and search.
+
+**Route-level loading states render the LAYOUT** (masthead band, filter row,
+card grid) so a page assembles in place rather than swapping wholesale.
+Boundaries INHERIT DOWNWARD, so the shape has to be checked per subtree: a
+`loading.tsx` beside a page also covers everything nested under it, which is
+why the profile page lives in a `(profile)` route group.
 
 ## Components
 Props are documented by the source + `/design` styleguide, deliberately not here
@@ -75,13 +82,15 @@ Props are documented by the source + `/design` styleguide, deliberately not here
   covers slow loads AND dead URLs), counter-reel (rolling digits), stat-block
   (labeled figures for a masthead column), list-row (one list, shared by the
   lists index and the profile), section-head (mono kicker + display title;
-  the ONLY section header — `SectionHeader` was retired in W3)
+  the ONLY section header — `SectionHeader` was retired in W3), masthead-band
+  (the shared halftone opening band; pages differ in what goes INSIDE it),
+  page-skeletons (route-level loading SHAPES — never spinners)
 - social: stat-button, follow-button, avatar-stack, user-hover-card, sign-in-github
 - cards: project-card (feed/compact/featured), card-media (og hotlink +
   placeholder underlay, 2/1), skeleton-card, empty-state
 - shell: site-header (responsive; collapses to one row under `sm`, with
   _shell/mobile-menu's sheet), site-footer (multi-column close, optional live
-  stats), page-shell, section-header, callout, not-found-content
+  stats), page-shell, callout, not-found-content
 - discovery (route-scoped, `(app)/_discovery/`): section-head, discovery-band,
   weird-spotlight, rising-makers, tag-rail, quick-hits
 - project: markdown-prose (+ src/styles/prose.css), screenshot-gallery, update-post,
@@ -92,6 +101,9 @@ Props are documented by the source + `/design` styleguide, deliberately not here
   `u/[username]/[slug]/` project-masthead · project-vitals · maker-card ·
   readme-contents (the reading rail; its active mark is a tested pure
   function over scroll positions, not an observer band)
+- discovery organisms (route-scoped, W4): `t/[tag]/tag-masthead`,
+  `search/search-result-row` (+ its skeleton — search stays ROWS, not cards:
+  results are ranked, and a grid destroys rank)
 - primitives: src/components/ui/* (shadcn; restyle via className, never edit)
 Fixtures for all demos: `src/lib/fixtures.ts` (tinysynth/gitgoblin/plantdad/
 untitled-maze-thing — each stresses a layout failure mode; keep stable).
