@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import { AvatarBadge } from '@/components/avatar-badge';
 import { LanguageDot } from '@/components/language-dot';
-import { PageShell } from '@/components/page-shell';
+import { MastheadBand } from '@/components/masthead-band';
 import { type Stat, StatBlock } from '@/components/stat-block';
 import { TagChip } from '@/components/tag-chip';
 import { copy } from '@/lib/copy';
@@ -74,93 +74,87 @@ export function ProfileMasthead({
     stats.push({ label: copy.profileTotalStars, tone: 'figure', value: formatCount(totalStars) });
 
   return (
-    <header className={cn('relative isolate border-b', className)}>
-      <div
-        aria-hidden="true"
-        className="bg-halftone pointer-events-none absolute inset-0 -z-10 [mask-image:radial-gradient(620px_240px_at_28%_30%,black,transparent_72%)] [-webkit-mask-image:radial-gradient(620px_240px_at_28%_30%,black,transparent_72%)]"
-      />
-      <PageShell className="flex flex-col gap-7 pt-8 pb-7 sm:pt-10">
-        <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-8">
-          <div className="flex min-w-0 flex-1 gap-5">
-            <AvatarBadge
-              src={avatarUrl}
-              initial={displayName.charAt(0).toLowerCase()}
-              sizeClassName="size-16 sm:size-[84px]"
-              initialClassName="text-[26px] sm:text-[32px]"
-              className="border"
-            />
-            <div className="flex min-w-0 flex-col gap-3">
-              <div className="flex flex-col gap-1">
-                <h1 className="font-display text-[32px] leading-[1.05] font-extrabold tracking-tight sm:text-[40px]">
-                  {displayName}
-                </h1>
-                <p className="font-mono text-[13px] text-muted-foreground">@{username}</p>
-              </div>
-
-              {bio ? (
-                <p className="max-w-[52ch] text-[15.5px] leading-relaxed text-muted-foreground">
-                  {bio}
-                </p>
-              ) : null}
-
-              {links !== undefined && links.length > 0 ? (
-                <div className="flex flex-wrap gap-2 pt-0.5">
-                  {links.map((link) => (
-                    <TagChip key={link.href} tag={link.label} href={link.href} />
-                  ))}
-                </div>
-              ) : null}
+    <MastheadBand className={className}>
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-8">
+        <div className="flex min-w-0 flex-1 gap-5">
+          <AvatarBadge
+            src={avatarUrl}
+            initial={displayName.charAt(0).toLowerCase()}
+            sizeClassName="size-16 sm:size-[84px]"
+            initialClassName="text-[26px] sm:text-[32px]"
+            className="border"
+          />
+          <div className="flex min-w-0 flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <h1 className="font-display text-[32px] leading-[1.05] font-extrabold tracking-tight sm:text-[40px]">
+                {displayName}
+              </h1>
+              <p className="font-mono text-[13px] text-muted-foreground">@{username}</p>
             </div>
+
+            {bio ? (
+              <p className="max-w-[52ch] text-[15.5px] leading-relaxed text-muted-foreground">
+                {bio}
+              </p>
+            ) : null}
+
+            {links !== undefined && links.length > 0 ? (
+              <div className="flex flex-wrap gap-2 pt-0.5">
+                {links.map((link) => (
+                  <TagChip key={link.href} tag={link.label} href={link.href} />
+                ))}
+              </div>
+            ) : null}
           </div>
-
-          <StatBlock stats={stats} className="lg:w-[260px] lg:shrink-0" />
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t pt-6">
-          {followButton}
-          {githubUsername ? (
-            <a
-              href={`https://github.com/${githubUsername}`}
-              target="_blank"
-              rel="noopener"
-              className={cn('font-mono text-[12.5px] text-muted-foreground', quietLink)}
-            >
-              github.com/{githubUsername}
-            </a>
-          ) : null}
-          {languages.length > 0 ? (
-            <p className="flex flex-wrap items-center gap-3 sm:ml-auto">
-              <span className="font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase">
-                {copy.profileWorksIn}
-              </span>
-              {languages.map((language) => (
-                <LanguageDot
-                  key={language.name}
-                  language={language.name}
-                  color={language.color}
-                  className="text-[12.5px]"
-                />
-              ))}
-            </p>
-          ) : null}
-        </div>
+        <StatBlock stats={stats} className="lg:w-[260px] lg:shrink-0" />
+      </div>
 
-        {/* Unclaimed honesty (vision principle 4): the page says it was curated
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t pt-6">
+        {followButton}
+        {githubUsername ? (
+          <a
+            href={`https://github.com/${githubUsername}`}
+            target="_blank"
+            rel="noopener"
+            className={cn('font-mono text-[12.5px] text-muted-foreground', quietLink)}
+          >
+            github.com/{githubUsername}
+          </a>
+        ) : null}
+        {languages.length > 0 ? (
+          <p className="flex flex-wrap items-center gap-3 sm:ml-auto">
+            <span className="font-mono text-[11px] tracking-[0.14em] text-muted-foreground uppercase">
+              {copy.profileWorksIn}
+            </span>
+            {languages.map((language) => (
+              <LanguageDot
+                key={language.name}
+                language={language.name}
+                color={language.color}
+                className="text-[12.5px]"
+              />
+            ))}
+          </p>
+        ) : null}
+      </div>
+
+      {/* Unclaimed honesty (vision principle 4): the page says it was curated
             rather than authored, and the claim link is the "and here is what
             you can do about it" half — a badge with no route to act on it is
             disclosure without agency. */}
-        {unclaimed ? (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-dashed px-4 py-3">
-            <p className="font-mono text-[11.5px] text-muted-foreground">{copy.unclaimedBadge}</p>
-            <Link
-              href="/claim"
-              className={cn('font-mono text-[11.5px] text-link hover:underline', quietLink)}
-            >
-              {copy.unclaimedIsThisYou}
-            </Link>
-          </div>
-        ) : null}
-      </PageShell>
-    </header>
+      {unclaimed ? (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-dashed px-4 py-3">
+          <p className="font-mono text-[11.5px] text-muted-foreground">{copy.unclaimedBadge}</p>
+          <Link
+            href="/claim"
+            className={cn('font-mono text-[11.5px] text-link hover:underline', quietLink)}
+          >
+            {copy.unclaimedIsThisYou}
+          </Link>
+        </div>
+      ) : null}
+    </MastheadBand>
   );
 }

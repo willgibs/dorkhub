@@ -43,6 +43,10 @@ export const copy = {
   profileListsKicker: 'lists',
   profileListsTitle: 'what they’ve collected',
   profileListsAll: 'all lists',
+  // W4: tag pages. The kicker names what kind of page this is for someone who
+  // landed here cold from search.
+  tagKicker: 'tag',
+  tagOftenWith: 'often with',
   projectRefreshThrottled: 'just synced — give github five minutes to breathe',
   newTitle: 'pick a thing to show',
   newSubtitle: 'public repos only — drafts stay yours until you publish',
