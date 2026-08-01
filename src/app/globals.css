@@ -259,6 +259,17 @@
    placeholder rather than snapping in (deferred motion backlog). Layout is
    already stable — the skeleton grid mirrors the resolved grid's classes —
    so this only animates opacity/blur/transform. */
+/*
+ * One full revolution of a digit strip, landing on the value it started from.
+ * Deliberately has no `to`: the implicit 100% keyframe is the element's own
+ * resting transform, so one keyframe serves every digit.
+ */
+@keyframes u2-reel-spin {
+  from {
+    transform: var(--reel-from);
+  }
+}
+
 @keyframes u2-reveal-in {
   from {
     opacity: 0;
@@ -407,11 +418,20 @@
   /* Digit reel (counter). The column height IS the cell height; the strip
      translates by whole cells, so one transition drives the whole roll. */
   .u2-reel {
+    /*
+     * One cell height, in one place. The strips are translated in MULTIPLES OF
+     * THIS, never in percent: a percentage translate resolves against the
+     * strip's own height (ten-plus cells), so `translateY(-100%)` shoved the
+     * whole strip out of its window and every non-zero digit rendered blank.
+     * That shipped in U2 and stayed invisible because the only reel then was
+     * ImportRunner's, which is correct at 0 and rarely watched past it.
+     */
+    --reel-cell: 1.25em;
     display: inline-flex;
     font-variant-numeric: tabular-nums;
   }
   .u2-reel-col {
-    height: 1.25em;
+    height: var(--reel-cell);
     overflow: hidden;
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent);
     mask-image: linear-gradient(to bottom, transparent, #000 25%, #000 75%, transparent);
@@ -421,10 +441,48 @@
     flex-direction: column;
     transition: transform var(--motion-slow) var(--motion-ease-quiet);
   }
+  /*
+   * The digits are GENERATED content, not text nodes. A reel needs twenty
+   * cells per column to roll, and as markup that is ~120 characters of
+   * "01234567890123456789" sitting in the main content of all 16,972 indexed
+   * project pages and every profile — invisible on screen, but present in
+   * extracted page text and in anything a reader copies. `attr()` renders the
+   * same thing while keeping the DOM's text exactly the figure itself.
+   */
   .u2-reel-digit {
     display: flex;
-    height: 1.25em;
+    height: var(--reel-cell);
     align-items: center;
     justify-content: center;
+  }
+  .u2-reel-digit::before {
+    content: attr(data-digit);
+  }
+  /* Non-digits in a formatted figure ("1.2k") — they sit in the row but never
+     roll, so no window, no mask. Generated for the same reason as the digits:
+     the sr-only span already carries the whole figure, so a real text node
+     here made the page read "103kk". */
+  .u2-reel-fixed {
+    display: flex;
+    height: var(--reel-cell);
+    align-items: center;
+  }
+  .u2-reel-fixed::before {
+    content: attr(data-char);
+  }
+  /*
+   * Page-load spin (W3.1, board request: transitions.dev's spinning counter on
+   * masthead stats). The strip carries 0–9 TWICE and rests on the second
+   * cycle, so this can start one full revolution back and land on the same
+   * digit it started on — the number is never wrong, at any point, including
+   * before paint and with animation disabled.
+   *
+   * Only a `from` keyframe: the implicit `to` is the element's own resting
+   * transform, so the animation needs no knowledge of the value. Paired with
+   * `backwards` (not `both`) so the fill doesn't outrank the inline transform
+   * afterwards — ImportRunner's reel still transitions when its value changes.
+   */
+  .u2-reel-spin {
+    animation: u2-reel-spin calc(var(--motion-slow) * 2) var(--motion-ease-quiet) backwards;
   }
 }

@@ -1,3 +1,4 @@
+import { CounterReel } from '@/components/counter-reel';
 import { LanguageDot } from '@/components/language-dot';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,10 @@ export type StatBlockProps = {
  *
  * Absence, never zero: callers omit empty stats, and an empty list renders
  * nothing rather than an empty frame.
+ *
+ * Figures spin in on load (board request, W3.1) — a masthead entrance in the
+ * same class as the home hero's deal-in, not a UI transition. Text stats
+ * ("MIT", "3 days ago") stay still: rolling a licence name would be a gimmick.
  */
 export function StatBlock({ stats, className }: StatBlockProps) {
   if (stats.length === 0) return null;
@@ -46,6 +51,8 @@ export function StatBlock({ stats, className }: StatBlockProps) {
           >
             {stat.dot ? (
               <LanguageDot language={stat.value} color={stat.dot} className="text-[14px]" />
+            ) : stat.tone === 'figure' ? (
+              <CounterReel value={stat.value} spinOnMount />
             ) : (
               stat.value
             )}

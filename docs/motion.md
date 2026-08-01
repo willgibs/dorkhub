@@ -70,3 +70,11 @@ Live catalog: `/design/motion` (each demo captions its tokens + source note).
 - **Rejected** (rendered in /design/motion §04): card stack hover (no surface),
   3D tilt (contradicts locked hover), literal confetti (bloom pulse instead),
   Pro gradient text (no gradient type; Pro-gated).
+
+- **Third sanctioned duration exception (W3.1)**: masthead stat reels spin for
+  `calc(var(--motion-slow) * 2)` = 600ms on page load (board request:
+  transitions.dev's spinning counter on project stars/forks and profile
+  projects/total stars). Same class as the hero deal-in — a page entrance on a
+  large surface, not a UI transition; text stats never roll. Built as a CSS
+  entrance rather than a JS count-up so the true figure is in the server HTML
+  and correct at every frame, including before paint and under reduced motion.
