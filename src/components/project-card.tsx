@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AvatarBadge } from '@/components/avatar-badge';
 import { CardMedia } from '@/components/card-media';
 import { LanguageDot } from '@/components/language-dot';
 import { StatButton } from '@/components/stat-button';
@@ -231,24 +232,9 @@ export function ProjectCard({
             focusRing,
           )}
         >
-          {author.avatarUrl ? (
-            // Real avatar with the initial circle as fallback (U2 R3 — the
-            // mapper used to drop avatar_url, so card avatars never loaded).
-            <img
-              src={author.avatarUrl}
-              alt=""
-              loading="lazy"
-              className="size-6 flex-none rounded-full border object-cover"
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
-            >
-              {author.initial}
-            </span>
-          )}
-          @{author.username}
+          {/* Real avatar, initial as the layered fallback (U2 R3 — the mapper
+              used to drop avatar_url, so card avatars never loaded at all). */}
+          <AvatarBadge src={author.avatarUrl} initial={author.initial} />@{author.username}
         </a>
         <span className="relative z-10">
           {likeSlot ?? <StatButton kind="like" active={false} count={project.likes} />}

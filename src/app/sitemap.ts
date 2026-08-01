@@ -56,6 +56,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const statics: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, priority: 1.0 },
     { url: `${SITE_URL}/manifesto`, priority: 0.8 },
+    { url: `${SITE_URL}/active`, priority: 0.5 },
     { url: `${SITE_URL}/tags`, priority: 0.5 },
     { url: `${SITE_URL}/sponsor`, priority: 0.4 },
     { url: `${SITE_URL}/terms`, priority: 0.2 },

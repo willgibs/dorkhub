@@ -20,7 +20,14 @@ import {
  * cacheable; keyset pagination everywhere, never OFFSET.
  */
 
-export type FeedSort = 'recent' | 'trending';
+/**
+ * 'active' (U2, migration 0021) = most recently PUSHED upstream, and its
+ * domain is rows that actually carry a `github_pushed_at` — never-synced
+ * projects are out of the sort entirely, not silently last. It shares the
+ * RecentCursor codec (ISO timestamp + uuid) with 'recent'; only the column
+ * behind the timestamp differs.
+ */
+export type FeedSort = 'recent' | 'trending' | 'active';
 
 export const FEED_PAGE_SIZE = 24;
 export const FEED_PAGE_SIZE_MAX = 48;
@@ -74,7 +81,8 @@ function normalizeFilterValue(raw: string | null | undefined): string | null {
  * default (page 1, no filter) rather than erroring the request.
  */
 export function resolveFeedFilterSpec(params: FeedQueryParams): FeedFilterSpec {
-  const sort: FeedSort = params.sort === 'trending' ? 'trending' : 'recent';
+  const sort: FeedSort =
+    params.sort === 'trending' ? 'trending' : params.sort === 'active' ? 'active' : 'recent';
   const limit = clampLimit(params.limit);
   const tag = normalizeFilterValue(params.tag);
   const language = normalizeFilterValue(params.language);
@@ -250,11 +258,19 @@ function toFeedPage(data: unknown, spec: FeedFilterSpec): FeedPage {
   const page = (hasMore ? flat.slice(0, spec.limit) : flat).map(flattenedToFeedRow);
   const last = page[page.length - 1];
 
+  // 'active' seeks on github_pushed_at, 'recent' on published_at — same
+  // cursor codec, different column. An absent timestamp would encode a
+  // cursor that decodes back to null (silently re-serving page 1), so a
+  // missing value ends pagination instead: both columns are non-null over
+  // their sorts' domains, making this a guard, not a code path.
+  const cursorAt = spec.sort === 'active' ? last?.github_pushed_at : last?.published_at;
   const nextCursor =
     hasMore && last
       ? spec.sort === 'trending'
         ? encodeTrendingCursor(last.trending_score, last.id)
-        : encodeRecentCursor(last.published_at ?? '', last.id)
+        : cursorAt
+          ? encodeRecentCursor(cursorAt, last.id)
+          : null
       : null;
 
   return { rows: page, nextCursor };

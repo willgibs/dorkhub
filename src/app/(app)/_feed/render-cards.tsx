@@ -20,6 +20,14 @@ export type RenderFeedCardsOptions = {
    * as one continuous sweep instead of restarting mid-grid.
    */
   staggerOffset?: number;
+  /**
+   * First cell spans two columns — the U2 gallery rhythm (a chapter opener,
+   * so page 1 isn't a uniform wall). OPT-IN, and only from a page-1 render:
+   * every other consumer (saved, list detail, related, following, recs) and
+   * every appended load-more page renders span-free, since a span landing
+   * mid-list would tear a hole in the grid.
+   */
+  leadSpan?: boolean;
 };
 
 /**
@@ -45,6 +53,7 @@ export function renderFeedCards(rows: FeedRow[], opts?: RenderFeedCardsOptions):
             author={author}
             variant={variant}
             labelText={opts?.labelTextFor?.(row)}
+            className={opts?.leadSpan && i === 0 ? 'sm:col-span-2' : undefined}
             staggerIndex={i + (opts?.staggerOffset ?? 0)}
             href={`/u/${author.username}/${row.slug}`}
             authorHref={`/u/${author.username}`}

@@ -49,6 +49,7 @@ export async function FeedSection({ sort, tag = null, featured = [] }: FeedSecti
   const ids = [...featuredRows, ...organicRows].map((row) => row.id);
 
   const hrefFor = (kind: 'sort' | 'tag', value: string) => feedHrefFor({ sort, tag }, kind, value);
+  const chip = (kind: 'sort' | 'tag', label: string) => ({ label, href: hrefFor(kind, label) });
 
   // Shown to everyone, signed in or not — signed-out clicks ride the proxy's
   // existing signin redirect on /saved and /following (funnel, locked
@@ -68,18 +69,26 @@ export async function FeedSection({ sort, tag = null, featured = [] }: FeedSecti
   );
 
   // Chip labels are the `hrefFor` vocabulary (feedHrefFor reads 'newest' /
-  // anything-else off the value it's handed) — activeSort has to speak the
-  // same label, not the raw FeedSort, or the base path (sort='trending')
-  // never lights up the default chip.
-  const activeSortLabel = sort === 'recent' ? copy.sortNewest : copy.sortTrending;
+  // 'active' / anything-else off the value it's handed) — activeSort has to
+  // speak the same label, not the raw FeedSort, or the base path
+  // (sort='trending') never lights up the default chip.
+  const activeSortLabel =
+    sort === 'recent' ? copy.sortNewest : sort === 'active' ? copy.sortActive : copy.sortTrending;
+
+  // 'active' is a GLOBAL sort this round (no /t/[tag]/active route), so a
+  // tagged feed offers trending + newest only.
+  const sortChips = [
+    chip('sort', copy.sortTrending),
+    chip('sort', copy.sortNewest),
+    ...(tag ? [] : [chip('sort', copy.sortActive)]),
+  ];
 
   const filters = (
     <FeedFilters
-      sort={[copy.sortTrending, copy.sortNewest]}
-      tags={tag ? [tag] : []}
+      sort={sortChips}
+      tags={tag ? [chip('tag', tag)] : []}
       activeSort={activeSortLabel}
       activeTag={tag ?? undefined}
-      hrefFor={hrefFor}
       trailing={trailing}
     />
   );
@@ -115,6 +124,9 @@ export async function FeedSection({ sort, tag = null, featured = [] }: FeedSecti
 
   // One grid, two render calls: featured cells first (labeled on-card),
   // organic after with a stagger offset so the entrance reads as one sweep.
+  // `leadSpan` goes to whichever call owns the grid's FIRST cell so page 1
+  // opens on a wide card (U2 rhythm) — never to both, and never to the
+  // appended pages `loadMoreFeed` renders.
   const labelBySlotProject = new Map(
     featured.map((slot) => [slot.project.id, slot.sponsorLabel ?? copy.featuredLabel]),
   );
@@ -123,8 +135,12 @@ export async function FeedSection({ sort, tag = null, featured = [] }: FeedSecti
       {renderFeedCards(featuredRows, {
         variant: 'featured',
         labelTextFor: (row) => labelBySlotProject.get(row.id),
+        leadSpan: true,
       })}
-      {renderFeedCards(organicRows, { staggerOffset: featuredRows.length })}
+      {renderFeedCards(organicRows, {
+        staggerOffset: featuredRows.length,
+        leadSpan: featuredRows.length === 0,
+      })}
     </>
   );
 

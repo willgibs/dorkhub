@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { AvatarBadge } from '@/components/avatar-badge';
 import { AvatarStack } from '@/components/avatar-stack';
 import { copy } from '@/lib/copy';
 import type { RisingMaker } from '@/lib/discovery/queries';
@@ -42,22 +43,11 @@ export function RisingMakers({ makers }: { makers: RisingMaker[] }) {
               <span className="tabular-nums w-5 font-mono text-[11px] text-muted-foreground">
                 {String(i + 1).padStart(2, '0')}
               </span>
-              {maker.avatarUrl ? (
-                // eslint-free plain img (house rule: no next/image)
-                <img
-                  src={maker.avatarUrl}
-                  alt=""
-                  loading="lazy"
-                  className="size-7 shrink-0 rounded-full border object-cover"
-                />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
-                >
-                  {maker.displayName.charAt(0).toLowerCase()}
-                </span>
-              )}
+              <AvatarBadge
+                src={maker.avatarUrl}
+                initial={maker.displayName.charAt(0).toLowerCase()}
+                sizeClassName="size-7"
+              />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13.5px] text-foreground">
                   {maker.displayName}

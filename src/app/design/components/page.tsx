@@ -96,7 +96,7 @@ export const metadata: Metadata = { title: 'components' };
 
 const [tinysynth, gitgoblin, plantdad, untitledMaze] = projects;
 const languages = Array.from(new Set(projects.map((p) => p.language)));
-const sortOptions = ['recent', 'trending'] as const;
+const sortOptions = ['trending', 'newest', 'active'] as const;
 const filterTags = Array.from(new Set(projects.flatMap((p) => p.tags))).slice(0, 6);
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
@@ -456,11 +456,10 @@ export default function DesignComponentsPage() {
         <Group title="feed-filters">
           <Demo>
             <FeedFilters
-              sort={[...sortOptions]}
-              tags={filterTags}
+              sort={sortOptions.map((label) => ({ label, href: `#sort-${label}` }))}
+              tags={filterTags.map((label) => ({ label, href: `#tag-${label}` }))}
               activeSort={sortOptions[0]}
               activeTag={filterTags[0]}
-              hrefFor={(kind, value) => `#${kind}-${value}`}
             />
           </Demo>
         </Group>

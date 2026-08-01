@@ -10,17 +10,22 @@ import type { FeedSort } from './queries';
 
 function buildFeedPath(sort: FeedSort, tag: string | null): string {
   if (tag) {
+    // Tag routes carry trending + newest only (U2: 'active' is global-only
+    // this round), so an active sort inside a tag falls back to the tag's
+    // default rather than linking a route that doesn't exist.
     return sort === 'recent' ? `/t/${tag}/newest` : `/t/${tag}`;
   }
-  return sort === 'recent' ? '/newest' : '/';
+  if (sort === 'recent') return '/newest';
+  return sort === 'active' ? '/active' : '/';
 }
 
 /**
  * Computes the href for a sort or tag chip relative to the current feed
  * state.
  * - `kind: 'sort'` — switches sort, keeps the current tag; `value` is the
- *   chip's copy label (copy.sortNewest -> 'recent'; anything else, including
- *   copy.sortTrending, falls back to 'trending' — the default sort).
+ *   chip's copy label (copy.sortNewest -> 'recent', copy.sortActive ->
+ *   'active'; anything else, including copy.sortTrending, falls back to
+ *   'trending' — the default sort).
  * - `kind: 'tag'` — switches tag, keeps the current sort; clicking the
  *   ALREADY-ACTIVE tag toggles it off (back to untagged at the current sort)
  *   rather than re-applying it.
@@ -31,7 +36,8 @@ export function feedHrefFor(
   value: string,
 ): string {
   if (kind === 'sort') {
-    const sort: FeedSort = value === 'newest' ? 'recent' : 'trending';
+    const sort: FeedSort =
+      value === 'newest' ? 'recent' : value === 'active' ? 'active' : 'trending';
     return buildFeedPath(sort, current.tag);
   }
 
