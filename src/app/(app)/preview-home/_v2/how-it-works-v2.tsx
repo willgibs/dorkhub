@@ -4,6 +4,7 @@ import { PageShell } from '@/components/page-shell';
 import { Button } from '@/components/ui/button';
 import { copy } from '@/lib/copy';
 import { cn } from '@/lib/utils';
+import { SectionHead } from './section-head';
 
 /**
  * How-it-works v2.1 (R2.5): one closing section instead of two — the three
@@ -34,29 +35,26 @@ const COLUMNS: readonly Column[] = [
 
 export function HowItWorksV2() {
   return (
-    <PageShell as="section" className="flex flex-col gap-12 border-t py-14 sm:py-18">
-      <div className="flex flex-col gap-8">
-        <p className="font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
-          <span aria-hidden="true">{'// '}</span>
-          {copy.howKicker}
-        </p>
-        <div className="relative mx-auto grid w-full max-w-[900px] gap-10 sm:grid-cols-3 sm:gap-8">
-          {/* the connecting line — runs behind the ordinal nodes on sm+ */}
+    <PageShell as="section" className="flex flex-col gap-12 border-t py-16 sm:py-20">
+      <div className="flex flex-col gap-10">
+        <SectionHead kicker={copy.howKicker} title={copy.howTitle} />
+        <div className="relative mx-auto grid w-full max-w-[920px] gap-10 sm:grid-cols-3 sm:gap-6">
+          {/* the connecting line — runs strictly behind the ordinal nodes
+              (labels live BELOW the node row since R3, so nothing gets
+              struck through) */}
           <div
             aria-hidden="true"
-            className="absolute top-[14px] right-[12%] left-[12%] hidden h-px bg-gradient-to-r from-border via-[color-mix(in_oklab,var(--primary)_36%,var(--border))] to-border sm:block"
+            className="absolute top-[15px] right-[16%] left-[16%] hidden h-px bg-gradient-to-r from-border via-[color-mix(in_oklab,var(--primary)_36%,var(--border))] to-border sm:block"
           />
           {STEPS.map((step) => (
-            <div key={step.ordinal} className="flex flex-col gap-3.5">
-              <div className="flex items-center gap-3">
-                <span className="tabular-nums relative z-10 inline-flex size-7 items-center justify-center rounded-full border bg-card font-mono text-[11px] text-primary shadow-[0_0_0_3px_var(--background)]">
-                  {step.ordinal}
-                </span>
-                <p className="text-[15px] text-foreground">{step.label}</p>
-              </div>
+            <div key={step.ordinal} className="flex flex-col items-center gap-4 text-center">
+              <span className="tabular-nums relative z-10 inline-flex size-8 items-center justify-center rounded-full border bg-card font-mono text-[11.5px] text-primary shadow-[0_0_0_4px_var(--background),0_0_0_5px_color-mix(in_oklab,var(--primary)_18%,transparent)]">
+                {step.ordinal}
+              </span>
+              <p className="font-display text-[15.5px] font-bold text-foreground">{step.label}</p>
               <div
                 aria-hidden="true"
-                className="edge-highlight flex h-[96px] items-center justify-center rounded-md border bg-surface-2/70"
+                className="edge-highlight flex h-[116px] w-full items-center justify-center rounded-lg border bg-surface-2/70"
               >
                 {step.vignette}
               </div>

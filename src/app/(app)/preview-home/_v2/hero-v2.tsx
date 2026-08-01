@@ -11,9 +11,17 @@ import type { FeedRow } from '@/lib/feed/queries';
 import { languageColor } from '@/lib/lang-colors';
 import { cn } from '@/lib/utils';
 
-const WORD_STAGGER_MS = 40;
+/* R3 pacing: the R2.5 entrance finished before the eye landed (board note).
+ * A short settle beat, longer travel, wider stagger — marketing-surface
+ * budget (docs/motion.md's 500ms cap is for UI; emil: marketing/explanatory
+ * may run longer). */
+const WORD_STAGGER_MS = 60;
+const WORD_BASE_DELAY_MS = 120;
+const SHELF_BASE_DELAY_MS = 300;
+const SHELF_STAGGER_MS = 160;
+const SHELF_ENTER_MS = 700;
 
-/** 1200 -> "1.2k" — mirrors ProjectCard's formatter for the shelf meta rows + count headline. */
+/** 1200 -> "1.2k" — mirrors ProjectCard's formatter for the shelf meta rows. */
 function formatCount(n: number): string {
   if (n >= 1000) {
     const k = n / 1000;
@@ -23,14 +31,51 @@ function formatCount(n: number): string {
   return String(n);
 }
 
+const ASCII = /^[\x20-\x7E’—–-]+$/;
+
 /**
- * U2 hero, R2.5: BOTH product moments compose (Will's R2 pick) — the shelf
- * of real trending cards beside the headline, the ticker running beneath.
- * The shelf enters stacked → fan (adapted from transitions.dev's card-stack
- * reveal onto our motion tokens), then hands off to the drift loop. The H1
- * is reframed discovery-first with a harness A/B (discover / live-count);
- * the shimmer word treatment is gone (R2: motion now lives in the shelf +
- * ticker; also removes the baseline misalignment it caused).
+ * Shelf curation (R3: "pick 3 more interesting projects… make it feel
+ * cool"): from the trending page, prefer clean ascii names, real
+ * mid-length taglines, and distinct languages, ranked by stars — then
+ * top up from the pool if the diversity pass starves. Deterministic per
+ * feed window, no hand-pinning to go stale.
+ */
+function pickShelfRows(rows: FeedRow[]): FeedRow[] {
+  const pool = rows.filter(
+    (row) =>
+      row.tagline &&
+      row.tagline.length >= 16 &&
+      row.tagline.length <= 90 &&
+      row.name.length <= 22 &&
+      ASCII.test(row.name) &&
+      ASCII.test(row.tagline),
+  );
+  const byStars = [...pool].sort((a, b) => b.stars_count - a.stars_count);
+  const picks: FeedRow[] = [];
+  const languages = new Set<string>();
+  for (const row of byStars) {
+    const lang = row.primary_language ?? '?';
+    if (languages.has(lang)) continue;
+    languages.add(lang);
+    picks.push(row);
+    if (picks.length === 3) return picks;
+  }
+  for (const row of byStars) {
+    if (picks.length === 3) return picks;
+    if (!picks.includes(row)) picks.push(row);
+  }
+  for (const row of rows) {
+    if (picks.length === 3) break;
+    if (!picks.includes(row)) picks.push(row);
+  }
+  return picks.slice(0, 3);
+}
+
+/**
+ * U2 hero, R3: board-final H1 (balanced wrapping), shelf + ticker composed,
+ * slower load-in, curated shelf picks, ticker items clickable (pause on
+ * hover). Tone: a real resource for ALL projects — playful register without
+ * side-project exclusivity.
  */
 export function HeroV2({
   stats,
@@ -41,11 +86,6 @@ export function HeroV2({
   shelfRows: FeedRow[];
   tickerRows: FeedRow[];
 }) {
-  const countHeadline =
-    stats && stats.projects > 0
-      ? `${formatCount(stats.projects)} ${copy.heroHeadlineCountTail}`
-      : copy.heroHeadlineDiscover;
-
   return (
     <section className="relative">
       {/* halftone field behind the headline column */}
@@ -56,12 +96,7 @@ export function HeroV2({
 
       <PageShell className="grid items-center gap-10 pt-10 pb-12 sm:pt-16 sm:pb-16 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-6">
         <div className="flex flex-col items-start gap-[18px] text-left">
-          <div data-v2-headline="discover">
-            <RisingHeadline text={copy.heroHeadlineDiscover} />
-          </div>
-          <div data-v2-headline="count">
-            <RisingHeadline text={countHeadline} />
-          </div>
+          <RisingHeadline text={copy.heroHeadlineTools} />
 
           <p className="max-w-[520px] text-[17.5px] text-muted-foreground">
             {copy.heroSubDiscover}
@@ -81,7 +116,7 @@ export function HeroV2({
           <StatsLine stats={stats} />
         </div>
 
-        <CardShelf rows={shelfRows} />
+        <CardShelf rows={pickShelfRows(shelfRows)} />
       </PageShell>
 
       <Ticker rows={tickerRows} />
@@ -89,17 +124,17 @@ export function HeroV2({
   );
 }
 
-/** The staggered word-rise H1 (identity entrance kept; shimmer removed). */
+/** The staggered word-rise H1 — balanced wrapping so neither line strands a word. */
 function RisingHeadline({ text }: { text: string }) {
   const words = text.split(' ');
   return (
-    <h1 className="max-w-[640px] font-display text-4xl font-extrabold tracking-[-0.02em] sm:text-[54px] sm:leading-[1.05]">
+    <h1 className="max-w-[640px] text-balance font-display text-4xl font-extrabold tracking-[-0.02em] sm:text-[54px] sm:leading-[1.05]">
       {words.map((word, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: fixed, never-reordered word list; some words repeat
         <Fragment key={`${word}-${i}`}>
           <span
             className="inline-block animate-word-rise [animation-fill-mode:backwards]"
-            style={{ animationDelay: `${i * WORD_STAGGER_MS}ms` }}
+            style={{ animationDelay: `${WORD_BASE_DELAY_MS + i * WORD_STAGGER_MS}ms` }}
           >
             {word}
           </span>
@@ -136,10 +171,10 @@ function Dot() {
 }
 
 /**
- * The shelf: three real trending cards, entering stacked → fan (once, on
- * load), then drifting. Animation shorthand is inline because it chains two
- * named keyframes with per-card delays/durations; both resolve through
- * motion tokens and the global reduced-motion kill switch (!important)
+ * The shelf: three curated trending cards, entering stacked → fan (once, on
+ * load, R3-slowed so it can be absorbed), then drifting. Animation shorthand
+ * is inline because it chains two named keyframes with per-card
+ * delays/durations; the global reduced-motion kill switch (!important)
  * overrides inline values, so the switch still wins.
  */
 function CardShelf({ rows }: { rows: FeedRow[] }) {
@@ -182,7 +217,7 @@ function CardShelf({ rows }: { rows: FeedRow[] }) {
     >
       {cards.map((row, i) => {
         const seat = seats[i];
-        const enterDelay = i * 70;
+        const enterDelay = SHELF_BASE_DELAY_MS + i * SHELF_STAGGER_MS;
         return (
           <div
             key={row.id}
@@ -191,7 +226,7 @@ function CardShelf({ rows }: { rows: FeedRow[] }) {
                 '--u2-tilt': seat.tilt,
                 '--u2-from-x': seat.fromX,
                 '--u2-from-y': seat.fromY,
-                animation: `u2-shelf-enter var(--motion-enter) var(--motion-ease-quiet) ${enterDelay}ms both, u2-drift ${seat.drift} ease-in-out ${enterDelay + 500}ms infinite`,
+                animation: `u2-shelf-enter ${SHELF_ENTER_MS}ms var(--motion-ease-quiet) ${enterDelay}ms both, u2-drift ${seat.drift} ease-in-out ${enterDelay + SHELF_ENTER_MS}ms infinite`,
               } as CSSProperties
             }
             className={cn(
@@ -220,39 +255,44 @@ function CardShelf({ rows }: { rows: FeedRow[] }) {
 }
 
 /**
- * The ticker: one full-bleed marquee row of real projects, running beneath
- * the hero (R2: composes WITH the shelf; the pb above provides breathing
- * room). Linear by rule; duplicate copy is aria-hidden; -50% loops.
+ * The ticker: a full-bleed marquee of real projects beneath the hero.
+ * R3: hover pauses the track (u2-preview.css) and every item is a real
+ * link to its project page. Linear by rule; the duplicate half is
+ * aria-hidden with unfocusable links (visual continuity only — the first
+ * half owns the a11y surface).
  */
 function Ticker({ rows }: { rows: FeedRow[] }) {
   if (rows.length === 0) return null;
   const list = (hidden: boolean) => (
     <div aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
       {rows.map((row) => (
-        <span
-          key={`${hidden ? 'b' : 'a'}-${row.id}`}
-          className="tabular-nums flex items-center gap-2.5 whitespace-nowrap pr-10 font-mono text-xs text-muted-foreground"
-        >
-          <LanguageDot
-            language={row.primary_language ?? 'code'}
-            color={languageColor(row.primary_language)}
-          />
-          {row.name}
-          {row.stars_count > 0 ? <span>★ {formatCount(row.stars_count)}</span> : null}
+        <Fragment key={`${hidden ? 'b' : 'a'}-${row.id}`}>
+          <Link
+            href={`/u/${row.profiles.username}/${row.slug}`}
+            tabIndex={hidden ? -1 : undefined}
+            className="tabular-nums flex items-center gap-2.5 whitespace-nowrap rounded-sm font-mono text-xs text-muted-foreground transition-colors hover:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <LanguageDot
+              language={row.primary_language ?? 'code'}
+              color={languageColor(row.primary_language)}
+            />
+            {row.name}
+            {row.stars_count > 0 ? <span>★ {formatCount(row.stars_count)}</span> : null}
+          </Link>
           <span
             aria-hidden="true"
-            className="pl-6 text-[8px] text-[color-mix(in_oklab,var(--foreground)_28%,transparent)]"
+            className="px-6 text-[8px] text-[color-mix(in_oklab,var(--foreground)_28%,transparent)]"
           >
             ✦
           </span>
-        </span>
+        </Fragment>
       ))}
     </div>
   );
 
   return (
-    <div className="relative overflow-hidden border-y py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-      <div className="flex w-max animate-[u2-ticker_48s_linear_infinite]">
+    <div className="u2-ticker relative overflow-hidden border-y py-3 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+      <div className="u2-ticker-track flex w-max animate-[u2-ticker_48s_linear_infinite]">
         {list(false)}
         {list(true)}
       </div>

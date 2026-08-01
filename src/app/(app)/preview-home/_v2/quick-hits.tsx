@@ -10,16 +10,25 @@ import { profileRowToAuthor, projectRowToCard } from '@/lib/projects/map';
  * sort (migration 0021): fresh upstream pushes, deliberately distinct from
  * the trending rails around it. Absence rule: no rows, no strip.
  */
-export function QuickHits({ rows }: { rows: FeedRow[] }) {
+export function QuickHits({
+  rows,
+  showKicker = true,
+}: {
+  rows: FeedRow[];
+  /** Off when a SectionHead already introduces the strip (feed page, R3). */
+  showKicker?: boolean;
+}) {
   const cells = rows.slice(0, 4);
   if (cells.length === 0) return null;
 
   return (
     <section className="edge-highlight flex flex-col gap-3 rounded-lg border bg-surface-2/60 px-5 py-4">
-      <p className="font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
-        <span aria-hidden="true">{'// '}</span>
-        {copy.clusterKicker}
-      </p>
+      {showKicker ? (
+        <p className="font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
+          <span aria-hidden="true">{'// '}</span>
+          {copy.clusterKicker}
+        </p>
+      ) : null}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {cells.map((row, i) => {
           const author = profileRowToAuthor(row.profiles);

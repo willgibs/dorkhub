@@ -4,6 +4,7 @@ import type { RisingMaker } from '@/lib/discovery/queries';
 import type { FeedRow } from '@/lib/feed/queries';
 import { QuickHits } from './quick-hits';
 import { RisingMakers } from './rising-makers';
+import { SectionHead } from './section-head';
 import { TagRail } from './tag-rail';
 import { WeirdSpotlight } from './weird-spotlight';
 
@@ -30,11 +31,12 @@ export function DiscoveryBand({
   if (!hasTopRow && quickHits.length === 0 && liveRails.length === 0) return null;
 
   return (
-    <PageShell as="section" className="flex flex-col gap-8 py-12 sm:py-14">
-      <p className="font-mono text-[11.5px] uppercase tracking-widest text-muted-foreground">
-        <span aria-hidden="true">{'// '}</span>
-        {copy.discoverKicker}
-      </p>
+    <PageShell as="section" className="flex flex-col gap-10 py-16 sm:py-20">
+      <SectionHead
+        kicker={copy.discoverKicker}
+        title={copy.discoverTitle}
+        note={copy.discoverNote}
+      />
 
       {hasTopRow ? (
         <div className="grid gap-5 lg:grid-cols-12">

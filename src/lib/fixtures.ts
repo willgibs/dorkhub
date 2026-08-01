@@ -9,6 +9,8 @@ export type FixtureAuthor = {
   displayName: string;
   bio: string;
   initial: string;
+  /** Real avatar image; the initial circle is the fallback (U2 R3 — cards render real avatars). */
+  avatarUrl?: string | null;
   projects: number;
   followers: number;
 };

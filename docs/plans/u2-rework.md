@@ -100,7 +100,39 @@ nav/footer/empty-state hrefs; how-it-works v2.1 = steps + is/isn't panel +
 Product-wide bits shipped live (sticky, renames) per explicit direction.
 Voice-flavor "weird" strings kept (nav-name clarity, not vocabulary purge)
 — board can override. Gates: verify + 762 tests + build green; QA matrix
-per the R2.5 plan. NEXT: Will's final look → R3 adoption.
+per the R2.5 plan.
+
+## R3-rev — second review pass (Will, 2026-08-01; EXECUTED same day)
+
+14 items: entrance slowed (300ms settle + 700ms travel + 160ms stagger;
+word-rise 60ms/120ms base — marketing-surface budget); shelf picks CURATED
+(pickShelfRows: ascii names, real taglines, distinct languages, stars-desc
+— no hand-pinning); H1 board-final 'discover the best tools for your next
+project' (text-balance; harness toggles all retired); tone de-exclusived
+sitewide (sub 'a curated gallery of developer projects…', capture 'built
+something worth sharing?' — playful register stays, side-project-only
+framing does not); ctaPrimary 'list a project'; ticker pauses on hover +
+items are real project links; SectionHead v2 (kicker + display title +
+note) on discover/gallery/quick-hits/how-it-works + section py 16/20;
+**ProjectCard product-wide fixes**: real avatars finally render (mapper
+dropped avatar_url — the "never loaded" bug), featured label = floating
+chip ON media (top-alignment restored; bar survives only media-less),
+whole card clickable via stretched title link (tags/author/like elevated
+z-10); how-it-works redesigned (labels below nodes — the line no longer
+strikes text; halo nodes, bigger vignettes); feed page reordered
+(discover → gallery → quick hits → following → starred); "weird"
+vocabulary retired sitewide (random/new per fit).
+
+**TABLED for W-waves (board-flagged, agreed):**
+- **List-any-repo-by-URL** ('list a project' names it already): route the
+  existing admin manual-add/ingest pipeline through a user-facing form →
+  ingest_candidates + moderation queue (NOT direct publish). Safety pass
+  first: spam/abuse rate limits (search-limiter idiom), per-user quotas,
+  AI-triage budget, ownership vs third-party listing semantics
+  (curated-unclaimed consent rules apply), blocklist checks.
+- **Nav IA expansion**: browse/tags/random reads smaller than the site is;
+  design comprehensive nav (+ future pages: /active, makers, lists
+  discovery) as part of W3+ when those pages exist.
 
 ## R3 + W-waves (post-pick, each independently shippable)
 

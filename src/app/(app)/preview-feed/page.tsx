@@ -8,7 +8,10 @@ import { DiscoveryBand } from '@/app/(app)/preview-home/_v2/discovery-band';
 import { FeedRhythm } from '@/app/(app)/preview-home/_v2/feed-rhythm';
 import { FeedV2 } from '@/app/(app)/preview-home/_v2/feed-v2';
 import { PreviewFrame } from '@/app/(app)/preview-home/_v2/preview-frame';
+import { QuickHits } from '@/app/(app)/preview-home/_v2/quick-hits';
+import { SectionHead } from '@/app/(app)/preview-home/_v2/section-head';
 import { PageShell } from '@/components/page-shell';
+import { copy } from '@/lib/copy';
 import { getActiveFeedRows, getRisingMakers, getWeirdDailyPick } from '@/lib/discovery/queries';
 import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';
 import { getFeedPage } from '@/lib/feed/queries';
@@ -27,10 +30,10 @@ export const metadata: Metadata = {
 const FEED_PREVIEW_LIMIT = 12;
 
 /**
- * U2 R1 exemplar, signed-in composition (docs/plans/u2-rework.md): the
- * marketing sections fall away; the page opens with the personal rails
- * (because-you-starred + NEW from-people-you-follow, both client islands so
- * this stays ISR/cookie-free) and a tighter discovery band, then feed v2.
+ * U2 exemplar, signed-in composition (docs/plans/u2-rework.md). R3 order
+ * (board): the page lands ALIVE — discover first, then the gallery, then
+ * quick hits, then the personal rails (from-people-you-follow, then
+ * because-you-starred; both client islands so this stays ISR/cookie-free).
  * The live /home is untouched.
  */
 export default async function PreviewFeed() {
@@ -56,22 +59,13 @@ export default async function PreviewFeed() {
   ];
 
   return (
-    <PreviewFrame showHeadlineToggle={false}>
-      <PageShell className="flex flex-col gap-10 py-4">
-        <RecsRail />
-        <FollowingRail />
-      </PageShell>
-
+    <PreviewFrame>
       <EngagementProvider projectIds={engagementIds}>
-        <DiscoveryBand
-          weird={weird}
-          makers={makers}
-          quickHits={activeRows.slice(0, 4)}
-          rails={[]}
-        />
+        <DiscoveryBand weird={weird} makers={makers} rails={[]} />
 
         <section id="feed" className="scroll-mt-20 border-t">
-          <PageShell className="flex flex-col gap-8 py-12 sm:py-14">
+          <PageShell className="flex flex-col gap-8 py-16 sm:py-20">
+            <SectionHead kicker={copy.galleryKicker} title={copy.galleryTitle} />
             <FeedV2
               trending={<FeedRhythm rows={trendingPage.rows} featured={featured} />}
               newest={<FeedRhythm rows={newestPage.rows} featured={[]} />}
@@ -79,7 +73,17 @@ export default async function PreviewFeed() {
             />
           </PageShell>
         </section>
+
+        <PageShell as="section" className="flex flex-col gap-8 border-t py-16 sm:py-20">
+          <SectionHead kicker={copy.clusterKicker} title={copy.quickHitsTitle} />
+          <QuickHits rows={activeRows.slice(0, 4)} showKicker={false} />
+        </PageShell>
       </EngagementProvider>
+
+      <PageShell className="flex flex-col gap-10 border-t py-16 sm:py-20">
+        <FollowingRail />
+        <RecsRail />
+      </PageShell>
     </PreviewFrame>
   );
 }

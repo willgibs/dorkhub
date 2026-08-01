@@ -122,12 +122,15 @@ export function ProjectCard({
   return (
     <article
       className={cn(
-        'edge-highlight flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground',
+        'edge-highlight relative flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground',
         'transition-[border-color,transform] duration-150 ease-quiet hover:-translate-y-px hover:border-[color-mix(in_oklab,var(--foreground)_22%,var(--border))]',
         className,
       )}
     >
-      {variant === 'featured' && labelText ? (
+      {/* U2 R3: with media, the featured label floats as a chip ON the media
+          so the image top-aligns with its grid neighbors; the bar form
+          survives only for media-less variants. */}
+      {variant === 'featured' && labelText && !showMedia ? (
         <div className="border-b px-4 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-muted-foreground">
           {labelText}
         </div>
@@ -148,6 +151,11 @@ export function ProjectCard({
               <MediaPlaceholder name={project.name} />
             </div>
           )}
+          {variant === 'featured' && labelText ? (
+            <span className="absolute top-3 left-3 z-10 rounded-md border bg-background/80 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em] text-muted-foreground backdrop-blur-sm">
+              {labelText}
+            </span>
+          ) : null}
         </div>
       ) : null}
 
@@ -163,7 +171,13 @@ export function ProjectCard({
             compact ? 'text-sm' : 'text-[16.5px]',
           )}
         >
-          <a href={href} className={cn('rounded-sm', focusRing)}>
+          {/* U2 R3: the whole card is the link — the title anchor stretches
+              over the article (after:inset-0); nested interactive elements
+              (tags, author, like slot) sit above it at z-10. */}
+          <a
+            href={href}
+            className={cn('rounded-sm after:absolute after:inset-0 after:content-[""]', focusRing)}
+          >
             {project.name}
           </a>
         </h3>
@@ -203,7 +217,7 @@ export function ProjectCard({
         {showTags ? (
           <div className="flex flex-wrap gap-1.5">
             {project.tags.map((tag) => (
-              <TagChip key={tag} tag={tag} hashPrefix />
+              <TagChip key={tag} tag={tag} hashPrefix className="relative z-10" />
             ))}
           </div>
         ) : null}
@@ -213,19 +227,32 @@ export function ProjectCard({
         <a
           href={authorHref}
           className={cn(
-            'inline-flex items-center gap-2 rounded-sm text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
+            'relative z-10 inline-flex items-center gap-2 rounded-sm text-[12.5px] text-muted-foreground transition-colors hover:text-foreground',
             focusRing,
           )}
         >
-          <span
-            aria-hidden="true"
-            className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
-          >
-            {author.initial}
-          </span>
+          {author.avatarUrl ? (
+            // Real avatar with the initial circle as fallback (U2 R3 — the
+            // mapper used to drop avatar_url, so card avatars never loaded).
+            <img
+              src={author.avatarUrl}
+              alt=""
+              loading="lazy"
+              className="size-6 flex-none rounded-full border object-cover"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="flex size-6 flex-none items-center justify-center rounded-full bg-primary-soft font-mono text-[11px] font-bold text-primary"
+            >
+              {author.initial}
+            </span>
+          )}
           @{author.username}
         </a>
-        {likeSlot ?? <StatButton kind="like" active={false} count={project.likes} />}
+        <span className="relative z-10">
+          {likeSlot ?? <StatButton kind="like" active={false} count={project.likes} />}
+        </span>
       </div>
     </article>
   );

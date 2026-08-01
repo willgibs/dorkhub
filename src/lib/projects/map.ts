@@ -125,11 +125,10 @@ export function projectRowToCard(
 
 /**
  * Maps a `profiles` row (or the lean feed join projection — both shapes carry
- * these columns) to ProjectCard's FixtureAuthor. `avatar_url` is accepted for
- * shape-compatibility with those callers but isn't used: FixtureAuthor has no
- * avatar field (ProjectCard renders the initial-letter avatar only; a real
- * image is ProfileHeader's job, which reads avatar_url off the profile row
- * directly). `projects` is always 0 here — ProjectCard never reads it.
+ * these columns) to ProjectCard's FixtureAuthor. `avatar_url` flows through
+ * since U2 R3 — cards render the real avatar with the initial circle as
+ * fallback (before R3 the field was dropped here, which is why card avatars
+ * "never loaded"). `projects` is always 0 here — ProjectCard never reads it.
  */
 export function profileRowToAuthor(
   p: Pick<ProfileRow, 'username' | 'display_name' | 'avatar_url' | 'followers_count'> & {
@@ -143,6 +142,7 @@ export function profileRowToAuthor(
     displayName,
     bio: p.bio ?? '',
     initial: displayName.charAt(0).toLowerCase(),
+    avatarUrl: p.avatar_url ?? null,
     projects: 0,
     followers: p.followers_count,
   };

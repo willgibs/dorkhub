@@ -23,11 +23,13 @@
   how-it-works v2, footer v2, following rail. 762 tests green.
 
 ## Waiting on Will
-1. **U2 R2.5 final look**: /preview-home + /preview-feed updated per his R2
-   review (hero both+entrance, quick-hits re-homed, spotlight vertical,
-   sticky nav sm+, weird→random, is/isnt+capture, 'list my project', H1
-   reframe A/B discover-vs-count) → pick headline + green-light R3
-   adoption + autonomous W-waves.
+1. **U2 R3-rev look**: previews updated per his 14-item second review
+   (slower entrance, curated shelf, final H1 'discover the best tools for
+   your next project', de-fun tone, 'list a project', ticker pause+links,
+   bold SectionHeads, card avatars FIXED product-wide, featured chip,
+   whole-card links, how-it-works redesign, feed reorder, weird→random
+   sitewide). Tabled w/ his OK: repo-by-URL listing (safety pass first),
+   nav IA (lands with new pages). → green-light R3 adoption + W-waves.
 2. Announce timing + claim invites — his clock entirely. Tag `u1`/`u2` on
    green lights.
 

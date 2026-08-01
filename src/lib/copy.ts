@@ -5,17 +5,19 @@
  * Zero-stat projects show absence, never "0".
  */
 export const copy = {
-  // 'list my project' (was 'show your thing') — U2 R2 board direction:
-  // conceptually cleaner nav CTA.
-  ctaPrimary: 'list my project',
+  // 'list a project' (was 'show your thing' → 'list my project') — U2 R2/R3
+  // board direction: conceptually cleaner, and "a" (not "my") leaves room for
+  // the planned list-any-repo-by-url flow (W-wave, safety pass first).
+  ctaPrimary: 'list a project',
   like: '++',
   save: 'save',
   saved: 'saved',
   follow: 'follow',
   following: 'following',
-  emptyFeed: 'nothing here yet — go find something weird',
+  // U2 R3: "weird" vocabulary retired sitewide (board: random/new is clearer).
+  emptyFeed: 'nothing here yet — try a random find',
   emptyFeedLead: 'nothing here yet —',
-  emptyFeedLink: 'go find something weird',
+  emptyFeedLink: 'try a random find',
   relatedTitle: 'more like this',
   recsTitle: 'because you starred',
   recsImportNudge: 'bring your github stars — we’ll find more like them',
@@ -28,7 +30,7 @@ export const copy = {
   projectRefreshThrottled: 'just synced — give github five minutes to breathe',
   newTitle: 'pick a thing to show',
   newSubtitle: 'public repos only — drafts stay yours until you publish',
-  newNoRepos: 'no public repos found — push something weird first',
+  newNoRepos: 'no public repos found — push something new first',
   newRepoListTruncated: 'showing your 500 most recently updated repos',
   newRepoUnavailable: 'github wouldn’t hand that repo over — try again?',
   newRepoNotYours: 'that repo isn’t yours to show',
@@ -183,7 +185,7 @@ export const copy = {
   statsZeroPitch: 'zero sales pitches',
   railTrendingIn: 'trending in',
   railSeeAll: 'see all',
-  weirdSpotKicker: 'today’s weird pick',
+  weirdSpotKicker: 'today’s random pick',
   weirdSpotHint: 'no algorithm, just dice — a new one every day',
   weirdSpotCta: 'roll your own',
   weirdSpotVisit: 'see the thing',
@@ -192,18 +194,23 @@ export const copy = {
   followingRailNudge: 'follow a few makers and their new stuff lands here',
   sortActive: 'active',
   discoverKicker: 'discover',
+  discoverTitle: 'fresh finds, daily',
+  discoverNote: 'a random pick, rising makers, and what’s moving right now',
   clusterKicker: 'quick hits',
+  quickHitsTitle: 'fresh pushes',
+  galleryKicker: 'the gallery',
+  galleryTitle: 'browse everything',
+  howTitle: 'three steps, no strings',
   howKicker: 'how it works',
   previewBadge: 'u2 preview',
   previewNote: 'a proposed home on real data — the live page is unchanged. pick your favorites.',
-  // R2.5 hero reframe (discovery-first H1, creator tail in the sub). The
-  // count variant's number is composed in the component (formatCount) —
-  // copy stays static strings by contract.
-  heroHeadlineDiscover: 'discover the things devs build for fun',
-  heroHeadlineCountTail: 'things devs built for fun — find yours',
+  // R3 hero (board-picked H1, 2026-08-01). Tone note: dorkhub is a real
+  // resource for ALL projects — playful register stays, "fun/side-project"
+  // exclusivity language does not.
+  heroHeadlineTools: 'discover the best tools for your next project',
   heroSubDiscover:
-    'a curated gallery of dev side projects. browse, fork, follow the makers — and when you’re ready, list your own.',
-  captureTitle: 'made something for fun?',
+    'a curated gallery of developer projects — browse, fork, follow the makers. when you’re ready, list your own.',
+  captureTitle: 'built something worth sharing?',
   captureSubline: 'sign in with github — takes a minute',
   footerColBrowse: 'browse',
   footerColYours: 'yours',

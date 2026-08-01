@@ -8,15 +8,8 @@
  * toggle rules are gone.
  */
 
-/* Headline fork: the harness sets data-u2-headline on the frame; each H1
- * tree tags itself with data-v2-headline. display toggling re-triggers the
- * word-rise animation, so a switch replays the entrance. */
-[data-u2-headline="discover"] [data-v2-headline="count"] {
-  display: none;
-}
-[data-u2-headline="count"] [data-v2-headline="discover"] {
-  display: none;
-}
+/* (R3: the headline fork is resolved — board picked the tools headline —
+ * so the harness has no toggles left; the frame is badge + note only.) */
 
 /* Hero shelf entrance — stacked → fan on load (Will's R2 pick; technique
  * adapted from transitions.dev's card-stack reveal onto our tokens, per
@@ -39,7 +32,8 @@
 
 /* Hero ticker — constant decorative motion, linear by rule (docs/motion.md);
  * the reduced-motion kill switch in globals.css freezes it. Track holds two
- * copies of the list; -50% loops seamlessly. */
+ * copies of the list; -50% loops seamlessly. R3: hovering the ticker pauses
+ * the track so its items can be read and clicked (they're real links now). */
 @keyframes u2-ticker {
   from {
     transform: translateX(0);
@@ -47,6 +41,10 @@
   to {
     transform: translateX(-50%);
   }
+}
+
+.u2-ticker:hover .u2-ticker-track {
+  animation-play-state: paused;
 }
 
 /* Hero shelf drift — slow decorative float; rotation rides a var so each

@@ -4,6 +4,7 @@ import '@/styles/u2-preview.css';
 
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { PageShell } from '@/components/page-shell';
+import { copy } from '@/lib/copy';
 import {
   getActiveFeedRows,
   getPlatformStats,
@@ -20,6 +21,7 @@ import { FooterV2 } from './_v2/footer-v2';
 import { HeroV2 } from './_v2/hero-v2';
 import { HowItWorksV2 } from './_v2/how-it-works-v2';
 import { PreviewFrame } from './_v2/preview-frame';
+import { SectionHead } from './_v2/section-head';
 
 export const revalidate = 300;
 
@@ -87,7 +89,8 @@ export default async function PreviewHome() {
         />
 
         <section id="feed" className="scroll-mt-20 border-t">
-          <PageShell className="flex flex-col gap-8 py-12 sm:py-14">
+          <PageShell className="flex flex-col gap-8 py-16 sm:py-20">
+            <SectionHead kicker={copy.galleryKicker} title={copy.galleryTitle} />
             <FeedV2
               trending={<FeedRhythm rows={trendingPage.rows} featured={featured} />}
               newest={<FeedRhythm rows={newestPage.rows} featured={[]} />}
