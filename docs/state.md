@@ -1,4 +1,4 @@
-# Current state — 2026-08-01 (LIVE at $0 · U2 adopted: the rework IS the product)
+# Current state — 2026-08-01 (LIVE at $0 · U2 adopted · W3 destination pages shipped)
 
 ## Milestones
 - **P4 COMPLETE — dorkhub.com LIVE** at $0 (D54 posture, D55 record): domain
@@ -12,19 +12,20 @@
 - **U1 DONE (D56)** — "Quiet dev-native · abyss": abyss tokens product-wide,
   type unchanged. `/design/directions` still holds the legacy before/after
   (delete it and `src/styles/directions.css` when Will's done comparing).
-- **U2 DONE (D57) — full UI/product rework adopted.** Migrations 0021-0023
-  (active sort, rising_makers aggregate RPC, platform_stats, daily random
-  pick, tags.description). `/` and `/home` are the approved composition:
-  hero (card shelf + hover-paused ticker) → discovery band (random
-  spotlight, rising makers, quick hits, tag rails) → gallery → how-it-works
-  + capture. New `/active` route; feed chips are real links with a sliding
-  pill; mobile header is one row + Sheet menu, sticky at every width;
-  motion backlog shipped (counter reel, skeleton reveal, error shake, text
-  swap, clear dissolve). Previews/harness deleted. 761 tests green.
+- **U2 DONE (D57)** — full UI rework adopted: `/` and `/home` are the
+  approved composition (hero → discovery band → gallery → how-it-works +
+  capture), `/active` is a real sort, mobile header is one row + Sheet menu
+  sticky at every width, motion backlog shipped.
+- **W3 DONE (2026-08-01)** — the two destination pages. Project page:
+  masthead + 780px README beside a sticky maker/contents rail, and README
+  navigability fixed for all 16,925 stored READMEs (ids harvested from
+  GitHub's own autolink artifact; dead empty anchors removed). Profile page:
+  maker masthead with derived languages + total stars. Component dedupe:
+  one SectionHead, one formatCount, one ListRow, shared StatBlock.
 
 ## Waiting on Will
-1. **Live look at the adopted product** (dorkhub.com — home, /active, and a
-   phone for the new nav) → `u2` tag on his green light.
+1. **Live look** — dorkhub.com (home, /active, a phone for the nav) plus a
+   project page and a maker page → `u2` + `w3` tags on his green light.
 2. Announce timing + claim invites — his clock entirely. `u1` tag too.
 
 ## Tabled with board agreement (next rounds)
@@ -33,9 +34,11 @@
   rate limits/quotas, ownership-vs-third-party semantics.
 - **Nav IA expansion** — browse/active/tags/random reads smaller than the
   site is; do it alongside the pages that deserve nav weight.
-- W-wave remainder: project detail + profile organisms, /search v2, tags
-  curation, flows with occasion, per-route loading.tsx states, admin
-  coherence, /design catalog for the new components.
+- W-wave remainder: /search v2, tags curation, flows with occasion
+  (new/onboarding/claim/import), per-route loading.tsx states, admin
+  coherence, /sponsor. ScreenshotGallery + UpdatePost are BUILT and unwired
+  — both need owner-authored data (0 rows, 1 claimed profile), so they wait
+  on claims, not on design.
 
 ## Post-launch watch (first month)
 GSC coverage as 36k URLs index · Vercel Usage weekly · GH Actions cadence
@@ -50,10 +53,16 @@ verified ops; migrations `psql --single-transaction -v ON_ERROR_STOP=1`.
 Backups: docs/ops-backup.md + scripts/backup-prod.sh (launchd Sun 09:00).
 
 ## Gotchas (new first; older live in docs/plans/* + git)
-Deleting a route leaves STALE .next route types — rebuild before trusting
-tsc. A root not-found ALSO renders inside a route group's layout: give each
-group its own content-only boundary or the shell doubles. Feed cursors:
-encoding one from an absent timestamp decodes to null and silently
-re-serves page 1. Theme changes: RE-SAMPLE src/lib/og-tokens.ts (Satori
-can't parse oklch). PostgREST 1,000-row cap truncates un-ranged selects.
-`unset GITHUB_TOKEN` before git push. Last updated: 2026-08-01 (U2 R3).
+The embedded browser pane runs pages as a HIDDEN document: IntersectionObserver
+never fires and CSS transitions freeze at their start value there — measure
+with `transition:none` before believing a computed colour, and verify
+scroll-driven UI another way. GitHub's `primary_language` has CASE VARIANTS
+("Vim script"/"Vim Script", Matlab/MATLAB) — group case-insensitively before
+tallying. A `<script>` under a client component server-renders fine but warns
+on every client render — keep JSON-LD outside providers. Deleting a route
+leaves STALE .next route types. A root not-found ALSO renders inside a route
+group's layout. Feed cursors: encoding one from an absent timestamp decodes
+to null and silently re-serves page 1. Theme changes: RE-SAMPLE
+src/lib/og-tokens.ts (Satori can't parse oklch). PostgREST 1,000-row cap
+truncates un-ranged selects. `unset GITHUB_TOKEN` before git push.
+Last updated: 2026-08-01 (W3).

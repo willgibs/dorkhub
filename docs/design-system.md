@@ -59,12 +59,23 @@ title + optional note) — a bare mono kicker gets lost beside card-heavy
 content. Absence rule applies at MODULE level too: a module with no data
 renders nothing rather than an empty frame.
 
+**Destination pages (W3) share one spine** so a project and the person who made
+it read as one product: a full-width **masthead band** (halftone atmosphere,
+`border-b`) with identity on the left, a **StatBlock** of labeled figures in a
+260px right column, and the actions on a hairline row below — then a body whose
+left column lines up under the identity and whose 260px rail lines up under the
+figures. A reading surface (README) keeps its 780px measure and spends the
+leftover width on a sticky rail instead of empty margin.
+
 ## Components
 Props are documented by the source + `/design` styleguide, deliberately not here
 (prevents doc drift). Categories:
 - atoms: tag-chip, language-dot, repo-stats-row, time-ago, copy-button,
   theme-toggle, avatar-badge (image with a zero-JS layered initial fallback —
-  covers slow loads AND dead URLs), counter-reel (rolling digits)
+  covers slow loads AND dead URLs), counter-reel (rolling digits), stat-block
+  (labeled figures for a masthead column), list-row (one list, shared by the
+  lists index and the profile), section-head (mono kicker + display title;
+  the ONLY section header — `SectionHeader` was retired in W3)
 - social: stat-button, follow-button, avatar-stack, user-hover-card, sign-in-github
 - cards: project-card (feed/compact/featured), card-media (og hotlink +
   placeholder underlay, 2/1), skeleton-card, empty-state
@@ -74,7 +85,13 @@ Props are documented by the source + `/design` styleguide, deliberately not here
 - discovery (route-scoped, `(app)/_discovery/`): section-head, discovery-band,
   weird-spotlight, rising-makers, tag-rail, quick-hits
 - project: markdown-prose (+ src/styles/prose.css), screenshot-gallery, update-post,
-  profile-header, feed-filters
+  feed-filters, profile-header (the COMPACT identity block, for showing a
+  profile inside another page — /claim; the profile page itself uses
+  ProfileMasthead)
+- destination organisms (route-scoped): `u/[username]/profile-masthead`,
+  `u/[username]/[slug]/` project-masthead · project-vitals · maker-card ·
+  readme-contents (the reading rail; its active mark is a tested pure
+  function over scroll positions, not an observer band)
 - primitives: src/components/ui/* (shadcn; restyle via className, never edit)
 Fixtures for all demos: `src/lib/fixtures.ts` (tinysynth/gitgoblin/plantdad/
 untitled-maze-thing — each stresses a layout failure mode; keep stable).

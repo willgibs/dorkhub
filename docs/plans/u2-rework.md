@@ -171,3 +171,28 @@ Risk register lives in the approved plan; top lines: rails ≤5/page on own
 cache keys; one provider per page; RecsRail island pattern for anything
 personalized; sitemap.ts thresholds FROZEN; pnpm test per sub-wave; no new
 CSP origins; PostgREST 1k cap; likes-privacy invariant in every new RPC.
+
+## W3 — destination pages (EXECUTED 2026-08-01, board: "proceed to the next
+## design items, which likely lend a greater impact")
+
+Two commits, each independently green: **f238ac2** project page, **bb127e4**
+profile page. Full record in decisions.md (2026-08-01 W3 entry).
+
+Ground truth that shaped the round (prod, 16,972 projects): 16,925 have a
+README averaging 15 KB; **0 screenshots and 0 project updates**, so the
+built-but-unwired ScreenshotGallery/UpdatePost would render nothing for the
+entire corpus — they need claims, not design, and stay unwired. 7,688 have a
+demo url. **16,971 of 16,972 makers are unclaimed**, which made the missing
+disclosure on project pages the round's biggest honesty gap.
+
+Headlines: README ids harvested from GitHub's own autolink artifact (so a
+README's internal ToC works again — 34/34 on ohmyzsh, verified on live rows)
+and the empty, new-tab-opening anchor artifacts deleted; a masthead + sticky
+reading rail replacing `h1 + metadata + README dump`; the maker page saying
+what someone is INTO (derived languages, total stars, no extra query); and
+the atoms-level dedupe the U2 mandate asked for (SectionHead, formatCount,
+ListRow, StatBlock).
+
+Verified in-browser at 1440 and 390, dark + light: no horizontal overflow,
+sticky rail clears the header by 16px, jump targets by 22px, scroll-spy
+marks the section you're inside on a deep link, console clean on a fresh tab.
