@@ -14,17 +14,17 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: 'directions',
-  description: 'U1 refresh round — candidate looks on real content.',
+  description: 'U1 closed — the adopted abyss look vs legacy, on real content.',
   // Transient comparison surface, deliberately NOT in the sitemap and
   // noindexed (survives the launch robots flip, same idiom as /search).
   robots: { index: false, follow: true },
 };
 
 /**
- * U1 refresh round harness (docs/plans/u1-ui-refresh.md): the same
- * server-rendered specimens — REAL trending cards included — viewed under
- * each candidate skin via the client switcher. Board protocol: Will picks a
- * direction, a hybrid, or the incumbent; adoption happens in R3.
+ * U1 round closer (docs/plans/u1-ui-refresh.md): R3 adopted electric-abyss
+ * with the current type (D56, 2026-07-31), so the unskinned control IS the
+ * product now. The legacy skin shows pre-U1 quiet-dev-native for
+ * before/after. Delete this page + src/styles/directions.css when done.
  */
 export default async function DirectionsPage() {
   const { rows } = await getFeedPage({ sort: 'trending', tag: null });
@@ -35,8 +35,8 @@ export default async function DirectionsPage() {
     <div className="flex flex-col gap-6">
       <SectionHeader
         kicker="directions"
-        title="candidate looks, real content"
-        note="two finalist families, six skins — only the tokens change. pick a world (or keep this one)."
+        title="abyss, adopted"
+        note="U1 closed 2026-07-31 — abyss won, with our type. legacy stays for the before/after."
       />
       <DirectionSwitcher>
         {/* type + action specimen */}

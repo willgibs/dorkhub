@@ -16,74 +16,80 @@
 }
 
 /*
- * dorkhub design tokens — "Quiet dev-native"
- * Ported verbatim from explorations/src/directions/05-quiet-dev-native.mjs (the locked M0 winner).
- * Config: Instrument Sans (display) · Geist (body) · JetBrains Mono (mono) · ice-cyan accent ·
- * charcoal neutral · rounded (0.45rem) · dark-first.
+ * dorkhub design tokens — "Quiet dev-native · abyss"
+ * M0 locked quiet-dev-native (explorations/05, ADR 2026-07-21). U1 R3 adopted
+ * the electric-abyss palette on top of it (Will's pick, D56 2026-07-31):
+ * blue-black depths, brighter more saturated cyan primary, violet undertow in
+ * links and the overlay glow, 0.55rem radius. Type is UNCHANGED on purpose —
+ * Instrument Sans (display) · Geist (body) · JetBrains Mono (mono) stay the
+ * identity. Pre-U1 values live on as the "legacy" skin in
+ * src/styles/directions.css until that comparison page retires.
  *
  * NB: shadcn semantics — --primary is the BRAND accent; --accent is a subtle hover tint, NOT the
  * brand color. --font-* vars are owned by next/font in src/app/layout.tsx.
+ * Hex mirrors for Satori (OG/icons/manifest) live in src/lib/og-tokens.ts —
+ * re-sample them whenever these values change.
  */
 
 :root {
-  --background: oklch(0.145 0.005 250);
-  --foreground: oklch(0.93 0.005 250);
-  --card: oklch(0.175 0.006 250);
-  --card-foreground: oklch(0.93 0.005 250);
-  --popover: oklch(0.19 0.006 250);
-  --popover-foreground: oklch(0.93 0.005 250);
-  --primary: oklch(0.82 0.1 210);
-  --primary-foreground: oklch(0.16 0.03 210);
-  --secondary: oklch(0.22 0.006 250);
-  --secondary-foreground: oklch(0.9 0.005 250);
-  --muted: oklch(0.21 0.006 250);
-  --muted-foreground: oklch(0.64 0.008 250);
-  --accent: oklch(0.235 0.008 250);
-  --accent-foreground: oklch(0.95 0.005 250);
+  --background: oklch(0.108 0.024 268);
+  --foreground: oklch(0.93 0.01 262);
+  --card: oklch(0.14 0.028 267);
+  --card-foreground: oklch(0.93 0.01 262);
+  --popover: oklch(0.155 0.028 267);
+  --popover-foreground: oklch(0.93 0.01 262);
+  --primary: oklch(0.87 0.14 198);
+  --primary-foreground: oklch(0.15 0.04 210);
+  --secondary: oklch(0.185 0.03 267);
+  --secondary-foreground: oklch(0.9 0.01 262);
+  --muted: oklch(0.175 0.028 267);
+  --muted-foreground: oklch(0.62 0.022 264);
+  --accent: oklch(0.2 0.034 269);
+  --accent-foreground: oklch(0.95 0.01 262);
   --destructive: oklch(0.68 0.19 25);
-  --border: oklch(0.255 0.008 250);
-  --input: oklch(0.3 0.008 250);
-  --ring: oklch(0.82 0.1 210);
-  --radius: 0.45rem;
-  --surface-2: oklch(0.125 0.005 250);
-  --primary-soft: oklch(0.27 0.045 210);
+  --border: oklch(0.235 0.034 268);
+  --input: oklch(0.275 0.034 268);
+  --ring: oklch(0.87 0.14 198);
+  --radius: 0.55rem;
+  --surface-2: oklch(0.09 0.022 268);
+  --primary-soft: oklch(0.25 0.075 213);
   --positive: oklch(0.8 0.12 160);
-  --positive-soft: oklch(0.26 0.045 160);
-  --code-bg: oklch(0.12 0.005 250);
-  --code-text: oklch(0.87 0.05 200);
-  --link: oklch(0.84 0.08 210);
-  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.5), 0 0 0 1px oklch(1 0 0 / 0.02);
-  --shadow-overlay: 0 16px 40px oklch(0 0 0 / 0.55);
+  --positive-soft: oklch(0.24 0.045 160);
+  --code-bg: oklch(0.09 0.02 268);
+  --code-text: oklch(0.87 0.08 203);
+  --link: oklch(0.8 0.12 292);
+  --shadow-card: 0 1px 3px oklch(0.04 0.02 270 / 0.65), 0 0 0 1px oklch(0.78 0.11 245 / 0.06);
+  --shadow-overlay: 0 20px 52px oklch(0.16 0.1 290 / 0.55);
 }
 
 [data-theme="light"] {
-  --background: oklch(0.985 0.002 250);
-  --foreground: oklch(0.21 0.006 250);
+  --background: oklch(0.978 0.005 252);
+  --foreground: oklch(0.2 0.014 263);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.21 0.006 250);
+  --card-foreground: oklch(0.2 0.014 263);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.21 0.006 250);
-  --primary: oklch(0.5 0.11 220);
+  --popover-foreground: oklch(0.2 0.014 263);
+  --primary: oklch(0.49 0.13 212);
   --primary-foreground: oklch(0.99 0.005 220);
-  --secondary: oklch(0.955 0.003 250);
-  --secondary-foreground: oklch(0.3 0.006 250);
-  --muted: oklch(0.955 0.003 250);
-  --muted-foreground: oklch(0.5 0.008 250);
-  --accent: oklch(0.945 0.005 250);
-  --accent-foreground: oklch(0.2 0.006 250);
+  --secondary: oklch(0.948 0.007 256);
+  --secondary-foreground: oklch(0.29 0.014 263);
+  --muted: oklch(0.948 0.007 256);
+  --muted-foreground: oklch(0.49 0.016 263);
+  --accent: oklch(0.936 0.011 259);
+  --accent-foreground: oklch(0.19 0.014 263);
   --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.915 0.004 250);
-  --input: oklch(0.87 0.005 250);
-  --ring: oklch(0.54 0.11 220);
-  --surface-2: oklch(0.965 0.003 250);
-  --primary-soft: oklch(0.94 0.03 215);
+  --border: oklch(0.905 0.009 259);
+  --input: oklch(0.862 0.011 259);
+  --ring: oklch(0.51 0.13 212);
+  --surface-2: oklch(0.958 0.006 256);
+  --primary-soft: oklch(0.925 0.04 210);
   --positive: oklch(0.5 0.11 160);
   --positive-soft: oklch(0.94 0.03 160);
-  --code-bg: oklch(0.22 0.01 250);
-  --code-text: oklch(0.87 0.05 200);
-  --link: oklch(0.49 0.11 220);
-  --shadow-card: 0 1px 2px oklch(0.2 0.01 250 / 0.06);
-  --shadow-overlay: 0 16px 40px oklch(0.2 0.01 250 / 0.16);
+  --code-bg: oklch(0.19 0.028 266);
+  --code-text: oklch(0.87 0.08 203);
+  --link: oklch(0.5 0.15 292);
+  --shadow-card: 0 1px 3px oklch(0.24 0.035 266 / 0.08);
+  --shadow-overlay: 0 20px 52px oklch(0.28 0.09 290 / 0.2);
 }
 
 /*

@@ -87,7 +87,7 @@ export default function DesignOverviewPage() {
         <SectionHeader
           kicker="02 · radius"
           title="Radius scale"
-          note="One --radius (0.45rem) drives every corner in the system via calc()."
+          note="One --radius (0.55rem) drives every corner in the system via calc()."
         />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           {RADII.map((r) => (

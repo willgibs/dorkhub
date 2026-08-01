@@ -1,20 +1,28 @@
-# Design system — "Quiet dev-native" (locked 2026-07-21)
+# Design system — "Quiet dev-native · abyss" (M0 locked 2026-07-21 · abyss adopted 2026-07-31)
 
-Thesis: playful dev-native soul at modern-minimal volume — near-black restraint,
-mono metadata, one soft ice accent; the interface whispers, the projects glow.
-References Will loves: paper.design, resend.com, basehub.com, cosmos.network.
-He explicitly wants "subtle complexity and polish," NOT minimalism.
+Thesis: playful dev-native soul at modern-minimal volume — deep blue-black
+restraint, mono metadata, one electric-cyan accent with a violet undertow in
+links and glow; the interface whispers, the projects glow. U1 (D56) deepened the
+palette without touching the soul: same details, same voice, same type, lower
+lights. References Will loves: paper.design, resend.com, basehub.com,
+cosmos.network. He explicitly wants "subtle complexity and polish," NOT minimalism.
 
 ## Locked config
 Instrument Sans (display) · Geist (body) · JetBrains Mono (mono) — via next/font in
-`src/app/layout.tsx`, exposed as `--font-display/-sans/-mono`. Ice-cyan accent ·
-charcoal neutral · 0.45rem radius · dark-first (`next-themes`, `data-theme`,
-default dark, no system).
+`src/app/layout.tsx`, exposed as `--font-display/-sans/-mono`. Type survived U1
+UNCHANGED on purpose (Will: "with our current typography"). Electric-cyan primary
+(oklch 0.87 0.14 198 dark / 0.49 0.13 212 light) · violet link accent (0.8 0.12 292
+dark) · blue-black neutrals (hue ≈267–268) · 0.55rem radius · dark-first
+(`next-themes`, `data-theme`, default dark, no system).
 
 ## Tokens
 Source of truth: `src/app/globals.css` (`:root` dark, `[data-theme="light"]`,
-registered via `@theme inline`). Historical origin: `explorations/src/directions/
-05-quiet-dev-native.mjs`. Tailwind classes: bg-background, text-foreground,
+registered via `@theme inline`). Lineage: M0 winner `explorations/src/directions/
+05-quiet-dev-native.mjs` → U1 R3 electric-abyss adoption (pre-U1 values live as
+the `legacy` skin in `src/styles/directions.css` until /design/directions retires).
+Satori can't parse oklch — `src/lib/og-tokens.ts` holds hex mirrors for OG images/
+icons/manifest; RE-SAMPLE it from live computed styles whenever tokens change.
+Tailwind classes: bg-background, text-foreground,
 bg-card, text-muted-foreground, bg-secondary, bg-accent, text-primary,
 bg-primary-soft, text-positive, bg-positive-soft, bg-surface-2, text-link,
 text-destructive, rounded-sm/md/lg/xl, shadow-card, shadow-overlay,

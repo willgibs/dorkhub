@@ -41,6 +41,28 @@ page as two families of variations:
 Type: current family keeps Instrument Sans (its identity); electric family
 keeps Outfit. Fraunces/Space Grotesk unloaded with their skins.
 
+## R3 verdict + adoption (Will, 2026-07-31 — EXECUTED)
+
+**Winner: `electric-abyss`, hybrid — "but with our current typography (no
+swap)."** Adopted as-seen minus fonts: abyss dark+light color tokens, shadows,
+and 0.55rem radius landed in `globals.css`; Instrument Sans/Geist/JetBrains
+Mono untouched; Outfit deleted (route-local layout removed). System renamed
+"Quiet dev-native · abyss" (D56).
+
+As-executed notes:
+- globals.css `:root` + `[data-theme="light"]` = verbatim abyss blocks minus
+  `--font-display`. Every downstream surface (blooms, halftone, edge-highlight,
+  shadows, selection) re-resolved via vars — zero component changes.
+- `src/lib/og-tokens.ts` re-sampled from live computed styles (canvas
+  getImageData — browser does the oklch→sRGB gamut mapping). Feeds OG images,
+  icon/apple-icon, manifest.
+- /design/directions rebuilt as the round closer: unskinned control = product,
+  one `legacy` skin (pre-U1 values) for before/after. Delete page + directions.css
+  when the board is done comparing.
+- Motion untouched (palette-only adoption; no review-animations round needed).
+- QA: dark+light on home/feed/project/design routes; theme-toggle round-trip;
+  console clean; verify + 761 tests green.
+
 ## Original candidate set (R1, for the record)
 
 All keep: dark-first, mono metadata, restraint-with-glow thesis, EVERY

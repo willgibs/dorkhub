@@ -6,16 +6,17 @@
  * computed styles if the theme changes.
  */
 export const ogTokens = {
-  background: '#090a0c',
-  foreground: '#e5e8eb',
-  card: '#0f1113',
-  primary: '#6dd6e8',
-  primaryForeground: '#001114',
-  mutedForeground: '#898d91',
-  border: '#202327',
-  surface2: '#050708',
-  primarySoft: '#022c33',
-  codeBg: '#050607',
+  // Re-sampled 2026-07-31 after the U1 R3 abyss adoption (D56).
+  background: '#02040c',
+  foreground: '#e4e8ef',
+  card: '#050915',
+  primary: '#33f0f5',
+  primaryForeground: '#000f14',
+  mutedForeground: '#7f8694',
+  border: '#171d2e',
+  surface2: '#010208',
+  primarySoft: '#002937',
+  codeBg: '#010207',
   positive: '#71d6a3',
-  link: '#8ad9e7',
+  link: '#bfafff',
 } as const;
