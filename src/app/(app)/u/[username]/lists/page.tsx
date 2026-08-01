@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
 import { NewListButton } from '@/app/(app)/_lists/new-list-button';
 import { EmptyState } from '@/components/empty-state';
+import { ListRow } from '@/components/list-row';
 import { PageShell } from '@/components/page-shell';
 import { Badge } from '@/components/ui/badge';
 import { copy } from '@/lib/copy';
@@ -33,7 +33,7 @@ export async function generateMetadata({
  */
 export const dynamic = 'force-dynamic';
 
-type ListRow = {
+type ListSummary = {
   id: string;
   name: string;
   slug: string;
@@ -44,7 +44,7 @@ type ListRow = {
 
 type PageData = {
   profile: ProfileRow;
-  lists: ListRow[];
+  lists: ListSummary[];
   isOwner: boolean;
 };
 
@@ -147,36 +147,23 @@ export default async function ListsIndexPage({
       ) : (
         <ul className="flex flex-col divide-y divide-border">
           {lists.map((list) => (
-            <li key={list.id} className="flex flex-col gap-1 py-4">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <Link
-                  href={`/u/${profile.username}/lists/${list.slug}`}
-                  className="rounded-sm font-mono text-[15px] font-semibold outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  {list.name}
-                </Link>
-                {!list.is_public && isOwner ? (
+            <ListRow
+              key={list.id}
+              name={list.name}
+              href={`/u/${profile.username}/lists/${list.slug}`}
+              description={list.description}
+              itemCount={list.itemCount}
+              badge={
+                !list.is_public && isOwner ? (
                   <Badge
                     variant="outline"
                     className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
                   >
                     {copy.listPrivateBadge}
                   </Badge>
-                ) : null}
-                {/* Absence rule: 0 items renders nothing, never "0 items". */}
-                {list.itemCount > 0 ? (
-                  <span className="tabular-nums font-mono text-[12.5px] text-muted-foreground">
-                    {list.itemCount}{' '}
-                    {list.itemCount === 1 ? copy.listItemUnitOne : copy.listItemUnit}
-                  </span>
-                ) : null}
-              </div>
-              {list.description ? (
-                <p className="line-clamp-1 max-w-[560px] text-[13.5px] text-muted-foreground">
-                  {list.description}
-                </p>
-              ) : null}
-            </li>
+                ) : null
+              }
+            />
           ))}
         </ul>
       )}

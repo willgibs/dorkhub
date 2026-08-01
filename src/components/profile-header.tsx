@@ -24,9 +24,14 @@ export type ProfileHeaderProps = {
 };
 
 /**
- * ProfileHeader — 76px initial avatar, display name + mono @username + follow
- * slot, muted bio, mono stats row, link chips. Matches the reference
- * `.profile-header`; zero counts render as absence, never "0".
+ * ProfileHeader — the COMPACT identity block: 76px avatar, display name + mono
+ * @username + follow slot, muted bio, mono stats row, link chips. Zero counts
+ * render as absence, never "0".
+ *
+ * Scope (W3): this is for showing a profile INSIDE another page — /claim
+ * previews "the page we made for you" with it. The profile page itself uses
+ * `ProfileMasthead`, a full-width band with derived signals. Two components on
+ * purpose, not drift: one is embedded, one opens a page.
  */
 export function ProfileHeader({
   author,

@@ -17,6 +17,7 @@ import { CounterReel } from '@/components/counter-reel';
 import { EmptyState } from '@/components/empty-state';
 import { FeedFilters } from '@/components/feed-filters';
 import { LanguageDot } from '@/components/language-dot';
+import { ListRow } from '@/components/list-row';
 import { MarkdownProse } from '@/components/markdown-prose';
 import { PageShell } from '@/components/page-shell';
 import { ProfileHeader } from '@/components/profile-header';
@@ -28,6 +29,7 @@ import { SignInWithGitHub } from '@/components/sign-in-github';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { SkeletonCard } from '@/components/skeleton-card';
+import { StatBlock } from '@/components/stat-block';
 import { StatButton } from '@/components/stat-button';
 import { TagChip } from '@/components/tag-chip';
 import { ThemeToggle } from '@/components/theme-toggle';
@@ -523,7 +525,7 @@ export default function DesignComponentsPage() {
           </Demo>
         </Group>
 
-        <Group title="profile-header">
+        <Group title="profile-header — the COMPACT block, for showing a profile inside another page (/claim)">
           <Demo>
             <div className="w-full">
               <ProfileHeader
@@ -535,6 +537,35 @@ export default function DesignComponentsPage() {
                 followButton={<FollowButtonDemo />}
               />
             </div>
+          </Demo>
+        </Group>
+
+        <Group title="stat-block">
+          <Demo label="labeled figures — the right column of a masthead">
+            <StatBlock
+              stats={[
+                { label: 'projects', tone: 'figure', value: '12' },
+                { label: 'followers', tone: 'figure', value: '1.4k' },
+                { label: 'total stars', tone: 'figure', value: '52.9k' },
+                { label: 'license', tone: 'text', value: 'MIT' },
+              ]}
+            />
+          </Demo>
+        </Group>
+
+        <Group title="list-row">
+          <Demo label="shared by the lists index and the profile page">
+            <ul className="flex w-full flex-col divide-y divide-border">
+              <ListRow
+                name="terminal things"
+                href="#list"
+                description="tools I keep reaching for"
+                itemCount={7}
+              />
+              <ListRow name="to try someday" href="#list-2" description={null} itemCount={1} />
+              {/* Absence: an empty list shows no count, never “0 items”. */}
+              <ListRow name="brand new" href="#list-3" description={null} itemCount={0} />
+            </ul>
           </Demo>
         </Group>
 

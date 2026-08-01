@@ -34,6 +34,15 @@ export const copy = {
   projectMadeBy: 'made by',
   followerUnit: 'followers',
   followerUnitOne: 'follower',
+  // W3: maker page. "total stars" is attention across the projects listed
+  // here — deliberately not "their stars", which would read as authorship.
+  profileTotalStars: 'total stars',
+  profileWorksIn: 'works in',
+  profileProjectsKicker: 'projects',
+  profileProjectsTitle: 'what they’ve built',
+  profileListsKicker: 'lists',
+  profileListsTitle: 'what they’ve collected',
+  profileListsAll: 'all lists',
   projectRefreshThrottled: 'just synced — give github five minutes to breathe',
   newTitle: 'pick a thing to show',
   newSubtitle: 'public repos only — drafts stay yours until you publish',

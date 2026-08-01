@@ -6,12 +6,14 @@ import { cache } from 'react';
 import { EngagementProvider } from '@/app/(app)/_engagement/engagement-context';
 import { FollowButtonIsland } from '@/app/(app)/_engagement/follow-button-island';
 import { LikeButtonIsland } from '@/app/(app)/_engagement/like-button-island';
+import { type ProfileLink, ProfileMasthead } from '@/app/(app)/u/[username]/profile-masthead';
 import { EmptyState } from '@/components/empty-state';
+import { ListRow } from '@/components/list-row';
 import { PageShell } from '@/components/page-shell';
-import { ProfileHeader, type ProfileLink } from '@/components/profile-header';
 import { ProjectCard } from '@/components/project-card';
-import { Badge } from '@/components/ui/badge';
+import { SectionHead } from '@/components/section-head';
 import { copy } from '@/lib/copy';
+import { languageColor } from '@/lib/lang-colors';
 import { PROFILE_COLUMNS, type ProfileRow } from '@/lib/profiles/columns';
 import { PROJECT_CARD_COLUMNS, projectRowToCard } from '@/lib/projects/map';
 import { profilePageJsonLd, serializeJsonLd } from '@/lib/seo/jsonld';
@@ -49,7 +51,7 @@ export async function generateMetadata({
   };
 }
 
-/** Guards the jsonb `links` column into ProfileHeader's {label,href}[] shape — omits anything malformed. */
+/** Guards the jsonb `links` column into the masthead's {label,href}[] shape — omits anything malformed. */
 function parseProfileLinks(links: ProfileRow['links']): ProfileLink[] | undefined {
   if (!Array.isArray(links)) return undefined;
   const parsed = links.filter((link): link is ProfileLink => {
@@ -106,6 +108,36 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     card: projectRowToCard(row, profile.username),
   }));
 
+  // Derived from the rows already fetched for the grid — the "what are they
+  // into" signals cost no extra query. Languages are ranked by how many
+  // projects use them, capped at the three that actually say something.
+  //
+  // Tallied CASE-INSENSITIVELY: GitHub hands back both "Vim script" and "Vim
+  // Script" (345 rows in prod, plus Matlab/MATLAB), which a naive tally lists
+  // as two separate languages side by side. The most common spelling wins the
+  // label; `languageColor` already lowercases, so colours were never affected.
+  const languageTally = new Map<string, { total: number; spellings: Map<string, number> }>();
+  let totalStars = 0;
+  for (const { row } of projectItems) {
+    totalStars += row.stars_count ?? 0;
+    const language = row.primary_language;
+    if (!language) continue;
+    const key = language.toLowerCase();
+    const entry = languageTally.get(key) ?? { total: 0, spellings: new Map<string, number>() };
+    entry.total += 1;
+    entry.spellings.set(language, (entry.spellings.get(language) ?? 0) + 1);
+    languageTally.set(key, entry);
+  }
+  const languages = [...languageTally.entries()]
+    .sort(([keyA, a], [keyB, b]) => b.total - a.total || keyA.localeCompare(keyB))
+    .slice(0, 3)
+    .map(([key, entry]) => {
+      const [name] = [...entry.spellings.entries()].sort(
+        (a, b) => b[1] - a[1] || a[0].localeCompare(b[0]),
+      )[0];
+      return { name, color: languageColor(key) };
+    });
+
   const author = {
     username: profile.username,
     displayName: profile.display_name ?? profile.username,
@@ -116,107 +148,100 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   };
 
   return (
-    <EngagementProvider projectIds={projectItems.map(({ row }) => row.id)} followeeId={profile.id}>
-      <PageShell className="flex flex-col gap-8 py-10">
-        <script
-          type="application/ld+json"
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
-          dangerouslySetInnerHTML={{
-            __html: serializeJsonLd(
-              profilePageJsonLd({
-                username: profile.username,
-                displayName: profile.display_name,
-                avatarUrl: profile.avatar_url,
-              }),
-            ),
-          }}
-        />
-        {/* Unclaimed honesty (vision principle 4): the badge says the page is
-            curated rather than authored, and the claim link is the "and here
-            is what you can do about it" half the master plan specifies — a
-            badge with no route to act on it is disclosure without agency. */}
-        {profile.user_id === null ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge
-              variant="outline"
-              className="w-fit font-mono text-[11px] font-normal tracking-wide text-muted-foreground"
-            >
-              {copy.unclaimedBadge}
-            </Badge>
-            <Link
-              href="/claim"
-              className="rounded-sm font-mono text-[11px] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              {copy.unclaimedIsThisYou}
-            </Link>
-          </div>
-        ) : null}
+    <>
+      <script
+        type="application/ld+json"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: serializeJsonLd escapes `<`; content is our own structured data.
+        dangerouslySetInnerHTML={{
+          __html: serializeJsonLd(
+            profilePageJsonLd({
+              username: profile.username,
+              displayName: profile.display_name,
+              avatarUrl: profile.avatar_url,
+            }),
+          ),
+        }}
+      />
 
-        <ProfileHeader
+      <EngagementProvider
+        projectIds={projectItems.map(({ row }) => row.id)}
+        followeeId={profile.id}
+      >
+        <ProfileMasthead
+          username={profile.username}
+          displayName={author.displayName}
           avatarUrl={profile.avatar_url}
-          author={author}
+          bio={profile.bio}
           links={parseProfileLinks(profile.links)}
+          followers={profile.followers_count}
+          projectCount={projectItems.length}
+          totalStars={totalStars}
+          languages={languages}
+          githubUsername={profile.github_username}
+          unclaimed={profile.user_id === null}
           followButton={<FollowButtonIsland />}
         />
 
-        {projectItems.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {projectItems.map(({ row, card }, i) => (
-              <ProjectCard
-                key={card.slug}
-                project={card}
-                author={author}
-                staggerIndex={i}
-                href={`/u/${author.username}/${card.slug}`}
-                authorHref={`/u/${author.username}`}
-                likeSlot={
-                  <LikeButtonIsland
-                    projectId={row.id}
-                    initialCount={row.likes_count > 0 ? row.likes_count : null}
+        <PageShell className="flex flex-col gap-16 py-10 sm:gap-20">
+          <section className="flex flex-col gap-6">
+            <SectionHead kicker={copy.profileProjectsKicker} title={copy.profileProjectsTitle} />
+            {projectItems.length > 0 ? (
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {projectItems.map(({ row, card }, i) => (
+                  <ProjectCard
+                    key={card.slug}
+                    project={card}
+                    author={author}
+                    staggerIndex={i}
+                    href={`/u/${author.username}/${card.slug}`}
+                    authorHref={`/u/${author.username}`}
+                    // No lead-span here on purpose: the gallery's opening beat
+                    // is a feed rhythm. A maker's work reads as a body of work
+                    // when the cards are equal — spanning the first one just
+                    // blew its 2:1 media up to twice the height of its
+                    // neighbour and looked accidental.
+                    likeSlot={
+                      <LikeButtonIsland
+                        projectId={row.id}
+                        initialCount={row.likes_count > 0 ? row.likes_count : null}
+                      />
+                    }
                   />
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <EmptyState message={copy.profileEmptyProjects} />
-        )}
-
-        {/* Public lists — quiet typographic rows, section absent entirely at
-            zero (absence, never an empty-state nudge on someone else's page). */}
-        {lists.length > 0 ? (
-          <section className="flex flex-col gap-3">
-            <h2 className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
-              <span aria-hidden="true">{'// '}</span>
-              {copy.listsTitle}
-            </h2>
-            <ul className="flex flex-col gap-2">
-              {lists.map((list) => (
-                <li key={list.slug} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
-                  {/* Class strings match the lists-index row EXACTLY (P2.7:
-                      this link had the app's only hover:text-primary, and the
-                      count span drifted to sans/text-xs — one idiom now). */}
-                  <Link
-                    href={`/u/${author.username}/lists/${list.slug}`}
-                    className="rounded-sm font-mono text-[15px] font-semibold outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  >
-                    {list.name}
-                  </Link>
-                  {list.itemCount > 0 ? (
-                    <span className="tabular-nums font-mono text-[12.5px] text-muted-foreground">
-                      {list.itemCount}{' '}
-                      {list.itemCount === 1 ? copy.listItemUnitOne : copy.listItemUnit}
-                    </span>
-                  ) : null}
-                  {list.description ? (
-                    <span className="text-sm text-muted-foreground">{list.description}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+            ) : (
+              <EmptyState message={copy.profileEmptyProjects} />
+            )}
           </section>
-        ) : null}
-      </PageShell>
-    </EngagementProvider>
+
+          {/* Public lists — absent entirely at zero (never an empty-state nudge
+              on someone else's page). */}
+          {lists.length > 0 ? (
+            <section className="flex flex-col gap-6">
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <SectionHead kicker={copy.profileListsKicker} title={copy.profileListsTitle} />
+                <Link
+                  href={`/u/${author.username}/lists`}
+                  className="rounded-sm font-mono text-[12.5px] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  {copy.profileListsAll}
+                </Link>
+              </div>
+              <ul className="flex flex-col divide-y divide-border">
+                {lists.map((list) => (
+                  <ListRow
+                    key={list.slug}
+                    name={list.name}
+                    href={`/u/${author.username}/lists/${list.slug}`}
+                    description={list.description}
+                    itemCount={list.itemCount}
+                  />
+                ))}
+              </ul>
+            </section>
+          ) : null}
+        </PageShell>
+      </EngagementProvider>
+    </>
   );
 }
