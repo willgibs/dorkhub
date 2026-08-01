@@ -123,6 +123,23 @@ strikes text; halo nodes, bigger vignettes); feed page reordered
 (discover → gallery → quick hits → following → starred); "weird"
 vocabulary retired sitewide (random/new per fit).
 
+## R3 — ADOPTION (EXECUTED 2026-08-01, board: "both approved")
+
+Shipped as four gated sub-waves (A1 feed platform · A2 composition ·
+A3 mobile nav · A4 motion), each verified and pushed on its own; full
+record in decisions.md **D57**. Headlines: 'active' is a real sort with a
+real `/active` route and verified keyset seeking; the preview composition
+IS `/` and `/home` (previews + harness deleted); the header collapses to
+one row under `sm` behind a Sheet menu, so sticky nav works at every
+width; the deferred motion backlog shipped (counter reel, skeleton
+reveal, error shake, text swap, clear dissolve, menu stagger) adapted from
+the transitions.dev skill onto our tokens.
+
+Three bugs surfaced and fixed on the way: card avatars had NEVER loaded
+(the row mapper dropped `avatar_url`); every in-app 404 rendered the whole
+shell twice; and `toFeedPage` could encode a cursor that decodes to null,
+silently re-serving page 1.
+
 **TABLED for W-waves (board-flagged, agreed):**
 - **List-any-repo-by-URL** ('list a project' names it already): route the
   existing admin manual-add/ingest pipeline through a user-facing form →

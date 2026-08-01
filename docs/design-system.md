@@ -47,14 +47,32 @@ growth-speak. Errors take the blame ("something broke on our end — not you, us
 Empty states are invitations. **Absence, not zero**: null stars/likes render
 nothing, never "0". Lowercase-calm playful register.
 
+## Composition patterns (U2 — how pages are built, not just what they're made of)
+A page states what it is FOR and carries one designed moment; no surface ships
+as `h1 + grid`. The home/feed exemplar is the reference: **hero** (headline +
+a live product moment) → **discovery band** (SectionHead + spotlight/rising
+makers/quick hits/tag rails) → **gallery** (SectionHead + FeedSection, page 1
+opening on a lead-span card) → **closing section** (steps + expectations +
+one conversion capture). Section rhythm: `py-16 sm:py-20` with a `border-t`
+between movements. Every section head is `SectionHead` (mono kicker + display
+title + optional note) — a bare mono kicker gets lost beside card-heavy
+content. Absence rule applies at MODULE level too: a module with no data
+renders nothing rather than an empty frame.
+
 ## Components
 Props are documented by the source + `/design` styleguide, deliberately not here
 (prevents doc drift). Categories:
-- atoms: tag-chip, language-dot, repo-stats-row, time-ago, copy-button, theme-toggle
+- atoms: tag-chip, language-dot, repo-stats-row, time-ago, copy-button,
+  theme-toggle, avatar-badge (image with a zero-JS layered initial fallback —
+  covers slow loads AND dead URLs), counter-reel (rolling digits)
 - social: stat-button, follow-button, avatar-stack, user-hover-card, sign-in-github
 - cards: project-card (feed/compact/featured), card-media (og hotlink +
   placeholder underlay, 2/1), skeleton-card, empty-state
-- shell: site-header, site-footer, page-shell, section-header, callout
+- shell: site-header (responsive; collapses to one row under `sm`, with
+  _shell/mobile-menu's sheet), site-footer (multi-column close, optional live
+  stats), page-shell, section-header, callout, not-found-content
+- discovery (route-scoped, `(app)/_discovery/`): section-head, discovery-band,
+  weird-spotlight, rising-makers, tag-rail, quick-hits
 - project: markdown-prose (+ src/styles/prose.css), screenshot-gallery, update-post,
   profile-header, feed-filters
 - primitives: src/components/ui/* (shadcn; restyle via className, never edit)

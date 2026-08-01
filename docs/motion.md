@@ -19,7 +19,12 @@ No component invents its own timing or physics.
   (transform/opacity/filter) for animation; no width/height/top tweens
   (accordion uses grid-rows 0fr→1fr).
 - **Never animate high-frequency actions**: ⌘K palette open/close, keyboard-
-  initiated navigation. UI animation stays under 300ms (exception: sheet enter).
+  initiated navigation. UI animation stays under 300ms. Two sanctioned
+  exceptions, both large-surface/marketing rather than UI: sheet enter (500ms)
+  and the home hero's card-shelf deal-in (700ms, U2 — the board asked for it
+  slower after the first cut finished before the eye landed). Decorative
+  *continuous* motion (hero ticker 48s, shelf drift 9–11s) is outside the
+  budget entirely and linear/eased by kind, not by the UI rule.
 - Every pressable: press feedback (`active:translate-y-px` is the system's).
   Popovers/dropdowns scale from their trigger origin; modals stay centered.
 - Reduced motion: global kill switch in globals.css (spinner carve-out keeps
@@ -49,10 +54,19 @@ Live catalog: `/design/motion` (each demo captions its tokens + source note).
   AvatarStack hover lift/bouncy return · SkeletonCard shimmer sweep ·
   number pop-in (RepoStatsRow/ProjectCard counts) · Switch thumb retune ·
   ProjectCard hover on tokens.
-- **M7 marketing**: staggered hero text reveal, shimmer accent.
-- **App-later (M3+)**: FeedFilters sliding pill, spinning counter on live deltas,
-  error shake (forms), claim success check, publish celebration = bg-bloom pulse,
-  skeleton→content cross-fade at real fetch boundaries.
+- **M7 marketing**: staggered hero text reveal (shimmer accent retired in U2 —
+  the overflow-hidden wrapper it needed knocked the word off the baseline).
+- **Shipped (U2)** — the app-later backlog, delivered: FeedFilters **sliding
+  pill** (duplicated-row clip-path, not a layout animation; route-driven with
+  an optimistic target so it moves on click) · **spinning counter**
+  (CounterReel: digit columns roll on one transform transition, aria-hidden
+  beside an sr-only true value) · **error shake** on the shared aria-live form
+  error · **skeleton→content reveal** on both personal rails · load-more
+  **text-state blur-swap** · **input clear dissolve** on /search · mobile
+  **menu stagger** (Sheet-hosted; keyframe not transition, since the content
+  mounts already open) · hero **card-shelf deal-in + drift** and the
+  **hover-paused ticker**.
+- **Still open**: claim success check, publish celebration = bg-bloom pulse.
 - **Rejected** (rendered in /design/motion §04): card stack hover (no surface),
   3D tilt (contradicts locked hover), literal confetti (bloom pulse instead),
   Pro gradient text (no gradient type; Pro-gated).

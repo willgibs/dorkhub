@@ -7,9 +7,11 @@ import {
   StatButtonDemo,
   ToastDemo,
 } from '@/app/design/components/demo-widgets';
+import { AvatarBadge } from '@/components/avatar-badge';
 import { AvatarStack } from '@/components/avatar-stack';
 import { Callout } from '@/components/callout';
 import { CopyButton } from '@/components/copy-button';
+import { CounterReel } from '@/components/counter-reel';
 import { EmptyState } from '@/components/empty-state';
 import { FeedFilters } from '@/components/feed-filters';
 import { LanguageDot } from '@/components/language-dot';
@@ -208,6 +210,23 @@ export default function DesignComponentsPage() {
         <Group title="theme-toggle">
           <Demo>
             <ThemeToggle />
+          </Demo>
+        </Group>
+
+        <Group title="avatar-badge">
+          <Demo label="real image / no image / dead URL — the initial sits BEHIND the image, so all three land somewhere sensible with no JS">
+            <AvatarBadge src="https://avatars.githubusercontent.com/u/9113740?s=200" initial="l" />
+            <AvatarBadge src={null} initial="m" />
+            <AvatarBadge src="https://example.invalid/nope.png" initial="g" />
+            <AvatarBadge src={null} initial="w" sizeClassName="size-9" />
+          </Demo>
+        </Group>
+
+        <Group title="counter-reel">
+          <Demo label="digits roll to their value on one transform transition; aria-hidden beside an sr-only true value">
+            <CounterReel value={7} />
+            <CounterReel value={42} />
+            <CounterReel value={1280} />
           </Demo>
         </Group>
       </section>

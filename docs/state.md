@@ -1,42 +1,46 @@
-# Current state — 2026-07-31 (LIVE at $0 · U1 abyss ADOPTED · U2 R1 built)
+# Current state — 2026-08-01 (LIVE at $0 · U2 adopted: the rework IS the product)
 
 ## Milestones
 - **P4 COMPLETE — dorkhub.com LIVE** at $0 (D54 posture, D55 record): domain
   via grey-cloud CNAMEs (mail untouched), CSP ENFORCED (+HSTS), robots
-  flipped + per-route canonicals, sitemap 36,202 URLs on verified GSC
-  (dorkhub1 account), auth round-trips both hosts, Sentry uptime green,
-  Web Analytics on, weekly backup launchd agent smoke-tested. Tag `p4`.
-  Post-launch same-day: wildcard A deleted; DMARC p=none live (tighten
-  after clean reports); OAuth app homepage → dorkhub.com.
+  flipped + per-route canonicals, sitemap on verified GSC (dorkhub1
+  account), Sentry uptime green, Web Analytics on, weekly backup launchd
+  agent. Tag `p4`. DMARC p=none live (tighten after clean reports).
 - **NO Vercel Pro (D54)** — GH Actions PERMANENT */15 scheduler; vercel.json
   daily crons fallback. Pro triggers: first PAID slot (same day), resource
   ceilings, chronic Actions failures. Supabase Pro at 300 MB (~191 MB now).
-- **U1 DONE — "Quiet dev-native · abyss" (D56)**: abyss tokens product-wide,
-  type unchanged; /design/directions = adopted-vs-legacy closer (delete when
-  done). **U2 IN FLIGHT (docs/plans/u2-rework.md)**: full atoms→pages rework;
-  GO WIDE product round; LIKES STAY PRIVATE (board). R0 migrations 0021-0023
-  LIVE (active sort, rising_makers aggregate RPC, platform_stats, daily
-  weird pick, tags.description). R1 exemplar BUILT + deployed noindexed:
-  /preview-home + /preview-feed — hero shelf/ticker fork, discovery band
-  (weird spotlight, rising makers, tag rails), feed v2 (sliding-pill chips,
-  3 live sorts incl. 'active', rhythm clusters/spans fork), is-isnt v2,
-  how-it-works v2, footer v2, following rail. 762 tests green.
+- **U1 DONE (D56)** — "Quiet dev-native · abyss": abyss tokens product-wide,
+  type unchanged. `/design/directions` still holds the legacy before/after
+  (delete it and `src/styles/directions.css` when Will's done comparing).
+- **U2 DONE (D57) — full UI/product rework adopted.** Migrations 0021-0023
+  (active sort, rising_makers aggregate RPC, platform_stats, daily random
+  pick, tags.description). `/` and `/home` are the approved composition:
+  hero (card shelf + hover-paused ticker) → discovery band (random
+  spotlight, rising makers, quick hits, tag rails) → gallery → how-it-works
+  + capture. New `/active` route; feed chips are real links with a sliding
+  pill; mobile header is one row + Sheet menu, sticky at every width;
+  motion backlog shipped (counter reel, skeleton reveal, error shake, text
+  swap, clear dissolve). Previews/harness deleted. 761 tests green.
 
 ## Waiting on Will
-1. **U2 R3-rev look**: previews updated per his 14-item second review
-   (slower entrance, curated shelf, final H1 'discover the best tools for
-   your next project', de-fun tone, 'list a project', ticker pause+links,
-   bold SectionHeads, card avatars FIXED product-wide, featured chip,
-   whole-card links, how-it-works redesign, feed reorder, weird→random
-   sitewide). Tabled w/ his OK: repo-by-URL listing (safety pass first),
-   nav IA (lands with new pages). → green-light R3 adoption + W-waves.
-2. Announce timing + claim invites — his clock entirely. Tag `u1`/`u2` on
-   green lights.
+1. **Live look at the adopted product** (dorkhub.com — home, /active, and a
+   phone for the new nav) → `u2` tag on his green light.
+2. Announce timing + claim invites — his clock entirely. `u1` tag too.
+
+## Tabled with board agreement (next rounds)
+- **List-any-repo-by-URL** — high value, needs the safety pass first: route
+  through the existing ingest + moderation pipeline (never direct publish),
+  rate limits/quotas, ownership-vs-third-party semantics.
+- **Nav IA expansion** — browse/active/tags/random reads smaller than the
+  site is; do it alongside the pages that deserve nav weight.
+- W-wave remainder: project detail + profile organisms, /search v2, tags
+  curation, flows with occasion, per-route loading.tsx states, admin
+  coherence, /design catalog for the new components.
 
 ## Post-launch watch (first month)
 GSC coverage as 36k URLs index · Vercel Usage weekly · GH Actions cadence
-(~90-min throttled gaps observed; daily fallback covers; chronic = Pro
-trigger) · Sentry issues + uptime · dbSizeMb in pipeline responses (warn 400).
+(~90-min throttled gaps observed; daily fallback covers) · Sentry issues +
+uptime · dbSizeMb in pipeline responses (warn 400).
 
 ## DB access (for agents)
 Dedicated account, NOT the MCP. psql session pooler
@@ -46,8 +50,10 @@ verified ops; migrations `psql --single-transaction -v ON_ERROR_STOP=1`.
 Backups: docs/ops-backup.md + scripts/backup-prod.sh (launchd Sun 09:00).
 
 ## Gotchas (new first; older live in docs/plans/* + git)
-Theme changes: RE-SAMPLE src/lib/og-tokens.ts (Satori can't parse oklch).
-PostgREST 1,000-row cap: un-ranged selects TRUNCATE SILENTLY; .range()
-walks end on short page ONLY without embed filters. Layout-relative
-canonical ('./') → '/index' on root in PROD builds — home pages pin '/'.
-`unset GITHUB_TOKEN` before git push. Last updated: 2026-07-31 (U1 R3).
+Deleting a route leaves STALE .next route types — rebuild before trusting
+tsc. A root not-found ALSO renders inside a route group's layout: give each
+group its own content-only boundary or the shell doubles. Feed cursors:
+encoding one from an absent timestamp decodes to null and silently
+re-serves page 1. Theme changes: RE-SAMPLE src/lib/og-tokens.ts (Satori
+can't parse oklch). PostgREST 1,000-row cap truncates un-ranged selects.
+`unset GITHUB_TOKEN` before git push. Last updated: 2026-08-01 (U2 R3).
