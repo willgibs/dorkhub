@@ -780,18 +780,21 @@ export type Database = {
       tags: {
         Row: {
           created_at: string;
+          description: string | null;
           kind: string;
           label: string;
           slug: string;
         };
         Insert: {
           created_at?: string;
+          description?: string | null;
           kind: string;
           label: string;
           slug: string;
         };
         Update: {
           created_at?: string;
+          description?: string | null;
           kind?: string;
           label?: string;
           slug?: string;
@@ -854,15 +857,40 @@ export type Database = {
           updated_at: string;
         }[];
       };
+      platform_stats: {
+        Args: never;
+        Returns: {
+          makers: number;
+          published_projects: number;
+          tags_in_use: number;
+        }[];
+      };
       recount_project_signals: {
         Args: { p_project_id: string };
         Returns: undefined;
+      };
+      rising_makers: {
+        Args: { p_days?: number; p_limit?: number };
+        Returns: {
+          avatar_url: string;
+          display_name: string;
+          profile_id: string;
+          score: number;
+          username: string;
+        }[];
       };
       tag_tally: {
         Args: never;
         Returns: {
           count: number;
           slug: string;
+        }[];
+      };
+      weird_pick_for_date: {
+        Args: { p_date: string };
+        Returns: {
+          slug: string;
+          username: string;
         }[];
       };
     };
