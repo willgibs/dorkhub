@@ -9,7 +9,8 @@ import { copy } from '@/lib/copy';
  * (docs/plans/p2.5-self-running.md locked decision 9; trending is now the
  * default at `/`).
  */
-export const revalidate = 60;
+// 300s, not 60 — see the note in (app)/page.tsx (ISR write + CPU budget).
+export const revalidate = 300;
 
 export const metadata: Metadata = { title: copy.sortNewest };
 

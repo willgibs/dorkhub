@@ -13,7 +13,8 @@ import { getActiveFeedRows, getRisingMakers, getWeirdDailyPick } from '@/lib/dis
 import { fetchActiveFeaturedSlots } from '@/lib/featured/queries';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
-export const revalidate = 60;
+// 300s, not 60 — see the note in (app)/page.tsx (ISR write + CPU budget).
+export const revalidate = 300;
 
 // This page SERVES at `/` via the proxy rewrite — without an explicit
 // canonical the layout's './' would claim '/home' for the signed-in render

@@ -19,7 +19,16 @@ import { getFeedPage } from '@/lib/feed/queries';
 import { serializeJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
 import { supabaseAnon } from '@/lib/supabase/clients';
 
-export const revalidate = 60;
+/*
+ * 300s, not 60 (2026-08-03, after reading the actual meter). These four
+ * global feeds revalidate on request, and at a 60-second window they were
+ * generating ~230 ISR WRITES AN HOUR between them — which measured out as
+ * 165K of the 200K monthly write allowance, plus a 24-card grid re-rendered
+ * every minute forever against a Fluid Active CPU allowance that was already
+ * 146% consumed. Five minutes is imperceptible on a trending list and cuts
+ * both by 80%.
+ */
+export const revalidate = 300;
 
 // The layout's relative canonical ('./') resolves to '/index' for the root
 // route in production builds — pin the bare apex explicitly (caught live).

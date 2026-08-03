@@ -323,14 +323,16 @@ export async function fetchFollowingFeedPage(
  * `revalidate = 3600` and still re-rendered every 60 seconds because this
  * cache said 60 (found while fixing the 2026-08-03 cost incident).
  *
- * The global sorts back about five URLs and people watch them, so a minute is
- * cheap and worth it. A TAGGED feed backs ~24,700 possible URLs that a crawler
- * walks one after another; a minute there means re-rendering the long tail
- * over and over for content that moves at GitHub-sync cadence. Wave 3's
- * on-demand `revalidatePath` is what keeps the hour honest.
+ * The global sorts back about five URLs, so their window is short — but not
+ * as short as it was: at 60s those few pages alone were burning ~230 ISR
+ * writes an hour (165K of a 200K monthly allowance) and re-rendering a
+ * 24-card grid every minute. A TAGGED feed backs ~24,700 possible URLs that a
+ * crawler walks one after another, and gets an hour. On-demand
+ * `revalidatePath` from the sync pipeline is what would make both longer
+ * still, with no staleness at all.
  */
 function feedRevalidateSeconds(spec: { tag: string | null }): number {
-  return spec.tag ? 3600 : 60;
+  return spec.tag ? 3600 : 300;
 }
 
 export async function getFeedPage(params: FeedQueryParams): Promise<FeedPage> {

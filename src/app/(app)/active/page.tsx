@@ -11,7 +11,8 @@ import { copy } from '@/lib/copy';
  * Projects that have never been synced are outside the sort's domain rather
  * than silently last.
  */
-export const revalidate = 60;
+// 300s, not 60 — see the note in (app)/page.tsx (ISR write + CPU budget).
+export const revalidate = 300;
 
 export const metadata: Metadata = { title: copy.sortActive };
 
