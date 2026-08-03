@@ -1,4 +1,4 @@
-# Current state — 2026-08-01 (LIVE at $0 · U2 + W3 + W4 shipped)
+# Current state — 2026-08-03 (LIVE · U2+W3+W4 shipped · cost incident fixed)
 
 ## Milestones
 - **P4 COMPLETE — dorkhub.com LIVE** at $0 (D54 posture, D55 record): domain
@@ -23,12 +23,27 @@
   and both zero-states offer a way onward; route-level `loading.tsx` renders
   layout shapes, closing the last U2 bar item.
 
+- **SERVING-COST INCIDENT (2026-08-03) — fixed, watch it.** A post-launch
+  sitemap walk exhausted a month of Vercel resources in ~3 days: no dynamic
+  route had `generateStaticParams`, so every project/profile/tag hit was an
+  uncached full render. All four route families are cached now (verified
+  MISS → HIT, `no-store` gone, cache share 6% → 32%). Sitemap 36,206 →
+  17,392; robots.txt has a real disallow list; the proxy skips Supabase
+  entirely for cookieless traffic. **docs/ops-cost.md** has the baseline,
+  the one-line diagnostic, and the rules. Remaining burn is first-hits on a
+  long tail reached via tag chips — a sweep that has to finish.
+
 ## Waiting on Will
-1. **Live look** — home, a project page, a maker page, `/tags`, `/t/rust`,
-   `/search` → `w4` tag on his green light.
-2. **The 22 curated tag descriptions** (migration 0024) are public
+1. **Vercel Usage + Firewall tab** — I can't read billing or user agents.
+   Whether this is Googlebot (manage via crawl rate) or a bot ignoring
+   robots.txt (firewall rule) changes the next lever. Also: is the meter
+   still climbing after the fix?
+2. **Live look** — home, a project page, a maker page, `/tags`, `/t/rust`,
+   `/search` → `w4` tag on his green light. NOTE: a draft's public URL now
+   404s by design; drafts live at /settings/projects.
+3. **The 22 curated tag descriptions** (migration 0024) are public
    voice-bearing copy on indexable pages — his to edit freely.
-3. Announce timing + claim invites — his clock entirely.
+4. Announce timing + claim invites — his clock entirely.
 
 ## Tabled with board agreement (next rounds)
 - **List-any-repo-by-URL** — needs the safety pass first: route through the
@@ -43,7 +58,7 @@
   0 rows, 1 claimed profile; they wait on claims, not design.
 
 ## Post-launch watch (first month)
-GSC coverage as 36k URLs index · Vercel Usage weekly · GH Actions cadence
+**Vercel Usage — route counts per docs/ops-cost.md** · GSC coverage · GH Actions cadence
 (~90-min throttled gaps observed; daily fallback covers) · Sentry issues +
 uptime · dbSizeMb in pipeline responses (warn 400).
 
@@ -55,7 +70,12 @@ verified ops; migrations `psql --single-transaction -v ON_ERROR_STOP=1`.
 Backups: docs/ops-backup.md + scripts/backup-prod.sh (launchd Sun 09:00).
 
 ## Gotchas (new first; older live in docs/plans/* + git)
-**Route `loading.tsx` INHERITS DOWNWARD** — one beside a page also covers
+**A dynamic route needs `generateStaticParams` to be cacheable AT ALL** —
+cookie-free and `export const revalidate` are not enough; without it Vercel
+serves `no-store` and every hit is a full render (docs/ops-cost.md).
+**A route's effective revalidate is the MINIMUM across every cache it reads** —
+a page declaring 3600 rebuilt every 60s because an `unstable_cache` beneath it
+said 60. **Route `loading.tsx` INHERITS DOWNWARD** — one beside a page also covers
 every route nested under it, so check the shape per subtree (a profile
 skeleton was flashing on project and lists pages; fixed with a `(profile)`
 route group). A group-root `loading.tsx` would cover /settings and /admin.
@@ -74,4 +94,4 @@ route types (and changes generated OG filename hashes). A root not-found
 ALSO renders inside a route group's layout. Feed cursors: encoding one from
 an absent timestamp decodes to null and silently re-serves page 1. Theme
 changes: RE-SAMPLE src/lib/og-tokens.ts (Satori can't parse oklch).
-`unset GITHUB_TOKEN` before git push. Last updated: 2026-08-01 (W4).
+`unset GITHUB_TOKEN` before git push. Last updated: 2026-08-03 (cost fix).

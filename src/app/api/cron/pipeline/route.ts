@@ -69,10 +69,18 @@ export async function GET(request: Request) {
   const deadlineAt = startedAt + SOFT_DEADLINE_MS;
   const service = supabaseService();
 
-  // PASS 1 — enrich. No revalidatePath (mirrors enrichNextBatch's own doc
-  // comment) — the feed's ISR-60 window and dynamic project pages absorb a
-  // stale tagline/tags on their own; a cron route has no request to
-  // revalidate for anyway.
+  // PASS 1 — enrich. Still no revalidatePath, but the REASON changed on
+  // 2026-08-03 and the old one is no longer true: project pages are not
+  // dynamic any more. They are cached for an hour (the cost fix), as are tag
+  // and profile pages, so an enriched tagline or tag set can now be up to an
+  // hour stale instead of appearing on the next request.
+  //
+  // That is an acceptable trade for this content — star counts and taglines
+  // drift slowly — and it is what the hour was chosen against. The real
+  // upgrade is on-demand invalidation from this pass, which would let the
+  // window go much longer than an hour without any staleness at all. Not done
+  // here deliberately: it is an optimisation, not part of stopping the bleed,
+  // and this cron writes to production.
   const enrichResult: EnrichBatchResult = await enrichNextBatch(service, {
     limit: ENRICH_PER_RUN,
     deadlineAt,
