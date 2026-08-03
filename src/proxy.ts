@@ -18,7 +18,45 @@ const AUTHED_PREFIXES = [
   '/claim',
 ];
 
+/**
+ * True when the request carries a Supabase auth cookie. Supabase names them
+ * `sb-<project-ref>-auth-token` (chunked as `.0`, `.1`, … on large sessions),
+ * so the prefix is the stable part.
+ */
+function hasAuthCookie(request: NextRequest): boolean {
+  return request.cookies.getAll().some((cookie) => cookie.name.startsWith('sb-'));
+}
+
 export async function proxy(request: NextRequest) {
+  const { pathname: earlyPathname } = request.nextUrl;
+
+  /*
+   * Cost guard (2026-08-03). A request with NO Supabase cookie cannot be
+   * authenticated, so building a server client and calling `getClaims()` for
+   * it is pure waste — and roughly 90% of traffic is exactly that: crawlers
+   * walking the sitemap. This ran on every one of ~8,000 requests/day.
+   *
+   * The three things below this line all depend on `isAuthed`, and for a
+   * cookieless request every one of them takes the anonymous branch anyway:
+   * the gated-prefix redirect fires (still handled here), `/` renders the
+   * signed-out tree, and `/home` redirects to `/`. So the early return has to
+   * reproduce exactly those, and nothing else.
+   */
+  if (!hasAuthCookie(request)) {
+    if (AUTHED_PREFIXES.some((p) => earlyPathname === p || earlyPathname.startsWith(`${p}/`))) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/signin';
+      url.search = `?next=${encodeURIComponent(earlyPathname)}`;
+      return NextResponse.redirect(url);
+    }
+    if (earlyPathname === '/home') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/';
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next({ request });
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(

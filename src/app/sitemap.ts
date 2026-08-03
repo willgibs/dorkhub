@@ -26,6 +26,23 @@ export const revalidate = 3600;
 // walkers. RPCs are range-capped the same way, so tag_tally walks too.
 const PAGE = 1000;
 
+/**
+ * Promotion thresholds — a COST lever, not an SEO principle (2026-08-03).
+ *
+ * Every URL promoted here is a dynamic render on each crawl, and a
+ * three-day sitemap walk after launch exhausted a month of Vercel resources.
+ * Raising these cut the promoted surface from 36,206 URLs to ~17.4k:
+ * tags 5,212 → 280, profiles 14,020 → 128.
+ *
+ * These are deliberately reversible. Nothing here is de-indexed — thin tag
+ * and profile pages stay crawlable and reachable from /tags and from every
+ * project page, they are just no longer PROMOTED. Once the route cache is
+ * proven out (Wave 2) these can come back down; revisit with the invocation
+ * numbers in docs/ops-cost.md rather than by feel.
+ */
+const TAG_SITEMAP_MIN_PROJECTS = 50;
+const PROFILE_SITEMAP_MIN_PROJECTS = 5;
+
 async function allRows<Row>(
   page: (from: number, to: number) => PromiseLike<{ data: Row[] | null }>,
 ): Promise<Row[]> {
@@ -87,20 +104,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // because the set is exhausted — the pagination-layer form of the
   // window-then-filter class. Deriving from the project rows has no
   // pagination semantics to get wrong and can't disagree with the listing.
-  const authorUsernames = new Set(
-    projects.map((row) => (row.profiles as unknown as { username: string }).username),
-  );
-  const profileEntries: MetadataRoute.Sitemap = [...authorUsernames].map((username) => ({
-    url: `${SITE_URL}/u/${username}`,
-    priority: 0.4,
-  }));
+  // ...then narrowed to the makers with a real body of work behind the page
+  // (PROFILE_SITEMAP_MIN_PROJECTS). A one-project profile is a near-duplicate
+  // of the project page it points at, and there are 13,892 of them.
+  const projectsByAuthor = new Map<string, number>();
+  for (const row of projects) {
+    const { username } = row.profiles as unknown as { username: string };
+    projectsByAuthor.set(username, (projectsByAuthor.get(username) ?? 0) + 1);
+  }
+  const profileEntries: MetadataRoute.Sitemap = [...projectsByAuthor.entries()]
+    .filter(([, count]) => count >= PROFILE_SITEMAP_MIN_PROJECTS)
+    .map(([username]) => ({
+      url: `${SITE_URL}/u/${username}`,
+      priority: 0.4,
+    }));
 
-  // Only tags with a real listing behind them (≥3 published projects) get a
-  // sitemap slot — AI enrichment mints a huge one-project long tail (15,656
-  // in-use tags at 16,972 projects) that is textbook thin content AND was
-  // eating the 50k cap. Thin tags stay crawlable via /tags, just unpromoted.
+  // Only tags with a real listing behind them get a sitemap slot — AI
+  // enrichment mints a huge long tail (24,678 in-use tags at 16,972 projects;
+  // 21,678 of them under five projects) that is textbook thin content. Thin
+  // tags stay crawlable via /tags, just unpromoted.
   const tagEntries: MetadataRoute.Sitemap = tags
-    .filter((row) => row.count >= 3)
+    .filter((row) => row.count >= TAG_SITEMAP_MIN_PROJECTS)
     .map((row) => ({
       url: `${SITE_URL}/t/${row.slug}`,
       priority: 0.5,
