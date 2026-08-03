@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { FeedSection } from '@/app/(app)/_feed/feed-section';
 import { TagMasthead } from '@/app/(app)/t/[tag]/tag-masthead';
 import { PageShell } from '@/components/page-shell';
-import { getTagContext, getTagMeta } from '@/lib/tags/meta';
+import { getTagContext, getTagMeta, topTagSlugs } from '@/lib/tags/meta';
 import { resolveTagSlug } from '@/lib/tags/slug';
 
 /**
@@ -12,7 +12,23 @@ import { resolveTagSlug } from '@/lib/tags/slug';
  * locked decision 9 — trending is the gallery default). `/t/[tag]/newest`
  * is the sibling recent-sort route — same shape, different `sort`.
  */
-export const revalidate = 60;
+/**
+ * Cache posture (2026-08-03 cost incident). `generateStaticParams` is what
+ * puts a dynamic route into Next's full route cache — without it Vercel
+ * served every hit `no-store` and each crawl was a fresh render. The list is
+ * deliberately short; `dynamicParams` stays at its default `true`, so the
+ * long tail still renders on demand and is cached from then on.
+ *
+ * `revalidate` is an hour rather than a minute: this corpus moves at
+ * GitHub-sync cadence, and at 60s a crawler returning two minutes later paid
+ * for a full re-render. Wave 3 adds on-demand revalidation from the sync
+ * pipeline, which is what makes a long window safe rather than merely cheap.
+ */
+export const revalidate = 3600;
+
+export function generateStaticParams() {
+  return topTagSlugs();
+}
 
 type TagPageProps = { params: Promise<{ tag: string }> };
 

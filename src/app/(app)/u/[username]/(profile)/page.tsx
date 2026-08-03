@@ -24,8 +24,25 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  * anon client so this page stays static/cacheable; per-user state (none yet —
  * follow interactions land in M5) would be a client-island overlay, never a
  * reason to switch this to the cookie-bound client.
+ *
+ * Cookie-free was necessary but NOT sufficient (2026-08-03 cost incident):
+ * a dynamic segment with no `generateStaticParams` never enters Next's full
+ * route cache, so Vercel served every hit `no-store` and this "ISR" page was
+ * re-rendering on each of ~1,000 crawler hits/hour. The params list below is
+ * what actually makes the caching real; `dynamicParams` stays default-true so
+ * the other ~13,900 profiles still render on demand, and are cached after.
  */
-export const revalidate = 300;
+export const revalidate = 3600;
+
+/** The makers with a real body of work — same set the sitemap promotes. */
+export async function generateStaticParams(): Promise<Array<{ username: string }>> {
+  const { data } = await supabaseAnon()
+    .from('profiles')
+    .select('username')
+    .order('followers_count', { ascending: false })
+    .limit(100);
+  return (data ?? []).map((row) => ({ username: row.username }));
+}
 
 const getProfile = cache(async (username: string): Promise<ProfileRow | null> => {
   const supabase = supabaseAnon();

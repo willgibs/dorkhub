@@ -4,6 +4,17 @@ import { cache } from 'react';
 
 import { supabaseAnon } from '@/lib/supabase/clients';
 
+/**
+ * Tags prerendered at build. Small on purpose: the point of
+ * `generateStaticParams` here is not to prerender the corpus, it's to opt the
+ * route into the FULL ROUTE CACHE at all. Without it Next treats a dynamic
+ * segment as always-dynamic and Vercel serves `no-store`, so every crawler hit
+ * was a fresh render (2026-08-03 cost incident). With it, and `dynamicParams`
+ * left at its default `true`, the other ~24,600 tags still render on demand —
+ * but the result is cached instead of thrown away.
+ */
+const PRERENDERED_TAGS = 100;
+
 /** How many co-occurring tags a page offers — enough to suggest, few enough to scan. */
 const RELATED_TAG_LIMIT = 6;
 /** One project's idiosyncratic tags aren't a pattern. */
@@ -41,6 +52,18 @@ export type TagContext = {
  * have no pretty label or description yet, and render without one rather than
  * with filler.
  */
+/**
+ * The busiest tags, for `generateStaticParams`. Shared by `/t/[tag]` and
+ * `/t/[tag]/newest` so the two can't prerender different sets.
+ */
+export async function topTagSlugs(): Promise<Array<{ tag: string }>> {
+  const { data } = await supabaseAnon()
+    .rpc('tag_tally')
+    .order('count', { ascending: false })
+    .limit(PRERENDERED_TAGS);
+  return (data ?? []).map((row) => ({ tag: row.slug }));
+}
+
 export const getTagMeta = cache(async (slug: string): Promise<TagMeta> => {
   const { data } = await supabaseAnon()
     .from('tags')

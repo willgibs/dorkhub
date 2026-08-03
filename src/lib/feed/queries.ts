@@ -315,6 +315,24 @@ export async function fetchFollowingFeedPage(
  * point RSCs should use for the main discovery routes. Keyed on the resolved
  * spec so distinct sort/tag/language/cursor combinations don't collide.
  */
+/**
+ * How long a feed page stays cached, by how many URLs it backs.
+ *
+ * A route's effective revalidate is the MINIMUM across every cache it reads,
+ * so this value silently governs the pages above it: `/t/[tag]` declared
+ * `revalidate = 3600` and still re-rendered every 60 seconds because this
+ * cache said 60 (found while fixing the 2026-08-03 cost incident).
+ *
+ * The global sorts back about five URLs and people watch them, so a minute is
+ * cheap and worth it. A TAGGED feed backs ~24,700 possible URLs that a crawler
+ * walks one after another; a minute there means re-rendering the long tail
+ * over and over for content that moves at GitHub-sync cadence. Wave 3's
+ * on-demand `revalidatePath` is what keeps the hour honest.
+ */
+function feedRevalidateSeconds(spec: { tag: string | null }): number {
+  return spec.tag ? 3600 : 60;
+}
+
 export async function getFeedPage(params: FeedQueryParams): Promise<FeedPage> {
   const spec = resolveFeedFilterSpec(params);
 
@@ -328,7 +346,7 @@ export async function getFeedPage(params: FeedQueryParams): Promise<FeedPage> {
       spec.language ?? '_',
       spec.cursor ? JSON.stringify(spec.cursor) : '_',
     ],
-    { revalidate: 60, tags: ['feed'] },
+    { revalidate: feedRevalidateSeconds(spec), tags: ['feed'] },
   );
 
   return cached();
