@@ -38,6 +38,31 @@ curl -sI https://dorkhub.com/t/rust | grep -iE 'cache-control|x-vercel-cache'
 Healthy: `public, max-age=0, must-revalidate` and `HIT` on a second request.
 Broken: `private, no-cache, no-store` and `MISS` every time.
 
+## The meter, read at the peak (2026-08-03, Hobby, rolling 30 days)
+
+The runtime logs said WHICH routes. Only the dashboard says which LIMIT.
+
+| metric | used | Hobby | |
+|---|---|---|---|
+| **Fluid Active CPU** | **5h 50m** | **4h** | **146% — the binding constraint** |
+| ISR Writes | 165K | 200K | 83% |
+| Fast Origin Transfer | 8.25 GB | 10 GB | 82% |
+| Function Invocations | 784K | 1M | 78% |
+| Edge Requests | 425K | 1M | 43% |
+| ISR Reads | 87K | 1M | 9% |
+| Fast Data Transfer | 7.97 GB | 100 GB | 8% |
+
+Two lessons in that table. **Active CPU is what runs out first** — not
+invocations, not bandwidth — so the thing to protect is *renders*, not
+requests. And **ISR Writes had nothing to do with the crawl**: four global
+feed pages revalidating at a 60-second window produce ~230 writes an hour,
+which is 165K over thirty days almost exactly. A short window on a page
+nobody is watching is a standing cost.
+
+Firewall (same day): 7.5k requests/hour, Bot Protection **inactive**, 2 IPs
+denied by DDoS mitigation. Hobby exposes no user-agent breakdown, so whether
+the crawler is Googlebot or something ruder is still unproven.
+
 ## Baseline (post-fix, 2026-08-03)
 
 Route-level invocations from Vercel runtime logs, grouped by `route`.
@@ -70,7 +95,10 @@ four figures per hour — that means caching broke again.
 4. **Size cache windows by how many URLs they back.** The five global feed
    sorts can afford a minute; a tagged feed backs ~24,700 crawlable URLs and
    cannot.
-5. **Anything crawlable is a cost.** Adding a route family or lowering a
+5. **A short revalidate on an unwatched page is a standing cost**, paid in
+   ISR writes and CPU forever, whether or not anyone visits. Size the window
+   by how much the content actually moves.
+6. **Anything crawlable is a cost.** Adding a route family or lowering a
    sitemap threshold multiplies renders. `src/app/robots.ts` and the
    thresholds in `src/app/sitemap.ts` are cost controls; both say so.
 
@@ -82,9 +110,11 @@ four figures per hour — that means caching broke again.
   worth fixing.
 - **On-demand revalidation** from the pipeline cron would let the hour go much
   longer with no staleness. See the note in `src/app/api/cron/pipeline/route.ts`.
-- **Sitemap thresholds are deliberately aggressive** (tags ≥50, profiles ≥5)
-  and were set under duress. Nothing is de-indexed — thin pages stay crawlable
-  and reachable — but they can come back down now that caching works. Revisit
-  with numbers, not by feel.
+- **The tag long tail is closed to crawlers** (`Disallow: /t/` + 280
+  `$`-anchored Allows in `src/app/robots.ts`) and the sitemap thresholds are
+  aggressive (tags ≥50, profiles ≥5). Both were set under duress and both are
+  meant to be relaxed: nothing is noindexed, the pages work and stay linked.
+  Lower the threshold when the CPU number says there's room — with numbers,
+  not by feel.
 - **Web Analytics is not actually enabled** (the API 404s), so there is no
   human-vs-crawler traffic split. Worth turning on before tuning further.
