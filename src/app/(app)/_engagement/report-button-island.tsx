@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useActionState, useState } from 'react';
-
+import { useHeaderAuth } from '@/app/_shell/use-header-auth';
 import { type ReportState, reportProject } from '@/app/(app)/u/[username]/[slug]/report-actions';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -21,6 +21,13 @@ import { useEngagement } from './engagement-context';
 
 export type ReportButtonIslandProps = {
   projectId: string;
+  /**
+   * The project's owner. Reporting your own work is nonsense, and the server
+   * render can no longer hide this button — the project page went cookie-free
+   * to become cacheable (2026-08-03), so "is the viewer the owner?" is a
+   * client-side question now, answered here rather than by the page.
+   */
+  ownerUsername?: string;
 };
 
 /** Quiet text trigger, same treatment as the "manage in settings" / repo-url
@@ -43,13 +50,22 @@ const TRIGGER_CLASS =
  * outside click, Escape all still work; nothing here traps focus or blocks
  * closing) rather than auto-closing, so the user can read the confirmation.
  */
-export function ReportButtonIsland({ projectId }: ReportButtonIslandProps) {
+export function ReportButtonIsland({ projectId, ownerUsername }: ReportButtonIslandProps) {
   const { ready, signedIn } = useEngagement();
+  const auth = useHeaderAuth();
   const pathname = usePathname();
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState<ReportState, FormData>(reportProject, null);
+
+  // Never offer someone the chance to report their own project. `username` is
+  // a citext column — match how the database compares it.
+  const isOwner =
+    auth.status === 'signed-in' &&
+    Boolean(ownerUsername) &&
+    auth.profile?.username?.toLowerCase() === ownerUsername?.toLowerCase();
+  if (isOwner) return null;
 
   return (
     <>

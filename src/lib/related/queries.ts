@@ -106,7 +106,12 @@ export async function getRelatedProjects(
       }
     },
     ['related', projectId],
-    { revalidate: 300, tags: ['related'] },
+    // An hour, matching the project page above it. A route's effective
+    // revalidate is the MINIMUM across every cache it reads, so 300 here
+    // would silently hold the whole page to five minutes across 16,972 URLs
+    // (2026-08-03 cost incident — the same trap the feed cache set for tag
+    // pages). "More like this" does not move faster than the hour.
+    { revalidate: 3600, tags: ['related'] },
   );
 
   return cached();
