@@ -20,7 +20,16 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  */
 
 const ACTIVE_RAIL_REVALIDATE = 300;
-const SLOW_META_REVALIDATE = 3600;
+/*
+ * 24h, and this number governs THE WHOLE APP: the (app) and (marketing)
+ * layouts call getPlatformStats() for the footer, and a route's effective
+ * revalidate is the MINIMUM across every cache it reads — layouts included.
+ * At 3600 this silently capped every page (including the 24h project pages)
+ * to hourly re-renders (2026-08-04, the third time the min-rule bit; see
+ * docs/ops-cost.md rule 2). Footer counts drifting a day is invisible;
+ * 55k pages re-rendering hourly is not.
+ */
+const SLOW_META_REVALIDATE = 86400;
 
 export type PlatformStats = {
   projects: number;

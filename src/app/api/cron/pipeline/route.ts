@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ENRICH_PER_RUN, type EnrichBatchResult, enrichNextBatch } from '@/lib/enrich/run';
 import { type ScreenBatchResult, screenNextBatch } from '@/lib/enrich/screen';
+import { revalidateProjectPaths } from '@/lib/seo/revalidate';
 import { supabaseService } from '@/lib/supabase/clients';
 
 /**
@@ -69,23 +70,19 @@ export async function GET(request: Request) {
   const deadlineAt = startedAt + SOFT_DEADLINE_MS;
   const service = supabaseService();
 
-  // PASS 1 — enrich. Still no revalidatePath, but the REASON changed on
-  // 2026-08-03 and the old one is no longer true: project pages are not
-  // dynamic any more. They are cached for an hour (the cost fix), as are tag
-  // and profile pages, so an enriched tagline or tag set can now be up to an
-  // hour stale instead of appearing on the next request.
-  //
-  // That is an acceptable trade for this content — star counts and taglines
-  // drift slowly — and it is what the hour was chosen against. The real
-  // upgrade is on-demand invalidation from this pass, which would let the
-  // window go much longer than an hour without any staleness at all. Not done
-  // here deliberately: it is an optimisation, not part of stopping the bleed,
-  // and this cron writes to production.
+  // PASS 1 — enrich, then revalidate exactly what changed (the upgrade the
+  // 2026-08-03 note promised): pages carry a 24h TTL for cost, and this call
+  // is what keeps them fresh on real changes anyway.
   const enrichResult: EnrichBatchResult = await enrichNextBatch(service, {
     limit: ENRICH_PER_RUN,
     deadlineAt,
     sources: ['projects', 'candidates'],
   });
+
+  // On-demand freshness (src/lib/seo/revalidate.ts): the engine reports which
+  // published projects it actually changed; their pages re-render on next
+  // request instead of waiting out the 24h TTL. Bounded by ENRICH_PER_RUN.
+  const revalidated = await revalidateProjectPaths(service, enrichResult.touchedProjectIds);
 
   // PASS 2 — screen (P2.6): AI moderation triage. Reported projects outrank
   // the retro backlog inside screenNextBatch; verdicts only label and order
@@ -165,6 +162,7 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     enriched: enrichResult.enriched,
+    revalidated,
     enrichedEmpty: enrichResult.empty,
     enrichHasMore: enrichResult.hasMore,
     enrichStopKind: enrichResult.stopKind,

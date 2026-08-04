@@ -167,6 +167,13 @@ export type EnrichBatchResult = {
   hasMore: boolean;
   stopKind: 'rate_limited' | 'config' | 'provider_error' | 'budget' | null;
   stopReason: string | null;
+  /**
+   * Ids of PUBLISHED PROJECT rows whose tagline/tags actually changed —
+   * handed back so the calling route handler can revalidate their paths
+   * (this engine deliberately never touches Next's cache APIs itself).
+   * Candidates aren't live pages, so they never appear here.
+   */
+  touchedProjectIds: string[];
 };
 
 export type EnrichSource = 'projects' | 'candidates';
@@ -302,10 +309,11 @@ function ownerAndRepoName(repoFullName: string, fallbackName: string): [string, 
  * model reply stamps `enriched_at`, via `planStamp` — usable or not — so
  * genuinely-answered duds never retry forever.
  *
- * No `revalidatePath` here — the feed's ISR-60 revalidation window and
- * dynamic project pages absorb a stale `tagline`/`tags` on their own; a
- * server-only batch engine shouldn't reach into Next's cache APIs anyway
- * (Wave 2A/2B callers decide if/when a revalidate is warranted).
+ * No `revalidatePath` here — a server-only batch engine shouldn't reach
+ * into Next's cache APIs (callers decide if/when a revalidate is
+ * warranted). Since 2026-08-04 it instead RETURNS `touchedProjectIds`, and
+ * the pipeline route revalidates those paths — which is what keeps the 24h
+ * page TTLs fresh on real changes.
  */
 export async function enrichNextBatch(
   service: SupabaseClient<Database>,
@@ -328,6 +336,7 @@ export async function enrichNextBatch(
     hasMore: queue.length === opts.limit,
     stopKind: null,
     stopReason: null,
+    touchedProjectIds: [],
   };
 
   const today = new Date().toISOString();
@@ -422,8 +431,12 @@ export async function enrichNextBatch(
       const stamp = planStamp('project', existing, parsed, today);
       const { error } = await service.from('projects').update(stamp).eq('id', queueItem.item.id);
       if (error) console.error('[enrich/run] project stamp failed:', error.message);
-      if (stamp.tagline !== undefined || stamp.tags !== undefined) result.enriched += 1;
-      else result.empty += 1;
+      if (stamp.tagline !== undefined || stamp.tags !== undefined) {
+        result.enriched += 1;
+        if (!error) result.touchedProjectIds.push(queueItem.item.id);
+      } else {
+        result.empty += 1;
+      }
     }
   }
 

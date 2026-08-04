@@ -5,8 +5,10 @@ import { SiteHeader } from '@/components/site-header';
 import { getPlatformStats } from '@/lib/discovery/queries';
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  // Cached (hourly) + anon, so the footer's live counts cost one query per
-  // window across the whole app and never touch the pages' ISR contract.
+  // Cached (24h) + anon. NOTE: this call's cache window CAPS every page under
+  // this layout (effective revalidate = min across all caches read, layouts
+  // included) — the old "never touches the pages' ISR contract" claim here
+  // was exactly wrong. Keep its window >= the longest page TTL.
   const stats = await getPlatformStats();
 
   return (

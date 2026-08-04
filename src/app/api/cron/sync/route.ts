@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { syncProject } from '@/lib/github/sync';
+import { revalidateProjectPaths } from '@/lib/seo/revalidate';
 import { supabaseService } from '@/lib/supabase/clients';
 
 // Vercel Hobby cron budget is 60s max — matches vercel.json's daily schedule.
@@ -49,6 +50,9 @@ export async function GET(request: Request) {
   const ids = (projects ?? []).map((p) => p.id);
 
   const tally = { synced: 0, notModified: 0, notFound: 0, rateLimited: 0, errored: 0, skipped: 0 };
+  // Only rows that actually WROTE a patch — 304s dominate a steady-state walk
+  // and must not trigger revalidation.
+  const syncedIds: string[] = [];
   let stop = false;
   let cursor = 0;
 
@@ -73,6 +77,7 @@ export async function GET(request: Request) {
         switch (result.status) {
           case 'synced':
             tally.synced++;
+            syncedIds.push(id);
             break;
           case 'not_modified':
             tally.notModified++;
@@ -99,5 +104,14 @@ export async function GET(request: Request) {
 
   await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
 
-  return NextResponse.json({ batch: ids.length, ...tally, tookMs: Date.now() - startedAt });
+  // On-demand freshness for the 24h page TTLs (src/lib/seo/revalidate.ts):
+  // mark exactly the changed pages stale; they re-render on next request.
+  const revalidated = await revalidateProjectPaths(service, syncedIds);
+
+  return NextResponse.json({
+    batch: ids.length,
+    ...tally,
+    revalidated,
+    tookMs: Date.now() - startedAt,
+  });
 }

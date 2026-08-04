@@ -119,9 +119,36 @@ export async function proxy(request: NextRequest) {
   return response;
 }
 
+/*
+ * The matcher is a POSITIVE list of the routes that need auth behavior — not
+ * "everything except assets" (2026-08-04 cost fix).
+ *
+ * Next 16 middleware is a Node function on Fluid compute, and it runs BEFORE
+ * the CDN cache: with the old match-everything pattern, every request — every
+ * crawler hit, every cache HIT, every /api/search keystroke — invoked a
+ * function first. Measured: 789 middleware invocations for 294 renders in one
+ * hour; at any traffic level, middleware ≈ total requests. On a 4h/month
+ * Active CPU budget that is the largest permanent leak in the app.
+ *
+ * Public content routes (/u/*, /t/*, /tags, marketing, /api/*) need NOTHING
+ * from this proxy: they render via the cookie-less anon client, and a
+ * signed-in visitor's session stays fresh client-side (useHeaderAuth →
+ * supabaseBrowser auto-refresh) on every page via the header island.
+ *
+ * KEEP IN SYNC with AUTHED_PREFIXES above — a gated route added there but
+ * not here would rely on its layout guard alone. Next requires matcher
+ * entries to be static literals, so this can't derive from the array.
+ */
 export const config = {
   matcher: [
-    // Everything except static assets and metadata files.
-    '/((?!_next/static|_next/image|favicon.ico|icon|opengraph-image|robots.txt|sitemap.xml|assets|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ttf|woff2?)$).*)',
+    '/',
+    '/home',
+    '/new',
+    '/saved',
+    '/following',
+    '/claim',
+    '/onboarding',
+    '/settings/:path*',
+    '/admin/:path*',
   ],
 };

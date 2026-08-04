@@ -13,7 +13,7 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  * left at its default `true`, the other ~24,600 tags still render on demand —
  * but the result is cached instead of thrown away.
  */
-const PRERENDERED_TAGS = 100;
+const PRERENDERED_TAGS = 24;
 
 /** How many co-occurring tags a page offers — enough to suggest, few enough to scan. */
 const RELATED_TAG_LIMIT = 6;
@@ -47,12 +47,6 @@ export type TagContext = {
 };
 
 /**
- * Label + description in ONE query, `cache()`d so `generateMetadata` and the
- * page body share it. Uncurated tags are still real and browsable — they just
- * have no pretty label or description yet, and render without one rather than
- * with filler.
- */
-/**
  * The busiest tags, for `generateStaticParams`. Shared by `/t/[tag]` and
  * `/t/[tag]/newest` so the two can't prerender different sets.
  */
@@ -64,6 +58,12 @@ export async function topTagSlugs(): Promise<Array<{ tag: string }>> {
   return (data ?? []).map((row) => ({ tag: row.slug }));
 }
 
+/**
+ * Label + description in ONE query, `cache()`d so `generateMetadata` and the
+ * page body share it. Uncurated tags are still real and browsable — they just
+ * have no pretty label or description yet, and render without one rather than
+ * with filler.
+ */
 export const getTagMeta = cache(async (slug: string): Promise<TagMeta> => {
   const { data } = await supabaseAnon()
     .from('tags')

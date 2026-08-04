@@ -50,7 +50,12 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  * it is. The list is small on purpose; `dynamicParams` stays default-true, so
  * the other ~16,900 projects render on demand and are cached from then on.
  */
-export const revalidate = 3600;
+// 24h, not 1h (2026-08-04): each expiry re-render costs ~16 metered ISR
+// writes on top of the CPU, and this corpus moves at sync cadence. The sync
+// and enrich pipelines revalidate a page's path on the request AFTER its row
+// actually changes (src/lib/seo/revalidate.ts), which is what makes a long
+// window fresh, not just cheap.
+export const revalidate = 86400;
 
 export async function generateStaticParams(): Promise<Array<{ username: string; slug: string }>> {
   const { data } = await supabaseAnon()
@@ -58,7 +63,9 @@ export async function generateStaticParams(): Promise<Array<{ username: string; 
     .select('slug, profiles!projects_profile_id_fkey!inner(username)')
     .eq('status', 'published')
     .order('trending_score', { ascending: false })
-    .limit(100);
+    // Small on purpose: this list opts the ROUTE into the cache; every entry
+    // is also rebuilt (× its segment entries) on EVERY deploy.
+    .limit(24);
   return (data ?? []).map((row) => ({
     username: (row.profiles as unknown as { username: string }).username,
     slug: row.slug,
@@ -104,7 +111,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { username, slug } = await params;
   const data = await getPageData(username, slug);
-  if (!data) return {};
+  // A real 404 status, not `return {}`: metadata resolves BEFORE streaming
+  // starts, so this is the one place a bad slug can still set the status —
+  // by page-body time, loading.tsx has already flushed a 200 shell. Crawlers
+  // were treating junk URLs as live pages and re-crawling them forever, a
+  // render per visit (docs/ops-cost.md).
+  if (!data) notFound();
   return {
     title: data.project.name,
     description: data.project.tagline ?? undefined,

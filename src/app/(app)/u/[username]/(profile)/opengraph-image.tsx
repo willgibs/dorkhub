@@ -9,10 +9,20 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 /**
- * Tree is dynamic anyway (docs/state.md), but this documents intent for the
- * M5 caching pass — same convention as the profile page's own `revalidate`.
+ * Cacheable for real since 2026-08-04 — see the note in the project OG
+ * route: `revalidate` alone was decorative without `generateStaticParams`,
+ * and every fetch was an uncached Satori render.
  */
-export const revalidate = 300;
+export const revalidate = 86400;
+
+export async function generateStaticParams(): Promise<Array<{ username: string }>> {
+  const { data } = await supabaseAnon()
+    .from('profiles')
+    .select('username')
+    .order('followers_count', { ascending: false })
+    .limit(24);
+  return (data ?? []).map((row) => ({ username: row.username }));
+}
 
 const MAX_NAME_LENGTH = 60;
 const MAX_BIO_LENGTH = 100;

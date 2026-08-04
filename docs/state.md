@@ -1,4 +1,4 @@
-# Current state — 2026-08-03 (LIVE · U2+W3+W4 shipped · cost incident fixed)
+# Current state — 2026-08-04 (LIVE · cost architecture D58 · OSS commitment)
 
 ## Milestones
 - **P4 COMPLETE — dorkhub.com LIVE** at $0 (D54 posture, D55 record): domain
@@ -23,15 +23,22 @@
   and both zero-states offer a way onward; route-level `loading.tsx` renders
   layout shapes, closing the last U2 bar item.
 
-- **SERVING-COST INCIDENT (2026-08-03) — fixed, watch it.** A post-launch
-  sitemap walk exhausted a month of Vercel resources in ~3 days: no dynamic
-  route had `generateStaticParams`, so every project/profile/tag hit was an
-  uncached full render. All four route families are cached now (verified
-  MISS → HIT, `no-store` gone, cache share 6% → 32%). Sitemap 36,206 →
-  17,392; robots.txt has a real disallow list; the proxy skips Supabase
-  entirely for cookieless traffic. **docs/ops-cost.md** has the baseline,
-  the one-line diagnostic, and the rules. Remaining burn is first-hits on a
-  long tail reached via tag chips — a sweep that has to finish.
+- **COST ARCHITECTURE (D58, 2026-08-04)** — the 08-03 triage traded meters
+  (CPU fixed, ISR writes 165K→393K/day: ~16 writes per page-fill, deploys
+  re-invalidate everything). Structural round: positive-list middleware
+  matcher (public routes = zero functions), crawl tiers in ONE place
+  (src/lib/seo/promoted.ts: projects top-3k promoted/all crawlable, makers
+  ≥5, tags ≥50), 24h TTLs + on-demand revalidatePath from sync/enrich, OG
+  images actually cacheable, real 404s, cron 2/hr, DEPLOY DISCIPLINE
+  (≤1-2/day — each deploy re-fills the corpus). **48h NO-DEPLOY
+  measurement in progress** — writes <~6K/day + CPU <~8min/day = Hobby
+  fits; over = ladder (tiers tighter → CF-front → Pro). docs/ops-cost.md.
+- **OPEN SOURCE (D58)** — board committed to full open source. Repo is
+  already public; OS1 sanitation round queued (going-forward repo
+  structure, history secrets scan → rotate not rewrite). **Vercel OSS
+  Program application when it opens this month** from the existing account
+  (second account blocked by phone verification; separation later via
+  native project transfer).
 
 ## Waiting on Will
 1. **Vercel Usage + Firewall tab** — I can't read billing or user agents.

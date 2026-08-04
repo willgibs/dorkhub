@@ -1,91 +1,85 @@
 import type { MetadataRoute } from 'next';
 
+import {
+  promotedProfileUsernames,
+  promotedTagSlugs,
+  walkPublishedProjects,
+} from '@/lib/seo/promoted';
 import { SITE_URL } from '@/lib/site';
-import { supabaseAnon } from '@/lib/supabase/clients';
 
-/** Long window — the promoted tag set moves on the order of weeks. */
+/** Long window — the promoted sets move on the order of days, not minutes. */
 export const revalidate = 86400;
 
 /**
- * Same threshold the sitemap promotes at. A tag below it is a listing of
- * three or four projects that all appear on richer pages elsewhere.
- */
-const TAG_CRAWL_MIN_PROJECTS = 50;
-
-/**
- * Public since launch (P4 L5, 2026-07-31) — that flip landed in the SAME
- * commit as removing layout.tsx's `robots: { index: false }` metadata.
+ * Public since launch (P4 L5). The rule set is a COST control as much as an
+ * SEO one (docs/ops-cost.md): every crawlable URL is a render plus several
+ * metered ISR writes per cache fill, and the long tails are thin content a
+ * weeks-old domain can't rank anyway.
  *
- * The disallow list is a COST control as much as an SEO one (2026-08-03).
- * Every path here resolves to a dynamic render, and a crawler walking them
- * spends a function invocation to be told it can't have the page:
+ * Google resolves Allow/Disallow by LONGEST MATCH, and matches by PREFIX —
+ * two sharp edges this file has already been cut on:
+ * - `Disallow: /new` silently blocked `/newest` (prefix match) — hence the
+ *   `$` anchor on every entry that has a real sibling route.
+ * - A specific `Allow` re-opens exactly one path from under a broad
+ *   `Disallow` because it's longer — that's how the tag and profile tiers
+ *   below work.
  *
- * - Auth-gated prefixes (`AUTHED_PREFIXES` in src/proxy.ts) 307 to
- *   `/auth/signin`, which is how ~358 invocations/day were being spent on
- *   redirects to a page no crawler should want.
- * - `/random` is `force-dynamic` and runs a database query per hit, by
- *   design — it is the one route that must never be cached, so it must not
- *   be crawled either.
- * - `/search` already carries a page-level noindex (thin client-rendered
- *   results, D27); this stops the fetch as well as the indexing.
- * - `/t/*​/newest` is the same listing as `/t/[tag]` in a different order —
- *   a pure duplicate that doubles the tag crawl surface for no new content.
+ * Tier scheme (single source of truth: src/lib/seo/promoted.ts, shared with
+ * sitemap.ts so the two surfaces can never disagree):
+ * - `/t/` closed, promoted tags re-opened `$`-anchored. 21k+ of the 24.7k
+ *   in-use tags have <5 projects.
+ * - `/u/` closed, `Allow: /u/*​/*` re-opens EVERY project page (the product —
+ *   always crawlable), promoted maker profiles re-opened `$`-anchored. The
+ *   13.9k one-project profiles are near-duplicates of their project page.
+ * - Gated prefixes, machine surfaces, and deliberately-uncacheable routes
+ *   closed outright — a crawler was spending ~358 renders/day being
+ *   redirected to /auth/signin.
  *
- * Keep this in step with `AUTHED_PREFIXES`: a new gated route added there
- * and not here is a new source of crawler-driven redirects.
+ * Everything blocked here still WORKS for humans and stays linked; nothing
+ * is noindexed. Widen the tiers via promoted.ts constants when the meter
+ * says there's room (docs/ops-cost.md).
  */
 export default async function robots(): Promise<MetadataRoute.Robots> {
-  /*
-   * THE TAG LONG TAIL IS CLOSED TO CRAWLERS (2026-08-03, board-approved).
-   *
-   * There are ~24,700 in-use tags and 21,678 of them have fewer than five
-   * projects. Removing them from the sitemap did nothing to the crawl,
-   * because a crawler reaches them through the tag chips on all 16,972
-   * project pages — 2,840 distinct paths were being walked every 30 minutes,
-   * every one a first hit that no cache can serve. Tag pages were the single
-   * largest consumer of a Fluid Active CPU allowance that had reached 146%.
-   *
-   * So `/t/` is disallowed wholesale and the tags worth having in an index
-   * are allowed back individually. `$` anchors each Allow to the exact path,
-   * so `/t/rust` does not also re-open `/t/rust-lang` or `/t/rust/newest`.
-   * Google resolves conflicts by longest match, so the specific Allow beats
-   * the general Disallow.
-   *
-   * REVERSIBLE, and expected to be reversed: nothing here is noindexed, the
-   * pages still work and are still linked. Lower the threshold or delete the
-   * Disallow once the CPU numbers in docs/ops-cost.md say there's room.
-   */
-  const { data } = await supabaseAnon()
-    .rpc('tag_tally')
-    .gte('count', TAG_CRAWL_MIN_PROJECTS)
-    .order('count', { ascending: false });
-  const promotedTags = (data ?? []).map((row) => `/t/${row.slug}$`);
+  const [projects, tagSlugs] = await Promise.all([walkPublishedProjects(), promotedTagSlugs()]);
+  const profileAllows = promotedProfileUsernames(projects).map((username) => `/u/${username}$`);
+  const tagAllows = tagSlugs.map((slug) => `/t/${slug}$`);
 
   return {
     rules: {
       userAgent: '*',
-      allow: ['/', ...promotedTags],
+      allow: [
+        '/',
+        // Every project page — two path segments under /u/.
+        '/u/*/*',
+        ...profileAllows,
+        ...tagAllows,
+      ],
       disallow: [
-        // Gated — mirrors AUTHED_PREFIXES in src/proxy.ts.
-        '/new',
-        '/settings/',
+        // Gated — mirrors AUTHED_PREFIXES in src/proxy.ts. `$`-anchored where
+        // a real public route shares the prefix (/new vs /newest).
+        '/new$',
+        '/settings',
         '/saved',
         '/following',
-        '/admin/',
+        '/admin',
         '/onboarding',
         '/claim',
         // The redirect target itself.
-        '/auth/',
+        '/auth',
         // Machine surfaces, never content.
-        '/api/',
-        // Deliberately uncacheable, or already noindexed.
+        '/api',
+        // Deliberately uncacheable (a DB query per hit, by design) or
+        // already noindexed.
         '/random',
         '/weird',
         '/search',
-        // The tag long tail — see the note above. The Allow list re-opens the
-        // ~280 tags with a real listing behind them; this closes the other
-        // ~24,400, and `/t/*/newest` (a sort duplicate) for all of them.
+        // Longer than the project-page Allow, so it wins for these paths:
+        // lists pages are force-dynamic (a render per hit, uncacheable by
+        // design) and must not be crawled through the /u/*​/* re-open.
+        '/u/*/lists',
+        // The long tails — see the tier scheme above.
         '/t/',
+        '/u/',
       ],
     },
     sitemap: `${SITE_URL}/sitemap.xml`,

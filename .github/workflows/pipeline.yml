@@ -16,7 +16,11 @@ name: pipeline
 
 on:
   schedule:
-    - cron: '4,19,34,49 * * * *' # offset minutes — GitHub delays top-of-hour jobs under load
+    # Twice hourly since 2026-08-04 (was 4/hour): the enrich pass is
+    # AI-budget-throttled, so halving the cadence halves the invocation +
+    # CPU overhead at IDENTICAL enrichment throughput. Offset minutes —
+    # GitHub delays top-of-hour jobs under load.
+    - cron: '4,34 * * * *'
   workflow_dispatch:
 
 concurrency:

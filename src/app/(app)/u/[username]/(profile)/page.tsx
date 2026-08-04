@@ -32,7 +32,7 @@ import { supabaseAnon } from '@/lib/supabase/clients';
  * what actually makes the caching real; `dynamicParams` stays default-true so
  * the other ~13,900 profiles still render on demand, and are cached after.
  */
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 /** The makers with a real body of work — same set the sitemap promotes. */
 export async function generateStaticParams(): Promise<Array<{ username: string }>> {
@@ -40,7 +40,7 @@ export async function generateStaticParams(): Promise<Array<{ username: string }
     .from('profiles')
     .select('username')
     .order('followers_count', { ascending: false })
-    .limit(100);
+    .limit(24);
   return (data ?? []).map((row) => ({ username: row.username }));
 }
 
@@ -61,7 +61,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { username } = await params;
   const profile = await getProfile(username);
-  if (!profile) return {};
+  // Real 404 for unknown makers — see the note on the project page's
+  // generateMetadata; same soft-404 class, same fix.
+  if (!profile) notFound();
   return {
     title: profile.display_name ?? `@${profile.username}`,
     description: profile.bio ?? undefined,

@@ -63,6 +63,21 @@ Firewall (same day): 7.5k requests/hour, Bot Protection **inactive**, 2 IPs
 denied by DDoS mitigation. Hobby exposes no user-agent breakdown, so whether
 the crawler is Googlebot or something ruder is still unproven.
 
+## The second lesson (2026-08-04): the triage traded meters
+
+The caching fix stopped the CPU bleed and detonated ISR WRITES: 165K → 393K
+in one day. On Vercel an ISR render is CPU **plus ~16 metered cache writes**
+(HTML + RSC payload + Next 16 per-segment entries) **plus origin transfer**
+for the fill — and every deploy invalidates the whole on-demand cache, so 8
+incident-day deploys each restarted the fill wave. Dynamic rendering burns
+the CPU meter; ISR burns the write meter. The fix for BOTH is demand-side:
+fewer crawlable URLs asked for, longer TTLs, revalidation only on real
+change, few deploys.
+
+**DEPLOY DISCIPLINE IS A COST CONTROL.** Every production deploy invalidates
+every on-demand-cached page; the next crawl sweep re-renders and re-writes
+all of them. Batch work into as few deploys as possible — target ≤1–2/day.
+
 ## Baseline (post-fix, 2026-08-03)
 
 Route-level invocations from Vercel runtime logs, grouped by `route`.
@@ -102,19 +117,42 @@ four figures per hour — that means caching broke again.
    sitemap threshold multiplies renders. `src/app/robots.ts` and the
    thresholds in `src/app/sitemap.ts` are cost controls; both say so.
 
+## The structural round (2026-08-04) — what closed the remaining leaks
+
+- **Middleware matcher is a positive list** (src/proxy.ts): Next 16 proxy is
+  a Node function that runs BEFORE the CDN cache — it was invoking on every
+  request including cache HITs (789 middleware for 294 renders in one hour).
+  Public routes now involve no function at all.
+- **Soft 404s: mitigated, not status-fixed.** With `loading.tsx` streaming,
+  the 200 status commits before any lookup can 404 — `notFound()` in
+  `generateMetadata` was added (correct where rendering blocks) but measured
+  ineffective for streamed responses, bot UA or not. What actually bounds the
+  damage: Next auto-injects `<meta name="robots" content="noindex">` on
+  not-found content (verified), so junk URLs never index and their recrawl
+  decays; and the 404 render is ISR-cached like any other on-demand result.
+  A real status-404 would require dropping the route-level loading states —
+  not worth it.
+- **OG images cacheable** — they exported `revalidate = 300` for months and
+  MISSed every hit: metadata routes need `generateStaticParams` to enter the
+  route cache, exactly like pages. Every fetch was a full Satori render.
+- **On-demand revalidation live**: sync + enrich return touched project ids;
+  the cron routes `revalidatePath` exactly those. Page TTLs are 24h — cheap
+  AND fresh-on-change.
+- **Crawl tiers unified in src/lib/seo/promoted.ts** (sitemap + robots share
+  one definition): top-3,000 projects promoted (all crawlable), makers ≥5
+  projects, tags ≥50. The tiers are the knob — widen via those constants
+  when the meter says there's room, or after Vercel OSS Program credits.
+- **Strategy ladder** (board, 2026-08-04): survive Hobby with tiers →
+  apply to the Vercel Open Source Program when it opens this month (repo
+  is being committed to full open source) → if rejected and pressure
+  returns, Cloudflare-front (free) → Pro last, or when sponsors land.
+
 ## Known, still open
 
-- **Soft 404s**: a nonexistent project or profile URL returns HTTP 200 with
-  404 content, because `loading.tsx` flushes the shell before `notFound()`
-  runs. Pre-existing (confirmed on prod before the fix). Crawler-visible and
-  worth fixing.
-- **On-demand revalidation** from the pipeline cron would let the hour go much
-  longer with no staleness. See the note in `src/app/api/cron/pipeline/route.ts`.
-- **The tag long tail is closed to crawlers** (`Disallow: /t/` + 280
-  `$`-anchored Allows in `src/app/robots.ts`) and the sitemap thresholds are
-  aggressive (tags ≥50, profiles ≥5). Both were set under duress and both are
-  meant to be relaxed: nothing is noindexed, the pages work and stay linked.
-  Lower the threshold when the CPU number says there's room — with numbers,
-  not by feel.
-- **Web Analytics is not actually enabled** (the API 404s), so there is no
-  human-vs-crawler traffic split. Worth turning on before tuning further.
+- **48h clean measurement pending** (no deploys!): ISR writes/day < ~6K and
+  Active CPU < ~8 min/day means Hobby fits. Over → execute the ladder.
+- **OG cacheability must be verified on prod** (MISS → HIT after this
+  deploy); if it still misses, swap project/profile metadata to the static
+  brand card — decision pre-approved by the board.
+- **Web Analytics not actually collecting** (API 404s), so there is still no
+  human-vs-crawler split.

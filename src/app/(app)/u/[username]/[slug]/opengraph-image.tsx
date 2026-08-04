@@ -11,10 +11,27 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 /**
- * Tree is dynamic anyway (docs/state.md), but this documents intent for the
- * M5 caching pass — same convention as the project page's own `revalidate`.
+ * Cacheable for real since 2026-08-04. The old `revalidate = 300` here was
+ * decorative — verified MISS on every hit in prod, because a metadata route
+ * under a dynamic segment needs `generateStaticParams` to enter the route
+ * cache, exactly like the page it belongs to. Every social scraper or image
+ * crawler was paying a full Satori render — the most CPU-expensive single
+ * operation in the app — per fetch, across 16,972 project URLs.
  */
-export const revalidate = 300;
+export const revalidate = 86400;
+
+export async function generateStaticParams(): Promise<Array<{ username: string; slug: string }>> {
+  const { data } = await supabaseAnon()
+    .from('projects')
+    .select('slug, profiles!projects_profile_id_fkey!inner(username)')
+    .eq('status', 'published')
+    .order('trending_score', { ascending: false })
+    .limit(24);
+  return (data ?? []).map((row) => ({
+    username: (row.profiles as unknown as { username: string }).username,
+    slug: row.slug,
+  }));
+}
 
 const MAX_NAME_LENGTH = 60;
 const MAX_TAGLINE_LENGTH = 120;
