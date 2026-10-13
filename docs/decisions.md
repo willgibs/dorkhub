@@ -15,5 +15,7 @@ One line each, newest last. Why, not just what.
 - 2026-10-13 · The Hub (shared rabbit holes) is left out of launch.
 - 2026-10-13 · Trial units are reserved before the writer starts and refunded only if nothing was bought (writer failed, or the reader left before it started). Hanging up mid-write is charged, so dropped requests can't spend Dorkhub's tokens for free.
 - 2026-10-13 · Trial counts are atomic in Upstash Redis (free tier) when connected; Runtime Cache is the fallback and can drift across instances. Redis is a prerequisite for a public launch.
-- 2026-10-13 · Network caps are 20 devices' worth (120 pages), not 4, because schools, offices and mobile carriers share addresses; an IPv6 /48 gets 5 networks' worth so tunnelled /48s can't mint networks. Pending Will's OK.
+- 2026-10-13 · Network caps are 20 devices' worth (120 pages), not 4, because schools, offices and mobile carriers share addresses; an IPv6 /48 gets 5 networks' worth so tunnelled /48s can't mint networks. Will approved.
 - 2026-10-13 · Only answers that finished cleanly and pass a per-task sanity check are cached; aborts, cut-offs and garbled JSON never reach other readers.
+- 2026-10-13 · AI Gateway budget starts at $5/month (Will): one runaway mistake can't cost much; raise it slowly as real usage shows what's needed.
+- 2026-10-13 · Firewall: one rate-limit rule on /api/write, 40 requests per 60 s per IP, then 429. Old env vars removed; production authenticates to AI Gateway by OIDC only.
