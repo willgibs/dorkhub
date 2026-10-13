@@ -1,0 +1,29 @@
+{
+  "name": "dorkhub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Get lost learning: an encyclopedia that writes itself around your curiosity.",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/dev.mjs",
+    "typecheck": "tsc --noEmit -p .",
+    "test": "node --test tests/*.test.js",
+    "verify": "node scripts/build.mjs && tsc --noEmit -p . && node --test tests/*.test.js",
+    "e2e": "node scripts/e2e.mjs"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.79",
+    "@ai-sdk/google": "^4.0.95",
+    "@ai-sdk/openai": "^4.0.93",
+    "@vercel/functions": "^3.10.0",
+    "ai": "^7.0.139"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3"
+  }
+}

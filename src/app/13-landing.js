@@ -1,0 +1,167 @@
+/* ================= the landing page ================= */
+const CHAINS = [
+  { lede: 'From a medieval cipher to the hexagons inside your brain', steps: ['Voynich manuscript', 'Radiocarbon dating', 'Bomb pulse', 'Adult neurogenesis', 'Hippocampus', 'Grid cells', 'Hexagonal lattices'] },
+  { lede: 'From a 1630s market bubble to the bacteria that became part of you', steps: ['Tulip mania', 'Tulip breaking virus', 'Aphids', 'Buchnera', 'Endosymbiosis', 'Mitochondrial Eve'] },
+  { lede: 'From a war Australia lost to birds, to the woman who mapped the ocean floor', steps: ['The Great Emu War', 'Ratites', 'Gondwana', 'Continental drift', 'Marie Tharp', 'Mid-Atlantic Ridge'] },
+  { lede: 'From a question about skating to the atmosphere of 800,000 years ago', steps: ['Why is ice slippery?', 'Premelting', 'Michael Faraday', 'Regelation', 'Glaciers', 'Ice cores'] },
+];
+const DOORS = [
+  { t: 'The Carrington Event', h: 'The 1859 solar storm that set telegraph offices sparking.', k: 'event' },
+  { t: 'Tardigrades', h: 'Animals that survive freezing, boiling and the vacuum of space.', k: 'thing' },
+  { t: 'Whale falls', h: 'One dead whale can feed a deep-sea ecosystem for decades.', k: 'phenomenon' },
+  { t: 'The Antikythera mechanism', h: 'A 2,000-year-old Greek computer, found in a shipwreck.', k: 'thing' },
+  { t: 'The Voynich manuscript', h: 'A 600-year-old book that nobody can read.', k: 'mystery' },
+  { t: 'Umami', h: 'The fifth taste, first identified in a bowl of seaweed broth.', k: 'concept' },
+  { t: 'Why is ice slippery?', h: 'Physicists have argued about it since Michael Faraday.', k: 'mystery' },
+  { t: 'The Great Emu War', h: 'In 1932 Australia sent machine guns after emus. The emus won.', k: 'event' },
+  { t: 'Kessler syndrome', h: 'How one collision could lock us out of orbit for generations.', k: 'phenomenon' },
+  { t: 'Fresnel lenses', h: 'How lighthouses folded a giant lens into rings of glass.', k: 'mechanism' },
+  { t: 'Tulip mania', h: 'The 1630s bubble where a single bulb reportedly cost a house.', k: 'event' },
+  { t: 'Bioluminescence', h: 'Most animals in the deep ocean make their own light.', k: 'phenomenon' },
+];
+const KIND_ONE = { concept: 'Idea', phenomenon: 'Phenomenon', mechanism: 'Mechanism', place: 'Place', person: 'Person', event: 'Event', thing: 'Thing', mystery: 'Mystery' };
+const ASKS = ['Why is ice slippery?', 'The Voynich manuscript', 'How do octopuses taste with their arms?', 'The Great Emu War', 'Why do cats knead?', 'Lighthouse lenses', 'What was the Carrington Event?', 'Umami', 'How does a sourdough starter stay alive?', 'Whale falls'];
+const LTOOLS = [
+  ['Peek', 'Read a short explainer on any link without leaving the page.'],
+  ['Expand a paragraph', 'Plainer words, one level deeper, an example, or the counterpoint.'],
+  ['Sketch it', 'Any page draws its own diagram, and every box is a link.'],
+  ['Around this', 'A map of the topics surrounding the page you’re on.'],
+  ['Connect', 'Pick two pages and get the chain of ideas that joins them.'],
+  ['Skeptic mode', 'Flags the claims most worth double-checking, right in the text.'],
+];
+function viewStart() {
+  const saved = store.warrens.filter(w => w.nodes[w.root]).sort((a, b) => (b.seenAt || b.updated) - (a.seenAt || a.updated));
+  const last = saved[0]; const lastCur = last && (last.nodes[last.current] || last.nodes[last.root]);
+  const day = Math.floor(Date.now() / 864e5); const today = DOORS[day % DOORS.length];
+  const doors = [today, ...DOORS.filter(d => d !== today).sort(() => Math.random() - .5).slice(0, 3)];
+  const legend = Object.entries(KIND_LABEL).map(([k, l]) => `<span data-kind="${k}"><i></i>${l}</span>`).join('');
+  return `<section class="hero">
+  <div class="hero-l">
+    <h1 class="s-h" tabindex="-1">Get lost<br>learning<span class="dot">.</span></h1>
+    <p class="s-lede">An encyclopedia that writes itself around you. Start anywhere, and every link opens a page written for the path you took to reach it.</p>
+    <form class="seed" id="seedForm" autocomplete="off"><label class="sr" for="seedIn">What are you curious about?</label><input id="seedIn" maxlength="160" placeholder="${esc(ASKS[0])}"><button class="btn glow" type="submit">Start reading</button></form>
+    <p class="seed-err" id="seedErr" aria-live="polite"></p>
+    <div class="doors" aria-label="Places to start">${doors.map((d, i) => `<button class="door${i === 0 ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-kind="${d.k}" data-tip="${i === 0 ? 'Today’s rabbit hole. ' : ''}${esc(d.h)}"><i></i>${esc(d.t)}</button>`).join('')}<button class="door dice" type="button" data-act="surprise"${tipAttrs('Surprise me')}>${ic('dice')}</button></div>
+    ${last ? `<a class="resume" href="#/w/${last.id}/${lastCur.id}" data-s="${stratumOf(lastCur.depth)}" data-tip="Level ${lastCur.depth}, on ${esc(clip(lastCur.title, 48))}"><span class="mk">${lastCur.depth}</span>Continue <b>${esc(last.nodes[last.root].title)}</b><span class="rs-go">→</span></a>` : ''}
+    <div id="statusSlot">${trialLine()}</div>
+  </div>
+  <div class="hero-r"><div class="demo" id="demo" aria-hidden="true"></div></div>
+</section>
+
+<section class="land-sec" aria-labelledby="goH">
+  <h2 id="goH" class="land-h">Where rabbit holes go</h2>
+  <ul class="chains">${CHAINS.slice(0, 3).map(c => `<li class="chain" data-seed="${esc(c.steps[0])}" role="button" tabindex="0"><p class="ch-l">${esc(c.lede)}</p><ol class="ch-dots">${c.steps.map((t, i) => `<li data-s="${stratumOf(i)}"><i></i><span>${esc(t)}</span></li>`).join('')}</ol><span class="ch-go">Start at ${esc(c.steps[0])} →</span></li>`).join('')}</ul>
+</section>
+
+<section class="land-sec" aria-labelledby="howH">
+  <h2 id="howH" class="land-h">How it works</h2>
+  <ul class="ideas lite">
+    <li><p class="klegend">${legend}</p><h3>Links you can read at a glance</h3><p>Every link is coloured by what it leads to, so you can see where it goes before you click.</p></li>
+    <li><ol class="spectrum mini" aria-label="Eight levels, from Curious to Beyond">${LEVELS.map((l, i) => `<li data-s="${i}" title="${esc(l.name)}"><i></i></li>`).join('')}</ol><h3>The deeper you go, the nerdier it gets</h3><p>Eight levels, from Curious to Beyond, each with its own colour. Pages get more specific as you descend.</p></li>
+    <li><p class="mini-bridge" data-s="1">From <u>Voynich manuscript</u>: here’s how a lab read a calf’s date of death from a page of parchment.</p><h3>Written for your path</h3><p>Every page opens by connecting to where you came from, so a rabbit hole reads like one story.</p></li>
+  </ul>
+</section>
+
+${saved.length ? `<section class="saved" aria-labelledby="savedH"><div class="sec-h"><h2 id="savedH">Your rabbit holes</h2></div><ul class="cards">${saved.slice(0, 6).map(w => {
+    const ns = Object.values(w.nodes); const cur = w.nodes[w.current] || w.nodes[w.root]; const deep = Math.max(...ns.map(n => n.depth));
+    return `<li><a href="#/w/${w.id}/${cur.id}">${esc(w.nodes[w.root].title)}</a><p class="card-path">${ns.slice(0, 12).map(n => `<i data-s="${stratumOf(n.depth)}"></i>`).join('')}</p><p>${ns.length} page${ns.length === 1 ? '' : 's'}, down to level ${deep}. ${relTime(w.seenAt || w.updated)}.</p><button class="del linkish" type="button" data-del="${w.id}">Delete</button></li>`;
+  }).join('')}</ul></section>` : ''}
+<footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Pages are written live by AI for the path you take, so check anything you plan to repeat. Your rabbit holes stay in this browser, and nothing you read is tracked.</p></footer>`;
+}
+
+/* ================= the hero demo: a scripted rabbit hole, nothing written live ================= */
+const DEMO_PAGES = [
+  { t: 'Voynich manuscript', deck: 'A 15th-century book in a script nobody has ever read.', bridge: ['Where it starts', 'A real object, a century of failed codebreakers, and doors into botany, astronomy and forgery.'],
+    body: ['An illustrated codex of impossible plants, star charts and bathing figures, written in an ', ['alphabet no one has deciphered', '', 'mystery', 'Voynichese'], '. In 2009, ', ['radiocarbon dating', 'go', 'mechanism', 'Radiocarbon dating'], ' placed its vellum between 1404 and 1438, which only deepened the ', ['mystery of its author', '', 'mystery', 'Who wrote the Voynich manuscript?'], '.'],
+    note: 'A 1665 letter claims an emperor paid 600 gold ducats for it.', hook: 'A clock hidden in every living thing that starts at death.' },
+  { t: 'Radiocarbon dating', deck: 'The clock that starts ticking the moment something dies.', bridge: ['From Voynich manuscript', 'Here’s how a lab read a calf’s date of death from a page of parchment.'],
+    body: ['Every living thing absorbs ', ['carbon-14', '', 'thing', 'Carbon-14'], ' from the air. When it dies, the clock starts: half of it decays every 5,730 years. Then Cold War bomb tests nearly doubled the carbon-14 in the atmosphere, a spike called the ', ['bomb pulse', '', 'phenomenon', 'Bomb pulse'], '.'],
+    note: 'Libby’s method won the 1960 Nobel Prize in Chemistry.', next: 'Bomb pulse' },
+  { t: 'Bomb pulse', deck: 'The moment humans broke the clock, and accidentally built a better one.', bridge: ['From Radiocarbon dating', 'The spike that ruined old dates turned into one of science’s sharpest timestamps.'],
+    body: ['Nuclear tests in the 1950s and 60s left a timestamp in every living body. Scientists now use it to date ', ['cells in the human brain', '', 'thing', 'Adult neurogenesis'], ', ', ['tooth enamel', '', 'thing', 'Tooth enamel'], ' and ', ['seized elephant ivory', '', 'event', 'Ivory forensics'], '.'],
+    note: 'It showed that some neurons in your hippocampus are younger than you are.' },
+];
+let DEMO_RUN = 0;
+const dsleep = (ms, run) => new Promise((res, rej) => setTimeout(() => (run === DEMO_RUN ? res() : rej('stop')), ms));
+function demoShell() {
+  return `<div class="dm-win"><div class="dm-top"><span class="dm-logo">dorkhub</span><span class="dm-trail"></span><span class="meter dm-meter">${LEVELS.map((l, i) => `<i data-s="${i}"></i>`).join('')}</span></div>
+<div class="dm-stage"><div class="dm-page"></div></div><div class="dm-card" hidden></div><button class="dm-pill" type="button" tabindex="-1" hidden></button><span class="dm-toast" hidden></span>
+<svg class="dm-cursor" viewBox="0 0 16 20" width="16" height="20" aria-hidden="true"><path d="M1 1 L1 16 L5 12 L8 19 L10.5 18 L7.5 11 L13 11 Z" fill="#18181B" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg></div>`;
+}
+function demoPageHTML(p, lvl) {
+  return `<p class="dm-where"><b>${lvl}</b>${esc(LEVELS[lvl].name)}</p><h3 class="dm-title">${esc(p.t)}</h3><p class="dm-deck">${esc(p.deck)}</p><div class="dm-bridge"><span>${esc(p.bridge[0])}</span>${esc(p.bridge[1])}</div><div class="dm-body"><p class="dm-p"></p><aside class="dm-note" hidden><span>aside</span>${esc(p.note)}</aside></div>`;
+}
+async function typeBody(el, tokens, run) {
+  for (const tk of tokens) {
+    let target = el, text = tk;
+    if (Array.isArray(tk)) { target = document.createElement('span'); target.className = 'hole'; if (tk[1]) target.dataset.go = '1'; if (tk[2]) target.dataset.kind = tk[2]; if (tk[3]) { target.dataset.seed = tk[3]; target.dataset.tip = `Start a rabbit hole on ${tk[3]}`; } el.appendChild(target); text = tk[0]; }
+    const node = document.createTextNode(''); target.appendChild(node);
+    for (let i = 0; i < text.length; i += 3) { node.data = text.slice(0, i + 3); await dsleep(16, run); }
+  }
+}
+function moveCursor(cur, win, el, dx = .5, dy = .6) {
+  const wr = win.getBoundingClientRect(); const r = el.getBoundingClientRect();
+  cur.style.transform = `translate(${r.left - wr.left + r.width * dx}px, ${r.top - wr.top + r.height * dy}px)`;
+}
+async function heroDemo() {
+  const host = $('#demo'); if (!host) return; const run = ++DEMO_RUN;
+  host.innerHTML = demoShell();
+  const win = $('.dm-win', host), stage = $('.dm-stage', host), trail = $('.dm-trail', host), meter = $('.dm-meter', host), card = $('.dm-card', host), pill = $('.dm-pill', host), toastEl = $('.dm-toast', host), cur = $('.dm-cursor', host);
+  const setLevel = (lvl, bump) => {
+    win.dataset.s = lvl; $$('i', meter).forEach((m, i) => m.classList.toggle('on', i <= lvl));
+    if (bump) { meter.classList.remove('up'); void meter.offsetWidth; meter.classList.add('up'); }
+  };
+  if (reducedMotion()) {
+    const p = DEMO_PAGES[1]; setLevel(1); trail.textContent = 'Voynich manuscript › Radiocarbon dating';
+    const page = $('.dm-page', stage); page.innerHTML = demoPageHTML(p, 1);
+    $('.dm-p', page).innerHTML = p.body.map(t => Array.isArray(t) ? `<span class="hole"${t[2] ? ` data-kind="${t[2]}"` : ''}${t[3] ? ` data-seed="${esc(t[3])}"` : ''}>${esc(t[0])}</span>` : esc(t)).join(''); $('.dm-note', page).hidden = false; cur.style.display = 'none'; return;
+  }
+  try {
+    for (;;) {
+      cur.style.opacity = '0'; cur.style.transition = 'none'; cur.style.transform = 'translate(420px, 440px)';
+      let page = $('.dm-page', stage); page.className = 'dm-page'; page.style.cssText = '';
+      for (let lvl = 0; lvl < DEMO_PAGES.length; lvl++) {
+        const p = DEMO_PAGES[lvl]; setLevel(lvl, lvl > 0);
+        trail.textContent = DEMO_PAGES.slice(0, lvl + 1).map(x => x.t).join(' › ');
+        page.innerHTML = demoPageHTML(p, lvl); page.classList.add('in');
+        await dsleep(450, run);
+        await typeBody($('.dm-p', page), p.body, run);
+        await dsleep(250, run); $('.dm-note', page).hidden = false;
+        await dsleep(900, run);
+        if (lvl === 0) {
+          const link = $('[data-go]', page); cur.style.transition = 'transform .9s cubic-bezier(.3,.7,.2,1), opacity .3s'; cur.style.opacity = '1';
+          moveCursor(cur, win, link); await dsleep(950, run);
+          link.classList.add('v-on'); card.innerHTML = `<p class="hc-meta"><span class="kind" data-kind="mechanism">mechanism</span><span>Not read yet</span></p><p class="hc-title">Radiocarbon dating</p><p class="hc-hook">${esc(p.hook)}</p><span class="dm-cta">Open page ↵</span>`;
+          card.style.visibility = 'hidden'; card.hidden = false;
+          const wr = win.getBoundingClientRect(), lr = link.getBoundingClientRect(); const ch = card.offsetHeight;
+          const below = lr.bottom - wr.top + 8; const top = below + ch > wr.height - 12 ? lr.top - wr.top - ch - 8 : below;
+          card.style.left = `${Math.max(10, Math.min(lr.left - wr.left, wr.width - card.offsetWidth - 10))}px`; card.style.top = `${top}px`; card.style.visibility = '';
+          await dsleep(1500, run);
+          moveCursor(cur, win, $('.dm-cta', card)); await dsleep(900, run);
+          cur.classList.add('click'); await dsleep(180, run); cur.classList.remove('click'); card.hidden = true;
+          const title = $('.dm-title', page); const ghost = document.createElement('span'); ghost.className = 'dm-ghost'; ghost.textContent = link.textContent;
+          const r1 = link.getBoundingClientRect(), r2 = title.getBoundingClientRect(), w0 = win.getBoundingClientRect();
+          ghost.style.left = `${r1.left - w0.left}px`; ghost.style.top = `${r1.top - w0.top}px`; win.appendChild(ghost);
+          page.classList.add('out'); cur.style.opacity = '0';
+          requestAnimationFrame(() => { ghost.style.transform = `translate(${r2.left - r1.left}px, ${r2.top - r1.top}px) scale(1.9)`; ghost.style.color = 'var(--ink)'; });
+          await dsleep(520, run); ghost.remove();
+        } else if (lvl === 1) {
+          pill.innerHTML = `<span class="un-dot"></span><span class="un-l">Up next</span><b>${esc(p.next)}</b><kbd>J</kbd>`; pill.dataset.s = 2; pill.hidden = false;
+          await dsleep(500, run); cur.style.opacity = '1'; moveCursor(cur, win, pill, .6, .55); await dsleep(1000, run);
+          cur.classList.add('click'); await dsleep(180, run); cur.classList.remove('click'); pill.hidden = true; cur.style.opacity = '0';
+          page.classList.add('out'); await dsleep(380, run);
+          toastEl.textContent = LEVEL_UP[2]; toastEl.hidden = false; setTimeout(() => { if (run === DEMO_RUN) toastEl.hidden = true; }, 2200);
+        } else { await dsleep(3200, run); page.classList.add('out'); await dsleep(500, run); }
+        page.className = 'dm-page';
+      }
+    }
+  } catch (e) { /* stopped */ }
+}
+function stopDemo() { DEMO_RUN++; }
+let ASK_T = 0;
+function rotateAsks() {
+  clearInterval(ASK_T); if (reducedMotion()) return; let i = 0;
+  ASK_T = setInterval(() => { const inp = $('#seedIn'); if (!inp) { clearInterval(ASK_T); return; } if (document.activeElement === inp || inp.value) return; i = (i + 1) % ASKS.length; inp.placeholder = ASKS[i]; }, 2600);
+}
+function startLanding() { heroDemo(); rotateAsks(); }
+function stopLanding() { stopDemo(); clearInterval(ASK_T); }
