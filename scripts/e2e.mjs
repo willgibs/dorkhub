@@ -40,6 +40,9 @@ async function run(page, { mobile = false } = {}) {
     const line = await page.locator('#status').textContent();
     if (!line.includes(`first ${PAGES} pages are on us`)) throw new Error(`status line: ${line}`);
     if ((await badge()) !== String(PAGES)) throw new Error(`badge ${await badge()}`);
+    /* the fonts are our own files, so they load under the page's CSP without asking any third party */
+    const fams = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, '')); });
+    for (const f of ['Literata', 'Atkinson Hyperlegible Next']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
   await step(`${tag}: first page streams in`, async () => {
