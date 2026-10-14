@@ -5,7 +5,8 @@
 ## How it works
 
 - **One static page.** `public/index.html` is built from `src/` (plain JavaScript, no framework, no bundler) and served from Vercel's CDN. Rabbit holes live in the reader's browser.
-- **One function.** `POST /api/write` is the only server code (`api/write.js` → `lib/write.js`). The page names a task (`page`, `peek`, `sketch`…) and sends structured context: titles, the path, a passage. The server owns every prompt (`lib/prompts.js`), chooses the writer (`lib/ai.js`) and streams plain text back.
+- **Two functions.** `POST /api/write` (`api/write.js` → `lib/write.js`) writes every word. The page names a task (`page`, `peek`, `sketch`…) and sends structured context: titles, the path, a passage. The server owns every prompt (`lib/prompts.js`), chooses the writer (`lib/ai.js`) and streams plain text back. `GET /api/picture` (`lib/picture.js`) finds a page's lead picture on Wikipedia and serves it through our own origin; no model is involved.
+- **Pages written ahead of time.** The landing's doors, and the pages one click off them, can be pre-written in `lib/seeds` and are then served free (`lib/seeds.js`).
 - **Shared code.** `src/shared/article.js` (the page-format parser) and `src/shared/models.js` (the model catalog) run on both sides. The build inlines them into the page.
 
 ## Who pays for the words
@@ -35,7 +36,7 @@ npx playwright install chromium  # once, for the browser test
 npm run e2e                      # the whole reader flow in Chromium, desktop and phone
 ```
 
-The mock writer replays real recorded pages (try The Great Emu War, Tulip mania, Mantis shrimp vision or Why is ice slippery?) at a writer's pace, and streams correctly formatted stand-ins for anything else. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
+The mock writer replays real recorded pages (try Lanchester's laws, Bog bodies, Mantis shrimp vision or Lewis gun, which show off the v2 panels) at a writer's pace, and streams correctly formatted stand-ins for anything else. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
 
 ## Deploy
 
