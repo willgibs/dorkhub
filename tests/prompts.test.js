@@ -66,6 +66,12 @@ test('inputs are clipped and validated, never trusted', () => {
   assert.throws(() => TASKS.quiz.input({ pages: [{ title: 'only one', text: 't' }] }), BadInput);
 });
 
+test('a recap hears what each page said, not just its deck', () => {
+  const c = TASKS.recap.input({ pages: [{ title: 'A', deck: 'd', text: 'Ivanovsky filtered sap in 1892.' }, { title: 'B', text: 'x'.repeat(900) }] });
+  assert.equal(c.pages[1].text.length, 420);
+  assert.match(TASKS.recap.prompt(c), /- level 0: A: d\n  What it said: Ivanovsky filtered sap in 1892\./);
+});
+
 test('small tasks name the page and the path', () => {
   const c = TASKS.peek.input({ title: 'Bomb pulse', path: [{ title: 'Voynich manuscript' }], passage: 'p', target: 'Carbon-14' });
   const p = TASKS.peek.prompt(c);

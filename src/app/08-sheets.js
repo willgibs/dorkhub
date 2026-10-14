@@ -46,7 +46,8 @@ async function fieldNotes(fresh) {
   const untaken = [...new Set(done.flatMap(n => parseArticle(n.text).tunnels.map(t => t.target)).filter(t => !read.has(keyOf(t))))].slice(0, 14);
   const ctl = sheetCtl = new AbortController();
   try {
-    const { text } = await write('recap', { pages: done.map(n => ({ depth: n.depth, title: n.title, deck: n.deck ? clip(n.deck, 400) : '' })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = mdToHTML(text); } });
+    const said = n => { const A = parsed(n); return clip([...A.facts.map(f => `${f[0]}: ${f[1]}`), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
+    const { text } = await write('recap', { pages: done.map(n => ({ depth: n.depth, title: n.title, deck: n.deck ? clip(n.deck, 400) : '', text: said(n) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = mdToHTML(text); } });
     w.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', mdToHTML(text), notesFoot());
   } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
 }
