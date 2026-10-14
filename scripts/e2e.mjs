@@ -53,6 +53,25 @@ async function run(page, { mobile = false } = {}) {
     if ((await badge()) !== String(PAGES)) throw new Error(`a door page spent a free page: badge ${await badge()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
+  /* the dice only ever opens a page written ahead of time, and never one already on screen */
+  await step(`${tag}: the dice opens a door that isn't on screen`, async () => {
+    const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
+    await page.locator('[data-act="surprise"]').click(); await waitDone();
+    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint span')?.textContent || '' }));
+    if (shown.includes(p.title) || !/written ahead of time/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
+    if ((await badge()) !== String(PAGES)) throw new Error(`the dice spent a free page: badge ${await badge()}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
+  /* the demo is a picture, not a control, and it pauses when asked */
+  if (!mobile) {
+    await step(`${tag}: the demo pauses and plays`, async () => {
+      await page.locator('#demoPause').click();
+      const d = await page.evaluate(() => ({ pressed: document.querySelector('#demoPause')?.getAttribute('aria-pressed'), held: !!document.querySelector('#demo.held'), events: getComputedStyle(/** @type {Element} */ (document.querySelector('#demo'))).pointerEvents }));
+      if (d.pressed !== 'true' || !d.held || d.events !== 'none') throw new Error(`demo: ${JSON.stringify(d)}`);
+      await page.locator('#demoPause').click();
+      if (await page.locator('#demo.held').count()) throw new Error('the demo stayed paused');
+    });
+  }
   /* pictures come from our own endpoint: one found on desktop, none on the phone */
   if (!mobile) {
     await page.route('**/api/picture?t=*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ src: '/api/picture?f=a%2Fab%2FTest.jpg&w=500', w: 500, h: 300, alt: 'A test picture', credit: 'E2E', license: 'CC0', file: 'https://commons.wikimedia.org/wiki/File:Test.jpg' }) }));

@@ -80,7 +80,8 @@ document.addEventListener('click', e => {
   const a = act.dataset.act; if (act.tagName === 'A') e.preventDefault();
   const md = act.closest('details.more'); if (md) md.open = false;
   const node = W && W.nodes[act.dataset.nid || nidOf(act)];
-  if (a === 'surprise') newWarren(SEEDS[Math.floor(Math.random() * SEEDS.length)]);
+  if (a === 'surprise') surprise();
+  else if (a === 'demo-pause') toggleDemo();
   else if (a === 'demo') newWarren('Voynich manuscript', { demo: true });
   else if (a === 'up' && node && node.parent) nav(node.parent, 'up');
   else if (a === 'stop' && node) { const c = ACTIVE.get(node.id); if (c) c.abort(); }
