@@ -15,8 +15,9 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     the ask row; floating margin notes; a writer-paced reveal
   - lead pictures from Wikipedia via `api/picture` (no model; only our own page is answered)
   - the serving for pre-written pages (`lib/seeds`, empty until the door pages land)
-- **Door pages:** 12 landing doors are being written by Opus and fact-checked, to be added
-  to PR #3. Then the pages one click off each door (about 240), in waves.
+- **Door pages:** all 12 landing doors are in `lib/seeds`, written by Opus and fact-checked
+  (corrections in the commit). The preview serves them free (`x-dh-cache: seed`). Next: the
+  pages one click off each door (about 240), in waves.
 - **Stand-ins:**
   - `lib/recorded.js` has 27 pages: 14 in v2 (Haiku 5.5, exact prompt) and 13 v1 pages kept
     for compatibility.
@@ -34,9 +35,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   (`docs/backlog.md` §0).
 
 ## Next
-1. Add the door pages to #3 when they finish: run `scratchpad seeds.mjs index`, check the
-   seeds test, push.
-2. Pages one click off the doors, priority order: Next and branches, then body links, then
-   questions.
+1. Pages one click off the doors, priority order: Next and branches, then body links, then
+   questions. Writers get the privacy rule (generic User-Agent) up front.
+2. On Will's go: merge #3.
 3. Once credits land: prove production (§1), swap the stand-ins for live pages, measure
    time to the first body word.
