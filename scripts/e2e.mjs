@@ -55,6 +55,22 @@ async function run(page, { mobile = false } = {}) {
     if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
+  if (mobile) {
+    await step(`${tag}: the ¶ button waits for a tap on its paragraph`, async () => {
+      const shown = () => page.evaluate(() => getComputedStyle(document.querySelector('.pb .ptool')).opacity);
+      if ((await shown()) !== '0') throw new Error(`¶ shows before any tap (opacity ${await shown()})`);
+      const at = await page.evaluate(() => {
+        const w = document.createTreeWalker(document.querySelector('.pb p'), NodeFilter.SHOW_TEXT); let t;
+        while ((t = w.nextNode())) if (!t.parentElement.closest('a') && t.data.trim().length > 3) { const r = document.createRange(); r.setStart(t, 1); r.setEnd(t, 2); const b = r.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; }
+        return null;
+      });
+      if (!at) throw new Error('no plain text to tap');
+      await page.touchscreen.tap(at.x, at.y); await page.waitForTimeout(300);
+      if ((await shown()) !== '1') throw new Error(`¶ still hidden after a tap (opacity ${await shown()})`);
+      await page.locator('.pb.tapped .ptool').tap(); await page.waitForSelector('#pmenu:not([hidden])');
+      await page.keyboard.press('Escape');
+    });
+  }
   await step(`${tag}: a link opens the next page`, async () => {
     const link = await page.locator('.a-body a.hole').first().elementHandle(); const target = await link.getAttribute('data-t');
     if (mobile) { await link.tap(); await page.waitForTimeout(150); await link.tap(); } else await link.click();

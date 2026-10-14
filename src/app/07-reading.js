@@ -117,6 +117,13 @@ pmenu.addEventListener('keydown', e => {
   else if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); closePMenu(true); }
 });
 
+/* touch: a tap on a paragraph shows its ¶ button; a tap anywhere else hides it again */
+function tapPara(t) {
+  const pb = t.closest('.pb'); if (pb && t.closest('a,button,.xp')) return;
+  $$('.pb.tapped').forEach(x => { if (x !== pb) x.classList.remove('tapped'); });
+  if (pb) pb.classList.toggle('tapped');
+}
+
 /* ================= selection → a new page ================= */
 const digSel = $('#digSel'); let selInfo = null;
 function hideSel() { digSel.hidden = true; selInfo = null; }

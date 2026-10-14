@@ -277,9 +277,11 @@ body.at-start .map,body.at-start .trail,body.at-start .gauge,body.at-start .map-
 .pcol>p{margin:0 0 1.1em}
 .lead{font-size:1.06em}
 .ptool{position:absolute;left:-34px;top:.35em;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--faint);font:600 14px/1 var(--f-read);cursor:pointer;opacity:0;transition:opacity .15s,background-color .15s}
-.pb:hover .ptool,.ptool:focus-visible,.ptool[aria-expanded="true"]{opacity:1}
+.ptool:focus-visible,.ptool[aria-expanded="true"]{opacity:1}
+@media (hover:hover){.pb:hover .ptool{opacity:1}}
 .ptool:hover,.ptool[aria-expanded="true"]{background:var(--panel);color:var(--ink)}
-@media (pointer:coarse){.ptool{opacity:.45;left:auto;right:-2px;top:-26px}}
+/* on touch, a paragraph's ¶ waits for a tap on that paragraph, so a page of them never clutters the column */
+@media (pointer:coarse){.ptool{left:auto;right:-2px;top:-26px;pointer-events:none}.pb.tapped .ptool{opacity:1;pointer-events:auto}}
 .mcol{display:grid;gap:18px;padding-top:.45em}
 .mnote{font:400 13.5px/1.55 var(--f-ui);color:var(--mute);padding-left:12px;border-left:1px solid var(--line-2)}
 .mnote.enter{animation:notein .8s var(--ease) both}

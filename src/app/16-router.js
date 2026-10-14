@@ -45,6 +45,7 @@ document.addEventListener('click', e => {
     const c = linkCtx(hole); hideCard(); dig(hole.dataset.t, { text: c.text }, c.nid, hole); return;
   }
   if (!e.target.closest('#hcard') && !hcard.hidden) hideCard();
+  if (Date.now() - lastTouch < 700) tapPara(e.target);
   const pt = e.target.closest('.ptool'); if (pt) { if (pm && pm.btn === pt) closePMenu(); else openPMenu(pt); return; }
   if (!e.target.closest('#pmenu')) closePMenu();
   const tun = e.target.closest('.row[data-t]'); if (tun) { dig(tun.dataset.t, { text: `Chosen from the branches at the end of the page, with the hook: ${tun.dataset.teaser}`, dir: tun.dataset.dir }, nidOf(tun), $('.rt', tun)); return; }
