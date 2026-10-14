@@ -137,6 +137,7 @@ test('panels: rows, titles, headers and their place on the page', () => {
   assert.deepEqual(A.panels.map(p => [p.type, p.at, p.after, p.rows.length]), [['timeline', 1, 1, 2], ['compare', 3, 3, 2]]);
   assert.deepEqual(A.panels[1].heads, ['Lewis gun', '[[Bren|Bren gun]]']);
   assert.deepEqual(A.panels[1].rows[0], ['Weight', '13 kg', '10 kg']);
+  assert.deepEqual(parseArticle('# T\n---\nP.\n\n::: compare A | B\nWeight :: 13 kg :: 10 kg\n:::\n', false).panels[0].rows[0], ['Weight', '13 kg', '10 kg'], 'values split by :: still make columns');
   assert.equal(A.notes[0].n, 2, 'a note after a panel still belongs to the paragraph before it');
   assert.deepEqual(timeOf(A).map(t => t.y), [1932, 1932]);
   assert.ok(panelLines(A).includes('Weight: Lewis gun 13 kg; [[Bren|Bren gun]] 10 kg'));

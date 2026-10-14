@@ -123,7 +123,10 @@ const isRow = R => { if (/^(#|\^\s)/.test(R)) return false; const m = SEP.exec(R
 /** @param {string} R @param {string} type */
 function cellsOf(R, type) {
   const cells = R.split(new RegExp(SEP.source, 'g')).map(x => x.trim());
-  return type === 'compare' ? [cells[0], ...splitBars(cells.slice(1).join(' :: '))] : cells.filter((x, i) => x || i === 0);
+  if (type !== 'compare') return cells.filter((x, i) => x || i === 0);
+  /* values split on "|"; a writer who used " :: " between them instead still gets columns */
+  const rest = cells.slice(1); const bars = splitBars(rest.join(' :: '));
+  return [cells[0], ...(bars.length > 1 || rest.length < 2 ? bars : rest)];
 }
 /** @param {string} t */
 const panelType = t => { const w = t.trim().toLowerCase(); return /** @type {Record<string, string>} */ (PANEL_ALIAS)[w] || w.replace(/\s+/g, '-'); };
