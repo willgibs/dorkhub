@@ -5,7 +5,7 @@
 // a scope. The script's SHA-256 goes into a Content-Security-Policy meta tag, so the page
 // runs exactly this script and nothing injected.
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { trialConfig } from '../lib/trial.js';
@@ -34,8 +34,8 @@ const hash = createHash('sha256').update(script).digest('base64');
 const csp = [
   "default-src 'self'",
   `script-src 'sha256-${hash}'`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self'",
   "img-src 'self' data:",
   "connect-src 'self'",
   "base-uri 'none'",
@@ -60,5 +60,5 @@ if (!html.includes('Content-Security-Policy')) throw new Error('src/head.html lo
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), html);
-for (const f of readdirSync(join(root, 'src', 'static'))) copyFileSync(join(root, 'src', 'static', f), join(out, f));
+cpSync(join(root, 'src', 'static'), out, { recursive: true });
 console.log(`public/index.html  ${(html.length / 1024).toFixed(0)} KB  ${shared.length} shared + ${modules.length} app modules`);
