@@ -11,7 +11,8 @@
   "functions": {
     "api/write.js": {
       "maxDuration": 120,
-      "supportsCancellation": true
+      "supportsCancellation": true,
+      "includeFiles": "lib/seeds/**"
     },
     "api/picture.js": {
       "maxDuration": 10

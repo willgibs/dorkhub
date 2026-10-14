@@ -85,7 +85,7 @@ async function generate(node, { fresh = false } = {}) {
       signal: ctl.signal, fresh,
       onText: ({ text }) => { node.text = text; if (!REV.has(node.id) && !queued) { queued = true; requestAnimationFrame(() => { queued = false; paint(node, true); }); } },
     });
-    node.text = res.text; node.status = res.truncated ? 'partial' : 'done'; finalize(node);
+    node.text = res.text; node.status = res.truncated ? 'partial' : 'done'; node.seeded = !!res.seeded; finalize(node);
   } catch (e) {
     const code = (e && e.code) || 'upstream_error';
     node.text = typeof e?.text === 'string' ? e.text : '';
@@ -130,7 +130,7 @@ function chamberHTML(node, via) {
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
-    ${node.depth === 0 ? `<p class="fineprint"><span>Written by AI for the path you take. Check anything you plan to repeat.</span><button class="tool ib" type="button" data-act="help" data-tip="Tips and shortcuts" data-key="?" aria-label="Tips and shortcuts">${ic('help')}</button></p>` : ''}
+    ${node.depth === 0 ? `<p class="fineprint"><span></span><button class="tool ib" type="button" data-act="help" data-tip="Tips and shortcuts" data-key="?" aria-label="Tips and shortcuts">${ic('help')}</button></p>` : ''}
   </article>
 </section>`;
 }
@@ -139,6 +139,9 @@ function paint(node, streamOnly) {
   const A = parsed(node); const live = isLive(node);
   const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && node.status === 'done' && node.id === (W && W.current)) announce(`${shownTitle(node, A)}: page ready.`); }
   paintHead(node, sec, A, live); paintBody(node, sec, A, live); paintEnd(node, sec, A, live);
+  /* the first page of a rabbit hole says how its pages are written, honestly */
+  const fp = node.depth === 0 && $('.fineprint span', sec);
+  if (fp) setHTML(fp, node.seeded ? 'Written by AI. The first pages of this path were written ahead of time; past them, every page is written live for your path. Check anything you plan to repeat.' : 'Written by AI for the path you take. Check anything you plan to repeat.');
   if (!streamOnly) {
     paintTools(node, sec); paintDoubt(node, sec);
     if (W && node.id === W.current) updateUpNext();
