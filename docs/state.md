@@ -3,9 +3,8 @@
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Now (2026-10-14, page v2)
-- **Live:** dorkhub.com serves `main`: v1 (PR #1) and self-hosted fonts (PR #2). It still has
-  no AI Gateway credits ("Free pages are paused"), and its counters are the Runtime Cache, not
-  Redis (logs, 13:37).
+- **Live:** `main` (v1 + self-hosted fonts). No AI Gateway credits ("Free pages are paused");
+  counters are the Runtime Cache, not Redis.
 - **In review:** PR willgibs/dorkhub#3 (`experience/v2`), preview
   https://dorkhub-git-experience-v2-willgibs.vercel.app (Will's Vercel login; previews
   replay recorded pages). It contains:
@@ -23,7 +22,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     for compatibility.
   - Haiku, Sonnet and Opus all follow the panel rules (1.33 panels a page on the same three
     topics). No model-specific prompt lines are needed.
-- **Checks:** `npm run verify` green (67 tests); `npm run e2e` green on desktop and phone.
+- **Checks:** `npm run verify` green (67 tests); `npm run e2e` green, desktop and phone.
 
 ## Blocked on Will
 - **Review and merge #3** (v2). Merge rights are granted, but a reader-visible change this
@@ -31,8 +30,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **AI Gateway credits.** These gate backlog §1 and live page reads.
 - **transitions.dev Pro:** run `npx transitions-dev login`, then `npx transitions-dev skill`.
   The free skills are installed. Pro licenses one person; a company needs Business.
-- Still open from the handoff: Redis, old resources, repo visibility, Pro pricing
-  (`docs/backlog.md` §0).
+- Still open: Redis, old resources, repo visibility, Pro pricing (`docs/backlog.md` §0).
 
 ## Next
 1. Pages one click off the doors, priority order: Next and branches, then body links, then
