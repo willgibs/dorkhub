@@ -2,34 +2,41 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-10-14, first experience pass)
-- **Live.** dorkhub.com serves `main` from Vercel project willgibs/dorkhub. Production is
-  unchanged since the handoff, and still has no AI Gateway credits ("Free pages are paused").
-- **In review:** PR willgibs/dorkhub#1 (`experience/reading`). Preview:
-  https://dorkhub-git-experience-reading-willgibs.vercel.app (needs Will's Vercel login, and
-  `DH_MOCK=1` on Preview to replay real pages). It contains:
-  - a reading-first head: facts beside the opening, or after the first paragraph
-  - streaming without flashes, links that point at the planned topic
-  - prompt 2026-10-14 (no stock curiosities, wild branches name their thread, `seen`)
-  - richer recaps, a readable around-this map, phone fixes, contrast and focus fixes
-- **Real pages without credits:** Claude Haiku 5.5 stand-ins, given the exact prompts, are in
-  `lib/recorded.js`. They cover 5 rabbit holes (20 pages) and every quick tool for one of them. The mock
-  writer replays them in dev, e2e and previews, and a test streams every one.
-- **Checks:** `npm run verify` green (45 tests); `npm run e2e` green on desktop and phone.
+## Now (2026-10-14, page v2)
+- **Live:** dorkhub.com serves `main`: v1 (PR #1) and self-hosted fonts (PR #2). It still has
+  no AI Gateway credits ("Free pages are paused"), and its counters are the Runtime Cache, not
+  Redis (logs, 13:37).
+- **In review:** PR willgibs/dorkhub#3 (`experience/v2`), preview
+  https://dorkhub-git-experience-v2-willgibs.vercel.app (Will's Vercel login; previews
+  replay recorded pages). It contains:
+  - the v2 format: kinds first, hooks last, Next before branches, and 0–2 of nine panels.
+    The body starts after about 165 tokens instead of 526.
+  - streaming panels; a soft frontier; a truthful status shimmer; tools in the head row;
+    the ask row; floating margin notes; a writer-paced reveal
+  - lead pictures from Wikipedia via `api/picture` (no model; only our own page is answered)
+  - the serving for pre-written pages (`lib/seeds`, empty until the door pages land)
+- **Door pages:** 12 landing doors are being written by Opus and fact-checked, to be added
+  to PR #3. Then the pages one click off each door (about 240), in waves.
+- **Stand-ins:**
+  - `lib/recorded.js` has 27 pages: 14 in v2 (Haiku 5.5, exact prompt) and 13 v1 pages kept
+    for compatibility.
+  - Haiku and Opus follow the panel rules (1.2–1.3 panels a page). No model-specific prompt
+    lines are needed so far. Sonnet's comparison pages are still out.
+- **Checks:** `npm run verify` green (67 tests); `npm run e2e` green on desktop and phone.
 
 ## Blocked on Will
-- **Merge #1** once he's seen the preview (anything a reader notices waits for his go).
-- **AI Gateway credits.** These gate backlog §1 (proving production) and live page reads.
-- **Vercel access for agents:** sign in as willgibs in the Claude browser pane. The CLI and
-  connector on his Mac belong to the Partyreel team. Until then nobody can check logs, the
-  counter store (Redis?) or env vars.
-- **Preview env:** `DH_MOCK=1` on Preview (he chose the replay writer for previews).
-- Still open from the handoff: Upstash Redis, old resources to retire, repo visibility, Pro
-  pricing (`docs/backlog.md` §0).
+- **Review and merge #3** (v2). Merge rights are granted, but a reader-visible change this
+  big waits for his look at the preview.
+- **AI Gateway credits.** These gate backlog §1 and live page reads.
+- **transitions.dev Pro:** run `npx transitions-dev login`, then `npx transitions-dev skill`.
+  The free skills are installed. Pro licenses one person; a company needs Business.
+- Still open from the handoff: Redis, old resources, repo visibility, Pro pricing
+  (`docs/backlog.md` §0).
 
 ## Next
-1. When credits land: prove production (§1). Re-read 5+ live pages, then swap the stand-ins
-   in `lib/recorded.js` for live output. Warm the cache for the landing doors (about 5¢;
-   ask first).
-2. The rest of §2 (`docs/backlog.md`): touch ¶ noise, fonts self-hosting, latency.
-3. Then the model eval and Pro, on Will's go.
+1. Add the door pages to #3 when they finish: run `scratchpad seeds.mjs index`, check the
+   seeds test, push.
+2. Pages one click off the doors, priority order: Next and branches, then body links, then
+   questions.
+3. Once credits land: prove production (§1), swap the stand-ins for live pages, measure
+   time to the first body word.
