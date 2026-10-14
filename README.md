@@ -28,10 +28,11 @@ Finished answers that pass a sanity check are cached by a hash of model and prom
 ## Develop
 
 ```sh
-npm install
-npm run dev       # http://localhost:3000, free mock writer, rebuilds on save
-npm run verify    # build + type check + tests: the green gate
-npm run e2e       # the whole reader flow in Chromium (needs Playwright)
+npm install                      # Node 24 (see .nvmrc); 22 works too
+npm run dev                      # http://localhost:3000, free mock writer, rebuilds on save
+npm run verify                   # build + type check + tests: the green gate
+npx playwright install chromium  # once, for the browser test
+npm run e2e                      # the whole reader flow in Chromium, desktop and phone
 ```
 
 The mock writer streams correctly formatted pages for every task. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
@@ -57,7 +58,10 @@ src/shared/          parser + model catalog, shared with the server
 src/static/          404 page, favicon, robots.txt
 scripts/             build, dev server, browser test
 tests/               node:test suites
+docs/                vision, state, backlog, architecture, decisions, eval plan, prototype
 ```
+
+New here, human or agent? Start with `CLAUDE.md`, then `docs/state.md` and `docs/vision.md`.
 
 ## Privacy
 

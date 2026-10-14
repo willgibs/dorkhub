@@ -7,3 +7,4 @@ public/
 .e2e/
 *.log
 .DS_Store
+.eval/

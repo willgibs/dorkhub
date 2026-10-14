@@ -1,5 +1,6 @@
 // End-to-end smoke test in a real browser, against a fresh local dev server running the
 // mock writer. Not part of `npm test` because it needs Chromium (Playwright):
+//   npx playwright install chromium   (once)
 //   npm run e2e
 // Walks the whole reader flow on desktop and on a phone in dark mode: first page, a link,
 // every tool, the end of the trial, a bad key, a good key. Screenshots go to $E2E_SHOTS
@@ -11,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const require = createRequire(import.meta.url);
 let chromium;
-try { ({ chromium } = require('playwright')); } catch { console.error('playwright is not installed here; skipping'); process.exit(0); }
+try { ({ chromium } = require('playwright')); } catch { console.error('Playwright is missing: run npm install, then npx playwright install chromium'); process.exit(1); }
 const shots = process.env.E2E_SHOTS || '.e2e';
 mkdirSync(shots, { recursive: true });
 const port = 3900 + Math.floor(Math.random() * 90);
