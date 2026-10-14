@@ -47,7 +47,8 @@ const auth = (() => {
   try {
     const j = JSON.parse(localStorage.getItem(AUTH) || 'null') || {};
     const k = j.byok; if (k && PROVIDERS[k.provider] && PROVIDERS[k.provider].enabled && typeof k.key === 'string' && modelsFor(k.provider).some(m => m.id === k.model)) a.byok = { provider: k.provider, model: k.model, key: k.key };
-    const t = j.trial; if (t && typeof t.pages === 'number' && typeof t.at === 'number' && Date.now() - t.at < 30 * 864e5) a.trial = { pages: t.pages, extras: t.extras | 0, at: t.at };
+    /* a count saved under different trial settings, or over a month ago, is stale */
+    const t = j.trial; if (t && typeof t.pages === 'number' && t.of === TRIAL_PAGES && typeof t.at === 'number' && Date.now() - t.at < 30 * 864e5) a.trial = { pages: t.pages, extras: t.extras | 0, of: t.of, at: t.at };
   } catch (e) { /* start fresh */ }
   return a;
 })();
@@ -56,7 +57,7 @@ const pagesLeft = () => (auth.trial ? auth.trial.pages : TRIAL_PAGES);
 const writeError = (code, text = '') => Object.assign(new Error(code), { code, text });
 function noteTrial(res) {
   const m = /pages=(\d+);\s*extras=(\d+)/.exec(res.headers.get('x-dh-trial') || ''); if (!m) return;
-  auth.trial = { pages: +m[1], extras: +m[2], at: Date.now() }; saveAuth(); renderKeyBtn();
+  auth.trial = { pages: +m[1], extras: +m[2], of: TRIAL_PAGES, at: Date.now() }; saveAuth(); renderKeyBtn();
 }
 /* Resolves { text, truncated }. Rejects with { code, text } where text is whatever arrived first. */
 async function write(task, input, { signal, onText, fresh = false, key = auth.byok } = {}) {
