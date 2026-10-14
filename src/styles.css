@@ -281,8 +281,8 @@ body.at-start .map,body.at-start .trail,body.at-start .gauge,body.at-start .map-
 @media (pointer:coarse){.ptool{left:auto;right:-2px;top:-26px;pointer-events:none}.pb.tapped .ptool{opacity:1;pointer-events:auto}}
 .mcol{float:right;clear:right;width:210px;margin-right:-258px;display:grid;gap:18px;padding:.45em 0 18px}
 .mnote{font:400 13.5px/1.55 var(--f-ui);color:var(--mute);padding-left:12px;border-left:1px solid var(--line-2)}
-.mnote.enter{animation:notein .8s var(--ease) both}
-@keyframes notein{from{opacity:0;transform:translateX(6px)}}
+.mnote.enter{animation:notein var(--d-slow) var(--ease-out) both}
+@keyframes notein{from{opacity:0;transform:translateX(8px);filter:blur(var(--blur-s))}}
 .mnote .ml{display:block;margin-bottom:2px;font:600 11px/1.3 var(--f-ui);color:var(--acc)}
 .mnote .hole{text-underline-offset:3px}
 .hole{color:var(--link);text-decoration:underline;text-decoration-color:var(--acc-line);text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer;transition:text-decoration-color .15s,background-color .15s;border-radius:2px}
