@@ -119,7 +119,7 @@ function chamberHTML(node, via) {
   ${change ? `<div class="levelband"><span>Level <b>${node.depth}</b></span><span>${esc(levelOf(node.depth).name)}</span></div>` : ''}
   <article class="article">
     <div class="recap-slot">${via ? '' : recapHTML(node)}</div>
-    <header class="a-head"></header>
+    <header class="a-head"><div class="h-top"></div><div class="h-cols"><div class="h-main"></div><aside class="h-side" aria-label="At a glance"></aside></div></header>
     <div class="tools" role="toolbar" aria-label="Page tools"></div>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
@@ -132,31 +132,40 @@ function chamberHTML(node, via) {
 function paint(node, streamOnly) {
   const sec = secFor(node.id); if (!sec) return;
   const A = parsed(node); const live = isLive(node);
+  const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && node.status === 'done' && node.id === (W && W.current)) announce(`${shownTitle(node, A)}: page ready.`); }
   paintHead(node, sec, A, live); paintBody(node, sec, A, live); paintEnd(node, sec, A, live);
   if (!streamOnly) {
     paintTools(node, sec); paintDoubt(node, sec);
     if (W && node.id === W.current) updateUpNext();
-    if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast('Tip: hover any link for a one-line hook, or press / to ask anything.', 7000); }, 1400);
+    if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
+/* Quick facts, drift and the timeline are reference, not reading. On a wide screen they sit in the
+   margin column beside the opening; on a narrower one they wait until the first paragraph has
+   been written, then settle in below it, so the first screen is always mostly words. */
+function driftHTML(node, A) {
+  if (!(node.depth > 0 && A.drift != null)) return '';
+  return `<div class="drift"><span>Drift from ${esc(clip(W.nodes[W.root].title, 32))}</span><span class="dg" role="img" aria-label="${A.drift} percent"><i style="width:${A.drift}%"></i></span><b>${A.drift}%</b></div>`;
+}
+const factsHTML = (node, A) => A.facts.length ? `<dl class="facts" aria-label="Quick facts">${A.facts.map(([k, v]) => `<div class="fact"><dt>${esc(k)}</dt><dd>${inline(v, node)}</dd></div>`).join('')}</dl>` : '';
+const timeHTML = (node, A) => A.time.length >= 2 ? `<ol class="tline" aria-label="Timeline">${A.time.map(t => `<li data-tip="${esc(t.when)}: ${esc(plain(t.s))}"><b>${esc(t.when)}</b><span>${inline(t.s, node)}</span></li>`).join('')}</ol>` : '';
 function paintHead(node, sec, A, live) {
-  const head = $('.a-head', sec); const parent = node.parent ? W.nodes[node.parent] : null; const root = W.nodes[W.root];
+  const head = $('.a-head', sec); const parent = node.parent ? W.nodes[node.parent] : null;
   const title = shownTitle(node, A); const lvl = levelOf(node.depth);
-  const items = [];
+  const top = [], main = [], side = [];
   const kd = kindOf(node.seed && node.seed.kind);
-  items.push({ k: 'where', tag: 'p', cls: 'where', html: `<span class="mk" data-tip="Level ${node.depth}: ${esc(lvl.name)}. Page ${pathTo(node).length} of this rabbit hole">${node.depth}</span>${kd ? `<span class="kdot2" data-kind="${kd}" data-tip="${esc(capFirst(node.seed.kind))}"></span>` : ''}${node.lens ? `<span class="kind lens">${esc(LENS_PHRASE[node.lens])}</span>` : ''}` });
-  items.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
-  if (A.deck) items.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node) });
-  else if (node.seed && node.seed.gloss) items.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(node.seed.gloss) });
+  top.push({ k: 'where', tag: 'p', cls: 'where', html: `<span class="mk" data-tip="Level ${node.depth}: ${esc(lvl.name)}. Page ${pathTo(node).length} of this rabbit hole">${node.depth}</span>${kd ? `<span class="kdot2" data-kind="${kd}" data-tip="${esc(capFirst(node.seed.kind))}"></span>` : ''}${node.lens ? `<span class="kind lens">${esc(LENS_PHRASE[node.lens])}</span>` : ''}` });
+  top.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
+  /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
+  const seedDeck = live && node.seed && node.seed.gloss ? node.seed.gloss : '';
+  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !A.bridge)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node) });
+  else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(seedDeck) });
   const from = node.from && node.from.bridge && W.nodes[node.from.bridge] && parent ? `Connecting <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a> and <a href="#/w/${W.id}/${node.from.bridge}">${esc(W.nodes[node.from.bridge].title)}</a>` : parent ? `From <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a>` : 'Where it starts';
-  if (A.bridge) items.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><p>${inline(A.bridge, node)}</p>` });
-  else if (live) items.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><div class="arrive" role="status"><span class="ar-dots" aria-hidden="true">${'<i></i>'.repeat(8)}</span>Writing this page for your path</div>` });
-  const meta = [];
-  if (node.depth > 0 && A.drift != null) meta.push(`<div class="drift"><span>Drift from ${esc(clip(root.title, 32))}</span><span class="dg" role="img" aria-label="${A.drift} percent"><i style="width:${A.drift}%"></i></span><b>${A.drift}%</b></div>`);
-  if (A.facts.length) meta.push(`<dl class="facts" aria-label="Quick facts">${A.facts.map(([k, v]) => `<div class="fact"><dt>${esc(k)}</dt><dd>${inline(v, node)}</dd></div>`).join('')}</dl>`);
-  if (meta.length) items.push({ k: 'meta', cls: 'metarow', html: meta.join('') });
-  if (A.time.length >= 2) items.push({ k: 'time', tag: 'ol', cls: 'tline', html: A.time.map(t => `<li><b>${esc(t.when)}</b><span>${inline(t.s, node)}</span></li>`).join('') });
-  patch(head, items);
+  if (A.bridge) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><p>${inline(A.bridge, node)}</p>` });
+  else if (live) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><div class="arrive" role="status"><span class="ar-dots" aria-hidden="true">${'<i></i>'.repeat(8)}</span>Writing this page for your path</div>` });
+  const t = timeHTML(node, A); if (t) main.push({ k: 'time', cls: 'h-time', html: t });
+  const g = driftHTML(node, A) + factsHTML(node, A); if (g) side.push({ k: 'glance', cls: 'glance', html: g });
+  patch($('.h-top', head), top); patch($('.h-main', head), main); patch($('.h-side', head), side);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
 }
 const CARET = '<span class="caret" aria-hidden="true"></span>';
@@ -169,18 +178,21 @@ function extrasItems(node, i) {
   const u = node.unfolds && node.unfolds[i];
   if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">Expanding<span class="dots"></span></span>`}</div>` });
   (node.peeks || []).filter(p => p.after === i && p.open !== false).forEach(p => {
-    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.label || p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">Taking a look<span class="dots"></span></span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.label || p.target, 34))} →</button>` : ''}` });
+    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">Taking a look<span class="dots"></span></span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
   });
   return items;
 }
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec); const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
+  const glance = driftHTML(node, A) + factsHTML(node, A) + timeHTML(node, A);
   A.blocks.forEach((b, i) => {
     const caret = live && !A.bodyDone && i === lastIdx ? CARET : '';
     if (b.t === 'h') want.push({ k: 'h' + i, type: 'h', html: inline(b.s, node) + caret });
     else if (b.t === 'li') { const last = want[want.length - 1]; if (last && last.type === 'ul') last.items.push(inline(b.s, node) + caret); else want.push({ k: 'u' + i, type: 'ul', items: [inline(b.s, node) + caret] }); }
     else {
       pi++; want.push({ k: 'p' + i, type: 'p', i, html: inline(b.s, node) + caret, lead: first, notes: A.notes.filter(n => n.n === pi) }); first = false;
+      /* narrow screens: the glance settles in once the first paragraph is finished, below it */
+      if (pi === 1 && glance && (i < lastIdx || A.bodyDone || !live)) want.push({ k: 'glance', type: 'glance', html: glance });
       if (pi === 1 && node.figure) want.push({ k: 'fig', type: 'fig' });
     }
   });
@@ -196,6 +208,7 @@ function paintBody(node, sec, A, live) {
       else if (w.type === 'ul') el = document.createElement('ul');
       else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div><div class="mcol"></div>`; }
       else if (w.type === 'fig') { el = document.createElement('div'); if (anim) el.className = 'enter'; }
+      else if (w.type === 'glance') { el = document.createElement('aside'); el.className = 'glance-band' + (anim ? ' enter' : ''); el.setAttribute('aria-label', 'At a glance'); }
       else { el = document.createElement('div'); el.className = 'waitline'; }
       el.dataset.k = w.k;
     }
@@ -208,6 +221,7 @@ function paintBody(node, sec, A, live) {
       patch($('.mcol', el), w.notes.map((n, j) => noteItem(n, node, j)));
     }
     else if (w.type === 'fig') setHTML(el, figureHTML(node));
+    else if (w.type === 'glance') setHTML(el, w.html);
     else setHTML(el, `<span class="arrive" role="status"><span class="ar-dots" aria-hidden="true">${'<i></i>'.repeat(8)}</span>Choosing the most interesting links for this page</span>`);
     place(body, el, prev); prev = el;
   }

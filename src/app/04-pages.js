@@ -74,11 +74,22 @@ function fromInput(node) {
   if (f.text) return { kind: 'passage', text: clip(f.text, 600) };
   return null;
 }
+/* What the page they just came from already covered (its headings and links, in order), so the
+   next page builds on it instead of retelling it. */
+function seenInput(node) {
+  const p = node.parent ? W.nodes[node.parent] : null; if (!p || !p.text) return [];
+  const out = []; const keys = new Set(node.keys);
+  for (const b of parsed(p).blocks) {
+    if (b.t === 'h') out.push(clip(plain(b.s), 80));
+    else for (const m of b.s.matchAll(/\[\[([^\]]+)\]\]/g)) { const t = splitLink(m[1])[1]; const k = keyOf(t); if (!keys.has(k)) { keys.add(k); out.push(clip(t, 80)); } }
+  }
+  return out.slice(0, 24);
+}
 function pageInput(node) {
   const path = pathTo(node); const onPath = new Set(path.map(n => n.id));
   return {
     title: node.title, depth: node.depth, lens: node.lens || store.settings.lens,
-    path: pathInput(node), from: fromInput(node),
+    path: pathInput(node), from: fromInput(node), seen: seenInput(node),
     others: W.order.map(x => W.nodes[x]).filter(n => !onPath.has(n.id) && n.status === 'done').map(n => n.title).slice(-24),
     ratings: path.filter(n => n.reaction).slice(-3).map(n => ({ title: n.title, rating: n.reaction })),
   };

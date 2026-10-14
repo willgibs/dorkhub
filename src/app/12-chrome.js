@@ -92,9 +92,10 @@ function updateUpNext() {
   if (!sec || node.status !== 'done' || isLive(node)) { upnext.hidden = true; return; }
   const A = parsed(node); if (!A.next) { upnext.hidden = true; return; }
   const ex = findByKey(keyOf(A.next.target)); if (ex && secFor(ex.id)) { upnext.hidden = true; return; }
-  const r = sec.getBoundingClientRect();
+  /* a gentle nudge as the reader nears the end of the page, never while they are still in it */
+  const body = $('.a-body', sec); const b = body && body.getBoundingClientRect();
   const nb = $('.next', sec); const nbTop = nb ? nb.getBoundingClientRect().top : Infinity;
-  const show = r.top < -240 && nbTop > innerHeight - 30;
+  const show = !!b && b.height > 0 && (innerHeight - b.top) / b.height > .8 && nbTop > innerHeight - 30;
   if (show) {
     const key = node.id + '|' + A.next.target;
     if (upnext.dataset.key !== key) { upnext.dataset.key = key; upnext.dataset.s = stratumOf(node.depth + 1); upnext.innerHTML = `<span class="un-dot"></span><b>${esc(A.next.label)}</b><kbd>J</kbd>`; upnext.dataset.tip = `Up next, level ${node.depth + 1}: ${LEVELS[stratumOf(node.depth + 1)].name}`; upnext.setAttribute('aria-label', `Up next: ${A.next.label}`); }

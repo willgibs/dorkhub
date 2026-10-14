@@ -29,6 +29,19 @@ test('a clicked link carries the path, the passage, and a locked title', () => {
   assert.match(p, /Level: 1\. Go past the overview/);
 });
 
+test('the next page hears what the last one covered, so it builds on it instead of retelling it', () => {
+  const p = page({ title: 'Lewis gun', depth: 1, path: [{ title: 'The Great Emu War', deck: '' }], from: { kind: 'passage', text: 'Two Lewis guns.' }, seen: ['A flock on the move', 'Soldier settlement scheme'] });
+  assert.match(p, /The page they just read already covered, in order: A flock on the move; Soldier settlement scheme\. Build on it; never retell what it said\./);
+  assert.doesNotMatch(page({}), /already covered/);
+  assert.equal(pageInput({ title: 'A', seen: Array.from({ length: 40 }, (_, i) => `S${i}`.repeat(30)) }).seen.length, 24);
+});
+
+test('the format never shows a label the writer could copy, and wild branches must name their thread', () => {
+  assert.doesNotMatch(FORMAT, /Deck:|wait, really|wonderful place/i);
+  assert.match(FORMAT, /its hook names that thread/);
+  assert.match(FORMAT, /stock curiosities/);
+});
+
 test('continue reading, questions, connecting pages, history and ratings', () => {
   const path = [{ title: 'Voynich manuscript' }, { title: 'Radiocarbon dating' }];
   assert.match(page({ title: 'Bomb pulse', depth: 2, path, from: { kind: 'cont', text: 'Tests broke the clock.' } }), /They pressed "Continue reading" at the end of "Radiocarbon dating".*Reason it was suggested: Tests broke the clock\./s);
@@ -51,6 +64,12 @@ test('inputs are clipped and validated, never trusted', () => {
   assert.throws(() => pageInput({ title: 'A', from: { kind: 'bridge' } }), BadInput);
   assert.throws(() => TASKS.unfold.input({ title: 'A', paragraph: 'p', mode: 'louder' }), BadInput);
   assert.throws(() => TASKS.quiz.input({ pages: [{ title: 'only one', text: 't' }] }), BadInput);
+});
+
+test('a recap hears what each page said, not just its deck', () => {
+  const c = TASKS.recap.input({ pages: [{ title: 'A', deck: 'd', text: 'Ivanovsky filtered sap in 1892.' }, { title: 'B', text: 'x'.repeat(900) }] });
+  assert.equal(c.pages[1].text.length, 420);
+  assert.match(TASKS.recap.prompt(c), /- level 0: A: d\n  What it said: Ivanovsky filtered sap in 1892\./);
 });
 
 test('small tasks name the page and the path', () => {

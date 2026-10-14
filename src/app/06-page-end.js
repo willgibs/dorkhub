@@ -25,7 +25,8 @@ function paintEnd(node, sec, A, live) {
     blocks.push({ k: 'next', html: `<button class="next${below ? ' below' : ''}" type="button" data-next="${node.id}" data-s="${stratumOf(nd)}"><span class="next-meta"><span class="mk" data-tip="Level ${nd}: ${esc(levelOf(nd).name)}">${nd}</span>${below ? 'Continued below' : 'Next'}</span><span class="next-title">${esc(A.next.label)}</span><span class="next-why">${esc(plain(A.next.why))}</span><span class="next-go">${below ? 'Scroll down ↓' : 'Continue reading <kbd>J</kbd>'}</span></button>` });
   }
   const g0 = parsed(node).gloss;
-  const branchRows = A.tunnels.slice(0, 5).map((t, i) => {
+  const nextKey = A.next ? keyOf(A.next.target) : '';
+  const branchRows = A.tunnels.filter(t => keyOf(t.target) !== nextKey).slice(0, 5).map((t, i) => {
     const ex = findByKey(keyOf(t.target)); const loop = ex && ex.parent !== node.id; const d = DIR_MARK[t.dir]; const g = g0[keyOf(t.target)];
     return { k: 't' + keyOf(t.target), html: rowHTML({ mark: i + 1, markTip: `Press ${i + 1}`, title: esc(t.label), hook: inline(t.teaser || (g && g.gloss) || '', node), tag: d ? ic(d[0]) : '', tagTip: d ? d[1] : '', cls: loop ? ' loop' : '', attrs: `data-t="${esc(t.target)}" data-teaser="${esc(t.teaser)}" data-dir="${t.dir}" data-n="${i + 1}"${kattr(g && g.kind)}` }) };
   });
@@ -34,7 +35,11 @@ function paintEnd(node, sec, A, live) {
     const echo = buildIndex().filter(e => !e.node && e.mentions.size >= 3 && mine.has(e.key)).sort((a, b) => b.mentions.size - a.mentions.size)[0];
     if (echo) branchRows.push({ k: 'echo', html: rowHTML({ mark: '↻', title: esc(echo.name), hook: `You keep running into this: it has come up on ${echo.mentions.size} pages. ${esc(echo.gloss || '')}`, tag: ic('loop'), tagTip: 'Keeps coming up in this rabbit hole', attrs: `data-echo="${esc(echo.name)}" data-gloss="${esc(echo.gloss)}"${kattr(echo.kind)}` }) });
   }
-  if (branchRows.length) blocks.push({ k: 'branches', rows: branchRows, heading: 'Branches', sub: '' });
+  /* The next page is written after the branches, and it sits above them, so while the page is
+     still being written the branches wait for it: nothing then appears above them, and the
+     branch it repeats never shows up only to vanish. */
+  const nextKnown = !live || !!A.next || A.questions.length > 0;
+  if (branchRows.length && nextKnown) blocks.push({ k: 'branches', rows: branchRows, heading: 'Branches', sub: '' });
   if (A.questions.length) blocks.push({ k: 'qs', rows: A.questions.map((q, i) => ({ k: 'q' + i, html: rowHTML({ mark: '?', markTip: 'Opens a page that answers it', title: esc(q), attrs: `data-q="${esc(q)}" data-kind="mystery"` }) })), heading: 'Open questions', sub: '' });
   if (done) {
     const kids = childrenOf(node.id).filter(k => k.status === 'done' || k.status === 'partial');

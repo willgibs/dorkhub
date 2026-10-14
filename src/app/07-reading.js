@@ -15,7 +15,7 @@ function keepReading(nid) {
     if (teaser) teaser.style.viewTransitionName = '';
     if (HERO) { const h1 = $('.a-title', ns); if (h1) h1.style.viewTransitionName = 'hero'; }
     history.pushState(null, '', `#/w/${W.id}/${child.id}`); setCurrent(child.id);
-    scrollToSec(child.id, true);
+    scrollToSec(child.id, true); const h1 = $('.a-title', ns); if (h1) h1.focus({ preventScroll: true });
   };
   if (canVT() && teaser && sec) {
     teaser.style.viewTransitionName = 'hero'; HERO = true;
@@ -116,6 +116,13 @@ pmenu.addEventListener('keydown', e => {
   else if (e.key === 'ArrowUp') { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
   else if (e.key === 'Escape' || e.key === 'Tab') { e.preventDefault(); closePMenu(true); }
 });
+
+/* touch: a tap on a paragraph shows its ¶ button; a tap anywhere else hides it again */
+function tapPara(t) {
+  const pb = t.closest('.pb'); if (pb && t.closest('a,button,.xp')) return;
+  $$('.pb.tapped').forEach(x => { if (x !== pb) x.classList.remove('tapped'); });
+  if (pb) pb.classList.toggle('tapped');
+}
 
 /* ================= selection → a new page ================= */
 const digSel = $('#digSel'); let selInfo = null;

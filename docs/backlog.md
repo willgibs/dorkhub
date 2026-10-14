@@ -40,27 +40,22 @@ keep `docs/state.md` current._
 ## 2. The experience (Will's priority, before the model eval)
 
 Will wants the generative UI and the whole experience solid first. Judge everything
-against `docs/vision.md`. Known gaps:
+against `docs/vision.md`. First pass done 2026-10-14 (PR willgibs/dorkhub#1, see
+`docs/decisions.md`); what's left:
 
-- **Real model output, not just the mock.** Read 15–20 live pages across seeds, levels
-  and voices. Check link specificity, the share of people among links, the title lock,
-  bridges and streaming smoothness (Will once saw asides glitch as they slid in). Fix
-  through `lib/prompts.js`, bumping `PROMPT_VERSION`, or through rendering.
-- **Secondary UI.** Peek, expand, sketch, around this, connect, skeptic, quiz, recap,
-  thread, the Keys sheet and the paywall should feel as clean as the articles.
-- **Flow.** Make the next-page transition, the up-next pill, level-ups and the
-  continue-reading path feel "super smooth" on desktop and phone.
-- **Mobile.** Check sheets, the map, tap-to-peek, the paragraph menu and long titles.
-- **Accessibility.**
-  - Focus after navigation, and announcements while text streams.
-  - Contrast of the level and link colours in both themes.
-  - Keyboard paths, and reduced motion.
-- **Performance.**
-  - Merge the four Google Fonts requests into one, or self-host the fonts and tighten
-    the CSP to match.
-  - Check mobile load times and the size of the inline script.
-- **Landing.** Keep it light; its job is to get a visitor into their first page. Popular
-  doors should become cache hits (instant, free).
+- **Live pages.** Re-read at least 5 live pages once credits exist, to confirm what the
+  Haiku stand-ins showed. Replace the stand-ins in `lib/recorded.js` with live pages
+  (`scripts/recorded.mjs`; the raw text is in the reader's localStorage).
+- **Secondary UI.** Sketch, quiz, recap, thread and expand only ever showed mock output.
+  Record real outputs for them, then judge their layouts.
+- **Phone.**
+  - The ¶ button above every paragraph is noise on touch; consider tap-to-reveal.
+  - Paragraph spacing is loose on touch, because of the room kept for that button.
+- **Flow.** Look at latency (first word, J to next page) once live timings exist.
+- **Performance.** The page is 247 KB, about 61 KB brotli. Self-hosting the fonts would
+  drop the render-blocking Google request, and needs a CSP change.
+- **Landing.** Keep it light. Warm the cache for the doors once credits land (about 5¢;
+  ask Will).
 
 **Ideas to bring to Will** (don't build without his go):
 - Shareable pages or the Hub (`docs/prototype/`).

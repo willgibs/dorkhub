@@ -19,7 +19,7 @@ const port = 3900 + Math.floor(Math.random() * 90);
 const base = `http://localhost:${port}`;
 /* A small trial keeps the run short, and goes through the same setting production uses. */
 const PAGES = 4;
-const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
+const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
 await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
 
 const browser = await chromium.launch();
@@ -47,8 +47,30 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForSelector('.a-title'); await waitDone();
     const title = await page.locator('.a-title').first().textContent(); if (title !== 'Tardigrades') throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
+    /* reading first: the opening paragraph starts on the first screen, and quick facts sit beside it or after it */
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const lay = await page.evaluate(() => ({ top: document.querySelector('.a-body .pb p').getBoundingClientRect().top, vh: innerHeight, side: getComputedStyle(document.querySelector('.h-side')).display, band: !!document.querySelector('.a-body .glance-band .facts') }));
+    if (lay.top > lay.vh * .75) throw new Error(`the first paragraph starts at ${Math.round(lay.top)} of ${lay.vh}`);
+    if (mobile ? lay.side !== 'none' || !lay.band : lay.side === 'none') throw new Error(`facts in the wrong place: side ${lay.side}, band ${lay.band}`);
+    if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
+  if (mobile) {
+    await step(`${tag}: the ¶ button waits for a tap on its paragraph`, async () => {
+      const shown = () => page.evaluate(() => getComputedStyle(document.querySelector('.pb .ptool')).opacity);
+      if ((await shown()) !== '0') throw new Error(`¶ shows before any tap (opacity ${await shown()})`);
+      const at = await page.evaluate(() => {
+        const w = document.createTreeWalker(document.querySelector('.pb p'), NodeFilter.SHOW_TEXT); let t;
+        while ((t = w.nextNode())) if (!t.parentElement.closest('a') && t.data.trim().length > 3) { const r = document.createRange(); r.setStart(t, 1); r.setEnd(t, 2); const b = r.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; }
+        return null;
+      });
+      if (!at) throw new Error('no plain text to tap');
+      await page.touchscreen.tap(at.x, at.y); await page.waitForTimeout(300);
+      if ((await shown()) !== '1') throw new Error(`¶ still hidden after a tap (opacity ${await shown()})`);
+      await page.locator('.pb.tapped .ptool').tap(); await page.waitForSelector('#pmenu:not([hidden])');
+      await page.keyboard.press('Escape');
+    });
+  }
   await step(`${tag}: a link opens the next page`, async () => {
     const link = await page.locator('.a-body a.hole').first().elementHandle(); const target = await link.getAttribute('data-t');
     if (mobile) { await link.tap(); await page.waitForTimeout(150); await link.tap(); } else await link.click();
@@ -56,6 +78,13 @@ async function run(page, { mobile = false } = {}) {
     await waitDone(); if ((await badge()) !== String(PAGES - 2)) throw new Error(`badge ${await badge()}`);
   });
   if (!mobile) {
+    await step(`${tag}: J continues below and moves focus to the new title`, async () => {
+      const before = await page.locator('.chamber').count();
+      await page.keyboard.press('j');
+      await page.waitForFunction(n => document.querySelectorAll('.chamber').length > n, before, { timeout: 20000 }); await waitDone();
+      const focused = await page.evaluate(() => document.activeElement === [...document.querySelectorAll('.a-title')].pop());
+      if (!focused) throw new Error('focus stayed behind');
+    });
     await step(`${tag}: expand a paragraph`, async () => {
       await page.locator('.pb').first().hover(); await page.locator('.ptool').first().click();
       await page.locator('[data-uf="simpler"]').click();

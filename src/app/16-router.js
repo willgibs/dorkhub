@@ -1,7 +1,7 @@
 /* ================= router ================= */
 function route() {
   const p = location.hash.replace(/^#\/?/, '').split('/').filter(Boolean);
-  $('#map').classList.remove('open'); $('#mapBtn').setAttribute('aria-expanded', 'false'); hideSel(); hideCard(); closePMenu(); stopListening();
+  $('#map').classList.remove('open'); $('#scrim').hidden = true; $('#mapBtn').setAttribute('aria-expanded', 'false'); hideSel(); hideCard(); closePMenu(); stopListening();
   if (sheet.open) sheet.close();
   if (omni.open) omni.close();
   if (p[0] === 'w') {
@@ -45,6 +45,7 @@ document.addEventListener('click', e => {
     const c = linkCtx(hole); hideCard(); dig(hole.dataset.t, { text: c.text }, c.nid, hole); return;
   }
   if (!e.target.closest('#hcard') && !hcard.hidden) hideCard();
+  if (Date.now() - lastTouch < 700) tapPara(e.target);
   const pt = e.target.closest('.ptool'); if (pt) { if (pm && pm.btn === pt) closePMenu(); else openPMenu(pt); return; }
   if (!e.target.closest('#pmenu')) closePMenu();
   const tun = e.target.closest('.row[data-t]'); if (tun) { dig(tun.dataset.t, { text: `Chosen from the branches at the end of the page, with the hook: ${tun.dataset.teaser}`, dir: tun.dataset.dir }, nidOf(tun), $('.rt', tun)); return; }
@@ -108,7 +109,8 @@ $('#helpX').addEventListener('click', () => $('#help').close());
 $('#notesBtn').addEventListener('click', () => fieldNotes(false));
 document.addEventListener('input', e => { if (e.target.id === 'encq') { ENCQ = e.target.value.trim().toLowerCase(); $('#encList').innerHTML = encList(); } });
 $('#exportBtn').addEventListener('click', () => W && saveFile(`${fileSlug(W.nodes[W.root].title)}-rabbit-hole.md`, warrenMarkdown(W)));
-function toggleMap(force) { const m = $('#map'); const open = force ?? !m.classList.contains('open'); m.classList.toggle('open', open); $('#mapBtn').setAttribute('aria-expanded', String(open)); if (open) renderMap(); }
+function toggleMap(force) { const m = $('#map'); const open = force ?? !m.classList.contains('open'); m.classList.toggle('open', open); $('#scrim').hidden = !(open && narrow()); $('#mapBtn').setAttribute('aria-expanded', String(open)); if (open) renderMap(); }
+$('#scrim').addEventListener('click', () => toggleMap(false));
 $('#mapBtn').addEventListener('click', () => toggleMap());
 $('#mapX').addEventListener('click', () => toggleMap(false));
 document.addEventListener('submit', e => {
@@ -154,9 +156,10 @@ document.addEventListener('keydown', e => {
 const rerenderTheme = () => { if (W) renderMap(); else if ($('.sfig')) $('.sfig').innerHTML = columnSVG() + $('.sfig figcaption').outerHTML; };
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerenderTheme);
 new MutationObserver(rerenderTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-addEventListener('resize', () => { clearTimeout(selT); selT = setTimeout(() => { hideSel(); hideCard(); closePMenu(); if (W) renderMap(); }, 150); });
+addEventListener('resize', () => { clearTimeout(selT); selT = setTimeout(() => { hideSel(); hideCard(); closePMenu(); $('#scrim').hidden = !($('#map').classList.contains('open') && narrow()); if (W) renderMap(); }, 150); });
 
 $('#keyBtn').addEventListener('click', () => keysSheet());
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 renderKeyBtn();
 renderVoice();
 applySide();
