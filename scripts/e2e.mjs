@@ -17,7 +17,9 @@ const shots = process.env.E2E_SHOTS || '.e2e';
 mkdirSync(shots, { recursive: true });
 const port = 3900 + Math.floor(Math.random() * 90);
 const base = `http://localhost:${port}`;
-const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1' }, stdio: ['ignore', 'pipe', 'inherit'] });
+/* A small trial keeps the run short, and goes through the same setting production uses. */
+const PAGES = 4;
+const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
 await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
 
 const browser = await chromium.launch();
@@ -36,22 +38,22 @@ async function run(page, { mobile = false } = {}) {
     await page.goto(base);
     await page.waitForSelector('#seedIn');
     const line = await page.locator('#status').textContent();
-    if (!/first 6 pages are on us/.test(line)) throw new Error(`status line: ${line}`);
-    if ((await badge()) !== '6') throw new Error(`badge ${await badge()}`);
+    if (!line.includes(`first ${PAGES} pages are on us`)) throw new Error(`status line: ${line}`);
+    if ((await badge()) !== String(PAGES)) throw new Error(`badge ${await badge()}`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
   await step(`${tag}: first page streams in`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
     const title = await page.locator('.a-title').first().textContent(); if (title !== 'Tardigrades') throw new Error(`title ${title}`);
-    if ((await badge()) !== '5') throw new Error(`badge ${await badge()}`);
+    if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
   await step(`${tag}: a link opens the next page`, async () => {
     const link = await page.locator('.a-body a.hole').first().elementHandle(); const target = await link.getAttribute('data-t');
     if (mobile) { await link.tap(); await page.waitForTimeout(150); await link.tap(); } else await link.click();
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, target, { timeout: 20000 });
-    await waitDone(); if ((await badge()) !== '4') throw new Error(`badge ${await badge()}`);
+    await waitDone(); if ((await badge()) !== String(PAGES - 2)) throw new Error(`badge ${await badge()}`);
   });
   if (!mobile) {
     await step(`${tag}: expand a paragraph`, async () => {
@@ -67,7 +69,7 @@ async function run(page, { mobile = false } = {}) {
     await step(`${tag}: recap`, async () => { await page.locator('#notesBtn').click({ force: true }).catch(() => page.keyboard.press('f')); await page.waitForSelector('#sheetBody h1', { timeout: 15000 }); await page.keyboard.press('Escape'); });
   }
   await step(`${tag}: the trial runs out`, async () => {
-    for (let i = 1; i <= 6 && !(await page.locator('.statusnote.paywall').count()); i++) {
+    for (let i = 1; i <= PAGES && !(await page.locator('.statusnote.paywall').count()); i++) {
       const title = `Mock topic ${i}`;
       await page.locator('.ask input').last().fill(title); await page.locator('.ask input').last().press('Enter');
       await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .row[data-t]') && !document.querySelector('.caret')), title, { timeout: 20000 });
