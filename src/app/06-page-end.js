@@ -35,7 +35,11 @@ function paintEnd(node, sec, A, live) {
     const echo = buildIndex().filter(e => !e.node && e.mentions.size >= 3 && mine.has(e.key)).sort((a, b) => b.mentions.size - a.mentions.size)[0];
     if (echo) branchRows.push({ k: 'echo', html: rowHTML({ mark: '↻', title: esc(echo.name), hook: `You keep running into this: it has come up on ${echo.mentions.size} pages. ${esc(echo.gloss || '')}`, tag: ic('loop'), tagTip: 'Keeps coming up in this rabbit hole', attrs: `data-echo="${esc(echo.name)}" data-gloss="${esc(echo.gloss)}"${kattr(echo.kind)}` }) });
   }
-  if (branchRows.length) blocks.push({ k: 'branches', rows: branchRows, heading: 'Branches', sub: '' });
+  /* The next page is written after the branches, and it sits above them, so while the page is
+     still being written the branches wait for it: nothing then appears above them, and the
+     branch it repeats never shows up only to vanish. */
+  const nextKnown = !live || !!A.next || A.questions.length > 0;
+  if (branchRows.length && nextKnown) blocks.push({ k: 'branches', rows: branchRows, heading: 'Branches', sub: '' });
   if (A.questions.length) blocks.push({ k: 'qs', rows: A.questions.map((q, i) => ({ k: 'q' + i, html: rowHTML({ mark: '?', markTip: 'Opens a page that answers it', title: esc(q), attrs: `data-q="${esc(q)}" data-kind="mystery"` }) })), heading: 'Open questions', sub: '' });
   if (done) {
     const kids = childrenOf(node.id).filter(k => k.status === 'done' || k.status === 'partial');
