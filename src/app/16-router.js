@@ -157,6 +157,7 @@ new MutationObserver(rerenderTheme).observe(document.documentElement, { attribut
 addEventListener('resize', () => { clearTimeout(selT); selT = setTimeout(() => { hideSel(); hideCard(); closePMenu(); if (W) renderMap(); }, 150); });
 
 $('#keyBtn').addEventListener('click', () => keysSheet());
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 renderKeyBtn();
 renderVoice();
 applySide();

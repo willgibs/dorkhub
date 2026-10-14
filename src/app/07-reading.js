@@ -15,7 +15,7 @@ function keepReading(nid) {
     if (teaser) teaser.style.viewTransitionName = '';
     if (HERO) { const h1 = $('.a-title', ns); if (h1) h1.style.viewTransitionName = 'hero'; }
     history.pushState(null, '', `#/w/${W.id}/${child.id}`); setCurrent(child.id);
-    scrollToSec(child.id, true);
+    scrollToSec(child.id, true); const h1 = $('.a-title', ns); if (h1) h1.focus({ preventScroll: true });
   };
   if (canVT() && teaser && sec) {
     teaser.style.viewTransitionName = 'hero'; HERO = true;

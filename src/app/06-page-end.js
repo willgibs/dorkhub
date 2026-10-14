@@ -25,7 +25,8 @@ function paintEnd(node, sec, A, live) {
     blocks.push({ k: 'next', html: `<button class="next${below ? ' below' : ''}" type="button" data-next="${node.id}" data-s="${stratumOf(nd)}"><span class="next-meta"><span class="mk" data-tip="Level ${nd}: ${esc(levelOf(nd).name)}">${nd}</span>${below ? 'Continued below' : 'Next'}</span><span class="next-title">${esc(A.next.label)}</span><span class="next-why">${esc(plain(A.next.why))}</span><span class="next-go">${below ? 'Scroll down ↓' : 'Continue reading <kbd>J</kbd>'}</span></button>` });
   }
   const g0 = parsed(node).gloss;
-  const branchRows = A.tunnels.slice(0, 5).map((t, i) => {
+  const nextKey = A.next ? keyOf(A.next.target) : '';
+  const branchRows = A.tunnels.filter(t => keyOf(t.target) !== nextKey).slice(0, 5).map((t, i) => {
     const ex = findByKey(keyOf(t.target)); const loop = ex && ex.parent !== node.id; const d = DIR_MARK[t.dir]; const g = g0[keyOf(t.target)];
     return { k: 't' + keyOf(t.target), html: rowHTML({ mark: i + 1, markTip: `Press ${i + 1}`, title: esc(t.label), hook: inline(t.teaser || (g && g.gloss) || '', node), tag: d ? ic(d[0]) : '', tagTip: d ? d[1] : '', cls: loop ? ' loop' : '', attrs: `data-t="${esc(t.target)}" data-teaser="${esc(t.teaser)}" data-dir="${t.dir}" data-n="${i + 1}"${kattr(g && g.kind)}` }) };
   });
