@@ -1,5 +1,5 @@
 /* ================= the article format, shared by the browser and the server =================
-   Pages stream in a line-prefixed plain-text format (see lib/prompts/page.ts). This
+   Pages stream in a line-prefixed plain-text format (FORMAT in lib/prompts.js). This
    module is the single source of truth for reading it. It is an ES module for the
    server and tests; the build strips the `export` keywords and inlines it into the
    page script, so it must stay dependency-free and browser-safe. */
@@ -56,19 +56,46 @@ export function yearOf(t) {
  *   next: { label: string, target: string, why: string } | null, gloss: Record<string, Gloss>, notes: { n: number, s: string }[],
  *   questions: string[], time: { when: string, y: number, s: string }[], bodyDone: boolean }} Article
  */
-/* Tolerant of partial, streaming text: a half-written link or bold run is held back until it closes. */
+/* Writers link both ways round ([[shown|Topic]] and the wiki habit [[Topic|shown]]) and sometimes
+   link a plural of a planned topic. The link plan arrives before the body, so every link can be
+   pointed at the topic the writer planned: whichever side names a planned topic is the target. */
+/** @param {string} k */
+const stemOf = k => k.replace(/s$/, '');
+/** @param {string} s @param {Record<string, Gloss>} gloss */
+function canonLinks(s, gloss) {
+  return s.replace(/\[\[([^\]\n]+?)\]\]/g, (whole, inner) => {
+    const [a, b] = splitLink(inner);
+    const exact = (/** @type {string} */ t) => gloss[keyOf(t)]?.name;
+    const near = (/** @type {string} */ t) => { const k = stemOf(keyOf(t)); for (const [gk, g] of Object.entries(gloss)) if (stemOf(gk) === k) return g.name; return undefined; };
+    let target;
+    if ((target = exact(b))) return target === b ? whole : `[[${a}|${target}]]`;
+    if ((target = exact(a))) return `[[${b}|${target}]]`;
+    if ((target = near(b))) return `[[${a}|${target}]]`;
+    if ((target = near(a))) return `[[${b}|${target}]]`;
+    return whole;
+  });
+}
+
+/* Tolerant of partial, streaming text: a half-written link, bold or italic run is held back until
+   it closes, and so is a half-written line of the timeline or the link plan, so nothing flashes up
+   in the wrong place and vanishes again. */
 /** @param {unknown} raw @param {boolean} [streaming] @returns {Article} */
 export function parseArticle(raw, streaming) {
   let text = String(raw || '').replace(/\r/g, '').replace(/^\s*```[a-z]*\s*\n/i, '').replace(/\n```\s*$/, '');
-  if (streaming) text = text.replace(/\[\[[^\]\n]*$/, '').replace(/\*\*[^*\n]*$/, m => m.replace(/\*\*/, ''));
+  if (streaming) {
+    const o = text.lastIndexOf('[['); if (o >= 0 && !/\]\]|\n/.test(text.slice(o))) text = text.slice(0, o);
+    text = text.replace(/\*\*[^*\n]*$/, m => m.replace(/\*\*/, '')).replace(/(^|[\s(])\*([^*\s][^*\n]*)$/, '$1$2').replace(/[[*]$/, '');
+  }
   /** @type {Article} */
   const A = { title: '', deck: '', bridge: '', drift: null, facts: [], blocks: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], time: [], bodyDone: false };
-  let mode = 'body', pcount = 0;
+  let mode = 'body', pcount = 0, deckSeen = false;
   /** @type {string[]} */
   let para = [];
   const flush = () => { if (para.length) { A.blocks.push({ t: 'p', s: para.join(' ') }); pcount++; para = []; } };
-  for (const ln of text.split('\n')) {
-    const L = ln.trim(); let m;
+  const lines = text.split('\n');
+  const open = streaming && !text.endsWith('\n') ? lines.length - 1 : -1;
+  for (let li = 0; li < lines.length; li++) {
+    const L = lines[li].trim(); let m;
     if (!L) { flush(); continue; }
     const mk = /^(={3,}|\+{3,}|\^{3,}|\?{3,}|>{3,}|%{3,}|-{3,})\s*$/.exec(L);
     if (mk) { flush(); const k = mk[1].slice(0, 3); mode = k === '---' ? 'body' : MARKS[k]; if (!PRE_BODY.has(mode) && mode !== 'body') A.bodyDone = true; continue; }
@@ -82,10 +109,12 @@ export function parseArticle(raw, streaming) {
     }
     if (mode === 'gloss') {
       if ((m = /^[-*•]?\s*\[\[([^\]]+)\]\]\s*(?:::|:)?\s*(.*)$/.exec(L))) { const [, target] = splitLink(m[1]); const parts = m[2].split('::').map(s => s.trim()); const kind = KINDS.find(k => (parts[1] || '').toLowerCase().startsWith(k)) || ''; if (parts[0]) A.gloss[keyOf(target)] = { gloss: parts[0], kind: kind === 'idea' ? 'concept' : kind, name: target }; continue; }
+      if (li === open) continue;
       mode = 'body';
     }
     if (mode === 'time') {
       if ((m = /^[-*•]?\s*(.{1,40}?)\s*::\s*(.+)$/.exec(L))) { const y = yearOf(m[1]); if (y != null && A.time.length < 8) A.time.push({ when: m[1].trim(), y, s: m[2].trim() }); continue; }
+      if (li === open) continue;
       mode = 'body';
     }
     if (mode === 'notes') { if ((m = /^\D{0,3}(\d{1,2})\s*(?:::|:|[.)–-])\s*(.+)$/.exec(L))) A.notes.push({ n: +m[1], s: m[2] }); continue; }
@@ -94,7 +123,12 @@ export function parseArticle(raw, streaming) {
     if ((m = /^\^\s+(.+)$/.exec(L))) { flush(); if (pcount) A.notes.push({ n: pcount, s: m[1] }); continue; }
     if ((m = /^#\s+(.+)$/.exec(L)) && !A.title) { A.title = m[1].replace(/\[\[|\]\]/g, '').replace(/\*\*/g, '').trim(); continue; }
     if ((m = /^#{2,3}\s+(.+)$/.exec(L))) { flush(); A.blocks.push({ t: 'h', s: m[1] }); continue; }
-    if ((m = /^>\s?(.*)$/.exec(L)) && !A.deck) { A.deck = m[1]; continue; }
+    if ((m = /^>\s?(.*)$/.exec(L)) && !deckSeen) {
+      /* the format names the line "Deck:", and writers sometimes copy the label */
+      deckSeen = true; A.deck = m[1].replace(/^\**\s*deck\s*\**\s*:\s*\**\s*/i, '');
+      if (li === open && /^\**\s*d(e(c(k)?)?)?\s*\**$/i.test(A.deck)) A.deck = '';
+      continue;
+    }
     if ((m = /^~\s?(.*)$/.exec(L))) { A.bridge = (A.bridge ? A.bridge + ' ' : '') + m[1]; continue; }
     if (/^@/.test(L)) { if ((m = /drift\D{0,4}(\d{1,3})/i.exec(L))) A.drift = Math.min(100, +m[1]); continue; }
     if (/^:/.test(L)) { if ((m = /^:\s*([^=]{1,48}?)\s*=\s*(.+)$/.exec(L))) A.facts.push([m[1], m[2]]); continue; }
@@ -102,6 +136,11 @@ export function parseArticle(raw, streaming) {
     para.push(L);
   }
   flush();
+  if (Object.keys(A.gloss).length) {
+    const fix = (/** @type {string} */ s) => canonLinks(s, A.gloss);
+    A.blocks.forEach(b => { b.s = fix(b.s); }); A.notes.forEach(n => { n.s = fix(n.s); });
+    A.deck = fix(A.deck); A.bridge = fix(A.bridge); A.facts = A.facts.map(([k, v]) => [k, fix(v)]); A.time.forEach(t => { t.s = fix(t.s); });
+  }
   for (const t of A.tunnels) { const k = keyOf(t.target); if (!A.gloss[k] && (t.teaser || t.kind)) A.gloss[k] = { gloss: t.teaser, kind: t.kind || '', name: t.target }; else if (A.gloss[k] && !A.gloss[k].kind && t.kind) A.gloss[k].kind = t.kind; }
   if (!A.tunnels.length && !streaming) {
     const seen = new Set();

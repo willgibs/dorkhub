@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { capFirst, isQuestion, keyOf, parseArticle, plain, titleIsLocked, yearOf } from '../src/shared/article.js';
 import { mockModel } from '../lib/mock.js';
+import { RECORDED } from '../lib/recorded.js';
 import { streamText } from 'ai';
 
 /** A complete page in the real format, from the mock writer. */
 async function samplePage(title = 'Tardigrades', extra = {}) {
   const input = { title, depth: 0, lens: 'encyclopedic', path: [], from: null, others: [], ratings: [], ...extra };
-  const r = streamText({ model: mockModel({ task: 'page', input, fast: true }), prompt: 'x' });
+  const r = streamText({ model: mockModel({ task: 'page', input, pace: 'fast' }), prompt: 'x' });
   return await r.text;
 }
 
@@ -52,6 +53,57 @@ test('a clicked topic keeps its title; questions and connecting pages choose the
   assert.equal(titleIsLocked({ title: 'Why is ice slippery?', depth: 0, from: null }), false);
   assert.equal(titleIsLocked({ title: 'Ice', depth: 2, from: { kind: 'question', question: 'Why?' } }), false);
   assert.equal(titleIsLocked({ title: 'A and B', depth: 2, from: { bridge: 'abc' } }), false);
+});
+
+test('links point at the planned topic, whichever way round the writer wrote them', () => {
+  const A = parseArticle('# Emus\n+++\n[[Gizzard stone]] :: grinds seeds :: mechanism\n[[Thylacine]] :: a lost marsupial :: creature\n[[Emu]] :: a fast bird :: creature\n---\nPebbles sit in a muscular [[Gizzard stone|gizzard]]. Bounties paid for [[thylacines]], and [[emus|Emu]] ran, past an [[unplanned topic]].', false);
+  assert.equal(A.blocks[0].s, 'Pebbles sit in a muscular [[gizzard|Gizzard stone]]. Bounties paid for [[thylacines|Thylacine]], and [[emus|Emu]] ran, past an [[unplanned topic]].');
+  assert.equal(plain(A.blocks[0].s), 'Pebbles sit in a muscular gizzard. Bounties paid for thylacines, and emus ran, past an unplanned topic.');
+});
+
+test('a copied "Deck:" label never reaches the page', () => {
+  assert.equal(parseArticle('# Ice\n> Deck: Ice is slippery.', false).deck, 'Ice is slippery.');
+  assert.equal(parseArticle('# Ice\n> **Deck:** Ice is slippery.', false).deck, 'Ice is slippery.');
+  assert.equal(parseArticle('# Ice\n> Dec', true).deck, '');
+  assert.equal(parseArticle('# Ice\n> Deckhands know it.', false).deck, 'Deckhands know it.');
+});
+
+test('recorded pages from real writers parse completely', () => {
+  assert.ok(RECORDED.length >= 4);
+  for (const r of RECORDED) {
+    const A = parseArticle(r.text, false);
+    assert.ok(A.title && A.deck && A.bridge, r.title);
+    assert.doesNotMatch(A.deck, /^\W*deck\b/i, r.title);
+    assert.ok(A.blocks.filter(b => b.t === 'p').length >= 3, r.title);
+    assert.equal(A.tunnels.length, 5, r.title);
+    assert.ok(A.next && A.questions.length === 3, r.title);
+    assert.ok(A.notes.length >= 1, r.title);
+    for (const b of A.blocks) assert.doesNotMatch(b.s, /::|^\[\[[^\]]+\]\]\s*$/, `${r.title}: a line from the plan or timeline reached the body`);
+  }
+});
+
+/* Every point a stream can stop at, near line breaks (where the format changes mode) and at a stride elsewhere. */
+const cutsOf = (/** @type {string} */ t) => { const c = new Set([t.length]); for (let i = 0; i < t.length; i++) { if (t[i] === '\n') for (let d = -3; d <= 6; d++) c.add(Math.max(1, i + d)); else if (i % 13 === 0) c.add(i); } return [...c].sort((a, b) => a - b); };
+
+test('streaming never shows something that later changes or disappears', () => {
+  for (const r of RECORDED) {
+    /** @type {any} */ let prev = null;
+    for (const n of cutsOf(r.text)) {
+      const A = parseArticle(r.text.slice(0, n), true); const at = `${r.title}, ${n} chars in`;
+      for (const b of A.blocks) assert.doesNotMatch(b.s, /::/, `${at}: a line from the plan or timeline flashed into the body`);
+      for (const b of A.blocks) assert.doesNotMatch(plain(b.s), /\[\[|\]\]/, `${at}: link brackets showed`);
+      if (prev) {
+        assert.ok(A.title.startsWith(prev.title), `${at}: the title changed`);
+        assert.ok(A.deck.startsWith(prev.deck), `${at}: the deck changed`);
+        prev.blocks.slice(0, -1).forEach((/** @type {any} */ b, /** @type {number} */ i) => assert.deepEqual(A.blocks[i], b, `${at}: an earlier block changed`));
+        const last = prev.blocks.length - 1;
+        if (last >= 0) assert.ok(A.blocks[last] && A.blocks[last].t === prev.blocks[last].t && plain(A.blocks[last].s).startsWith(plain(prev.blocks[last].s)), `${at}: the block being written changed`);
+        prev.notes.forEach((/** @type {any} */ x, /** @type {number} */ i) => assert.ok(A.notes[i] && A.notes[i].n === x.n && plain(A.notes[i].s).startsWith(plain(x.s)), `${at}: a margin note moved or changed`));
+        assert.ok(A.facts.length >= prev.facts.length && A.time.length >= prev.time.length && A.tunnels.length >= prev.tunnels.length && A.questions.length >= prev.questions.length, `${at}: something disappeared`);
+      }
+      prev = A;
+    }
+  }
 });
 
 test('small helpers', () => {
