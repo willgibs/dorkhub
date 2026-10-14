@@ -325,7 +325,8 @@ function paintBody(node, sec, A, live) {
       const notes = A.notes.map((n, g) => ({ n, g })).filter(x => x.n.n === w.pi); const items = []; const sp = [...w.side];
       notes.forEach((x, j) => { while (sp.length && sp[0][0].o <= x.g) { const [pp, pj] = sp.shift(); items.push(panelItem(pp, pj, node)); } items.push({ ...noteItem(x.n, node, j), ink: writing && x.g === A.notes.length - 1 }); });
       sp.forEach(([pp, pj]) => items.push(panelItem(pp, pj, node)));
-      if (pic && w.pi === 1) items.push(picItem(pic));
+      /* the picture is placed before the first paragraph is finished, so before that paragraph's notes: it goes first and nothing moves it */
+      if (pic && w.pi === 1) items.unshift(picItem(pic));
       patch($('.mcol', el), items);
     }
     else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);
