@@ -20,8 +20,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **Stand-ins:**
   - `lib/recorded.js` has 27 pages: 14 in v2 (Haiku 5.5, exact prompt) and 13 v1 pages kept
     for compatibility.
-  - Haiku and Opus follow the panel rules (1.2–1.3 panels a page). No model-specific prompt
-    lines are needed so far. Sonnet's comparison pages are still out.
+  - Haiku, Sonnet and Opus all follow the panel rules (1.33 panels a page on the same three
+    topics). No model-specific prompt lines are needed.
 - **Checks:** `npm run verify` green (67 tests); `npm run e2e` green on desktop and phone.
 
 ## Blocked on Will
