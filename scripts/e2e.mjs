@@ -47,6 +47,12 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForSelector('.a-title'); await waitDone();
     const title = await page.locator('.a-title').first().textContent(); if (title !== 'Tardigrades') throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
+    /* reading first: the opening paragraph starts on the first screen, and quick facts sit beside it or after it */
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const lay = await page.evaluate(() => ({ top: document.querySelector('.a-body .pb p').getBoundingClientRect().top, vh: innerHeight, side: getComputedStyle(document.querySelector('.h-side')).display, band: !!document.querySelector('.a-body .glance-band .facts') }));
+    if (lay.top > lay.vh * .75) throw new Error(`the first paragraph starts at ${Math.round(lay.top)} of ${lay.vh}`);
+    if (mobile ? lay.side !== 'none' || !lay.band : lay.side === 'none') throw new Error(`facts in the wrong place: side ${lay.side}, band ${lay.band}`);
+    if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
   await step(`${tag}: a link opens the next page`, async () => {
@@ -56,6 +62,13 @@ async function run(page, { mobile = false } = {}) {
     await waitDone(); if ((await badge()) !== String(PAGES - 2)) throw new Error(`badge ${await badge()}`);
   });
   if (!mobile) {
+    await step(`${tag}: J continues below and moves focus to the new title`, async () => {
+      const before = await page.locator('.chamber').count();
+      await page.keyboard.press('j');
+      await page.waitForFunction(n => document.querySelectorAll('.chamber').length > n, before, { timeout: 20000 }); await waitDone();
+      const focused = await page.evaluate(() => document.activeElement === [...document.querySelectorAll('.a-title')].pop());
+      if (!focused) throw new Error('focus stayed behind');
+    });
     await step(`${tag}: expand a paragraph`, async () => {
       await page.locator('.pb').first().hover(); await page.locator('.ptool').first().click();
       await page.locator('[data-uf="simpler"]').click();
