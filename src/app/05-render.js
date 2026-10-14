@@ -137,7 +137,7 @@ function paint(node, streamOnly) {
   if (!streamOnly) {
     paintTools(node, sec); paintDoubt(node, sec);
     if (W && node.id === W.current) updateUpNext();
-    if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast('Tip: hover any link for a one-line hook, or press / to ask anything.', 7000); }, 1400);
+    if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
 /* Quick facts, drift and the timeline are reference, not reading. On a wide screen they sit in the
@@ -178,7 +178,7 @@ function extrasItems(node, i) {
   const u = node.unfolds && node.unfolds[i];
   if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">Expanding<span class="dots"></span></span>`}</div>` });
   (node.peeks || []).filter(p => p.after === i && p.open !== false).forEach(p => {
-    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.label || p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">Taking a look<span class="dots"></span></span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.label || p.target, 34))} →</button>` : ''}` });
+    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">Taking a look<span class="dots"></span></span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
   });
   return items;
 }

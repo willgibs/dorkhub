@@ -532,6 +532,7 @@ body.at-start .omni-btn{display:none}
 .upnext .un-l{color:var(--faint);flex:none}
 .upnext b{font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .upnext kbd{flex:none}
+@media (hover:none){ .upnext kbd{display:none} }
 .upnext:hover{border-color:var(--acc)}
 .where .dn{font:600 13px/1 var(--f-mono)}
 @media (max-width:900px){
