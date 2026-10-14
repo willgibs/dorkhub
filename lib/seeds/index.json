@@ -1,3 +1,65 @@
 {
-  "doors": {}
+ "doors": {
+  "carrington event": {
+   "title": "The Carrington Event",
+   "file": "carrington-event/index.txt",
+   "children": {}
+  },
+  "tardigrades": {
+   "title": "Tardigrades",
+   "file": "tardigrades/index.txt",
+   "children": {}
+  },
+  "whale falls": {
+   "title": "Whale falls",
+   "file": "whale-falls/index.txt",
+   "children": {}
+  },
+  "antikythera mechanism": {
+   "title": "The Antikythera mechanism",
+   "file": "antikythera-mechanism/index.txt",
+   "children": {}
+  },
+  "voynich manuscript": {
+   "title": "The Voynich manuscript",
+   "file": "voynich-manuscript/index.txt",
+   "children": {}
+  },
+  "umami": {
+   "title": "Umami",
+   "file": "umami/index.txt",
+   "children": {}
+  },
+  "why is ice slippery": {
+   "title": "Why is ice slippery?",
+   "file": "why-is-ice-slippery/index.txt",
+   "question": true,
+   "children": {}
+  },
+  "great emu war": {
+   "title": "The Great Emu War",
+   "file": "great-emu-war/index.txt",
+   "children": {}
+  },
+  "kessler syndrome": {
+   "title": "Kessler syndrome",
+   "file": "kessler-syndrome/index.txt",
+   "children": {}
+  },
+  "fresnel lenses": {
+   "title": "Fresnel lenses",
+   "file": "fresnel-lenses/index.txt",
+   "children": {}
+  },
+  "tulip mania": {
+   "title": "Tulip mania",
+   "file": "tulip-mania/index.txt",
+   "children": {}
+  },
+  "bioluminescence": {
+   "title": "Bioluminescence",
+   "file": "bioluminescence/index.txt",
+   "children": {}
+  }
+ }
 }

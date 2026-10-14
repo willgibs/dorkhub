@@ -1,0 +1,71 @@
+# Tardigrades
+> Eight-legged animals half a millimetre long can dry into husks, survive the vacuum of space, and walk again after a sip of water.
+~ You can follow these animals into proteins that turn drying cells to something like glass, a Moon lander that crashed with them aboard, and a genome claim that fell apart within weeks.
++++
+[[Lazzaro Spallanzani]] :: person
+[[Extremophile]] :: concept
+[[Intrinsically disordered proteins]] :: concept
+[[Glass transition]] :: phenomenon
+[[Dsup]] :: thing
+[[TARDIS experiment]] :: event
+[[Beresheet]] :: thing
+[[Planetary protection]] :: concept
+[[Velvet worm]] :: creature
+[[Hox genes]] :: mechanism
+[[Horizontal gene transfer]] :: mechanism
+[[Bdelloid rotifers]] :: creature
+---
+Tardigrades, also called water bears or moss piglets, are plump animals about half a millimetre long that lumber along on eight stubby legs tipped with claws or sticky pads. About 1,500 species live in seafloor sediment, ponds, soil and leaf litter, and in the films of water clinging to moss and lichen, from tropical forests to Antarctica. Most pierce plant cells or other tiny animals with a pair of needle-like stylets and suck out the contents. The German pastor Johann August Ephraim Goeze described the first in 1773 as a "little water bear". A few years later the Italian priest [[Lazzaro Spallanzani]] named them Tardigrada, "slow steppers", and revived them from dried gutter sediment.
+
+## Life on pause
+
+When their moss dries out, many land-dwelling tardigrades pull in their head and legs and shrivel into a husk called a tun. They lose nearly all their body water, and their metabolism drops below a ten-thousandth of normal, a state called cryptobiosis. A tun can wait years for rain and revive after a soaking, and tuns have survived cold, pressure and radiation far beyond anything they meet in nature. They are often called [[extremophiles|Extremophile]], but they endure extremes rather than thrive in them: in a 2020 study, a day at about 37 °C killed half the active animals of one hardy species.
+::: figures
+−272 °C :: cold that dried tardigrades have survived, briefly
+600 MPa :: pressure tuns survived, over five times the deepest ocean's
+5,000 Gy :: gamma dose killing half; around 5 can kill people
+30 years :: frozen in Antarctic moss, then revived and bred
+:::
+
+How they do it is only partly understood. Some tardigrades make little or no trehalose, the sugar brine shrimp pack into their dried eggs, and rely instead on [[intrinsically disordered proteins|Intrinsically disordered proteins]], molecules with no fixed shape. As a cell dries, some of these seem to set into a glassy solid that holds its contents still, the same kind of [[glass transition|Glass transition]] that turns boiled sugar into hard candy. Another protein, [[Dsup]], clings to DNA; human cells engineered to make it took about 40 per cent less DNA damage from X-rays.
+
+^ Unlike most of their other feats, radiation tolerance needs no drying: active tardigrades withstand about as much as tuns.
+
+## Off the planet
+
+In September 2007 the [[TARDIS experiment]] flew dried tardigrades on the outside of a Russian satellite, open to space for ten days. Vacuum alone barely harmed them. Adding the Sun's full, unfiltered ultraviolet killed almost all, but a few still revived, and they became the first animals known to survive open space.
+
+The Israeli lander [[Beresheet]] carried thousands more inside a time capsule when it crashed on the Moon in April 2019, after its main engine cut out during descent. Researchers who later fired tardigrades from a gas gun concluded they most likely died on impact; any survivors would find no liquid water to wake them. The episode still drew criticism over [[planetary protection|Planetary protection]], the rules meant to stop spacecraft carrying Earth life to other worlds.
+
+^ The tardigrades were set in epoxy between the layers of that capsule, an archive of over 30 million pages including English Wikipedia.
+
+## A body that is mostly head
+
+Tardigrades' closest living relatives are thought to be the arthropods and the slime-squirting [[velvet worms|Velvet worm]] of damp forests. Their genes help explain the squat shape. They have lost several [[Hox genes]], which pattern an animal from head to tail, along with the stretch of body those genes would build: almost the whole tardigrade corresponds to an arthropod's head, with nothing matching an insect's thorax or most of its abdomen.
+
+Their genome made news in 2015, when a study reported that about a sixth of one species' genes had arrived from bacteria and other organisms by [[horizontal gene transfer|Horizontal gene transfer]]. Within about a week a rival team blamed contamination from microbes in the cultures, and later genomes put the foreign share at a per cent or two at most. Their neighbours in the moss are the real borrowers: [[bdelloid rotifers|Bdelloid rotifers]], in which no male has ever been seen, have taken up to a tenth of their genes from bacteria, fungi and plants.
+>>>
+[[Cryptobiosis]] :: The paused state behind their survival records, where "alive" becomes surprisingly hard to define.
+===
+- [[Fossil tardigrades]] :: Six-legged Cambrian relatives, and a handful of specimens sealed in amber :: deeper :: thing
+- [[Deinococcus radiodurans]] :: A bacterium found in 1956 in canned meat radiation should have sterilised :: sideways :: creature
+- [[Panagrolaimus kolymaensis]] :: Roundworms reportedly revived after 46,000 years frozen in Siberian permafrost :: sideways :: creature
+- [[Aurora Australis (book)]] :: The first book printed in Antarctica featured giant tardigrades with an anaesthetic bite :: wild :: work
+- [[Sea-Monkeys]] :: Mail-order "instant life" built on the same trick: shrimp eggs that survive drying :: wild :: thing
+???
+Could a tardigrade ride a meteorite from one planet to another?
+Why would a moss-dwelling animal survive radiation doses no natural habitat delivers?
+Could tardigrade proteins keep medicines stable without refrigeration?
+&&&
+[[Lazzaro Spallanzani]] :: This priest blinded bats and found they still flew perfectly
+[[Extremophile]] :: Some microbes need near-boiling heat, acid or brine just to grow
+[[Intrinsically disordered proteins]] :: They work without a fixed shape, defying the textbook lock-and-key picture
+[[Glass transition]] :: Why hard candy and window glass are solids without crystals
+[[Dsup]] :: Unique to tardigrades, yet it works inside human cells too
+[[TARDIS experiment]] :: Dried animals rode outside a satellite, then came home and bred
+[[Beresheet]] :: Israel's first Moon lander, undone by a gyroscope fault and reboot
+[[Planetary protection]] :: Why NASA baked the Viking Mars landers in ovens before launch
+[[Velvet worm]] :: The only animal phylum living entirely on land
+[[Hox genes]] :: Mutate one and a fly grows legs where antennae belong
+[[Horizontal gene transfer]] :: How bacteria swap antibiotic resistance, tangling the tree of life
+[[Bdelloid rotifers]] :: Drying shatters their DNA, and repairs may stitch in foreign genes

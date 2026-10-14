@@ -1,0 +1,72 @@
+# The Voynich manuscript
+> Some six centuries old, crowded with strange pictures and fluent handwriting, it has defeated every codebreaker who has ever tried to read it.
+~ You chose a book nobody can read, and it leads to an alchemy-loving emperor in Prague, to America's wartime codebreakers, and to an odd rule about how often words get used.
++++
+[[Radiocarbon dating]] :: technique
+[[Wilfrid Voynich]] :: person
+[[Beinecke Rare Book and Manuscript Library]] :: place
+[[Balneology]] :: concept
+[[Voynichese]] :: mystery
+[[Zipf's law]] :: phenomenon
+[[Iron gall ink]] :: thing
+[[Rudolf II]] :: person
+[[Athanasius Kircher]] :: person
+[[Pareidolia]] :: phenomenon
+[[Philosophical language]] :: concept
+[[Cardan grille]] :: technique
+[[Multispectral imaging]] :: technique
+---
+The Voynich manuscript is an illustrated book about the size of a hardback novel: some 240 vellum pages in an otherwise unknown script that no one has convincingly read. Its roughly 38,000 words flow in a smooth, unhesitating hand around pictures of plants nobody can firmly identify, wheels of stars and bathing women. [[Radiocarbon dating]] in 2009 placed its calfskin between 1404 and 1438. It is named after [[Wilfrid Voynich]], the London bookseller who bought it, and is now MS 408 at Yale's [[Beinecke Library|Beinecke Rare Book and Manuscript Library]].
+^ Voynich's widow Ethel, who inherited the book, was the youngest daughter of George Boole, whose algebra of true and false underlies digital computing.
+
+## What the pages show
+
+Roughly half the book is a herbal. Circular diagrams follow, among them zodiac wheels ringed by small female figures, whose month names, in Latin letters, hint at the medieval languages of France, northwest Italy or Iberia. Nude women bathe in pools linked by pipes on pages called balneological, after [[balneology|Balneology]], the medicine of therapeutic baths. A six-page foldout joins nine "rosettes" with causeways, and the book ends with drawn jars and plant parts, then short star-marked paragraphs that may be recipes.
+
+The script, nicknamed [[Voynichese]], uses 20 to 25 common characters and behaves both like a language and unlike one. Its word counts follow [[Zipf's law]], as real languages do: the commonest word appears about twice as often as the next. Yet some characters occur only at the start or end of words, the same word can repeat several times in a row, and letter sequences are far more predictable than in typical languages. Tests show it was written with a quill in [[iron gall ink|Iron gall ink]] and painted with materials expected for the period.
+
+## A chain of owners
+
+No one knows who made the book, or where. A letter that came with it repeats a secondhand story: that [[Rudolf II]], the Holy Roman Emperor who filled his Prague court with alchemists and astronomers, had paid 600 ducats for it, and that its author was the 13th-century friar Roger Bacon. No surviving record names the book, and the radiocarbon date rules Bacon out: he died more than a century before the calves were born. The letter's recipient was [[Athanasius Kircher]], a Jesuit scholar who claimed he could read Egyptian hieroglyphs, though apparently not this.
+^ Rudolf's account books record a 1599 purchase of rare books from the physician Karl Widemann at about that price; whether this book was among them is unproven.
+
+The book then seems to have stayed with the Jesuits, among manuscripts that escaped Italy's confiscation of church property as their leader's private library. Sworn to secrecy about the sale, Voynich said he had found it in a castle in southern Europe, and he championed Bacon as its author. In 1921 a University of Pennsylvania professor claimed to see Bacon's microscopic shorthand in the pen strokes; it was cracking in the dried ink, a case of [[pareidolia|Pareidolia]].
+::: timeline
+1639 :: Prague alchemist Georg Baresch asks Kircher for help reading it
+1665 :: Physician Jan Marek Marci sends it to Kircher in Rome
+1912 :: Voynich buys it, one of about 30 Jesuit manuscripts
+1961 :: Dealer Hans P. Kraus buys it for $24,500
+1969 :: Unable to get $160,000 for it, Kraus donates it to Yale
+:::
+
+## Codebreakers and doubters
+
+From 1944 William Friedman, whose Army codebreakers had broken Japan's PURPLE cipher, set up a study group that put the text onto IBM punch cards. He concluded it was an early attempt at an invented universal language, like the [[philosophical language|Philosophical language]] schemes of the 1600s, and published that verdict in 1959 as an anagram, its answer revealed only after his death. Others think it meaningless: Gordon Rugg of Keele University showed that a table of syllables and a [[Cardan grille]], a card with cut-out windows, can churn out text much like Voynichese. Yet some words cluster in particular sections, as topic words do in meaningful texts.
+
+Claimed solutions, from Hebrew to abbreviated Latin, appear every few years, and none has convinced specialists. Meanwhile the book itself keeps yielding clues: [[multispectral imaging|Multispectral imaging]] shows its vellum had never been written on before, and scans of ten pages released in 2024 revealed details invisible in ordinary light.
+>>>
+[[Voynichese]] :: The script itself, and why its strangely regular words have resisted every attempt to read them.
+===
+- [[Naibbe cipher]] :: A 2025 cipher turns Latin and Italian into text that looks like Voynichese :: deeper :: technique
+- [[Rosettes foldout]] :: Its largest foldout: nine linked "islands" with castles and, perhaps, a volcano :: deeper :: thing
+- [[Rohonc Codex]] :: Another unread book: 448 pages in a script with hundreds of signs :: sideways :: mystery
+- [[Codex Seraphinianus]] :: A 1981 encyclopedia of an invented world, in a deliberately meaningless script :: sideways :: work
+- [[The Gadfly]] :: The manuscript's heir wrote a novel that sold millions in the Soviet Union :: wild :: work
+???
+Could a medieval hoaxer really have faked such language-like text?
+Why haven't computers or AI managed to read the script?
+Has anyone identified even one of the herbal's plants?
+&&&
+[[Radiocarbon dating]] :: Dates a calf's death from a sliver of its skin
+[[Wilfrid Voynich]] :: A revolutionary who escaped Siberian exile and became a rare-book dealer
+[[Beinecke Rare Book and Manuscript Library]] :: A windowless library whose thin marble walls glow with daylight
+[[Balneology]] :: When doctors prescribed hot springs, and whole towns grew around them
+[[Voynichese]] :: Fluent, rule-bound writing that has resisted every reader since the 1630s
+[[Zipf's law]] :: One simple rule fits word counts, city sizes and much more
+[[Iron gall ink]] :: Europe's standard writing ink for centuries, and it slowly eats paper
+[[Rudolf II]] :: An emperor who gathered alchemists, astronomers and wonders at Prague Castle
+[[Athanasius Kircher]] :: A Jesuit polymath lowered into Vesuvius, who misread Egypt's hieroglyphs
+[[Pareidolia]] :: Why minds find faces in clouds and messages in random marks
+[[Philosophical language]] :: Invented languages whose words spell out their own meanings
+[[Cardan grille]] :: A card with holes that hides secrets inside innocent letters
+[[Multispectral imaging]] :: Light beyond human vision that brings erased writing back

@@ -43,13 +43,21 @@ export function looseJSON(text) {
   try { return JSON.parse(t.slice(a, b + 1)); } catch { return null; }
 }
 
+/* A timeline's WHEN as a year: "1932", "2 Nov 1932" (the year, not the day), "1950s", "300 BCE",
+   "AD 79", "14th century", "65 million years ago". */
 /** @param {unknown} t */
 export function yearOf(t) {
-  const s = String(t).toLowerCase().replace(/,/g, ''); const m = /(\d+(?:\.\d+)?)\s*(billion|million|thousand)?/.exec(s); if (!m) return null;
-  let n = parseFloat(m[1]); const big = m[2]; if (big === 'billion') n *= 1e9; else if (big === 'million') n *= 1e6; else if (big === 'thousand') n *= 1e3;
-  if (big || /years? ago|\bya\b|\bmya\b/.test(s)) return new Date().getFullYear() - n;
-  if (/\bbce?\b|\bb\.c/.test(s)) return -n;
-  return n;
+  const s = String(t).toLowerCase().replace(/,/g, '');
+  const big = /(\d+(?:\.\d+)?)\s*(billion|million|thousand)\b/.exec(s);
+  if (big || /years? ago|\bya\b|\bmya\b/.test(s)) {
+    const m = big || /(\d+(?:\.\d+)?)/.exec(s); if (!m) return null;
+    let n = parseFloat(m[1]); const k = big && big[2]; if (k === 'billion') n *= 1e9; else if (k === 'million') n *= 1e6; else if (k === 'thousand') n *= 1e3;
+    return new Date().getFullYear() - n;
+  }
+  let n; const c = /(\d{1,2})(?:st|nd|rd|th)\s+century/.exec(s);
+  if (c) n = (+c[1] - 1) * 100 + 50;
+  else { const nums = s.match(/\d+/g); if (!nums) return null; n = +(nums.find(x => x.length >= 3) || nums[0]); }
+  return /\bbce?\b|\bb\.c/.test(s) ? -n : n;
 }
 
 /**

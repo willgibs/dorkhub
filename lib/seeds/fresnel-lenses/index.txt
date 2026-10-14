@@ -1,0 +1,72 @@
+# Fresnel lenses
+> Keep a lens's curved surfaces, throw away most of the glass, and a single lamp can reach ships more than 30 kilometres out.
+~ You picked a lighthouse lens, and its stepped glass leads on to a bright spot in the middle of a shadow, the plastic dome of a motion sensor and the light that guides jets onto aircraft carriers.
++++
+[[Augustin-Jean Fresnel]] :: person
+[[Arago spot]] :: phenomenon
+[[Burning glass]] :: thing
+[[David Brewster]] :: person
+[[Cordouan Lighthouse]] :: place
+[[Total internal reflection]] :: phenomenon
+[[Light characteristic]] :: concept
+[[Mercury float]] :: mechanism
+[[Overhead projector]] :: thing
+[[Fresnel lantern]] :: thing
+[[Passive infrared sensor]] :: thing
+[[Optical landing system]] :: thing
+[[Concentrator photovoltaics]] :: technique
+---
+A Fresnel lens is a lens with most of its glass taken out. Light bends only where it crosses a surface, so the thick middle of a big lens mostly adds weight and soaks up light. Slice the curved face into concentric rings, drop each ring onto a flat base, and the slim result bends light much as the solid lens did. [[Augustin-Jean Fresnel]] built the idea into French lighthouses in the 1820s; today the same rings are pressed into plastic a few millimetres thick.
+
+## A road engineer's lens
+
+Fresnel was a government road engineer who began experimenting with light in 1815, while suspended from his post for opposing Napoleon's return. By 1819 his wave theory of light had won the grand prize of France's Academy of Sciences. One judge, Siméon Poisson, derived what seemed an absurd consequence: a bright point at the centre of a round object's shadow. François Arago tried it, and the [[Arago spot]] was there. Arago then had Fresnel seconded to France's lighthouse commission.
+^ Fresnel's first cousin was the writer Prosper Mérimée, whose novella Carmen inspired Bizet's opera.
+
+His proposal, lenses built in steps, was not new. In 1748 the naturalist Buffon had suggested grinding one from a single block of glass, as a lighter [[Burning glass]], and the Scottish physicist [[David Brewster]] had proposed assembling one from separate rings. Fresnel, unaware of both, built his from many small prisms. He saw it as the burning glass in reverse: instead of squeezing sunlight into a point, the lens takes a flame at its focus and sends its light out as a level beam.
+
+## Lighting the coast
+
+Lighthouses then used polished metal reflectors, which returned only about half the light that hit them. Fresnel ringed one lamp with eight bull's-eye panels; as the frame turned, each beam swept past ships as a flash. At [[Cordouan Lighthouse]], a Renaissance tower on a rock off the Gironde estuary, its beam reached the horizon, more than 30 kilometres out. Mirrors caught the light escaping above and below, so Fresnel designed prisms to replace them: each bends light in, turns it by [[Total internal reflection]] and sends it out level with the beam. Stacked in rings, they gave the lighthouse lens its beehive shape.
+::: timeline
+1821 :: Fresnel's lens outshines the newest reflectors in a public trial
+1822 :: Arc de Triomphe test, watched by Louis XVIII from 32 km
+1823 :: Cordouan's lens is lit, the first in any lighthouse
+1825 :: Fresnel designs reflecting prisms and plans 51 coastal lights
+1852 :: A new US Lighthouse Board starts fitting Fresnel lenses nationwide
+:::
+
+Fresnel also sorted lenses into sizes called orders, from coastal giants taller than a person down to harbour lights, and gave neighbouring lights different rhythms so sailors could tell them apart; each light's [[Light characteristic]] is still printed on charts. He died of tuberculosis in 1827, aged 39, before a full-size prism lens was built. Keepers wound clockwork to turn the lenses, and from the 1890s big rotating lenses floated on a [[bath of mercury|Mercury float]], spinning fast enough for short, sharp flashes.
+^ In 1838 Matthew Perry, the naval officer later famous for opening Japan, was sent to Europe to arrange America's first two Fresnel lenses.
+
+## Rings everywhere
+
+Moulded glass, and later plastic, made the rings cheap, and they spread wherever a big, light lens mattered more than a perfect image. One sits under the glass of an [[Overhead projector]], steering lamplight up to the lens in its head. Theatres hang [[Fresnel lanterns|Fresnel lantern]] for soft-edged washes of light. The faceted dome of a [[Passive infrared sensor]] is a cluster of little Fresnel lenses, each focusing body heat from one slice of a room onto the detector.
+
+Pilots landing on aircraft carriers line up on the "meatball", a light shone through Fresnel lenses in the [[Optical landing system]]. Some solar plants use them for [[Concentrator photovoltaics]], focusing sunlight hundreds of times onto small, highly efficient cells. The price is sharpness, since the ring edges scatter light. Virtual reality headsets such as Meta's Quest 2 used Fresnel lenses to save weight; newer models have moved to folded "pancake" lenses with less colour fringing.
+>>>
+[[Arago spot]] :: The shadow's bright centre that Poisson thought would sink Fresnel's theory of light
+===
+- [[Holophotal lens]] :: Robert Louis Stevenson's father squeezed almost all a lamp's light into one beam :: deeper :: thing
+- [[Hyperradiant lens]] :: Hawaii's Makapuʻu lens stands 3.7 metres tall and holds over a thousand prisms :: deeper :: thing
+- [[Zone plate]] :: Rings that focus by blocking light rather than bending it, even X-rays :: sideways :: thing
+- [[Archimedes' heat ray]] :: Buffon, who first proposed stepped lenses, tested this legend with 168 mirrors :: wild :: mystery
+- [[Pyroelectricity]] :: Behind a motion sensor's dome sits a crystal that makes voltage when warmed :: wild :: phenomenon
+???
+How far can a lighthouse beam be seen before the horizon hides it?
+Do any lighthouses still shine through their original Fresnel lenses?
+Could a big Fresnel lens focus sunlight hot enough to melt metal?
+&&&
+[[Augustin-Jean Fresnel]] :: A road engineer who remade optics and died at 39
+[[Arago spot]] :: A bright dot inside a shadow that a sceptic thought impossible
+[[Burning glass]] :: Giant ones helped chemists burn diamonds and isolate oxygen
+[[David Brewster]] :: The kaleidoscope's inventor also pitched ringed lenses to British lighthouses
+[[Cordouan Lighthouse]] :: A Renaissance tower at sea, with a chapel and royal apartment
+[[Total internal reflection]] :: Glass becomes a flawless mirror, no silver needed
+[[Light characteristic]] :: Every light has a signature rhythm, written on charts in code
+[[Mercury float]] :: Tonnes of glass spun on mercury, and keepers breathed the fumes
+[[Overhead projector]] :: Its page-sized flat lens is a lighthouse trick, pressed in plastic
+[[Fresnel lantern]] :: Stage crews just call them Fresnels, prized for soft-edged light
+[[Passive infrared sensor]] :: Its faceted dome splits a room into invisible tripwires of heat
+[[Optical landing system]] :: Carrier pilots land by keeping a ball of light centred
+[[Concentrator photovoltaics]] :: Lenses focus hundreds of suns onto tiny, ultra-efficient solar cells

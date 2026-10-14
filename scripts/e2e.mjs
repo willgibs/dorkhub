@@ -46,6 +46,13 @@ async function run(page, { mobile = false } = {}) {
     for (const f of ['Literata', 'Atkinson Hyperlegible Next']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
+  await step(`${tag}: a door page is written ahead of time, and free`, async () => {
+    await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
+    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint span')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
+    if (p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/.test(p.fine)) throw new Error(`door page: ${JSON.stringify(p)}`);
+    if ((await badge()) !== String(PAGES)) throw new Error(`a door page spent a free page: badge ${await badge()}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
   /* pictures come from our own endpoint: one found on desktop, none on the phone */
   if (!mobile) {
     await page.route('**/api/picture?t=*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ src: '/api/picture?f=a%2Fab%2FTest.jpg&w=500', w: 500, h: 300, alt: 'A test picture', credit: 'E2E', license: 'CC0', file: 'https://commons.wikimedia.org/wiki/File:Test.jpg' }) }));
@@ -53,11 +60,11 @@ async function run(page, { mobile = false } = {}) {
   } else await page.route('**/api/picture?t=*', r => r.fulfill({ status: 204 }));
   await step(`${tag}: first page streams in`, async () => {
     await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) w.__status.add(s.textContent); }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
-    await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter');
+    await page.fill('#seedIn', 'Water bears'); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
     const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], now: !!document.querySelector('.status-line') }));
     if (!status.seen.length || status.now) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
-    const title = await page.locator('.a-title').first().textContent(); if (title !== 'Tardigrades') throw new Error(`title ${title}`);
+    const title = await page.locator('.a-title').first().textContent(); if (title !== 'Water bears') throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
     /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
     await page.evaluate(() => window.scrollTo(0, 0));

@@ -1,0 +1,77 @@
+# The Antikythera mechanism
+> Lost in a shipwreck over 2,000 years ago, a shoebox-sized machine of bronze gears could forecast eclipses at the turn of a handle.
+~ You start with a lump of corroded bronze, and it leads to sponge divers in copper helmets, Babylonian sky diaries on clay and the four-year cycle of the Olympic Games.
++++
+[[Antikythera wreck]] :: place
+[[Sponge diving]] :: technique
+[[Decompression sickness]] :: phenomenon
+[[Antikythera Youth]] :: thing
+[[Parapegma]] :: thing
+[[Metonic cycle]] :: concept
+[[Panhellenic Games]] :: event
+[[Saros cycle]] :: phenomenon
+[[Epicyclic gearing]] :: mechanism
+[[Hipparchus]] :: person
+[[Babylonian astronomical diaries]] :: work
+[[Archimedes' sphere]] :: mystery
+[[Derek de Solla Price]] :: person
+[[Reflectance transformation imaging]] :: technique
+---
+The Antikythera mechanism is a geared bronze machine from the Greek world, made in the second or early first century BCE, that modelled the sky. Turning a crank drove pointers that tracked the Sun, the Moon and its phases, a calendar of lunar months and coming eclipses. Its corroded remains came from the [[Antikythera wreck]], and it is often called the oldest known analogue computer: no surviving object matches its gearing for over a thousand years.
+::: facts
+Recovered :: 1901, from about 45 metres down
+Ship sank :: about 70–60 BCE
+Survives as :: 82 fragments, roughly a third of it
+Gears :: 30 survive, all bronze
+Case :: roughly 34 × 18 × 9 cm
+Kept at :: National Archaeological Museum, Athens
+:::
+
+## Raised by sponge divers
+
+In spring 1900, sponge divers from Symi, waiting out bad weather off Antikythera, found a wreck strewn with bronze and marble statues. They worked it in the canvas suits and copper helmets that [[sponge diving|Sponge diving]] crews had adopted a generation earlier, with Greek navy ships in support. Work stopped in the summer of 1901, after one diver died and two were paralysed by [[decompression sickness|Decompression sickness]]. Among the finds were the bronze [[Antikythera Youth]] and a lump of corroded bronze and wood that went unnoticed until May 1902, when the archaeologist Valerios Stais saw a gearwheel in one of its broken pieces.
+^ The first diver down surfaced describing rotting corpses and horses on the seabed; his captain dived himself and came back with a bronze statue's arm.
+
+## A sky on two faces
+
+On the front, pointers swept around a zodiac scale and a ring of Egyptian month names, and a small ball, half pale and half dark, turned to show the Moon's phase. Letters on the zodiac scale were keyed to a [[parapegma|Parapegma]], a star calendar of risings and settings inscribed above and below the dial. Its inscriptions mention the planets too, which it probably showed, though nearly all of that gearing is lost.
+
+The back carried two spiral dials. The upper one counted the 235 months of the [[Metonic cycle]], the 19 years after which the Moon's phases return to the same dates, and a smaller dial beside it tracked the four-year round of the [[Panhellenic Games]], the Olympics among them. The lower spiral held the 223 months of the [[Saros cycle]], after which eclipses repeat, with glyphs marking the months due an eclipse of the Sun or the Moon, and its hour.
+
+## Gears that copy the Moon
+
+The cleverest gearing copies the Moon's uneven pace, faster when it is nearer Earth. Two gears turn on slightly offset axles, and a pin on one rides in a slot on the other, so the Moon pointer speeds up and slows down in turn. The pair rides on a larger turning wheel, an early use of [[epicyclic gearing|Epicyclic gearing]], which swings the whole effect round once every nine years or so, as the Moon's orbit itself slowly turns. The design follows the lunar theory of [[Hipparchus]], who worked on Rhodes, and many of its cycles came from Babylon, where the [[Babylonian astronomical diaries]] logged the night sky for some six centuries.
+^ The gear teeth are simple triangles, probably cut by hand, about 1.6 millimetres apart, and not all of them are even.
+
+## Who built it, and who read it
+
+No maker's name survives. Its Corinthian-style month names once pointed scholars to Syracuse, a Corinthian colony and the home of Archimedes; later work favours Epirus in north-western Greece, whose Naa games at Dodona appear on the games dial. Cicero describes [[Archimedes' sphere]], carried off to Rome after Syracuse fell in 212 BCE, and a similar device made by his friend Posidonius, who taught on Rhodes. Neither has been found.
+
+[[Derek de Solla Price]] studied the fragments for two decades, aided by gamma-ray and X-ray images, and called the device a calendar computer. Michael Wright of London's Science Museum later showed Price's gearing to be badly flawed and built working models. In 2005 a team brought an eight-tonne X-ray scanner to Athens, while photographs lit from many directions, a method called [[reflectance transformation imaging|Reflectance transformation imaging]], raised worn letters from the bronze. By 2016 about 3,400 characters had been read, including a guide to the displays.
+>>>
+[[Saros cycle]] :: Its 223-month rhythm drives the eclipse dial, and Babylonian astronomers knew it first.
+===
+- [[Pin-and-slot mechanism]] :: Two offset gears that make a bronze Moon speed up and slow down :: deeper :: mechanism
+- [[Byzantine sundial-calendar]] :: The next oldest geared calendar, a portable sundial made centuries later :: sideways :: thing
+- [[Hero of Alexandria]] :: Described a coin-operated dispenser and a cart programmed by wound string :: sideways :: person
+- [[Tide-predicting machine]] :: Brass gears that summed Sun and Moon rhythms into tide tables for D-Day :: wild :: thing
+- [[Sea sponge]] :: The divers were hunting animals that reassemble after being squeezed through cloth :: wild :: creature
+???
+Were there other machines like it, and why did none survive?
+How accurate were its eclipse predictions against the real sky?
+How can researchers rebuild gears that no longer exist?
+&&&
+[[Antikythera wreck]] :: A century on, divers still raise statues and bones from it
+[[Sponge diving]] :: Divers once rode a stone to the seabed on one breath
+[[Decompression sickness]] :: The same illness disabled the Brooklyn Bridge's chief engineer
+[[Antikythera Youth]] :: Nobody knows who he is: Paris, Perseus, Heracles or an athlete
+[[Parapegma]] :: Stone calendars with peg holes that paired star risings with weather
+[[Metonic cycle]] :: The 19-year loop still behind the Jewish calendar and Easter
+[[Panhellenic Games]] :: Victors won wreaths of olive, laurel, pine or wild celery
+[[Saros cycle]] :: Babylonians predicted eclipses with it long before Halley misnamed it
+[[Epicyclic gearing]] :: Gears orbiting gears, now inside automatic gearboxes and bicycle hubs
+[[Hipparchus]] :: Caught the whole sky drifting by checking stars against older records
+[[Babylonian astronomical diaries]] :: Six centuries of sky, weather and barley prices on clay
+[[Archimedes' sphere]] :: Cicero says it showed the planets moving; no trace survives
+[[Derek de Solla Price]] :: Called it a computer, and pioneered the measurement of science itself
+[[Reflectance transformation imaging]] :: Virtual raking light that lifts faded writing off stone and bronze

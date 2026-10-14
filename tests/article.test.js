@@ -217,4 +217,12 @@ test('small helpers', () => {
   assert.equal(plain('A [[shown|Target]] and **bold**'), 'A shown and bold');
   assert.equal(yearOf('300 BCE'), -300);
   assert.equal(yearOf('1950s'), 1950);
+  assert.equal(yearOf('2 Nov 1932'), 1932, 'the year, not the day');
+  assert.equal(yearOf('Early Feb 1637'), 1637);
+  assert.equal(yearOf('AD 79'), 79);
+  assert.equal(yearOf('14th century'), 1350);
+  assert.equal(yearOf('5th century BCE'), -450);
+  assert.equal(yearOf('1404–1438'), 1404);
+  assert.equal(yearOf('65 million years ago'), new Date().getFullYear() - 65e6);
+  assert.equal(yearOf('soon'), null);
 });

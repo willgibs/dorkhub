@@ -1,0 +1,65 @@
+# The Great Emu War
+> In 1932 three Australian soldiers took two machine guns into Western Australia's wheatbelt against some 20,000 emus, and the emus came out ahead.
+~ Behind the soldiers and the birds, you will find a Depression-era push to grow more wheat, a state that voted to leave Australia, and a rabbit fence that turned into an emu barrier.
++++
+[[Western Australian wheatbelt]] :: place
+[[Lewis gun]] :: thing
+[[Emu]] :: creature
+[[Soldier settlement in Australia]] :: concept
+[[Grow More Wheat campaign]] :: event
+[[Emu migration]] :: phenomenon
+[[George Pearce]] :: person
+[[1933 Western Australian secession referendum]] :: event
+[[Emu plume]] :: thing
+[[Technical (vehicle)]] :: thing
+[[Wildlife bounty]] :: technique
+[[Rabbit-Proof Fence]] :: thing
+---
+The Great Emu War was the Australian Army's attempt, in November and December 1932, to cull the emus ravaging wheat farms in the [[Western Australian wheatbelt]]. The entire force was Major G. P. W. Meredith, a sergeant and a gunner of the Royal Australian Artillery, armed with two [[Lewis guns|Lewis gun]] and 10,000 rounds of ammunition. Facing them were an estimated 20,000 [[emus|Emu]], Australia's tallest native birds, spread across the farms around Campion, some 300 kilometres east of Perth. The press called it a war, and the birds came through it with their numbers barely dented.
+
+## Why the army was sent
+Many of the farmers were First World War veterans, settled on marginal land under [[soldier settlement|Soldier settlement in Australia]] schemes; farming at Campion had begun only in the early 1920s. When the Depression struck, the federal [[Grow More Wheat campaign]] of 1930 urged growers to plant more, on the promise of a guaranteed price that never arrived, while prices kept sliding. Then the emus came. After breeding, emus head from the inland toward the coast, and their [[migration|Emu migration]] now met cleared paddocks, ripening crops and farm dams. The birds ate and trampled the wheat and tore gaps in fences that let rabbits through.
+
+A deputation of ex-soldiers asked the Minister for Defence, Sir [[George Pearce]], himself a Western Australian senator, for machine guns. He agreed on terms: soldiers would fire them, the state would pay for transport, and the farmers would supply food, lodging and the cost of ammunition. Some historians suggest the government also wanted to be seen helping, and to take the wind out of a growing [[push to leave the federation|1933 Western Australian secession referendum]]; to that end, a Fox Movietone newsreel cameraman was enlisted. One newspaper added that the gunners were to bring back 100 emu skins, so the feathers could become [[plumes for Light Horse hats|Emu plume]].
+^ Western Australia's parliament passed its secession referendum act that same November; in April 1933, about two-thirds of voters chose to leave the federation.
+
+## Machine guns in the paddocks
+Rain delayed the start until early November, and from the first day the birds refused to be easy targets. Instead of bunching, the flocks split into small, fast-moving groups, and observers reported that each mob seemed to have a tall, black-plumed leader keeping watch. Meredith even mounted a gun on a truck, a makeshift [[technical|Technical (vehicle)]], but the truck could not gain on the birds and the ride was too rough for the gunner to fire. Wounded birds kept running. Meredith said the emus could "face machine guns with the invulnerability of tanks", and the ornithologist Dominic Serventy later wrote that the "Emu command had evidently ordered guerrilla tactics."
+::: timeline
+2 Nov 1932 :: Settlers drive some 50 emus toward an ambush; the birds scatter
+4 Nov 1932 :: Over a thousand emus approach; a gun jams after 12 kills
+8 Nov 1932 :: After 2,500 rounds and bad press, Pearce withdraws the guns
+13 Nov 1932 :: Backed by the state premier, Meredith and the guns return
+10 Dec 1932 :: Meredith is recalled, claiming 986 emus for 9,860 rounds
+:::
+
+## Bounties, fences and a punchline
+Meredith's tally works out at exactly ten rounds per bird, and he claimed another 2,500 had died of their wounds; both figures have long been doubted. In parliament, Pearce was mocked as the minister of the Emu War, and when farmers asked for the army again in later years, they were turned down. What thinned the flocks was a [[bounty|Wildlife bounty]] paid on every emu killed. What held them back in the long run was fencing, above all the [[Rabbit-Proof Fence]], which ran right past Campion and found a second career as a barrier against migrating emus.
+^ In six months of 1934, 57,034 emu bounties were claimed, nearly sixty times the army's claimed tally.
+
+Emus remain common across mainland Australia. The war became a national joke, retold in a 2023 action comedy, while Campion, the township at its heart, was cancelled in 1972 and has all but vanished.
+>>>
+[[Rabbit-Proof Fence]] :: The fence beside Campion, built to stop rabbits, was later kept up to stop emus.
+===
+- [[1976 emu migration]] :: The winter some 50,000 emus massed against Western Australia's barrier fences :: deeper :: event
+- [[King Island emu]] :: A dwarf emu likely gone from the wild within three years of discovery :: sideways :: creature
+- [[Cane toads in Australia]] :: Three years on, another farm-pest fix: 102 toads, now hundreds of millions :: sideways :: creature
+- [[Great Hanoi Rat Massacre]] :: Another pest bounty: Hanoi paid per rat tail, so catchers freed tailless rats :: wild :: event
+- [[Emu in the Sky]] :: The emu many Aboriginal peoples see in the Milky Way's dark dust lanes :: wild :: thing
+???
+Why does Meredith's tally work out at exactly ten rounds per bird?
+Why are emus so hard to bring down with gunfire?
+Did any newsreel footage of the Emu War survive?
+&&&
+[[Western Australian wheatbelt]] :: Cleared farmland still sheltering about 11% of Australia's critically endangered plants
+[[Lewis gun]] :: An American gun its own army snubbed, mass-produced in Birmingham
+[[Emu]] :: Fathers incubate the eggs for about eight weeks, barely eating
+[[Soldier settlement in Australia]] :: Farms for returned soldiers, often on marginal land that failed them
+[[Grow More Wheat campaign]] :: Farmers urged to sow more just as world wheat prices crashed
+[[Emu migration]] :: Treks that can mass tens of thousands of emus at fences
+[[George Pearce]] :: A carpenter who left school at 11 and set parliamentary records
+[[1933 Western Australian secession referendum]] :: Two-thirds voted to leave Australia; Britain ruled it couldn't act
+[[Emu plume]] :: Light Horse hat feathers that troopers joked were kangaroo feathers
+[[Technical (vehicle)]] :: Gun-mounted pickups, likely named after aid grants in Somalia
+[[Wildlife bounty]] :: Cash per carcass: it thinned emus and helped doom the thylacine
+[[Rabbit-Proof Fence]] :: Built against rabbits; now it holds back emus and wild dogs
