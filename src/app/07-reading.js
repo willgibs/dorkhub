@@ -70,7 +70,7 @@ function showCard(a) {
   const status = ex ? (ex.status === 'done' ? 'Already read ↺' : 'Being written') : men >= 2 ? `On ${men} pages` : 'Not read yet';
   hc = { a, nid: c.nid, i: c.i, target, label: a.textContent, text: c.text };
   hcard.innerHTML = `<p class="hc-meta">${g && g.kind ? `<span class="kind"${kattr(g.kind)}>${esc(g.kind)}</span>` : '<span></span>'}<span>${status}</span></p>
-<p class="hc-title">${esc(target)}</p><p class="hc-hook">${hook ? esc(hook) : isLive(node) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
+<p class="hc-title">${esc(target)}</p><p class="hc-hook">${hook ? esc(capFirst(hook)) : isLive(node) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
 ${!ex && elsewhere ? `<p class="hc-else">You read this in another rabbit hole, <b>${esc(clip(elsewhere.w.nodes[elsewhere.w.root].title, 40))}</b>. <a href="#/w/${elsewhere.w.id}/${elsewhere.n.id}">Open it there</a></p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="dig">${ex && ex.status === 'done' ? 'Go there' : 'Open page'} ↵</button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!ex ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;

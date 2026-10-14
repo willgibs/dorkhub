@@ -159,7 +159,7 @@ function paintHead(node, sec, A, live) {
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
   const seedDeck = live && node.seed && node.seed.gloss ? node.seed.gloss : '';
   if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !A.bridge)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node), ink: head0 });
-  else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(seedDeck) });
+  else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
   const from = node.from && node.from.bridge && W.nodes[node.from.bridge] && parent ? `Connecting <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a> and <a href="#/w/${W.id}/${node.from.bridge}">${esc(W.nodes[node.from.bridge].title)}</a>` : parent ? `From <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a>` : 'Where it starts';
   if (A.bridge || live) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p>${A.bridge ? `<p class="bridge-t">${inline(A.bridge, node)}</p>` : ''}`, ink: head0 });
   patch($('.h-main', head), main);
