@@ -8,7 +8,17 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   and CSS, then the body, then one inline script. That script is the shared modules plus
   the app modules in a single IIFE. A CSP meta tag pins that script by its SHA-256. There
   is no framework and no bundler; Vercel's CDN serves the page.
-- **One function.** `api/write.js` → `handleWrite()` in `lib/write.js`.
+- **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
+  writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
+  from Wikipedia, proxied through our own origin; no model involved).
+- **The page format** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
+  `src/shared/article.js`): `# title`, `> deck`, `~ bridge`, `+++` link plan
+  (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
+  (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `>>>` next page,
+  `===` branches, `???` questions, `&&&` a hook for every planned link. Kinds come before
+  the body so links appear in colour; hooks come last because only hover cards need them.
+  The parser still reads v1 pages (head facts, `%%%` timeline, hooks in the plan): their
+  facts and timeline become panels below the first paragraph.
 - **State in the browser.** Rabbit holes live in localStorage (`dorkhub:holes:v1`). The
   reader's key and last known trial count live in `dorkhub:auth:v1`.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
@@ -68,7 +78,16 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 - `supportsCancellation` is on, so a disconnect can end the function at any moment. Any
   work after one goes through the request-bound deferrer in `lib/write.js`.
 - The mock writer never answers in production (`mockAllowed`).
-- CSP: scripts are allowed only by hash; no inline handlers; `connect-src 'self'`.
+- CSP: scripts are allowed only by hash; no inline handlers; `connect-src 'self'`;
+  fonts and images only from our own origin.
+- Streaming never shows anything that later changes or vanishes, and nothing appears
+  above the reader: half-written lines of the plan, a panel or the hooks are held back;
+  a panel never sits above the first paragraph; at most two panels, never two in a row;
+  a lead picture shows only if it is ready before the first paragraph is finished.
+- No crawlable topic URLs: pages live behind `#` routes in the reader's browser. Writes
+  are POST-only and same-origin; `api/picture` answers only `Sec-Fetch-Site: same-origin`
+  (a 403 that is never cached otherwise) and every answer is CDN-cached; `/api/*` carries
+  `X-Robots-Tag: noindex` and `robots.txt` disallows it.
 - Unknown paths get the static 404 page with no rewrite, so stale URLs never cost a
   function call.
 
@@ -82,7 +101,9 @@ The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing 
 
 | What | Where |
 | --- | --- |
-| Parser, including every prefix of every recorded page (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
+| Parser, including every prefix of every recorded page, hand-written v2 edge cases (`tests/fixtures.js`) and mock pages (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
+| Fonts, CSP, cache and crawler headers | `tests/page.test.js` |
+| Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer | `tests/write.test.js` |

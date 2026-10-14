@@ -78,7 +78,10 @@ test('recorded pages from real writers parse completely', () => {
     assert.ok(A.next && A.questions.length === 3, r.title);
     assert.ok(A.notes.length >= 1, r.title);
     for (const b of A.blocks) assert.doesNotMatch(b.s, /::|^\[\[[^\]]+\]\]\s*$/, `${r.title}: a line from the plan or timeline reached the body`);
-    assert.ok(A.panels.length <= 2 && A.panels.every(p => p.done && p.at === A.blocks.findIndex(b => b.t === 'p') + 1), `${r.title}: panels after the first paragraph`);
+    const p1 = A.blocks.findIndex(b => b.t === 'p') + 1;
+    assert.ok(A.panels.length <= 2 && A.panels.every(p => p.done && p.rows.length && (p.v1 ? p.at === p1 : p.at >= p1)), `${r.title}: panels sit below the first paragraph`);
+    if (!/\n---\n/.test(r.text) || /^(@ drift|%%%)/m.test(r.text)) continue;
+    assert.ok(/\n&&&\n/.test(r.text) && Object.values(A.gloss).filter(g => g.gloss).length >= 8, `${r.title}: v2 pages end with hooks for the planned links`);
   }
 });
 
