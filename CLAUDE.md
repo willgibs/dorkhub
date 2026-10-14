@@ -27,6 +27,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
 - `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
+- `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
+  Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`
   (≤40 lines) at the end of every session.
 

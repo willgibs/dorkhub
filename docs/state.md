@@ -2,33 +2,34 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-10-13, handoff from the porting session)
-- **Live.** dorkhub.com serves this repo from Vercel project willgibs/dorkhub (Hobby,
-  Fluid, Node 24, framework Other, iad1). Every push to `main` deploys production.
-- **Built:** the prototype's full reading experience, ported from the claude.ai artifact
-  (`docs/prototype/`), with every prompt now on the server. Also:
-  - free trial without an account: 10 pages and 50 quick tools per device per month;
-    100 and 500 per network
-  - bring your own key (Claude via an Anthropic or AI Gateway key)
-  - a 14-day answer cache, hash-based CSP, cancellation on disconnect
-  - mock writer for development
-- **Infrastructure:** old project cleaned (env vars, crons, Next.js preset). Firewall
-  rate-limits `/api/write` to 40 requests per minute per IP. AI Gateway team budget is $5 a
-  month; auth is OIDC (verified in production). Runtime Cache is available (verified).
-- **Checks:** `npm run verify` green (38 tests); `npm run e2e` green on desktop and phone.
-  An independent security review's findings are all fixed (`docs/architecture.md`).
+## Now (2026-10-14, first experience pass)
+- **Live.** dorkhub.com serves `main` from Vercel project willgibs/dorkhub. Production is
+  unchanged since the handoff, and still has no AI Gateway credits ("Free pages are paused").
+- **In review:** PR willgibs/dorkhub#1 (`experience/reading`). Preview:
+  https://dorkhub-git-experience-reading-willgibs.vercel.app (needs Will's Vercel login, and
+  `DH_MOCK=1` on Preview to replay real pages). It contains:
+  - a reading-first head: facts beside the opening, or after the first paragraph
+  - streaming without flashes, links that point at the planned topic
+  - prompt 2026-10-14 (no stock curiosities, wild branches name their thread, `seen`)
+  - richer recaps, a readable around-this map, phone fixes, contrast and focus fixes
+- **Real pages without credits:** Claude Haiku 5.5 stand-ins, given the exact prompts, are in
+  `lib/recorded.js`. They cover 5 rabbit holes and every quick tool for one of them. The mock
+  writer replays them in dev, e2e and previews, and a test streams every one.
+- **Checks:** `npm run verify` green (45 tests); `npm run e2e` green on desktop and phone.
 
-## Blocked on Will (see `docs/backlog.md` §0)
-- **AI Gateway credits.** The free tier can't call Claude Haiku 5.5, so free pages show
-  "paused" until he buys credits. Nothing has been written live in production yet.
-- **Upstash Redis** for exact trial counts (until then, Runtime Cache).
-- **Old resources** under his other logins and credentials (agents may not revoke keys
-  or permanently delete): gateway key, 21 old git tags, Supabase, Sentry, the OAuth app,
-  token and secret, the Gemini key, Search Console, the Mac backup agent.
-- **Decisions:** whether the repo stays public (the prompts are readable), and Pro pricing.
+## Blocked on Will
+- **Merge #1** once he's seen the preview (anything a reader notices waits for his go).
+- **AI Gateway credits.** These gate backlog §1 (proving production) and live page reads.
+- **Vercel access for agents:** sign in as willgibs in the Claude browser pane. The CLI and
+  connector on his Mac belong to the Partyreel team. Until then nobody can check logs, the
+  counter store (Redis?) or env vars.
+- **Preview env:** `DH_MOCK=1` on Preview (he chose the replay writer for previews).
+- Still open from the handoff: Upstash Redis, old resources to retire, repo visibility, Pro
+  pricing (`docs/backlog.md` §0).
 
 ## Next
-1. When credits land: prove production (`docs/backlog.md` §1).
-2. The experience, against `docs/vision.md` (§2). This is Will's priority.
-3. Then the model eval (`docs/eval-plan.md`), on Will's go.
-4. Then Pro, once Will sets pricing.
+1. When credits land: prove production (§1). Re-read 5+ live pages, then swap the stand-ins
+   in `lib/recorded.js` for live output. Warm the cache for the landing doors (about 5¢;
+   ask first).
+2. The rest of §2 (`docs/backlog.md`): touch ¶ noise, fonts self-hosting, latency.
+3. Then the model eval and Pro, on Will's go.

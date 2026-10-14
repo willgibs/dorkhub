@@ -35,7 +35,7 @@ npx playwright install chromium  # once, for the browser test
 npm run e2e                      # the whole reader flow in Chromium, desktop and phone
 ```
 
-The mock writer streams correctly formatted pages for every task. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
+The mock writer replays real recorded pages (try The Great Emu War, Tulip mania, Mantis shrimp vision or Why is ice slippery?) at a writer's pace, and streams correctly formatted stand-ins for anything else. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
 
 ## Deploy
 
@@ -52,7 +52,8 @@ lib/prompts.js       every prompt and task: validation, output budget, caching
 lib/ai.js            trial writer vs. reader's key; provider errors → our codes
 lib/trial.js         the free allowance: device, network and /48 caps; reserve and refund
 lib/counters.js      where counts live: Upstash Redis (atomic) or Runtime Cache
-lib/mock.js          the local mock writer
+lib/mock.js          the mock writer: replays recorded pages, or writes stand-ins
+lib/recorded.js      real writer output for the exact prompts (scripts/recorded.mjs adds more)
 src/app/NN-*.js      the page, in filename order (16-router boots it)
 src/shared/          parser + model catalog, shared with the server
 src/static/          404 page, favicon, robots.txt

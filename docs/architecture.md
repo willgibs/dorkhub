@@ -24,7 +24,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
    - A reader's key headers (`x-dh-provider`, `x-dh-model`, `x-dh-key`) go to that provider
      directly, or through their own gateway key. Quick tools use the provider's fast model.
    - Without a key, writing goes to `gateway(DH_TRIAL_MODEL)` over OIDC.
-   - The mock writer only answers on a dev machine or a preview deployment.
+   - The mock writer only answers on a dev machine or a preview deployment. It replays
+     recorded real output from `lib/recorded.js` when it has some for the request, at a
+     writer's pace (`DH_MOCK_PACE=quick` for the browser test), and writes a synthetic
+     stand-in otherwise.
 4. **Trial** (no key). Find the device cookie (`dh_id`, HttpOnly, `Path=/api`) and check
    what's left at device, network and IPv6 /48 scope. If an allowance is empty, return 402
    with `trial_over` or `tools_over`.
@@ -79,7 +82,7 @@ The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing 
 
 | What | Where |
 | --- | --- |
-| Parser | `tests/article.test.js` |
+| Parser, including every prefix of every recorded page (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer | `tests/write.test.js` |
