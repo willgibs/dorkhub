@@ -19,7 +19,7 @@ const port = 3900 + Math.floor(Math.random() * 90);
 const base = `http://localhost:${port}`;
 /* A small trial keeps the run short, and goes through the same setting production uses. */
 const PAGES = 4;
-const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
+const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_PICTURES: 'off', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
 await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
 
 const browser = await chromium.launch();
@@ -32,7 +32,8 @@ async function run(page, { mobile = false } = {}) {
   page.on('console', m => { if (m.type() === 'error' && !/ERR_TUNNEL_CONNECTION_FAILED|fonts\.g|status of 40[12]/.test(m.text() + (m.location()?.url || ''))) errors.push(`console: ${m.text()}`); });
   const tag = mobile ? 'mobile' : 'desktop';
   const badge = () => page.locator('#keyBtn .kb-n').textContent();
-  const waitDone = async () => { await page.waitForSelector('.chamber .a-end .row[data-t]', { timeout: 20000 }); await page.waitForFunction(() => !document.querySelector('.caret') && !document.querySelector('.enriching'), null, { timeout: 20000 }); };
+  /* a page is done when the newest one is no longer busy and its branches are in */
+  const waitDone = async () => { await page.waitForFunction(() => { const a = [...document.querySelectorAll('.chamber .article')].pop(); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .row[data-t]'); }, null, { timeout: 20000 }); };
 
   await step(`${tag}: landing`, async () => {
     await page.goto(base);
@@ -45,25 +46,54 @@ async function run(page, { mobile = false } = {}) {
     for (const f of ['Literata', 'Atkinson Hyperlegible Next']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
+  await step(`${tag}: a door page is written ahead of time, and free`, async () => {
+    await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
+    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint span')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
+    if (p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/.test(p.fine)) throw new Error(`door page: ${JSON.stringify(p)}`);
+    if ((await badge()) !== String(PAGES)) throw new Error(`a door page spent a free page: badge ${await badge()}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
+  /* pictures come from our own endpoint: one found on desktop, none on the phone */
+  if (!mobile) {
+    await page.route('**/api/picture?t=*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ src: '/api/picture?f=a%2Fab%2FTest.jpg&w=500', w: 500, h: 300, alt: 'A test picture', credit: 'E2E', license: 'CC0', file: 'https://commons.wikimedia.org/wiki/File:Test.jpg' }) }));
+    await page.route('**/api/picture?f=*', r => r.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300"><rect width="500" height="300" fill="#4a7"/></svg>' }));
+  } else await page.route('**/api/picture?t=*', r => r.fulfill({ status: 204 }));
   await step(`${tag}: first page streams in`, async () => {
-    await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter');
+    await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) w.__status.add(s.textContent); }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
+    await page.fill('#seedIn', 'Water bears'); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
-    const title = await page.locator('.a-title').first().textContent(); if (title !== 'Tardigrades') throw new Error(`title ${title}`);
+    const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], now: !!document.querySelector('.status-line') }));
+    if (!status.seen.length || status.now) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
+    const title = await page.locator('.a-title').first().textContent(); if (title !== 'Water bears') throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
-    /* reading first: the opening paragraph starts on the first screen, and quick facts sit beside it or after it */
+    /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
     await page.evaluate(() => window.scrollTo(0, 0));
-    const lay = await page.evaluate(() => ({ top: document.querySelector('.a-body .pb p').getBoundingClientRect().top, vh: innerHeight, side: getComputedStyle(document.querySelector('.h-side')).display, band: !!document.querySelector('.a-body .glance-band .facts') }));
+    const lay = await page.evaluate(() => {
+      const pb = document.querySelector('.a-body .pb'); const p = pb.querySelector('.pcol > p').getBoundingClientRect(); const f = pb.querySelector('.mcol .panel[data-type="facts"]')?.getBoundingClientRect();
+      return { top: p.top, vh: innerHeight, beside: f ? f.left >= p.right : null, below: f ? f.top >= p.bottom : null, v1: !!document.querySelector('.h-side,.glance-band,.drift,.caret'), tools: !!document.querySelector('.a-head .h-row .tools [data-act="sketch"]'), order: [...document.querySelectorAll('.a-end > div')].map(d => d.dataset.k).join(' ') };
+    });
     if (lay.top > lay.vh * .75) throw new Error(`the first paragraph starts at ${Math.round(lay.top)} of ${lay.vh}`);
-    if (mobile ? lay.side !== 'none' || !lay.band : lay.side === 'none') throw new Error(`facts in the wrong place: side ${lay.side}, band ${lay.band}`);
+    if (mobile ? !lay.below : !lay.beside) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
+    if (lay.v1) throw new Error('v1 head furniture is still on the page');
+    if (!lay.tools) throw new Error('the page tools are not in the head row');
+    if (!/react next branches qs ask/.test(lay.order)) throw new Error(`the end of the page is out of order: ${lay.order}`);
+    const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '' }));
+    if (mobile ? pic.n !== 0 : !(pic.inFirst && pic.credit === 'E2E · CC0')) throw new Error(`picture: ${JSON.stringify(pic)}`);
     if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
+  await step(`${tag}: a guess keeps its answer until asked`, async () => {
+    if (await page.locator('.panel[data-type="guess"] .pn-a').count()) throw new Error('the answer showed before it was asked for');
+    await page.locator('.panel[data-type="guess"] .pn-reveal').click();
+    await page.waitForFunction(() => document.querySelector('.panel[data-type="guess"] .pn-a')?.textContent === '0' && document.activeElement === document.querySelector('.pn-a'), null, { timeout: 5000 });
+  });
   if (mobile) {
     await step(`${tag}: the ¶ button waits for a tap on its paragraph`, async () => {
+      await page.evaluate(() => window.scrollTo(0, 0));
       const shown = () => page.evaluate(() => getComputedStyle(document.querySelector('.pb .ptool')).opacity);
       if ((await shown()) !== '0') throw new Error(`¶ shows before any tap (opacity ${await shown()})`);
       const at = await page.evaluate(() => {
-        const w = document.createTreeWalker(document.querySelector('.pb p'), NodeFilter.SHOW_TEXT); let t;
+        const w = document.createTreeWalker(document.querySelector('.pb .pcol > p'), NodeFilter.SHOW_TEXT); let t;
         while ((t = w.nextNode())) if (!t.parentElement.closest('a') && t.data.trim().length > 3) { const r = document.createRange(); r.setStart(t, 1); r.setEnd(t, 2); const b = r.getBoundingClientRect(); return { x: b.left + b.width / 2, y: b.top + b.height / 2 }; }
         return null;
       });
@@ -104,7 +134,7 @@ async function run(page, { mobile = false } = {}) {
     for (let i = 1; i <= PAGES && !(await page.locator('.statusnote.paywall').count()); i++) {
       const title = `Mock topic ${i}`;
       await page.locator('.ask input').last().fill(title); await page.locator('.ask input').last().press('Enter');
-      await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .row[data-t]') && !document.querySelector('.caret')), title, { timeout: 20000 });
+      await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .row[data-t]') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
     }
     await page.waitForSelector('.statusnote.paywall', { timeout: 20000 });
     if ((await badge()) !== '0') throw new Error(`badge ${await badge()}`);

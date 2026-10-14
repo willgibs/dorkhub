@@ -28,12 +28,17 @@ let timer;
 watch(join(root, 'src'), { recursive: true }, () => { clearTimeout(timer); timer = setTimeout(build, 120); });
 
 const { handleWrite } = await import('../lib/write.js');
+const { handlePicture } = await import('../lib/picture.js');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2' };
 const port = Number(process.env.PORT) || 3000;
 
 createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `localhost:${port}`}`);
   try {
+    if (url.pathname === '/api/picture') {
+      const response = await handlePicture(new Request(url, { method: req.method, headers: /** @type {any} */ (req.headers) }));
+      res.writeHead(response.status, Object.fromEntries(response.headers)); res.end(response.body ? Buffer.from(await response.arrayBuffer()) : undefined); return;
+    }
     if (url.pathname === '/api/write') {
       const ac = new AbortController(); res.on('close', () => { if (!res.writableFinished) ac.abort(); });
       const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : Readable.toWeb(req);

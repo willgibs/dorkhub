@@ -63,6 +63,8 @@ document.addEventListener('click', e => {
   const br = e.target.closest('[data-bridge]'); if (br) { makeBridge(br.dataset.from, br.dataset.bridge); return; }
   const ld = e.target.closest('[data-land]'); if (ld) { e.preventDefault(); const n = W.nodes[ld.dataset.nid]; const o = n && n.land && n.land[+ld.dataset.land]; if (o) dig(o.name, { text: `Chosen from the lay of the land around "${n.title}": ${o.relation}` }, n.id); return; }
   const nx = e.target.closest('[data-next]'); if (nx) { if (nx.closest('.recap')) { delete RECAP[W.id]; nx.closest('.recap').remove(); } keepReading(nx.dataset.next); return; }
+  const gs = e.target.closest('[data-guess]');
+  if (gs) { const n = W && W.nodes[nidOf(gs)]; if (n) { n.reveals = { ...n.reveals, [gs.dataset.guess]: true }; save(); paint(n, true); const sec = secFor(n.id); const ans = sec && $(`.panel [data-k="a"] .pn-a`, sec); if (ans) { ans.tabIndex = -1; ans.focus({ preventScroll: true }); } } return; }
   const q = e.target.closest('[data-q]'); if (q) { dig(q.dataset.q, { question: q.dataset.q }, nidOf(q), $('.rt', q)); return; }
   const fold = e.target.closest('[data-fold]'); if (fold) { const n = W.nodes[nidOf(fold)]; if (n && n.unfolds) { delete n.unfolds[fold.dataset.fold]; save(); paint(n); } return; }
   const pc = e.target.closest('[data-peek-close]'); if (pc) { const n = W.nodes[nidOf(pc)]; const p = n && (n.peeks || []).find(x => x.key === pc.dataset.peekClose); if (p) { p.open = false; save(); paint(n); } return; }

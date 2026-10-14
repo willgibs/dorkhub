@@ -1,0 +1,81 @@
+# Umami
+> A Tokyo chemist pulled a fifth taste out of seaweed broth in 1908, and the West spent most of a century doubting him.
+~ Follow this taste and you reach a fish-sauce fortune buried at Pompeii, a microbe from Tokyo zoo soil that brews millions of tonnes of seasoning, and a bamboo-eating bear that lost the gene to taste it.
++++
+[[Kikunae Ikeda]] :: person
+[[Kombu]] :: thing
+[[Monosodium glutamate]] :: thing
+[[Garum]] :: thing
+[[Aulus Umbricius Scaurus]] :: person
+[[Aspergillus oryzae]] :: creature
+[[Katsuobushi]] :: thing
+[[Corynebacterium glutamicum]] :: creature
+[[Chinese restaurant syndrome]] :: phenomenon
+[[Venus flytrap domain]] :: mechanism
+[[Kokumi]] :: concept
+[[Pseudogene]] :: concept
+[[Hummingbird]] :: creature
+---
+Umami is the savoury taste of broth, aged cheese, ripe tomatoes and soy sauce, and the fifth basic taste alongside sweet, sour, salty and bitter. Its chief trigger is glutamate, an amino acid freed as proteins break down during ripening, ageing and fermentation; two nucleotides, inosinate and guanylate, multiply its effect. The word was coined by the Japanese chemist [[Kikunae Ikeda]] from umai, delicious, and mi, taste.
+
+^ Glutamate makes up more than half the free amino acids in human breast milk, at roughly 40 times its level in the mother's blood.
+
+## A taste found in kelp broth
+
+Ikeda, a professor at Tokyo Imperial University, had noticed a taste in dashi, the stock made with [[kombu|Kombu]] kelp, that none of the four classic tastes described, and he found it again in asparagus, tomatoes, cheese and meat. By 1908 he had drawn crystals of glutamic acid out of the kelp and shown that they carried it. That year he patented a seasoning based on its sodium salt, [[monosodium glutamate|Monosodium glutamate]], hoping cheap flavour would make plain, nourishing food more appealing and improve Japanese nutrition.
+
+::: timeline
+1909 :: Ajinomoto, the first MSG seasoning, goes on sale in Japan
+1912 :: Ikeda reports glutamate's taste to a chemistry congress in the US
+1913 :: Shintaro Kodama traces katsuobushi's savouriness to inosinate
+1957 :: Akira Kuninaka finds a third umami molecule, guanylate
+1985 :: A symposium in Hawaii adopts umami as the scientific term
+2002 :: Two labs identify T1R1–T1R3 as an umami receptor
+:::
+
+## Older than its name
+
+Cooks had pursued the taste for millennia, mostly through fermentation, which splits proteins into free amino acids. Romans seasoned with [[garum|Garum]], fish and salt left to ferment for weeks or months. In Pompeii, [[Aulus Umbricius Scaurus]] grew rich on it: his name or his workers' appear on almost a third of the fish-sauce jars found there and at Herculaneum, and mosaic jars in his atrium floor advertised his sauces. In Japan the work fell largely to [[Aspergillus oryzae]], the mould that turns soybeans and grain into soy sauce and miso, and classic dashi pairs kombu with [[katsuobushi|Katsuobushi]], skipjack tuna smoked and mould-cured until it resembles a block of wood.
+
+## The powder and the panic
+
+Commercial MSG was first made by breaking down wheat gluten with acid. Today most of it is brewed by bacteria, chiefly [[Corynebacterium glutamicum]], a microbe isolated in the 1950s, reportedly from soil collected at Tokyo's Ueno Zoo; fed sugar, it yields more than two million tonnes of glutamate a year. In 1968 a letter to the New England Journal of Medicine described numbness and palpitations after meals in Chinese restaurants and named MSG among possible causes. Printed under the heading "[[Chinese-Restaurant Syndrome|Chinese restaurant syndrome]]", it fixed suspicion on one cuisine, although parmesan and tomato sauce are rich in the same free glutamate.
+
+::: myth
+Myth :: MSG commonly causes headaches, flushing and palpitations
+Actually :: Double-blind trials have not reliably reproduced such reactions at normal doses
+:::
+
+## A receptor that snaps shut
+
+The tongue senses umami mainly through a receptor made of two proteins, T1R1 and T1R3. Glutamate binds near the hinge of a [[Venus flytrap domain]] on T1R1, a two-lobed clamp that closes around it, and inosinate or guanylate can lodge beside it to hold the trap shut. That probably explains why the two kinds of molecule taste far stronger together than apart, the effect dashi exploits. For decades Western researchers called glutamate a flavour enhancer rather than a taste, partly because alone it tastes faint; the receptor work largely settled the argument. Related sensations are still debated, among them [[kokumi|Kokumi]], a sense of richness and lingering fullness linked to the calcium-sensing receptor.
+
+Umami seems to work as a protein detector, and animals whose diets changed have sometimes lost it. In the giant panda, a bear that turned to bamboo, the gene for T1R1 survives only as a [[pseudogene|Pseudogene]], disabled by one estimate about four million years ago. Sea lions and dolphins, which swallow fish whole, have lost a working copy too. Birds generally lack the sweet receptor, and [[hummingbirds|Hummingbird]] got round that by rebuilding their umami receptor to detect sugar, a switch that may have helped them diversify into more than 300 species.
+
+^ A cat's umami receptor ignores glutamate entirely; it responds to nucleotides instead, which may help explain the feline weakness for tuna.
+>>>
+[[Monosodium glutamate]] :: The white powder Ikeda patented, now brewed by bacteria, and the strange story of its reputation.
+===
+- [[Dashi]] :: Kelp out before the boil, tuna flakes in: a stock built on synergy :: deeper :: thing
+- [[Ketchup]] :: Its early recipes used mushrooms, oysters or walnuts, not tomatoes :: sideways :: thing
+- [[Oleogustus]] :: A proposed sixth taste, for fatty acids, and it is not pleasant :: sideways :: concept
+- [[Excitotoxicity]] :: Glutamate is the brain's chief excitatory signal; in excess it kills neurons :: wild :: mechanism
+- [[Venus flytrap]] :: The snapping plant that lent its name to umami's receptor clamp :: wild :: creature
+???
+Can some people not taste umami at all?
+Why did so many cuisines invent a fermented fish sauce?
+Why does a ripe tomato taste more savoury than an unripe one?
+&&&
+[[Kikunae Ikeda]] :: Turned a bowl of kelp broth into a global industry
+[[Kombu]] :: The kelp whose broth convinced a chemist of a fifth taste
+[[Monosodium glutamate]] :: The same glutamate as in parmesan, yet feared for decades
+[[Garum]] :: Rome's fermented fish sauce, shipped in amphorae across the Mediterranean
+[[Aulus Umbricius Scaurus]] :: A Pompeii fish-sauce magnate who advertised in his floor mosaics
+[[Aspergillus oryzae]] :: Japan's national fungus, a tamed cousin of a toxin-making mould
+[[Katsuobushi]] :: Tuna smoked for weeks and cured with mould until wood-hard
+[[Corynebacterium glutamicum]] :: A soil microbe that leaks glutamate when starved of biotin
+[[Chinese restaurant syndrome]] :: A 1968 letter, then a prank claim that proved false
+[[Venus flytrap domain]] :: A protein clamp that snaps shut on glutamate, like the plant
+[[Kokumi]] :: Nearly tasteless alone, it makes food seem fuller and longer-lasting
+[[Pseudogene]] :: Broken genes that record what a species stopped needing
+[[Hummingbird]] :: Tastes sugar with a receptor its ancestors used for amino acids

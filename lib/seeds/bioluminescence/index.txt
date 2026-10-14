@@ -1,0 +1,72 @@
+# Bioluminescence
+> Life has invented its own light dozens of times, and animals use it to vanish, to lure prey and to court in code.
+~ You came for living light, and it leads to bacteria that sense their own crowds, a Revolutionary War submarine and a Nobel Prize that began with jellyfish.
++++
+[[Foxfire]] :: phenomenon
+[[Coelenterazine]] :: thing
+[[Stoplight loosejaw]] :: creature
+[[Counter-illumination]] :: mechanism
+[[Hawaiian bobtail squid]] :: creature
+[[Quorum sensing]] :: mechanism
+[[Burglar alarm hypothesis]] :: concept
+[[Edith Widder]] :: person
+[[Waitomo Glowworm Caves]] :: place
+[[Photuris]] :: creature
+[[Osamu Shimomura]] :: person
+[[Green fluorescent protein]] :: thing
+[[Firefly Petunia]] :: thing
+[[Milky seas]] :: mystery
+---
+Bioluminescence is light made by living things. In most cases a small molecule called a luciferin reacts with oxygen in the grip of an enzyme called a luciferase, and the product is left so energised that it sheds the surplus as a photon. On land the glow belongs to fireflies, to fungi that make rotting wood shine as [[foxfire|Foxfire]], and to a scattering of worms, snails and millipedes. In the open ocean it is the rule: when researchers went through 17 years of video filmed between the surface and nearly 4,000 metres off California, about three quarters of the animals they saw could make light.
+^ Among vertebrates, only fishes are known to make their own light; no glowing mammal, bird, reptile or amphibian has ever been found.
+
+## One trick, many inventions
+The words luciferin and luciferase were coined in the 1880s by the French scientist Raphaël Dubois, from the Latin for light-bearer, and they name jobs rather than particular chemicals. A firefly, a dinoflagellate and a glowing bacterium make light with unrelated molecules, a sign that the ability evolved separately many times: at least 94, by one 2021 count. Many sea creatures share one fuel, [[coelenterazine|Coelenterazine]], and some, including the jellyfish behind biology's famous green protein, cannot make it and must eat it.
+::: compare Firefly | Dinoflagellate | Glowing bacterium
+Fuel :: firefly luciferin and ATP | a luciferin related to chlorophyll | reduced flavin and a fatty aldehyde
+Colour :: mostly yellow-green | blue | blue-green
+Light made in :: a lantern in the abdomen | organelles called scintillons | throughout the cell
+Rhythm :: coded flashes | flashes of about a tenth of a second | a steady glow
+:::
+
+Most living light in the sea is blue, the colour that travels farthest through seawater, and most deep-sea eyes are tuned to it. The [[stoplight loosejaw|Stoplight loosejaw]] exploits the gap: it shines a far-red beam that most animals around it cannot see, and detects the red with a pigment derived from chlorophyll, probably taken from its food.
+
+## Hiding, warning, luring, courting
+Often the light is camouflage. In the dim upper ocean, anything seen from below is a silhouette against the faint light from the surface, so many fish, shrimp and squid line their undersides with lights that match it, a trick called [[counter-illumination|Counter-illumination]]. The [[Hawaiian bobtail squid]] does it with bacteria it houses in a light organ, flushing most of them out each dawn. Those bacteria glow only when crowded, a habit that led to the discovery of [[quorum sensing|Quorum sensing]], the chemical headcount many bacteria use to act together.
+
+Light can also be a cry for help. The [[burglar alarm hypothesis|Burglar alarm hypothesis]] holds that prey that lights up when attacked draws in its attacker's own predators. [[Edith Widder]] built an electronic lure that copies the alarm display of the deep-sea jellyfish Atolla, and in 2012 it helped record the first video of a giant squid in its natural habitat.
+^ Giant squid eyes can reach about 27 centimetres across, perhaps to spot sperm whales by the glow they stir up as they swim.
+
+Other glows are bait or courtship. In New Zealand's [[Waitomo Glowworm Caves]], fungus-gnat larvae shine from the ceiling and catch the insects they attract on hanging threads of sticky silk. Many fireflies flash species-specific codes, and [[Photuris]] females fake the replies of other species' females, then eat the males that come courting.
+
+## Borrowed light, open questions
+In the early 1960s [[Osamu Shimomura]] isolated two proteins from the jellyfish Aequorea victoria: aequorin, which flashes blue, and [[green fluorescent protein|Green fluorescent protein]], or GFP, which turns that blue into green. Fused to other proteins, GFP lets biologists watch them at work inside living cells, and the work won Shimomura a share of the 2008 Nobel Prize in Chemistry. One glowing mushroom makes its luciferin from caffeic acid, a compound plants also make, so a handful of fungal genes can light a plant: the [[Firefly Petunia]] has been on sale in the United States since 2024.
+
+The largest displays are still poorly understood. [[Milky seas]], steady glows probably made by bacteria, can spread across 100,000 square kilometres of ocean. Satellites now track them, but a research ship has sampled one only once, by chance, in 1985.
+>>>
+[[Counter-illumination]] :: Glowing in order to disappear: how a lit belly erases a silhouette, and how well it works.
+===
+- [[Kleptoprotein]] :: A fish that glows with a light-making enzyme stolen from its prey :: deeper :: phenomenon
+- [[Photophore]] :: Living lanterns with lenses, mirrors, colour filters and even shutters :: deeper :: thing
+- [[Ultra-black fish]] :: Deep-sea fish whose skin absorbs over 99.5 percent of the light hitting it :: sideways :: creature
+- [[Deep scattering layer]] :: A false seafloor on wartime sonar that turned out to be alive :: sideways :: phenomenon
+- [[Turtle (submarine)]] :: A Revolutionary War submarine whose pilot read his instruments by glowing fungus :: wild :: thing
+???
+Why does almost nothing glow in fresh water?
+How does a firefly switch its light on and off so fast?
+Why did living things start making light in the first place?
+&&&
+[[Foxfire]] :: Woodland glow that may lure insects to spread fungal spores
+[[Coelenterazine]] :: One molecule lights jellies, shrimp, squid and fish alike
+[[Stoplight loosejaw]] :: Shines a red beam that most deep-sea eyes cannot see
+[[Counter-illumination]] :: Belly lights that erase an animal's silhouette from below
+[[Hawaiian bobtail squid]] :: Borrows its glow from bacteria it gathers from seawater after hatching
+[[Quorum sensing]] :: The headcount that switches on a glow also times infections
+[[Burglar alarm hypothesis]] :: Prey that lights up to summon its attacker's attacker
+[[Edith Widder]] :: Her flashing fake jellyfish lured a giant squid onto camera
+[[Waitomo Glowworm Caves]] :: Cave ceilings starred with glowing larvae fishing on sticky silk
+[[Photuris]] :: Killer fireflies that also steal their victims' defensive chemicals
+[[Osamu Shimomura]] :: Saw Nagasaki's atomic flash, then chased jellyfish light for decades
+[[Green fluorescent protein]] :: A jellyfish's green protein now tags cells in labs worldwide
+[[Firefly Petunia]] :: Despite the name, its glow comes from mushroom genes, not fireflies
+[[Milky seas]] :: Ocean glowing white to the horizon, now tracked from orbit

@@ -77,7 +77,7 @@ async function write(task, input, { signal, onText, fresh = false, key = auth.by
   raw += dec.decode(); const z = split();
   let tail = {}; if (z >= 0) { try { tail = JSON.parse(raw.slice(z + 1)); } catch (e) { /* ignore a garbled trailer */ } }
   if (tail.error) throw writeError(tail.error, text);
-  return { text, truncated: !!tail.truncated };
+  return { text, truncated: !!tail.truncated, seeded: res.headers.get('x-dh-cache') === 'seed' };
 }
 async function writeJSON(task, input, opts) { const { text } = await write(task, input, opts); const v = looseJSON(text); if (v == null) throw writeError('bad_output'); return v; }
 function errText(code) {

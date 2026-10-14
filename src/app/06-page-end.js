@@ -19,25 +19,26 @@ function statusNote(node) {
 function paintEnd(node, sec, A, live) {
   const end = $('.a-end', sec); const done = node.status === 'done' && !live; const blocks = [];
   const RIC = { basic: 'basic', right: 'right2', lost: 'lost', wow: 'wow' };
-  if (done) blocks.push({ k: 'react', html: `<div class="react" role="group" aria-label="How was this page?">${Object.entries(REACT).map(([k, [l]]) => `<button type="button" data-react="${k}" aria-pressed="${node.reaction === k}"${tipAttrs(l)}>${ic(RIC[k])}</button>`).join('')}</div>` });
+  /* reactions take their place as soon as the body is finished, so nothing later lands above the next page */
+  if (A.bodyDone || (!live && A.blocks.length)) blocks.push({ k: 'react', html: `<div class="react" role="group" aria-label="How was this page?">${Object.entries(REACT).map(([k, [l]]) => `<button type="button" data-react="${k}" aria-pressed="${node.reaction === k}"${tipAttrs(l)}>${ic(RIC[k])}</button>`).join('')}</div>` });
   if (A.next) {
     const ex = findByKey(keyOf(A.next.target)); const below = ex && secFor(ex.id); const nd = node.depth + 1;
-    blocks.push({ k: 'next', html: `<button class="next${below ? ' below' : ''}" type="button" data-next="${node.id}" data-s="${stratumOf(nd)}"><span class="next-meta"><span class="mk" data-tip="Level ${nd}: ${esc(levelOf(nd).name)}">${nd}</span>${below ? 'Continued below' : 'Next'}</span><span class="next-title">${esc(A.next.label)}</span><span class="next-why">${esc(plain(A.next.why))}</span><span class="next-go">${below ? 'Scroll down ↓' : 'Continue reading <kbd>J</kbd>'}</span></button>` });
+    blocks.push({ k: 'next', html: `<button class="next${below ? ' below' : ''}" type="button" data-next="${node.id}" data-s="${stratumOf(nd)}"><span class="next-meta"><span class="mk" data-tip="Level ${nd}: ${esc(levelOf(nd).name)}">${nd}</span>${below ? 'Continued below' : 'Next'}</span><span class="next-title">${esc(A.next.label)}</span><span class="next-why">${esc(capFirst(plain(A.next.why)))}</span><span class="next-go">${below ? 'Scroll down ↓' : 'Continue reading <kbd>J</kbd>'}</span></button>` });
   }
-  const g0 = parsed(node).gloss;
+  const g0 = A.gloss;
   const nextKey = A.next ? keyOf(A.next.target) : '';
   const branchRows = A.tunnels.filter(t => keyOf(t.target) !== nextKey).slice(0, 5).map((t, i) => {
     const ex = findByKey(keyOf(t.target)); const loop = ex && ex.parent !== node.id; const d = DIR_MARK[t.dir]; const g = g0[keyOf(t.target)];
-    return { k: 't' + keyOf(t.target), html: rowHTML({ mark: i + 1, markTip: `Press ${i + 1}`, title: esc(t.label), hook: inline(t.teaser || (g && g.gloss) || '', node), tag: d ? ic(d[0]) : '', tagTip: d ? d[1] : '', cls: loop ? ' loop' : '', attrs: `data-t="${esc(t.target)}" data-teaser="${esc(t.teaser)}" data-dir="${t.dir}" data-n="${i + 1}"${kattr(g && g.kind)}` }) };
+    return { k: 't' + keyOf(t.target), html: rowHTML({ mark: i + 1, markTip: `Press ${i + 1}`, title: esc(t.label), hook: inline(capFirst(t.teaser || (g && g.gloss) || ''), node), tag: d ? ic(d[0]) : '', tagTip: d ? d[1] : '', cls: loop ? ' loop' : '', attrs: `data-t="${esc(t.target)}" data-teaser="${esc(t.teaser)}" data-dir="${t.dir}" data-n="${i + 1}"${kattr((g && g.kind) || t.kind)}` }) };
   });
   if (done) {
     const mine = linksOf(node);
     const echo = buildIndex().filter(e => !e.node && e.mentions.size >= 3 && mine.has(e.key)).sort((a, b) => b.mentions.size - a.mentions.size)[0];
     if (echo) branchRows.push({ k: 'echo', html: rowHTML({ mark: '↻', title: esc(echo.name), hook: `You keep running into this: it has come up on ${echo.mentions.size} pages. ${esc(echo.gloss || '')}`, tag: ic('loop'), tagTip: 'Keeps coming up in this rabbit hole', attrs: `data-echo="${esc(echo.name)}" data-gloss="${esc(echo.gloss)}"${kattr(echo.kind)}` }) });
   }
-  /* The next page is written after the branches, and it sits above them, so while the page is
-     still being written the branches wait for it: nothing then appears above them, and the
-     branch it repeats never shows up only to vanish. */
+  /* The next page sits above the branches. The v2 format writes it first, so the branches stream in
+     right behind it; v1 pages wrote it after them, so there the branches wait for it: nothing
+     appears above them, and the branch it repeats never shows up only to vanish. */
   const nextKnown = !live || !!A.next || A.questions.length > 0;
   if (branchRows.length && nextKnown) blocks.push({ k: 'branches', rows: branchRows, heading: 'Branches', sub: '' });
   if (A.questions.length) blocks.push({ k: 'qs', rows: A.questions.map((q, i) => ({ k: 'q' + i, html: rowHTML({ mark: '?', markTip: 'Opens a page that answers it', title: esc(q), attrs: `data-q="${esc(q)}" data-kind="mystery"` }) })), heading: 'Open questions', sub: '' });
@@ -45,7 +46,7 @@ function paintEnd(node, sec, A, live) {
     const kids = childrenOf(node.id).filter(k => k.status === 'done' || k.status === 'partial');
     if (kids.length) blocks.push({ k: 'explored', rows: kids.map(k => ({ k: 'x' + k.id, html: rowHTML({ mark: '✓', title: esc(k.title), hook: k.deck ? esc(plain(k.deck)) : '', attrs: `data-goto="${k.id}" data-s="${stratumOf(k.depth)}"` }) })), heading: 'Already read from here', sub: '' });
   }
-  if (live && A.bodyDone) blocks.push({ k: 'enrich', html: `<p class="enriching">Adding branches, margin notes and link previews<span class="dots"></span></p>` });
+  if (!live || A.bodyDone) blocks.push({ k: 'ask', html: `<form class="ask" data-nid="${node.id}" autocomplete="off"><label class="sr" for="ask-${node.id}">Ask your own question from here</label><span class="rk" aria-hidden="true">?</span><input id="ask-${node.id}" placeholder="Ask your own question" maxlength="160"><button class="ask-go" type="submit" aria-label="Open a page that answers it">↵</button></form>` });
   const st = statusNote(node); if (st) blocks.push({ k: 'status', html: st });
   const existing = new Map(); for (const el of end.children) if (el.dataset.k) existing.set(el.dataset.k, el);
   let prev = null; const anim = !reducedMotion();
@@ -59,17 +60,20 @@ function paintEnd(node, sec, A, live) {
 }
 function paintTools(node, sec) {
   const parent = node.parent ? W.nodes[node.parent] : null; const t = []; const ready = node.status === 'done' && !REV.has(node.id);
-  const b = (act, icon, label, key, on = true, extra = '') => `<button class="tool ib" type="button" data-act="${act}" data-nid="${node.id}"${tipAttrs(label, key)}${on ? '' : ' disabled'}${extra}>${ic(icon)}</button>`;
-  const mi = (act, label, key, on = true) => `<button class="mi" type="button" data-act="${act}" data-nid="${node.id}"${on ? '' : ' disabled'}>${label}${key ? ` <kbd>${key}</kbd>` : ''}</button>`;
-  if (node.status === 'digging') t.push(`<button class="tool primary" type="button" data-act="stop" data-nid="${node.id}">${ic('stop')}Stop writing</button>`);
+  const b = (act, icon, label, key, on = true, extra = '', cls = '') => `<button class="tool ib${cls}" type="button" data-act="${act}" data-nid="${node.id}"${tipAttrs(label, key)}${on ? '' : ' disabled'}${extra}>${ic(icon)}</button>`;
+  const mi = (act, label, key, on = true, cls = '') => `<button class="mi${cls}" type="button" data-act="${act}" data-nid="${node.id}"${on ? '' : ' disabled'}>${label}${key ? ` <kbd>${key}</kbd>` : ''}</button>`;
+  if (node.status === 'digging') t.push(b('stop', 'stop', 'Stop writing', '', true, '', ' stop'));
   if (parent) t.push(`<a class="tool ib" href="#/w/${W.id}/${parent.id}"${tipAttrs(`Back up to ${parent.title}`, 'U')}>${ic('up')}</a>`);
   if (node.depth > 1) t.push(`<a class="tool ib" href="#/w/${W.id}/${W.root}"${tipAttrs(`Back to the start: ${W.nodes[W.root].title}`, 'S')}>${ic('top')}</a>`);
-  if (t.length) t.push('<span class="tsep" aria-hidden="true"></span>');
-  t.push(b('sketch', 'sketch', node.figure && node.figure !== 'loading' ? 'Show the sketch' : 'Sketch it: a diagram of this page', 'K', ready));
-  t.push(b('land', 'around', 'Around this: the topics nearby', 'L', ready));
-  if (W.order.filter(x => W.nodes[x].status === 'done').length > 1) t.push(b('bridge', 'connect', 'Connect to another page you’ve read', 'C', ready));
-  if (TTS) t.push(b('listen', SPEAK.nid === node.id ? 'stop' : 'listen', SPEAK.nid === node.id ? 'Stop listening' : 'Listen', 'P', ready, ` aria-pressed="${SPEAK.nid === node.id}"`));
-  const more = [];
+  const connect = W.order.filter(x => W.nodes[x].status === 'done').length > 1;
+  const sketchLabel = node.figure && node.figure !== 'loading' ? 'Show the sketch' : 'Sketch it: a diagram of this page';
+  t.push(b('sketch', 'sketch', sketchLabel, 'K', ready, '', ' tw'));
+  t.push(b('land', 'around', 'Around this: the topics nearby', 'L', ready, '', ' tw'));
+  if (connect) t.push(b('bridge', 'connect', 'Connect to another page you’ve read', 'C', ready, '', ' tw'));
+  if (TTS) t.push(b('listen', SPEAK.nid === node.id ? 'stop' : 'listen', SPEAK.nid === node.id ? 'Stop listening' : 'Listen', 'P', ready, ` aria-pressed="${SPEAK.nid === node.id}"`, ' tw'));
+  const more = [mi('sketch', sketchLabel, 'K', ready, ' tn'), mi('land', 'Around this', 'L', ready, ' tn')];
+  if (connect) more.push(mi('bridge', 'Connect to another page', 'C', ready, ' tn'));
+  if (TTS) more.push(mi('listen', SPEAK.nid === node.id ? 'Stop listening' : 'Listen', 'P', ready, ' tn'));
   if (node.depth > 0) more.push(mi('thread', 'How did I get here?', 'T', ready));
   more.push(mi('doubt', 'Skeptic mode', 'D', ready));
   more.push(mi('recall', 'What stuck? A quick quiz', 'Q', true));
@@ -101,7 +105,7 @@ function paintDoubt(node, sec) {
 async function doubtPage(nid) {
   const node = W.nodes[nid || W.current]; if (!node || node.status !== 'done' || node.doubts === 'loading') return;
   node.doubts = 'loading'; paint(node); const sec = secFor(node.id); if (sec) $('.a-doubt', sec).scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
-  const A = parsed(node); const txt = [A.deck, ...A.facts.map(f => `${f[0]}: ${f[1]}`), ...A.blocks.map(b => b.s)].map(plain).join('\n');
+  const A = parsed(node); const txt = [A.deck, ...panelLines(A), ...A.blocks.map(b => b.s)].map(plain).join('\n');
   try {
     const out = await writeJSON('doubt', { page: clip(txt, 9000) });
     const list = (Array.isArray(out) ? out : []).filter(d => d && d.quote).slice(0, 5).map(d => ({ quote: String(d.quote).trim().replace(/^["“]|["”]$/g, ''), note: String(d.note || ''), rating: ['solid', 'check', 'shaky'].includes(d.rating) ? d.rating : 'check' }));

@@ -1,0 +1,83 @@
+# Ice friction
+> Even well below freezing, the surface of ice is not quite solid, and the pressure-melting story in many textbooks explains surprisingly little.
+~ You asked why ice is slippery, and the answer runs through an ice cave in the Swiss Alps, a Ming dynasty road made of ice, and an Antarctic winter when snow dragged like sand.
++++
+[[Bone skates]] :: thing
+[[Ice Ih]] :: thing
+[[John Joly]] :: person
+[[Clausius–Clapeyron relation]] :: concept
+[[Jungfraujoch]] :: place
+[[Forbidden City ice roads]] :: technique
+[[Ski wax]] :: thing
+[[Michael Faraday]] :: person
+[[Regelation]] :: phenomenon
+[[Premelting]] :: phenomenon
+[[Amorphous ice]] :: thing
+[[The Worst Journey in the World]] :: work
+---
+
+Few things slide as easily as a blade on ice: a speed skate meets a friction coefficient of about 0.005, far below Teflon on steel. The leading explanation is that ice wears a thin, disordered, water-like skin even below freezing, and that sliding adds heat that thickens it. People glided on [[bone skates|Bone skates]] for thousands of years before the first scientific explanation in the 1880s, and the answer has kept shifting since.
+
+::: theories
+Pressure melting :: A skater's weight melts the ice under the blade into water :: rejected
+Frictional melting :: Heat from sliding melts a thin film of water to glide on :: partly
+Premelted skin :: A liquid-like surface layer, there even below freezing, lubricates the ice :: partly
+Cold amorphization :: Sliding contact scrambles the surface into a viscous, liquid-like layer :: disputed
+:::
+
+## The weight of the skater
+
+[[Ordinary ice|Ice Ih]] takes up about 9 percent more room than the water it froze from, so squeezing it lowers its melting point. James Thomson predicted this in 1849, and his brother William, later Lord Kelvin, confirmed it in 1850. In 1886 the Irish physicist [[John Joly]] reasoned that a skate blade touches so little ice that it presses at about 466 atmospheres, enough to melt ice down to roughly −3.5 °C.
+
+The effect is simply too small. The [[Clausius–Clapeyron relation]] puts it at about 0.0075 °C per atmosphere, yet people skate and ski at −30 °C, and a walker in flat-soled boots still slips. Pressure matters, if at all, only within a few degrees of melting.
+
+^ Below about −22 °C, squeezing cannot melt ordinary ice at all: enough pressure turns it into a denser crystal, such as ice III, instead.
+
+## The heat of sliding
+
+In the late 1930s Frank Bowden and T. P. Hughes took a rival idea, that friction's own heat melts a film of water, to an ice cave at the [[Jungfraujoch]], high in the Swiss Alps. If they were right, a slider that drains heat away should grip harder, and metal sliders did drag more than poor conductors.
+
+Slow sliders make little heat, and Ming engineers seem to have worked around that. A 1557 record describes a stone of about 112 tonnes dragged by sledge along an [[ice road|Forbidden City ice roads]] to Beijing's Forbidden City. Wetting the ice, a 2013 study calculated, would have let fewer than 50 men haul a load that needed at least 330 on bare ice.
+
+The film is odd, too. In 2019 a Paris team found it only 100 to 500 nanometres thick under a gliding bead, and up to a hundred times more viscous than water. A water-repelling coating cut the friction as much as tenfold, which may help explain why [[ski wax|Ski wax]] works.
+
+## The unfrozen skin
+
+None of this explains why ice is treacherous to someone standing still. In a Royal Institution lecture in June 1850, [[Michael Faraday]] proposed that ice carries a thin film of water on its surface. His evidence was [[regelation|Regelation]], the way two pieces of ice fuse on touching, which he read as the film freezing once trapped between them. James Thomson blamed pressure instead, and his view prevailed for nearly a century.
+
+Physicists now call it a [[premelted|Premelting]] layer. Surface molecules lack neighbours above them, so they are held less tightly, and X-rays, nuclear magnetic resonance and atomic force microscopes have all detected the disorder. Measurements disagree on its thickness, but it grows as ice warms toward 0 °C.
+
+^ Metals do it too: in 1985 physicists found a lead crystal's surface disordered at 307 °C, twenty degrees below lead's 327 °C melting point.
+
+In 2018 researchers in Amsterdam and Mainz found that some surface molecules, held by two hydrogen bonds instead of three, roll freely across the ice. Their steel slid best near −7 °C, the temperature speed-skating rinks favour; warmer ice turns soft, and a slider digs in.
+
+The argument is not over. Simulations from Saarland University, published in 2025, suggest that a slider's contact and motion scramble the outer layers into an [[amorphous|Amorphous ice]], liquid-like film without melting them, even near absolute zero. In deep cold, though, that film is far more viscous than honey. Polar explorers knew cold snow's drag well: [[The Worst Journey in the World]], Apsley Cherry-Garrard's account of Scott's last expedition, likens sledging in extreme cold to hauling over sand.
+
+>>>
+[[Premelting]] :: The unfrozen skin itself, and why crystals like lead grow one too.
+
+===
+- [[Curling stone curl]] :: Physicists still argue over why a slowly spinning granite stone curls :: deeper :: mystery
+- [[Frost heave]] :: Unfrozen films feed growing ice lenses that lift roads and crack pavements :: sideways :: phenomenon
+- [[Glacier surge]] :: Meltwater beneath can make a glacier flow up to 100 times faster :: sideways :: phenomenon
+- [[Polar stratospheric clouds]] :: A liquid-like skin on their ice may help unleash ozone-destroying chlorine :: wild :: thing
+- [[Cohesion-tension theory]] :: Joly, the skating physicist, also helped explain how water climbs tall trees :: wild :: mechanism
+
+???
+Would skates glide on frozen carbon dioxide or frozen alcohol?
+Why does salt make icy roads safer rather than wetter and slicker?
+Would the ice on Jupiter's frozen moons be slippery at all?
+
+&&&
+[[Bone skates]] :: Medieval Londoners tied them on and pushed off with spiked staffs.
+[[Ice Ih]] :: Just one of more than twenty known crystal forms of ice.
+[[John Joly]] :: Also estimated the Earth's age from the salt in the sea.
+[[Clausius–Clapeyron relation]] :: The same rule explains why water boils cooler on mountaintops.
+[[Jungfraujoch]] :: Europe's highest railway station, reached through tunnels inside the Eiger.
+[[Forbidden City ice roads]] :: Ming wagons couldn't carry the heaviest stones, so they slid instead.
+[[Ski wax]] :: Racing's fluorinated waxes were banned over fears about forever chemicals.
+[[Michael Faraday]] :: A bookbinder's apprentice who first turned electricity into motion.
+[[Regelation]] :: A weighted wire cuts clean through ice, leaving the block whole.
+[[Premelting]] :: Metals, semiconductors and frozen gases can begin melting at their surfaces.
+[[Amorphous ice]] :: Glassy ice without crystals, probably the commonest ice in space.
+[[The Worst Journey in the World]] :: Three men braved Antarctica's winter darkness for emperor penguin eggs.

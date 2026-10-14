@@ -64,10 +64,20 @@ never watches you: only the path you are on shapes the next page.
 
 Written in one streamed pass, top to bottom, in the format defined in `lib/prompts.js`
 (`FORMAT`) and parsed by `src/shared/article.js`: title · deck · bridge (how this page
-connects to where you came from) · drift from the first page · quick facts · timeline ·
-link plan (hooks and kinds for every link) · body with margin notes (some are callbacks
-to pages on your path) · five branches (deeper, sideways, wild) · the natural next page ·
-three open questions.
+connects to where you came from) · link plan (a kind for every link, so links arrive in
+colour) · body with margin notes (some are callbacks to pages on your path) and up to two
+**panels** · the natural next page · five branches (deeper, sideways, wild) · three open
+questions · a hook for every link (for hover cards).
+
+Panels (v2) are information the writer lays out and Dorkhub draws: timeline, facts, steps,
+compare, theories, figures, myth, formula, guess. The writer uses one only when it shows
+something prose can't, most pages one or none, never two in a row; the body stays the
+page. A page's lead picture (Wikipedia, freely licensed, credited) may sit beside the
+opening; no model is involved in finding it.
+
+**The page-500 test** (Will, 2026-10-14): a reader scrolls through hundreds of these pages,
+so nothing recurring may charm on page 10 and annoy by page 500. Taste through restraint.
+The delight is the snappy, clean stream: the page being written around you.
 
 Around it: hover/tap a link for its hook, then peek without leaving; expand any paragraph
 (plainer, deeper, an example, the counterpoint); sketch a diagram; around this (a radial

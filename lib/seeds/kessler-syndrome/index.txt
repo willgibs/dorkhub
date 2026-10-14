@@ -1,0 +1,79 @@
+# Kessler syndrome
+> The more junk circles Earth, the more it collides, and every collision makes more junk: a loop that may already be running.
+~ Orbital junk will lead you to a Cold War cloud of copper needles, a patch of the South Pacific where spacecraft are sunk on purpose, and carbon dioxide that keeps debris aloft longer.
++++
+[[Asteroid family]] :: thing
+[[Project West Ford]] :: event
+[[Spacecraft passivation]] :: technique
+[[2007 Chinese anti-satellite missile test]] :: event
+[[Iridium–Kosmos collision]] :: event
+[[Whipple shield]] :: technique
+[[Gravity (2013 film)]] :: work
+[[Thermosphere]] :: place
+[[Starlink]] :: thing
+[[Graveyard orbit]] :: place
+[[Point Nemo]] :: place
+[[ClearSpace-1]] :: thing
+[[Envisat]] :: thing
+---
+Kessler syndrome is the point at which the crowd of objects circling Earth begins to destroy itself. Collisions shatter satellites into fragments that cause more collisions, and past a critical density the debris multiplies faster than the atmosphere can clear it, even if launches stop. NASA scientists Donald Kessler and Burton Cour-Palais described the danger in 1978. Objects in low orbit meet at about 10 kilometres per second, so a fragment a centimetre across can wreck a satellite.
+^ The first entry in the satellite catalogue is not Sputnik 1 but the rocket stage that carried it up. Sputnik itself is number 2.
+
+## A belt borrowed from the asteroids
+
+The pair borrowed their method from studies of the asteroid belt, where collisions over billions of years have left [[asteroid families|Asteroid family]], swarms of fragments still on similar orbits. Around Earth, they argued, the same grinding could take decades, and a debris belt could start forming before 2000. A NORAD analyst, John Gabbard, is credited with the name.
+
+Some early litter was deliberate. In 1963 the US military scattered hundreds of millions of copper needles into orbit for [[Project West Ford]], meant as an artificial radio mirror; clumps of them still circle. The biggest source was explosions: by Kessler's 1978 count, 42 percent of catalogued objects came from just 19 break-ups, mostly of spent rocket stages. Burning off leftover propellant, part of [[spacecraft passivation|Spacecraft passivation]], became routine.
+
+## Collisions on the record
+
+The [[2007 Chinese anti-satellite missile test]], which destroyed an old weather satellite, left more than 3,000 trackable fragments, the largest debris cloud on record. Two years later, in the [[Iridium–Kosmos collision]], a dead Russian satellite and a working American one met over Siberia at nearly 12 kilometres per second. Kessler called it the first clear example of his prediction.
+
+The International Space Station, the most heavily shielded spacecraft ever flown, wears [[Whipple shields|Whipple shield]], thin bumpers that shatter small particles before they reach the hull. Bigger fragments must be dodged or waited out: when a Russian missile shattered the old Soviet satellite Kosmos 1408 in 2021, the crew sheltered in their docked spaceships.
+^ In 1983 a fleck of paint, probably shed by another spacecraft, gouged a pit in a window of the shuttle Challenger.
+
+Whether the runaway has begun is disputed. Kessler wrote in 2009 that models showed low orbit had already crossed the threshold, and ESA's 2026 report says debris would keep growing even if launches stopped.
+::: figures
+47,000 :: objects tracked and catalogued in orbit, October 2026
+1.5 million :: estimated fragments between 1 and 10 cm across
+17,400 tonnes :: total mass of everything in Earth orbit
+660+ :: known break-ups, explosions and collisions since 1957
+:::
+
+## Slower than the movies
+
+The film [[Gravity|Gravity (2013 film)]] shows a cascade ripping through orbit within hours; Kessler had written that he never meant one unfolding in days or months. The pace is set by drag from the [[thermosphere|Thermosphere]], the thin upper atmosphere. NASA says debris below 600 kilometres usually falls within several years, while at 800 kilometres it often lingers for centuries.
+
+That air swells when the Sun is stormy; a geomagnetic storm in February 2022 brought down 38 of 49 newly launched Starlink satellites. Over decades it is contracting, partly because the carbon dioxide that warms the surface cools the upper atmosphere, so debris lingers longer. A 2025 study estimated this could cut how many satellites low orbit can safely hold by 50 to 66 percent by 2100.
+
+## Keeping orbit usable
+
+[[Starlink]] alone now flies more than 11,000 satellites, and in the year to May 2026 they swerved more than 350,000 times to dodge possible collisions. Rules are tightening: dead satellites should now leave low orbit within five years rather than 25. Geostationary ones already retire to a [[graveyard orbit|Graveyard orbit]] about 300 kilometres higher, and big spacecraft are steered to sink in the South Pacific near [[Point Nemo]].
+
+Removing old junk is harder. In 2023 debris apparently struck the rocket adapter that ESA's debris-removal mission [[ClearSpace-1]] was meant to grab, forcing a change of target. Dead giants such as [[Envisat]], eight tonnes and silent since 2012, may circle for about 150 years. Kessler has likened the outcome to giving Earth a ring like Saturn's.
+>>>
+[[Iridium–Kosmos collision]] :: The crash that turned Kessler's 1978 arithmetic into a real debris cloud over Siberia.
+===
+- [[Light-gas gun]] :: Hydrogen-driven guns that fire pellets at 7 km/s to test spacecraft armour :: deeper :: thing
+- [[Laser broom]] :: Ground lasers that would push junk down by vaporising a sliver of it :: deeper :: technique
+- [[Kosmos 954]] :: A nuclear-powered satellite scattered radioactive debris over Canada; Moscow paid half the bill :: sideways :: event
+- [[Basic reproduction number]] :: Epidemics explode when each case causes more than one more, as crashes can :: wild :: concept
+- [[Fomalhaut b]] :: A 'planet' Hubble photographed seems instead to be dust from a collision :: wild :: mystery
+???
+Could a debris cascade ever stop rockets reaching the Moon?
+Who pays when one country's junk destroys another's satellite?
+Why can't we track every fragment and steer around it?
+&&&
+[[Asteroid family]] :: Shattered asteroids whose shards still fly similar orbits ages later
+[[Project West Ford]] :: Hundreds of millions of copper needles, put into orbit on purpose
+[[Spacecraft passivation]] :: Rocket stages that exploded years after launch, and the simple fix
+[[2007 Chinese anti-satellite missile test]] :: One missile, one old satellite, and the biggest debris cloud ever
+[[Iridium–Kosmos collision]] :: Two whole satellites met by accident at nearly 12 km/s
+[[Whipple shield]] :: An astronomer's 1946 idea: armour that works by being destroyed first
+[[Gravity (2013 film)]] :: A Hollywood cascade that takes hours instead of decades
+[[Thermosphere]] :: Air at furnace temperatures that would still feel freezing
+[[Starlink]] :: One company now flies most of the working satellites in orbit
+[[Graveyard orbit]] :: Dead satellites parked for good just above their old posts
+[[Point Nemo]] :: The ocean's most remote spot doubles as a spacecraft graveyard
+[[ClearSpace-1]] :: A junk-removal mission whose first target was hit by junk
+[[Envisat]] :: The largest civilian Earth-watching satellite ever built, dead since 2012
