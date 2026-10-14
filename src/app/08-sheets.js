@@ -46,7 +46,7 @@ async function fieldNotes(fresh) {
   const untaken = [...new Set(done.flatMap(n => parseArticle(n.text).tunnels.map(t => t.target)).filter(t => !read.has(keyOf(t))))].slice(0, 14);
   const ctl = sheetCtl = new AbortController();
   try {
-    const said = n => { const A = parsed(n); return clip([...A.facts.map(f => `${f[0]}: ${f[1]}`), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
+    const said = n => { const A = parsed(n); return clip([...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
     const { text } = await write('recap', { pages: done.map(n => ({ depth: n.depth, title: n.title, deck: n.deck ? clip(n.deck, 400) : '', text: said(n) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = mdToHTML(text); } });
     w.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', mdToHTML(text), notesFoot());
   } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
@@ -59,7 +59,7 @@ function warrenMarkdown(w) {
       const A = parseArticle(n.text);
       out.push(`${'#'.repeat(Math.min(6, 2 + Math.min(n.depth, 3)))} ${A.title || n.title}`, '', `*Level ${n.depth}, ${STRATA[stratumOf(n.depth)].toLowerCase()}*`, '');
       if (A.deck) out.push(`> ${plain(A.deck)}`, '');
-      A.facts.forEach(f => out.push(`- **${plain(f[0])}:** ${plain(f[1])}`)); if (A.facts.length) out.push('');
+      const pl = panelLines(A); pl.forEach(l => out.push(`- ${plain(l)}`)); if (pl.length) out.push('');
       A.blocks.forEach(b => out.push(b.t === 'h' ? `**${plain(b.s)}**` : b.t === 'li' ? `- ${plain(b.s)}` : plain(b.s), ''));
     }
     w.order.map(x => w.nodes[x]).filter(c => c.parent === n.id).forEach(walk);

@@ -59,18 +59,18 @@ addEventListener('scroll', () => { if (!progQ) { progQ = true; requestAnimationF
 addEventListener('pointerdown', e => { if (e.pointerType === 'touch') lastTouch = Date.now(); }, true);
 function linkCtx(a) {
   const sec = a.closest('.chamber'); const nid = sec && sec.dataset.nid; const pb = a.closest('.pb');
-  const i = pb ? +pb.dataset.i : -1; const el = a.closest('p,li,h2,dd,.mnote,.xp');
+  const i = pb ? +pb.dataset.i : -1; const el = a.closest('.pn-r,p,li,h2,dd,.mnote,.xp');
   return { nid, i, text: el ? el.textContent : '' };
 }
 function showCard(a) {
   const c = linkCtx(a); if (!c.nid || !W) return; const node = W.nodes[c.nid]; const target = a.dataset.t; const k = keyOf(target);
-  const g = parsed(node).gloss[k]; const ex = findByKey(k);
+  const F = full(node); const g = F.gloss[k]; const hook = hookOf(F, k); const ex = findByKey(k);
   const ie = buildIndex().find(e => e.key === k || (e.node && e.node.keys.includes(k))); const men = ie ? ie.mentions.size : 0;
   const elsewhere = !ex ? findElsewhere(k) : null;
   const status = ex ? (ex.status === 'done' ? 'Already read ↺' : 'Being written') : men >= 2 ? `On ${men} pages` : 'Not read yet';
   hc = { a, nid: c.nid, i: c.i, target, label: a.textContent, text: c.text };
   hcard.innerHTML = `<p class="hc-meta">${g && g.kind ? `<span class="kind"${kattr(g.kind)}>${esc(g.kind)}</span>` : '<span></span>'}<span>${status}</span></p>
-<p class="hc-title">${esc(target)}</p><p class="hc-hook">${g ? esc(g.gloss) : isLive(node) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
+<p class="hc-title">${esc(target)}</p><p class="hc-hook">${hook ? esc(hook) : isLive(node) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
 ${!ex && elsewhere ? `<p class="hc-else">You read this in another rabbit hole, <b>${esc(clip(elsewhere.w.nodes[elsewhere.w.root].title, 40))}</b>. <a href="#/w/${elsewhere.w.id}/${elsewhere.n.id}">Open it there</a></p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="dig">${ex && ex.status === 'done' ? 'Go there' : 'Open page'} ↵</button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!ex ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;
@@ -119,7 +119,7 @@ pmenu.addEventListener('keydown', e => {
 
 /* touch: a tap on a paragraph shows its ¶ button; a tap anywhere else hides it again */
 function tapPara(t) {
-  const pb = t.closest('.pb'); if (pb && t.closest('a,button,.xp')) return;
+  const pb = t.closest('.pb'); if (pb && t.closest('a,button,.xp,.mcol')) return;
   $$('.pb.tapped').forEach(x => { if (x !== pb) x.classList.remove('tapped'); });
   if (pb) pb.classList.toggle('tapped');
 }
@@ -134,7 +134,7 @@ function checkSel() {
   const body = a && a.closest('.a-body');
   if (txt.length < 3 || txt.length > 90 || !body) return hideSel();
   const r = sel.getRangeAt(0).getBoundingClientRect(); if (!r.width) return hideSel();
-  const ctxEl = a.closest('p,li,h2,.mnote,.xp'); selInfo = { txt, ctx: ctxEl ? ctxEl.textContent : '', nid: a.closest('.chamber').dataset.nid };
+  const ctxEl = a.closest('.pn-r,p,li,h2,.mnote,.xp'); selInfo = { txt, ctx: ctxEl ? ctxEl.textContent : '', nid: a.closest('.chamber').dataset.nid };
   digSel.textContent = `Open a page on “${clip(txt, 32)}”`; digSel.hidden = false;
   digSel.style.left = `${Math.min(innerWidth - 120, Math.max(120, r.left + r.width / 2)) + scrollX}px`;
   digSel.style.top = `${r.top + scrollY - 50}px`;

@@ -26,10 +26,17 @@ function parsed(node) {
   if (c && c.len === t.length && c.live === live && c.src === node.text.length) return c.A;
   const A = parseArticle(t, live); PCACHE.set(node, { len: t.length, live, src: node.text.length, A }); return A;
 }
+/* Everything received so far, not just what has been revealed: hooks and kinds for seeds and link cards. */
+const FCACHE = new WeakMap();
+function full(node) {
+  const live = node.status === 'digging' || node.status === 'empty'; const c = FCACHE.get(node);
+  if (c && c.len === node.text.length && c.live === live) return c.A;
+  const A = parseArticle(node.text, live); FCACHE.set(node, { len: node.text.length, live, A }); return A;
+}
 function seedFor(parent, target) {
-  const A = parsed(parent); const k = keyOf(target);
-  if (A.gloss[k]) return { gloss: A.gloss[k].gloss, kind: A.gloss[k].kind };
-  const t = A.tunnels.find(t => keyOf(t.target) === k); return t && t.teaser ? { gloss: t.teaser, kind: '' } : null;
+  const A = full(parent); const k = keyOf(target); const g = A.gloss[k]; const hook = hookOf(A, k);
+  const kind = (g && g.kind) || (A.tunnels.find(t => keyOf(t.target) === k) || {}).kind || '';
+  return hook || kind ? { gloss: hook, kind } : null;
 }
 
 /* navigation with page transitions: the thing you clicked becomes the next title */
@@ -79,16 +86,19 @@ function fromInput(node) {
 function seenInput(node) {
   const p = node.parent ? W.nodes[node.parent] : null; if (!p || !p.text) return [];
   const out = []; const keys = new Set(node.keys);
-  for (const b of parsed(p).blocks) {
-    if (b.t === 'h') out.push(clip(plain(b.s), 80));
-    else for (const m of b.s.matchAll(/\[\[([^\]]+)\]\]/g)) { const t = splitLink(m[1])[1]; const k = keyOf(t); if (!keys.has(k)) { keys.add(k); out.push(clip(t, 80)); } }
+  const A = parsed(p);
+  for (const s of [...A.blocks.map(b => b.t === 'h' ? '#' + b.s : b.s), ...A.panels.flatMap(x => x.rows.flat())]) {
+    if (s[0] === '#') out.push(clip(plain(s.slice(1)), 80));
+    else for (const m of s.matchAll(/\[\[([^\]]+)\]\]/g)) { const t = splitLink(m[1])[1]; const k = keyOf(t); if (!keys.has(k)) { keys.add(k); out.push(clip(t, 80)); } }
   }
   return out.slice(0, 24);
 }
+/* The panel types the last two pages on the path used, so the writer can vary them. */
+const panelsInput = node => [...new Set(pathTo(node).slice(-3, -1).flatMap(n => n.text ? parsed(n).panels.filter(p => !p.v1).map(p => p.type) : []))];
 function pageInput(node) {
   const path = pathTo(node); const onPath = new Set(path.map(n => n.id));
   return {
-    title: node.title, depth: node.depth, lens: node.lens || store.settings.lens,
+    title: node.title, depth: node.depth, lens: node.lens || store.settings.lens, kind: (node.seed && node.seed.kind) || '', panels: panelsInput(node),
     path: pathInput(node), from: fromInput(node), seen: seenInput(node),
     others: W.order.map(x => W.nodes[x]).filter(n => !onPath.has(n.id) && n.status === 'done').map(n => n.title).slice(-24),
     ratings: path.filter(n => n.reaction).slice(-3).map(n => ({ title: n.title, rating: n.reaction })),

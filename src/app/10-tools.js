@@ -49,7 +49,7 @@ function gapLabel(d) {
 const fmtBig = n => n >= 10 ? Math.round(n).toLocaleString('en-US') : n.toFixed(1).replace(/\.0$/, '');
 function renderTime() {
   const ev = [];
-  for (const n of W.order.map(x => W.nodes[x])) { if (!n.text) continue; parsed(n).time.forEach(t => ev.push({ ...t, n })); }
+  for (const n of W.order.map(x => W.nodes[x])) { if (!n.text) continue; timeOf(parsed(n)).forEach(t => ev.push({ ...t, n })); }
   ev.sort((a, b) => a.y - b.y);
   $('#mapStats').textContent = `${ev.length} dated moment${ev.length === 1 ? '' : 's'} in this rabbit hole`;
   let h = '';
@@ -180,7 +180,7 @@ async function recall(fresh) {
   if (W.recall && !fresh && W.recall.i < W.recall.qs.length) { renderQuiz(); return; }
   openSheet('What stuck?', `<p class="digging">Writing questions from your rabbit hole<span class="dots"></span></p>`);
   const ctl = sheetCtl = new AbortController();
-  const pages = done.slice(-8).map(n => { const A = parsed(n); return { title: n.title, text: [A.deck, ...A.facts.map(f => `${f[0]}: ${f[1]}`), ...A.blocks.filter(b => b.t === 'p').slice(0, 4).map(b => b.s)].map(plain).join('\n').slice(0, 900) }; });
+  const pages = done.slice(-8).map(n => { const A = parsed(n); return { title: n.title, text: [A.deck, ...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 4).map(b => b.s)].map(plain).join('\n').slice(0, 900) }; });
   try {
     const out = await writeJSON('quiz', { pages }, { signal: ctl.signal });
     const byTitle = t => W.order.map(x => W.nodes[x]).find(n => keyOf(n.title) === keyOf(t));

@@ -2,7 +2,8 @@
 function linksOf(node) {
   const A = parsed(node); if (A._links) return A._links;
   const out = new Map(); const grab = s => { for (const m of String(s).matchAll(/\[\[([^\]]+)\]\]/g)) { const [, t] = splitLink(m[1]); const k = keyOf(t); if (k && !out.has(k)) out.set(k, t); } };
-  A.blocks.forEach(b => grab(b.s)); A.notes.forEach(n => grab(n.s)); A.tunnels.forEach(t => { const k = keyOf(t.target); if (k && !out.has(k)) out.set(k, t.target); });
+  A.blocks.forEach(b => grab(b.s)); A.notes.forEach(n => grab(n.s)); A.panels.forEach(p => [p.title, ...p.heads, ...p.rows.flat()].forEach(grab));
+  A.tunnels.forEach(t => { const k = keyOf(t.target); if (k && !out.has(k)) out.set(k, t.target); });
   A._links = out; return out;
 }
 function buildIndex(w = W) {
@@ -11,7 +12,7 @@ function buildIndex(w = W) {
   for (const n of w.order.map(x => w.nodes[x])) {
     if (!n.text) continue; const A = parsed(n);
     for (const [k, t] of linksOf(n)) { if (n.keys.includes(k)) continue; touch(k, t).mentions.add(n.id); }
-    for (const [k, g] of Object.entries(A.gloss)) { const e = touch(k, g.name || k); if (!e.gloss) { e.gloss = g.gloss; e.kind = g.kind; } }
+    for (const [k, g] of Object.entries(A.gloss)) { const e = touch(k, g.name || k); if (!e.gloss) e.gloss = hookOf(A, k); if (!e.kind) e.kind = g.kind; }
   }
   for (const n of w.order.map(x => w.nodes[x])) { const e = touch(n.keys[n.keys.length - 1], n.title); e.name = n.title; e.node = n; if (n.deck && !e.gloss) e.gloss = plain(n.deck); n.keys.forEach(k => { const o = idx.get(k); if (o && o !== e) { o.mentions.forEach(m => e.mentions.add(m)); if (!e.gloss) e.gloss = o.gloss; if (!e.kind) e.kind = o.kind; idx.delete(k); } }); }
   return [...idx.values()];
@@ -41,7 +42,7 @@ function finalize(node) {
   const A = parseArticle(node.text, false);
   if (A.title) { const k = keyOf(A.title); if (k && !node.keys.includes(k) && !titleLocked(node)) node.keys.push(k); }
   node.title = clip(shownTitle(node, A), 120);
-  node.deck = A.deck || node.deck; node.drift = node.depth === 0 ? 0 : A.drift;
+  node.deck = A.deck || node.deck;
 }
 
 /* ================= smooth reveal: text glides in at a steady pace ================= */
@@ -106,7 +107,9 @@ function patch(container, items, animate = true) {
     let el = existing.get(it.k);
     if (!el) { el = document.createElement(it.tag || 'div'); el.dataset.k = it.k; el.className = ((it.cls || '') + (animate && !reducedMotion() ? ' enter' : '')).trim(); }
     else { existing.delete(it.k); const want = ((it.cls || '') + (el.classList.contains('enter') ? ' enter' : '')).trim(); if (el.className !== want) el.className = want; }
-    setHTML(el, it.html); place(container, el, prev); prev = el;
+    if (it.role && el.getAttribute('role') !== it.role) el.setAttribute('role', it.role);
+    if (it.fill) it.fill(el); else if (it.ink != null) inkHTML(el, it.html, it.ink); else setHTML(el, it.html);
+    place(container, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());
 }
@@ -119,13 +122,11 @@ function chamberHTML(node, via) {
   ${change ? `<div class="levelband"><span>Level <b>${node.depth}</b></span><span>${esc(levelOf(node.depth).name)}</span></div>` : ''}
   <article class="article">
     <div class="recap-slot">${via ? '' : recapHTML(node)}</div>
-    <header class="a-head"><div class="h-top"></div><div class="h-cols"><div class="h-main"></div><aside class="h-side" aria-label="At a glance"></aside></div></header>
-    <div class="tools" role="toolbar" aria-label="Page tools"></div>
+    <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-cols"><div class="h-main"></div><aside class="h-pic" hidden></aside></div></header>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
-    <form class="ask" data-nid="${node.id}" autocomplete="off"><label class="sr" for="ask-${node.id}">Ask your own question from here</label><div class="ask-row"><input id="ask-${node.id}" placeholder="Ask your own question from here" maxlength="160"><button class="btn" type="submit">Open ↵</button></div></form>
-    <p class="fineprint"><span>Written live by AI for your path. Check anything you plan to repeat.</span><button class="tool ib" type="button" data-act="help" data-tip="Tips and shortcuts" data-key="?" aria-label="Tips and shortcuts">${ic('help')}</button></p>
+    ${node.depth === 0 ? `<p class="fineprint"><span>Written by AI for the path you take. Check anything you plan to repeat.</span><button class="tool ib" type="button" data-act="help" data-tip="Tips and shortcuts" data-key="?" aria-label="Tips and shortcuts">${ic('help')}</button></p>` : ''}
   </article>
 </section>`;
 }
@@ -140,35 +141,97 @@ function paint(node, streamOnly) {
     if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
-/* Quick facts, drift and the timeline are reference, not reading. On a wide screen they sit in the
-   margin column beside the opening; on a narrower one they wait until the first paragraph has
-   been written, then settle in below it, so the first screen is always mostly words. */
-function driftHTML(node, A) {
-  if (!(node.depth > 0 && A.drift != null)) return '';
-  return `<div class="drift"><span>Drift from ${esc(clip(W.nodes[W.root].title, 32))}</span><span class="dg" role="img" aria-label="${A.drift} percent"><i style="width:${A.drift}%"></i></span><b>${A.drift}%</b></div>`;
-}
-const factsHTML = (node, A) => A.facts.length ? `<dl class="facts" aria-label="Quick facts">${A.facts.map(([k, v]) => `<div class="fact"><dt>${esc(k)}</dt><dd>${inline(v, node)}</dd></div>`).join('')}</dl>` : '';
-const timeHTML = (node, A) => A.time.length >= 2 ? `<ol class="tline" aria-label="Timeline">${A.time.map(t => `<li data-tip="${esc(t.when)}: ${esc(plain(t.s))}"><b>${esc(t.when)}</b><span>${inline(t.s, node)}</span></li>`).join('')}</ol>` : '';
+/* The head: where you are and the page's tools on one quiet row, then the title (already there,
+   from the link you clicked), the deck and the bridge back to where you came from. */
 function paintHead(node, sec, A, live) {
   const head = $('.a-head', sec); const parent = node.parent ? W.nodes[node.parent] : null;
-  const title = shownTitle(node, A); const lvl = levelOf(node.depth);
-  const top = [], main = [], side = [];
-  const kd = kindOf(node.seed && node.seed.kind);
-  top.push({ k: 'where', tag: 'p', cls: 'where', html: `<span class="mk" data-tip="Level ${node.depth}: ${esc(lvl.name)}. Page ${pathTo(node).length} of this rabbit hole">${node.depth}</span>${kd ? `<span class="kdot2" data-kind="${kd}" data-tip="${esc(capFirst(node.seed.kind))}"></span>` : ''}${node.lens ? `<span class="kind lens">${esc(LENS_PHRASE[node.lens])}</span>` : ''}` });
-  top.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
+  const title = shownTitle(node, A); const lvl = levelOf(node.depth); const kd = kindOf(node.seed && node.seed.kind);
+  setHTML($('.where', head), `<span class="mk" data-tip="Level ${node.depth}: ${esc(lvl.name)}. Page ${pathTo(node).length} of this rabbit hole">${node.depth}</span>${kd ? `<span class="kdot2" data-kind="${kd}" data-tip="${esc(capFirst(node.seed.kind))}"></span>` : ''}${node.lens ? `<span class="kind lens">${esc(LENS_PHRASE[node.lens])}</span>` : ''}`);
+  const main = []; const head0 = live && !A.blocks.length;
+  main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
   const seedDeck = live && node.seed && node.seed.gloss ? node.seed.gloss : '';
-  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !A.bridge)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node) });
+  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !A.bridge)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node), ink: head0 });
   else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(seedDeck) });
   const from = node.from && node.from.bridge && W.nodes[node.from.bridge] && parent ? `Connecting <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a> and <a href="#/w/${W.id}/${node.from.bridge}">${esc(W.nodes[node.from.bridge].title)}</a>` : parent ? `From <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a>` : 'Where it starts';
-  if (A.bridge) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><p>${inline(A.bridge, node)}</p>` });
-  else if (live) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p><div class="arrive" role="status"><span class="ar-dots" aria-hidden="true">${'<i></i>'.repeat(8)}</span>Writing this page for your path</div>` });
-  const t = timeHTML(node, A); if (t) main.push({ k: 'time', cls: 'h-time', html: t });
-  const g = driftHTML(node, A) + factsHTML(node, A); if (g) side.push({ k: 'glance', cls: 'glance', html: g });
-  patch($('.h-top', head), top); patch($('.h-main', head), main); patch($('.h-side', head), side);
+  if (A.bridge || live) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p>${A.bridge ? `<p class="bridge-t">${inline(A.bridge, node)}</p>` : ''}`, ink: head0 });
+  patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
 }
-const CARET = '<span class="caret" aria-hidden="true"></span>';
+
+/* ================= the soft frontier: the newest words resolve in, then settle into plain text =================
+   While a block is being written, each new stretch of text is wrapped in a span that fades in from the
+   moment it arrived (a negative animation-delay keeps the fade going across rebuilds). Arrivals are
+   grouped into 70 ms beats, so a block carries at most a handful of spans; older text is plain. */
+const INK_MS = 420, INK_BEAT = 70;
+function inkHTML(el, html, tip) {
+  const now = performance.now(); const st = el._ink;
+  if (st && !tip && now - st.last < INK_MS) tip = true;
+  if (!tip || reducedMotion()) { if (st) { el._ink = null; el._h = null; } setHTML(el, html); return; }
+  if (el._h === html) return;
+  el.innerHTML = html; el._h = html;
+  const len = el.textContent.length; const s = st || (el._ink = { len: 0, marks: [], last: 0 });
+  const beat = Math.floor(now / INK_BEAT) * INK_BEAT;
+  if (len < s.len) s.marks = [];
+  else if (len > s.len && (!s.marks.length || s.marks[s.marks.length - 1][1] !== beat)) { s.marks.push([s.len, beat]); s.last = now; }
+  s.len = len; s.marks = s.marks.filter(([, b]) => now - b < INK_MS);
+  if (!s.marks.length) return;
+  const texts = []; const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t, pos = 0;
+  while ((t = walk.nextNode())) { texts.push([t, pos]); pos += t.data.length; }
+  for (let r = s.marks.length - 1; r >= 0; r--) {
+    const [from0, born] = s.marks[r]; const to0 = r + 1 < s.marks.length ? s.marks[r + 1][0] : len;
+    for (let x = texts.length - 1; x >= 0; x--) {
+      const [tn, at] = texts[x]; const end = at + tn.data.length; if (end <= from0 || at >= to0) continue;
+      const a = Math.max(from0, at) - at, b = Math.min(to0, end) - at;
+      const mid = a > 0 ? tn.splitText(a) : tn; if (b - a < mid.data.length) mid.splitText(b - a);
+      const span = document.createElement('span'); span.className = 'ink'; span.style.animationDelay = `-${Math.round(now - born)}ms`;
+      mid.parentNode.insertBefore(span, mid); span.appendChild(mid);
+    }
+  }
+}
+
+/* ================= panels: information the writer chose to lay out, drawn by us =================
+   Each panel streams in like the text: its frame appears with the opener, rows rise in as they are
+   finished, and the label shimmers until the panel is done. A guess keeps its answer until asked. */
+const VERDICT = { accepted: 'Accepted', partly: 'Partly right', disputed: 'Disputed', rejected: 'Rejected', open: 'Open' };
+const verdictOf = v => { const w = String(v || '').toLowerCase(); return Object.keys(VERDICT).find(k => w.startsWith(k.slice(0, 5))) || (/part/.test(w) ? 'partly' : /unsettled|debat|unknown/.test(w) ? 'open' : ''); };
+const digitsHTML = s => esc(s).replace(/[0-9]/g, (d, i) => `<span class="dg" style="--i:${i % 12}">${d}</span>`);
+const row = (k, html, extra = {}) => ({ k, cls: 'pn-r', html, ...extra });
+const PANEL_UI = {
+  timeline: { label: 'Timeline', tag: 'ol', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<b class="pn-k">${esc(r[0])}</b><span>${inline(r[1] || '', n)}</span>`, { tag: 'li' })) },
+  facts: { label: 'At a glance', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt>${inline(r[0], n)}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
+  steps: { label: 'How it works', tag: 'ol', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<b>${inline(r[0], n)}</b>${r[1] ? `<span>${inline(r.slice(1).join(' · '), n)}</span>` : ''}`, { tag: 'li' })) },
+  compare: { label: 'Side by side', tag: 'div', role: 'table', rows: (p, n) => {
+    const cols = Math.min(3, Math.max(p.heads.length, ...p.rows.map(r => r.length - 1), 2)); const cell = (h, role) => `<span role="${role}">${h}</span>`;
+    const heads = Array.from({ length: cols }, (_, i) => cell(inline(p.heads[i] || '', n), 'columnheader'));
+    return [row('hd', cell('', 'columnheader') + heads.join(''), { cls: 'pn-r pn-hd', role: 'row' }), ...p.rows.map((r, i) => row('r' + i, cell(inline(r[0], n), 'rowheader') + Array.from({ length: cols }, (_, c) => cell(inline(r[c + 1] || '', n), 'cell')).join(''), { role: 'row' }))];
+  } },
+  theories: { label: 'The explanations', tag: 'ul', rows: (p, n) => p.rows.map((r, i) => { const v = verdictOf(r[2]); return row('r' + i, `<b>${inline(r[0], n)}</b><span>${inline(r[1] || '', n)}</span>${v ? `<em class="pn-v" data-v="${v}">${VERDICT[v]}</em>` : ''}`, { tag: 'li' }); }) },
+  figures: { label: 'By the numbers', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt class="pn-num">${digitsHTML(r[0])}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
+  myth: { label: 'Myth and fact', tag: 'div', rows: (p, n) => p.rows.map((r, i) => { const fact = /^(actually|fact|truth|in fact|reality)/i.test(r[0]) || (i > 0 && !/^myth/i.test(r[0])); return row('r' + i, `<b>${esc(r[0])}</b><span>${inline(r.slice(1).join(' · '), n)}</span>`, { cls: `pn-r ${fact ? 'is-fact' : 'is-myth'}` }); }) },
+  formula: { label: 'The equation', tag: 'div', rows: (p, n) => p.rows.map((r, i) => /^(equation|formula|law)$/i.test(r[0]) ? row('r' + i, `<code class="pn-eq">${esc(r.slice(1).join(' :: '))}</code>`, { cls: 'pn-r pn-eqr' }) : row('r' + i, `<b class="pn-sym">${esc(r[0])}</b><span>${inline(r.slice(1).join(' · '), n)}</span>`)) },
+  guess: { label: 'Guess first', tag: 'div', rows: (p, n, j) => {
+    const get = re => p.rows.find(r => re.test(r[0])); const q = get(/^q/i) || p.rows[0]; const a = get(/^a/i); const why = get(/^(why|because)/i);
+    const open = !!(n.reveals && n.reveals[j]); const out = [];
+    if (q) out.push(row('q', `<p class="pn-q">${inline(q.slice(1).join(' ') || q[0], n)}</p>`));
+    if (a && !open) out.push(row('btn', `<button class="pn-reveal" type="button" data-guess="${j}" aria-expanded="false">Reveal the answer</button>`));
+    if (a && open) out.push(row('a', `<p class="pn-a">${digitsHTML(a.slice(1).join(' '))}</p>`));
+    if (why && open) out.push(row('why', `<p class="pn-why">${inline(why.slice(1).join(' '), n)}</p>`));
+    return out;
+  } },
+  list: { label: '', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt>${inline(r[0], n)}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
+};
+function paintPanel(el, p, node, j) {
+  const ui = PANEL_UI[p.type] || PANEL_UI.list;
+  if (!el._built) { el.innerHTML = `<p class="pn-h"></p><${ui.tag} class="pn-rows"${ui.role ? ` role="${ui.role}"` : ''}></${ui.tag}>`; el._built = true; el.dataset.type = PANEL_UI[p.type] ? p.type : 'list'; }
+  if (p.type === 'compare') el.style.setProperty('--n', String(Math.min(3, Math.max(p.heads.length, ...p.rows.map(r => r.length - 1), 2))));
+  el.toggleAttribute('data-live', !p.done);
+  const label = p.title ? inline(p.title, node) : esc(ui.label || capFirst(p.type.replace(/-/g, ' ')));
+  setHTML($('.pn-h', el), `<span data-text="${esc(plain(p.title) || ui.label || p.type)}">${label}</span>`);
+  patch($('.pn-rows', el), ui.rows(p, node, j));
+}
+const panelItem = (p, j, node) => ({ k: 'pn' + j, tag: 'section', cls: 'panel', fill: el => paintPanel(el, p, node, j) });
+
 function noteItem(n, node, j) {
   const callback = [...n.s.matchAll(/\[\[([^\]]+)\]\]/g)].some(m => { const ex = findByKey(keyOf(splitLink(m[1])[1])); return ex && ex.id !== node.id && ex.status === 'done'; });
   return { k: 'n' + j, tag: 'aside', cls: 'mnote' + (callback ? ' cb' : ''), html: `${callback ? `<span class="ml" data-tip="A callback to a page you already read">${ic('loop')}</span>` : ''}${inline(n.s, node)}` };
@@ -182,22 +245,31 @@ function extrasItems(node, i) {
   });
   return items;
 }
+/* The status line tells the truth about a wait, and only while there is one. */
+function setStatus(el, text) {
+  if (el._t === text) return; const swap = !!el._t; el._t = text;
+  el.innerHTML = `<span class="shim${swap ? ' swap' : ''}" data-text="${esc(text)}">${esc(text)}</span>`;
+}
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec); const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
-  const glance = driftHTML(node, A) + factsHTML(node, A) + timeHTML(node, A);
+  const writing = live && !A.bodyDone;
+  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing links for your path' : 'Writing this page for your path' });
+  /* facts sit in the margin beside their paragraph on a wide screen (below it on a narrow one); the rest in the reading column */
+  const side = new Map(), flow = [];
+  A.panels.forEach((p, j) => { const b = A.blocks[p.at - 1]; if (p.type === 'facts' && b && b.t === 'p') { if (!side.has(p.at - 1)) side.set(p.at - 1, []); side.get(p.at - 1).push([p, j]); } else flow.push([p, j]); });
+  const panelsAt = i => flow.filter(([p]) => p.at === i).forEach(([p, j]) => want.push({ k: 'pn' + j, type: 'panel', p, j }));
   A.blocks.forEach((b, i) => {
-    const caret = live && !A.bodyDone && i === lastIdx ? CARET : '';
-    if (b.t === 'h') want.push({ k: 'h' + i, type: 'h', html: inline(b.s, node) + caret });
-    else if (b.t === 'li') { const last = want[want.length - 1]; if (last && last.type === 'ul') last.items.push(inline(b.s, node) + caret); else want.push({ k: 'u' + i, type: 'ul', items: [inline(b.s, node) + caret] }); }
+    panelsAt(i);
+    const tip = writing && i === lastIdx;
+    if (b.t === 'h') want.push({ k: 'h' + i, type: 'h', html: inline(b.s, node), tip });
+    else if (b.t === 'li') { const last = want[want.length - 1]; if (last && last.type === 'ul') { last.items.push(inline(b.s, node)); last.tip = tip; } else want.push({ k: 'u' + i, type: 'ul', items: [inline(b.s, node)], tip }); }
     else {
-      pi++; want.push({ k: 'p' + i, type: 'p', i, html: inline(b.s, node) + caret, lead: first, notes: A.notes.filter(n => n.n === pi) }); first = false;
-      /* narrow screens: the glance settles in once the first paragraph is finished, below it */
-      if (pi === 1 && glance && (i < lastIdx || A.bodyDone || !live)) want.push({ k: 'glance', type: 'glance', html: glance });
+      pi++; want.push({ k: 'p' + i, type: 'p', i, pi, html: inline(b.s, node), tip, lead: first, side: side.get(i) || [] }); first = false;
       if (pi === 1 && node.figure) want.push({ k: 'fig', type: 'fig' });
     }
   });
+  panelsAt(A.blocks.length);
   if (pi < 1 && node.figure) want.push({ k: 'fig', type: 'fig' });
-  if (live && !A.blocks.length && (A.bridge || A.facts.length)) want.push({ k: 'wait', type: 'wait' });
   const existing = new Map(); for (const el of body.children) if (el.dataset.k) existing.set(el.dataset.k, el);
   let prev = null; const anim = !reducedMotion();
   for (const w of want) {
@@ -207,22 +279,26 @@ function paintBody(node, sec, A, live) {
       if (w.type === 'h') el = document.createElement('h2');
       else if (w.type === 'ul') el = document.createElement('ul');
       else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div><div class="mcol"></div>`; }
+      else if (w.type === 'panel') { el = document.createElement('section'); el.className = 'panel' + (anim ? ' enter' : ''); }
       else if (w.type === 'fig') { el = document.createElement('div'); if (anim) el.className = 'enter'; }
-      else if (w.type === 'glance') { el = document.createElement('aside'); el.className = 'glance-band' + (anim ? ' enter' : ''); el.setAttribute('aria-label', 'At a glance'); }
-      else { el = document.createElement('div'); el.className = 'waitline'; }
+      else { el = document.createElement('p'); el.className = 'status-line'; el.setAttribute('role', 'status'); }
       el.dataset.k = w.k;
     }
-    if (w.type === 'h') setHTML(el, w.html);
-    else if (w.type === 'ul') setHTML(el, w.items.map(x => `<li>${x}</li>`).join(''));
+    if (w.type === 'h') inkHTML(el, w.html, w.tip);
+    else if (w.type === 'ul') inkHTML(el, w.items.map(x => `<li>${x}</li>`).join(''), w.tip);
     else if (w.type === 'p') {
       el.dataset.i = w.i; $('.ptool', el).dataset.i = w.i;
-      const p = $('p', el); setHTML(p, w.html); p.classList.toggle('lead', w.lead);
+      const p = $('p', el); inkHTML(p, w.html, w.tip); p.classList.toggle('lead', w.lead);
       patch($('.px', el), extrasItems(node, w.i));
-      patch($('.mcol', el), w.notes.map((n, j) => noteItem(n, node, j)));
+      /* margin notes and any facts panel beside this paragraph, in the order they were written */
+      const notes = A.notes.map((n, g) => ({ n, g })).filter(x => x.n.n === w.pi); const items = []; const sp = [...w.side];
+      notes.forEach((x, j) => { while (sp.length && sp[0][0].o <= x.g) { const [pp, pj] = sp.shift(); items.push(panelItem(pp, pj, node)); } items.push({ ...noteItem(x.n, node, j), ink: writing && x.g === A.notes.length - 1 }); });
+      sp.forEach(([pp, pj]) => items.push(panelItem(pp, pj, node)));
+      patch($('.mcol', el), items);
     }
+    else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);
     else if (w.type === 'fig') setHTML(el, figureHTML(node));
-    else if (w.type === 'glance') setHTML(el, w.html);
-    else setHTML(el, `<span class="arrive" role="status"><span class="ar-dots" aria-hidden="true">${'<i></i>'.repeat(8)}</span>Choosing the most interesting links for this page</span>`);
+    else setStatus(el, w.text);
     place(body, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());

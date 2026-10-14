@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { BadInput, FORMAT, TASKS, pageInput, pagePrompt } from '../lib/prompts.js';
+import { PANELS } from '../src/shared/article.js';
 
 const page = (/** @type {Record<string, unknown>} */ o) => pagePrompt(pageInput({ title: 'Tardigrades', depth: 0, path: [], ...o }));
 
@@ -40,6 +41,26 @@ test('the format never shows a label the writer could copy, and wild branches mu
   assert.doesNotMatch(FORMAT, /Deck:|wait, really|wonderful place/i);
   assert.match(FORMAT, /its hook names that thread/);
   assert.match(FORMAT, /stock curiosities/);
+});
+
+test('v2 format: kinds before the body, the next page before the branches, hooks last, and every panel named', () => {
+  const at = (/** @type {string} */ m) => FORMAT.indexOf(`\n${m}\n`);
+  const order = ['+++', '---', '>>>', '===', '???', '&&&'].map(at);
+  assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `marker order ${order}`);
+  assert.match(FORMAT, /"\[\[Topic\]\] :: kind"/);
+  for (const t of PANELS) assert.match(FORMAT, new RegExp(`^::: ${t}\\b`, 'm'), t);
+  assert.match(FORMAT, /close it with a line ":::"/);
+  assert.doesNotMatch(FORMAT, /@ drift|%%%|: Key = /);
+});
+
+test('the kind of the clicked link shapes the page, and recent panels ask for variety', () => {
+  const p = page({ title: 'Ball lightning', depth: 1, path: [{ title: 'Lightning' }], kind: 'mystery', panels: ['timeline', 'timeline', 'sparkline', 'figures'] });
+  assert.match(p, /They followed a link to a mystery: build the page around the puzzle/);
+  assert.match(p, /The pages just before this one used these panels: timeline, figures\./);
+  const q = pageInput({ title: 'A', kind: 'idea', panels: 'nope' });
+  assert.equal(q.kind, 'concept'); assert.deepEqual(q.panels, []);
+  assert.equal(pageInput({ title: 'A', kind: 'spaceship' }).kind, '');
+  assert.doesNotMatch(page({}), /followed a link to|panels:/);
 });
 
 test('continue reading, questions, connecting pages, history and ratings', () => {
