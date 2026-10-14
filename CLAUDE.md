@@ -58,6 +58,21 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 Show, don't describe. For anything a reader would notice, push a branch and send Will the
 Vercel preview URL (previews need his Vercel login), with screenshots from `npm run e2e`.
 Merge to `main` only when `npm run verify` and `npm run e2e` are green.
+Will has given agents merge and deploy rights (2026-10-14); anything a reader would notice
+still gets his look at a preview first. He replies in numbered lists: answer every item,
+and say which you're tabling and why. In chat he wants a few tight paragraphs and a direct
+recommendation, not plan documents. Think in one head; use subagents only for real fan-out.
+
+## Access
+- Vercel (project willgibs/dorkhub, Will's Hobby account): use Will's signed-in Chrome via
+  Claude in Chrome, read-only unless he asks. The Vercel CLI and MCP on this Mac are signed
+  in to a different team and can't see dorkhub. `DH_MOCK=1` is set on Preview only.
+- GitHub: `gh` is signed in as willgibs; preview URLs are in
+  `gh api repos/willgibs/dorkhub/deployments`.
+- Cloudflare holds dorkhub.com's DNS and email routing: never touch MX, SPF or DKIM.
+- Port 3000 on this Mac often runs another project's dev server.
+- Agents that browse never put personal data in a request: a generic User-Agent, no names,
+  emails or handles.
 
 ## Ask Will first
 Pro pricing and launch · the model eval and which models ship · enabling a provider ·
