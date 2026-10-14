@@ -13,7 +13,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   - prompt 2026-10-14 (no stock curiosities, wild branches name their thread, `seen`)
   - richer recaps, a readable around-this map, phone fixes, contrast and focus fixes
 - **Real pages without credits:** Claude Haiku 5.5 stand-ins, given the exact prompts, are in
-  `lib/recorded.js`. They cover 5 rabbit holes and every quick tool for one of them. The mock
+  `lib/recorded.js`. They cover 5 rabbit holes (20 pages) and every quick tool for one of them. The mock
   writer replays them in dev, e2e and previews, and a test streams every one.
 - **Checks:** `npm run verify` green (45 tests); `npm run e2e` green on desktop and phone.
 
