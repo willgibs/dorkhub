@@ -16,7 +16,7 @@
 | Brings an API key | A vetted model of their choice | Their provider, directly. The key stays in their browser. |
 | Pro (planned) | — | A subscription with a page allowance |
 
-The free trial is 6 pages and 30 quick tools per device per 30 days. Each request reserves its unit before the writer starts; it's handed back only if nothing was bought. Protection comes in layers:
+The free trial is 10 pages and 50 quick tools per device per 30 days, and at most 100 pages and 500 quick tools for any one network (IP address), so shared networks like schools and offices still work. Each request reserves its unit before the writer starts; it's handed back only if nothing was bought. Protection comes in layers:
 
 - **Rate limit:** a Vercel Firewall rule on `/api/write`.
 - **Counters:** per device, per network (IPv4 or IPv6 /64) and per IPv6 /48. These are atomic in Upstash Redis when connected, otherwise kept in Vercel Runtime Cache.

@@ -12,7 +12,7 @@ test('a trial page streams, sets the device cookie and reports what is left', as
   assert.equal(r.status, 200);
   assert.match(r.text, /^# Tardigrades\n/);
   assert.equal(r.tail, null);
-  assert.equal(r.headers.get('x-dh-trial'), 'pages=1; extras=30');
+  assert.equal(r.headers.get('x-dh-trial'), 'pages=1; extras=50');
   assert.equal(r.headers.get('content-type'), 'text/plain; charset=utf-8');
   assert.equal(c.logs.at(-1).end, 'ok');
   assert.equal(JSON.stringify(c.logs).includes('Tardigrades'), false, 'logs never carry what was read');
@@ -23,10 +23,10 @@ test('identical requests come from cache and cost nothing; fresh rewrites do not
   await c.call(pageBody('Umami'));
   const hit = await c.call(pageBody('Umami'));
   assert.equal(hit.headers.get('x-dh-cache'), 'hit');
-  assert.equal(hit.headers.get('x-dh-trial'), 'pages=2; extras=30');
+  assert.equal(hit.headers.get('x-dh-trial'), 'pages=2; extras=50');
   const fresh = await c.call({ ...pageBody('Umami'), fresh: true });
   assert.equal(fresh.headers.get('x-dh-cache'), null);
-  assert.equal(fresh.headers.get('x-dh-trial'), 'pages=1; extras=30');
+  assert.equal(fresh.headers.get('x-dh-trial'), 'pages=1; extras=50');
 });
 
 test('the trial ends with 402, and quick tools have their own allowance', async () => {
@@ -43,14 +43,14 @@ test('the trial ends with 402, and quick tools have their own allowance', async 
 
 for (const [name, counters] of [['runtime cache', undefined], ['redis', () => redisCounters({ url: 'https://fake.upstash.io', token: 't' }, fakeUpstash().fetchFn)]]) {
   test(`${name}: twenty pages fired at once get exactly the trial's worth`, async () => {
-    const c = client({ env: { DH_TRIAL_PAGES: '6', DH_TRIAL_IP_FACTOR: '2' }, counters: counters && counters() });
+    const c = client({ env: { DH_TRIAL_PAGES: '6', DH_TRIAL_NETWORK_PAGES: '12' }, counters: counters && counters() });
     await c.call({ task: 'peek', input: { title: 'A', path: [], passage: 'p', target: 'Krill' } }); // sets the device cookie
     const all = await Promise.all(Array.from({ length: 20 }, (_, i) => c.call(pageBody(`Burst ${i}`))));
     assert.equal(all.filter(r => r.status === 200).length, 6);
     assert.equal(all.filter(r => r.status === 402).length, 14);
     assert.equal((await c.call(pageBody('After'))).status, 402);
     // Twenty cookieless requests from the same network share its allowance (6 x 2, 6 already used).
-    const rest = await Promise.all(Array.from({ length: 20 }, (_, i) => client({ env: { DH_TRIAL_PAGES: '6', DH_TRIAL_IP_FACTOR: '2' }, store: c.store, counters: c.counters }).call(pageBody(`Bare ${i}`))));
+    const rest = await Promise.all(Array.from({ length: 20 }, (_, i) => client({ env: { DH_TRIAL_PAGES: '6', DH_TRIAL_NETWORK_PAGES: '12' }, store: c.store, counters: c.counters }).call(pageBody(`Bare ${i}`))));
     assert.equal(rest.filter(r => r.status === 200).length, 6);
   });
 }
@@ -61,14 +61,14 @@ test('a reader who hangs up before the writer starts is not charged', async () =
   const ac = new AbortController(); ac.abort();
   const r = await c.call(pageBody('Gone'), {}, { signal: ac.signal }).catch(() => null);
   assert.ok(r === null || r.status === 499);
-  assert.equal((await c.call(pageBody('Here'))).headers.get('x-dh-trial'), 'pages=1; extras=29');
+  assert.equal((await c.call(pageBody('Here'))).headers.get('x-dh-trial'), 'pages=1; extras=49');
 });
 
 test('a page that fails before its first word costs nothing', async () => {
   const c = client({ env: { DH_TRIAL_PAGES: '2' } });
   const r = await c.call(pageBody('Moths [fail-early]'));
-  assert.equal(r.status, 502); assert.equal(r.headers.get('x-dh-trial'), 'pages=2; extras=30');
-  assert.equal((await c.call(pageBody('Moths'))).headers.get('x-dh-trial'), 'pages=1; extras=30');
+  assert.equal(r.status, 502); assert.equal(r.headers.get('x-dh-trial'), 'pages=2; extras=50');
+  assert.equal((await c.call(pageBody('Moths'))).headers.get('x-dh-trial'), 'pages=1; extras=50');
 });
 
 test('a reader who leaves mid-page stops the writer, and the fragment is never cached', async () => {

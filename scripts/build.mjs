@@ -8,12 +8,12 @@ import { createHash } from 'node:crypto';
 import { copyFileSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (...p) => readFileSync(join(root, 'src', ...p), 'utf8');
 const out = join(root, 'public');
 
-const trialPages = Number.parseInt(process.env.DH_TRIAL_PAGES ?? '', 10);
 const shared = ['article.js', 'models.js'].map((f) => {
   const code = src('shared', f);
   if (/^\s*import\s/m.test(code)) throw new Error(`src/shared/${f} must not import anything: it is inlined into the page`);
@@ -23,7 +23,7 @@ const modules = readdirSync(join(root, 'src', 'app')).filter((f) => f.endsWith('
 const script = [
   '(() => {',
   "'use strict';",
-  `const TRIAL_PAGES = ${Number.isFinite(trialPages) && trialPages >= 0 ? trialPages : 6};`,
+  `const TRIAL_PAGES = ${trialConfig(process.env).pages};`,
   ...shared,
   ...modules.map((f) => src('app', f).trimEnd()),
   '})();',

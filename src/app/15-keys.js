@@ -14,7 +14,7 @@ function nowHTML() {
   const k = auth.byok;
   if (k) { const P = PROVIDERS[k.provider]; const m = findModel(k.model); return `<div class="ks-now" data-state="key"><p class="ks-h">Writing with your ${esc(P.name)} key</p><p>Pages use <b>${esc(m.name)}</b>, about ${cents(pageCost(m))} each, billed to you by ${esc(k.provider === 'gateway' ? 'Vercel' : P.name)}. Quick tools like peeks and sketches use ${esc(modelName(P.quick))}.</p></div>`; }
   const n = pagesLeft(); const dots = `<span class="ks-dots" aria-hidden="true">${Array.from({ length: TRIAL_PAGES }, (_, i) => `<i${i < n ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  if (n > 0) return `<div class="ks-now"><p class="ks-h"><b>${n}</b> of ${TRIAL_PAGES} free pages left${dots}</p><p>On this device, no account needed. Quick tools like peeks, sketches and quizzes have their own, larger allowance.</p></div>`;
+  if (n > 0) return `<div class="ks-now"><p class="ks-h"><b>${n}</b> of ${TRIAL_PAGES} free pages left${dots}</p><p>This month, on this device, no account needed. Quick tools like peeks, sketches and quizzes have their own, larger allowance.</p></div>`;
   return `<div class="ks-now" data-state="out"><p class="ks-h">You’ve read your free pages${dots}</p><p>Add your own API key below to keep going. Dorkhub Pro, with no keys at all, is on its way.</p></div>`;
 }
 function keyFormHTML(prov, model) {

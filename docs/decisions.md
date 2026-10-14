@@ -19,3 +19,4 @@ One line each, newest last. Why, not just what.
 - 2026-10-13 · Only answers that finished cleanly and pass a per-task sanity check are cached; aborts, cut-offs and garbled JSON never reach other readers.
 - 2026-10-13 · AI Gateway budget starts at $5/month (Will): one runaway mistake can't cost much; raise it slowly as real usage shows what's needed.
 - 2026-10-13 · Firewall: one rate-limit rule on /api/write, 40 requests per 60 s per IP, then 429. Old env vars removed; production authenticates to AI Gateway by OIDC only.
+- 2026-10-13 · Trial resized (Will): 10 pages a month per device, 100 a month per network (IP); quick tools scale with it (50 per device, 500 per network). Supersedes the 6-page device trial and the 20-devices network factor.

@@ -4,7 +4,7 @@ import { cacheCounters, redisCounters } from '../lib/counters.js';
 import { networksOf, peek, readCookie, refund, reserve, trialConfig, trialScopes } from '../lib/trial.js';
 import { fakeUpstash, memoryStore } from './helpers.js';
 
-const cfg = trialConfig({ DH_TRIAL_PAGES: '3', DH_TRIAL_EXTRAS: '5', DH_TRIAL_IP_FACTOR: '2', DH_TRIAL_WINDOW_DAYS: '30' });
+const cfg = trialConfig({ DH_TRIAL_PAGES: '3', DH_TRIAL_EXTRAS: '5', DH_TRIAL_NETWORK_PAGES: '6', DH_TRIAL_NETWORK_EXTRAS: '10', DH_TRIAL_WINDOW_DAYS: '30' });
 const backends = {
   'runtime cache': () => cacheCounters(memoryStore()),
   redis: () => redisCounters({ url: 'https://fake.upstash.io', token: 't' }, fakeUpstash().fetchFn),
@@ -62,7 +62,11 @@ test('a tunnelled IPv6 /48 cannot mint fresh networks', async () => {
     const s = trialScopes({ deviceId: `device-${String(i).padStart(12, '0')}`, ip: `2001:db8:abcd:${i.toString(16)}::1`, salt: 's' });
     if ((await reserve(counters, s, 'pages', cfg)).ok) ok++;
   }
-  assert.equal(ok, 3 * 2 * 5); // pages x network factor x wide factor
+  assert.equal(ok, 6 * 5); // network pages x wide factor
+});
+
+test('the defaults: 10 pages a device, 100 a network, quick tools at five per page', () => {
+  assert.deepEqual(trialConfig({}), { off: false, pages: 10, extras: 50, netPages: 100, netExtras: 500, windowDays: 30 });
 });
 
 test('IPv6 networks are the /64, wide networks the /48', () => {
