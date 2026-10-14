@@ -45,14 +45,18 @@ function finalize(node) {
   node.deck = A.deck || node.deck;
 }
 
-/* ================= smooth reveal: text glides in at a steady pace ================= */
-let revRaf = 0;
-function reveal(node, from = 0) { if (reducedMotion()) return; REV.set(node.id, { node, shown: from }); if (!revRaf) revRaf = requestAnimationFrame(revealLoop); }
-function revealLoop() {
-  revRaf = 0;
+/* ================= smooth reveal: text glides in at a steady pace =================
+   Time-based, so a 120 Hz screen reads like a 60 Hz one. It keeps pace with a live writer and
+   never runs faster than one, so a page that arrives whole (from the cache, or written ahead
+   of time) still streams in the way a live page does. */
+const REV_MIN = 84, REV_MAX = 960;   // characters a second
+let revRaf = 0, revLast = 0;
+function reveal(node, from = 0) { if (reducedMotion()) return; REV.set(node.id, { node, shown: from }); if (!revRaf) { revLast = performance.now(); revRaf = requestAnimationFrame(revealLoop); } }
+function revealLoop(now) {
+  revRaf = 0; const dt = Math.min(.1, Math.max(0, (now - revLast) / 1000)); revLast = now;
   for (const [id, r] of REV) {
     const target = r.node.text.length; const backlog = target - r.shown;
-    if (backlog > 0) r.shown = Math.min(target, r.shown + Math.max(1.4, Math.min(90, backlog * .085)));
+    if (backlog > 0) r.shown = Math.min(target, r.shown + Math.max(REV_MIN, Math.min(REV_MAX, backlog * 5)) * dt);
     const finished = r.node.status !== 'digging' && r.shown >= target;
     if (finished) REV.delete(id);
     if (backlog > 0 || finished) paint(r.node, !finished);
@@ -245,6 +249,26 @@ function extrasItems(node, i) {
   });
   return items;
 }
+/* ================= pictures: a page's lead picture, only when it can arrive seamlessly =================
+   Looked up by title (no model involved) while the page is written. It shows beside the first
+   paragraph (below it on a phone) if it is ready before that paragraph is finished, and on any
+   later visit; otherwise it waits for next time, so it never moves anything a reader has seen. */
+const PICLOAD = new Set(), PICASKED = new Set(), PICAT = new Map();
+function picFor(node, A) {
+  if (node.pic !== undefined || PICLOAD.has(node.id)) return;
+  const title = titleLocked(node) ? node.title : A.deck ? shownTitle(node, A) : ''; if (!title) return;
+  PICLOAD.add(node.id); PICASKED.add(node.id);
+  fetch(`/api/picture?t=${encodeURIComponent(clip(title, 120))}`, { signal: AbortSignal.timeout(8000) })
+    .then(r => (r.status === 200 ? r.json() : null))
+    .then(async p => { if (!p || typeof p.src !== 'string' || !p.src.startsWith('/api/picture?')) return null; const img = new Image(); img.src = p.src; await img.decode(); return p; })
+    .catch(() => null)
+    .then(p => { PICLOAD.delete(node.id); node.pic = p ? { src: p.src, w: +p.w || 0, h: +p.h || 0, alt: String(p.alt || ''), credit: String(p.credit || ''), license: String(p.license || ''), file: String(p.file || '') } : null; save(); if (secFor(node.id)) paint(node, true); });
+}
+function picItem(p) {
+  const by = [p.credit ? esc(p.credit) : 'Wikimedia Commons', esc(p.license)].filter(Boolean).join(' · ');
+  return { k: 'pic', tag: 'figure', cls: 'pic', html: `<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.w}" height="${p.h}" decoding="async"><figcaption><a href="${esc(p.file)}" target="_blank" rel="noopener noreferrer">${by}</a></figcaption>` };
+}
+
 /* The status line tells the truth about a wait, and only while there is one. */
 function setStatus(el, text) {
   if (el._t === text) return; const swap = !!el._t; el._t = text;
@@ -253,6 +277,10 @@ function setStatus(el, text) {
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec); const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
   const writing = live && !A.bodyDone;
+  picFor(node, A);
+  /* known from an earlier visit: it's there from the start; found during this one: only while the first paragraph is still being written */
+  if (node.pic && !PICAT.has(node.id)) { const p1 = A.blocks.findIndex(b => b.t === 'p'); PICAT.set(node.id, !PICASKED.has(node.id) || (live && !A.bodyDone && (p1 < 0 || p1 === lastIdx))); }
+  const pic = node.pic && PICAT.get(node.id) ? node.pic : null;
   if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing links for your path' : 'Writing this page for your path' });
   /* facts sit in the margin beside their paragraph on a wide screen (below it on a narrow one); the rest in the reading column */
   const side = new Map(), flow = [];
@@ -278,7 +306,7 @@ function paintBody(node, sec, A, live) {
     else {
       if (w.type === 'h') el = document.createElement('h2');
       else if (w.type === 'ul') el = document.createElement('ul');
-      else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div><div class="mcol"></div>`; }
+      else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="mcol"></div><div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div>`; }
       else if (w.type === 'panel') { el = document.createElement('section'); el.className = 'panel' + (anim ? ' enter' : ''); }
       else if (w.type === 'fig') { el = document.createElement('div'); if (anim) el.className = 'enter'; }
       else { el = document.createElement('p'); el.className = 'status-line'; el.setAttribute('role', 'status'); }
@@ -288,12 +316,13 @@ function paintBody(node, sec, A, live) {
     else if (w.type === 'ul') inkHTML(el, w.items.map(x => `<li>${x}</li>`).join(''), w.tip);
     else if (w.type === 'p') {
       el.dataset.i = w.i; $('.ptool', el).dataset.i = w.i;
-      const p = $('p', el); inkHTML(p, w.html, w.tip); p.classList.toggle('lead', w.lead);
+      const p = $('.pcol > p', el); inkHTML(p, w.html, w.tip); p.classList.toggle('lead', w.lead);
       patch($('.px', el), extrasItems(node, w.i));
       /* margin notes and any facts panel beside this paragraph, in the order they were written */
       const notes = A.notes.map((n, g) => ({ n, g })).filter(x => x.n.n === w.pi); const items = []; const sp = [...w.side];
       notes.forEach((x, j) => { while (sp.length && sp[0][0].o <= x.g) { const [pp, pj] = sp.shift(); items.push(panelItem(pp, pj, node)); } items.push({ ...noteItem(x.n, node, j), ink: writing && x.g === A.notes.length - 1 }); });
       sp.forEach(([pp, pj]) => items.push(panelItem(pp, pj, node)));
+      if (pic && w.pi === 1) items.push(picItem(pic));
       patch($('.mcol', el), items);
     }
     else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);

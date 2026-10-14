@@ -12,6 +12,9 @@
     "api/write.js": {
       "maxDuration": 120,
       "supportsCancellation": true
+    },
+    "api/picture.js": {
+      "maxDuration": 10
     }
   },
   "headers": [
