@@ -3,38 +3,36 @@
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Now (2026-10-15, end of session)
-- **Live:** `main` is v2 with the hero (PR willgibs/dorkhub#4) and the panels
-  (PR willgibs/dorkhub#5). Production is unchanged today: free pages say "paused" until AI
-  Gateway has credits, and the counters are on the Runtime Cache.
-- **In review (Will's look before merging):**
-  - PR willgibs/dorkhub#6, hero v2 (https://dorkhub-f9hvt6ppy-willgibs.vercel.app):
-    "What do you want to learn?" above one composer with libraries.dev's border beam; voice
-    and key inside it; send is Surprise me until something is typed; presets shuffle; what you
-    type morphs into the title. "Get lost learning." moves down with the demo, and one fine
-    note at the bottom of the stream says pages can make mistakes.
-  - PR willgibs/dorkhub#7, the reading page, stacked on #6
-    (https://dorkhub-l25szdeo4-willgibs.vercel.app): thinking orbs during real waits (tested
-    against the library's golden vectors), Wikipedia pictures that resolve out of dots, a gooey
+- **Live:** `main` is v2 with the new hero and reading page. Will looked at both previews,
+  and they merged after verify (69 tests) and e2e passed on the combined tree, which `main`
+  matches exactly:
+  - PR willgibs/dorkhub#6 (ff29739): "What do you want to learn?" above one composer with
+    the border beam, Surprise me, shuffling presets, and one fine note at the bottom;
+  - PR willgibs/dorkhub#7 (425724e): thinking orbs, pictures that resolve out of dots, the gooey
     tools button on phones, and the new surfaces.
-  - Shots of both: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ. Both pass verify
-    (69 tests) and e2e, and add 53 KB raw together (budget 60 KB), with no new requests.
+  - Shots: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ
+- **Checked on dorkhub.com:**
+  - the hero and beam, with our fonts and no CSP errors;
+  - the dice opens an unseen door free from seeds, with its orb, picture reveal and fine note;
+  - a live page says "Free pages are paused" with nothing spent (`pages=10`);
+  - the phone tools button opens the map, and `/licenses.txt` serves.
+  The function logs show only the known "no gateway credits" error. Counters are still on
+  the Runtime Cache.
 - **Will's call today:** grounding, and every model, prompt, fact or performance test, waits
-  until the base product settles (`docs/decisions.md`, in #6).
+  until the base product settles (`docs/decisions.md`).
 - **Access:** libraries.dev is blocked on this Mac's network; read it in Will's Chrome (Claude
   in Chrome), where transitions.dev Pro is signed in too.
 
 ## Blocked on Will
-- His look at #6 and #7; AI Gateway credits; connecting Redis (his click).
-- The door list (https://claude.ai/artifact/5XpimaCDzuomV5a8V7Aji4); old resources, repo
-  visibility and Pro pricing (backlog §0).
+- AI Gateway credits; connecting Redis (his click); the door list
+  (https://claude.ai/artifact/5XpimaCDzuomV5a8V7Aji4).
+- Old resources, repo visibility and Pro pricing (backlog §0).
 
 ## Next
-1. When he approves: merge #6, then #7 (it retargets to `main`); check production (the beam,
-   a door page's picture reveal, the orbs, the phone button).
-2. Act on his notes on the previews.
-3. When he picks the doors: write and source-check each one (`scripts/seeds.mjs`), then update
+1. Act on any notes Will has on the live hero and reading page.
+2. When he picks the doors: write and source-check each one (`scripts/seeds.mjs`), then update
    `DOORS` and `CHAINS`.
-4. Once credits land: prove production (backlog §1), swap the stand-ins for live pages, and
+3. Once credits land: prove production (backlog §1), swap the stand-ins for live pages, and
    check the orbs and picture reveal on live timings.
 
 Access, accounts and working with Will: `CLAUDE.md`. Seeds: `scripts/seeds.mjs`.

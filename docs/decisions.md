@@ -84,3 +84,11 @@ One line each, newest last. Why, not just what.
   - menus, the link card, sheets, ask-anything, toasts and up next all on one raised surface with one elevation;
   - opens on transitions.dev's timings (scale .96 for dialogs, .98 for cards).
   The page grows by about 53 KB raw across both PRs (budget 60 KB), and no new requests.
+- 2026-10-15 · Will looked at both previews and said merge. #6 went in as ff29739 and #7 as 425724e. Verify (69 tests) and e2e passed on the combined tree, which `main` matches exactly. Production was then checked:
+  - the hero and its beam, under the CSP, with our own fonts;
+  - Surprise me opens a door that wasn't on screen, served from seeds (free);
+  - the door page shows its orb, its picture goes from dots to the photo, and the fine note sits at the foot;
+  - a live page says paused and spends nothing;
+  - the phone tools button opens the map;
+  - `/licenses.txt` serves;
+  - the function logs show no new errors (the only error is the known "no gateway credits" one).
