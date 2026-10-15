@@ -92,3 +92,19 @@ One line each, newest last. Why, not just what.
   - the phone tools button opens the map;
   - `/licenses.txt` serves;
   - the function logs show no new errors (the only error is the known "no gateway credits" one).
+- 2026-10-15 · The polish pass (PR willgibs/dorkhub#8, after Will asked for "a full refinement and polish pass… nothing is off-limits"). No prompt or model changes, and no tokens spent.
+  - **Motion follows the token scale.** Values are matched by usage, not by the nearest number.
+    - `--ease` is the smooth-out curve.
+    - Closes are quicker than opens. Dialogs close in 150 ms, where the browser can keep a closing dialog in the top layer (`@supports (overlay:auto)`); elsewhere they close at once. Toasts fade out over 350 ms. Tooltips wait for intent, scale in, and vanish at once.
+    - Page transitions rise in through a 3 px blur.
+    - Untouched on purpose: colour washes, the demo's choreography, the shimmer and the vendored recipes.
+  - **A page that didn't come through says so first and asks nothing.** Its status leads the end of the page, with no ask row, reactions or disabled tools; only the way back stays.
+    - The paused card says nothing was spent, which is true: the unit is refunded before the first word.
+    - It offers three pages written ahead of time. Seeds are served even while the trial is paused, so they open free and instantly. They're the same three for that page every time it repaints.
+  - **Sheets.**
+    - The close button is an icon with an Esc tooltip.
+    - Focus lands on the body (`tabindex=-1 autofocus`), not on a ringed Close button.
+    - The backdrop blurs the page by 3 px and tints it for each theme.
+  - **On phones, the tools button opens over a light scrim.** A tap on the scrim only closes the tools: a dismissing tap must never also open the link under it.
+  - **Continue and Your rabbit holes skip rabbit holes with no page to read.** Continue lands on the last readable page of the path.
+  - **The recap heading "Where to dig next" breaks the brand rule, but it comes from the recap prompt.** Prompts are frozen until the base product settles, so it waits for Will's next prompt round. The sheet already drops the H1's "Recap:" prefix, since the sheet is titled Recap.

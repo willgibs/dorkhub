@@ -47,6 +47,11 @@ Will wants the generative UI and the whole experience solid first. Judge everyth
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
 (merged 2026-10-14). From Will's review of #3:
 
+- **The polish pass is in review** (willgibs/dorkhub#8): one motion scale, calm failure states
+  (a paused page offers free pages written ahead of time), icon-closed sheets over a blurred
+  backdrop, a scrim for the phone's tools, and the 404 in the identity. Merge after Will's look.
+  - For the next prompt round (prompts are frozen until then): rename the recap's "Where to dig
+    next" heading, which breaks the brand rule.
 - **The new hero and the reading page are live** (willgibs/dorkhub#6 and willgibs/dorkhub#7,
   merged 2026-10-15 after Will's look). Shots: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ
   - Not done: up next dripping out of the tools button, the goo's planned stretch goal (it
