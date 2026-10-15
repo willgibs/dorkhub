@@ -56,6 +56,11 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   and placeholder, then today's pages as a feed of cards that peeks above the fold, with a
   map of where they lead (or the reader's own world). The marketing sections were already
   gone in PR B.
+- **PR D, the map redrawn** (live since 2026-10-15, willgibs/dorkhub#16): Your world, the
+  sidebar and the front page's map drawn like an instrument, not glow.
+- **PR E, the front page curated** (willgibs/dorkhub#17, a draft): cards made by hand that lead
+  into the 32 planned topics, a map of the threads between them, and the suggestions drawn from
+  them. It ships with the 32 pages; production keeps PR C's front page until then.
 - **Next: the article page design**, still in progress with Will. The 12 pages written ahead
   of time serve as demo placeholders meanwhile, tweaked as needed.
 - **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
