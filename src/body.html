@@ -24,7 +24,7 @@
     <div class="map-head">
       <div class="stabs" role="tablist" aria-label="Views of this rabbit hole"><button type="button" role="tab" data-tab="map" aria-selected="true">Map</button><button type="button" role="tab" data-tab="index" aria-selected="false">Index</button><button type="button" role="tab" data-tab="time" aria-selected="false">Timeline</button></div>
       <button class="tool ib side-hide" type="button" data-act="side-toggle" data-tip="Collapse the map" data-key="M" aria-label="Collapse the map"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 6-6 6 6 6"/></svg></button>
-      <button class="tool map-x" type="button" id="mapX">Close</button>
+      <button class="tool ib map-x" type="button" id="mapX" data-tip="Close the map" aria-label="Close the map"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button>
       <p id="mapStats"></p>
     </div>
     <div class="map-scroll" id="mapScroll"><svg id="mapSvg" role="group" aria-label="Pages by level"></svg></div>
@@ -46,15 +46,15 @@
 </div>
 <dialog id="sheet" aria-labelledby="sheetTitle">
   <div class="sh-in">
-    <div class="sh-head"><h2 id="sheetTitle"></h2><button class="tool" type="button" id="sheetX">Close</button></div>
-    <div class="sh-body" id="sheetBody" aria-live="polite"></div>
+    <div class="sh-head"><h2 id="sheetTitle"></h2><button class="tool ib sh-x" type="button" id="sheetX" data-tip="Close" data-key="esc" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></div>
+    <div class="sh-body" id="sheetBody" aria-live="polite" tabindex="-1" autofocus></div>
     <div class="sh-foot" id="sheetFoot"></div>
   </div>
 </dialog>
 <dialog id="help" aria-labelledby="helpTitle">
   <div class="sh-in">
-    <div class="sh-head"><h2 id="helpTitle">Getting around</h2><button class="tool" type="button" id="helpX">Close</button></div>
-    <div class="sh-body">
+    <div class="sh-head"><h2 id="helpTitle">Getting around</h2><button class="tool ib sh-x" type="button" id="helpX" data-tip="Close" data-key="esc" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17"/></svg></button></div>
+    <div class="sh-body" tabindex="-1" autofocus>
       <dl class="keys">
         <dt><kbd>J</kbd></dt><dd>Continue reading: the next page flows in below</dd>
         <dt><kbd>1</kbd>–<kbd>5</kbd></dt><dd>Take one of the branches at the end of a page</dd>
@@ -74,7 +74,7 @@
         <dt><kbd>M</kbd></dt><dd>Expand or collapse the map</dd>
         <dt><kbd>N</kbd></dt><dd>Start a new rabbit hole</dd>
       </dl>
-      <p style="margin-top:1.2em">Hover a link (or tap it on a phone) for a one-line hook, then <b>Peek</b> to read about it right where you are. Hover a paragraph and press <b>¶</b> to expand it. Select any phrase to open a page on it.</p>
+      <p class="keys-note">Hover a link (or tap it on a phone) for a one-line hook, then <b>Peek</b> to read about it right where you are. Hover a paragraph and press <b>¶</b> to expand it. Select any phrase to open a page on it.</p>
     </div>
   </div>
 </dialog>

@@ -7,21 +7,25 @@
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <style>
+/* the same paper, type and dotted numerals as the page itself (fonts are self-hosted: /fonts/OFL.txt) */
+@font-face{font-family:"Atkinson Hyperlegible Next";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/atkinson-next-v7-latin.woff2) format("woff2")}
+@font-face{font-family:"Doto";font-style:normal;font-weight:900;font-display:swap;src:url(/fonts/doto-v3-latin.woff2) format("woff2")}
 :root{--base:#FCFCFB;--ink:#18181B;--mute:#5E636B;--acc:#2563EB;color-scheme:light}
 @media (prefers-color-scheme:dark){:root{--base:#111214;--ink:#ECECEE;--mute:#A3A7AE;--acc:#93B4FF;color-scheme:dark}}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:var(--base);color:var(--ink);font:400 17px/1.6 "Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:34em}
-p.k{margin:0 0 10px;font:600 13px/1 ui-monospace,"SF Mono",Menlo,monospace;color:var(--mute);letter-spacing:.04em}
-h1{margin:0 0 12px;font-size:clamp(30px,6vw,44px);line-height:1.1;letter-spacing:-.02em}
-p{margin:0 0 20px;color:var(--mute)}
-a{display:inline-block;padding:9px 16px;border-radius:8px;background:var(--ink);color:var(--base);font-weight:700;text-decoration:none}
+body{margin:0;min-height:100vh;min-height:100svh;display:grid;place-items:center;padding:24px 16px;background:color-mix(in srgb,var(--acc) 2%,var(--base));color:var(--ink);font:400 17px/1.6 "Atkinson Hyperlegible Next","Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:30em;text-align:center}
+.k{margin:0 0 18px;font:900 clamp(64px,14vw,112px)/1 "Doto",ui-monospace,Menlo,monospace;color:var(--ink)}
+h1{margin:0 0 10px;font-size:clamp(26px,5vw,36px);font-weight:700;line-height:1.15;letter-spacing:-.02em;text-wrap:balance}
+p{margin:0 0 26px;color:var(--mute);text-wrap:pretty}
+a{display:inline-flex;align-items:center;padding:9px 16px;border-radius:10px;background:var(--ink);color:var(--base);font-weight:600;font-size:15px;text-decoration:none;transition:background-color 150ms cubic-bezier(.22,1,.36,1)}
+a:hover{background:color-mix(in srgb,var(--ink) 86%,var(--base))}
 a:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 </style>
 </head>
 <body>
 <main>
-<p class="k">404</p>
+<p class="k" aria-hidden="true">404</p>
 <h1>There’s no page here.</h1>
 <p>Dorkhub writes its pages while you read, so nothing is stored at this address. Start a rabbit hole from the front page instead.</p>
 <a href="/">Go to dorkhub</a>

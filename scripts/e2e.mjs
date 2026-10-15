@@ -29,7 +29,7 @@ const step = async (name, fn) => { const t = Date.now(); try { await fn(); resul
 
 async function run(page, { mobile = false } = {}) {
   page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
-  page.on('console', m => { if (m.type() === 'error' && !/ERR_TUNNEL_CONNECTION_FAILED|fonts\.g|status of 40[12]/.test(m.text() + (m.location()?.url || ''))) errors.push(`console: ${m.text()}`); });
+  page.on('console', m => { if (m.type() === 'error' && !/ERR_TUNNEL_CONNECTION_FAILED|fonts\.g|status of (40[12]|503)/.test(m.text() + (m.location()?.url || ''))) errors.push(`console: ${m.text()}`); });
   const tag = mobile ? 'mobile' : 'desktop';
   const badge = () => page.locator('#keyBtn .kb-n').textContent();
   /* a page is done when the newest one is no longer busy and its branches are in */
@@ -61,7 +61,7 @@ async function run(page, { mobile = false } = {}) {
   });
   await step(`${tag}: a door page is written ahead of time, and free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
-    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint span')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
+    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
     if (p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/.test(p.fine)) throw new Error(`door page: ${JSON.stringify(p)}`);
     if ((await badge()) !== String(PAGES)) throw new Error(`a door page spent a free page: badge ${await badge()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
@@ -70,9 +70,26 @@ async function run(page, { mobile = false } = {}) {
   await step(`${tag}: the dice opens a door that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="surprise"]').click(); await waitDone();
-    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint span')?.textContent || '' }));
+    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
     if (shown.includes(p.title) || !/written ahead of time/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
     if ((await badge()) !== String(PAGES)) throw new Error(`the dice spent a free page: badge ${await badge()}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
+  /* paused (no credits for free pages): nothing is spent, the page says so first and asks nothing,
+     and the pages written ahead of time it offers still open */
+  await step(`${tag}: a paused page offers pages written ahead of time`, async () => {
+    await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.task === 'page' && /moths/.test(JSON.stringify(b.input))) await r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'trial_paused' }) }); else await r.continue(); });
+    await page.fill('#seedIn', 'Why do moths fly toward lights?'); await page.press('#seedIn', 'Enter');
+    await page.waitForSelector('.statusnote.paused .door', { timeout: 20000 });
+    const st = await page.evaluate(() => { const a = document.querySelector('.article'); return { doors: a.querySelectorAll('.statusnote .door').length, ask: !!a.querySelector('.ask'), react: !!a.querySelector('.react'), tools: a.querySelectorAll('.tools [data-act]').length, first: /** @type {HTMLElement} */ (a.querySelector('.a-end > div'))?.dataset.k }; });
+    if (st.doors !== 3 || st.ask || st.react || st.tools || st.first !== 'status') throw new Error(`paused page: ${JSON.stringify(st)}`);
+    if ((await badge()) !== String(PAGES)) throw new Error(`a paused page spent a free page: badge ${await badge()}`);
+    await page.screenshot({ path: `${shots}/${tag}-2-paused.png` });
+    const door = await page.locator('.statusnote .door').first().getAttribute('data-seed');
+    await page.locator('.statusnote .door').first().click();
+    await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, door, { timeout: 20000 }); await waitDone();
+    if ((await badge()) !== String(PAGES)) throw new Error(`the door spent a free page: badge ${await badge()}`);
+    await page.unroute('**/api/write');
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* the demo is a picture, not a control, and it pauses when asked */
@@ -140,6 +157,18 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('.fab-main').tap(); await page.waitForTimeout(300); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
       const after = await page.evaluate(() => ({ map: document.querySelector('#map')?.classList.contains('open'), fab: document.querySelector('#fab')?.getAttribute('data-open'), focus: document.activeElement?.classList.contains('fab-main') }));
       if (after.map || after.fab !== 'false' || !after.focus) throw new Error(`closing: ${JSON.stringify(after)}`);
+    });
+    await step(`${tag}: the voice sheet`, async () => {
+      await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
+      await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
+      const v = await page.evaluate(() => { const l = document.querySelector('#sheet .voice-pop label'); const cs = getComputedStyle(l); return { grid: cs.display, font: getComputedStyle(l.closest('.voice-pop')).fontFamily, focus: document.activeElement?.id || document.activeElement?.className }; });
+      if (v.grid !== 'grid' || !/Atkinson/.test(v.font) || v.focus !== 'sheetBody') throw new Error(`voice sheet: ${JSON.stringify(v)}`);
+      /* a choice closes the sheet; the flow then goes back to the encyclopedic voice the same way */
+      for (const lens of ['story', 'encyclopedic']) {
+        if (lens !== 'story') { await page.locator('.fab-main').tap(); await page.waitForTimeout(450); await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label'); }
+        await page.locator(`#sheet .voice-pop input[value="${lens}"]`).check(); await page.waitForTimeout(400);
+        if (await page.evaluate(() => document.querySelector('#sheet')?.hasAttribute('open'))) throw new Error(`the voice sheet stayed open after choosing ${lens}`);
+      }
     });
     await step(`${tag}: the ¶ button waits for a tap on its paragraph`, async () => {
       await page.evaluate(() => window.scrollTo(0, 0));
