@@ -265,36 +265,103 @@ function noteItem(n, node, j) {
 function extrasItems(node, i) {
   const items = [];
   const u = node.unfolds && node.unfolds[i];
-  if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">Expanding<span class="dots"></span></span>`}</div>` });
+  if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">${waitHTML('composing', 'Expanding')}</span>`}</div>` });
   (node.peeks || []).filter(p => p.after === i && p.open !== false).forEach(p => {
-    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">Taking a look<span class="dots"></span></span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
+    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">${waitHTML('searching', 'Taking a look')}</span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
   });
   return items;
 }
-/* ================= pictures: a page's lead picture, only when it can arrive seamlessly =================
-   Looked up by title (no model involved) while the page is written. It shows beside the first
-   paragraph (below it on a phone) if it is ready before that paragraph is finished, and on any
-   later visit; otherwise it waits for next time, so it never moves anything a reader has seen. */
-const PICLOAD = new Set(), PICASKED = new Set(), PICAT = new Map();
+/* ================= pictures: a page's lead picture, resolving out of dots =================
+   Looked up by title (no model involved) while the page is written. As soon as the lookup says
+   there is one, its slot is reserved at the picture's own shape (beside the first paragraph, below
+   it on a phone) if the first paragraph is still being written; otherwise it waits for the next
+   visit, so it never moves anything a reader has seen. While the picture loads, the slot holds a
+   field of dots that breathe on their own clocks (transitions.dev's Pro image placeholder); once
+   it has arrived, the dots take its colours and grow into a mosaic along a diagonal sweep (the
+   reveal of libraries.dev's Image, MIT), and the photo itself fades in sharp over them. A picture
+   seen on an earlier visit appears plainly. */
+const PICLOAD = new Set(), PICASKED = new Set(), PICAT = new Map(), PICFRESH = new Set(), PICREADY = new Map(), PICS = new Set();
 function picFor(node, A) {
   if (node.pic !== undefined || PICLOAD.has(node.id)) return;
   const title = titleLocked(node) ? node.title : A.deck ? shownTitle(node, A) : ''; if (!title) return;
   PICLOAD.add(node.id); PICASKED.add(node.id);
   fetch(`/api/picture?t=${encodeURIComponent(clip(title, 120))}`, { signal: AbortSignal.timeout(8000) })
-    .then(r => (r.status === 200 ? r.json() : null))
-    .then(async p => { if (!p || typeof p.src !== 'string' || !p.src.startsWith('/api/picture?')) return null; const img = new Image(); img.src = p.src; await img.decode(); return p; })
-    .catch(() => null)
-    .then(p => { PICLOAD.delete(node.id); node.pic = p ? { src: p.src, w: +p.w || 0, h: +p.h || 0, alt: String(p.alt || ''), credit: String(p.credit || ''), license: String(p.license || ''), file: String(p.file || '') } : null; save(); if (secFor(node.id)) paint(node, true); });
+    .then(r => (r.status === 200 ? r.json() : null)).catch(() => null)
+    .then(p => {
+      PICLOAD.delete(node.id);
+      if (!p || typeof p.src !== 'string' || !p.src.startsWith('/api/picture?')) { node.pic = null; save(); return; }
+      node.pic = { src: p.src, w: +p.w || 0, h: +p.h || 0, alt: String(p.alt || ''), credit: String(p.credit || ''), license: String(p.license || ''), file: String(p.file || '') };
+      PICFRESH.add(node.id); save(); if (secFor(node.id)) paint(node, true);
+      const img = new Image(); img.src = p.src;
+      img.decode().then(() => revealPic(node, img), () => dropPic(node));
+    });
 }
-function picItem(p) {
+function picItem(p, fresh) {
   const by = [p.credit ? esc(p.credit) : 'Wikimedia Commons', esc(p.license)].filter(Boolean).join(' · ');
-  return { k: 'pic', tag: 'figure', cls: 'pic', html: `<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.w}" height="${p.h}" decoding="async"><figcaption><a href="${esc(p.file)}" target="_blank" rel="noopener noreferrer">${by}</a></figcaption>` };
+  const ar = p.w && p.h ? ` style="--ar:${p.w}/${p.h};--arn:${(p.w / p.h).toFixed(4)}"` : '';
+  return { k: 'pic', tag: 'figure', cls: 'pic', html: `<div class="pic-box${fresh ? ' loading' : ''}"${ar}>${fresh ? '<canvas class="pic-field" aria-hidden="true"></canvas>' : ''}<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.w}" height="${p.h}" decoding="async"></div><figcaption><a href="${esc(p.file)}" target="_blank" rel="noopener noreferrer">${by}</a></figcaption>` };
+}
+/* the dot field: a lattice of dots, each breathing on its own tempo and phase, drawn on one canvas */
+const PIC_PITCH = 5, PIC_CYCLE = 1400, PIC_SWEEP = 700;
+function picField(box) {
+  const cv = $('canvas', box); const w = box.clientWidth, h = box.clientHeight; if (!cv || !w || !h) return;
+  const k = Math.min(2, devicePixelRatio || 1); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+  const cols = Math.max(1, Math.floor(w / PIC_PITCH)), rows = Math.max(1, Math.floor(h / PIC_PITCH));
+  const ox = (w - (cols - 1) * PIC_PITCH) / 2, oy = (h - (rows - 1) * PIC_PITCH) / 2; const dots = [];
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const x = ox + c * PIC_PITCH, y = oy + r * PIC_PITCH; dots.push({ x, y, c, r, k: .9 + Math.random() * .2, ph: Math.random() * 6000, d: Math.min(.65, .6 * (x / w + y / h) / 2 + Math.random() * .08), col: '' }); }
+  const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b;
+  const F = { box, cv, ctx: cv.getContext('2d'), k, w, h, cols, rows, dots, ink: `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`, t0: null, img: null };
+  box._f = F; PICS.add(F); drawPic(F, reducedMotion() ? 0 : performance.now()); if (!reducedMotion()) wakePics();
+  const nid = box.closest('.chamber')?.dataset.nid; if (nid && PICREADY.has(nid)) revealPic(null, PICREADY.get(nid), box);
+}
+function drawPic(F, now) {
+  const { ctx, k, w, h, dots } = F; if (!ctx) return; ctx.setTransform(k, 0, 0, k, 0, 0); ctx.clearRect(0, 0, w, h);
+  const rev = F.t0 == null ? -1 : (now - F.t0) / PIC_SWEEP;
+  for (const d of dots) {
+    const p = rev < 0 ? 0 : Math.max(0, Math.min(1, (rev - d.d) / .35));
+    if (p > 0 && d.col) { const e = 1 - (1 - p) ** 3; const s = 1.6 + (PIC_PITCH + .6 - 1.6) * e; ctx.globalAlpha = .35 + .65 * e; ctx.fillStyle = d.col; ctx.fillRect(d.x - s / 2, d.y - s / 2, s, s); continue; }
+    const cyc = PIC_CYCLE * d.k; const v = .5 - .5 * Math.cos(2 * Math.PI * (((now + d.ph) % cyc) / cyc));
+    ctx.globalAlpha = .34 * v; ctx.fillStyle = `rgb(${F.ink})`; ctx.beginPath(); ctx.arc(d.x, d.y, .75 * v + .05, 0, 2 * Math.PI); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  if (rev >= 1 && !F.handed) { F.handed = true; F.box.classList.add('reveal'); setTimeout(() => finishPic(F), 800); }
+}
+let PIC_RAF = 0;
+function picLoop(now) {
+  PIC_RAF = 0;
+  for (const F of PICS) { if (!F.box.isConnected) { PICS.delete(F); continue; } const r = F.box.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && !document.hidden) drawPic(F, now); }
+  if (PICS.size) PIC_RAF = requestAnimationFrame(picLoop);
+}
+function wakePics() { if (!PIC_RAF && PICS.size) PIC_RAF = requestAnimationFrame(picLoop); }
+/* the picture has arrived: its colours go to the dots, which grow into a mosaic, then the photo takes over */
+function revealPic(node, img, box0) {
+  if (node) PICREADY.set(node.id, img); /* kept, in case its slot is drawn after it arrives */
+  const box = box0 || (node && secFor(node.id) && $('.pic-box.loading', secFor(node.id)));
+  const F = box && box._f; if (!F || F.t0 != null) return;
+  if (reducedMotion()) { finishPic(F); return; }
+  try {
+    const oc = document.createElement('canvas'); oc.width = F.cols; oc.height = F.rows; const octx = oc.getContext('2d'); octx.drawImage(img, 0, 0, F.cols, F.rows);
+    const px = octx.getImageData(0, 0, F.cols, F.rows).data; for (const d of F.dots) { const i = (d.r * F.cols + d.c) * 4; d.col = `rgb(${px[i]},${px[i + 1]},${px[i + 2]})`; }
+  } catch (e) { /* no colours to borrow: the dots simply give way to the picture */ }
+  F.t0 = performance.now(); wakePics();
+}
+function finishPic(F) {
+  const box = F.box; PICS.delete(F); box._f = null; F.cv.remove(); box.classList.remove('loading', 'reveal'); box.classList.add('shown');
+  /* the slot now looks exactly like a plain picture; tell the renderer so it doesn't redraw it */
+  const fig = box.closest('figure'); const node = W && W.nodes[box.closest('.chamber')?.dataset.nid]; if (fig && node && node.pic) fig._h = picItem(node.pic, false).html;
+  if (node) { PICFRESH.delete(node.id); PICREADY.delete(node.id); }
+}
+function dropPic(node) {
+  node.pic = null; save(); PICFRESH.delete(node.id); PICREADY.delete(node.id);
+  const fig = secFor(node.id) && $('figure.pic', secFor(node.id)); if (fig) fig.remove();
 }
 
-/* The status line tells the truth about a wait, and only while there is one. */
-function setStatus(el, text) {
+/* The status line tells the truth about a wait, and only while there is one: an orb for the kind of
+   wait, then what is happening. The orb stays put when the wait moves on; only its motion changes. */
+function setStatus(el, text, orb) {
   if (el._t === text) return; const swap = !!el._t; el._t = text;
-  el.innerHTML = `<span class="shim${swap ? ' swap' : ''}" data-text="${esc(text)}">${esc(text)}</span>`;
+  const shim = `<span class="shim${swap ? ' swap' : ''}" data-text="${esc(text)}">${esc(text)}</span>`;
+  const c = $('canvas.orb', el); if (c) { c.dataset.orb = orb; c.nextElementSibling.outerHTML = shim; } else el.innerHTML = `<span class="wait">${orbHTML(orb)}${shim}</span>`;
 }
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec); const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
@@ -303,7 +370,7 @@ function paintBody(node, sec, A, live) {
   /* known from an earlier visit: it's there from the start; found during this one: only while the first paragraph is still being written */
   if (node.pic && !PICAT.has(node.id)) { const p1 = A.blocks.findIndex(b => b.t === 'p'); PICAT.set(node.id, !PICASKED.has(node.id) || (live && !A.bodyDone && (p1 < 0 || p1 === lastIdx))); }
   const pic = node.pic && PICAT.get(node.id) ? node.pic : null;
-  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing links for your path' : 'Writing this page for your path' });
+  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing links for your path' : 'Writing this page for your path', orb: A.wait ? 'connecting' : 'composing' });
   /* facts sit in the margin beside their paragraph on a wide screen (below it on a narrow one); the rest in the reading column */
   const side = new Map(), flow = [];
   A.panels.forEach((p, j) => { const b = A.blocks[p.at - 1]; if (p.type === 'facts' && b && b.t === 'p') { if (!side.has(p.at - 1)) side.set(p.at - 1, []); side.get(p.at - 1).push([p, j]); } else flow.push([p, j]); });
@@ -345,12 +412,13 @@ function paintBody(node, sec, A, live) {
       notes.forEach((x, j) => { while (sp.length && sp[0][0].o <= x.g) { const [pp, pj] = sp.shift(); items.push(panelItem(pp, pj, node)); } items.push({ ...noteItem(x.n, node, j), ink: writing && x.g === A.notes.length - 1 }); });
       sp.forEach(([pp, pj]) => items.push(panelItem(pp, pj, node)));
       /* the picture is placed before the first paragraph is finished, so before that paragraph's notes: it goes first and nothing moves it */
-      if (pic && w.pi === 1) items.unshift(picItem(pic));
+      if (pic && w.pi === 1) items.unshift(picItem(pic, PICFRESH.has(node.id)));
       patch($('.mcol', el), items);
+      const pb = pic && w.pi === 1 && $('.pic-box.loading', el); if (pb && !pb._f) picField(pb);
     }
     else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);
     else if (w.type === 'fig') setHTML(el, figureHTML(node));
-    else setStatus(el, w.text);
+    else setStatus(el, w.text, w.orb);
     place(body, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());

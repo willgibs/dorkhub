@@ -64,6 +64,8 @@ never watches you: only the path you are on shapes the next page.
   and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
   scale, effects ported from libraries.dev. The brand spectrum (all eight link colours)
   appears once: the beam riding the composer's edge.
+- Dots say the machine is working: the Doto wordmark, thinking orbs during a real wait (a
+  different motion for each kind of wait), and pictures that resolve out of a field of dots.
 
 ## Anatomy of a page (the generative UI)
 

@@ -104,3 +104,46 @@ function updateUpNext() {
   upnext.hidden = !show;
 }
 upnext.addEventListener('click', () => { upnext.hidden = true; keepReading(upnext.dataset.nid); });
+
+/* ================= on a phone, the top bar's tools in one gooey button =================
+   transitions.dev's Pro "Gooey plus menu", used under Will's licence and fitted to a corner: four
+   droplets (ask, map, voice, keys) split from the button along an arc up and to the left, and merge
+   back on close. The goo is an SVG filter over plain circles that mirror the buttons; the buttons
+   above it stay crisp. Its four dots are the four things inside. */
+const FAB_SAT = [['ask', 'search', 'Search or ask anything'], ['map', 'map', 'Map of this rabbit hole'], ['voice', 'voice', 'Voice'], ['keys', 'key', 'Free pages and keys']];
+/* an arc of radius 104 from straight left to straight up: wide enough that open droplets stand apart */
+const FAB_AT = FAB_SAT.map((_, i) => { const a = Math.PI - i * Math.PI / 6; return [Math.round(Math.cos(a) * 104), -Math.round(Math.sin(a) * 104)]; });
+function fabHTML() {
+  const off = i => ` style="--fx:${FAB_AT[i][0]}px;--fy:${FAB_AT[i][1]}px;--i:${i}"`;
+  return `<svg class="fab-goo" viewBox="0 0 160 160" aria-hidden="true" focusable="false"><defs><filter id="fab-goo" x="-60%" y="-60%" width="220%" height="220%" color-interpolation-filters="sRGB">
+<feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/><feColorMatrix in="blur" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo"/><feComposite in="SourceGraphic" in2="goo" operator="atop" result="shape"/>
+<feColorMatrix in="shape" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 60 -29.5" result="ring-solid"/><feMorphology in="ring-solid" operator="dilate" radius="1" result="ring-a"/><feFlood class="fab-ring" result="ring-c"/><feComposite in="ring-c" in2="ring-a" operator="in" result="ring"/>
+<feGaussianBlur in="shape" stdDeviation="3" result="s2-b"/><feOffset in="s2-b" dy="2" result="s2-o"/><feFlood class="fab-sh" result="s2-c"/><feComposite in="s2-c" in2="s2-o" operator="in" result="s2"/>
+<feGaussianBlur in="shape" stdDeviation="14" result="s3-b"/><feOffset in="s3-b" dy="6" result="s3-o"/><feFlood class="fab-sh2" result="s3-c"/><feComposite in="s3-c" in2="s3-o" operator="in" result="s3"/>
+<feMerge><feMergeNode in="s3"/><feMergeNode in="s2"/><feMergeNode in="ring"/><feMergeNode in="shape"/></feMerge></filter></defs>
+<g filter="url(#fab-goo)">${FAB_SAT.map((_, i) => `<circle class="fab-blob" cx="132" cy="132" r="22"${off(i)}/>`).join('')}<circle class="fab-blob fab-blob-main" cx="132" cy="132" r="24"/></g></svg>
+${FAB_SAT.map(([k, icon, label], i) => `<button class="fab-item" type="button" data-fab="${k}" aria-label="${esc(label)}" tabindex="-1"${off(i)}>${ic(icon)}</button>`).join('')}
+<button class="fab-main" type="button" aria-expanded="false" aria-label="Open the tools"><span class="fab-sw" data-state="a"><span data-icon="a">${ic('dots')}</span><span data-icon="b">${ic('x')}</span></span></button>`;
+}
+const fab = document.createElement('div'); fab.className = 'fab'; fab.id = 'fab'; fab.dataset.open = 'false'; fab.innerHTML = fabHTML(); document.body.appendChild(fab);
+let fabNudge = 0;
+function setFab(open, refocus) {
+  if ((fab.dataset.open === 'true') === open) return;
+  fab.dataset.open = String(open); const main = $('.fab-main', fab);
+  main.setAttribute('aria-expanded', String(open)); main.setAttribute('aria-label', open ? 'Close the tools' : 'Open the tools');
+  $('.fab-sw', fab).dataset.state = open ? 'b' : 'a';
+  $$('.fab-item', fab).forEach(b => { b.tabIndex = open ? 0 : -1; });
+  /* closing dips the button into the returning droplets' momentum, once; opening never bounces back */
+  clearTimeout(fabNudge);
+  if (!open) { fab.classList.add('nudge'); fabNudge = setTimeout(() => fab.classList.remove('nudge'), 750); if (refocus) main.focus(); }
+}
+fab.addEventListener('click', e => {
+  if (e.target.closest('.fab-main')) { setFab(fab.dataset.open !== 'true'); return; }
+  const it = e.target.closest('[data-fab]'); if (!it) return; setFab(false); const a = it.dataset.fab;
+  if (a === 'ask') openOmni();
+  else if (a === 'map') toggleMap(true);
+  else if (a === 'keys') keysSheet();
+  else if (a === 'voice') { openSheet('Voice', '<div class="voice-pop"></div>'); renderVoice(); }
+});
+document.addEventListener('click', e => { if (fab.dataset.open === 'true' && !fab.contains(e.target)) setFab(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && fab.dataset.open === 'true') setFab(false, true); });

@@ -11,6 +11,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   Third-party code is ported into `src/vendor` with its licence notice. The build inlines its
   JS between the shared and app modules (`export` stripped) and its CSS after
   `src/styles.css`, and `/licenses.txt` lists it.
+  The orbs port is tested against the library's own golden vectors (`tests/orbs.test.js`).
+  The page's growth since 2026-10-15 is budgeted: at most 60 KB raw of CSS and JS for the
+  new hero and reading page together, with no new network requests.
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).

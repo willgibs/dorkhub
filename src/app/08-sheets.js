@@ -14,7 +14,7 @@ async function threadSheet() {
   const node = W.nodes[W.current]; if (node.depth === 0) return;
   const path = pathTo(node);
   if (node.thread) { openSheet('How you got here', renderThread(node.thread)); return; }
-  openSheet('How you got here', `<p class="digging">Following your footprints back up<span class="dots"></span></p>`);
+  openSheet('How you got here', `<p class="digging">${waitHTML('connecting', 'Following your footprints back up')}</p>`);
   const steps = path.map(n => ({ title: n.title, deck: n.deck ? clip(n.deck, 400) : '', via: n.from && (n.from.question || n.from.text) ? clip(n.from.question || n.from.text, 200) : '' }));
   const ctl = sheetCtl = new AbortController();
   try {
@@ -41,7 +41,7 @@ async function fieldNotes(fresh) {
   if (w.notes && !fresh) { openSheet('Recap', mdToHTML(w.notes), notesFoot()); return; }
   const done = w.order.map(x => w.nodes[x]).filter(n => n.status === 'done');
   if (done.length < 2) { toast('Read at least two pages first. A recap needs a journey.'); return; }
-  openSheet('Recap', `<p class="digging">Gathering what you found<span class="dots"></span></p>`);
+  openSheet('Recap', `<p class="digging">${waitHTML('composing', 'Gathering what you found')}</p>`);
   const read = new Set(done.flatMap(n => n.keys));
   const untaken = [...new Set(done.flatMap(n => parseArticle(n.text).tunnels.map(t => t.target)).filter(t => !read.has(keyOf(t))))].slice(0, 14);
   const ctl = sheetCtl = new AbortController();

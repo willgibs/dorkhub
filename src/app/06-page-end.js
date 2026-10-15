@@ -86,7 +86,7 @@ function paintTools(node, sec) {
 function paintDoubt(node, sec) {
   const el = $('.a-doubt', sec); if (!el) return;
   if (!node.doubts) { setHTML(el, ''); return; }
-  if (node.doubts === 'loading') { setHTML(el, `<div class="doubt enter"><h2>Skeptic mode</h2><p class="digging">Reading this page with a raised eyebrow<span class="dots"></span></p></div>`); return; }
+  if (node.doubts === 'loading') { setHTML(el, `<div class="doubt enter"><h2>Skeptic mode</h2><p class="digging">${waitHTML('searching', 'Reading this page with a raised eyebrow')}</p></div>`); return; }
   if (typeof node.doubts === 'string') { setHTML(el, `<div class="doubt"><h2>Skeptic mode</h2><p>${esc(node.doubts)}</p></div>`); return; }
   const label = { solid: 'Solid', check: 'Check', shaky: 'Shaky' };
   const h = `<div class="doubt"><h2>Skeptic mode</h2><p>The claims on this page most worth verifying before you repeat them, highlighted in the text above.</p><ol>${node.doubts.map(d => `<li><span class="r ${d.rating}">${label[d.rating]}</span><q>${esc(d.quote)}</q><p>${esc(d.note)}</p></li>`).join('')}</ol></div>`;

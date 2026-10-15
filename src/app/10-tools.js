@@ -82,7 +82,7 @@ const BEARINGS = { mechanism: -90, science: -30, elsewhere: 30, culture: 90, peo
 async function landSheet(nid) {
   const node = W.nodes[nid]; if (!node || node.status !== 'done') return;
   if (node.land) { openSheet('Around this page', landHTML(node)); return; }
-  openSheet('Around this page', `<p class="digging">Mapping what surrounds ${esc(node.title)}<span class="dots"></span></p>`);
+  openSheet('Around this page', `<p class="digging">${waitHTML('searching', `Mapping what surrounds ${node.title}`)}</p>`);
   const ctl = sheetCtl = new AbortController();
   try {
     const out = await writeJSON('around', { ...ctxInput(node), read: W.order.map(x => W.nodes[x].title) }, { signal: ctl.signal });
@@ -158,7 +158,7 @@ async function sketch(nid, fresh) {
 }
 function figureHTML(node) {
   const f = node.figure; if (!f) return '';
-  if (f === 'loading') return `<figure class="sketch"><p class="digging">Sketching this page<span class="dots"></span></p></figure>`;
+  if (f === 'loading') return `<figure class="sketch"><p class="digging">${waitHTML('shaping', 'Sketching this page')}</p></figure>`;
   const box = n => `<button class="sk-n" type="button" data-sk="${esc(n.label)}" data-note="${esc(n.note)}"><b>${esc(n.label)}</b>${n.note ? `<span>${esc(n.note)}</span>` : ''}</button>`;
   let body = '';
   if (f.shape === 'chain') {
@@ -178,7 +178,7 @@ async function recall(fresh) {
   const done = W.order.map(x => W.nodes[x]).filter(n => n.status === 'done');
   if (done.length < 2) { toast('Read at least two pages, then see what stuck.'); return; }
   if (W.recall && !fresh && W.recall.i < W.recall.qs.length) { renderQuiz(); return; }
-  openSheet('What stuck?', `<p class="digging">Writing questions from your rabbit hole<span class="dots"></span></p>`);
+  openSheet('What stuck?', `<p class="digging">${waitHTML('solving', 'Writing questions from your rabbit hole')}</p>`);
   const ctl = sheetCtl = new AbortController();
   const pages = done.slice(-8).map(n => { const A = parsed(n); return { title: n.title, text: [A.deck, ...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 4).map(b => b.s)].map(plain).join('\n').slice(0, 900) }; });
   try {

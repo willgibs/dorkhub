@@ -55,7 +55,7 @@ function updateProg() {
 /* ================= link preview card ================= */
 const hcard = $('#hcard'); let hc = null, hcTimer = 0, hideTimer = 0, lastTouch = 0, hcY = 0;
 let progQ = false;
-addEventListener('scroll', () => { if (!progQ) { progQ = true; requestAnimationFrame(() => { progQ = false; updateProg(); if (!hcard.hidden && Math.abs(scrollY - hcY) > 90) hideCard(); }); } }, { passive: true });
+addEventListener('scroll', () => { if (!progQ) { progQ = true; requestAnimationFrame(() => { progQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); if (!hcard.hidden && Math.abs(scrollY - hcY) > 90) hideCard(); }); } }, { passive: true });
 addEventListener('pointerdown', e => { if (e.pointerType === 'touch') lastTouch = Date.now(); }, true);
 function linkCtx(a) {
   const sec = a.closest('.chamber'); const nid = sec && sec.dataset.nid; const pb = a.closest('.pb');

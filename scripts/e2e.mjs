@@ -93,11 +93,13 @@ async function run(page, { mobile = false } = {}) {
     await page.route('**/api/picture?f=*', r => r.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300"><rect width="500" height="300" fill="#4a7"/></svg>' }));
   } else await page.route('**/api/picture?t=*', r => r.fulfill({ status: 204 }));
   await step(`${tag}: first page streams in`, async () => {
-    await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) w.__status.add(s.textContent); }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
+    /* what the wait looked like: its words, whether an orb was drawn beside them, and the picture slot's first height */
+    await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); w.__orb = false; w.__picH0 = 0; new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) { w.__status.add(s.textContent); if (s.querySelector('canvas.orb')) w.__orb = true; } const b = document.querySelector('.pic-box'); if (b && !w.__picH0) w.__picH0 = b.getBoundingClientRect().height; }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
     await page.fill('#seedIn', 'Water bears'); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
-    const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], now: !!document.querySelector('.status-line') }));
+    const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], orb: /** @type {any} */ (window).__orb, now: !!document.querySelector('.status-line'), orbsLeft: document.querySelectorAll('.a-body canvas.orb').length }));
     if (!status.seen.length || status.now) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
+    if (!status.orb || status.orbsLeft) throw new Error(`thinking orb: ${JSON.stringify(status)}`);
     const title = await page.locator('.a-title').first().textContent(); if (title !== 'Water bears') throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
     /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
@@ -111,8 +113,10 @@ async function run(page, { mobile = false } = {}) {
     if (lay.v1) throw new Error('v1 head furniture is still on the page');
     if (!lay.tools) throw new Error('the page tools are not in the head row');
     if (!/react next branches qs ask/.test(lay.order)) throw new Error(`the end of the page is out of order: ${lay.order}`);
-    const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '' }));
-    if (mobile ? pic.n !== 0 : !(pic.inFirst && pic.credit === 'E2E · CC0')) throw new Error(`picture: ${JSON.stringify(pic)}`);
+    /* the picture's slot is reserved at its own shape, holds that height through the dot field and the reveal, and ends as a plain picture */
+    if (!mobile) await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
+    const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '', h0: Math.round(/** @type {any} */ (window).__picH0), h: Math.round(document.querySelector('.pic-box')?.getBoundingClientRect().height || 0), field: !!document.querySelector('.pic-field') }));
+    if (mobile ? pic.n !== 0 : !(pic.inFirst && pic.credit === 'E2E · CC0' && pic.h0 > 0 && pic.h === pic.h0 && !pic.field)) throw new Error(`picture: ${JSON.stringify(pic)}`);
     if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
     /* the one note that pages can be wrong: once, after the last page */
     const foot = await page.evaluate(() => { const f = document.querySelector('#view > .colfoot'); return { text: f?.textContent || '', after: !!f && f.previousElementSibling?.id === 'column', n: document.querySelectorAll('.colfoot').length }; });
@@ -125,6 +129,18 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForFunction(() => document.querySelector('.panel[data-type="guess"] .pn-a')?.textContent === '0' && document.activeElement === document.querySelector('.pn-a'), null, { timeout: 5000 });
   });
   if (mobile) {
+    /* on a phone the top bar's tools live in one gooey button: it opens, a droplet opens the map, Escape closes it again */
+    await step(`${tag}: the tools button`, async () => {
+      await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
+      if ((await page.locator('#fab').getAttribute('data-open')) !== 'true') throw new Error('the tools button did not open');
+      await page.locator('[data-fab="map"]').tap(); await page.waitForTimeout(350);
+      const st = await page.evaluate(() => ({ map: document.querySelector('#map')?.classList.contains('open'), fab: document.querySelector('#fab')?.getAttribute('data-open') }));
+      if (!st.map || st.fab !== 'false') throw new Error(`map from the tools button: ${JSON.stringify(st)}`);
+      await page.keyboard.press('Escape'); await page.waitForTimeout(350);
+      await page.locator('.fab-main').tap(); await page.waitForTimeout(300); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+      const after = await page.evaluate(() => ({ map: document.querySelector('#map')?.classList.contains('open'), fab: document.querySelector('#fab')?.getAttribute('data-open'), focus: document.activeElement?.classList.contains('fab-main') }));
+      if (after.map || after.fab !== 'false' || !after.focus) throw new Error(`closing: ${JSON.stringify(after)}`);
+    });
     await step(`${tag}: the ¶ button waits for a tap on its paragraph`, async () => {
       await page.evaluate(() => window.scrollTo(0, 0));
       const shown = () => page.evaluate(() => getComputedStyle(document.querySelector('.pb .ptool')).opacity);
