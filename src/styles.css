@@ -335,71 +335,98 @@ body.at-start .map,body.at-start .trail,body.at-start .gauge,body.at-start .map-
 mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 
 /* ================= panels: information the writer chose to lay out, drawn quietly ================= */
-.panel{max-width:66ch;margin:6px 0 30px;padding:12px 0 14px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-.pn-rows{font:400 15px/1.5 var(--f-ui)}
-.pn-h{margin:0 0 10px;font:600 12px/1.3 var(--f-ui);color:var(--faint)}
+/* the frame every panel shares: its name in the level's colour with a hairline running on, like the level band; a rule closes it */
+.panel{max-width:66ch;margin:10px 0 34px;padding:0 0 18px;border-bottom:1px solid var(--line)}
+.pn-rows{margin:0;padding:0;list-style:none;font:400 15px/1.5 var(--f-ui)}
+.pn-h{display:flex;align-items:center;gap:12px;margin:0 0 14px;font:600 12.5px/1.3 var(--f-ui);color:var(--acc)}
+.pn-h::after{content:"";flex:1;height:1px;background:var(--acc-line)}
 .pn-h span{position:relative;display:inline-block}
 .panel[data-live] .pn-h span::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 2s linear infinite}
-.pn-rows{margin:0;padding:0;list-style:none}
 .pn-r dt{font-size:12.5px;color:var(--faint)}
 .pn-r dd{margin:0;font-weight:600}
-.panel[data-type="timeline"] .pn-rows{position:relative;display:grid;gap:8px;padding-left:18px}
-.panel[data-type="timeline"] .pn-rows::before{content:"";position:absolute;left:4px;top:8px;bottom:8px;width:1px;background:var(--line-2)}
-.panel[data-type="timeline"] .pn-r{position:relative;display:grid;grid-template-columns:minmax(72px,max-content) minmax(0,1fr);gap:0 14px;align-items:baseline}
-.panel[data-type="timeline"] .pn-r::before{content:"";position:absolute;left:-17px;top:.55em;width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px var(--bg)}
-.pn-k{font:600 13px var(--f-mono);white-space:nowrap}
-.panel[data-type="facts"] .pn-rows,.panel[data-type="list"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 22px}
+/* timeline: dates in one column, a dot for each on a rail; a century or more between two rows breaks the rail */
+.panel[data-type="timeline"] .pn-rows{display:grid;grid-template-columns:fit-content(40%) minmax(0,1fr);column-gap:18px}
+.panel[data-type="timeline"] .pn-r{position:relative;display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:baseline;padding-bottom:12px}
+.panel[data-type="timeline"] .pn-r:last-child{padding-bottom:0}
+.panel[data-type="timeline"] .pn-r::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px var(--bg)}
+.panel[data-type="timeline"] .pn-r:not(:last-child)::after{content:"";position:absolute;left:4px;top:calc(.5em + 12px);bottom:calc(3px - .5em);width:1px;background:var(--acc-line)}
+.panel[data-type="timeline"] .pn-r.pn-gap::after{width:0;background:none;border-left:1px dashed var(--acc-line)}
+.pn-k{padding-left:22px;font:600 13px/1.5 var(--f-mono);color:var(--ink)}
+/* facts: label over value, in the margin on a wide screen */
+.panel[data-type="facts"] .pn-rows,.panel[data-type="list"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 24px}
 .panel[data-type="facts"] .pn-r,.panel[data-type="list"] .pn-r{display:grid;gap:1px}
 @media (min-width:1241px){
-  .mcol .panel{margin:0;padding:10px 0 0;border-bottom:0}
-  .mcol .panel .pn-rows{grid-template-columns:minmax(0,1fr);gap:8px;font-size:13.5px}
+  .mcol .panel{margin:0;padding:2px 0 0;border-bottom:0}
+  .mcol .pn-h{margin-bottom:10px}
+  .mcol .panel .pn-rows{grid-template-columns:minmax(0,1fr);gap:9px;font-size:13.5px}
 }
-.panel[data-type="steps"] .pn-rows{counter-reset:st;display:grid;gap:10px}
-.panel[data-type="steps"] .pn-r{counter-increment:st;position:relative;display:grid;gap:1px;padding-left:32px}
-.panel[data-type="steps"] .pn-r::before{content:counter(st);position:absolute;left:0;top:.1em;display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--acc);color:var(--on-acc);font:600 11px var(--f-mono)}
-.panel[data-type="steps"] .pn-r span,.panel[data-type="theories"] .pn-r span{color:var(--mute)}
-.panel[data-type="compare"] .pn-rows{display:grid;grid-template-columns:minmax(84px,.75fr) repeat(var(--n,2),minmax(0,1fr))}
+/* steps: numbered stops on one line, like the map */
+.panel[data-type="steps"] .pn-rows{counter-reset:st;display:grid}
+.panel[data-type="steps"] .pn-r{counter-increment:st;position:relative;display:grid;gap:2px;padding:0 0 16px 38px}
+.panel[data-type="steps"] .pn-r:last-child{padding-bottom:0}
+.panel[data-type="steps"] .pn-r::before{content:counter(st);position:absolute;left:0;top:0;z-index:1;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--acc);color:var(--acc);font:600 11.5px/1 var(--f-mono)}
+.panel[data-type="steps"] .pn-r:not(:last-child)::after{content:"";position:absolute;left:11.25px;top:26px;bottom:2px;width:1.5px;border-radius:1px;background:var(--acc-line)}
+.panel[data-type="steps"] .pn-r b{font:600 15.5px/1.4 var(--f-ui)}
+.panel[data-type="steps"] .pn-r span,.panel[data-type="theories"] .pn-r>span{color:var(--mute)}
+/* compare: a real table, its column heads underlined in the level's colour */
+.panel[data-type="compare"] .pn-rows{display:grid;grid-template-columns:minmax(84px,.7fr) repeat(var(--n,2),minmax(0,1fr))}
 .panel[data-type="compare"] .pn-r{display:contents}
-.panel[data-type="compare"] .pn-r>span{padding:7px 12px 7px 0;border-top:1px solid var(--line)}
+.panel[data-type="compare"] .pn-r>span{padding:9px 16px 9px 0;border-top:1px solid var(--line)}
 .panel[data-type="compare"] .pn-r.enter>span{animation:rise var(--d-vslow) var(--ease-out) both}
-.panel[data-type="compare"] .pn-hd>span{padding-top:0;border-top:0;font-weight:700}
-.panel[data-type="compare"] [role="rowheader"]{font-size:12.5px;color:var(--faint);padding-top:9px}
-.panel[data-type="theories"] .pn-rows{display:grid;gap:10px}
-.panel[data-type="theories"] .pn-r{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 16px;align-items:baseline}
-.panel[data-type="theories"] .pn-r span{grid-column:1}
-.pn-v{grid-column:2;grid-row:1;display:inline-flex;align-items:center;gap:6px;font:600 12px var(--f-ui);font-style:normal;color:var(--mute);white-space:nowrap}
-.pn-v::before{content:"";width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--faint)}
-.pn-v[data-v="accepted"]{color:var(--ink)}
+.panel[data-type="compare"] .pn-hd>span{padding:0 16px 8px 0;border-top:0;border-bottom:2px solid var(--acc-line);font:700 15px/1.3 var(--f-ui)}
+.panel[data-type="compare"] .pn-hd+.pn-r>span{border-top:0}
+.panel[data-type="compare"] [role="rowheader"]{padding-top:11px;font:600 12.5px/1.4 var(--f-ui);color:var(--faint)}
+/* theories: each verdict sits beside the idea it judges; a rejected idea fades */
+.panel[data-type="theories"] .pn-rows{display:grid;gap:14px}
+.panel[data-type="theories"] .pn-r{display:grid;gap:2px}
+.pn-th{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
+.pn-th b{font:600 15.5px/1.4 var(--f-ui)}
+.pn-v{display:inline-flex;align-items:center;gap:6px;font:600 12px/1.4 var(--f-ui);font-style:normal;color:var(--mute);white-space:nowrap}
+.pn-v::before{content:"";width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor}
+.pn-v[data-v="accepted"],.pn-v[data-v="partly"]{color:var(--acc)}
 .pn-v[data-v="accepted"]::before{background:var(--acc);box-shadow:none}
-.pn-v[data-v="partly"]::before{background:linear-gradient(90deg,var(--acc) 50%,transparent 50%);box-shadow:inset 0 0 0 1.5px var(--acc)}
-.pn-v[data-v="rejected"]{color:var(--faint);text-decoration:line-through}
-.panel[data-type="figures"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px 24px}
-.panel[data-type="figures"] .pn-r{display:grid;align-content:start;gap:3px}
-.pn-num{font:800 clamp(26px,3vw,32px)/1.05 var(--f-ui)!important;letter-spacing:-.02em;color:var(--ink)!important;font-variant-numeric:tabular-nums}
-.panel[data-type="figures"] dd{font-weight:400;font-size:13.5px;color:var(--mute)}
+.pn-v[data-v="partly"]::before{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.pn-v[data-v="rejected"]{color:var(--faint)}
+.is-out .pn-th b{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2);text-decoration-thickness:1px}
+.is-out>span{color:var(--faint)!important}
+/* figures: the number large, its unit small beside it, each on its own short rule */
+.panel[data-type="figures"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px 28px}
+.panel[data-type="figures"] .pn-r{display:grid;align-content:start;gap:5px;padding-top:10px;border-top:2px solid var(--acc-line)}
+.pn-num{font:800 clamp(28px,3vw,34px)/1.05 var(--f-ui)!important;letter-spacing:-.02em;color:var(--ink)!important;font-variant-numeric:tabular-nums}
+.pn-num small{margin-left:6px;font:600 .46em/1 var(--f-ui);letter-spacing:0;color:var(--mute)}
+.panel[data-type="figures"] dd{font-weight:400;font-size:13.5px;line-height:1.45;color:var(--mute)}
 .dg{display:inline-block}
-.pn-r.enter .dg,.pn-a .dg{animation:pop var(--d-vslow) var(--ease-pop) both;animation-delay:calc(var(--i) * var(--d-stagger))}
+.pn-r.enter .dg{animation:pop var(--d-vslow) var(--ease-pop) both;animation-delay:calc(var(--i) * var(--d-stagger))}
 @keyframes pop{from{opacity:0;transform:translateY(8px);filter:blur(var(--blur-s))}}
-.panel[data-type="myth"] .pn-rows{display:grid;gap:8px}
-.panel[data-type="myth"] .pn-r{display:grid;grid-template-columns:76px minmax(0,1fr);gap:0 12px;align-items:baseline}
+/* myth and fact: the myth struck through, the fact in the reading face */
+.panel[data-type="myth"] .pn-rows{display:grid;gap:10px}
+.panel[data-type="myth"] .pn-r{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 14px;align-items:baseline}
 .panel[data-type="myth"] .pn-r b{font:600 12.5px var(--f-ui);color:var(--faint)}
-.panel[data-type="myth"] .is-myth span{color:var(--mute);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.panel[data-type="myth"] .is-myth span{font:400 16px/1.55 var(--f-read);color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2);text-decoration-thickness:1px}
 .panel[data-type="myth"] .is-fact b{color:var(--acc)}
-.panel[data-type="myth"] .is-fact span{font-weight:600}
-.pn-eq{display:block;margin:0 0 10px;font:italic 400 20px/1.4 var(--f-read);overflow-x:auto}
-.panel[data-type="formula"] .pn-r:not(.pn-eqr){display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 12px;align-items:baseline;margin-top:4px}
-.pn-sym{font:italic 600 15.5px var(--f-read)}
-.pn-q{font:600 17px/1.4 var(--f-ui)}
-.pn-reveal{margin-top:10px;padding:7px 13px;border:1px solid var(--line-2);border-radius:8px;background:transparent;color:var(--ink);font:600 14px var(--f-ui);cursor:pointer;transition:border-color .15s}
-.pn-reveal:hover{border-color:var(--acc)}
-.pn-a{margin-top:8px;font:800 26px/1.15 var(--f-ui);letter-spacing:-.02em;color:var(--acc)}
+.panel[data-type="myth"] .is-fact span{font:400 17px/1.6 var(--f-read);color:var(--ink)}
+/* formula: the equation set large in the reading face, then what each symbol stands for */
+.pn-eq{display:block;padding:4px 0 14px;font:italic 400 clamp(20px,2.2vw,24px)/1.4 var(--f-read);color:var(--ink);white-space:nowrap;overflow-x:auto}
+.panel[data-type="formula"] .pn-r:not(.pn-eqr){display:grid;grid-template-columns:76px minmax(0,1fr);gap:0 14px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
+.pn-sym{font:italic 600 16px var(--f-read);color:var(--acc)}
+/* guess: the question, then the answer only when asked; its number rolls in like an odometer, once */
+.pn-q{font:600 17px/1.45 var(--f-ui)}
+.pn-reveal{margin-top:12px;padding:8px 14px;border:1px solid var(--line-2);border-radius:9px;background:transparent;color:var(--ink);font:600 14px var(--f-ui);cursor:pointer;transition:border-color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
+.pn-reveal:hover{border-color:var(--acc);background:var(--mark)}
+.pn-a{margin-top:12px}
 .pn-a:focus{outline:none}
-.pn-why{margin-top:4px;color:var(--mute)}
+.pn-big{font:800 clamp(36px,4.2vw,46px)/1.1 var(--f-ui);letter-spacing:-.02em;color:var(--acc);font-variant-numeric:tabular-nums}
+.pn-big small{margin-right:8px;font:600 .4em/1 var(--f-ui);letter-spacing:0;color:var(--mute)}
+.pn-big small.after{margin:0 0 0 8px}
+.odo{position:relative;display:inline-block;height:1.1em;overflow:hidden;vertical-align:bottom;color:transparent}
+.odo::before{content:"0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9" / "";position:absolute;left:0;top:0;width:100%;white-space:pre;line-height:1.1em;text-align:center;color:var(--acc);transform:translateY(calc(-1.1em * (10 + var(--d))));animation:reel 1s var(--ease-out) both;animation-delay:calc(var(--i) * 70ms)}
+@keyframes reel{from{transform:translateY(0)}}
+.pn-said{margin-top:6px;font:400 17px/1.55 var(--f-read);color:var(--ink)}
+.pn-why{margin-top:6px;color:var(--mute)}
 @media (max-width:560px){
-  .panel[data-type="timeline"] .pn-r{grid-template-columns:minmax(0,1fr)}
   .panel[data-type="compare"] .pn-rows{grid-template-columns:minmax(64px,.6fr) repeat(var(--n,2),minmax(0,1fr));font-size:14px}
-  .panel[data-type="theories"] .pn-r{grid-template-columns:minmax(0,1fr)}
-  .pn-v{grid-column:1;grid-row:auto}
+  .panel[data-type="compare"] .pn-r>span{padding-right:12px}
+  .panel[data-type="myth"] .pn-r{grid-template-columns:minmax(0,1fr)}
 }
 
 /* ================= the lead picture: beside the opening, quietly credited ================= */

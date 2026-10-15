@@ -203,9 +203,22 @@ function inkHTML(el, html, tip) {
 const VERDICT = { accepted: 'Accepted', partly: 'Partly right', disputed: 'Disputed', rejected: 'Rejected', open: 'Open' };
 const verdictOf = v => { const w = String(v || '').toLowerCase(); return Object.keys(VERDICT).find(k => w.startsWith(k.slice(0, 5))) || (/part/.test(w) ? 'partly' : /unsettled|debat|unknown/.test(w) ? 'open' : ''); };
 const digitsHTML = s => esc(s).replace(/[0-9]/g, (d, i) => `<span class="dg" style="--i:${i % 12}">${d}</span>`);
+/* a figure's number and its unit: "17,400 tonnes" draws 17,400 large and "tonnes" small beside it */
+const FIGURE = /^((?:[~≈<>±]\s?)?(?:[$£€¥]\s?)?[−-]?\d(?:[\d,.]*\d)?(?:\s?(?:%|‰|°[CF]?|×))?\+?)\s+(\S.*)$/;
+const numHTML = s => { const m = FIGURE.exec(String(s).trim()); return m ? `${digitsHTML(m[1])}<small>${esc(m[2])}</small>` : digitsHTML(s); };
+/* a guess's answer leads with its number when it has one ("About 29, …" → about 29), whose digits
+   roll in like an odometer when the reader asks; the reel lives in CSS, so the text stays the number */
+const ANSWER = /^(?:(about|around|roughly|nearly|almost|over|under|more than|less than|fewer than|only|just|some|exactly)\s+)?([−-]?\d(?:[\d,.]*\d)?(?:\s?(?:%|‰|×))?)(?:\s(million|billion|trillion|thousand|hundred|percent|per cent))?(?=$|[\s,.;:)])/i;
+const reelHTML = s => { let i = 0; return esc(s).replace(/[0-9]/g, d => `<span class="odo" style="--d:${d};--i:${i++}">${d}</span>`); };
 const row = (k, html, extra = {}) => ({ k, cls: 'pn-r', html, ...extra });
 const PANEL_UI = {
-  timeline: { label: 'Timeline', tag: 'ol', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<b class="pn-k">${esc(r[0])}</b><span>${inline(r[1] || '', n)}</span>`, { tag: 'li' })) },
+  /* once the panel is whole, a skip far longer than its usual step (and a century at least) dashes the rail
+     there, so even spacing never pretends the years ran evenly; it changes paint only, never the layout */
+  timeline: { label: 'Timeline', tag: 'ol', rows: (p, n) => {
+    const ys = p.rows.map(r => yearOf(r[0])); const gap = i => (p.done && ys[i] != null && ys[i + 1] != null ? Math.abs(ys[i + 1] - ys[i]) : null);
+    const gs = p.rows.map((_, i) => gap(i)).filter(g => g != null).sort((a, b) => a - b); const usual = gs.length ? gs[(gs.length - 1) >> 1] : 0;
+    return p.rows.map((r, i) => { const g = gap(i); return row('r' + i, `<b class="pn-k">${esc(r[0])}</b><span>${inline(r[1] || '', n)}</span>`, { tag: 'li', cls: g != null && g >= 100 && g >= 4 * Math.max(usual, 1) ? 'pn-r pn-gap' : 'pn-r' }); });
+  } },
   facts: { label: 'At a glance', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt>${inline(r[0], n)}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
   steps: { label: 'How it works', tag: 'ol', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<b>${inline(r[0], n)}</b>${r[1] ? `<span>${inline(r.slice(1).join(' · '), n)}</span>` : ''}`, { tag: 'li' })) },
   compare: { label: 'Side by side', tag: 'div', role: 'table', rows: (p, n) => {
@@ -213,8 +226,8 @@ const PANEL_UI = {
     const heads = Array.from({ length: cols }, (_, i) => cell(inline(p.heads[i] || '', n), 'columnheader'));
     return [row('hd', cell('', 'columnheader') + heads.join(''), { cls: 'pn-r pn-hd', role: 'row' }), ...p.rows.map((r, i) => row('r' + i, cell(inline(r[0], n), 'rowheader') + Array.from({ length: cols }, (_, c) => cell(inline(r[c + 1] || '', n), 'cell')).join(''), { role: 'row' }))];
   } },
-  theories: { label: 'The explanations', tag: 'ul', rows: (p, n) => p.rows.map((r, i) => { const v = verdictOf(r[2]); return row('r' + i, `<b>${inline(r[0], n)}</b><span>${inline(r[1] || '', n)}</span>${v ? `<em class="pn-v" data-v="${v}">${VERDICT[v]}</em>` : ''}`, { tag: 'li' }); }) },
-  figures: { label: 'By the numbers', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt class="pn-num">${digitsHTML(r[0])}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
+  theories: { label: 'The explanations', tag: 'ul', rows: (p, n) => p.rows.map((r, i) => { const v = verdictOf(r[2]); return row('r' + i, `<p class="pn-th"><b>${inline(r[0], n)}</b>${v ? `<em class="pn-v" data-v="${v}">${VERDICT[v]}</em>` : ''}</p><span>${inline(r[1] || '', n)}</span>`, { tag: 'li', cls: v === 'rejected' ? 'pn-r is-out' : 'pn-r' }); }) },
+  figures: { label: 'By the numbers', tag: 'dl', rows: (p, n) => p.rows.map((r, i) => row('r' + i, `<dt class="pn-num">${numHTML(r[0])}</dt><dd>${inline(r.slice(1).join(' · '), n)}</dd>`)) },
   myth: { label: 'Myth and fact', tag: 'div', rows: (p, n) => p.rows.map((r, i) => { const fact = /^(actually|fact|truth|in fact|reality)/i.test(r[0]) || (i > 0 && !/^myth/i.test(r[0])); return row('r' + i, `<b>${esc(r[0])}</b><span>${inline(r.slice(1).join(' · '), n)}</span>`, { cls: `pn-r ${fact ? 'is-fact' : 'is-myth'}` }); }) },
   formula: { label: 'The equation', tag: 'div', rows: (p, n) => p.rows.map((r, i) => /^(equation|formula|law)$/i.test(r[0]) ? row('r' + i, `<code class="pn-eq">${esc(r.slice(1).join(' :: '))}</code>`, { cls: 'pn-r pn-eqr' }) : row('r' + i, `<b class="pn-sym">${esc(r[0])}</b><span>${inline(r.slice(1).join(' · '), n)}</span>`)) },
   guess: { label: 'Guess first', tag: 'div', rows: (p, n, j) => {
@@ -222,7 +235,12 @@ const PANEL_UI = {
     const open = !!(n.reveals && n.reveals[j]); const out = [];
     if (q) out.push(row('q', `<p class="pn-q">${inline(q.slice(1).join(' ') || q[0], n)}</p>`));
     if (a && !open) out.push(row('btn', `<button class="pn-reveal" type="button" data-guess="${j}" aria-expanded="false">Reveal the answer</button>`));
-    if (a && open) out.push(row('a', `<p class="pn-a">${digitsHTML(a.slice(1).join(' '))}</p>`));
+    if (a && open) {
+      const said = a.slice(1).join(' ').trim(); const m = ANSWER.exec(said);
+      const big = m ? `${m[1] ? `<small>${esc(m[1].toLowerCase())}</small>` : ''}${reelHTML(m[2])}${m[3] ? `<small class="after">${esc(m[3].toLowerCase())}</small>` : ''}` : '';
+      const rest = m ? said.slice(m[0].length) : said;
+      out.push(row('a', `<div class="pn-a">${big ? `<p class="pn-big">${big}</p>` : ''}${/[\p{L}\p{N}]/u.test(rest) ? `<p class="pn-said">${inline(said, n)}</p>` : ''}</div>`));
+    }
     if (why && open) out.push(row('why', `<p class="pn-why">${inline(why.slice(1).join(' '), n)}</p>`));
     return out;
   } },
