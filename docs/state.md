@@ -25,8 +25,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - The 32 topics are written only on his go, after he has seen PR B.
 
 ## Next
-1. Runtime Cache across deployments: pages written on PR A's preview were misses on PR B's
-   (Vercel's docs say entries persist across deployments; previews may split by branch). Being
-   checked on a second deployment of the same branch; production can't be tested until credits.
+1. Runtime Cache across deployments: a page written on one deployment of PR B's branch was a hit
+   on the next; pages from PR A's branch were misses. Previews split by branch; production (one
+   branch) keeps its pages across deploys. Confirm on production once credits land.
 2. PR C, the homepage: the hero with more room and a living feed of pre-written topics.
 3. Then the content step on Will's go.
