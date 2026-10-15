@@ -84,7 +84,7 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
     let ns = g.nodes;
     if (center) { const i = g.nodes.findIndex(n => n.key === center); if (i >= 0 && mini) ns = [g.nodes[i], ...adj[i].map(j => g.nodes[j])]; }
     if (!ns.length) return;
-    const v = fitView(ns, cw, ch, { pad: mini ? 26 : 70, max: mini ? 1.6 : 1.8, min: .12 });
+    const v = fitView(ns, cw, ch, { pad: mini ? 26 : cw < 520 ? 22 : 70, max: mini ? 1.6 : 1.8, min: .12 });
     flyTo(v, instant);
   }
   function flyTo(v, instant) {
@@ -178,15 +178,16 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
       if (i === sel) { ctx.globalAlpha = .85; ctx.strokeStyle = hex; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 6.5, 0, Math.PI * 2); ctx.stroke(); }
     }
     /* names: the busiest and nearest first, never on top of one another, fading in as you zoom */
-    ctx.font = `600 ${mini ? 11 : 12}px Inter, system-ui, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.lineJoin = 'round';
+    ctx.font = `600 ${mini || cw < 520 ? 11 : 12}px Inter, system-ui, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.lineJoin = 'round';
     const placed = []; const order = [];
     for (const i of [hi, sel, ...N.map((n, i) => (n.cur ? i : -1)), ...(nb ? [...nb] : []), ...(replay ? [replay.at] : [])]) if (i >= 0 && !order.includes(i)) order.push(i);
     for (const i of labelOrder) if (!order.includes(i)) order.push(i);
-    const readFade = mini ? 1 : clamp01((k - .45) / .35), loneFade = clamp01((k - (mini ? 1.6 : 1.25)) / .4);
+    /* a small screen names fewer topics until you zoom in */
+    const small = cw < 520; const readFade = mini ? 1 : clamp01((k - (small ? .75 : .45)) / .35), loneFade = clamp01((k - (mini ? 1.6 : small ? 1.6 : 1.25)) / .4);
     let drawn = 0;
     for (const i of order) {
       const n = N[i]; if (!isShown(i)) continue; const special = i === hi || i === sel || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
-      let fa = special ? 1 : n.read ? (mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= 6 ? .9 : 0)) : loneFade * .8;
+      let fa = special ? 1 : n.read ? (mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
       fa *= (special ? 1 : dimOf(i)) * bornA(i); if (fa < .05) continue;
       const cx = n.x * k + ox, cy = n.y * k + oy, r = radius(n) * bornS(i); if (cx < -80 || cy < -20 || cx > cw + 80 || cy > ch + 20) continue;
       const text = clip(n.title || n.key, mini ? 22 : 30); let w = widths.get(text); if (w == null) { w = ctx.measureText(text).width; widths.set(text, w); }
