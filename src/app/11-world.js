@@ -20,9 +20,12 @@ const clamp01 = v => Math.max(0, Math.min(1, v));
 
 /**
  * A graph view on a host element. mini: the small map beside a page (no wheel zoom, no tools).
- * @param {HTMLElement} host @param {{ mini?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]> }} [o]
+ * still: a map inside a scrolling page (the front page): it never pans, zooms or drags, so a finger
+ * scrolls the page over it; a topic is opened by a click, or on a phone by a tap on its card.
+ * describe and open replace the card's status line and what opening a topic does.
+ * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void }} [o]
  */
-function makeGraph(host, { mini = false, positions = null } = {}) {
+function makeGraph(host, { mini = false, still = false, positions = null, describe = null, open = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
@@ -67,7 +70,7 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
     g = next; adj = g.nodes.map(() => []); for (const e of g.edges) { adj[e.a].push(e.b); adj[e.b].push(e.a); }
     hover = -1; sel = -1; if (focusKey) setFocus(focusKey, false);
     /* a first layout settles off screen, so the world opens already shaped */
-    if (fresh > g.nodes.length / 2) tick(sim, 100);
+    if (fresh > g.nodes.length / 2) { tick(sim, still ? 320 : 100); if (still && !mini) { spreadIslands(); sim.alpha = 0; } }
     if (reducedMotion()) { let n = 0; while (isHot(sim) && n++ < 600) tick(sim); }
     const now = performance.now(); born.clear(); pulses.length = 0;
     if (!reducedMotion()) grow.forEach((k, j) => {
@@ -79,12 +82,23 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
     if (fit && !userMoved) frameView(center, !old.size || reducedMotion() || cw <= 1);
     wake();
   }
+  /* a still map of separate islands (pages that don't link to each other) settles into a round
+     clump; spread the islands sideways, each kept whole, until they fill the frame's shape */
+  function spreadIslands() {
+    const comp = g.nodes.map(() => -1); let c = 0;
+    for (let i = 0; i < g.nodes.length; i++) { if (comp[i] >= 0) continue; const st = [i]; comp[i] = c; while (st.length) { const j = st.pop(); for (const k of adj[j]) if (comp[k] < 0) { comp[k] = c; st.push(k); } } c++; }
+    if (c < 3 || !cw || !ch) return;
+    const cx = new Array(c).fill(0), cnt = new Array(c).fill(0); g.nodes.forEach((n, i) => { cx[comp[i]] += n.x; cnt[comp[i]]++; });
+    const b = boundsOf(g.nodes); const have = (b.x1 - b.x0) / Math.max(1, b.y1 - b.y0);
+    const sx = Math.min(2.4, Math.max(1, (cw / ch) / Math.max(.2, have)));
+    g.nodes.forEach((n, i) => { n.x += (cx[comp[i]] / cnt[comp[i]]) * (sx - 1); });
+  }
   /* the view: around a topic (the small map) or everything */
   function frameView(center = '', instant = false) {
     let ns = g.nodes;
     if (center) { const i = g.nodes.findIndex(n => n.key === center); if (i >= 0 && mini) ns = [g.nodes[i], ...adj[i].map(j => g.nodes[j])]; }
     if (!ns.length) return;
-    const v = fitView(ns, cw, ch, { pad: mini ? 26 : cw < 520 ? 22 : 70, max: mini ? 1.6 : 1.8, min: .12 });
+    const v = fitView(ns, cw, ch, { pad: mini ? 26 : cw < 520 ? 22 : still ? 44 : 70, max: mini ? 1.6 : still ? 3 : 1.8, min: .12 });
     flyTo(v, instant);
   }
   function flyTo(v, instant) {
@@ -187,7 +201,7 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
     let drawn = 0;
     for (const i of order) {
       const n = N[i]; if (!isShown(i)) continue; const special = i === hi || i === sel || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
-      let fa = special ? 1 : n.read ? (mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
+      let fa = special ? 1 : n.read ? (still ? .9 : mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
       fa *= (special ? 1 : dimOf(i)) * bornA(i); if (fa < .05) continue;
       const cx = n.x * k + ox, cy = n.y * k + oy, r = radius(n) * bornS(i); if (cx < -80 || cy < -20 || cx > cw + 80 || cy > ch + 20) continue;
       const text = clip(n.title || n.key, mini ? 22 : 30); let w = widths.get(text); if (w == null) { w = ctx.measureText(text).width; widths.set(text, w); }
@@ -214,9 +228,9 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
   const pointers = new Map(); let pinch = null;
   cv.addEventListener('pointerdown', e => {
     cv.setPointerCapture(e.pointerId); const [sx, sy] = local(e); pointers.set(e.pointerId, [sx, sy]);
-    if (pointers.size === 2 && !mini) { const [[x1, y1], [x2, y2]] = [...pointers.values()]; pinch = { d: Math.hypot(x2 - x1, y2 - y1), k: cam.k, c: toWorld((x1 + x2) / 2, (y1 + y2) / 2) }; drag = null; return; }
+    if (pointers.size === 2 && !mini && !still) { const [[x1, y1], [x2, y2]] = [...pointers.values()]; pinch = { d: Math.hypot(x2 - x1, y2 - y1), k: cam.k, c: toWorld((x1 + x2) / 2, (y1 + y2) / 2) }; drag = null; return; }
     const i = hit(sx, sy); camTo = null;
-    drag = i >= 0 ? { node: i, sx, sy, moved: false, shift: e.shiftKey || e.altKey } : { pan: true, sx, sy, cx: cam.x, cy: cam.y, moved: false };
+    drag = i >= 0 ? { node: i, sx, sy, moved: false, shift: e.shiftKey || e.altKey } : still ? { sx, sy, moved: false } : { pan: true, sx, sy, cx: cam.x, cy: cam.y, moved: false };
   });
   cv.addEventListener('pointermove', e => {
     const [sx, sy] = local(e);
@@ -228,22 +242,22 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
     }
     if (drag) {
       if (!drag.moved && Math.hypot(sx - drag.sx, sy - drag.sy) > 4) { drag.moved = true; hideTip(); }
-      if (!drag.moved) return;
+      if (!drag.moved || still) return;
       if (drag.pan) { cam.x = drag.cx - (sx - drag.sx) / cam.k; cam.y = drag.cy - (sy - drag.sy) / cam.k; userMoved = true; wake(); }
       else { const n = g.nodes[drag.node]; const [wx, wy] = toWorld(sx, sy); n.fx = wx; n.fy = wy; sim.alphaTarget = .25; if (sim.alpha < .25) sim.alpha = .25; wake(); }
       return;
     }
-    if (e.pointerType === 'mouse') { const i = hit(sx, sy); if (i !== hover) { hover = i; cv.style.cursor = i >= 0 ? 'pointer' : 'grab'; showTip(i, false); wake(); } }
+    if (e.pointerType === 'mouse') { const i = hit(sx, sy); if (i !== hover) { hover = i; cv.style.cursor = i >= 0 ? 'pointer' : still ? 'default' : 'grab'; showTip(i, false); wake(); } }
   });
   const end = e => {
     pointers.delete(e.pointerId); if (pinch) { if (pointers.size < 2) pinch = null; return; }
     const d = drag; drag = null; if (!d) return;
-    if (d.node != null) { const n = g.nodes[d.node]; n.fx = n.fy = null; sim.alphaTarget = 0; }
+    if (d.node != null && !still) { const n = g.nodes[d.node]; n.fx = n.fy = null; sim.alphaTarget = 0; }
     if (d.moved) { wake(); return; }
     /* a tap or click on a topic */
     if (d.node != null) {
       const touch = e.pointerType !== 'mouse';
-      if (d.shift && !mini) { setFocus(g.nodes[d.node].key); return; }
+      if (d.shift && !mini && !still) { setFocus(g.nodes[d.node].key); return; }
       if (touch && !mini && sel !== d.node) { sel = d.node; showTip(d.node, true); wake(); return; }
       openNode(g.nodes[d.node]); return;
     }
@@ -251,7 +265,7 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
   };
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
   cv.addEventListener('pointerleave', () => { if (hover >= 0 && !drag) { hover = -1; hideTip(); wake(); } });
-  if (!mini) {
+  if (!mini && !still) {
     cv.addEventListener('wheel', e => {
       e.preventDefault(); camTo = null; const [sx, sy] = local(e); const [wx, wy] = toWorld(sx, sy);
       cam.k = Math.max(.12, Math.min(4, cam.k * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0018))));
@@ -263,10 +277,10 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
   function showTip(i, actions) {
     if (i < 0) { hideTip(); return; }
     const n = g.nodes[i]; const [x, y] = toScreen(n); const near = adj[i].map(j => g.nodes[j]).filter(m => m.read).map(m => m.title);
-    const lead = n.read ? (pageOf(n.pid)?.deck ? plain(pageOf(n.pid).deck) : '') : n.hook;
-    const status = n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;
+    const lead = n.read && pageOf(n.pid)?.deck ? plain(pageOf(n.pid).deck) : n.hook || '';
+    const status = describe ? describe(n) : n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;
     const links = near.length ? `${n.read ? 'Links to' : 'Linked from'} ${near.slice(0, 2).map(t => `<b>${esc(clip(t, 26))}</b>`).join(' and ')}${near.length > 2 ? ` and ${near.length - 2} more` : ''}` : '';
-    tip.innerHTML = `<p class="gt-k"><span class="kind"${kattr(n.kind)}>${esc(n.kind || 'topic')}</span><span>${esc(status)}</span></p><p class="gt-t">${esc(n.title)}</p>${lead ? `<p class="gt-h">${esc(clip(lead, 140))}</p>` : ''}${links ? `<p class="gt-l">${links}</p>` : ''}${actions ? `<div class="gt-a"><button class="btn glow" type="button" data-gv="open">${n.read ? 'Go there' : 'Open page'}</button>${mini ? '' : '<button class="btn ghost" type="button" data-gv="focus">Focus</button>'}</div>` : ''}`;
+    tip.innerHTML = `<p class="gt-k"><span class="kind"${kattr(n.kind)}>${esc(n.kind || 'topic')}</span><span>${esc(status)}</span></p><p class="gt-t">${esc(n.title)}</p>${lead ? `<p class="gt-h">${esc(clip(lead, 140))}</p>` : ''}${links ? `<p class="gt-l">${links}</p>` : ''}${actions ? `<div class="gt-a"><button class="btn glow" type="button" data-gv="open">${n.read && !open ? 'Go there' : 'Open page'}</button>${mini || still ? '' : '<button class="btn ghost" type="button" data-gv="focus">Focus</button>'}</div>` : ''}`;
     tip.hidden = false; tip.classList.toggle('act', !!actions);
     const tw = tip.offsetWidth, th = tip.offsetHeight; const r = radius(n);
     let left = x - tw / 2, top = y + r + 12; if (top + th > ch - 8) top = y - r - 12 - th;
@@ -275,7 +289,7 @@ function makeGraph(host, { mini = false, positions = null } = {}) {
   function hideTip() { tip.hidden = true; }
   tip.addEventListener('click', e => { const b = e.target.closest('[data-gv]'); if (!b || sel < 0) return; const n = g.nodes[sel]; if (b.dataset.gv === 'open') openNode(n); else { setFocus(n.key); hideTip(); } });
   function openNode(n) {
-    hideTip();
+    hideTip(); if (open) { open(n); return; }
     if (n.read && n.pid) { const p = pageOf(n.pid); if (p) { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via: 'world' }); p.last = Date.now(); save(); } go(routeOf(p.req)); return; } }
     openTopic(n.title, { via: 'world', hint: n.kind || n.hook ? { gloss: n.hook, kind: n.kind } : null });
   }

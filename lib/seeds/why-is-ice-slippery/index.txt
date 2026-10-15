@@ -1,4 +1,4 @@
-# Ice friction
+# Ice friction :: mystery
 > Even well below freezing, the surface of ice is not quite solid, and the pressure-melting story in many textbooks explains surprisingly little.
 ~ You asked why ice is slippery, and the answer runs through an ice cave in the Swiss Alps, a Ming dynasty road made of ice, and an Antarctic winter when snow dragged like sand.
 +++

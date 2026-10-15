@@ -71,6 +71,23 @@ async function run(page, { mobile = false } = {}) {
     const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
   });
+  /* below the composer, today's pages: the first row peeks above the fold, each card says its page one
+     way, shuffle deals them again, and every card opens a page written ahead of time, free */
+  await step(`${tag}: today's pages below the composer`, async () => {
+    await page.waitForSelector('#feedA .fc'); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(700);
+    const f = await page.evaluate(() => { const cards = [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('#feed .fc'))]; const lead = cards[0]; return { n: cards.length, order: cards.map(c => c.dataset.feed), lead: lead.classList.contains('fc-lead'), today: lead.querySelector('.fc-eye')?.textContent || '', peek: Math.round(lead.getBoundingClientRect().top), vh: innerHeight, formats: [...new Set(cards.map(c => [...c.classList].find(k => k.startsWith('fc-'))))].sort(), map: !!document.querySelector('#feedWorld:not(.mine) #feedStage canvas') }; });
+    if (f.n !== 12 || !f.lead || f.today !== 'Today’s topic' || f.peek >= f.vh || !f.map || ['fc-lead', 'fc-myth', 'fc-num', 'fc-pic', 'fc-q'].some(k => !f.formats.includes(k))) throw new Error(`feed: ${JSON.stringify(f)}`);
+    await page.screenshot({ path: `${shots}/${tag}-1b-front.png` });
+    await page.locator('[data-act="feed-shuffle"]').click(); await page.waitForTimeout(900);
+    const after = await page.$$eval('#feed .fc', cs => cs.map(c => /** @type {HTMLElement} */ (c).dataset.feed));
+    if (after.join() === f.order.join() || await page.locator('#feedA .fc-eye').count()) throw new Error(`feed shuffle: ${JSON.stringify(after)}`);
+    const card = page.locator('#feed .fc-q').first(); const t = await card.getAttribute('data-feed');
+    await card.click(); await waitDone();
+    const p = await page.evaluate(() => ({ url: location.pathname, fine: document.querySelector('.fineprint')?.textContent || '' }));
+    if (!/written ahead of time/.test(p.fine)) throw new Error(`a feed card: ${JSON.stringify({ t, ...p })}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`a feed card spent a free page: ${await left()}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
   await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
@@ -278,6 +295,13 @@ async function run(page, { mobile = false } = {}) {
       await page.waitForSelector('.gv-tip.act [data-gv="open"]', { timeout: 5000 });
       await page.locator('.gv-tip.act [data-gv="open"]').click();
       await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, saved, { timeout: 10000 });
+    });
+    /* back on the front page, a reader finds their own world between today's pages */
+    await step(`${tag}: the front page shows your world`, async () => {
+      await page.goto(base); await page.waitForSelector('#feedWorld.mine #feedStage canvas');
+      const w = await page.evaluate(() => ({ stats: document.querySelector('#feedWorld .fw-stats')?.textContent || '', recent: document.querySelectorAll('#feedWorld .fw-lists li').length }));
+      if (!/topics? read/.test(w.stats) || !w.recent) throw new Error(`the front page's world: ${JSON.stringify(w)}`);
+      await page.locator('#feedWorld').scrollIntoViewIfNeeded(); await page.waitForTimeout(900); await page.screenshot({ path: `${shots}/${tag}-7b-front-world.png` });
     });
   }
   /* a link from outside: free if it is already written, otherwise written only when asked */

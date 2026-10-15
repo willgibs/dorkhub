@@ -12,8 +12,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   JS between the shared and app modules (`export` stripped) and its CSS after
   `src/styles.css`, and `/licenses.txt` lists it.
   The orbs port is tested against the library's own golden vectors (`tests/orbs.test.js`).
-  The page's growth since 2026-10-15 is budgeted: at most 60 KB raw of CSS and JS for the
-  new hero and reading page together, with no new network requests.
+  The page has a size budget (`tests/page.test.js`, 372 KB raw). The stylesheet ships
+  without its comments; anything only one view needs, like the front page's cards, is a
+  separate file fetched by that view.
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).
@@ -56,7 +57,18 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   unread invitations per page plus any topic two pages lead to, capped at 500 read and 300
   unread. A small force simulation (springs, Barnes-Hut repulsion, centring) runs only while
   something moves; positions persist. The sidebar shows `localGraph`, the neighbourhood of
-  the page on screen.
+  the page on screen. A `still` view (the front page) never pans, zooms or drags, so a finger
+  scrolls the page over it; a tap shows a topic's card and a second opens it.
+- **The front page** (`src/app/13-landing.js`): the composer, then today's pages. The cards come
+  from `/feed.json` (`src/static/feed.json`, written by `node scripts/seeds.mjs feed` from the
+  pages written ahead of time through `lib/feed.js`, with each page's own lead picture), fetched
+  by the front page only. Today's topic leads, by the reader's local day (the same one the
+  presets start with); a seeded shuffle orders the rest the same way for everyone that day, and
+  shuffle deals again. Each card says its page one way, from what the page itself says: the
+  lead with its picture, a big number (a `figures` panel), a myth put right (a `myth` panel), an
+  open question, or a picture and hook. Between the cards sits a still map: these pages and the
+  topics they lead to for someone new (separate islands, spread to fill the frame), or the
+  reader's own neighbourhood of Your world with what they read lately and saved.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
   live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
 
@@ -166,12 +178,13 @@ which pages were cached.
 | Fonts, CSP, cache and crawler headers, topic addresses and their rewrites, the page's size budget | `tests/page.test.js` |
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
-| Pre-written pages: served by topic, both index shapes, the real seeds complete | `tests/seeds.test.js` |
+| Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind | `tests/seeds.test.js` |
+| The front page's feed: a card for every page written ahead of time, saying only what its page says | `tests/feed.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
 | Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
-| A Chromium walkthrough on desktop and phone: addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
+| A Chromium walkthrough on desktop and phone: the front page's feed (it peeks above the fold, shuffles, opens free) and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
 
 ## Operations
 

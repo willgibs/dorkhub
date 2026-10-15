@@ -1,4 +1,4 @@
-# Tulip mania
+# Tulip mania :: event
 > In early 1637 a single striped tulip bulb, still buried in a Dutch garden, could cost more than a craftsman earned in ten years.
 ~ You chose a story about money, and it leads to a virus spread by aphids, an envoy's letters from Suleiman's court and a painting of monkeys trading bulbs.
 +++

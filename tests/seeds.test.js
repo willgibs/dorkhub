@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { test } from 'node:test';
 import { pageInput } from '../lib/prompts.js';
 import { seedText } from '../lib/seeds.js';
-import { cardsOf, parseArticle } from '../src/shared/article.js';
+import { KINDS, cardsOf, parseArticle } from '../src/shared/article.js';
 import { asksQuestion, topicKey } from '../src/shared/world.js';
 import { KEY, memoryStore, pageBody } from './helpers.js';
 
@@ -65,6 +65,7 @@ test('every pre-written page is complete and reachable by its title', async () =
     assert.ok(existsSync(new URL(p.file, dir)), `${p.title}: file`);
     const A = parseArticle(readFileSync(new URL(p.file, dir), 'utf8'), false);
     assert.ok(A.title && A.deck && A.blocks.filter(b => b.t === 'p').length >= 3 && cardsOf(A).length >= 5 && A.questions.length === 3, `${p.title}: a complete page`);
+    assert.ok(KINDS.includes(A.kind), `${p.title}: names its kind on the title line, so it opens in its colour from anywhere`);
     assert.match(await seedText(pageInput({ title: p.title }), dir) || '', /\S/, `${p.title}: served when typed`);
   }
 });

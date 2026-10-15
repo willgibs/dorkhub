@@ -1,4 +1,4 @@
-# The Antikythera mechanism
+# The Antikythera mechanism :: thing
 > Lost in a shipwreck over 2,000 years ago, a shoebox-sized machine of bronze gears could forecast eclipses at the turn of a handle.
 ~ You start with a lump of corroded bronze, and it leads to sponge divers in copper helmets, Babylonian sky diaries on clay and the four-year cycle of the Olympic Games.
 +++
