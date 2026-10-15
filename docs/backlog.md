@@ -81,11 +81,20 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
   2026-10-14:
   - pre-written pages: a full source check of every number, date, name and attribution
     (done for the 12 doors, and the rule for every new one);
-  - live pages, our recommendation: test grounding. Give the writer the topic's Wikipedia
-    intro as reference notes (`lib/picture.js` already looks the article up for its
-    picture) and tell it to take numbers, dates and names from them. Fact-check stand-in
-    pages written with and without the notes before proposing a prompt change; it costs
-    some input tokens and a little latency before the first word;
+  - live pages: **grounding tested 2026-10-14.** 8 non-door topics; 16 Haiku stand-in pages,
+    plain and with the topic's Wikipedia intro as reference notes; a blind Opus fact-check of
+    1,087 claims. Wrong or disputed claims fell from 5.8% to 3.9% (32 to 21; 4.0 to 2.6 per
+    page), with pages no blander. It is not significant on eight topics (p ≈ 0.14): better on 5,
+    tied on 1, worse on 2. On the Ghent Altarpiece, four errors came straight from Wikipedia's
+    own outdated intro.
+    - Cost: about 500 extra input tokens (about $0.00005 a page), and a 113 ms median fetch
+      from a Mac (cache it, and time-box it).
+    - Hover hooks are the most error-prone part of a page (9% of their claims), and the notes
+      don't cover them.
+    - Our recommendation, waiting on Will: adopt grounding server-side (facts from the notes,
+      not their wording; credit and link the article, since it's CC BY-SA). Then tighten the
+      hooks, and add "say when a finding is recent or argued". Reuse the blind-pair harness for
+      the model eval, on 20+ topics;
   - factual accuracy is a hard gate in the model eval (`docs/eval-plan.md`), scored by
     fact-checking a sample of real pages per model;
   - if the number-heavy panels (figures, guess, timeline) invite errors, tighten or cut

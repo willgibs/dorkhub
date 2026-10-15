@@ -18,19 +18,19 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     six, add six (art, music, language, maths, the mind, the body). Retired pages join the
     dice, except the Great Emu War, whose lead picture is a dead emu. Numbered so he can
     reply by number. No seeds until he picks.
-  - Accuracy plan (backlog §2): test Wikipedia grounding for live pages on stand-ins, with
-    and without, before any prompt change.
+  - Grounding test, done (backlog §2, Accuracy): Wikipedia's intro as notes cut wrong or
+    disputed claims from 5.8% to 3.9%, at about $0.00005 a page. Not significant on 8 topics.
+    Our recommendation: adopt it, credited, then tighten the hooks.
 - Claude in Chrome was not connected this session, so the function logs weren't read.
 
 ## Blocked on Will
-- AI Gateway credits; connecting Redis (our answer: yes, his click); the door list; the
-  grounding test (a proposed session); then old resources, repo visibility and Pro pricing
-  (backlog §0).
+- AI Gateway credits; connecting Redis (our answer: yes, his click); the door list; whether
+  to adopt grounding; then old resources, repo visibility and Pro pricing (backlog §0).
 
 ## Next
 1. Once he picks the doors: write and fully source-check each new one (`scripts/seeds.mjs`),
    then update `DOORS` and `CHAINS` in `src/app/13-landing.js` (each chain starts at a door).
-2. If he says go: the grounding test (backlog §2, Accuracy).
+2. If he says go: grounding in `lib/write.js` and `lib/prompts.js` (backlog §2, Accuracy).
 3. Once credits land: prove production (§1), swap the stand-ins for live pages, measure.
 
 Access, accounts and working with Will: `CLAUDE.md`. Seeds: `scripts/seeds.mjs`.
