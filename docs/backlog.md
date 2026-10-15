@@ -43,6 +43,24 @@ keep `docs/state.md` current._
 
 ## 2. The experience (Will's priority, before the model eval)
 
+**Now: a world of topics, not a tunnel** (Will's direction and plan, 2026-10-15; the calls are
+in `docs/decisions.md`). In order, each through a preview and Will's look:
+- **PR A, pages written for the topic** (server and format, almost invisible): format v3, the
+  page cache by topic, free repeats before the trial gate, private rewrites, `cachedOnly`.
+- **PR B, the world reader:** one topic per screen at clean, guarded links
+  (`dorkhub.com/black-holes`), six "keep exploring" cards, the Save star, Your world (the
+  graph, its stats and trails, growth moments only where the graph is visible), the phone's
+  "…" menu and a new gooey button, prefetch, and the store migration. Levels, the flow-in
+  below and reactions go.
+- **PR C, the homepage:** the hero with more room, then a living feed of pre-written topics
+  that peeks above the fold. The marketing sections go. Folds in the parked heading sizes
+  and placeholder from `experience/new-doors`.
+- **(Will) The 32 new topics** plus Bioluminescence, written and fact-checked only on his
+  explicit go after he has seen PR B (about 8 to 10M tokens).
+- Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
+  write per page in flight, graph keyboard navigation, re-recording the three mock pages that
+  still say "your path".
+
 Will wants the generative UI and the whole experience solid first. Judge everything
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
 (merged 2026-10-14). From Will's review of #3:
@@ -55,8 +73,7 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
     notes (willgibs/dorkhub#10): Inter for the interface (Literata stays for reading), a
     wordmark-only nav, plain preset chips, How it works first, and chains of familiar names.
     Shots: https://claude.ai/artifact/ESExHbGpi2R97bkWDJhVpg
-  - For the next prompt round (prompts are frozen until then): rename the recap's "Where to dig
-    next" heading, which breaks the brand rule.
+  - The recap's "Where to dig next" heading is now "Where to go next" (format v3).
 - **The new hero and the reading page are live** (willgibs/dorkhub#6 and willgibs/dorkhub#7,
   merged 2026-10-15 after Will's look). Shots: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ
   - Not done: up next dripping out of the tools button, the goo's planned stretch goal (it

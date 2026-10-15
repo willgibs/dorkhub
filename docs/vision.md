@@ -4,14 +4,17 @@ _Will's product, in his terms. Read this before changing anything a reader sees.
 
 ## What Dorkhub is
 
-An encyclopedia that writes itself around your curiosity. You start anywhere (a topic, a
-question, a half-remembered fact) and every link opens a page written on the spot for the
-exact path you took to reach it. Pages connect back to where you came from, so a rabbit
-hole reads like one story.
+An encyclopedia that writes itself around your curiosity: a world of interconnected topics
+you move through freely. You start anywhere (a topic, a question, a half-remembered fact)
+and every link opens a page on that topic, written to be the best page on it anywhere.
+Read five things or a hundred and keep going; nothing pressures what you click next.
 
-The feeling we are after is the perfect rabbit hole: **it should feel like magic, and you
-should get lost learning.** Dorkhub is generous by default (free to try, no account) and
-never watches you: only the path you are on shapes the next page.
+The feeling we are after: **it should feel like magic, and you should get lost learning.**
+Dorkhub is generous by default (free to try, no account) and never watches you. Pages are
+written for their topic, never for the reader, so the same topic in the same voice is the
+same page for everyone, and a repeat opens instantly and free (Will, 2026-10-15). The world
+reader, Your world and the new homepage are being built (`docs/backlog.md`); until they
+land, the reading page below still has levels and a path.
 
 ## What matters most, in order
 
@@ -43,8 +46,8 @@ never watches you: only the path you are on shapes the next page.
   "where did that come from?" moments; asides and late blocks settle in smoothly.
 - **A clicked topic stays the title.** Only questions and connecting pages pick their own.
 - **No tracking.** Will rejected learning from which kinds of links people click: it
-  makes readers cautious. Every page offers broadly interesting links to anyone; only the
-  current path (and ratings on that path) may shape a page.
+  makes readers cautious. Nothing about the reader shapes a page: it is written for its
+  topic, and an exact repeat is reused. A rewrite is private to the reader who asked.
 - **Labels live in tooltips.** Icon-only controls keep the UI clean and invite "what does
   that do?" exploration. Anything visible should earn its place with real value.
 - **Brand:** Dorkhub (wordmark "dorkhub"). Keep dig, dirt, tunnel and earth metaphors out.
@@ -71,11 +74,12 @@ never watches you: only the path you are on shapes the next page.
 ## Anatomy of a page (the generative UI)
 
 Written in one streamed pass, top to bottom, in the format defined in `lib/prompts.js`
-(`FORMAT`) and parsed by `src/shared/article.js`: title · deck · bridge (how this page
-connects to where you came from) · link plan (a kind for every link, so links arrive in
-colour) · body with margin notes (some are callbacks to pages on your path) and up to two
-**panels** · the natural next page · five branches (deeper, sideways, wild) · three open
-questions · a hook for every link (for hover cards).
+(`FORMAT`) and parsed by `src/shared/article.js`: title and the topic's kind (a creature,
+a mystery, an event…; it shapes the page) · deck · link plan (a kind for every link, so
+links arrive in colour) · body with margin notes and up to two **panels** · six topics to
+keep exploring, each with its hook and kind, some deeper into the subject and at least two
+leaping into another field · three open questions that stand on their own · a hook for
+every link (for hover cards).
 
 Panels (v2) are information the writer lays out and Dorkhub draws: timeline, facts, steps,
 compare, theories, figures, myth, formula, guess. The writer uses one only when it shows

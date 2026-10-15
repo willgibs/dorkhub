@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { capFirst, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
+import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
 import { FIXTURES } from './fixtures.js';
 import { mockModel, page as mockPage } from '../lib/mock.js';
 import { RECORDED } from '../lib/recorded.js';
 import { streamText } from 'ai';
 
-/** A complete page in the real format, from the mock writer. */
+/** A complete page in the format pages are written in now, from the mock writer. */
 async function samplePage(title = 'Tardigrades', extra = {}) {
-  const input = { title, depth: 0, lens: 'encyclopedic', path: [], from: null, others: [], ratings: [], ...extra };
+  const input = { title, lens: 'encyclopedic', q: false, ctx: '', bridge: null, ...extra };
   const r = streamText({ model: mockModel({ task: 'page', input, pace: 'fast' }), prompt: 'x' });
   return await r.text;
 }
@@ -16,19 +16,47 @@ async function samplePage(title = 'Tardigrades', extra = {}) {
 test('parses every part of a finished page', async () => {
   const A = parseArticle(await samplePage(), false);
   assert.equal(A.title, 'Tardigrades');
+  assert.ok(KINDS.includes(A.kind), `the title line names the page's kind, not "${A.kind}"`);
   assert.match(A.deck, /stand-in page/);
-  assert.match(A.bridge, /first page/);
+  assert.equal(A.bridge, '');
   assert.ok(A.panels.length >= 1 && A.panels.length <= 2);
   assert.ok(A.panels.every(p => p.done && p.rows.length && p.at >= 1));
   assert.equal(Object.keys(A.gloss).length >= 10, true);
   assert.equal(A.blocks.filter(b => b.t === 'h').length, 3);
   assert.ok(A.notes.length >= 2);
-  assert.equal(A.tunnels.length, 5);
-  assert.deepEqual(new Set(A.tunnels.map(t => t.dir)), new Set(['deeper', 'sideways', 'wild']));
-  assert.ok(A.tunnels.every(t => t.kind));
-  assert.ok(A.next && A.next.target);
+  assert.equal(A.next, null);
+  const cards = cardsOf(A);
+  assert.equal(cards.length, 6);
+  assert.ok(cards.every(c => c.kind && c.teaser && c.target), 'every card has a topic, a hook and a kind');
+  assert.ok(A.tunnels.every(t => t.dir === ''), 'cards carry no direction');
   assert.equal(A.questions.length, 3);
   assert.equal(A.bodyDone, true);
+});
+
+test('the title line: the kind counts once the line is whole, and "::" never shows', () => {
+  const at = (/** @type {string} */ t, streaming = true) => { const A = parseArticle(t, streaming); return [A.title, A.kind]; };
+  assert.deepEqual(at('# Tardigrades :'), ['Tardigrades', '']);
+  assert.deepEqual(at('# Tardigrades ::'), ['Tardigrades', '']);
+  assert.deepEqual(at('# Tardigrades :: crea'), ['Tardigrades', ''], 'a kind still being written waits');
+  assert.deepEqual(at('# Tardigrades :: creature\n'), ['Tardigrades', 'creature']);
+  assert.deepEqual(at('# Tardigrades :: creatures', false), ['Tardigrades', 'creature']);
+  assert.deepEqual(at('# Tardigrades:: creature\n'), ['Tardigrades', 'creature']);
+  assert.deepEqual(at('# Tardigrades :: animal\n'), ['Tardigrades', ''], 'an unknown kind is dropped, never shown');
+  assert.deepEqual(at('# std::vector\n'), ['std::vector', ''], '"::" without spaces is part of the title');
+  assert.deepEqual(at('# Lewis gun\n> Deck.', false), ['Lewis gun', ''], 'older pages have no kind');
+});
+
+/* A page arrives in two shapes: v3 (kind on the title line, six cards) and, from older browsers'
+   history and the fixtures below, v2 (a bridge, one next page, three branches with directions). */
+test('older pages still give six cards at most, their next page first', () => {
+  const A = parseArticle(FIXTURES[0].text, false);
+  assert.match(A.bridge, /the page before/);
+  assert.deepEqual(cardsOf(A).map(c => c.target), ['Bren gun', 'Campion', 'Gizzard stone']);
+  assert.equal(cardsOf(A)[0].teaser, 'The gun that replaced it, and why the army wanted a lighter one.');
+  assert.equal(cardsOf(A)[2].kind, 'mechanism');
+  const many = parseArticle(`# T\n---\nP.\n===\n${Array.from({ length: 9 }, (_, i) => `- [[Topic ${i}]] :: hook ${i} :: thing`).join('\n')}\n- [[T]] :: the page itself :: thing\n`, false);
+  assert.equal(cardsOf(many).length, 6);
+  assert.ok(!cardsOf(parseArticle('# T\n---\nP.\n===\n- [[T]] :: itself :: thing\n', false)).length, 'a page never offers itself');
 });
 
 test('streaming text never shows a half-written link or bold run', () => {
@@ -47,6 +75,10 @@ test('the link plan accepts bulleted lines and pre-body blocks do not end the bo
 });
 
 test('a clicked topic keeps its title; questions and connecting pages choose their own', () => {
+  assert.equal(titleIsLocked({ title: 'Lewis gun' }), true);
+  assert.equal(titleIsLocked({ title: 'Why is ice slippery?', q: true }), false);
+  assert.equal(titleIsLocked({ title: 'A and B', bridge: ['A', 'B'] }), false);
+  /* older requests carried a depth and a "from" */
   assert.equal(titleIsLocked({ title: 'Lewis gun', depth: 1, from: { kind: 'passage' } }), true);
   assert.equal(titleIsLocked({ title: 'Lewis gun', depth: 1, from: { text: 'clicked' } }), true);
   assert.equal(titleIsLocked({ title: 'Why is ice slippery?', depth: 0, from: null }), false);
@@ -71,17 +103,20 @@ test('recorded pages from real writers parse completely', () => {
   assert.ok(RECORDED.length >= 4);
   for (const r of RECORDED) {
     const A = parseArticle(r.text, false);
-    assert.ok(A.title && A.deck && A.bridge, r.title);
+    assert.ok(A.title && A.deck && KINDS.includes(A.kind), `${r.title}: a title, its kind and a deck`);
+    assert.ok(!A.bridge && !A.next && !/^(~|>>>)/m.test(r.text), `${r.title}: no bridge and no single next page`);
     assert.doesNotMatch(A.deck, /^\W*deck\b/i, r.title);
     assert.ok(A.blocks.filter(b => b.t === 'p').length >= 3, r.title);
-    assert.equal(A.tunnels.length, 5, r.title);
-    assert.ok(A.next && A.questions.length === 3, r.title);
+    const cards = cardsOf(A);
+    assert.equal(cards.length, 6, r.title);
+    assert.ok(cards.every(c => c.kind && c.teaser), `${r.title}: every card has a hook and a kind`);
+    assert.equal(A.questions.length, 3, r.title);
     assert.ok(A.notes.length >= 1, r.title);
     for (const b of A.blocks) assert.doesNotMatch(b.s, /::|^\[\[[^\]]+\]\]\s*$/, `${r.title}: a line from the plan or timeline reached the body`);
     const p1 = A.blocks.findIndex(b => b.t === 'p') + 1;
     assert.ok(A.panels.length <= 2 && A.panels.every(p => p.done && p.rows.length && (p.v1 ? p.at === p1 : p.at >= p1)), `${r.title}: panels sit below the first paragraph`);
     if (!/\n---\n/.test(r.text) || /^(@ drift|%%%)/m.test(r.text)) continue;
-    assert.ok(/\n&&&\n/.test(r.text) && Object.values(A.gloss).filter(g => g.gloss).length >= 8, `${r.title}: v2 pages end with hooks for the planned links`);
+    assert.ok(/\n&&&\n/.test(r.text) && Object.values(A.gloss).filter(g => g.gloss).length >= 8, `${r.title}: pages end with hooks for the planned links`);
   }
 });
 
@@ -89,7 +124,7 @@ test('recorded pages from real writers parse completely', () => {
 const cutsOf = (/** @type {string} */ t) => { const c = new Set([t.length]); for (let i = 0; i < t.length; i++) { if (t[i] === '\n') for (let d = -3; d <= 6; d++) c.add(Math.max(1, i + d)); else if (i % 13 === 0) c.add(i); } return [...c].sort((a, b) => a - b); };
 
 const linkKeys = (/** @type {any} */ A) => [...A.blocks.map((/** @type {any} */ b) => b.s), ...A.notes.map((/** @type {any} */ n) => n.s), ...A.panels.flatMap((/** @type {any} */ p) => [...p.heads, ...p.rows.flat()])].flatMap(s => [...String(s).matchAll(/\[\[([^\]]+)\]\]/g)].map(m => keyOf(splitLink(m[1])[1])));
-const MOCKS = Array.from({ length: 8 }, (_, d) => ({ title: `mock page, level ${d}`, text: mockPage({ title: `Mock ${d}`, depth: d, path: d ? [{ title: 'Parent' }] : [], from: null }) }));
+const MOCKS = Array.from({ length: 8 }, (_, i) => ({ title: `mock page ${i}`, text: mockPage({ title: `Mock ${i}`, lens: 'encyclopedic' }) }));
 const STREAMED = [...RECORDED, ...FIXTURES, ...MOCKS];
 
 test('streaming never shows something that later changes or disappears', () => {
@@ -105,6 +140,8 @@ test('streaming never shows something that later changes or disappears', () => {
       if (A.blocks.length) assert.equal(A.wait, false, `${at}: still waiting with words on the page`);
       /* a link's colour is right the moment it appears: planned topics arrive with their kind */
       for (const k of linkKeys(A)) if (final.gloss[k] && A.gloss[k]) assert.equal(A.gloss[k].kind, final.gloss[k].kind, `${at}: the kind of ${k} changed`);
+      assert.doesNotMatch(A.title, /\s::|::\s|::$/, `${at}: the kind's separator showed in the title`);
+      if (A.kind) assert.equal(A.kind, final.kind, `${at}: the page's kind showed before it was certain`);
       if (prev) {
         assert.ok(A.title.startsWith(prev.title), `${at}: the title changed`);
         assert.ok(A.deck.startsWith(prev.deck), `${at}: the deck changed`);

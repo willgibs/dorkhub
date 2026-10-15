@@ -57,7 +57,7 @@ async function saveKey(btn) {
     auth.byok = { provider, model, key }; saveAuth(); renderKeyBtn();
     sheet.close(); toast(`Saved. New pages are written by ${modelName(model)}.`);
     const cur = W && W.nodes[W.current]; /* the page that was waiting on a key gets written now */
-    if (cur && cur.status === 'error' && ['trial_over', ...KEY_FIX].includes(cur.errorCode)) generate(cur, { fresh: true });
+    if (cur && cur.status === 'error' && ['trial_over', ...KEY_FIX].includes(cur.errorCode)) generate(cur);
   } catch (e) {
     btn.disabled = false;
     msg.textContent = e.code === 'bad_key' ? `${P.name} turned that key down. Check it and try again.` : e.code === 'model_unavailable' ? `That key can’t use ${modelName(model)}. Pick another model.` : e.code === 'key_limit' ? 'That key works, but it’s out of credit or rate-limited right now.' : errText(e.code);

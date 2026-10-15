@@ -85,8 +85,10 @@ async function landSheet(nid) {
   openSheet('Around this page', `<p class="digging">${waitHTML('searching', `Mapping what surrounds ${node.title}`)}</p>`);
   const ctl = sheetCtl = new AbortController();
   try {
-    const out = await writeJSON('around', { ...ctxInput(node), read: W.order.map(x => W.nodes[x].title) }, { signal: ctl.signal });
-    const list = (Array.isArray(out) ? out : []).filter(o => o && o.name).slice(0, 10).map(o => ({ name: clip(String(o.name), 40), relation: String(o.relation || ''), kind: KINDS.includes(o.kind) ? o.kind : '', bearing: BEARINGS[o.bearing] != null ? o.bearing : 'elsewhere', distance: Math.max(1, Math.min(3, parseInt(o.distance, 10) || 2)) }));
+    /* the answer is written for the page, so it is the same for everyone; what this reader has already read is hidden here */
+    const out = await writeJSON('around', ctxInput(node), { signal: ctl.signal });
+    const read = new Set(W.order.map(x => keyOf(W.nodes[x].title)));
+    const list = (Array.isArray(out) ? out : []).filter(o => o && o.name && !read.has(keyOf(String(o.name)))).slice(0, 8).map(o => ({ name: clip(String(o.name), 40), relation: String(o.relation || ''), kind: KINDS.includes(o.kind) ? o.kind : '', bearing: BEARINGS[o.bearing] != null ? o.bearing : 'elsewhere', distance: Math.max(1, Math.min(3, parseInt(o.distance, 10) || 2)) }));
     if (!list.length) throw writeError('bad_output');
     node.land = list; save(); if (sheet.open && sheetCtl === ctl) openSheet('Around this page', landHTML(node));
   } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }

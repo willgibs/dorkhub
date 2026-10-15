@@ -3,14 +3,14 @@ import { test } from 'node:test';
 import { chooseWriter, mockAllowed } from '../lib/ai.js';
 import { redisCounters } from '../lib/counters.js';
 import { TASKS } from '../lib/prompts.js';
-import { handleWrite } from '../lib/write.js';
+import { handleWrite, textNs } from '../lib/write.js';
 import { KEY, client, fakeUpstash, memoryStore, pageBody } from './helpers.js';
 
 test('a trial page streams, sets the device cookie and reports what is left', async () => {
   const c = client({ env: { DH_TRIAL_PAGES: '2' } });
   const r = await c.call(pageBody('Tardigrades'));
   assert.equal(r.status, 200);
-  assert.match(r.text, /^# Tardigrades\n/);
+  assert.match(r.text, /^# Tardigrades :: [a-z]+\n/);
   assert.equal(r.tail, null);
   assert.equal(r.headers.get('x-dh-trial'), 'pages=1; extras=50');
   assert.equal(r.headers.get('content-type'), 'text/plain; charset=utf-8');
@@ -18,15 +18,74 @@ test('a trial page streams, sets the device cookie and reports what is left', as
   assert.equal(JSON.stringify(c.logs).includes('Tardigrades'), false, 'logs never carry what was read');
 });
 
-test('identical requests come from cache and cost nothing; fresh rewrites do not', async () => {
+const cachedTexts = (/** @type {{ m: Map<string, unknown> }} */ store) => [...store.m.keys()].filter(k => /^text/.test(k));
+
+test('an exact repeat comes from cache, free, for every reader, however their browser asks', async () => {
+  const a = client({ env: { DH_TRIAL_PAGES: '3' } });
+  const first = await a.call(pageBody('Umami'));
+  assert.equal(first.headers.get('x-dh-trial'), 'pages=2; extras=50');
+  const b = client({ store: a.store, ip: '198.51.100.4' });
+  const hit = await b.call(pageBody('umami'));
+  assert.equal(hit.headers.get('x-dh-cache'), 'hit'); assert.equal(hit.text, first.text);
+  assert.equal(hit.headers.get('x-dh-trial'), null, 'a repeat never touches the trial');
+  assert.equal(hit.headers.get('set-cookie'), null, 'or remembers the reader');
+  const old = await b.call(pageBody('Umami', { depth: 3, path: [{ title: 'Fish sauce', deck: 'd' }], from: { kind: 'passage', text: 'glutamate' }, others: ['Kombu'], ratings: [{ title: 'Fish sauce', rating: 'wow' }] }));
+  assert.equal(old.headers.get('x-dh-cache'), 'hit', 'an older browser that still sends its path gets the same page');
+  assert.equal(b.logs.at(-1).cached, true); assert.equal(JSON.stringify(b.logs).includes('mami'), false, 'logs never name the page');
+  for (const [why, body, h] of /** @type {[string, any, Record<string, string>?][]} */ ([
+    ['another voice', pageBody('Umami', { lens: 'story' })],
+    ['a question', pageBody('What is umami?')],
+    ['a name chosen inside another page', pageBody('Umami', { ctx: 'Japanese cooking' })],
+    ['another model', pageBody('Umami'), KEY],
+  ])) assert.equal((await b.call(body, h)).headers.get('x-dh-cache'), null, why);
+});
+
+test('a rewrite is private: it never reads the shared page and never replaces it', async () => {
   const c = client({ env: { DH_TRIAL_PAGES: '3' } });
   await c.call(pageBody('Umami'));
-  const hit = await c.call(pageBody('Umami'));
-  assert.equal(hit.headers.get('x-dh-cache'), 'hit');
-  assert.equal(hit.headers.get('x-dh-trial'), 'pages=2; extras=50');
+  const keys = cachedTexts(c.store); const before = c.store.m.get(keys[0]);
   const fresh = await c.call({ ...pageBody('Umami'), fresh: true });
   assert.equal(fresh.headers.get('x-dh-cache'), null);
-  assert.equal(fresh.headers.get('x-dh-trial'), 'pages=1; extras=50');
+  assert.equal(fresh.headers.get('x-dh-trial'), 'pages=1; extras=50', 'a rewrite is a new page');
+  assert.equal(c.logs.at(-1).cached, false);
+  assert.deepEqual(cachedTexts(c.store), keys); assert.equal(c.store.m.get(keys[0]), before);
+  const k = await c.call({ ...pageBody('Kombu'), fresh: true }, KEY);
+  assert.equal(k.status, 200); assert.equal(cachedTexts(c.store).length, 1, 'with a key too');
+});
+
+test('repeats stay free when the trial is over or paused', async () => {
+  const c = client({ env: { DH_TRIAL_PAGES: '1' } });
+  assert.equal((await c.call(pageBody('Umami'))).status, 200);
+  const again = await c.call(pageBody('Umami'));
+  assert.equal(again.status, 200); assert.equal(again.headers.get('x-dh-cache'), 'hit');
+  assert.equal((await c.call(pageBody('Kombu'))).status, 402);
+  const paused = client({ env: { DH_TRIAL_OFF: '1' }, store: c.store });
+  assert.equal((await paused.call(pageBody('Umami'))).headers.get('x-dh-cache'), 'hit');
+  assert.equal((await paused.call(pageBody('Kombu'))).status, 503);
+});
+
+test('a prefetch only reads: 204 or the page, never a write, a reservation or a cookie', async () => {
+  const c = client({ env: { DH_TRIAL_PAGES: '2' } });
+  const miss = await c.call({ ...pageBody('Umami'), cachedOnly: true });
+  assert.equal(miss.status, 204); assert.equal(miss.text, '');
+  assert.equal(miss.headers.get('cache-control'), 'no-store');
+  assert.equal(miss.headers.get('set-cookie'), null); assert.equal(miss.headers.get('x-dh-trial'), null);
+  assert.equal(c.store.m.size, 0, 'nothing written and no trial counter touched');
+  assert.deepEqual(c.logs.at(-1), { evt: 'write', task: 'page', cachedOnly: true, cached: false });
+  assert.equal((await c.call(pageBody('Umami'))).headers.get('x-dh-trial'), 'pages=1; extras=50', 'the prefetch cost nothing');
+  const hit = await c.call({ ...pageBody('Umami'), cachedOnly: true });
+  assert.equal(hit.status, 200); assert.equal(hit.headers.get('x-dh-cache'), 'hit'); assert.match(hit.text, /^# Umami/);
+  assert.equal((await client({ env: { DH_TRIAL_OFF: '1' }, store: c.store }).call({ ...pageBody('Kombu'), cachedOnly: true })).status, 204, 'a miss while paused is still a quiet 204');
+  assert.equal((await c.call({ task: 'peek', input: { title: 'A', passage: 'p', target: 'Krill' }, cachedOnly: true })).status, 400, 'only pages prefetch');
+});
+
+test('the cache key carries the deployment, so preview and mock pages never reach production', async () => {
+  assert.equal(textNs({ VERCEL_ENV: 'production' }), 'text');
+  assert.equal(textNs({ VERCEL_ENV: 'preview' }), 'text-preview');
+  assert.equal(textNs({}), 'text-local');
+  const c = client({ env: { VERCEL_ENV: 'preview' } });
+  await c.call(pageBody('Umami'));
+  assert.deepEqual(cachedTexts(c.store).map(k => k.split(':')[0]), ['text-preview']);
 });
 
 test('the trial ends with 402, and quick tools have their own allowance', async () => {
@@ -80,7 +139,7 @@ test('a reader who leaves mid-page stops the writer, and the fragment is never c
   await reader.read(); ac.abort();
   await reader.read().catch(() => {});
   await new Promise(r => setTimeout(r, 150));
-  assert.equal([...store.m.keys()].some(k => k.startsWith('text:')), false);
+  assert.equal([...store.m.keys()].some(k => /^text/.test(k)), false);
   assert.equal(logs.at(-1).end, 'cancelled');
 });
 
@@ -88,7 +147,7 @@ test('a garbled answer is never cached for the next reader', async () => {
   const c = client();
   const around = { task: 'around', input: { title: 'Moths [garbled]', path: [], read: [] } };
   await c.call(around);
-  assert.equal([...c.store.m.keys()].some(k => k.startsWith('text:')), false);
+  assert.equal(cachedTexts(c.store).length, 0);
   assert.equal(c.logs.at(-1).cached, false);
   await c.call({ task: 'around', input: { title: 'Moths', path: [], read: [] } });
   assert.equal(c.logs.at(-1).cached, true);
@@ -132,7 +191,7 @@ test('failures after the first words arrive as a trailer; before them, as a stat
 test('a failed or cut-off answer is never cached', async () => {
   const c = client();
   await c.call(pageBody('Moths [cut]'), KEY);
-  assert.equal([...c.store.m.keys()].some(k => k.startsWith('text:')), false);
+  assert.equal(cachedTexts(c.store).length, 0);
 });
 
 test('the endpoint refuses what it should', async () => {

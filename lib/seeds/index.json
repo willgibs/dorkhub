@@ -1,65 +1,53 @@
 {
- "doors": {
+ "pages": {
   "carrington event": {
    "title": "The Carrington Event",
-   "file": "carrington-event/index.txt",
-   "children": {}
+   "file": "carrington-event/index.txt"
   },
   "tardigrades": {
    "title": "Tardigrades",
-   "file": "tardigrades/index.txt",
-   "children": {}
+   "file": "tardigrades/index.txt"
   },
   "whale falls": {
    "title": "Whale falls",
-   "file": "whale-falls/index.txt",
-   "children": {}
+   "file": "whale-falls/index.txt"
   },
   "antikythera mechanism": {
    "title": "The Antikythera mechanism",
-   "file": "antikythera-mechanism/index.txt",
-   "children": {}
+   "file": "antikythera-mechanism/index.txt"
   },
   "voynich manuscript": {
    "title": "The Voynich manuscript",
-   "file": "voynich-manuscript/index.txt",
-   "children": {}
+   "file": "voynich-manuscript/index.txt"
   },
   "umami": {
    "title": "Umami",
-   "file": "umami/index.txt",
-   "children": {}
+   "file": "umami/index.txt"
   },
   "why is ice slippery": {
    "title": "Why is ice slippery?",
    "file": "why-is-ice-slippery/index.txt",
-   "question": true,
-   "children": {}
+   "question": true
   },
   "great emu war": {
    "title": "The Great Emu War",
-   "file": "great-emu-war/index.txt",
-   "children": {}
+   "file": "great-emu-war/index.txt"
   },
   "kessler syndrome": {
    "title": "Kessler syndrome",
-   "file": "kessler-syndrome/index.txt",
-   "children": {}
+   "file": "kessler-syndrome/index.txt"
   },
   "fresnel lenses": {
    "title": "Fresnel lenses",
-   "file": "fresnel-lenses/index.txt",
-   "children": {}
+   "file": "fresnel-lenses/index.txt"
   },
   "tulip mania": {
    "title": "Tulip mania",
-   "file": "tulip-mania/index.txt",
-   "children": {}
+   "file": "tulip-mania/index.txt"
   },
   "bioluminescence": {
    "title": "Bioluminescence",
-   "file": "bioluminescence/index.txt",
-   "children": {}
+   "file": "bioluminescence/index.txt"
   }
  }
 }

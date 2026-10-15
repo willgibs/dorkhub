@@ -27,11 +27,13 @@ const PANEL_ALIAS = { time: 'timeline', fact: 'facts', glance: 'facts', step: 's
 const PRE_BODY = new Set(['time', 'gloss']);
 const PLURAL = { people: 'person', phenomena: 'phenomenon', mysteries: 'mystery', ideas: 'idea' };
 
-/* A clicked topic stays the topic. Only questions and connecting pages choose their own title. */
-/** @param {{ title: string, depth: number, from?: { question?: string, bridge?: string, kind?: string } | null }} page */
-export function titleIsLocked({ title, depth, from }) {
+/* A clicked topic stays the topic. Only questions and connecting pages choose their own title.
+   Pages written for their topic say so with `q` and `bridge`; older pages carry a depth and a `from`. */
+/** @param {{ title: string, q?: boolean, bridge?: unknown, depth?: number, from?: { question?: string, bridge?: string, kind?: string } | null }} page */
+export function titleIsLocked({ title, q, bridge, depth, from }) {
+  if (q || bridge) return false;
   if (from && (from.question || from.bridge || from.kind === 'question' || from.kind === 'bridge')) return false;
-  return !(depth === 0 && isQuestion(title));
+  return !((depth === undefined || depth === 0) && isQuestion(title));
 }
 
 /* For answers that should be JSON: tolerate code fences and stray prose around the value. */
@@ -67,7 +69,7 @@ export function yearOf(t) {
  * @typedef {{ type: string, title: string, heads: string[], rows: string[][], at: number, after: number, o: number, done: boolean, v1?: boolean }} Panel
  *   `at` is how many blocks come before the panel (its slot), `after` the paragraph it follows,
  *   `o` how many margin notes came before it (its place among them).
- * @typedef {{ title: string, deck: string, bridge: string, blocks: Block[], panels: Panel[], tunnels: Branch[],
+ * @typedef {{ title: string, kind: string, deck: string, bridge: string, blocks: Block[], panels: Panel[], tunnels: Branch[],
  *   next: { label: string, target: string, why: string } | null, gloss: Record<string, Gloss>, notes: { n: number, s: string }[],
  *   questions: string[], bodyDone: boolean, wait: boolean }} Article
  */
@@ -151,7 +153,7 @@ export function parseArticle(raw, streaming) {
     text = text.replace(/\*\*[^*\n]*$/, m => m.replace(/\*\*/, '')).replace(/(^|[\s(])\*([^*\s][^*\n]*)$/, '$1$2').replace(/[[*]$/, '');
   }
   /** @type {Article} */
-  const A = { title: '', deck: '', bridge: '', blocks: [], panels: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], bodyDone: false, wait: false };
+  const A = { title: '', kind: '', deck: '', bridge: '', blocks: [], panels: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], bodyDone: false, wait: false };
   let mode = 'body', pcount = 0, deckSeen = false, body = false, kept = 0, lastAfter = 0, paraOpen = false;
   /** @type {Set<string> | null} */ let plan = null;
   /** @type {Panel | null} */ let P = null;
@@ -188,7 +190,11 @@ export function parseArticle(raw, streaming) {
       if ((m = /\[\[([^\]]+)\]\]\s*(.*)$/.exec(L))) {
         const [label, target] = splitLink(m[1]); const parts = m[2].replace(/^\s*(::|:|—|–|-)\s*/, '').split('::').map(s => s.trim());
         if (mode === 'next') { if (!A.next) A.next = { label, target, why: parts[0] || '' }; }
-        else { const dir = DIRS.find(d => (parts[1] || '').toLowerCase().includes(d)) || ''; A.tunnels.push({ label, target, teaser: parts[0] || '', dir, kind: kindOfWord(parts[2] || '', true) }); }
+        else {
+          const rest = parts.slice(1);
+          const dir = DIRS.find(d => rest.some(x => x.toLowerCase().includes(d))) || '';
+          A.tunnels.push({ label, target, teaser: parts[0] || '', dir, kind: rest.map(x => kindOfWord(x, true)).find(Boolean) || '' });
+        }
       }
       continue;
     }
@@ -216,7 +222,14 @@ export function parseArticle(raw, streaming) {
       P = panel; continue;
     }
     if ((m = /^\^\s+(.+)$/.exec(L))) { flush(); if (pcount) A.notes.push({ n: pcount, s: m[1] }); continue; }
-    if ((m = /^#\s+(.+)$/.exec(L)) && !A.title) { A.title = m[1].replace(/\[\[|\]\]/g, '').replace(/\*\*/g, '').trim(); continue; }
+    if ((m = /^#\s+(.+)$/.exec(L)) && !A.title) {
+      /* v3 names the page's kind after " :: ". The kind counts once the line is whole, and a title
+         like "std::vector" keeps its colons, the way "::" without spaces stays prose in the body. */
+      let t = m[1]; const s = /\s+::|::(?=\s|$)/.exec(t);
+      if (s) { if (li !== open) A.kind = kindOfWord(t.slice(s.index + s[0].length), true); t = t.slice(0, s.index); }
+      else if (li === open) t = t.replace(/\s*:$/, '');
+      A.title = t.replace(/\[\[|\]\]/g, '').replace(/\*\*/g, '').trim(); continue;
+    }
     if ((m = /^#{2,3}\s+(.+)$/.exec(L))) { flush(); begin(); A.blocks.push({ t: 'h', s: m[1] }); continue; }
     if ((m = /^>\s?(.*)$/.exec(L)) && !deckSeen) {
       /* the format names the line "Deck:", and writers sometimes copy the label */
@@ -254,7 +267,7 @@ export function parseArticle(raw, streaming) {
   for (const t of A.tunnels) { const k = keyOf(t.target); const e = A.gloss[k]; if (!e) { if (t.kind) A.gloss[k] = { gloss: '', kind: t.kind, name: t.target }; } else if (!e.kind && t.kind) e.kind = t.kind; }
   if (!A.tunnels.length && !streaming) {
     const seen = new Set();
-    for (const b of A.blocks) for (const m of b.s.matchAll(/\[\[([^\]]+)\]\]/g)) { const [label, target] = splitLink(m[1]); if (!seen.has(keyOf(target)) && A.tunnels.length < 5) { seen.add(keyOf(target)); A.tunnels.push({ label, target, teaser: '', dir: '' }); } }
+    for (const b of A.blocks) for (const m of b.s.matchAll(/\[\[([^\]]+)\]\]/g)) { const [label, target] = splitLink(m[1]); if (!seen.has(keyOf(target)) && A.tunnels.length < 6) { seen.add(keyOf(target)); A.tunnels.push({ label, target, teaser: '', dir: '' }); } }
   }
   return A;
 }
@@ -266,7 +279,19 @@ export function hookOf(A, k) {
   const t = A.tunnels.find(x => keyOf(x.target) === k); if (t && t.teaser) return t.teaser;
   return A.next && keyOf(A.next.target) === k ? A.next.why : '';
 }
-/* The dated rows of a page's timelines, for the rabbit hole's deep time. */
+/* The topics a page offers next, as equal cards: an older page's single "next" first, then its
+   branches, without repeats or the page itself. */
+/** @param {Article} A @param {number} [n] @returns {{ label: string, target: string, teaser: string, kind: string }[]} */
+export function cardsOf(A, n = 6) {
+  /** @type {{ label: string, target: string, teaser: string, kind: string }[]} */ const out = [];
+  const seen = new Set([keyOf(A.title)]);
+  /** @param {string} label @param {string} target @param {string} teaser @param {string} [kind] */
+  const add = (label, target, teaser, kind) => { const k = keyOf(target); if (!k || seen.has(k) || out.length >= n) return; seen.add(k); out.push({ label, target, teaser, kind: kind || A.gloss[k]?.kind || '' }); };
+  if (A.next) add(A.next.label, A.next.target, A.next.why);
+  for (const t of A.tunnels) add(t.label, t.target, t.teaser, t.kind);
+  return out;
+}
+/* The dated rows of a page's timelines, for its deep time. */
 /** @param {Article} A */
 export const timeOf = A => A.panels.filter(p => p.type === 'timeline').flatMap(p => p.rows).map(([when, s = '']) => ({ when, y: yearOf(when), s })).filter(t => t.y != null).map(t => ({ ...t, y: /** @type {number} */ (t.y) }));
 /* A page's panels as plain lines, for the tools that read a page as text (skeptic, quiz, recap, export). */

@@ -81,7 +81,8 @@ async function generate(node, { fresh = false } = {}) {
   if (ACTIVE.size > 2) { const [oldId, oldCtl] = ACTIVE.entries().next().value; if (oldId !== node.id) oldCtl.abort(); }
   let queued = false;
   try {
-    const res = await write('page', pageInput(node), {
+    const input = pageInput(node); node.wlens = input.lens; /* the voice this text is in */
+    const res = await write('page', input, {
       signal: ctl.signal, fresh,
       onText: ({ text }) => { node.text = text; if (!REV.has(node.id) && !queued) { queued = true; requestAnimationFrame(() => { queued = false; paint(node, true); }); } },
     });
@@ -159,10 +160,11 @@ function paintHead(node, sec, A, live) {
   main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
   const seedDeck = live && node.seed && node.seed.gloss ? node.seed.gloss : '';
-  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !A.bridge)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node), ink: head0 });
+  const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length);
+  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node), ink: head0 });
   else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
   const from = node.from && node.from.bridge && W.nodes[node.from.bridge] && parent ? `Connecting <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a> and <a href="#/w/${W.id}/${node.from.bridge}">${esc(W.nodes[node.from.bridge].title)}</a>` : parent ? `From <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a>` : 'Where it starts';
-  if (A.bridge || live) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p>${A.bridge ? `<p class="bridge-t">${inline(A.bridge, node)}</p>` : ''}`, ink: head0 });
+  if (A.bridge) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p>${A.bridge ? `<p class="bridge-t">${inline(A.bridge, node)}</p>` : ''}`, ink: head0 });
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
 }
