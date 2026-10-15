@@ -47,7 +47,7 @@ keep `docs/state.md` current._
 in `docs/decisions.md`). In order, each through a preview and Will's look:
 - **PR A, pages written for the topic** (live since 2026-10-15, willgibs/dorkhub#13): format v3, the
   page cache by topic, free repeats before the trial gate, private rewrites, `cachedOnly`.
-- **PR B, the world reader** (built, up for Will's look): one topic per screen at clean, guarded links
+- **PR B, the world reader** (live since 2026-10-15, willgibs/dorkhub#14): one topic per screen at clean, guarded links
   (`dorkhub.com/black-holes`), six "keep exploring" cards, the Save star, Your world (the
   graph, its stats and trails, growth moments only where the graph is visible), the phone's
   "…" menu and a new gooey button, prefetch, and the store migration. Levels, the flow-in
