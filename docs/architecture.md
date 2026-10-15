@@ -12,9 +12,11 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   JS between the shared and app modules (`export` stripped) and its CSS after
   `src/styles.css`, and `/licenses.txt` lists it.
   The orbs port is tested against the library's own golden vectors (`tests/orbs.test.js`).
-  The page has a size budget (`tests/page.test.js`, 372 KB raw). The stylesheet ships
-  without its comments; anything only one view needs, like the front page's cards, is a
-  separate file fetched by that view.
+  The page has a size budget (`tests/page.test.js`, 372 KB raw). The page ships without its
+  comments: the stylesheet's are stripped by pattern, the script's by TypeScript's own comment
+  ranges (`lean()` in the build), so nothing inside a string, template or regex is touched and
+  licence notices stay. Anything only one view needs, like the front page's cards, is a separate
+  file fetched by that view.
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).
@@ -57,7 +59,12 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   unread invitations per page plus any topic two pages lead to, capped at 500 read and 300
   unread. A small force simulation (springs, Barnes-Hut repulsion, centring) runs only while
   something moves; positions persist. The sidebar shows `localGraph`, the neighbourhood of
-  the page on screen. A `still` view (the front page) never pans, zooms or drags, so a finger
+  the page on screen. It is drawn like an instrument (`draw()`): a faint grid that moves with the
+  map, corner brackets, a read topic as a solid dot in its kind's colour with a ring, an
+  invitation as a hollow circle, names in small capitals off a short leader line (placed where
+  they fit, faded ones last), hairline links that trace in once when the map is first seen, the
+  reader's moves stronger with a chevron the way they went (`from` on the edge), a running dash
+  on a pointed-at topic's links, a radar ping for a newcomer and a marker that drives Replay. A `still` view (the front page) never pans, zooms or drags, so a finger
   scrolls the page over it; a tap shows a topic's card and a second opens it.
 - **The front page** (`src/app/13-landing.js`): the composer, then today's pages. The cards come
   from `/feed.json` (`src/static/feed.json`, written by `node scripts/seeds.mjs feed` from the

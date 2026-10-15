@@ -118,3 +118,12 @@ test('a page offers a handful of invitations, and a topic two pages lead to alwa
   const lens = new Set(g.edges.filter(e => e.unread).map(e => e.len));
   assert.ok(lens.size > 3, 'invitations hang at their own distances');
 });
+
+test('a move remembers the way you went, in the small map too', () => {
+  const a = page('Volcanoes', [['Pompeii', 'place']], 3); const b = page('Pompeii', [['Volcanoes', 'phenomenon']], 5);
+  const g = buildGraph(byId([a, b]), [{ steps: [[b.id, 1, null, 'start'], [a.id, 2, b.id, 'link']] }]);
+  const e = g.edges.find(x => x.move); assert.ok(e && e.from != null);
+  assert.equal(g.nodes[/** @type {number} */ (e.from)].key, 'pompeii', 'from Pompeii to Volcanoes');
+  const local = localGraph(g, 'volcanoes', 10); const le = local.edges.find(x => x.move);
+  assert.equal(local.nodes[/** @type {number} */ (le?.from)].key, 'pompeii');
+});

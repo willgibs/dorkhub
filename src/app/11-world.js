@@ -1,22 +1,16 @@
 /* ================= Your world: the graph of everything you've read =================
-   Every topic you've read is a lit dot in the colour of its kind, sized by how connected it is; the
-   topics they link to that you haven't read sit faintly at the edges, as invitations. Links are
-   hairlines; the moves you made are a little stronger. The layout is a small force simulation
-   (src/shared/graph.js) that runs only while something is moving, then stops: no idle motion.
-   The same view draws the small map beside a page and the full page at /world. */
-const hexRGB = h => { const n = parseInt(String(h).replace('#', ''), 16) || 0; return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
-const SPRITES = new Map();
-/* a soft glow for each colour, drawn once and stamped under every dot of that colour */
-function glowSprite(hex, dark) {
-  const id = `${hex}|${dark}`; let s = SPRITES.get(id); if (s) return s;
-  s = document.createElement('canvas'); const R = 64; s.width = s.height = R * 2; const c = s.getContext('2d');
-  const [r, g, b] = hexRGB(hex); const gr = c.createRadialGradient(R, R, 0, R, R, R);
-  gr.addColorStop(0, `rgba(${r},${g},${b},${dark ? .5 : .26})`); gr.addColorStop(.32, `rgba(${r},${g},${b},${dark ? .2 : .1})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
-  c.fillStyle = gr; c.fillRect(0, 0, R * 2, R * 2); SPRITES.set(id, s); return s;
-}
+   Drawn like an instrument, not a light show: hairlines on a faint grid. A topic you've read is a
+   solid dot in its kind's colour with a ring set off it, sized by how connected it is; the topics they
+   link to that you haven't read are fine hollow circles, invitations. Names sit in small capitals off a
+   short leader line. Colour is only ever a topic's kind. The layout is a small force simulation
+   (src/shared/graph.js) that runs only while something is moving, then stops: no idle motion. Links
+   trace in the first time a map is seen. The same view draws the small map beside a page, the full
+   page at /world and the map on the front page. */
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easePop = t => { const c1 = 1.70158 * 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const clamp01 = v => Math.max(0, Math.min(1, v));
+const easeInOut = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const TAU = Math.PI * 2;
 
 /**
  * A graph view on a host element. mini: the small map beside a page (no wheel zoom, no tools).
@@ -29,13 +23,12 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
-  let cw = 0, ch = 0, DPR = 1, raf = 0, visible = true, alive = true;
+  let cw = 0, ch = 0, DPR = 1, raf = 0, visible = typeof IntersectionObserver !== 'function', alive = true;
   /** @type {{ nodes: any[], edges: any[] }} */ let g = { nodes: [], edges: [] }; let sim = null; let adj = [];
   const cam = { x: 0, y: 0, k: 1 }; let camTo = null;
   let hover = -1, sel = -1, drag = null, focusSet = null, focusKey = '', replay = null;
   /** @type {Set<string>} */ let hidden = new Set();   // kind groups switched off
   const born = new Map();   // node index -> when it appeared (growth moments)
-  const pulses = [];        // lights travelling along new links: { a, b, t0 }
   let colors = null, labelOrder = [], userMoved = false;
   const widths = new Map();
   const pos = positions || store.pos;
@@ -43,11 +36,14 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   const setPos = (k, v) => { if (pos instanceof Map) pos.set(k, v); else pos[k] = v; };
   function themeColors() {
     const cs = getComputedStyle(document.documentElement); const dark = isDark();
-    colors = { dark, ink: cs.getPropertyValue('--ink').trim() || (dark ? '#ECECEE' : '#18181B'), base: cs.getPropertyValue('--base').trim() || (dark ? '#0B0C0E' : '#FCFCFB'), kinds: dark ? KIND_HEX.dark : KIND_HEX.light };
+    const ink = cs.getPropertyValue('--ink').trim() || (dark ? '#ECECEE' : '#18181B'), base = cs.getPropertyValue('--base').trim() || (dark ? '#0B0C0E' : '#FCFCFB');
+    /* what the canvas sits on, so a hollow circle can hide the hairline behind it */
+    let stage = getComputedStyle(host).backgroundColor; if (!stage || /^(transparent|rgba\(0, 0, 0, 0\))$/.test(stage)) stage = base;
+    colors = { dark, ink, base, stage, kinds: dark ? KIND_HEX.dark : KIND_HEX.light };
   }
   themeColors();
   const kg = n => kindOf(n.kind) || 'concept';
-  const radius = n => (n.read ? 2.8 + 1.7 * Math.sqrt(Math.min(n.deg, 30)) : 2.1) * (mini ? .9 : 1) * Math.max(.7, Math.min(1.7, Math.sqrt(cam.k)));
+  const radius = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * (mini ? .9 : 1) * Math.max(.75, Math.min(1.5, Math.sqrt(cam.k)));
   const isShown = i => !hidden.has(kg(g.nodes[i]));
   const toScreen = n => [n.x * cam.k + cw / 2 - cam.x * cam.k, n.y * cam.k + ch / 2 - cam.y * cam.k];
   const toWorld = (sx, sy) => [(sx - cw / 2) / cam.k + cam.x, (sy - ch / 2) / cam.k + cam.y];
@@ -72,10 +68,10 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     /* a first layout settles off screen, so the world opens already shaped */
     if (fresh > g.nodes.length / 2) { tick(sim, still ? 320 : 100); if (still && !mini) { spreadIslands(); sim.alpha = 0; } }
     if (reducedMotion()) { let n = 0; while (isHot(sim) && n++ < 600) tick(sim); }
-    const now = performance.now(); born.clear(); pulses.length = 0;
+    const now = performance.now(); born.clear(); tD = nD = null;
     if (!reducedMotion()) grow.forEach((k, j) => {
       const i = g.nodes.findIndex(n => n.key === k); if (i < 0) return; born.set(i, now + j * 110);
-      for (const o of adj[i]) { if (g.nodes[o].read) pulses.push({ a: i, b: o, t0: now + j * 110 + 260 }); else if (!old.has(g.nodes[o].key)) born.set(o, now + j * 110 + 380 + Math.random() * 300); }
+      for (const o of adj[i]) if (!g.nodes[o].read && !old.has(g.nodes[o].key)) born.set(o, now + j * 110 + 380 + Math.random() * 300);
     });
     labelOrder = g.nodes.map((n, i) => i).sort((a, b) => Number(g.nodes[b].read) - Number(g.nodes[a].read) || Number(!!g.nodes[b].saved) - Number(!!g.nodes[a].saved) || g.nodes[b].deg - g.nodes[a].deg || g.nodes[b].count - g.nodes[a].count);
     lastCenter = center;
@@ -125,10 +121,11 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
       if (t >= 1) camTo = null; busy = true;
     }
     for (const [i, t0] of born) if (now - t0 > 1100) born.delete(i);
-    for (let j = pulses.length - 1; j >= 0; j--) if (now - pulses[j].t0 > 1200) pulses.splice(j, 1);
-    if (born.size || pulses.length) busy = true;
     if (replay) { stepReplay(now); busy = true; }
     draw(now);
+    /* the first trace, a newcomer's ping and a hovered topic's running links all need frames; asked after
+       drawing, since the frame that first sees the map is the one that starts its trace */
+    if (born.size || dashLive || (seenAt > 0 && now - seenAt < SPREAD + TRACE + 240)) busy = true;
     if (busy && visible && !document.hidden) wake();
   }
   function keepPositions() {
@@ -137,82 +134,139 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     if (!(pos instanceof Map)) save();
   }
   /* ---------- drawing ---------- */
+  const TRACE = 420, SPREAD = 520;   // a link traces in over TRACE ms; the farthest starts SPREAD ms after the nearest
+  let seenAt = 0, dashLive = false;  /** @type {{ at: number, fromA: boolean }[] | null} */ let tD = null; /** @type {number[] | null} */ let nD = null;
+  /* the first time the map is seen, each link traces out from its end nearer the middle, nearest first */
+  function planTrace(P) {
+    const far = Math.max(1, ...P.map(([x, y]) => Math.hypot(x - cw / 2, y - ch / 2)));
+    nD = P.map(([x, y]) => Math.hypot(x - cw / 2, y - ch / 2) / far * SPREAD);
+    tD = g.edges.map(e => ({ at: Math.min(nD[e.a], nD[e.b]), fromA: nD[e.a] <= nD[e.b] }));
+  }
+  /* a faint grid that moves with the map, crosses where its lines meet, and brackets at the corners */
+  function grid(c, W, H, k, ox, oy, hair, u) {
+    const { dark, ink } = colors; let sp = 64 * k; while (sp < 40 * u) sp *= 2; while (sp > 150 * u) sp /= 2;
+    const x0 = ((ox % sp) + sp) % sp, y0 = ((oy % sp) + sp) % sp;
+    c.strokeStyle = ink; c.lineWidth = hair; c.globalAlpha = dark ? .05 : .06; c.beginPath();
+    for (let x = x0; x < W; x += sp) { c.moveTo(x, 0); c.lineTo(x, H); }
+    for (let y = y0; y < H; y += sp) { c.moveTo(0, y); c.lineTo(W, y); }
+    c.stroke(); c.globalAlpha = dark ? .2 : .22; c.beginPath(); const a = 2.5 * u;
+    for (let x = x0; x < W; x += sp) for (let y = y0; y < H; y += sp) { c.moveTo(x - a, y); c.lineTo(x + a, y); c.moveTo(x, y - a); c.lineTo(x, y + a); }
+    c.stroke(); const m = 9 * u, l = 12 * u; c.globalAlpha = dark ? .38 : .34; c.lineWidth = u; c.beginPath();
+    for (const [x, y, sx, sy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]) { c.moveTo(x, y + sy * l); c.lineTo(x, y); c.lineTo(x + sx * l, y); }
+    c.stroke();
+  }
+  const ring = (c, x, y, r) => { c.beginPath(); c.arc(x, y, r, 0, TAU); c.stroke(); };
+  const disc = (c, x, y, r) => { c.beginPath(); c.arc(x, y, r, 0, TAU); c.fill(); };
+  /* where you are: a ring with four ticks, like a sight */
+  function reticle(c, x, y, r, u) { ring(c, x, y, r); c.beginPath(); for (let q = 0; q < 4; q++) { const ax = Math.cos(q * TAU / 4), ay = Math.sin(q * TAU / 4); c.moveTo(x + ax * (r + 2 * u), y + ay * (r + 2 * u)); c.lineTo(x + ax * (r + 5.5 * u), y + ay * (r + 5.5 * u)); } c.stroke(); }
+  /* a name in small capitals off a short leader line: up and right first, then the other corners */
+  function tag(c, text, w, fs, cx, cy, r, dirs, placed, u, fa, strong, W, H) {
+    const { ink, stage } = colors; const lead = 6 * u, tick = 5 * u, pad = 3 * u;
+    for (const [dx, dy] of dirs) {
+      const sx = cx + dx * (r + 1.5 * u) * .7071, sy = cy + dy * (r + 1.5 * u) * .7071;
+      const mx = sx + dx * lead, my = sy + dy * lead, ex = mx + dx * tick, tx = dx > 0 ? ex + pad : ex - pad - w;
+      const box = [Math.min(tx, cx) - 2 * u, my - fs * .7 - 2 * u, Math.max(tx + w, cx) + 2 * u, my + fs * .7 + 2 * u];
+      if (box[0] < 4 * u || box[2] > W - 4 * u || box[1] < 2 * u || box[3] > H - 2 * u || placed.some(b => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue;
+      placed.push(box);
+      c.globalAlpha = fa * .45; c.strokeStyle = ink; c.lineWidth = .9 * u; c.beginPath(); c.moveTo(sx, sy); c.lineTo(mx, my); c.lineTo(ex, my); c.stroke();
+      c.globalAlpha = fa; c.lineWidth = 3 * u; c.strokeStyle = stage; c.strokeText(text, tx, my);
+      c.globalAlpha = fa * (strong ? .95 : .68); c.fillStyle = ink; c.fillText(text, tx, my);
+      return true;
+    }
+    return false;
+  }
+  const spaced = c => { if ('letterSpacing' in c) /** @type {any} */ (c).letterSpacing = '0.07em'; };
+  const unspaced = c => { if ('letterSpacing' in c) /** @type {any} */ (c).letterSpacing = '0px'; };
   function draw(now) {
-    if (!cw) return; const { dark, ink, base, kinds } = colors;
+    if (!cw) return; const { dark, ink, stage, kinds } = colors;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, cw, ch);
     const N = g.nodes; const k = cam.k, ox = cw / 2 - cam.x * k, oy = ch / 2 - cam.y * k;
+    const P = N.map(n => [n.x * k + ox, n.y * k + oy]);
+    grid(ctx, cw, ch, k, ox, oy, 1 / DPR, 1);
+    if (!seenAt) { if (!visible || !N.length) return; seenAt = reducedMotion() ? -1e9 : now; if (seenAt > 0) planTrace(P); }
+    const since = now - seenAt;
     const hi = hover >= 0 ? hover : sel; const nb = hi >= 0 ? new Set([hi, ...adj[hi]]) : null;
     const trailSet = replay ? replay.lit : null;
-    const dimOf = i => (focusSet && !focusSet.has(i) ? .1 : 1) * (nb && !nb.has(i) ? .28 : 1) * (trailSet && !trailSet.has(i) ? .3 : 1);
+    const dimOf = i => (focusSet && !focusSet.has(i) ? .1 : 1) * (nb && !nb.has(i) ? .15 : 1) * (trailSet && !trailSet.has(i) ? .3 : 1);
     const bornA = i => { const t0 = born.get(i); return t0 == null ? 1 : clamp01((now - t0) / 500); };
     const bornS = i => { const t0 = born.get(i); if (t0 == null) return 1; const t = clamp01((now - t0) / 700); return N[i].read ? Math.max(0, easePop(t)) : t; };
-    /* links */
-    ctx.lineCap = 'round';
-    for (const e of g.edges) {
-      if (!isShown(e.a) || !isShown(e.b)) continue;
-      const a = N[e.a], b = N[e.b]; let al = e.unread ? (dark ? .1 : .08) : e.move ? (dark ? .36 : .3) : (dark ? .18 : .15); let col = ink, w = e.move ? 1.2 : .85;
-      if (nb && (e.a === hi || e.b === hi)) { al = .75; col = kinds[kg(N[hi])]; w = 1.4; }
-      else al *= Math.min(dimOf(e.a), dimOf(e.b));
-      if (trailSet && replay.edges.has(`${e.a},${e.b}`)) { al = .9; col = kinds[kg(N[e.b])]; w = 1.8; }
-      al *= Math.min(bornA(e.a), bornA(e.b)); if (al < .01) continue;
+    const tickIn = i => (nD ? clamp01((since - nD[i]) / 220) : 1);
+    const seg = replay && !replay.done && replay.seg ? replay.seg : null; const segQ = seg ? easeInOut(clamp01((now - seg.t0) / (replay.per * .75))) : 1;
+    /* links: hairlines; the moves you made a little stronger, with a chevron the way you went */
+    ctx.lineCap = 'round'; dashLive = false;
+    g.edges.forEach((e, j) => {
+      if (!isShown(e.a) || !isShown(e.b)) return;
+      let p = 1, fromA = true; const ba = born.get(e.a), bb = born.get(e.b);
+      if (ba != null || bb != null) { p = clamp01((now - Math.max(ba ?? 0, bb ?? 0) - 150) / 500); fromA = ba != null && (bb == null || ba >= bb); }
+      else if (tD && tD[j]) { p = clamp01((since - tD[j].at) / TRACE); fromA = tD[j].fromA; }
+      if (p <= 0) return;
+      const lit = nb && (e.a === hi || e.b === hi); const trail = trailSet && replay.edges.has(`${e.a},${e.b}`);
+      let al = e.unread ? (dark ? .17 : .14) : e.move ? (dark ? .55 : .48) : (dark ? .3 : .26), col = ink, w = e.move ? 1.1 : e.unread ? .7 : .85;
+      if (lit) { al = dark ? .5 : .44; col = kinds[kg(N[e.a === hi ? e.b : e.a])]; w = 1; } else al *= Math.min(dimOf(e.a), dimOf(e.b));
+      if (trail) { al = .95; col = kinds[kg(N[e.b])]; w = 1.6; }
+      al *= Math.min(bornA(e.a), bornA(e.b)); if (al < .01) return;
+      let [x1, y1] = P[fromA ? e.a : e.b], [x2, y2] = P[fromA ? e.b : e.a];
+      /* the segment Replay is driving draws only as far as its marker */
+      if (trail && seg && ((seg.a === e.a && seg.b === e.b) || (seg.a === e.b && seg.b === e.a))) { [x1, y1] = P[seg.a]; [x2, y2] = P[seg.b]; p = segQ; }
       ctx.globalAlpha = al; ctx.strokeStyle = col; ctx.lineWidth = w;
-      ctx.beginPath(); ctx.moveTo(a.x * k + ox, a.y * k + oy); ctx.lineTo(b.x * k + ox, b.y * k + oy); ctx.stroke();
-    }
-    /* glows under the topics you've read: light adds up in the dark */
-    ctx.globalCompositeOperation = dark ? 'lighter' : 'source-over';
-    for (let i = 0; i < N.length; i++) {
-      const n = N[i]; if (!n.read || !isShown(i)) continue;
-      const x = n.x * k + ox, y = n.y * k + oy; const r = radius(n) * bornS(i); if (x < -60 || y < -60 || x > cw + 60 || y > ch + 60 || r <= 0) continue;
-      const s = r * (i === hi || (replay && replay.at === i) ? 9 : 6.5); ctx.globalAlpha = dimOf(i) * bornA(i);
-      ctx.drawImage(glowSprite(kinds[kg(n)], dark), x - s / 2, y - s / 2, s, s);
-    }
-    ctx.globalCompositeOperation = 'source-over';
-    /* lights running along the links a new topic brought */
-    for (const pl of pulses) {
-      const t = (now - pl.t0) / 900; if (t < 0 || t > 1) continue; const a = N[pl.a], b = N[pl.b];
-      const x = (a.x + (b.x - a.x) * easeOut(t)) * k + ox, y = (a.y + (b.y - a.y) * easeOut(t)) * k + oy;
-      ctx.globalAlpha = Math.sin(t * Math.PI); const s = 22; ctx.drawImage(glowSprite(kinds[kg(a)], true), x - s / 2, y - s / 2, s, s);
-    }
-    /* the topics */
-    for (let i = 0; i < N.length; i++) {
-      const n = N[i]; if (!isShown(i)) continue; const x = n.x * k + ox, y = n.y * k + oy; const r = radius(n) * bornS(i);
-      if (x < -20 || y < -20 || x > cw + 20 || y > ch + 20 || r <= 0) continue;
-      const hex = kinds[kg(n)]; const al = dimOf(i) * bornA(i);
-      ctx.globalAlpha = al;
-      if (n.read) {
-        ctx.fillStyle = hex; ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
-        /* a lit centre, so a dot reads as a point of light */
-        ctx.globalAlpha = al * (dark ? .55 : .35); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(x - r * .22, y - r * .22, r * .42, 0, Math.PI * 2); ctx.fill();
-        if (n.saved) { ctx.globalAlpha = al * .7; ctx.strokeStyle = hex; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(x, y, r + 3.5, 0, Math.PI * 2); ctx.stroke(); }
-      } else {
-        const [rr, gg, bb] = hexRGB(hex); ctx.fillStyle = `rgba(${rr},${gg},${bb},${dark ? .3 : .22})`; ctx.strokeStyle = `rgba(${rr},${gg},${bb},${dark ? .7 : .55})`; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x1 + (x2 - x1) * p, y1 + (y2 - y1) * p); ctx.stroke();
+      if (p < 1) return;
+      /* a pointed-at topic's links run, a dash flowing out from it, only while it is pointed at */
+      if (lit && !reducedMotion()) {
+        const [hx, hy] = P[hi], [fx, fy] = P[e.a === hi ? e.b : e.a];
+        ctx.globalAlpha = dark ? .95 : .85; ctx.lineWidth = 1.3; ctx.setLineDash([2.5, 7.5]); ctx.lineDashOffset = -now / 26;
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(fx, fy); ctx.stroke(); ctx.setLineDash([]); dashLive = true;
       }
-      if (n.cur || (replay && replay.at === i)) { ctx.globalAlpha = .9 * bornA(i); ctx.strokeStyle = ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r + 5, 0, Math.PI * 2); ctx.stroke(); }
-      if (i === sel) { ctx.globalAlpha = .85; ctx.strokeStyle = hex; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, r + 6.5, 0, Math.PI * 2); ctx.stroke(); }
+      if (e.move && e.from != null && !lit && !trail) {
+        const [sx, sy] = P[e.from], [tx, ty] = P[e.from === e.a ? e.b : e.a]; const L = Math.hypot(tx - sx, ty - sy); if (L < 28) return;
+        const ux = (tx - sx) / L, uy = (ty - sy) / L, mx = (sx + tx) / 2, my = (sy + ty) / 2;
+        ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(mx - ux * 2.5 - uy * 3, my - uy * 2.5 + ux * 3); ctx.lineTo(mx + ux * 1.5, my + uy * 1.5); ctx.lineTo(mx - ux * 2.5 + uy * 3, my - uy * 2.5 - ux * 3); ctx.stroke();
+      }
+    });
+    /* the topics: a solid dot ringed if you've read it, a fine hollow circle if it is an invitation */
+    for (let i = 0; i < N.length; i++) {
+      const n = N[i]; if (!isShown(i)) continue; const [x, y] = P[i]; const r = radius(n) * bornS(i);
+      if (x < -30 || y < -30 || x > cw + 30 || y > ch + 30 || r <= 0) continue;
+      const hex = kinds[kg(n)]; const al = dimOf(i) * bornA(i) * tickIn(i); if (al < .01) continue;
+      ctx.lineWidth = 1; ctx.strokeStyle = hex;
+      if (n.read) {
+        ctx.globalAlpha = al; ctx.fillStyle = hex; disc(ctx, x, y, r);
+        ctx.globalAlpha = al * (dark ? .55 : .5); ring(ctx, x, y, r + 2.5);
+        if (n.saved) { ctx.globalAlpha = al * .85; ring(ctx, x, y, r + 5.5); }
+      } else { ctx.globalAlpha = al; ctx.fillStyle = stage; disc(ctx, x, y, r); ctx.globalAlpha = al * (dark ? .85 : .75); ring(ctx, x, y, r); }
+      if (n.cur || (replay && replay.at === i && !seg)) { ctx.globalAlpha = .9 * al; ctx.strokeStyle = ink; reticle(ctx, x, y, r + 6, 1); }
+      if (i === sel) { ctx.globalAlpha = .9; ctx.strokeStyle = hex; ctx.lineWidth = 1.5; ring(ctx, x, y, r + 8.5); }
+      /* a newcomer pings once, like a radar return */
+      const t0 = born.get(i); if (t0 != null && now > t0) { const t = clamp01((now - t0) / 900); ctx.globalAlpha = (1 - t) * .8; ctx.strokeStyle = hex; ctx.lineWidth = 1; ring(ctx, x, y, r + 3 + easeOut(t) * 24); }
+    }
+    /* Replay drives a marker along the trail, like a car on a track */
+    if (seg) {
+      const [ax, ay] = P[seg.a], [bx, by] = P[seg.b]; const mx = ax + (bx - ax) * segQ, my = ay + (by - ay) * segQ;
+      ctx.globalAlpha = 1; ctx.fillStyle = ink; disc(ctx, mx, my, 3.2); ctx.strokeStyle = kinds[kg(N[seg.b])]; ctx.lineWidth = 1.5; ring(ctx, mx, my, 6.5);
     }
     /* names: the busiest and nearest first, never on top of one another, fading in as you zoom */
-    ctx.font = `600 ${mini || cw < 520 ? 11 : 12}px Inter, system-ui, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.lineJoin = 'round';
-    const placed = []; const order = [];
-    for (const i of [hi, sel, ...N.map((n, i) => (n.cur ? i : -1)), ...(nb ? [...nb] : []), ...(replay ? [replay.at] : [])]) if (i >= 0 && !order.includes(i)) order.push(i);
+    const fs = mini || cw < 520 ? 10 : 10.5;
+    ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; spaced(ctx);
+    const placed = []; const order = []; const fi = focusKey ? N.findIndex(n => n.key === focusKey) : -1;
+    for (const i of [hi, sel, fi, ...N.map((n, i) => (n.cur ? i : -1)), ...(nb ? [...nb] : []), ...(replay ? [replay.at] : [])]) if (i >= 0 && !order.includes(i)) order.push(i);
+    /* names still in view claim their space before the faded ones */
+    for (const i of labelOrder) if (!order.includes(i) && dimOf(i) > .5) order.push(i);
     for (const i of labelOrder) if (!order.includes(i)) order.push(i);
     /* a small screen names fewer topics until you zoom in */
     const small = cw < 520; const readFade = mini ? 1 : clamp01((k - (small ? .75 : .45)) / .35), loneFade = clamp01((k - (mini ? 1.6 : small ? 1.6 : 1.25)) / .4);
     let drawn = 0;
     for (const i of order) {
-      const n = N[i]; if (!isShown(i)) continue; const special = i === hi || i === sel || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
+      const n = N[i]; if (!isShown(i)) continue; const special = i === hi || i === sel || i === fi || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
       let fa = special ? 1 : n.read ? (still ? .9 : mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
-      fa *= (special ? 1 : dimOf(i)) * bornA(i); if (fa < .05) continue;
-      const cx = n.x * k + ox, cy = n.y * k + oy, r = radius(n) * bornS(i); if (cx < -80 || cy < -20 || cx > cw + 80 || cy > ch + 20) continue;
-      const text = clip(n.title || n.key, mini ? 22 : 30); let w = widths.get(text); if (w == null) { w = ctx.measureText(text).width; widths.set(text, w); }
-      /* below the dot first; a topic you've read tries above, right and left before its name gives way */
-      const spots = [[cx - w / 2, cy + r + 4], ...(n.read || special ? [[cx - w / 2, cy - r - 17], [cx + r + 6, cy - 7], [cx - r - 6 - w, cy - 7]] : [])];
-      let at = null;
-      for (const [tx, ty] of spots) { const box = [tx - 3, ty - 2, tx + w + 3, ty + 15]; if (!placed.some(b => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) { at = [tx, ty]; placed.push(box); break; } }
-      if (!at) continue; const [x, y] = at;
-      ctx.globalAlpha = fa; ctx.lineWidth = 3.5; ctx.strokeStyle = base; ctx.strokeText(text, x, y); ctx.fillStyle = ink; ctx.globalAlpha = fa * (n.read || special ? 1 : .75); ctx.fillText(text, x, y);
-      if (++drawn > (mini ? 40 : 260)) break;
+      fa *= (special ? 1 : dimOf(i)) * bornA(i) * tickIn(i); if (fa < .05) continue;
+      const [cx, cy] = P[i], r = radius(n) * bornS(i); if (cx < -100 || cy < -20 || cx > cw + 100 || cy > ch + 20) continue;
+      const text = clip(n.title || n.key, mini ? 22 : 30).toUpperCase(); const wk = `${fs}|${text}`; let w = widths.get(wk); if (w == null) { w = ctx.measureText(text).width; widths.set(wk, w); }
+      const dirs = n.read || special ? [[1, -1], [1, 1], [-1, -1], [-1, 1]] : [[1, -1], [-1, -1]];
+      if (tag(ctx, text, w, fs, cx, cy, r, dirs, placed, 1, fa, n.read || special, cw, ch) && ++drawn > (mini ? 40 : 260)) break;
     }
+    unspaced(ctx);
+    /* how close you are, in the corner, on the full map */
+    if (!mini && !still) { ctx.globalAlpha = dark ? .5 : .55; ctx.fillStyle = ink; ctx.font = '600 10px Inter, system-ui, sans-serif'; spaced(ctx); ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.fillText(`ZOOM ${k.toFixed(2)}×`, cw - 16, ch - 14); unspaced(ctx); ctx.textAlign = 'left'; }
     ctx.globalAlpha = 1;
   }
   /* ---------- pointing ---------- */
@@ -281,7 +335,7 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     const status = describe ? describe(n) : n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;
     const links = near.length ? `${n.read ? 'Links to' : 'Linked from'} ${near.slice(0, 2).map(t => `<b>${esc(clip(t, 26))}</b>`).join(' and ')}${near.length > 2 ? ` and ${near.length - 2} more` : ''}` : '';
     tip.innerHTML = `<p class="gt-k"><span class="kind"${kattr(n.kind)}>${esc(n.kind || 'topic')}</span><span>${esc(status)}</span></p><p class="gt-t">${esc(n.title)}</p>${lead ? `<p class="gt-h">${esc(clip(lead, 140))}</p>` : ''}${links ? `<p class="gt-l">${links}</p>` : ''}${actions ? `<div class="gt-a"><button class="btn glow" type="button" data-gv="open">${n.read && !open ? 'Go there' : 'Open page'}</button>${mini || still ? '' : '<button class="btn ghost" type="button" data-gv="focus">Focus</button>'}</div>` : ''}`;
-    tip.hidden = false; tip.classList.toggle('act', !!actions);
+    tip.dataset.kind = kg(n); tip.hidden = false; tip.classList.toggle('act', !!actions);
     const tw = tip.offsetWidth, th = tip.offsetHeight; const r = radius(n);
     let left = x - tw / 2, top = y + r + 12; if (top + th > ch - 8) top = y - r - 12 - th;
     tip.style.left = `${Math.max(8, Math.min(cw - tw - 8, left))}px`; tip.style.top = `${Math.max(8, top)}px`;
@@ -308,37 +362,32 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     const s = Math.floor((now - R.t0) / R.per);
     while (R.step < Math.min(s, R.idx.length - 1)) {
       R.step++; const i = R.idx[R.step]; R.at = i; R.lit.add(i);
-      if (R.step > 0) { const a = R.idx[R.step - 1]; R.edges.add(`${a},${i}`); R.edges.add(`${i},${a}`); pulses.push({ a, b: i, t0: now }); }
+      if (R.step > 0) { const a = R.idx[R.step - 1]; R.edges.add(`${a},${i}`); R.edges.add(`${i},${a}`); R.seg = { a, b: i, t0: now }; }
       const n = g.nodes[i]; flyTo({ x: n.x, y: n.y, k: Math.max(cam.k, 1.15) });
     }
     if (s >= R.idx.length + 1) { R.done = true; flyTo(fitView([...R.lit].map(i => g.nodes[i]), cw, ch, { pad: 70, max: 1.8, min: .12 })); }
   }
   function stopReplay() { replay = null; wake(); }
-  /* ---------- a picture of your world, to keep or share ---------- */
+  /* ---------- a picture of your world, to keep or share: the same drawing, at print size ---------- */
   function picture({ title = 'My world', sub = '' } = {}) {
-    const Wd = 2400, Ht = 1500; const c = document.createElement('canvas'); c.width = Wd; c.height = Ht; const x = c.getContext('2d');
-    const { dark, ink, base, kinds } = colors;
+    const Wd = 2400, Ht = 1500, u = 2.2; const c = document.createElement('canvas'); c.width = Wd; c.height = Ht; const x = c.getContext('2d');
+    const { dark, ink, base, kinds } = colors; const keep = colors.stage; colors.stage = base;
     x.fillStyle = base; x.fillRect(0, 0, Wd, Ht);
-    const v = fitView(g.nodes, Wd, Ht - 220, { pad: 120, max: 2.4, min: .05 }); const k = v.k, ox = Wd / 2 - v.x * k, oy = (Ht - 220) / 2 - v.y * k + 40;
+    const v = fitView(g.nodes, Wd, Ht - 240, { pad: 150, max: 2.4, min: .05 }); const k = v.k, ox = Wd / 2 - v.x * k, oy = (Ht - 240) / 2 - v.y * k + 50;
+    grid(x, Wd, Ht, k, ox, oy, 1, u);
+    const P = g.nodes.map(n => [n.x * k + ox, n.y * k + oy]); const R = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * u * 1.25;
     x.lineCap = 'round';
-    for (const e of g.edges) { const a = g.nodes[e.a], b = g.nodes[e.b]; x.globalAlpha = e.unread ? .1 : e.move ? .4 : .2; x.strokeStyle = ink; x.lineWidth = e.move ? 2.2 : 1.4; x.beginPath(); x.moveTo(a.x * k + ox, a.y * k + oy); x.lineTo(b.x * k + ox, b.y * k + oy); x.stroke(); }
-    x.globalCompositeOperation = dark ? 'lighter' : 'source-over';
-    for (const n of g.nodes) if (n.read) { const r = (3.4 + 2.1 * Math.sqrt(Math.min(n.deg, 30))) * 1.6; const s = r * 7; x.globalAlpha = 1; x.drawImage(glowSprite(kinds[kg(n)], dark), n.x * k + ox - s / 2, n.y * k + oy - s / 2, s, s); }
-    x.globalCompositeOperation = 'source-over';
-    for (const n of g.nodes) {
-      const hex = kinds[kg(n)]; const px = n.x * k + ox, py = n.y * k + oy;
-      if (n.read) { const r = (3.4 + 2.1 * Math.sqrt(Math.min(n.deg, 30))) * 1.6; x.globalAlpha = 1; x.fillStyle = hex; x.beginPath(); x.arc(px, py, r, 0, Math.PI * 2); x.fill(); x.globalAlpha = dark ? .55 : .35; x.fillStyle = '#fff'; x.beginPath(); x.arc(px - r * .22, py - r * .22, r * .42, 0, Math.PI * 2); x.fill(); }
-      else { const [rr, gg, bb] = hexRGB(hex); x.globalAlpha = 1; x.fillStyle = `rgba(${rr},${gg},${bb},.25)`; x.strokeStyle = `rgba(${rr},${gg},${bb},.6)`; x.lineWidth = 1.6; x.beginPath(); x.arc(px, py, 3.4, 0, Math.PI * 2); x.fill(); x.stroke(); }
-    }
-    x.font = '600 22px Inter, system-ui, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'top'; x.lineJoin = 'round';
+    for (const e of g.edges) { x.globalAlpha = e.unread ? .17 : e.move ? .55 : .3; x.strokeStyle = ink; x.lineWidth = (e.move ? 1.1 : .85) * u; x.beginPath(); x.moveTo(...P[e.a]); x.lineTo(...P[e.b]); x.stroke(); }
+    g.nodes.forEach((n, i) => {
+      const [px, py] = P[i], r = R(n), hex = kinds[kg(n)]; x.strokeStyle = hex; x.lineWidth = u;
+      if (n.read) { x.globalAlpha = 1; x.fillStyle = hex; disc(x, px, py, r); x.globalAlpha = dark ? .55 : .5; ring(x, px, py, r + 2.5 * u); }
+      else { x.globalAlpha = 1; x.fillStyle = base; disc(x, px, py, r); x.globalAlpha = dark ? .85 : .75; ring(x, px, py, r); }
+    });
+    const fs = 22; x.font = `600 ${fs}px Inter, system-ui, sans-serif`; x.textAlign = 'left'; x.textBaseline = 'middle'; x.lineJoin = 'round'; spaced(x);
     const placed = [];
-    for (const i of labelOrder) {
-      const n = g.nodes[i]; if (!n.read) continue; const r = (3.4 + 2.1 * Math.sqrt(Math.min(n.deg, 30))) * 1.6;
-      const px = n.x * k + ox, py = n.y * k + oy + r + 8; const t = clip(n.title, 30); const w = x.measureText(t).width; const box = [px - w / 2 - 4, py - 2, px + w / 2 + 4, py + 26];
-      if (placed.some(b => b[0] < box[2] && box[0] < b[2] && b[1] < box[3] && box[1] < b[3])) continue; placed.push(box);
-      x.globalAlpha = 1; x.lineWidth = 6; x.strokeStyle = base; x.strokeText(t, px, py); x.fillStyle = ink; x.fillText(t, px, py);
-    }
-    x.globalAlpha = 1; x.textAlign = 'left'; x.textBaseline = 'alphabetic';
+    for (const i of labelOrder) { const n = g.nodes[i]; if (!n.read) continue; const t = clip(n.title, 30).toUpperCase(); tag(x, t, x.measureText(t).width, fs, P[i][0], P[i][1], R(n), [[1, -1], [1, 1], [-1, -1], [-1, 1]], placed, u, 1, true, Wd, Ht); }
+    unspaced(x); colors.stage = keep;
+    x.globalAlpha = 1; x.textBaseline = 'alphabetic';
     x.fillStyle = ink; x.font = '700 56px Inter, system-ui, sans-serif'; x.fillText(title, 110, Ht - 120);
     x.fillStyle = dark ? '#A3A7AE' : '#5E636B'; x.font = '500 30px Inter, system-ui, sans-serif'; x.fillText(sub, 110, Ht - 70);
     x.textAlign = 'right'; x.fillStyle = ink; x.font = '900 52px Doto, ui-monospace, monospace'; x.fillText('dorkhub', Wd - 110, Ht - 72);
@@ -346,7 +395,9 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   }
   /* ---------- life ---------- */
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null; if (ro) ro.observe(host); else addEventListener('resize', resize);
-  const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) wake(); }) : null; if (io) io.observe(cv);
+  /* the latest of what may be several changes since the last call: a map mounted just before a quick scroll
+     gets "hidden" and "shown" together */
+  const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; if (visible) wake(); }) : null; if (io) io.observe(cv);
   resize();
   return {
     el: cv, setData, frameView, setFocus, flyTo, picture, startReplay, stopReplay, wake, hideTip,

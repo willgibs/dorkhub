@@ -11,7 +11,7 @@ import { topicKey } from './world.js';
  * @typedef {{ key: string, pid: string, title: string, kind: string, read: boolean, saved: number,
  *   first: number, last: number, hook: string, count: number, deg: number, cur: boolean,
  *   x: number, y: number, vx: number, vy: number, fx: number | null, fy: number | null }} GNode
- * @typedef {{ a: number, b: number, move: boolean, unread: boolean, len?: number }} GEdge
+ * @typedef {{ a: number, b: number, move: boolean, unread: boolean, len?: number, from?: number, label?: string }} GEdge
  * @typedef {{ nodes: GNode[], edges: GEdge[] }} Graph
  */
 
@@ -48,7 +48,7 @@ export function buildGraph(pages, trails, { current = '', maxRead = 500, maxUnre
   const kept = new Map(keep.map(n => [n.key, n]));
   /* links between read topics, and the unread topics they point at */
   /** @type {Map<string, GNode & { at: number, mine: boolean, rank: number }>} */ const unread = new Map();
-  /** @type {Map<string, { move: boolean }>} */ const pairs = new Map();
+  /** @type {Map<string, { move: boolean, from?: string }>} */ const pairs = new Map();
   const pairKey = (/** @type {string} */ a, /** @type {string} */ b) => (a < b ? `${a}\n${b}` : `${b}\n${a}`);
   /** @type {Map<string, Set<string>>} */ const via = new Map();   // unread topic -> the read topics that link it
   for (const p of Object.values(pages)) {
@@ -74,7 +74,8 @@ export function buildGraph(pages, trails, { current = '', maxRead = 500, maxUnre
   for (const t of trails || []) for (const [pid, , from] of t.steps || []) {
     const a = from && keyOfPid.get(from), b = keyOfPid.get(pid);
     if (!a || !b || a === b || !kept.has(a) || !kept.has(b)) continue;
-    const pk = pairKey(a, b); const e = pairs.get(pk); if (e) e.move = true; else pairs.set(pk, { move: true });
+    /* a move remembers the way you went, the first time you went it */
+    const pk = pairKey(a, b); const e = pairs.get(pk); if (e && !e.move) { e.move = true; e.from = a; } else if (!e) pairs.set(pk, { move: true, from: a });
   }
   const loose = [...unread.values()].sort((a, b) => Number(b.mine) - Number(a.mine) || b.count - a.count || b.at - a.at);
   const chosen = loose.filter((u, i) => i < maxUnread || (u.mine && u.rank < perPage));
@@ -86,7 +87,8 @@ export function buildGraph(pages, trails, { current = '', maxRead = 500, maxUnre
     const unreadEdge = !nodes[ia].read || !nodes[ib].read;
     /* an invitation hangs at its own distance, so a page's few unread topics gather loosely rather than in a ring */
     const len = unreadEdge ? 26 + (hashOf(nodes[nodes[ia].read ? ib : ia].key) % 23) : e.move ? 46 : 58;
-    edges.push({ a: ia, b: ib, move: e.move, unread: unreadEdge, len });
+    const from = e.from ? index.get(e.from) : undefined;
+    edges.push({ a: ia, b: ib, move: e.move, unread: unreadEdge, len, ...(from != null ? { from } : {}) });
     nodes[ia].deg++; nodes[ib].deg++;
   }
   return { nodes, edges };
@@ -122,7 +124,7 @@ export function localGraph(g, center, max = 60, unread = Infinity) {
   const order = [...pick]; const at = new Map(order.map((i, j) => [i, j]));
   const nodes = order.map(i => ({ ...g.nodes[i], deg: 0 }));
   /** @type {GEdge[]} */ const edges = [];
-  for (const e of g.edges) { const a = at.get(e.a), b = at.get(e.b); if (a == null || b == null) continue; edges.push({ ...e, a, b }); nodes[a].deg++; nodes[b].deg++; }
+  for (const e of g.edges) { const a = at.get(e.a), b = at.get(e.b); if (a == null || b == null) continue; const from = e.from != null ? at.get(e.from) : undefined; edges.push({ ...e, a, b, from }); nodes[a].deg++; nodes[b].deg++; }
   return { nodes, edges };
 }
 

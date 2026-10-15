@@ -115,7 +115,9 @@ Keyboard first: 1–6, S, G, T, F, K, L, C, P, D, Q, R, I, A, M, N, ?. On a phon
 keeps a plain menu (keys, voice, theme, export, shortcuts, a new topic) and one gooey
 button holds the learning tools (search, Your world, save, around this).
 
-**Your world** (/world): the whole map, with find, kind filters, focus (everything within
+**Your world** (/world) is drawn like an instrument, not a light show (Will, 2026-10-15:
+"a sleek F1 visualisation, not junior glowy"): hairlines on a faint grid, names in small
+capitals, colour only for what a topic is. The whole map, with find, kind filters, focus (everything within
 two links), Replay (a trail walked again across the map), and a picture of it to keep;
 then what you read by kind, your most connected topic, your saved pages and your trails.
 Only where the map is already visible does it grow as you read; while you read, only the

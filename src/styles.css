@@ -23,6 +23,8 @@
   --base:#FCFCFB; --ink:#18181B; --mute:#5E636B; --faint:#6A6F78; --line:rgba(24,24,27,.09); --line-2:rgba(24,24,27,.17); --panel:#F3F3F1; --on-acc:#FFFFFF;
   /* surfaces: paper is the page, a surface is raised off it, sunken sits into it; elevation is one hairline plus one soft shadow */
   --surface:#FFFFFF; --sunken:var(--panel); --hi:transparent;
+  /* what a map sits on: a flat instrument panel, a shade off the page */
+  --stage:#F4F4F2;
   --sh-1:0 0 0 1px var(--line),0 1px 2px rgba(16,17,20,.04);
   --sh-2:0 0 0 1px var(--line),0 1px 2px rgba(16,17,20,.04),0 14px 34px -18px rgba(16,17,20,.24);
   --sh-3:0 0 0 1px var(--line-2),0 2px 6px rgba(16,17,20,.05),0 32px 72px -28px rgba(16,17,20,.38);
@@ -31,9 +33,9 @@
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
+  :root:not([data-theme="light"]){--stage:#08090B;--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
 }
-:root[data-theme="dark"]{--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
+:root[data-theme="dark"]{--stage:#08090B;--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
 /* the page's accent is the colour of what it is about: the same eight colours as links and Your world */
 :root[data-accent="concept"]{--acc:#2563EB}:root[data-accent="phenomenon"]{--acc:#0E7C86}:root[data-accent="mechanism"]{--acc:#2F7D32}:root[data-accent="place"]{--acc:#A16207}
 :root[data-accent="person"]{--acc:#C2410C}:root[data-accent="event"]{--acc:#BE123C}:root[data-accent="thing"]{--acc:#A21CAF}:root[data-accent="mystery"]{--acc:#6D28D9}
@@ -787,10 +789,8 @@ body.at-start .omni-btn{display:none}
 .fd-cards.in .fc{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 .fd-cards.out .fc{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) ease,filter var(--d-quick) ease,transform var(--d-quick) ease}
 /* the map between the cards, beside a few words about it: still, so a finger scrolls the page over it */
-.fd-world{--stage:color-mix(in srgb,var(--ink) 3%,var(--base));position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);column-gap:12px;margin:14px 0;padding-left:26px;border-radius:var(--r-4);background:radial-gradient(120% 90% at 60% 50%,color-mix(in srgb,var(--surface) 70%,var(--stage)) 0%,var(--stage) 70%);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.fd-world{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);column-gap:12px;margin:14px 0;padding-left:26px;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .fd-world:empty{display:none}
-:root[data-theme="dark"] .fd-world{background:radial-gradient(110% 85% at 60% 50%,#15171C 0%,#0A0B0E 62%,#060708 100%)}
-@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .fd-world{background:radial-gradient(110% 85% at 60% 50%,#15171C 0%,#0A0B0E 62%,#060708 100%)} }
 .fw-side{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0;padding:26px 0 24px}
 .fw-h{font:650 19px/1.25 var(--f-ui);letter-spacing:-.012em}
 .fw-p{max-width:40ch;font-size:14.5px;line-height:1.5;color:var(--mute)}
@@ -904,13 +904,15 @@ body:not(.at-start) .theme-btn{display:none}
 .gv-canvas{position:absolute;inset:0;display:block;touch-action:none;cursor:grab}
 .gv-canvas:active{cursor:grabbing}
 /* the card beside a topic: what it is, when you read it, what it connects to */
-.gv-tip{position:absolute;z-index:3;width:min(280px,calc(100% - 16px));padding:11px 13px 12px;border-radius:var(--r-3);background:color-mix(in srgb,var(--surface) 94%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:var(--sh-3);font:13.5px/1.45 var(--f-ui);color:var(--ink);pointer-events:none;animation:cardin var(--d-quick) var(--ease-out)}
+.gv-tip{position:absolute;z-index:3;width:min(280px,calc(100% - 16px));padding:10px 13px 12px 16px;border-radius:var(--r-1);background:var(--surface);box-shadow:0 0 0 1px var(--line-2),0 18px 40px -22px rgba(0,0,0,.55);font:13.5px/1.45 var(--f-ui);color:var(--ink);pointer-events:none;overflow:hidden}
+.gv-tip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--acc))}
 .gv-tip.act{pointer-events:auto}
-.gt-k{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--faint)}
-.gt-k .kind{font-size:12px}
-.gt-t{margin-top:4px!important;font:700 16.5px/1.25 var(--f-ui);letter-spacing:-.012em}
-.gt-h{margin-top:4px!important;color:var(--mute)}
-.gt-l{margin-top:6px!important;font-size:12.5px;color:var(--faint)}
+.gt-k{display:flex;align-items:center;justify-content:space-between;gap:8px;font:600 10.5px/1.3 var(--f-ui);letter-spacing:.07em;text-transform:uppercase;color:var(--faint)}
+.gt-k .kind{font-size:10.5px}
+.gv-tip .kind[data-kind]::before{display:none}
+.gt-t{margin-top:5px!important;font:650 15.5px/1.25 var(--f-ui);letter-spacing:-.01em}
+.gt-h{margin-top:4px!important;font-size:13px;color:var(--mute)}
+.gt-l{margin-top:8px!important;padding-top:7px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
 .gt-l b{color:var(--mute);font-weight:600}
 .gt-a{display:flex;gap:6px;margin-top:10px}
 .gt-a .btn{padding:6px 11px;font-size:13px}
@@ -921,9 +923,7 @@ body:not(.at-start) .theme-btn{display:none}
 .wp-sum{display:flex;flex-wrap:wrap;gap:4px 18px;font:500 14px var(--f-ui);color:var(--mute)}
 .wp-sum b{font:700 15px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
 /* the stage: deep paper with a little light in the middle, the showpiece in the dark */
-.wp-stage{--stage:color-mix(in srgb,var(--ink) 3%,var(--base));position:relative;height:min(68vh,680px);min-height:380px;border-radius:var(--r-4);background:radial-gradient(120% 90% at 50% 45%,color-mix(in srgb,var(--surface) 70%,var(--stage)) 0%,var(--stage) 70%);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
-:root[data-theme="dark"] .wp-stage{--stage:#08090B;background:radial-gradient(110% 85% at 50% 45%,#15171C 0%,#0A0B0E 62%,#060708 100%)}
-@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .wp-stage{--stage:#08090B;background:radial-gradient(110% 85% at 50% 45%,#15171C 0%,#0A0B0E 62%,#060708 100%)} }
+.wp-stage{position:relative;height:min(68vh,680px);min-height:380px;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .wp-bar{position:absolute;left:12px;right:12px;top:12px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;pointer-events:none}
 .wp-bar>*{pointer-events:auto}
 .wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:var(--sh-1);color:var(--faint)}
@@ -982,7 +982,7 @@ body:not(.at-start) .theme-btn{display:none}
 }
 /* the small map beside a page */
 .mini{display:grid;gap:8px;padding:2px 12px 14px}
-.mini-stage{position:relative;height:260px;border-radius:var(--r-3);background:color-mix(in srgb,var(--ink) 3%,var(--base));box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
+.mini-stage{position:relative;height:260px;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 :root[data-theme="dark"] .mini-stage{background:#08090B}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .mini-stage{background:#08090B} }
 .mini .gv-tip{width:calc(100% - 16px);font-size:12.5px}

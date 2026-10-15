@@ -31,7 +31,30 @@ const vendorFiles = existsSync(vendorDir) ? readdirSync(vendorDir).sort() : [];
 const vendor = vendorFiles.filter((f) => f.endsWith('.js')).map((f) => inline('vendor', f));
 const vendorCss = vendorFiles.filter((f) => f.endsWith('.css')).map((f) => src('vendor', f).trimEnd());
 const modules = readdirSync(join(root, 'src', 'app')).filter((f) => f.endsWith('.js')).sort();
-const script = [
+/* The script ships without its comments (licence notices stay). TypeScript's parser finds every
+   comment exactly, so nothing inside a string, template or regex is ever touched; a comment alone on
+   its lines takes those lines with it, and one that held a line break leaves one, so automatic
+   semicolons fall where they did. Without TypeScript (a production-only install) it ships as written. */
+async function lean(code) {
+  let ts; try { ts = (await import('typescript')).default; } catch { return code; }
+  const sf = ts.createSourceFile('page.js', code, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+  /** @type {Map<number, number>} */ const cuts = new Map();
+  const visit = (/** @type {import('typescript').Node} */ node) => {
+    for (const r of [...ts.getLeadingCommentRanges(code, node.pos) || [], ...ts.getTrailingCommentRanges(code, node.end) || []]) cuts.set(r.pos, r.end);
+    for (const ch of node.getChildren(sf)) visit(ch);
+  };
+  visit(sf);
+  let out = '', at = 0;
+  for (let [pos, end] of [...cuts].sort((a, b) => a[0] - b[0])) {
+    const c = code.slice(pos, end); if (pos < at || /licen[cs]e|copyright/i.test(c)) continue;
+    const ls = code.lastIndexOf('\n', pos - 1) + 1; let le = code.indexOf('\n', end); if (le < 0) le = code.length;
+    if (!code.slice(ls, pos).trim() && !code.slice(end, le).trim()) { pos = ls; end = Math.min(code.length, le + 1); out += code.slice(at, pos); }
+    else out += code.slice(at, pos) + (c.includes('\n') ? '\n' : '');
+    at = end;
+  }
+  return out + code.slice(at);
+}
+const script = await lean([
   '(() => {',
   "'use strict';",
   `const TRIAL_PAGES = ${trialConfig(process.env).pages};`,
@@ -39,7 +62,7 @@ const script = [
   ...vendor,
   ...modules.map((f) => src('app', f).trimEnd()),
   '})();',
-].join('\n');
+].join('\n'));
 if (script.includes('</script')) throw new Error('the page script must not contain "</script"');
 /* The modules share one scope, so a name declared twice only fails in a browser: compile it here (nothing runs). */
 try { new Script(script, { filename: 'page.js' }); } catch (e) { throw new Error(`the page script does not compile: ${/** @type {Error} */ (e).message}`); }
