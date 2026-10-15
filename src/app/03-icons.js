@@ -27,5 +27,7 @@ const ICON_PATHS = {
   wild: '<path d="M12 4.5 13.8 10l5.7.2-4.5 3.4 1.6 5.4L12 15.8 7.4 19l1.6-5.4-4.5-3.4 5.7-.2z"/>',
   loop: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/>',
   key: '<circle cx="7.5" cy="16" r="3.8"/><path d="m10.2 13.3 9.3-9.3M16.2 7.3l2.6 2.6M13.6 9.9l2 2"/>',
+  pause: '<path d="M9 6.5v11M15 6.5v11"/>',
+  play: '<path d="M8.5 6v12l9.5-6z"/>',
 };
 const ic = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;

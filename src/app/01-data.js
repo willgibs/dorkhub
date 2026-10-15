@@ -25,7 +25,6 @@ const LENSES = {
   kid: ['Curious kid', 'For a sharp 12-year-old. Never condescending.'],
   skeptic: ['Skeptic', 'Separates what is known from what is claimed.'],
 };
-const SEEDS = ['The Voynich manuscript', 'Why is ice slippery?', 'The Great Emu War', 'Mantis shrimp vision', 'Brutalist architecture', 'Tardigrades', 'The color mauve', 'Hilbert’s hotel', 'Bog bodies', 'The Antikythera mechanism', 'Why do we yawn?', 'Lighthouse lenses', 'Octopus intelligence', 'Tulip mania', 'The Kessler syndrome', 'The dancing plague of 1518', 'Slime molds', 'Umami', 'Ball lightning', 'Cuneiform', 'The Carrington Event', 'Mycorrhizal networks', 'Pneumatic tube mail', 'Bioluminescence', 'The Tunguska event', 'Whale falls', 'Phantom islands', 'The Library of Babel', 'Why do cats knead?', 'Esperanto', 'The Svalbard seed vault', 'Singing sand dunes', 'Stradivarius violins', 'The longitude problem'];
 const EXAMPLE_DIG = ['Voynich manuscript', 'Radiocarbon dating', 'Bomb pulse', 'Adult neurogenesis', 'Hippocampus', 'Path integration', 'Grid cells', 'Hexagonal lattices'];
 
 /* A prewritten rabbit hole: the demo reads without spending a page, even offline. */
