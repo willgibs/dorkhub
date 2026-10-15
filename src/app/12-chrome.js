@@ -148,3 +148,14 @@ fab.addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if (fab.dataset.open === 'true' && !fab.contains(e.target)) setFab(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && fab.dataset.open === 'true') setFab(false, true); });
+/* ================= the theme switch: the landing's top bar, otherwise empty ================= */
+const THEMES = { system: ['system', 'Theme: same as your device'], light: ['sun', 'Theme: light'], dark: ['moon', 'Theme: dark'] };
+function renderThemeBtn() {
+  const b = $('#themeBtn'); if (!b) return; const t = THEMES[store.settings.theme] ? store.settings.theme : 'system';
+  b.innerHTML = ic(THEMES[t][0]); b.dataset.tip = THEMES[t][1]; b.setAttribute('aria-label', `${THEMES[t][1]}. Change it`);
+}
+$('#themeBtn').addEventListener('click', () => {
+  const order = ['system', 'light', 'dark']; store.settings.theme = order[(order.indexOf(store.settings.theme || 'system') + 1) % order.length];
+  save(true); applyTheme(); renderThemeBtn();
+});
+renderThemeBtn();

@@ -31,9 +31,9 @@
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){--base:#111214;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#1A1B1E;--on-acc:#111214;--surface:#17181B;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
+  :root:not([data-theme="light"]){--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
 }
-:root[data-theme="dark"]{--base:#111214;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#1A1B1E;--on-acc:#111214;--surface:#17181B;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
+:root[data-theme="dark"]{--base:#0B0C0E;--ink:#ECECEE;--mute:#A3A7AE;--faint:#80858F;--line:rgba(236,236,238,.09);--line-2:rgba(236,236,238,.17);--panel:#16171A;--on-acc:#0B0C0E;--surface:#131417;--hi:rgba(255,255,255,.05);--sh-1:0 0 0 1px var(--line),inset 0 1px 0 var(--hi);--sh-2:0 0 0 1px var(--line),inset 0 1px 0 var(--hi),0 16px 36px -18px rgba(0,0,0,.7);--sh-3:0 0 0 1px var(--line-2),inset 0 1px 0 var(--hi),0 32px 72px -24px rgba(0,0,0,.8);color-scheme:dark}
 /* level accents: cool at the start, warmer the deeper you go */
 :root[data-stratum="0"],[data-s="0"]{--acc:#2563EB}
 :root[data-stratum="1"],[data-s="1"]{--acc:#0E7C86}
@@ -837,18 +837,17 @@ body.at-start .omni-btn{display:none}
 .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:min(860px,calc(100svh - var(--top-h) - env(safe-area-inset-top,0px)));max-width:780px;margin:0 auto;padding:clamp(32px,6vh,72px) 20px clamp(72px,12vh,128px);text-align:center}
 .hero.intro .rise{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * 60ms)}
 @keyframes risein{from{opacity:0;transform:translateY(var(--dist-medium));filter:blur(var(--blur-m))}}
-.resume{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin-bottom:22px;padding:5px 13px 5px 5px;border-radius:var(--r-pill);background:var(--surface);box-shadow:var(--sh-1);font:500 13.5px/1.2 var(--f-ui);color:var(--mute);text-decoration:none;white-space:nowrap;transition:box-shadow var(--d-fast) var(--ease-out)}
+.resume{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin-bottom:22px;padding:6px 14px;border-radius:var(--r-pill);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line-2);font:500 13.5px/1.2 var(--f-ui);color:var(--mute);text-decoration:none;white-space:nowrap;transition:box-shadow var(--d-fast) var(--ease-out)}
 .resume b{overflow:hidden;text-overflow:ellipsis;color:var(--ink);font-weight:600}
-.resume .mk{min-width:22px;height:22px;font-size:11px}
 .rs-go{color:var(--acc);transition:transform var(--d-fast) var(--ease-out)}
-.resume:hover{box-shadow:var(--sh-2)}
+.resume:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
 .resume:hover .rs-go{transform:translateX(3px)}
 .s-h{font:600 clamp(30px,4.4vw,46px)/1.08 var(--f-ui);letter-spacing:-.024em;text-wrap:balance}
 /* the composer: one surface with the beam riding its edge; what you type, then the tools that shape it */
 .composer{position:relative;z-index:5;width:100%;margin-top:30px;text-align:left}
-.cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 13%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
+.cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
 .cbox.go{--beam-strength:1.5}
-.composer:focus-within .cbox{--beam-strength:1;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 24%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
+.composer:focus-within .cbox{--beam-strength:1;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
 .cbox>:not(.beam-bloom):not(.cmirror){position:relative;z-index:4}
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 19px/1.45 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
@@ -864,12 +863,12 @@ body.at-start .omni-btn{display:none}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
 .cchip .ic{width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
-.ckey{gap:6px;height:32px;margin-left:auto;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
+.ckey{gap:6px;height:36px;margin-left:auto;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .ckey .ic{width:16px;height:16px}
 .ckey b{font:600 12.5px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
 .ckey:hover{background:var(--sunken)}
 /* send is an arrow once there is something to read about, and a dice (Surprise me) until then: one slot, two icons, a blur-and-scale swap */
-.send{position:relative;display:inline-grid;width:38px;height:38px;border-radius:var(--r-pill);background:var(--ink);color:var(--base)}
+.send{position:relative;display:inline-grid;width:36px;height:36px;border-radius:var(--r-pill);background:var(--ink);color:var(--base)}
 .send:hover{background:color-mix(in srgb,var(--ink) 84%,var(--base))}
 .send .sw{grid-area:1/1;display:grid;place-items:center;transition:opacity var(--d-fast) var(--ease-in-out),filter var(--d-fast) var(--ease-in-out),transform var(--d-fast) var(--ease-in-out)}
 .send .ic{width:19px;height:19px;stroke-width:2}
@@ -970,6 +969,9 @@ body.at-start .omni-btn{display:none}
 }
 /* on the landing the top bar is the wordmark alone: keys and voice live in the composer */
 body.at-start #keyBtn,body.at-start #voice{display:none}
+body:not(.at-start) .theme-btn{display:none}
+.theme-btn{color:var(--faint)}
+.theme-btn:hover{color:var(--ink)}
 
 
 /* ================= responsive ================= */
