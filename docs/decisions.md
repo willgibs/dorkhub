@@ -118,3 +118,13 @@ One line each, newest last. Why, not just what.
   - `/no-such-page` serves the new 404;
   - the function logs show only the known "no gateway credits" error, from these checks.
   Found while checking: the one-time "Tip" toast can sit over the phone tools' droplets while they're open. This predates #8, and its fix (lift the open tools above toasts) waits for Will.
+- 2026-10-15 · Will's notes on the landing, built in PR willgibs/dorkhub#10, which waits for his look:
+  - **Inter replaces Atkinson Hyperlegible** (Next and Mono) for the interface, titles, figures and keys.
+    - It's self-hosted from Google Fonts' files (OFL), with variable weight and optical size, so big titles get the display cut.
+    - Figures use tabular numerals; nothing is heavier than 700.
+    - Literata stays for article text. Inter body text is shown as an option, and would need a smaller size and a narrower column.
+  - **The top bar shows the dotted wordmark alone.** The glasses stay as the favicon.
+  - **Preset chips are plain.** The kind dot and colour meant nothing before a reader's first page. The trial line loses its dot too.
+  - **How it works comes before Where rabbit holes go**, so the level colours are explained before the chains use them.
+  - **The chains are made of names most people know.** Each still starts at a door, so the click is free even while paused. Shown: Great Emu War → chickens, tulip mania → New York City, Carrington Event → relativity.
+  - PR willgibs/dorkhub#9, also waiting for his look, lifts the open phone tools above toasts.
