@@ -842,16 +842,16 @@ body.at-start .omni-btn{display:none}
 .rs-go{color:var(--acc);transition:transform var(--d-fast) var(--ease-out)}
 .resume:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent)}
 .resume:hover .rs-go{transform:translateX(3px)}
-.s-h{font:600 clamp(30px,4.4vw,46px)/1.08 var(--f-ui);letter-spacing:-.024em;text-wrap:balance}
+.s-h{font:600 clamp(26px,3.3vw,36px)/1.1 var(--f-ui);letter-spacing:-.022em;text-wrap:balance}
 /* the composer: one surface with the beam riding its edge; what you type, then the tools that shape it */
 .composer{position:relative;z-index:5;width:100%;margin-top:30px;text-align:left}
 .cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
 .cbox.go{--beam-strength:1.5}
 .composer:focus-within .cbox{--beam-strength:1;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
 .cbox>:not(.beam-bloom):not(.cmirror){position:relative;z-index:4}
-#seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 19px/1.45 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
+#seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
-.cmirror{position:absolute;left:20px;top:18px;z-index:5;max-width:calc(100% - 40px);overflow:hidden;font:400 19px/1.45 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
+.cmirror{position:absolute;left:20px;top:18px;z-index:5;max-width:calc(100% - 40px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
 .ctools{display:flex;align-items:center;gap:6px;margin-left:-8px}
 .ctool,.ckey,.cchip,.send,.pr-shuf{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;font:600 13px/1 var(--f-ui);transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out),box-shadow var(--d-quick) var(--ease-out)}
 .ctool{width:34px;height:34px;border-radius:var(--r-pill);background:transparent;color:var(--mute);list-style:none}
@@ -954,7 +954,7 @@ body.at-start .omni-btn{display:none}
   .hero{min-height:calc(86svh - var(--top-h));padding-top:20px;padding-bottom:56px}
   .pr-list .door:nth-child(4){display:none}
   .cbox{padding:14px 10px 8px 16px}
-  #seedIn,.cmirror{font-size:18px}
+  #seedIn,.cmirror{font-size:16px}
   .cmirror{left:16px;top:16px}
   .s-lede{font-size:18px}
   .land-sec{padding-top:88px}
