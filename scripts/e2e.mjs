@@ -71,22 +71,34 @@ async function run(page, { mobile = false } = {}) {
     const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
   });
-  /* below the composer, today's pages: the first row peeks above the fold, each card says its page one
-     way, shuffle deals them again, and every card opens a page written ahead of time, free */
-  await step(`${tag}: today's pages below the composer`, async () => {
-    await page.waitForSelector('#feedA .fc'); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(700);
-    const f = await page.evaluate(() => { const cards = [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('#feed .fc'))]; const lead = cards[0]; return { n: cards.length, order: cards.map(c => c.dataset.feed), lead: lead.classList.contains('fc-lead'), today: lead.querySelector('.fc-eye')?.textContent || '', peek: Math.round(lead.getBoundingClientRect().top), vh: innerHeight, formats: [...new Set(cards.map(c => [...c.classList].find(k => k.startsWith('fc-'))))].sort(), map: !!document.querySelector('#feedWorld:not(.mine) #feedStage canvas') }; });
-    if (f.n !== 12 || !f.lead || f.today !== 'Today’s topic' || f.peek >= f.vh || !f.map || ['fc-lead', 'fc-myth', 'fc-num', 'fc-pic', 'fc-q'].some(k => !f.formats.includes(k))) throw new Error(`feed: ${JSON.stringify(f)}`);
+  /* below the composer, ways in: every card its own drawing leading into a planned topic, the first one
+     peeking above the fold; a flytrap that counts touches; an Enigma that never lights the key pressed;
+     and a map of the threads between the topics that says why, beside it, for the topic pointed at */
+  await step(`${tag}: ways in below the composer`, async () => {
+    await page.waitForSelector('#bentoB .wc'); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(600);
+    const f = await page.evaluate(() => { const cards = [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('#ways .wc'))]; return { n: cards.length, hero: cards[0].classList.contains('wc-hero'), peek: Math.round(cards[0].getBoundingClientRect().top), vh: innerHeight, drawn: cards.filter(c => c.querySelector('.wc-art [role="img"][aria-label], .wc-art img[alt], .wc-art .tt, .wc-art .en')).length, links: cards.map(c => { const a = /** @type {HTMLAnchorElement} */ (c.querySelector('.wc-t a')); return [a.getAttribute('href'), a.dataset.way]; }), map: !!document.querySelector('#threadStage canvas'), chips: document.querySelectorAll('.door[data-seed]').length }; });
+    if (f.n !== 13 || !f.hero || f.peek >= f.vh || f.drawn !== f.n || !f.map || f.chips !== 4 || f.links.some(([h, t]) => !t || h !== `/${slugOf(t)}`)) throw new Error(`ways in: ${JSON.stringify(f)}`);
     await page.screenshot({ path: `${shots}/${tag}-1b-front.png` });
-    await page.locator('[data-act="feed-shuffle"]').click(); await page.waitForTimeout(900);
-    const after = await page.$$eval('#feed .fc', cs => cs.map(c => /** @type {HTMLElement} */ (c).dataset.feed));
-    if (after.join() === f.order.join() || await page.locator('#feedA .fc-eye').count()) throw new Error(`feed shuffle: ${JSON.stringify(after)}`);
-    const card = page.locator('#feed .fc-q').first(); const t = await card.getAttribute('data-feed');
-    await card.click(); await waitDone();
-    const p = await page.evaluate(() => ({ url: location.pathname, fine: document.querySelector('.fineprint')?.textContent || '' }));
-    if (!/written ahead of time/.test(p.fine)) throw new Error(`a feed card: ${JSON.stringify({ t, ...p })}`);
-    if ((await left()) !== String(PAGES)) throw new Error(`a feed card spent a free page: ${await left()}`);
-    await page.goto(base); await page.waitForSelector('#seedIn');
+    const ft = page.locator('.wc[data-fx="flytrap"]'); await ft.scrollIntoViewIfNeeded();
+    await ft.locator('.ft-btn').click(); const one = await ft.getAttribute('data-state');
+    await ft.locator('.ft-btn').click(); const two = await ft.getAttribute('data-state');
+    if (one !== 'armed' || two !== 'shut') throw new Error(`the flytrap: ${one}, then ${two}`);
+    const en = page.locator('.wc[data-fx="enigma"]'); await en.scrollIntoViewIfNeeded();
+    await en.locator('.en-in input').fill('AAAAA');
+    const e1 = await en.evaluate(c => ({ out: c.querySelector('.en-cy')?.textContent, rotors: [...c.querySelectorAll('.en-r span')].map(s => s.textContent).join(''), lit: c.querySelector('.en-lamps i.on')?.textContent }));
+    if (e1.out !== 'BDZGO' || e1.rotors !== 'AAF' || e1.lit !== 'O') throw new Error(`the Enigma: ${JSON.stringify(e1)}`);
+    await en.locator('.en-in input').fill('WETTERVORHERSAGE');
+    const same = await en.evaluate(c => { const a = c.querySelector('.en-pl')?.textContent || '', b = c.querySelector('.en-cy')?.textContent || ''; return a.length === 16 && b.length === 16 ? [...a].filter((x, i) => x === b[i]).length : -1; });
+    if (same !== 0) throw new Error(`the Enigma lit a letter as itself: ${same}`);
+    await en.screenshot({ path: `${shots}/${tag}-1c-enigma.png` });
+    if (!mobile) {
+      const stage = page.locator('#threadStage'); await stage.scrollIntoViewIfNeeded(); await page.waitForTimeout(1300);
+      const box = /** @type {{ x: number, y: number, width: number, height: number }} */ (await stage.boundingBox()); let found = false;
+      for (let y = box.y + box.height * .25; y < box.y + box.height * .75 && !found; y += 9) for (let x = box.x + box.width * .25; x < box.x + box.width * .75; x += 9) { await page.mouse.move(x, y); if (await page.evaluate(() => /** @type {HTMLElement} */ (document.querySelector('#threadStage canvas')).style.cursor === 'pointer')) { found = true; break; } }
+      const th = await page.evaluate(() => { const b = /** @type {HTMLElement} */ (document.querySelector('#threads .th-body')); return { t: b.querySelector('.th-t')?.textContent || '', n: b.querySelectorAll('.th-list li').length, way: /** @type {HTMLElement} */ (b.querySelector('.wc-go'))?.dataset.way || '' }; });
+      if (!found || !th.t || !th.n || th.way !== th.t) throw new Error(`the map of threads: ${JSON.stringify({ found, ...th })}`);
+      await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
+    }
   });
   await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
@@ -299,12 +311,16 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('.gv-tip.act [data-gv="open"]').click();
       await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, saved, { timeout: 10000 });
     });
-    /* back on the front page, a reader finds their own world between today's pages */
+    /* back on the front page, a reader's own world takes the last card's place */
     await step(`${tag}: the front page shows your world`, async () => {
-      await page.goto(base); await page.waitForSelector('#feedWorld.mine #feedStage canvas');
-      const w = await page.evaluate(() => ({ stats: document.querySelector('#feedWorld .fw-stats')?.textContent || '', recent: document.querySelectorAll('#feedWorld .fw-lists li').length }));
-      if (!/topics? read/.test(w.stats) || !w.recent) throw new Error(`the front page's world: ${JSON.stringify(w)}`);
-      await page.locator('#feedWorld').scrollIntoViewIfNeeded(); await page.waitForTimeout(900); await page.screenshot({ path: `${shots}/${tag}-7b-front-world.png` });
+      await page.goto(base); await page.waitForSelector('.wc-world #worldStage canvas');
+      const w = await page.evaluate(() => ({ stats: document.querySelector('.wc-world .wc-h')?.textContent || '', recent: document.querySelectorAll('.wc-world .ww-list li').length, cards: document.querySelectorAll('#ways .wc').length, last: document.querySelector('#bentoB .wc:last-child')?.classList.contains('wc-world') }));
+      if (!/topics? read/.test(w.stats) || !w.recent || w.cards !== 13 || !w.last) throw new Error(`the front page's world: ${JSON.stringify(w)}`);
+      await page.locator('.wc-world').scrollIntoViewIfNeeded(); await page.waitForTimeout(1500);
+      /* its map draws its topics on its own (in their kind colours), with nothing pointed at */
+      const lit = await page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#worldStage canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; return n; });
+      if (lit < 40) throw new Error(`the front page's world map is empty (${lit} coloured pixels)`);
+      await page.screenshot({ path: `${shots}/${tag}-7b-front-world.png` });
     });
   }
   /* a link from outside: free if it is already written, otherwise written only when asked */

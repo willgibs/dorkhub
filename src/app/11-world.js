@@ -16,10 +16,11 @@ const TAU = Math.PI * 2;
  * A graph view on a host element. mini: the small map beside a page (no wheel zoom, no tools).
  * still: a map inside a scrolling page (the front page): it never pans, zooms or drags, so a finger
  * scrolls the page over it; a topic is opened by a click, or on a phone by a tap on its card.
- * describe and open replace the card's status line and what opening a topic does.
- * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void }} [o]
+ * describe and open replace the card's status line and what opening a topic does; panel, given, takes the
+ * card's place entirely (the front page's map shows a pointed-at topic beside the map, not over it).
+ * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
  */
-function makeGraph(host, { mini = false, still = false, positions = null, describe = null, open = null } = {}) {
+function makeGraph(host, { mini = false, still = false, positions = null, describe = null, open = null, panel = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
@@ -160,8 +161,8 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   /* where you are: a ring with four ticks, like a sight */
   function reticle(c, x, y, r, u) { ring(c, x, y, r); c.beginPath(); for (let q = 0; q < 4; q++) { const ax = Math.cos(q * TAU / 4), ay = Math.sin(q * TAU / 4); c.moveTo(x + ax * (r + 2 * u), y + ay * (r + 2 * u)); c.lineTo(x + ax * (r + 5.5 * u), y + ay * (r + 5.5 * u)); } c.stroke(); }
   /* a name in small capitals off a short leader line: up and right first, then the other corners */
-  function tag(c, text, w, fs, cx, cy, r, dirs, placed, u, fa, strong, W, H) {
-    const { ink, stage } = colors; const lead = 6 * u, tick = 5 * u, pad = 3 * u;
+  function tag(c, text, w, fs, cx, cy, r, dirs, placed, u, fa, strong, W, H, col = colors.ink, reach = 1) {
+    const { ink, stage } = colors; const lead = 6 * u * reach, tick = 5 * u, pad = 3 * u;
     for (const [dx, dy] of dirs) {
       const sx = cx + dx * (r + 1.5 * u) * .7071, sy = cy + dy * (r + 1.5 * u) * .7071;
       const mx = sx + dx * lead, my = sy + dy * lead, ex = mx + dx * tick, tx = dx > 0 ? ex + pad : ex - pad - w;
@@ -170,7 +171,7 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
       placed.push(box);
       c.globalAlpha = fa * .45; c.strokeStyle = ink; c.lineWidth = .9 * u; c.beginPath(); c.moveTo(sx, sy); c.lineTo(mx, my); c.lineTo(ex, my); c.stroke();
       c.globalAlpha = fa; c.lineWidth = 3 * u; c.strokeStyle = stage; c.strokeText(text, tx, my);
-      c.globalAlpha = fa * (strong ? .95 : .68); c.fillStyle = ink; c.fillText(text, tx, my);
+      c.globalAlpha = fa * (strong ? .95 : .68); c.fillStyle = col; c.fillText(text, tx, my);
       return true;
     }
     return false;
@@ -254,9 +255,23 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     for (const i of labelOrder) if (!order.includes(i)) order.push(i);
     /* a small screen names fewer topics until you zoom in */
     const small = cw < 520; const readFade = mini ? 1 : clamp01((k - (small ? .75 : .45)) / .35), loneFade = clamp01((k - (mini ? 1.6 : small ? 1.6 : 1.25)) / .4);
+    /* a pointed-at topic's threads say why, tagged at their middles in the colour of where they lead: after
+       the names of the topic and its neighbours, before the faded names, which make room for them */
+    let threadsDue = !!nb && g.edges.some(e => e.label);
+    const threadTags = () => {
+      threadsDue = false; unspaced(ctx); const tf = fs + .5; ctx.font = `500 ${tf}px Inter, system-ui, sans-serif`;
+      for (const e of g.edges) {
+        if (!e.label || (e.a !== hi && e.b !== hi)) continue;
+        const o = e.a === hi ? e.b : e.a, [x1, y1] = P[hi], [x2, y2] = P[o], mx = (x1 + x2) / 2, my = (y1 + y2) / 2, col = kinds[kg(N[o])];
+        const wk = `t${tf}|${e.label}`; let w = widths.get(wk); if (w == null) { w = ctx.measureText(e.label).width; widths.set(wk, w); }
+        for (const reach of [1, 2.4, 3.8]) if (tag(ctx, e.label, w, tf, mx, my, 2.5, [[1, -1], [-1, -1], [1, 1], [-1, 1]], placed, 1, 1, true, cw, ch, col, reach)) { ctx.globalAlpha = 1; ctx.fillStyle = col; disc(ctx, mx, my, 2.5); break; }
+      }
+      ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`; spaced(ctx);
+    };
     let drawn = 0;
     for (const i of order) {
       const n = N[i]; if (!isShown(i)) continue; const special = i === hi || i === sel || i === fi || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
+      if (threadsDue && !special) threadTags();
       let fa = special ? 1 : n.read ? (still ? .9 : mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
       fa *= (special ? 1 : dimOf(i)) * bornA(i) * tickIn(i); if (fa < .05) continue;
       const [cx, cy] = P[i], r = radius(n) * bornS(i); if (cx < -100 || cy < -20 || cx > cw + 100 || cy > ch + 20) continue;
@@ -265,6 +280,7 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
       if (tag(ctx, text, w, fs, cx, cy, r, dirs, placed, 1, fa, n.read || special, cw, ch) && ++drawn > (mini ? 40 : 260)) break;
     }
     unspaced(ctx);
+    if (threadsDue) { threadTags(); unspaced(ctx); }
     /* how close you are, in the corner, on the full map */
     if (!mini && !still) { ctx.globalAlpha = dark ? .5 : .55; ctx.fillStyle = ink; ctx.font = '600 10px Inter, system-ui, sans-serif'; spaced(ctx); ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic'; ctx.fillText(`ZOOM ${k.toFixed(2)}×`, cw - 16, ch - 14); unspaced(ctx); ctx.textAlign = 'left'; }
     ctx.globalAlpha = 1;
@@ -330,6 +346,7 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   /* the card beside a topic: what it is, when you read it, what it connects to */
   function showTip(i, actions) {
     if (i < 0) { hideTip(); return; }
+    if (panel) { panel(g.nodes[i], actions); return; }
     const n = g.nodes[i]; const [x, y] = toScreen(n); const near = adj[i].map(j => g.nodes[j]).filter(m => m.read).map(m => m.title);
     const lead = n.read && pageOf(n.pid)?.deck ? plain(pageOf(n.pid).deck) : n.hook || '';
     const status = describe ? describe(n) : n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;

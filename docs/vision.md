@@ -37,11 +37,13 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
    World features never add weight to the article: they are hidden magic, there when you
    pause (Will, 2026-10-15).
 5. **The front page** gets a visitor into their first page. One composer, front and centre,
-   with presets for anyone who would rather not type; below it, peeking above the fold,
-   today's pages: the pages written ahead of time as a feed of cards (today's topic with its
-   picture, a big number, a myth put right, a question still open), free and instant, with a
-   map of where they lead. A reader finds their own world there instead. No marketing
-   (Will, 2026-10-15).
+   with suggestions for anyone who would rather not type; below it, peeking above the fold,
+   ways in: cards made by hand, each its own drawing leading into one topic (the aurora's
+   colours by height, Krakatoa's pressure wave going round the world, a flytrap you can touch,
+   an Enigma you can type into), and a map of the threads between the topics that says why
+   each leads to the next. While the front page is updated by hand, every card is designed on
+   its own, and no two look alike. A reader finds their own world in the last card's place.
+   No marketing (Will, 2026-10-15).
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 

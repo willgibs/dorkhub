@@ -11,6 +11,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, write
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Script } from 'node:vm';
+import { FRONT, frontData } from '../lib/front.js';
 import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -25,7 +26,7 @@ const inline = (dir, f) => {
   if (/^\s*import\s/m.test(code)) throw new Error(`src/${dir}/${f} must not import anything: it is inlined into the page`);
   return code.replace(/^export (const|function|class|let|async function) /gm, '$1 ').trimEnd();
 };
-const shared = ['article.js', 'models.js', 'world.js', 'graph.js'].map((f) => inline('shared', f));
+const shared = ['article.js', 'models.js', 'world.js', 'graph.js', 'enigma.js'].map((f) => inline('shared', f));
 const vendorDir = join(root, 'src', 'vendor');
 const vendorFiles = existsSync(vendorDir) ? readdirSync(vendorDir).sort() : [];
 const vendor = vendorFiles.filter((f) => f.endsWith('.js')).map((f) => inline('vendor', f));
@@ -58,6 +59,7 @@ const script = await lean([
   '(() => {',
   "'use strict';",
   `const TRIAL_PAGES = ${trialConfig(process.env).pages};`,
+  `const FRONT = ${JSON.stringify(FRONT.map(({ t, k, h }) => ({ t, k, h })))};`,
   ...shared,
   ...vendor,
   ...modules.map((f) => src('app', f).trimEnd()),
@@ -100,4 +102,6 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), html);
 cpSync(join(root, 'src', 'static'), out, { recursive: true });
+/* the front page's cards and map, made by hand in lib/front.js: only the front page fetches them */
+writeFileSync(join(out, 'front.json'), JSON.stringify(frontData()));
 console.log(`public/index.html  ${(html.length / 1024).toFixed(0)} KB (script ${(script.length / 1024).toFixed(0)} KB)  ${shared.length} shared + ${vendor.length + vendorCss.length} vendored + ${modules.length} app modules`);

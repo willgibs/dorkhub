@@ -30,8 +30,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
 - `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
-- `lib/feed.js`: the front page's cards, read from the pages written ahead of time;
-  `node scripts/seeds.mjs feed` writes them, with each page's picture, to `src/static/feed.json`.
+- `lib/front.js`: the front page, by hand: the planned topics (`FRONT`), the cards with their
+  drawings, the threads between topics, each with its source; the build writes `public/front.json`.
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`

@@ -74,16 +74,22 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   reader's moves stronger with a chevron the way they went (`from` on the edge), a running dash
   on a pointed-at topic's links, a radar ping for a newcomer and a marker that drives Replay. A `still` view (the front page) never pans, zooms or drags, so a finger
   scrolls the page over it; a tap shows a topic's card and a second opens it.
-- **The front page** (`src/app/13-landing.js`): the composer, then today's pages. The cards come
-  from `/feed.json` (`src/static/feed.json`, written by `node scripts/seeds.mjs feed` from the
-  pages written ahead of time through `lib/feed.js`, with each page's own lead picture), fetched
-  by the front page only. Today's topic leads, by the reader's local day (the same one the
-  presets start with); a seeded shuffle orders the rest the same way for everyone that day, and
-  shuffle deals again. Each card says its page one way, from what the page itself says: the
-  lead with its picture, a big number (a `figures` panel), a myth put right (a `myth` panel), an
-  open question, or a picture and hook. Between the cards sits a still map: these pages and the
-  topics they lead to for someone new (separate islands, spread to fill the frame), or the
-  reader's own neighbourhood of Your world with what they read lately and saved.
+- **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
+  `lib/front.js` is the front page made by hand: `FRONT`, the planned topics, each with a kind,
+  a hook and a source (the build puts titles, kinds and hooks in the page for the suggestions);
+  `CARDS`, each with its size, hook, sources and a drawing in hairline SVG coloured only through
+  theme classes (`.vz`); and `THREADS`, pairs of topics with a short label and a source. The
+  build writes `public/front.json` (the cards with their drawings, the topics, the threads),
+  fetched by the front page only, so reading pages never carry the artwork. The cards sit in a
+  dense grid of 6 columns (4 on a tablet, where a card may take another size so nothing leaves
+  a hole; a test packs the grid as the browser does; one column on a phone). Three cards do
+  something once seen (`data-fx`): the cube's count rolls in, the flytrap counts touches, and
+  the Enigma card encrypts as you type with `src/shared/enigma.js`, a real Enigma I (tested).
+  Between the two groups of cards, a still map of every planned topic and its threads: the
+  topic pointed at shows beside the map (`makeGraph`'s `panel`), and each of its threads is
+  tagged at its middle with its label. A reader's world takes the last card's place, at its
+  size. Surprise me, and the doors a paused or used-up page offers, draw only on `DOORS`, the
+  pages already written: free and instant.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
   live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
 
