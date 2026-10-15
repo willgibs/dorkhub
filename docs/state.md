@@ -3,38 +3,36 @@
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Now (2026-10-15, end of session)
-- **Live:** `main` (ccff65c) is v2 with the new hero and reading page (PRs willgibs/dorkhub#6
-  and willgibs/dorkhub#7), checked on dorkhub.com after the merge.
-- **In review: the polish pass**, PR willgibs/dorkhub#8 (branch `experience/polish`).
-  - Preview: https://dorkhub-git-experience-polish-willgibs.vercel.app (needs Will's login).
-  - Before and after: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
+- **Live:** `main` is 6fc9c22, which adds the polish pass (PR willgibs/dorkhub#8) on top of the
+  v2 hero and reading page (#6, #7). Will looked at the preview and said merge; verify
+  (69 tests) and e2e passed on the branch tip.
   - What's in it:
     - all motion on the token scale, with closes quicker than opens;
     - a paused page that offers three free pages written ahead of time;
-    - failed pages that show their status first, with no ask row, reactions or tools;
+    - failed pages with their status first and no ask row, reactions or tools;
     - icon-closed sheets over a blurred backdrop;
-    - a scrim for the phone's tools and a styled phone voice sheet;
+    - a phone scrim and voice sheet;
     - the 404 in the identity.
-  - Verify (69 tests) and e2e are green; e2e now covers the paused page and the phone voice
-    sheet. Checked on the preview in Will's Chrome: the door page, the help sheet and its
-    150 ms close.
-- **Production today:** with no gateway credits, every typed topic gets the paused card; #8
-  makes it offer free door pages instead of a dead end.
+  - Before and after: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
+- **Checked on dorkhub.com:**
+  - a typed topic gets the paused card, and its write came back 503 with `pages=10`;
+  - its first door opened free from seeds;
+  - the sheets, the scrim, Continue and the new 404 all behave as on the preview.
+  - The function logs show only the known "no gateway credits" error, from these checks.
+- **Production today:** with no gateway credits, every typed topic still pauses, but now it
+  offers free door pages instead of a dead end.
 - **Will's standing call:** grounding, and every model, prompt, fact or performance test,
   waits until the base product settles (`docs/decisions.md`).
 
 ## Blocked on Will
-- Looking at #8, and merging it.
 - AI Gateway credits; connecting Redis (his click); the door list
   (https://claude.ai/artifact/5XpimaCDzuomV5a8V7Aji4).
 - For the next prompt round: renaming the recap's "Where to dig next" heading (the brand rule).
 - Old resources, repo visibility and Pro pricing (backlog §0).
 
 ## Next
-1. Act on Will's notes on #8, then merge it and check production.
+1. If Will wants it: lift the open phone tools above toasts, so the one-time Tip toast can't
+   cover the droplets (a one-line fix, through a preview).
 2. When he picks the doors: write and source-check each one (`scripts/seeds.mjs`), then update
    `DOORS` and `CHAINS`.
-3. Once credits land: prove production (backlog §1), and check the orbs and picture reveal
-   on live timings.
-
-Access, accounts and working with Will: `CLAUDE.md`. Seeds: `scripts/seeds.mjs`.
+3. Once credits land: prove production (backlog §1); check the orbs and pictures on live timings.

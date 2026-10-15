@@ -47,9 +47,12 @@ Will wants the generative UI and the whole experience solid first. Judge everyth
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
 (merged 2026-10-14). From Will's review of #3:
 
-- **The polish pass is in review** (willgibs/dorkhub#8): one motion scale, calm failure states
-  (a paused page offers free pages written ahead of time), icon-closed sheets over a blurred
-  backdrop, a scrim for the phone's tools, and the 404 in the identity. Merge after Will's look.
+- **The polish pass is live** (willgibs/dorkhub#8, merged 2026-10-15 as 6fc9c22 after Will's
+  look): one motion scale, calm failure states (a paused page offers free pages written ahead
+  of time), icon-closed sheets over a blurred backdrop, a scrim for the phone's tools, and the
+  404 in the identity. Shots: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
+  - Small, found on production: the one-time "Tip" toast can cover the phone tools' droplets
+    while they're open. The fix is to lift the open tools above toasts.
   - For the next prompt round (prompts are frozen until then): rename the recap's "Where to dig
     next" heading, which breaks the brand rule.
 - **The new hero and the reading page are live** (willgibs/dorkhub#6 and willgibs/dorkhub#7,

@@ -108,3 +108,13 @@ One line each, newest last. Why, not just what.
   - **On phones, the tools button opens over a light scrim.** A tap on the scrim only closes the tools: a dismissing tap must never also open the link under it.
   - **Continue and Your rabbit holes skip rabbit holes with no page to read.** Continue lands on the last readable page of the path.
   - **The recap heading "Where to dig next" breaks the brand rule, but it comes from the recap prompt.** Prompts are frozen until the base product settles, so it waits for Will's next prompt round. The sheet already drops the H1's "Recap:" prefix, since the sheet is titled Recap.
+- 2026-10-15 · Will looked at the #8 preview and said merge. Verify (69 tests) and e2e passed on the branch tip, and it went in as 6fc9c22. Production was then checked:
+  - a typed topic gets the paused card, and its write came back 503 with `pages=10`, so nothing was spent;
+  - the card offers three doors; the first opened from seeds, free;
+  - the paused page has no ask row, reactions or tools, and its status comes first;
+  - sheets close with an icon, focus their body and close in 150 ms over a blurred backdrop;
+  - Continue skips the failed topic;
+  - the phone's scrim takes a tap on a link without opening it, and the voice sheet is styled;
+  - `/no-such-page` serves the new 404;
+  - the function logs show only the known "no gateway credits" error, from these checks.
+  Found while checking: the one-time "Tip" toast can sit over the phone tools' droplets while they're open. This predates #8, and its fix (lift the open tools above toasts) waits for Will.
