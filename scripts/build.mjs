@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Script } from 'node:vm';
 import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -29,6 +30,8 @@ const script = [
   '})();',
 ].join('\n');
 if (script.includes('</script')) throw new Error('the page script must not contain "</script"');
+/* The modules share one scope, so a name declared twice only fails in a browser: compile it here (nothing runs). */
+try { new Script(script, { filename: 'page.js' }); } catch (e) { throw new Error(`the page script does not compile: ${/** @type {Error} */ (e).message}`); }
 
 const hash = createHash('sha256').update(script).digest('base64');
 const csp = [
