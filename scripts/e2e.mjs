@@ -165,7 +165,13 @@ async function run(page, { mobile = false } = {}) {
       if (v.grid !== 'grid' || !/Atkinson/.test(v.font) || v.focus !== 'sheetBody') throw new Error(`voice sheet: ${JSON.stringify(v)}`);
       /* a choice closes the sheet; the flow then goes back to the encyclopedic voice the same way */
       for (const lens of ['story', 'encyclopedic']) {
-        if (lens !== 'story') { await page.locator('.fab-main').tap(); await page.waitForTimeout(450); await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label'); }
+        if (lens !== 'story') {
+          await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
+          /* the choice's toast is still up, and the open tools sit above it */
+          const over = await page.evaluate(() => { const t = document.querySelector('.toast')?.getBoundingClientRect(); if (!t) return 'no toast'; for (const b of document.querySelectorAll('.fab-item')) { const r = b.getBoundingClientRect(); const x = (Math.max(r.left, t.left) + Math.min(r.right, t.right)) / 2, y = (Math.max(r.top, t.top) + Math.min(r.bottom, t.bottom)) / 2; if (x > r.left && x < r.right && x > t.left && x < t.right && y > r.top && y < r.bottom && y > t.top && y < t.bottom) { const ts = document.querySelector('.toasts'); ts.style.pointerEvents = 'auto'; const hit = document.elementFromPoint(x, y); ts.style.pointerEvents = ''; return hit?.closest('#fab') ? 'tools on top' : 'toast on top'; } } return 'no overlap'; });
+          if (over === 'toast on top') throw new Error('a toast covers the open tools');
+          await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
+        }
         await page.locator(`#sheet .voice-pop input[value="${lens}"]`).check(); await page.waitForTimeout(400);
         if (await page.evaluate(() => document.querySelector('#sheet')?.hasAttribute('open'))) throw new Error(`the voice sheet stayed open after choosing ${lens}`);
       }

@@ -686,6 +686,8 @@ body.at-start .omni-btn{display:none}
 /* open, the page steps back behind a light scrim, and a tap on it only closes the tools */
 .fab::before{content:"";position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 70%,transparent);opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--fab-close) var(--ease-out),visibility 0s linear var(--fab-close)}
 .fab[data-open="true"]::before{opacity:1;visibility:visible;pointer-events:auto;transition:opacity var(--fab-open) var(--ease-out),visibility 0s}
+/* open, the tools sit above everything on the page, toasts included */
+.fab[data-open="true"]{z-index:75}
 .fab-goo{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;will-change:filter,transform}
 .fab-ring{flood-color:#000;flood-opacity:.07}.fab-sh{flood-color:#000;flood-opacity:.08}.fab-sh2{flood-color:#000;flood-opacity:.12}
 .fab-blob{fill:var(--surface);transform:translate(0,0);transform-box:fill-box;transition:transform var(--fab-close) var(--fab-close-ease);will-change:transform}
