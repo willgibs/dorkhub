@@ -77,7 +77,7 @@ function viewStart() {
   <h1 class="s-h rise" style="--i:1" id="startH" tabindex="-1">Learn about anything</h1>
   <form class="composer rise" style="--i:2" id="seedForm" autocomplete="off">
     <div class="cbox beam" id="seedBox">
-      <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, a question, a half-remembered fact" enterkeyhint="go"></textarea>
+      <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, question, or idea…" enterkeyhint="go"></textarea>
       <div class="ctools">
         <details class="voice cvoice"><summary class="ctool"${tipAttrs('Voice')}>${ic('voice')}</summary><div class="pop voice-pop"></div></details>
         <span id="seedChips">${voiceChipHTML()}</span>
