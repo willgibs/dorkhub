@@ -34,7 +34,7 @@ test('topic addresses serve the page, and nothing else is caught', () => {
   const rewrites = v.rewrites.map((/** @type {any} */ r) => ({ re: re(r.source), to: r.destination }));
   const served = (/** @type {string} */ p) => rewrites.some((/** @type {any} */ r) => r.re.test(p));
   for (const p of ['/black-holes', '/world', '/rubiks-cube', '/connect/tulip-mania/radiocarbon-dating', '/world-', `/${encodeURIComponent('ブラックホール')}`]) assert.ok(served(p), p);
-  for (const p of ['/', '/api', '/fonts', '/a/b', '/favicon.svg', '/robots.txt', '/wp-login.php', '/connect/a']) assert.ok(!served(p), p);
+  for (const p of ['/', '/api', '/fonts', '/a/b', '/favicon.svg', '/robots.txt', '/feed.json', '/wp-login.php', '/connect/a']) assert.ok(!served(p), p);
   assert.ok(v.rewrites.every((/** @type {any} */ r) => r.destination === '/'));
   const noindex = v.headers.filter((/** @type {any} */ h) => h.headers.some((/** @type {any} */ x) => x.key === 'X-Robots-Tag' && /noindex/.test(x.value))).map((/** @type {any} */ h) => re(h.source));
   for (const p of ['/black-holes', '/world', '/connect/a/b']) assert.ok(noindex.some((/** @type {RegExp} */ r) => r.test(p)), `${p} is noindex`);
@@ -42,7 +42,8 @@ test('topic addresses serve the page, and nothing else is caught', () => {
 });
 
 /* The page is one file: keep it small. Your world (the graph and its simulation) was paid for by the
-   demo and the rabbit-hole furniture it replaced. */
+   demo and the rabbit-hole furniture it replaced; the front page's feed by shipping the stylesheet
+   without its notes, and its cards live in /feed.json, so reading pages never carry them. */
 test('the page stays within its size budget', () => {
   const html = read('public/index.html');
   assert.ok(html.length < 372 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);

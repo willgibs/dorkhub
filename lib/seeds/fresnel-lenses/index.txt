@@ -1,4 +1,4 @@
-# Fresnel lenses
+# Fresnel lenses :: mechanism
 > Keep a lens's curved surfaces, throw away most of the glass, and a single lamp can reach ships more than 30 kilometres out.
 ~ You picked a lighthouse lens, and its stepped glass leads on to a bright spot in the middle of a shadow, the plastic dome of a motion sensor and the light that guides jets onto aircraft carriers.
 +++

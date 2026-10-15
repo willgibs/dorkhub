@@ -1,4 +1,4 @@
-# The Voynich manuscript
+# The Voynich manuscript :: mystery
 > Some six centuries old, crowded with strange pictures and fluent handwriting, it has defeated every codebreaker who has ever tried to read it.
 ~ You chose a book nobody can read, and it leads to an alchemy-loving emperor in Prague, to America's wartime codebreakers, and to an odd rule about how often words get used.
 +++

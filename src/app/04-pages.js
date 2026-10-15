@@ -35,8 +35,6 @@ function hintFor(p, target) {
 }
 const titleLocked = p => titleIsLocked({ title: p.req.title, q: p.req.q, bridge: p.req.bridge });
 const shownTitle = (p, A) => titleLocked(p) ? (A.title && keyOf(A.title) === keyOf(p.req.title) ? A.title : capFirst(p.req.title)) : (A.title || p.title);
-/* the page's kind as a colour: on a first visit the link's kind holds, so the colour never changes mid-read */
-const accentOf = p => kindOf(p.accent || p.kind || (p.hint && p.hint.kind)) || 'concept';
 /* the topics a finished page links to, kept so Your world can draw them without reading the page again */
 function linksFrom(A, p) {
   const out = new Map(); const self = topicKey(p.title); const own = topicKey(p.req.title);
@@ -45,12 +43,6 @@ function linksFrom(A, p) {
   for (const c of cardsOf(A)) add(c.target, c.kind, c.teaser);
   for (const g of Object.values(A.gloss)) add(g.name, g.kind, g.gloss);
   return [...out.values()].slice(0, 28);
-}
-/* a read topic in your world, by its key: the page you'd open for it */
-function readPageFor(k) {
-  let best = null;
-  for (const p of Object.values(store.pages)) if ((p.status === 'done' || p.status === 'partial') && nodeKeyOf(p) === k && (!best || p.last > best.last)) best = p;
-  return best;
 }
 
 /* ================= moving: one topic per screen, at a clean address ================= */

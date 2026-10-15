@@ -2,6 +2,8 @@
 //   node scripts/seeds.mjs doors              list the topics and their slugs
 //   node scripts/seeds.mjs prompt "<title>"   the exact prompt a page on that topic gets (a question is asked as one)
 //   node scripts/seeds.mjs index              rebuild lib/seeds/index.json from the files present
+//   node scripts/seeds.mjs feed               rebuild src/static/feed.json, the front page's cards (looks up
+//                                             each page's lead picture on Wikipedia; no model)
 // How a seed is made: a Claude Opus writer gets the exact prompt from `prompt` and writes the page
 // in that format, saved as lib/seeds/<slug>/index.txt. A fact-check pass then checks every number,
 // date, name and attribution against sources, and fixes or cuts anything shaky. Agents that browse
@@ -28,4 +30,20 @@ else if (cmd === 'index') {
   for (const t of DOORS) { const s = slug(t); if (existsSync(doorFile(s))) pages[topicKey(t)] = { title: t, file: `${s}/index.txt`, ...(isQuestion(t) ? { question: true } : {}) }; }
   writeFileSync(join(dir, 'index.json'), JSON.stringify({ pages }, null, 1) + '\n');
   console.log(`${Object.keys(pages).length} pages: ${Object.values(pages).map(p => p.title).join(', ')}`);
+} else if (cmd === 'feed') {
+  const { doorsOf, feedEntry } = await import(join(repo, 'lib/feed.js'));
+  const { lookup } = await import(join(repo, 'lib/picture.js'));
+  const { parseArticle } = await import(join(repo, 'src/shared/article.js'));
+  const { pages } = JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8'));
+  const topics = [];
+  for (const d of doorsOf(landing)) {
+    const s = pages[topicKey(d.t)]; if (!s) continue;
+    const text = readFileSync(join(dir, s.file), 'utf8'); const e = feedEntry(d, text);
+    /* the picture the page itself shows: a question's page is looked up by the title it was given */
+    const pic = await lookup(fetch, isQuestion(d.t) ? parseArticle(text, false).title || d.t : d.t);
+    if (pic) e.pic = { src: pic.src, w: pic.w, h: pic.h, alt: pic.alt, credit: pic.credit, license: pic.license };
+    topics.push(e); console.log(`${d.t}: ${[e.fig && 'number', e.myth && 'myth', e.pic ? 'picture' : 'no picture'].filter(Boolean).join(', ')}`);
+  }
+  writeFileSync(join(repo, 'src/static/feed.json'), JSON.stringify({ v: 1, topics }) + '\n');
+  console.log(`${topics.length} topics in src/static/feed.json`);
 } else console.error('usage: see the top of this file');

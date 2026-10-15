@@ -1,4 +1,4 @@
-# Tardigrades
+# Tardigrades :: creature
 > Eight-legged animals half a millimetre long can dry into husks, survive the vacuum of space, and walk again after a sip of water.
 ~ You can follow these animals into proteins that turn drying cells to something like glass, a Moon lander that crashed with them aboard, and a genome claim that fell apart within weeks.
 +++

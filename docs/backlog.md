@@ -52,9 +52,10 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   graph, its stats and trails, growth moments only where the graph is visible), the phone's
   "…" menu and a new gooey button, prefetch, and the store migration. Levels, the flow-in
   below and reactions go.
-- **PR C, the homepage:** the hero with more room, then a living feed of pre-written topics
-  that peeks above the fold. The marketing sections go. Folds in the parked heading sizes
-  and placeholder from `experience/new-doors`.
+- **PR C, the homepage** (built, up for Will's look): the hero with the parked heading sizes
+  and placeholder, then today's pages as a feed of cards that peeks above the fold, with a
+  map of where they lead (or the reader's own world). The marketing sections were already
+  gone in PR B.
 - **(Will) The 32 new topics** plus Bioluminescence, written and fact-checked only on his
   explicit go after he has seen PR B (about 8 to 10M tokens).
 - Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one

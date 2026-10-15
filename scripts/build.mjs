@@ -60,7 +60,8 @@ const csp = [
 const html = [
   src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`),
   '<style>',
-  src('styles.css').trimEnd(),
+  /* the stylesheet's notes stay in the source; the page ships without them (vendored notices stay) */
+  src('styles.css').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n[ \t]*(?=\n)/g, '').trimEnd(),
   ...vendorCss,
   '</style>',
   '</head>',

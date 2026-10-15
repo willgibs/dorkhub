@@ -18,8 +18,7 @@ Everything you read becomes **Your world**: a map of the topics you've read, lit
 colours of what they are, joined to each other and to the topics they lead to. It's the
 heart of the product (Will's Obsidian note: the graph is what makes people want one more
 page), and it stays out of the way while you read: the reading page carries the article, its
-cards and its tools; Your world is one step away, in the sidebar or at /world. The new
-homepage comes next (`docs/backlog.md`).
+cards and its tools; Your world is one step away, in the sidebar or at /world.
 
 ## What matters most, in order
 
@@ -37,8 +36,12 @@ homepage comes next (`docs/backlog.md`).
    Will wants this secondary UI to feel as clean and considered as the articles themselves.
    World features never add weight to the article: they are hidden magic, there when you
    pause (Will, 2026-10-15).
-5. **The landing page** has one job: get a visitor into their first page. It stays light:
-   one composer, front and centre, with presets for anyone who would rather not type.
+5. **The front page** gets a visitor into their first page. One composer, front and centre,
+   with presets for anyone who would rather not type; below it, peeking above the fold,
+   today's pages: the pages written ahead of time as a feed of cards (today's topic with its
+   picture, a big number, a myth put right, a question still open), free and instant, with a
+   map of where they lead. A reader finds their own world there instead. No marketing
+   (Will, 2026-10-15).
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 
