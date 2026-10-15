@@ -73,8 +73,8 @@ function viewStart() {
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
-  ${last ? `<a class="resume rise" style="--i:0" href="#/w/${last.id}/${lastCur.id}" data-s="${stratumOf(lastCur.depth)}" data-tip="Level ${lastCur.depth}, on ${esc(clip(lastCur.title, 48))}"><span class="mk">${lastCur.depth}</span>Continue <b>${esc(clip(last.nodes[last.root].title, 40))}</b><span class="rs-go">→</span></a>` : ''}
-  <h1 class="s-h rise" style="--i:1" id="startH" tabindex="-1">What do you want to learn?</h1>
+  ${last ? `<a class="resume rise" style="--i:0" href="#/w/${last.id}/${lastCur.id}" data-s="${stratumOf(lastCur.depth)}" data-tip="Level ${lastCur.depth}, on ${esc(clip(lastCur.title, 48))}">Continue <b>${esc(clip(last.nodes[last.root].title, 40))}</b><span class="rs-go">→</span></a>` : ''}
+  <h1 class="s-h rise" style="--i:1" id="startH" tabindex="-1">Learn about anything</h1>
   <form class="composer rise" style="--i:2" id="seedForm" autocomplete="off">
     <div class="cbox beam" id="seedBox">
       <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, a question, a half-remembered fact" enterkeyhint="go"></textarea>

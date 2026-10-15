@@ -20,6 +20,7 @@ const store = (() => {
     const j = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem('warren:v1') || 'null');
     if (j && j.settings && (j.settings.side === 'open' || j.settings.side === 'rail')) base.settings.side = j.settings.side;
     if (j && j.settings && j.settings.tipped) base.settings.tipped = true;
+    if (j && j.settings && (j.settings.theme === 'light' || j.settings.theme === 'dark')) base.settings.theme = j.settings.theme;
     if (j && Array.isArray(j.warrens)) base.warrens = j.warrens.filter(w => w && w.id && w.nodes && w.root && w.nodes[w.root]);
     if (j && j.settings && LENSES[j.settings.lens]) base.settings.lens = j.settings.lens;
   } catch (e) { /* start fresh */ }
@@ -96,3 +97,6 @@ function errText(code) {
     default: return 'The connection dropped partway through. Try again.';
   }
 }
+/* the theme follows the device unless the reader picked one on the landing */
+function applyTheme() { const t = store.settings.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+applyTheme();
