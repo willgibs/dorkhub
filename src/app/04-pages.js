@@ -8,13 +8,13 @@ function mkNode(w, { title, parent = null, depth = 0, from = null, seed = null, 
   const n = { id: uid(), title: clip(String(title).trim(), 120), keys: [keyOf(title)], parent, depth, from, seed, lens: LENSES[lens] ? lens : null, text: '', status: 'empty', created: Date.now(), deck: '', drift: null };
   w.nodes[n.id] = n; w.order.push(n.id); return n;
 }
-function newWarren(title, { demo = false } = {}) {
+function newWarren(title, { demo = false, src = null } = {}) {
   title = String(title || '').trim(); if (!title) return;
   const w = { id: uid(), created: Date.now(), updated: Date.now(), nodes: {}, order: [], loops: [], root: null, current: null, demo };
   const n = mkNode(w, { title, from: isQuestion(title) ? { question: title } : null });
   w.root = n.id; w.current = n.id;
   store.warrens.unshift(w); if (store.warrens.length > 10) store.warrens.length = 10;
-  W = w; save(true); nav(n.id, 'down');
+  W = w; save(true); nav(n.id, 'down', src);
 }
 const pathTo = n => { const out = []; let x = n; while (x) { out.unshift(x); x = x.parent ? W.nodes[x.parent] : null; } return out; };
 const childrenOf = id => W.order.map(x => W.nodes[x]).filter(n => n.parent === id);

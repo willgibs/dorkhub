@@ -139,9 +139,10 @@ function paint(node, streamOnly) {
   const A = parsed(node); const live = isLive(node);
   const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && node.status === 'done' && node.id === (W && W.current)) announce(`${shownTitle(node, A)}: page ready.`); }
   paintHead(node, sec, A, live); paintBody(node, sec, A, live); paintEnd(node, sec, A, live);
-  /* the first page of a rabbit hole says how its pages are written, honestly */
+  /* the first page of a rabbit hole says when its opening pages were written ahead of time; the note
+     that pages can be wrong sits once at the bottom of the stream (.colfoot), not on every page */
   const fp = node.depth === 0 && $('.fineprint span', sec);
-  if (fp) setHTML(fp, node.seeded ? 'Written by AI. The first pages of this path were written ahead of time; past them, every page is written live for your path. Check anything you plan to repeat.' : 'Written by AI for the path you take. Check anything you plan to repeat.');
+  if (fp) setHTML(fp, node.seeded ? 'The first pages of this path were written ahead of time; past them, every page is written live for your path.' : '');
   if (!streamOnly) {
     paintTools(node, sec); paintDoubt(node, sec);
     if (W && node.id === W.current) updateUpNext();

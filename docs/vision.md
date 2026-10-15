@@ -26,7 +26,8 @@ never watches you: only the path you are on shapes the next page.
 4. **Depth on demand.** Tools around a page (peek, expand, sketch, around this, connect,
    skeptic mode, quiz, recap, the thread) are there when wanted and quiet when not. Will
    wants this secondary UI to feel as clean and considered as the articles themselves.
-5. **The landing page** has one job: get a visitor into their first page. It stays light.
+5. **The landing page** has one job: get a visitor into their first page. It stays light:
+   one composer, front and centre, with presets for anyone who would rather not type.
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 
@@ -59,6 +60,10 @@ never watches you: only the path you are on shapes the next page.
 - Eight link kinds, each with a colour: ideas, phenomena, mechanisms, places, people,
   events, things, mysteries.
 - Voice: warm, specific, plain words, never condescending. Light and dark themes.
+- The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
+  and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
+  scale, effects ported from libraries.dev. The brand spectrum (all eight link colours)
+  appears once: the beam riding the composer's edge.
 
 ## Anatomy of a page (the generative UI)
 

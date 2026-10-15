@@ -91,10 +91,10 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
       from a Mac (cache it, and time-box it).
     - Hover hooks are the most error-prone part of a page (9% of their claims), and the notes
       don't cover them.
-    - Our recommendation, waiting on Will: adopt grounding server-side (facts from the notes,
-      not their wording; credit and link the article, since it's CC BY-SA). Then tighten the
-      hooks, and add "say when a finding is recent or argued". Reuse the blind-pair harness for
-      the model eval, on 20+ topics;
+    - **Parked (Will, 2026-10-15).** No model, prompt, fact or performance testing until the
+      base product settles, so nothing has to be tested twice. Grounding waits with the model
+      eval (§3). The results above stand for when it's picked up: facts from the notes, not
+      their wording; credit and link the article (CC BY-SA); tighten the hooks.
   - factual accuracy is a hard gate in the model eval (`docs/eval-plan.md`), scored by
     fact-checking a sample of real pages per model;
   - if the number-heavy panels (figures, guess, timeline) invite errors, tighten or cut

@@ -20,9 +20,10 @@ function route() {
       document.body.classList.remove('at-start');
       if (!col || col.dataset.wid !== w.id) { const last = w.seenAt || w.updated; if (last && Date.now() - last > 30 * 6e4 && w.order.length > 1) RECAP[w.id] = { nid: node.id, last }; }
       w.seenAt = Date.now();
-      $('#view').innerHTML = `<div class="column" id="column" data-wid="${w.id}">${chamberHTML(node)}</div>`;
+      $('#view').innerHTML = `<div class="column" id="column" data-wid="${w.id}">${chamberHTML(node)}</div><p class="colfoot">Written by AI for your path. It can make mistakes, so check anything you plan to repeat.</p>`;
       NAV_DIR = null;
       paint(node); setCurrent(node.id); watchColumn();
+      if (HERO) { const t = $('.a-title'); if (t) t.style.viewTransitionName = 'hero'; }
       window.scrollTo(0, 0); const h = $('.a-title'); if (h && col) h.focus({ preventScroll: true });
       if (node.status === 'empty') generate(node);
       return;
@@ -70,7 +71,7 @@ document.addEventListener('click', e => {
   const pc = e.target.closest('[data-peek-close]'); if (pc) { const n = W.nodes[nidOf(pc)]; const p = n && (n.peeks || []).find(x => x.key === pc.dataset.peekClose); if (p) { p.open = false; save(); paint(n); } return; }
   const pd = e.target.closest('[data-peek-dig]'); if (pd) { const n = W.nodes[nidOf(pd)]; const p = n && (n.peeks || []).find(x => x.target === pd.dataset.peekDig); dig(pd.dataset.peekDig, { text: p ? plain(p.text) : '' }, n && n.id); return; }
   const seed = e.target.closest('[data-seed]');
-  if (seed) { newWarren(seed.dataset.seed); return; }
+  if (seed) { newWarren(seed.dataset.seed, { src: seed.matches('.door') ? seed : null }); return; }
   const del = e.target.closest('[data-del]');
   if (del) {
     if (!del.dataset.armed) { del.dataset.armed = '1'; del.textContent = 'Click again to delete it'; setTimeout(() => { if (del.isConnected) { delete del.dataset.armed; del.textContent = 'Delete'; } }, 3500); return; }
@@ -81,6 +82,8 @@ document.addEventListener('click', e => {
   const md = act.closest('details.more'); if (md) md.open = false;
   const node = W && W.nodes[act.dataset.nid || nidOf(act)];
   if (a === 'surprise') surprise();
+  else if (a === 'shuffle') shufflePresets();
+  else if (a === 'voice-clear') { setLens('encyclopedic'); $('#seedIn')?.focus({ preventScroll: true }); }
   else if (a === 'demo-pause') toggleDemo();
   else if (a === 'demo') newWarren('Voynich manuscript', { demo: true });
   else if (a === 'up' && node && node.parent) nav(node.parent, 'up');
@@ -120,7 +123,7 @@ document.addEventListener('submit', e => {
   if (e.target.id === 'seedForm') {
     e.preventDefault(); const v = $('#seedIn').value.trim();
     if (!v) { $('#seedErr').textContent = 'Type anything: a topic, a question, a name.'; $('#seedIn').focus(); return; }
-    newWarren(v);
+    $('#seedBox')?.classList.add('go'); newWarren(v, { src: canVT() ? seedMirror(v) : null });
   } else if (e.target.classList.contains('ask')) {
     e.preventDefault(); const inp = $('input', e.target); const v = inp.value.trim(); if (!v) { inp.focus(); return; }
     dig(v, isQuestion(v) ? { question: v } : { text: `Typed by the reader while reading this chamber: ${v}` }, e.target.dataset.nid);
@@ -128,7 +131,7 @@ document.addEventListener('submit', e => {
 });
 document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('.chain[data-seed]')) { e.preventDefault(); e.target.click(); return; }
-  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (!pmenu.hidden) closePMenu(true); if ($('#voice').open) $('#voice').open = false; if ($('#map').classList.contains('open')) toggleMap(false); return; }
+  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (!pmenu.hidden) closePMenu(true); $$('details.voice[open]').forEach(d => { d.open = false; }); if ($('#map').classList.contains('open')) toggleMap(false); return; }
   const tag = (e.target.tagName || '').toLowerCase();
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (W) openOmni(); else $('#seedIn')?.focus(); return; }
   if (['input', 'textarea', 'select'].includes(tag) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;

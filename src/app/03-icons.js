@@ -29,5 +29,8 @@ const ICON_PATHS = {
   key: '<circle cx="7.5" cy="16" r="3.8"/><path d="m10.2 13.3 9.3-9.3M16.2 7.3l2.6 2.6M13.6 9.9l2 2"/>',
   pause: '<path d="M9 6.5v11M15 6.5v11"/>',
   play: '<path d="M8.5 6v12l9.5-6z"/>',
+  send: '<path d="M12 19V5.5M6 11.5l6-6 6 6"/>',
+  shuffle: '<path d="M4 7h3.2c2 0 3.1.9 4.2 2.7l1.2 2.1c1.1 1.9 2.3 2.9 4.4 2.9H20M17 12.2l3 2.5-3 2.5M4 17h3.2c1.3 0 2.2-.4 3-1.2M14 8.2c.8-.8 1.7-1.2 3-1.2h3M17 4.5 20 7l-3 2.5"/>',
+  x: '<path d="M7 7l10 10M17 7 7 17"/>',
 };
 const ic = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;

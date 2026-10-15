@@ -1,0 +1,51 @@
+/* ================= border beam: a glow that rides the composer's edge =================
+   Ported from border-beam (the "md" rotate type) by Jakub Antalik, https://libraries.dev/beam
+   MIT License, Copyright (c) 2026 Jakub Antalik. Full notice in /licenses.txt.
+   Changes for Dorkhub: one class instead of per-instance ids; both themes from tokens; the
+   palette is our eight link colours at glow strength; static colours (no hue-shift filter,
+   which repainted every frame); strength is a registered property, so focus can ease it.
+   Markup: an element with class "beam" (it needs position:relative and a border-radius)
+   holding <span class="beam-bloom"></span>; set data-paused while it is off screen. */
+@property --beam-angle{syntax:"<angle>";initial-value:0deg;inherits:true}
+@property --beam-on{syntax:"<number>";initial-value:0;inherits:true}
+@property --beam-strength{syntax:"<number>";initial-value:.7;inherits:true}
+.beam{
+  --beam-r:22px;--beam-dur:4s;
+  /* the highlight that leads the colour: ink on paper, light on dark */
+  --bm-hl:0 0 0;--bm-hla:.6;--bm-stroke:.7;--bm-inner:.5;--bm-bloom:.25;--bm-shadow:rgba(0,0,0,.08);
+  /* the eight link colours (ideas, phenomena, mechanisms, places, people, events, things, mysteries), placed around the edge */
+  --bm-c:radial-gradient(ellipse 60px 35px at 12% -5%,rgb(59 130 246),transparent),radial-gradient(ellipse 70px 40px at 33% -7.4%,rgb(244 63 94),transparent),radial-gradient(ellipse 74px 32px at 93.9% 0%,rgb(249 115 22),transparent),radial-gradient(ellipse 52px 48px at 100% 27.1%,rgb(245 158 11),transparent),radial-gradient(ellipse 26px 42px at 100% 27.1%,rgb(217 70 239),transparent),radial-gradient(ellipse 180px 32px at 74.4% 100%,rgb(139 92 246),transparent),radial-gradient(ellipse 85px 26px at 55% 100%,rgb(59 130 246),transparent),radial-gradient(ellipse 40px 70px at 2.1% 68.3%,rgb(34 197 94),transparent),radial-gradient(ellipse 20px 35px at 2.1% 68.3%,rgb(20 184 166),transparent);
+  --bm-ci:radial-gradient(ellipse 54px 32px at 12% -5%,rgb(59 130 246 / .45),transparent),radial-gradient(ellipse 63px 36px at 33% -7.4%,rgb(244 63 94 / .45),transparent),radial-gradient(ellipse 67px 29px at 93.9% 0%,rgb(249 115 22 / .45),transparent),radial-gradient(ellipse 47px 43px at 100% 27.1%,rgb(245 158 11 / .45),transparent),radial-gradient(ellipse 23px 38px at 100% 27.1%,rgb(217 70 239 / .45),transparent),radial-gradient(ellipse 162px 29px at 74.4% 100%,rgb(139 92 246 / .45),transparent),radial-gradient(ellipse 77px 23px at 55% 100%,rgb(59 130 246 / .45),transparent),radial-gradient(ellipse 36px 63px at 2.1% 68.3%,rgb(34 197 94 / .45),transparent),radial-gradient(ellipse 18px 32px at 2.1% 68.3%,rgb(20 184 166 / .45),transparent);
+  --bm-mask:conic-gradient(from var(--beam-angle),transparent 0%,transparent 30%,rgb(255 255 255 / .1) 36%,rgb(255 255 255 / .35) 44%,#fff 52%,#fff 80%,rgb(255 255 255 / .35) 86%,rgb(255 255 255 / .1) 92%,transparent 95%,transparent 100%);
+  animation:beam-spin var(--beam-dur) linear infinite,beam-in .6s ease forwards;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .beam{--bm-hl:255 255 255;--bm-hla:1;--bm-stroke:.85;--bm-inner:.75;--bm-bloom:.4;--bm-shadow:rgba(255,255,255,.16)} }
+:root[data-theme="dark"] .beam{--bm-hl:255 255 255;--bm-hla:1;--bm-stroke:.85;--bm-inner:.75;--bm-bloom:.4;--bm-shadow:rgba(255,255,255,.16)}
+/* the stroke: the light and the colours, masked to the one-pixel edge and to the travelling cone */
+.beam::after{
+  content:"";position:absolute;inset:0;border-radius:calc(var(--beam-r) - 1px);padding:1px;clip-path:inset(0 round var(--beam-r));
+  background:conic-gradient(from var(--beam-angle),transparent 0%,transparent 54%,rgb(var(--bm-hl) / calc(.1 * var(--bm-hla))) 57%,rgb(var(--bm-hl) / calc(.3 * var(--bm-hla))) 60%,rgb(var(--bm-hl) / calc(.6 * var(--bm-hla))) 63%,rgb(var(--bm-hl) / calc(.75 * var(--bm-hla))) 66%,rgb(var(--bm-hl) / calc(.6 * var(--bm-hla))) 69%,rgb(var(--bm-hl) / calc(.3 * var(--bm-hla))) 72%,rgb(var(--bm-hl) / calc(.1 * var(--bm-hla))) 75%,transparent 78%,transparent 100%),var(--bm-c);
+  -webkit-mask:var(--bm-mask),linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:source-in,xor;
+  mask:var(--bm-mask),linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:intersect,exclude;
+  pointer-events:none;z-index:2;opacity:calc(var(--beam-on) * var(--bm-stroke) * var(--beam-strength));
+}
+/* the inner glow: the same colours, softer, only near the edge */
+.beam::before{
+  content:"";position:absolute;inset:0;border-radius:var(--beam-r);clip-path:inset(0 round var(--beam-r));
+  background:var(--bm-ci);box-shadow:inset 0 0 9px 1px var(--bm-shadow);
+  -webkit-mask-image:var(--bm-mask),linear-gradient(#fff,transparent 28px,transparent calc(100% - 28px),#fff),linear-gradient(to right,#fff,transparent 28px,transparent calc(100% - 28px),#fff);-webkit-mask-composite:source-in,source-over;
+  mask-image:var(--bm-mask),linear-gradient(#fff,transparent 28px,transparent calc(100% - 28px),#fff),linear-gradient(to right,#fff,transparent 28px,transparent calc(100% - 28px),#fff);mask-composite:intersect,add;
+  pointer-events:none;z-index:1;opacity:calc(var(--beam-on) * var(--bm-inner) * var(--beam-strength));
+}
+/* the bloom: a blurred bead of light where the beam is brightest */
+.beam-bloom{
+  position:absolute;inset:0;border-radius:calc(var(--beam-r) - 1px);padding:1px;clip-path:inset(0 round var(--beam-r));
+  background:conic-gradient(from var(--beam-angle),transparent 0%,transparent 58%,rgb(var(--bm-hl) / calc(.03 * var(--bm-hla))) 62%,rgb(var(--bm-hl) / calc(.08 * var(--bm-hla))) 65%,rgb(var(--bm-hl) / calc(.2 * var(--bm-hla))) 67%,rgb(var(--bm-hl) / calc(.45 * var(--bm-hla))) 69%,rgb(var(--bm-hl) / calc(.85 * var(--bm-hla))) 70%,rgb(var(--bm-hl) / calc(.85 * var(--bm-hla))) 70.5%,rgb(var(--bm-hl) / calc(.45 * var(--bm-hla))) 71.5%,rgb(var(--bm-hl) / calc(.2 * var(--bm-hla))) 73%,rgb(var(--bm-hl) / calc(.08 * var(--bm-hla))) 75%,rgb(var(--bm-hl) / calc(.03 * var(--bm-hla))) 78%,transparent 82%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;
+  filter:blur(8px);pointer-events:none;z-index:3;opacity:calc(var(--beam-on) * var(--bm-bloom) * var(--beam-strength));
+}
+.beam[data-paused]{animation-play-state:paused}
+@keyframes beam-spin{to{--beam-angle:360deg}}
+@keyframes beam-in{to{--beam-on:1}}
+/* reduced motion: the beam holds still, a lit stretch of edge rather than a moving one */
+@media (prefers-reduced-motion:reduce){ .beam{animation:none;--beam-angle:150deg;--beam-on:1} }
