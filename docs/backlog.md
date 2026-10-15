@@ -52,12 +52,15 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   graph, its stats and trails, growth moments only where the graph is visible), the phone's
   "…" menu and a new gooey button, prefetch, and the store migration. Levels, the flow-in
   below and reactions go.
-- **PR C, the homepage** (built, up for Will's look): the hero with the parked heading sizes
+- **PR C, the homepage** (live since 2026-10-15, willgibs/dorkhub#15): the hero with the parked heading sizes
   and placeholder, then today's pages as a feed of cards that peeks above the fold, with a
   map of where they lead (or the reader's own world). The marketing sections were already
   gone in PR B.
-- **(Will) The 32 new topics** plus Bioluminescence, written and fact-checked only on his
-  explicit go after he has seen PR B (about 8 to 10M tokens).
+- **Next: the article page design**, still in progress with Will. The 12 pages written ahead
+  of time serve as demo placeholders meanwhile, tweaked as needed.
+- **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
+  final (Will, 2026-10-15), then written and fact-checked only on his explicit go (about 8 to
+  10M tokens).
 - Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
   write per page in flight, graph keyboard navigation, re-recording the three mock pages that
   still say "your path".
