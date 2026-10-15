@@ -49,3 +49,19 @@ One line each, newest last. Why, not just what.
 - 2026-10-14 · Panels (PR #5). One frame for all nine: the name in the level's colour with a hairline, like the level band. Each type is drawn from its data (details in the PR). Motion happens only as a panel streams in or when a guess is revealed. The guess's number rolls in like an odometer: transitions.dev's spinning counter, drawn in CSS so the text stays the number. A timeline's broken rail is paint only, applied once the panel is whole, so nothing moves.
 - 2026-10-14 · The build compiles the page script (node:vm, nothing runs). The modules share one scope, so a name declared twice had only failed in a browser, and `npm run verify` passed it.
 - 2026-10-14 · Will looked at both previews and said merge: #4 went in as 39dc61b and #5 as 6de47d1, after verify and e2e passed on the combined tree (which main matches exactly). Production checked afterwards: the hero, the dice, the panel frame and the paused path.
+- 2026-10-15 · Grounding, and every other model, prompt, fact or performance test, waits until the base product settles (Will). He hadn't known what grounding would cost in load time, tokens or blandness, and testing now would mean testing again after each product change. Grounding waits with the model eval. Meanwhile pages carry one note that they can be wrong.
+- 2026-10-15 · The fine note (Will: "a very subtle fine note at the bottom"): "Written by AI for your path. It can make mistakes, so check anything you plan to repeat." It sits once at the bottom of the stream, after the last page, not on every page (page-500). The first page's fine print now only says when the opening pages were written ahead of time.
+- 2026-10-15 · A new hero (Will: the centred, upfront input of current AI apps). It has three parts:
+  - "What do you want to learn?" above one composer: an auto-growing box with the voice and key in it, and a send button that is Surprise me (a dice) until something is typed;
+  - presets below (today's door and three more) that a shuffle re-rolls;
+  - what you type, or the preset you click, becomes the page's title through the page transition.
+  On the landing the top bar is the wordmark alone. "Get lost learning." moves to an H2 section with the demo, which plays only in view.
+- 2026-10-15 · Identity foundation:
+  - tokens for surfaces (paper, raised, sunken), three elevations, radii and the full transitions.dev motion scale;
+  - the landing's styles fold into one block instead of layered overrides;
+  - the brand spectrum (the eight link colours) appears once, as the composer's beam.
+- 2026-10-15 · libraries.dev's effects are React components, and Dorkhub has no framework and runs one hash-pinned script. So they are ported to plain CSS and JS in `src/vendor`, which the build inlines, rather than installed from npm. MIT notices are in the files and in `/licenses.txt`. The border beam came first, on the composer:
+  - recoloured to our link colours;
+  - with static colours (its hue-shift filter repainted every frame);
+  - paused off screen, and held still under reduced motion.
+- 2026-10-15 · Fixed: a clicked link never morphed into the next page's title. The new title wasn't given the transition's name, so only "Continue reading" morphed. The route now names it, and the composer's morph uses the same route.

@@ -8,6 +8,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   and CSS, then the body, then one inline script. That script is the shared modules plus
   the app modules in a single IIFE. A CSP meta tag pins that script by its SHA-256. There
   is no framework and no bundler; Vercel's CDN serves the page.
+  Third-party code is ported into `src/vendor` with its licence notice. The build inlines its
+  JS between the shared and app modules (`export` stripped) and its CSS after
+  `src/styles.css`, and `/licenses.txt` lists it.
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).

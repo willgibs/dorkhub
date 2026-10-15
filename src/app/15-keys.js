@@ -3,11 +3,16 @@
    kept in this browser only and sent with each request. */
 const cents = x => (x < 0.01 ? `${(x * 100).toFixed(1).replace(/\.0$/, '')}¢` : `${Math.round(x * 100)}¢`);
 const modelName = id => (findModel(id) || { name: id }).name;
+function keyLabel() {
+  const k = auth.byok; const n = pagesLeft();
+  return k ? `Writing with your ${PROVIDERS[k.provider].name} key: ${modelName(k.model)}` : n > 0 ? `${n} free page${n === 1 ? '' : 's'} left. Bring your own key any time` : 'Free pages used. Add your own key';
+}
 function renderKeyBtn() {
-  const b = $('#keyBtn'); if (!b) return; const k = auth.byok; const n = pagesLeft();
-  const label = k ? `Writing with your ${PROVIDERS[k.provider].name} key: ${modelName(k.model)}` : n > 0 ? `${n} free page${n === 1 ? '' : 's'} left. Bring your own key any time` : 'Free pages used. Add your own key';
-  b.dataset.state = k ? 'key' : n > 0 ? 'trial' : 'out'; b.dataset.tip = label; b.setAttribute('aria-label', `Keys. ${label}`);
-  $('.kb-n', b).textContent = k ? '' : String(n);
+  const k = auth.byok; const n = pagesLeft(); const label = keyLabel(); const state = k ? 'key' : n > 0 ? 'trial' : 'out';
+  /* the top bar's key while reading, and the composer's key pill on the landing */
+  for (const b of [$('#keyBtn'), $('#seedKey')]) { if (!b) continue; b.dataset.state = state; b.dataset.tip = label; b.setAttribute('aria-label', `Keys. ${label}`); }
+  const kb = $('#keyBtn .kb-n'); if (kb) kb.textContent = k ? '' : String(n);
+  const sk = $('#seedKey'); if (sk) sk.innerHTML = seedKeyHTML();
   const slot = $('#statusSlot'); if (slot) slot.innerHTML = trialLine();
 }
 function nowHTML() {

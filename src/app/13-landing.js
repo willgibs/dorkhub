@@ -25,44 +25,96 @@ function surprise() {
   const pool = DOORS.filter(d => !shown.has(d.t));
   newWarren((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t);
 }
+const doorHTML = (d, today) => `<button class="door${today ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-kind="${d.k}" data-tip="${today ? 'Today’s rabbit hole. ' : ''}${esc(d.h)}"><i></i>${esc(d.t)}</button>`;
+/* the presets re-roll as a set: the shown ones step back quickly, the new ones rise in a beat apart, and none repeats */
+function shufflePresets() {
+  const list = $('#presetList'); if (!list || list.dataset.busy) return;
+  const shown = new Set($$('.door', list).map(b => b.dataset.seed));
+  const pool = DOORS.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, 4);
+  const swap = () => { list.innerHTML = pool.map(d => doorHTML(d, false)).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
+  if (reducedMotion()) { swap(); return; }
+  list.dataset.busy = '1'; list.classList.remove('in'); list.classList.add('out');
+  setTimeout(() => { swap(); setTimeout(() => { delete list.dataset.busy; }, 600); }, 160);
+}
+/* the voice chip: shown only when the next page won't be encyclopedic, and one click takes it back */
+const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
+/* the key pill: free pages left, or the model a reader's own key writes with */
+const seedKeyHTML = () => auth.byok ? `${ic('key')}<b>${esc(modelName(auth.byok.model).replace(/^Claude /, ''))}</b>` : `${ic('key')}<b>${pagesLeft()}</b>`;
+/* send doubles as Surprise me: a dice while the box is empty, an arrow once there is something to read about */
+function syncSend() {
+  const b = $('#seedGo'), i = $('#seedIn'); if (!b || !i) return;
+  const go = !!i.value.trim(); if (b.dataset.mode === (go ? 'go' : 'dice')) return;
+  b.dataset.mode = go ? 'go' : 'dice'; b.type = go ? 'submit' : 'button';
+  if (go) delete b.dataset.act; else b.dataset.act = 'surprise';
+  const label = go ? 'Start reading' : 'Surprise me'; b.dataset.tip = label; b.setAttribute('aria-label', label);
+  if (go) { b.dataset.key = '↵'; } else delete b.dataset.key;
+}
+function growSeed() { const i = $('#seedIn'); if (!i) return; i.style.height = 'auto'; i.style.height = `${Math.min(i.scrollHeight, 168)}px`; }
+/* what you typed becomes the page title: a copy of it takes the title's place in the page transition */
+function seedMirror(v) {
+  const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return null;
+  const m = document.createElement('span'); m.className = 'cmirror'; m.textContent = v.replace(/\s+/g, ' ');
+  box.appendChild(m); i.style.color = 'transparent'; return m;
+}
+let LANDED = false;
 function viewStart() {
   const saved = store.warrens.filter(w => w.nodes[w.root]).sort((a, b) => (b.seenAt || b.updated) - (a.seenAt || a.updated));
   const last = saved[0]; const lastCur = last && (last.nodes[last.current] || last.nodes[last.root]);
   const day = Math.floor(Date.now() / 864e5); const today = DOORS[day % DOORS.length];
   const doors = [today, ...DOORS.filter(d => d !== today).sort(() => Math.random() - .5).slice(0, 3)];
   const legend = Object.entries(KIND_LABEL).map(([k, l]) => `<span data-kind="${k}"><i></i>${l}</span>`).join('');
-  return `<section class="hero">
-  <div class="hero-l">
-    <h1 class="s-h" tabindex="-1">Get lost learning<span class="dot">.</span></h1>
-    <p class="s-lede">An encyclopedia that writes itself around you. Start anywhere, and every link opens a page written for the path you took to reach it.</p>
-    <form class="entry" id="seedForm" autocomplete="off"><label class="entry-l" for="seedIn">What are you curious about?</label><div class="entry-box"><input id="seedIn" maxlength="160" placeholder="A topic, a question, a name" enterkeyhint="go"><button class="btn glow" type="submit">Start reading<kbd aria-hidden="true">↵</kbd></button></div></form>
+  /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
+  const intro = !LANDED && !reducedMotion(); LANDED = true;
+  return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
+  ${last ? `<a class="resume rise" style="--i:0" href="#/w/${last.id}/${lastCur.id}" data-s="${stratumOf(lastCur.depth)}" data-tip="Level ${lastCur.depth}, on ${esc(clip(lastCur.title, 48))}"><span class="mk">${lastCur.depth}</span>Continue <b>${esc(clip(last.nodes[last.root].title, 40))}</b><span class="rs-go">→</span></a>` : ''}
+  <h1 class="s-h rise" style="--i:1" id="startH" tabindex="-1">What do you want to learn?</h1>
+  <form class="composer rise" style="--i:2" id="seedForm" autocomplete="off">
+    <div class="cbox beam" id="seedBox">
+      <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, a question, a half-remembered fact" enterkeyhint="go"></textarea>
+      <div class="ctools">
+        <details class="voice cvoice"><summary class="ctool"${tipAttrs('Voice')}>${ic('voice')}</summary><div class="pop voice-pop"></div></details>
+        <span id="seedChips">${voiceChipHTML()}</span>
+        <button class="ckey" type="button" id="seedKey" data-act="keys">${seedKeyHTML()}</button>
+        <button class="send" type="button" id="seedGo" data-mode="dice" data-act="surprise"${tipAttrs('Surprise me')}><span class="sw" data-icon="dice">${ic('dice')}</span><span class="sw" data-icon="go">${ic('send')}</span></button>
+      </div>
+      <span class="beam-bloom" aria-hidden="true"></span>
+    </div>
     <p class="seed-err" id="seedErr" aria-live="polite"></p>
-    <div class="doors" role="group" aria-labelledby="doorsL"><span class="doors-l" id="doorsL">Or start with</span>${doors.map((d, i) => `<button class="door${i === 0 ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-kind="${d.k}" data-tip="${i === 0 ? 'Today’s rabbit hole. ' : ''}${esc(d.h)}"><i></i>${esc(d.t)}</button>`).join('')}<button class="door dice" type="button" data-act="surprise"${tipAttrs('Surprise me')}>${ic('dice')}</button></div>
-    ${last ? `<a class="resume" href="#/w/${last.id}/${lastCur.id}" data-s="${stratumOf(lastCur.depth)}" data-tip="Level ${lastCur.depth}, on ${esc(clip(lastCur.title, 48))}"><span class="mk">${lastCur.depth}</span>Continue <b>${esc(last.nodes[last.root].title)}</b><span class="rs-go">→</span></a>` : ''}
-    <div id="statusSlot">${trialLine()}</div>
+  </form>
+  <div class="presets rise" style="--i:3" role="group" aria-label="Or start with one of these">
+    <div class="pr-list" id="presetList">${doors.map((d, i) => doorHTML(d, i === 0)).join('')}</div>
+    <button class="pr-shuf" type="button" data-act="shuffle"${tipAttrs('Show other topics')}>${ic('shuffle')}</button>
   </div>
-  <figure class="stage hero-r"><div class="demo" id="demo" aria-hidden="true"></div><figcaption class="stage-cap"><span>A demo of one rabbit hole, three pages deep.</span>${reducedMotion() ? '' : `<button class="tool ib" type="button" id="demoPause" data-act="demo-pause" aria-pressed="false"${tipAttrs('Pause the demo')}>${ic('pause')}</button>`}</figcaption></figure>
+  <div id="statusSlot" class="rise" style="--i:4">${trialLine()}</div>
+</section>
+
+<section class="land-sec intro-sec" aria-labelledby="introH">
+  <div class="intro-l">
+    <h2 id="introH" class="land-h">Get lost learning<span class="dot">.</span></h2>
+    <p class="s-lede">An encyclopedia that writes itself around you. Start anywhere, and every link opens a page written for the path you took to reach it.</p>
+  </div>
+  <figure class="stage intro-r"><div class="demo" id="demo" aria-hidden="true"></div><figcaption class="stage-cap"><span>A demo of one rabbit hole, three pages deep.</span>${reducedMotion() ? '' : `<button class="tool ib" type="button" id="demoPause" data-act="demo-pause" aria-pressed="false"${tipAttrs('Pause the demo')}>${ic('pause')}</button>`}</figcaption></figure>
 </section>
 
 <section class="land-sec" aria-labelledby="goH">
   <h2 id="goH" class="land-h">Where rabbit holes go</h2>
-  <ul class="chains">${CHAINS.slice(0, 3).map(c => `<li class="chain" data-seed="${esc(c.steps[0])}" role="button" tabindex="0"><p class="ch-l">${esc(c.lede)}</p><ol class="ch-dots">${c.steps.map((t, i) => `<li data-s="${stratumOf(i)}"><i></i><span>${esc(t)}</span></li>`).join('')}</ol><span class="ch-go">Start at ${esc(c.steps[0])} →</span></li>`).join('')}</ul>
+  <ul class="chains">${CHAINS.slice(0, 3).map(c => `<li class="chain" data-seed="${esc(c.steps[0])}" role="button" tabindex="0"><p class="ch-l">${esc(c.lede)}</p><ol class="ch-dots">${c.steps.map((t, i) => `<li data-s="${stratumOf(i)}" style="--i:${i}"><i></i><span>${esc(t)}</span></li>`).join('')}</ol><span class="ch-go">Start at ${esc(c.steps[0])} →</span></li>`).join('')}</ul>
 </section>
 
 <section class="land-sec" aria-labelledby="howH">
   <h2 id="howH" class="land-h">How it works</h2>
-  <ul class="ideas lite">
+  <ul class="ideas">
     <li><p class="klegend">${legend}</p><h3>Links you can read at a glance</h3><p>Every link is coloured by what it leads to, so you can see where it goes before you click.</p></li>
-    <li><ol class="spectrum mini" aria-label="Eight levels, from Curious to Beyond">${LEVELS.map((l, i) => `<li data-s="${i}" title="${esc(l.name)}"><i></i></li>`).join('')}</ol><h3>The deeper you go, the nerdier it gets</h3><p>Eight levels, from Curious to Beyond, each with its own colour. Pages get more specific as you descend.</p></li>
+    <li><ol class="spectrum" aria-label="Eight levels, from Curious to Beyond">${LEVELS.map((l, i) => `<li data-s="${i}" title="${esc(l.name)}"><i></i></li>`).join('')}</ol><h3>The deeper you go, the nerdier it gets</h3><p>Eight levels, from Curious to Beyond, each with its own colour. Pages get more specific as you descend.</p></li>
     <li><p class="mini-bridge" data-s="1">From <u>Voynich manuscript</u>: here’s how a lab read a calf’s date of death from a page of parchment.</p><h3>Written for your path</h3><p>Every page opens by connecting to where you came from, so a rabbit hole reads like one story.</p></li>
   </ul>
 </section>
 
-${saved.length ? `<section class="saved" aria-labelledby="savedH"><div class="sec-h"><h2 id="savedH">Your rabbit holes</h2></div><ul class="cards">${saved.slice(0, 6).map(w => {
+${saved.length ? `<section class="land-sec saved" aria-labelledby="savedH"><h2 id="savedH" class="land-h">Your rabbit holes</h2><ul class="cards">${saved.slice(0, 6).map(w => {
     const ns = Object.values(w.nodes); const cur = w.nodes[w.current] || w.nodes[w.root]; const deep = Math.max(...ns.map(n => n.depth));
     return `<li><a href="#/w/${w.id}/${cur.id}">${esc(w.nodes[w.root].title)}</a><p class="card-path">${ns.slice(0, 12).map(n => `<i data-s="${stratumOf(n.depth)}"></i>`).join('')}</p><p>${ns.length} page${ns.length === 1 ? '' : 's'}, down to level ${deep}. ${relTime(w.seenAt || w.updated)}.</p><button class="del linkish" type="button" data-del="${w.id}">Delete</button></li>`;
   }).join('')}</ul></section>` : ''}
-<footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Pages are written live by AI for the path you take, so check anything you plan to repeat. Your rabbit holes stay in this browser, and nothing you read is tracked.</p></footer>`;
+<footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Pages are written live by AI for the path you take, and they can contain mistakes, so check anything you plan to repeat. Your rabbit holes stay in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p></footer>`;
 }
 
 /* ================= the hero demo: a scripted rabbit hole, nothing written live ================= */
@@ -167,6 +219,15 @@ async function heroDemo() {
   } catch (e) { /* stopped */ }
 }
 function stopDemo() { DEMO_RUN++; if (DEMO_IO) { DEMO_IO.disconnect(); DEMO_IO = null; } DEMO_PAUSED = false; DEMO_SEEN = true; holdDemo(); }
-/* with a mouse, the caret is already waiting in the entry; a phone keeps its keyboard down until asked */
-function startLanding() { heroDemo(); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { stopDemo(); }
+/* the beam only runs while someone can see it */
+let BEAM_IO = null;
+function watchBeam() {
+  const box = $('#seedBox'); if (!box || typeof IntersectionObserver !== 'function') return;
+  BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
+}
+/* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
+function startLanding() { heroDemo(); watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+function stopLanding() { stopDemo(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } }
+document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
+/* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
+document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });

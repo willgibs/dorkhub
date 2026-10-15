@@ -46,6 +46,19 @@ async function run(page, { mobile = false } = {}) {
     for (const f of ['Literata', 'Atkinson Hyperlegible Next']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
+  /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
+  await step(`${tag}: the composer`, async () => {
+    const h = await page.evaluate(() => { const box = document.querySelector('#seedBox'); const cs = box && getComputedStyle(box); return { h1: document.querySelector('h1')?.textContent, beam: !!box && box.classList.contains('beam') && !!box.querySelector('.beam-bloom'), anim: cs ? cs.animationName : '', send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
+    if (h.h1 !== 'What do you want to learn?' || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)}`);
+    await page.fill('#seedIn', 'Why do cats purr?');
+    const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '' }; });
+    if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
+    await page.fill('#seedIn', '');
+    const before = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
+    await page.locator('[data-act="shuffle"]').click(); await page.waitForTimeout(800);
+    const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
+    if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
+  });
   await step(`${tag}: a door page is written ahead of time, and free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint span')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
@@ -65,6 +78,8 @@ async function run(page, { mobile = false } = {}) {
   /* the demo is a picture, not a control, and it pauses when asked */
   if (!mobile) {
     await step(`${tag}: the demo pauses and plays`, async () => {
+      /* the demo lives below the first screen now, and runs only while it is in view */
+      await page.locator('#demo').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
       await page.locator('#demoPause').click();
       const d = await page.evaluate(() => ({ pressed: document.querySelector('#demoPause')?.getAttribute('aria-pressed'), held: !!document.querySelector('#demo.held'), events: getComputedStyle(/** @type {Element} */ (document.querySelector('#demo'))).pointerEvents }));
       if (d.pressed !== 'true' || !d.held || d.events !== 'none') throw new Error(`demo: ${JSON.stringify(d)}`);
@@ -99,6 +114,9 @@ async function run(page, { mobile = false } = {}) {
     const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '' }));
     if (mobile ? pic.n !== 0 : !(pic.inFirst && pic.credit === 'E2E · CC0')) throw new Error(`picture: ${JSON.stringify(pic)}`);
     if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
+    /* the one note that pages can be wrong: once, after the last page */
+    const foot = await page.evaluate(() => { const f = document.querySelector('#view > .colfoot'); return { text: f?.textContent || '', after: !!f && f.previousElementSibling?.id === 'column', n: document.querySelectorAll('.colfoot').length }; });
+    if (!/can make mistakes/.test(foot.text) || !foot.after || foot.n !== 1) throw new Error(`fine note: ${JSON.stringify(foot)}`);
     await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
   });
   await step(`${tag}: a guess keeps its answer until asked`, async () => {
@@ -178,6 +196,13 @@ async function run(page, { mobile = false } = {}) {
 }
 
 try {
+  await step('reduced motion: the beam holds still and stays lit', async () => {
+    const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
+    await still.goto(base); await still.waitForSelector('#seedBox');
+    const b = await still.evaluate(() => { const cs = getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox'))); return { anim: cs.animationName, on: cs.getPropertyValue('--beam-on').trim() }; });
+    await still.close();
+    if (b.anim !== 'none' || b.on !== '1') throw new Error(`reduced-motion beam: ${JSON.stringify(b)}`);
+  });
   const desk = await browser.newPage({ viewport: { width: 1360, height: 900 } });
   await run(desk);
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
