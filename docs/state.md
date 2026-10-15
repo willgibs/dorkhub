@@ -11,16 +11,16 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     peek above the fold, with a still map of where they lead (Your world for a reader);
   - PR D (willgibs/dorkhub#16, 13e1ff5): every map drawn like an instrument, not glow (Your
     world, the sidebar, the front page), with the fix for maps that stopped on an empty frame.
-- **A draft:** PR E (willgibs/dorkhub#17), the front page by hand (`lib/front.js`): 13 cards each
-  drawn its own way, leading into the 32 planned topics; a map of their threads; suggestions
-  from them. Ships with the 32 pages; production keeps PR C's page until then. Review page with
-  screenshots: claude.ai/artifact/VN7fYsuKtckwLHtDZoxQiM.
+- **Approved, kept on its branch:** PR E (willgibs/dorkhub#17, a draft), the front page by hand
+  (`lib/front.js`): 13 cards each drawn its own way, leading into the 32 planned topics; a map
+  of their threads; suggestions from them. Will approved it; it stays branched until the 32
+  pages exist (production keeps PR C's page), and gets rebased onto main before it ships.
+  Review page with screenshots: claude.ai/artifact/VN7fYsuKtckwLHtDZoxQiM.
 - **Production today:** no gateway credits, so typed topics pause and seeds open free. Logs clean.
 - **Article page design:** still in progress with Will. The 12 seeds are demo placeholders
   meanwhile and can be tweaked as needed (on main, rerun `node scripts/seeds.mjs feed` after).
 
 ## Blocked on Will
-- His reactions to PR E's cards and their copy.
 - The article page design (his direction next).
 - The 32 new topics: on hold until that design is final, then only on his go. Each page's
   brief carries its PR E card's hook, so the page covers what the card promises.
@@ -28,8 +28,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   pricing (backlog §0).
 
 ## Next
-1. PR E: fold in Will's notes; it stays a draft until the 32 pages exist.
-2. The article page design, with Will.
-3. Runtime Cache across production deploys: confirm once credits land.
-4. Later, each on Will's go: the 32 topics, a durable store, one write per page in flight, graph
+1. Will's next priority ("bigger fish"); the article page design is the one waiting.
+2. Runtime Cache across production deploys: confirm once credits land.
+3. Later, each on Will's go: PR E's tweaks and its rebase, the 32 topics, a durable store, one write per page in flight, graph
    keyboard navigation, re-recording the three mock pages that say "your path".
