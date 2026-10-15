@@ -4,11 +4,8 @@ Each is licensed under the SIL Open Font License, Version 1.1:
 Literata (literata-*.woff2)
   Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)
 
-Atkinson Hyperlegible Next (atkinson-next-*.woff2)
-  Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)
-
-Atkinson Hyperlegible Mono (atkinson-mono-*.woff2)
-  Copyright 2020-2024 The Atkinson Hyperlegible Mono Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next-mono)
+Inter (inter-*.woff2)
+  Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)
 
 Doto (doto-*.woff2)
   Copyright 2024 The Doto Project Authors (https://github.com/oliverlalan/Doto)

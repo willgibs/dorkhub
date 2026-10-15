@@ -43,7 +43,7 @@ async function run(page, { mobile = false } = {}) {
     if ((await badge()) !== String(PAGES)) throw new Error(`badge ${await badge()}`);
     /* the fonts are our own files, so they load under the page's CSP without asking any third party */
     const fams = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, '')); });
-    for (const f of ['Literata', 'Atkinson Hyperlegible Next']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
+    for (const f of ['Literata', 'Inter']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
   /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
@@ -162,7 +162,7 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
       await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
       const v = await page.evaluate(() => { const l = document.querySelector('#sheet .voice-pop label'); const cs = getComputedStyle(l); return { grid: cs.display, font: getComputedStyle(l.closest('.voice-pop')).fontFamily, focus: document.activeElement?.id || document.activeElement?.className }; });
-      if (v.grid !== 'grid' || !/Atkinson/.test(v.font) || v.focus !== 'sheetBody') throw new Error(`voice sheet: ${JSON.stringify(v)}`);
+      if (v.grid !== 'grid' || !/Inter/.test(v.font) || v.focus !== 'sheetBody') throw new Error(`voice sheet: ${JSON.stringify(v)}`);
       /* a choice closes the sheet; the flow then goes back to the encyclopedic voice the same way */
       for (const lens of ['story', 'encyclopedic']) {
         if (lens !== 'story') { await page.locator('.fab-main').tap(); await page.waitForTimeout(450); await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label'); }

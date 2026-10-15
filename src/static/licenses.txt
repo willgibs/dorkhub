@@ -1,6 +1,6 @@
 Dorkhub uses these third-party works. Thank you to their authors.
 
-Fonts (Literata, Atkinson Hyperlegible Next and Mono, Doto): SIL Open Font License 1.1, see /fonts/OFL.txt.
+Fonts (Inter, Literata, Doto): SIL Open Font License 1.1, see /fonts/OFL.txt.
 
 Motion recipes from transitions.dev by Jakub Antalik: the icon swap and texts reveal, and, under a
 Transitions Pro licence, the gooey plus menu (the tools button on a phone) and the image
