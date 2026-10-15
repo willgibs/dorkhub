@@ -47,14 +47,11 @@ Will wants the generative UI and the whole experience solid first. Judge everyth
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
 (merged 2026-10-14). From Will's review of #3:
 
-- **Landing hero: in review,** PR willgibs/dorkhub#4. His notes were: the H1 is too loud; the
-  entry feels disguised; the demo "feels like page UI instead of what it is: a visual".
-  Waiting for his look at the preview (before/after shots in `docs/state.md`).
-- **Panel polish: in review,** PR willgibs/dorkhub#5. The types were right but needed polish
-  "to feel beautiful instead of generic", with the transitions.dev ideas landing. Reinstall
-  the skills with `npx skills add Jakubantalik/transitions.dev`; for Pro, `npx transitions-dev
-  login`, then `npx transitions-dev skill` (Pro licenses Will personally). Keep the page-500
-  test.
+- **The landing hero and the panel polish are live** (PRs willgibs/dorkhub#4 and
+  willgibs/dorkhub#5, merged after Will's look at the previews). For later rounds, reinstall
+  the transitions.dev skills with `npx skills add Jakubantalik/transitions.dev`; for Pro,
+  `npx transitions-dev login`, then `npx transitions-dev skill` (Pro licenses Will
+  personally). Keep the page-500 test.
 - **The door list, before any more seeds. Proposal sent 2026-10-14** (the artifact in
   `docs/state.md`), waiting for his numbers.
   - Criteria: interesting to any new visitor; a real range of fields; well documented, so
