@@ -138,6 +138,7 @@ function setFab(open, refocus) {
   if (!open) { fab.classList.add('nudge'); fabNudge = setTimeout(() => fab.classList.remove('nudge'), 750); if (refocus) main.focus(); }
 }
 fab.addEventListener('click', e => {
+  if (e.target === fab) { setFab(false); return; } /* the scrim */
   if (e.target.closest('.fab-main')) { setFab(fab.dataset.open !== 'true'); return; }
   const it = e.target.closest('[data-fab]'); if (!it) return; setFab(false); const a = it.dataset.fab;
   if (a === 'ask') openOmni();

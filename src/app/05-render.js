@@ -123,14 +123,14 @@ function chamberHTML(node, via) {
   const prev = via ? W.nodes[via] : null;
   const change = prev && stratumOf(prev.depth) !== stratumOf(node.depth);
   return `<section class="chamber" data-nid="${node.id}" data-s="${stratumOf(node.depth)}" aria-label="${esc(node.title)}">
-  ${change ? `<div class="levelband"><span>Level <b>${node.depth}</b></span><span>${esc(levelOf(node.depth).name)}</span></div>` : ''}
+  ${change ? `<div class="levelband"><p><span>Level <b>${node.depth}</b></span><span>${esc(levelOf(node.depth).name)}</span></p></div>` : ''}
   <article class="article">
     <div class="recap-slot">${via ? '' : recapHTML(node)}</div>
     <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-cols"><div class="h-main"></div><aside class="h-pic" hidden></aside></div></header>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
-    ${node.depth === 0 ? `<p class="fineprint"><span></span><button class="tool ib" type="button" data-act="help" data-tip="Tips and shortcuts" data-key="?" aria-label="Tips and shortcuts">${ic('help')}</button></p>` : ''}
+    ${node.depth === 0 ? '<p class="fineprint"></p>' : ''}
   </article>
 </section>`;
 }
@@ -141,7 +141,7 @@ function paint(node, streamOnly) {
   paintHead(node, sec, A, live); paintBody(node, sec, A, live); paintEnd(node, sec, A, live);
   /* the first page of a rabbit hole says when its opening pages were written ahead of time; the note
      that pages can be wrong sits once at the bottom of the stream (.colfoot), not on every page */
-  const fp = node.depth === 0 && $('.fineprint span', sec);
+  const fp = node.depth === 0 && $('.fineprint', sec);
   if (fp) setHTML(fp, node.seeded ? 'The first pages of this path were written ahead of time; past them, every page is written live for your path.' : '');
   if (!streamOnly) {
     paintTools(node, sec); paintDoubt(node, sec);

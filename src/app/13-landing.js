@@ -58,8 +58,13 @@ function seedMirror(v) {
 }
 let LANDED = false;
 function viewStart() {
-  const saved = store.warrens.filter(w => w.nodes[w.root]).sort((a, b) => (b.seenAt || b.updated) - (a.seenAt || a.updated));
-  const last = saved[0]; const lastCur = last && (last.nodes[last.current] || last.nodes[last.root]);
+  /* only rabbit holes with a page to read: one whose only page didn't come through is nothing to go back to */
+  const readable = n => !!n && (n.status === 'done' || n.status === 'partial');
+  const saved = store.warrens.filter(w => w.nodes[w.root] && Object.values(w.nodes).some(readable)).sort((a, b) => (b.seenAt || b.updated) - (a.seenAt || a.updated));
+  /* Continue lands on the last page you could read on your path, not on one that failed */
+  const last = saved[0]; const here = last && (last.nodes[last.current] || last.nodes[last.root]);
+  let lastCur = null; for (let n = here; n && !lastCur; n = n.parent ? last.nodes[n.parent] : null) if (readable(n)) lastCur = n;
+  if (last && !lastCur) lastCur = Object.values(last.nodes).find(readable);
   const day = Math.floor(Date.now() / 864e5); const today = DOORS[day % DOORS.length];
   const doors = [today, ...DOORS.filter(d => d !== today).sort(() => Math.random() - .5).slice(0, 3)];
   const legend = Object.entries(KIND_LABEL).map(([k, l]) => `<span data-kind="${k}"><i></i>${l}</span>`).join('');

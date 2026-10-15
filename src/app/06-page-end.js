@@ -9,8 +9,15 @@ function rowsBlock(el, heading, sub, rows) {
   patch($('.rows', el), rows);
 }
 const KEY_FIX = ['bad_key', 'key_limit', 'model_unavailable'];
+/* three pages written ahead of time, the same three for a page every time it is painted */
+function freeDoors(node) {
+  const at = [...String(node.id)].reduce((a, c) => a + c.charCodeAt(0), 0) % DOORS.length;
+  return [...DOORS.slice(at), ...DOORS.slice(0, at)].filter(d => d.t !== node.title).slice(0, 3);
+}
 function statusNote(node) {
   const code = node.errorCode;
+  /* nothing new can be written for free right now, but the pages written ahead of time still open */
+  if (node.status === 'error' && code === 'trial_paused') return `<div class="statusnote paused"><h2>Free pages are paused right now</h2><p>Nothing was taken from your free pages. Try again in a while, use your own key, or open one of these: they were written ahead of time, so they’re free and instant.</p><div class="sn-doors">${freeDoors(node).map(d => doorHTML(d, false)).join('')}</div><div class="sn-a"><button class="btn ghost" type="button" data-act="retry" data-nid="${node.id}">Try again</button><button class="btn ghost" type="button" data-act="keys">Use your own key</button></div></div>`;
   if (node.status === 'error' && code === 'trial_over') return `<div class="statusnote paywall"><h2>You’ve read your free pages</h2><p>Keep going with your own API key from Anthropic or Vercel AI Gateway. Pages then cost from about a tenth of a cent each, billed to you by the provider, and every tool keeps working. Dorkhub Pro, with no keys at all, is on its way.</p><div class="sn-a"><button class="btn glow" type="button" data-act="keys">Add a key</button>${W.demo ? '' : '<button class="btn ghost" type="button" data-act="demo">Read the demo instead</button>'}</div></div>`;
   if (node.status === 'error' || node.status === 'offline') return `<div class="statusnote"><h2>That page didn’t come through</h2><p>${esc(node.error || errText())}</p><div class="sn-a">${KEY_FIX.includes(code) ? '<button class="btn glow" type="button" data-act="keys">Open Keys</button>' : ''}<button class="btn${KEY_FIX.includes(code) ? ' ghost' : ' glow'}" type="button" data-act="retry" data-nid="${node.id}">Try again</button></div></div>`;
   if (node.status === 'partial') return `<div class="statusnote"><h2>This page stopped partway</h2><p>${esc(node.error || 'It was left unfinished.')}</p><button class="btn glow" type="button" data-act="retry" data-nid="${node.id}">Finish it</button></div>`;
@@ -18,9 +25,12 @@ function statusNote(node) {
 }
 function paintEnd(node, sec, A, live) {
   const end = $('.a-end', sec); const done = node.status === 'done' && !live; const blocks = [];
+  /* a page that didn't come through says so first, right where its text stops, and asks nothing of the reader */
+  const failed = node.status === 'error' || node.status === 'offline';
+  const st = statusNote(node); if (st) blocks.push({ k: 'status', html: st });
   const RIC = { basic: 'basic', right: 'right2', lost: 'lost', wow: 'wow' };
   /* reactions take their place as soon as the body is finished, so nothing later lands above the next page */
-  if (A.bodyDone || (!live && A.blocks.length)) blocks.push({ k: 'react', html: `<div class="react" role="group" aria-label="How was this page?">${Object.entries(REACT).map(([k, [l]]) => `<button type="button" data-react="${k}" aria-pressed="${node.reaction === k}"${tipAttrs(l)}>${ic(RIC[k])}</button>`).join('')}</div>` });
+  if (!failed && (A.bodyDone || (!live && A.blocks.length))) blocks.push({ k: 'react', html: `<div class="react" role="group" aria-label="How was this page?">${Object.entries(REACT).map(([k, [l]]) => `<button type="button" data-react="${k}" aria-pressed="${node.reaction === k}"${tipAttrs(l)}>${ic(RIC[k])}</button>`).join('')}</div>` });
   if (A.next) {
     const ex = findByKey(keyOf(A.next.target)); const below = ex && secFor(ex.id); const nd = node.depth + 1;
     blocks.push({ k: 'next', html: `<button class="next${below ? ' below' : ''}" type="button" data-next="${node.id}" data-s="${stratumOf(nd)}"><span class="next-meta"><span class="mk" data-tip="Level ${nd}: ${esc(levelOf(nd).name)}">${nd}</span>${below ? 'Continued below' : 'Next'}</span><span class="next-title">${esc(A.next.label)}</span><span class="next-why">${esc(capFirst(plain(A.next.why)))}</span><span class="next-go">${below ? 'Scroll down ↓' : 'Continue reading <kbd>J</kbd>'}</span></button>` });
@@ -46,8 +56,7 @@ function paintEnd(node, sec, A, live) {
     const kids = childrenOf(node.id).filter(k => k.status === 'done' || k.status === 'partial');
     if (kids.length) blocks.push({ k: 'explored', rows: kids.map(k => ({ k: 'x' + k.id, html: rowHTML({ mark: '✓', title: esc(k.title), hook: k.deck ? esc(plain(k.deck)) : '', attrs: `data-goto="${k.id}" data-s="${stratumOf(k.depth)}"` }) })), heading: 'Already read from here', sub: '' });
   }
-  if (!live || A.bodyDone) blocks.push({ k: 'ask', html: `<form class="ask" data-nid="${node.id}" autocomplete="off"><label class="sr" for="ask-${node.id}">Ask your own question from here</label><span class="rk" aria-hidden="true">?</span><input id="ask-${node.id}" placeholder="Ask your own question" maxlength="160"><button class="ask-go" type="submit" aria-label="Open a page that answers it">↵</button></form>` });
-  const st = statusNote(node); if (st) blocks.push({ k: 'status', html: st });
+  if (!failed && (!live || A.bodyDone)) blocks.push({ k: 'ask', html: `<form class="ask" data-nid="${node.id}" autocomplete="off"><label class="sr" for="ask-${node.id}">Ask your own question from here</label><span class="rk" aria-hidden="true">?</span><input id="ask-${node.id}" placeholder="Ask your own question" maxlength="160"><button class="ask-go" type="submit" aria-label="Open a page that answers it">↵</button></form>` });
   const existing = new Map(); for (const el of end.children) if (el.dataset.k) existing.set(el.dataset.k, el);
   let prev = null; const anim = !reducedMotion();
   for (const b of blocks) {
@@ -65,6 +74,8 @@ function paintTools(node, sec) {
   if (node.status === 'digging') t.push(b('stop', 'stop', 'Stop writing', '', true, '', ' stop'));
   if (parent) t.push(`<a class="tool ib" href="#/w/${W.id}/${parent.id}"${tipAttrs(`Back up to ${parent.title}`, 'U')}>${ic('up')}</a>`);
   if (node.depth > 1) t.push(`<a class="tool ib" href="#/w/${W.id}/${W.root}"${tipAttrs(`Back to the start: ${W.nodes[W.root].title}`, 'S')}>${ic('top')}</a>`);
+  /* a page that didn't come through has nothing to sketch, hear or quiz: only the way back stays */
+  if (node.status === 'error' || node.status === 'offline') { setHTML($('.tools', sec), t.join('')); return; }
   const connect = W.order.filter(x => W.nodes[x].status === 'done').length > 1;
   const sketchLabel = node.figure && node.figure !== 'loading' ? 'Show the sketch' : 'Sketch it: a diagram of this page';
   t.push(b('sketch', 'sketch', sketchLabel, 'K', ready, '', ' tw'));
@@ -78,7 +89,7 @@ function paintTools(node, sec) {
   more.push(mi('doubt', 'Skeptic mode', 'D', ready));
   more.push(mi('recall', 'What stuck? A quick quiz', 'Q', true));
   more.push(mi('rewrite', `Rewrite as ${esc(LENSES[store.settings.lens][0].toLowerCase())}`, 'R', node.status !== 'digging'));
-  more.push(`<button class="mi" type="button" data-act="help">All shortcuts <kbd>?</kbd></button>`);
+  more.push(`<button class="mi keys-mi" type="button" data-act="help">All shortcuts <kbd>?</kbd></button>`);
   t.push(`<details class="more"><summary class="tool ib"${tipAttrs('More')}>${ic('more')}</summary><div class="more-pop" role="menu">${more.join('')}</div></details>`);
   const tools = $('.tools', sec); if ($('details.more[open]', tools)) return;
   setHTML(tools, t.join(''));

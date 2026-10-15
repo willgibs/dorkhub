@@ -10,7 +10,7 @@ function relTime(ts) { const m = (Date.now() - ts) / 6e4; if (m < 1) return 'jus
 const isDark = () => { const t = document.documentElement.dataset.theme; if (t) return t === 'dark'; return matchMedia('(prefers-color-scheme: dark)').matches; };
 const pal = d => (isDark() ? PAL.dark : PAL.light)[stratumOf(d)];
 function announce(msg) { const el = $('#srLive'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 60); }
-function toast(msg, ms = 3200) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 320); }, ms); }
+function toast(msg, ms = 3200) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 360); }, ms); }
 
 /* ================= storage ================= */
 const KEY = 'dorkhub:holes:v1';

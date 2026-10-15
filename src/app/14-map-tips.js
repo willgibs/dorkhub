@@ -48,7 +48,7 @@ function drawMap() {
   };
   sc.innerHTML = `<ol class="mline mtree">${line(W.nodes[W.root])}</ol>`;
   const nodes = W.order.map(x => W.nodes[x]); const done = nodes.filter(n => n.status === 'done').length; const deep = Math.max(...nodes.map(n => n.depth));
-  $('#mapStats').textContent = `${done} page${done === 1 ? '' : 's'}, down to level ${deep}`;
+  $('#mapStats').textContent = done ? `${done} page${done === 1 ? '' : 's'}, down to level ${deep}` : 'Nothing read yet';
   const c = $('.mrow.cur', sc); if (c) { const want = c.offsetTop - sc.clientHeight / 2 + 20; if (Math.abs(sc.scrollTop - want) > sc.clientHeight / 3) sc.scrollTo({ top: Math.max(0, want), behavior: reducedMotion() ? 'auto' : 'smooth' }); }
 }
 function legendHTML() {

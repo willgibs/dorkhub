@@ -35,10 +35,12 @@ function mdToHTML(md) {
   }
   return h + (list ? '</ul>' : '');
 }
+/* the sheet is already called Recap, so the recap's own title leads without saying it again */
+const notesHTML = md => mdToHTML(md.replace(/^#\s+Recap:\s*(\S)/m, (_, c) => `# ${c.toUpperCase()}`));
 function notesFoot() { return `<button class="btn glow" type="button" data-act="save-notes">Download recap (.md)</button><button class="btn ghost" type="button" data-act="copy-notes">Copy</button><button class="btn ghost" type="button" data-act="renotes">Write them again</button>`; }
 async function fieldNotes(fresh) {
   if (!W) return; const w = W;
-  if (w.notes && !fresh) { openSheet('Recap', mdToHTML(w.notes), notesFoot()); return; }
+  if (w.notes && !fresh) { openSheet('Recap', notesHTML(w.notes), notesFoot()); return; }
   const done = w.order.map(x => w.nodes[x]).filter(n => n.status === 'done');
   if (done.length < 2) { toast('Read at least two pages first. A recap needs a journey.'); return; }
   openSheet('Recap', `<p class="digging">${waitHTML('composing', 'Gathering what you found')}</p>`);
@@ -47,8 +49,8 @@ async function fieldNotes(fresh) {
   const ctl = sheetCtl = new AbortController();
   try {
     const said = n => { const A = parsed(n); return clip([...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
-    const { text } = await write('recap', { pages: done.map(n => ({ depth: n.depth, title: n.title, deck: n.deck ? clip(n.deck, 400) : '', text: said(n) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = mdToHTML(text); } });
-    w.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', mdToHTML(text), notesFoot());
+    const { text } = await write('recap', { pages: done.map(n => ({ depth: n.depth, title: n.title, deck: n.deck ? clip(n.deck, 400) : '', text: said(n) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = notesHTML(text); } });
+    w.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', notesHTML(text), notesFoot());
   } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
 }
 function warrenMarkdown(w) {

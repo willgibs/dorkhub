@@ -169,7 +169,7 @@ function figureHTML(node) {
     const lines = f.shape === 'hub' ? pos.map(p => `<line x1="50" y1="50" x2="${p.x.toFixed(2)}" y2="${p.y.toFixed(2)}"/>`).join('') : `<ellipse cx="50" cy="50" rx="37" ry="39"/>`;
     body = `<div class="sk-ring" data-shape="${f.shape}"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg><div class="sk-center${f.shape === 'cycle' ? ' cyc' : ''}">${f.shape === 'hub' ? esc(f.center || node.title) : '↻'}</div>${f.nodes.map((nn, i) => `<div class="sk-pos" style="left:${pos[i].x.toFixed(2)}%;top:${pos[i].y.toFixed(2)}%">${box(nn)}</div>`).join('')}</div>`;
   }
-  return `<figure class="sketch" data-shape="${f.shape}"><p class="sk-t"><span>Sketch</span>${esc(f.title || 'How it fits together')}</p>${body}${f.caption ? `<figcaption>${esc(f.caption)}</figcaption>` : ''}<p class="sk-foot"><span>Every box is a tunnel.</span><button type="button" data-act="sketch-redo" data-nid="${node.id}">Sketch again</button><button type="button" data-act="sketch-close" data-nid="${node.id}">Remove</button></p></figure>`;
+  return `<figure class="sketch" data-shape="${f.shape}"><p class="sk-t"><span>Sketch</span>${esc(f.title || 'How it fits together')}</p>${body}${f.caption ? `<figcaption>${esc(f.caption)}</figcaption>` : ''}<p class="sk-foot"><span>Every box opens a page.</span><button type="button" data-act="sketch-redo" data-nid="${node.id}">Sketch again</button><button type="button" data-act="sketch-close" data-nid="${node.id}">Remove</button></p></figure>`;
 }
 
 /* ================= what stuck? a recall quiz from your own dig ================= */
