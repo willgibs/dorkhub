@@ -137,3 +137,7 @@ One line each, newest last. Why, not just what.
   - on a phone, with a toast up, the open tools are the top layer (z-index 75 over 70);
   - the 404 and the licences name Inter;
   - the function logs show only the known "no gateway credits" error, from these checks.
+- 2026-10-15 · Will asked for Inter on all copy, for a more modern look, reversing the earlier "keep Literata" call. PR willgibs/dorkhub#11 merged as eb61875 after his look at the preview; verify (69 tests) and e2e passed.
+  - Article text is Inter at 18 px (17 px on phones) on a 64ch measure. Inter's italic is self-hosted for quotes and equations.
+  - Literata is removed.
+  - Production check: only Inter and Doto load, and article text is in Inter. Everything else behaves as before (free chain door, paused card with `pages=10`, tools above toasts, the 404). The logs show only the known "no gateway credits" error, from the check.

@@ -3,19 +3,19 @@
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Now (2026-10-15, end of session)
-- **Live:** `main` is 2b9a7af, and Will looked at every preview before it merged:
+- **Live:** `main` is eb61875, and Will looked at every preview before it merged:
   - the polish pass (PR willgibs/dorkhub#8): one motion scale, a paused page with free doors,
     calm failed pages, icon-closed sheets, a phone scrim and voice sheet, the 404 in the
     identity. Shots: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
   - his landing notes (#10):
-    - Inter for the interface, with Literata kept for article text (his call);
+    - Inter for the interface; then #11 put article text in Inter too (Literata is gone);
     - a wordmark-only nav and plain preset chips;
     - How it works before Where rabbit holes go, and chains of familiar names.
   - the open phone tools above toasts (#9). Shots for #9 and #10:
     https://claude.ai/artifact/ESExHbGpi2R97bkWDJhVpg
   - Verify (69 tests) and e2e passed on each merged tree.
 - **Checked on dorkhub.com after the merges:**
-  - Inter, Doto and Literata load;
+  - only Inter and Doto load, and article text is in Inter;
   - a chain opens its door page free;
   - a typed topic pauses with `pages=10` and plain chips;
   - the phone tools sit above a live toast;
