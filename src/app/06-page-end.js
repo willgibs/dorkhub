@@ -37,7 +37,7 @@ function paintEnd(node, sec, A, live) {
   }
   const g0 = A.gloss;
   const nextKey = A.next ? keyOf(A.next.target) : '';
-  const branchRows = A.tunnels.filter(t => keyOf(t.target) !== nextKey).slice(0, 5).map((t, i) => {
+  const branchRows = A.tunnels.filter(t => keyOf(t.target) !== nextKey).slice(0, 6).map((t, i) => {
     const ex = findByKey(keyOf(t.target)); const loop = ex && ex.parent !== node.id; const d = DIR_MARK[t.dir]; const g = g0[keyOf(t.target)];
     return { k: 't' + keyOf(t.target), html: rowHTML({ mark: i + 1, markTip: `Press ${i + 1}`, title: esc(t.label), hook: inline(capFirst(t.teaser || (g && g.gloss) || ''), node), tag: d ? ic(d[0]) : '', tagTip: d ? d[1] : '', cls: loop ? ' loop' : '', attrs: `data-t="${esc(t.target)}" data-teaser="${esc(t.teaser)}" data-dir="${t.dir}" data-n="${i + 1}"${kattr((g && g.kind) || t.kind)}` }) };
   });

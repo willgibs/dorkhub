@@ -6,9 +6,10 @@
 // every tool, the end of the trial, a bad key, a good key. Screenshots go to $E2E_SHOTS
 // (default .e2e/, which is git-ignored).
 import { spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { topicKey } from '../src/shared/world.js';
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -25,12 +26,18 @@ await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (Str
 const browser = await chromium.launch();
 const errors = [];
 const results = [];
+/* Pages are written once per topic and then reused, and pre-written topics are free wherever they
+   are linked, so a step that expects to spend a free page opens a topic that is neither. */
+const written = new Set();
+const seeded = new Set(Object.keys(JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages));
 const step = async (name, fn) => { const t = Date.now(); try { await fn(); results.push(`ok   ${name} (${Date.now() - t} ms)`); } catch (e) { results.push(`FAIL ${name}: ${String(e.message).split('\n')[0]}`); throw e; } };
 
 async function run(page, { mobile = false } = {}) {
   page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
   page.on('console', m => { if (m.type() === 'error' && !/ERR_TUNNEL_CONNECTION_FAILED|fonts\.g|status of (40[12]|503)/.test(m.text() + (m.location()?.url || ''))) errors.push(`console: ${m.text()}`); });
   const tag = mobile ? 'mobile' : 'desktop';
+  page.on('response', r => { if (!r.url().endsWith('/api/write') || r.status() !== 200 || r.headers()['x-dh-cache']) return; const b = r.request().postDataJSON(); if (b && b.task === 'page') written.add(topicKey(b.input?.title)); });
+  const first = mobile ? 'Moss piglets' : 'Water bears';
   const badge = () => page.locator('#keyBtn .kb-n').textContent();
   /* a page is done when the newest one is no longer busy and its branches are in */
   const waitDone = async () => { await page.waitForFunction(() => { const a = [...document.querySelectorAll('.chamber .article')].pop(); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .row[data-t]'); }, null, { timeout: 20000 }); };
@@ -112,12 +119,12 @@ async function run(page, { mobile = false } = {}) {
   await step(`${tag}: first page streams in`, async () => {
     /* what the wait looked like: its words, whether an orb was drawn beside them, and the picture slot's first height */
     await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); w.__orb = false; w.__picH0 = 0; new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) { w.__status.add(s.textContent); if (s.querySelector('canvas.orb')) w.__orb = true; } const b = document.querySelector('.pic-box'); if (b && !w.__picH0) w.__picH0 = b.getBoundingClientRect().height; }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
-    await page.fill('#seedIn', 'Water bears'); await page.press('#seedIn', 'Enter');
+    await page.fill('#seedIn', first); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
     const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], orb: /** @type {any} */ (window).__orb, now: !!document.querySelector('.status-line'), orbsLeft: document.querySelectorAll('.a-body canvas.orb').length }));
     if (!status.seen.length || status.now) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
     if (!status.orb || status.orbsLeft) throw new Error(`thinking orb: ${JSON.stringify(status)}`);
-    const title = await page.locator('.a-title').first().textContent(); if (title !== 'Water bears') throw new Error(`title ${title}`);
+    const title = await page.locator('.a-title').first().textContent(); if (title !== first) throw new Error(`title ${title}`);
     if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
     /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
     await page.evaluate(() => window.scrollTo(0, 0));
@@ -129,7 +136,7 @@ async function run(page, { mobile = false } = {}) {
     if (mobile ? !lay.below : !lay.beside) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
     if (lay.v1) throw new Error('v1 head furniture is still on the page');
     if (!lay.tools) throw new Error('the page tools are not in the head row');
-    if (!/react next branches qs ask/.test(lay.order)) throw new Error(`the end of the page is out of order: ${lay.order}`);
+    if (lay.order !== 'react branches qs ask') throw new Error(`the end of the page is out of order: ${lay.order}`);
     /* the picture's slot is reserved at its own shape, holds that height through the dot field and the reveal, and ends as a plain picture */
     if (!mobile) await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
     const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '', h0: Math.round(/** @type {any} */ (window).__picH0), h: Math.round(document.querySelector('.pic-box')?.getBoundingClientRect().height || 0), field: !!document.querySelector('.pic-field') }));
@@ -193,11 +200,24 @@ async function run(page, { mobile = false } = {}) {
     });
   }
   await step(`${tag}: a link opens the next page`, async () => {
-    const link = await page.locator('.a-body a.hole').first().elementHandle(); const target = await link.getAttribute('data-t');
+    const targets = await page.$$eval('.a-body a.hole', as => as.map(a => a.getAttribute('data-t') || ''));
+    const target = targets.find(t => t && !written.has(topicKey(t)) && !seeded.has(topicKey(t)));
+    if (!target) throw new Error('every link on the page is pre-written or already written');
+    const link = await page.locator(`.a-body a.hole[data-t="${target}"]`).first().elementHandle();
     if (mobile) { await link.tap(); await page.waitForTimeout(150); await link.tap(); } else await link.click();
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, target, { timeout: 20000 });
     await waitDone(); if ((await badge()) !== String(PAGES - 2)) throw new Error(`badge ${await badge()}`);
   });
+  if (mobile) {
+    /* the desktop run wrote this page: opening it again is instant and free */
+    await step(`${tag}: a page already written opens free`, async () => {
+      const hit = page.waitForResponse(r => r.url().endsWith('/api/write') && r.request().postDataJSON()?.task === 'page');
+      await page.locator('.ask input').last().fill('Water bears'); await page.locator('.ask input').last().press('Enter');
+      const r = await hit; if (r.headers()['x-dh-cache'] !== 'hit') throw new Error(`not reused: ${r.headers()['x-dh-cache']}`);
+      await page.waitForFunction(() => document.querySelector('.a-title')?.textContent === 'Water bears', null, { timeout: 20000 }); await waitDone();
+      if ((await badge()) !== String(PAGES - 2)) throw new Error(`a page already written spent a free page: badge ${await badge()}`);
+    });
+  }
   if (!mobile) {
     await step(`${tag}: J continues below and moves focus to the new title`, async () => {
       const before = await page.locator('.chamber').count();
@@ -220,7 +240,7 @@ async function run(page, { mobile = false } = {}) {
   }
   await step(`${tag}: the trial runs out`, async () => {
     for (let i = 1; i <= PAGES && !(await page.locator('.statusnote.paywall').count()); i++) {
-      const title = `Mock topic ${i}`;
+      const title = `Mock ${tag} topic ${i}`;
       await page.locator('.ask input').last().fill(title); await page.locator('.ask input').last().press('Enter');
       await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .row[data-t]') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
     }

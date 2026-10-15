@@ -17,13 +17,15 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (...p) => readFileSync(join(root, 'src', ...p), 'utf8');
 const out = join(root, 'public');
 
-/** A module inlined into the page: no imports, and `export` stripped so it joins the shared scope. */
+/** A module inlined into the page: no imports, and `export` stripped so it joins the shared scope.
+    Shared modules may import each other: the page loads them all into one scope, so the line goes. */
 const inline = (dir, f) => {
-  const code = src(dir, f);
+  let code = src(dir, f);
+  if (dir === 'shared') code = code.replace(/^import\s+\{[^}]*\}\s+from\s+'\.\/[a-z-]+\.js';[ \t]*$/gm, '');
   if (/^\s*import\s/m.test(code)) throw new Error(`src/${dir}/${f} must not import anything: it is inlined into the page`);
   return code.replace(/^export (const|function|class|let|async function) /gm, '$1 ').trimEnd();
 };
-const shared = ['article.js', 'models.js'].map((f) => inline('shared', f));
+const shared = ['article.js', 'models.js', 'world.js'].map((f) => inline('shared', f));
 const vendorDir = join(root, 'src', 'vendor');
 const vendorFiles = existsSync(vendorDir) ? readdirSync(vendorDir).sort() : [];
 const vendor = vendorFiles.filter((f) => f.endsWith('.js')).map((f) => inline('vendor', f));

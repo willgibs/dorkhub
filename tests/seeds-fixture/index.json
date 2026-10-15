@@ -1,9 +1,22 @@
 {
-  "doors": {
-    "great emu war": { "title": "The Great Emu War", "file": "emu-war/index.txt", "children": {
-      "lewis gun": { "title": "Lewis gun", "file": "emu-war/lewis-gun.txt" },
-      "how many emus did the army kill": { "title": "How many emus did the army kill?", "file": "emu-war/how-many.txt", "question": true }
-    } },
-    "why is ice slippery": { "title": "Why is ice slippery?", "file": "ice.txt", "question": true }
+  "pages": {
+    "great emu war": {
+      "title": "The Great Emu War",
+      "file": "emu-war/index.txt"
+    },
+    "lewis gun": {
+      "title": "Lewis gun",
+      "file": "emu-war/lewis-gun.txt"
+    },
+    "how many emus did the army kill": {
+      "title": "How many emus did the army kill?",
+      "file": "emu-war/how-many.txt",
+      "question": true
+    },
+    "why is ice slippery": {
+      "title": "Why is ice slippery?",
+      "file": "ice.txt",
+      "question": true
+    }
   }
 }

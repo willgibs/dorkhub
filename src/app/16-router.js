@@ -88,7 +88,8 @@ document.addEventListener('click', e => {
   else if (a === 'demo') newWarren('Voynich manuscript', { demo: true });
   else if (a === 'up' && node && node.parent) nav(node.parent, 'up');
   else if (a === 'stop' && node) { const c = ACTIVE.get(node.id); if (c) c.abort(); }
-  else if ((a === 'retry' || a === 'rewrite') && node && node.status !== 'digging') { if (a === 'rewrite') { node.lens = null; node.figure = null; } generate(node, { fresh: true }); }
+  /* rewriting in the voice the page is already in is a private rewrite; another voice is another page, which may already be written */
+  else if ((a === 'retry' || a === 'rewrite') && node && node.status !== 'digging') { const fresh = a === 'rewrite' && (node.wlens || store.settings.lens) === store.settings.lens; if (a === 'rewrite') { node.lens = null; node.figure = null; } generate(node, { fresh }); }
   else if (a === 'thread') { if (node) W.current = node.id; threadSheet(); }
   else if (a === 'doubt' && node) doubtPage(node.id);
   else if (a === 'land' && node) landSheet(node.id);
@@ -140,7 +141,7 @@ document.addEventListener('keydown', e => {
   if (e.key === '?') { e.preventDefault(); $('#help').showModal(); return; }
   if (!W) { if (e.key === '/') { e.preventDefault(); $('#seedIn')?.focus(); } return; }
   const node = W.nodes[W.current]; const k = e.key.toLowerCase(); const sec = secFor(node.id);
-  if (/^[1-5]$/.test(e.key)) { const b = sec && $(`.row[data-n="${e.key}"]`, sec); if (b) { e.preventDefault(); b.click(); } }
+  if (/^[1-6]$/.test(e.key)) { const b = sec && $(`.row[data-n="${e.key}"]`, sec); if (b) { e.preventDefault(); b.click(); } }
   else if (k === 'j') { e.preventDefault(); keepReading(node.id); }
   else if (k === 'u' && node.parent) nav(node.parent, 'up');
   else if (k === 's' && node.depth > 0) nav(W.root, 'up');

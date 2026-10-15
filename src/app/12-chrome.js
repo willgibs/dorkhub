@@ -53,7 +53,7 @@ function omniItems(q) {
   } else if (cur) {
     const A = parsed(cur); const nd = cur.depth + 1;
     if (A.next) out.push({ sec: 'Up next', icon: '→', s: stratumOf(nd), title: esc(A.next.label), hook: esc(plain(A.next.why)), tag: 'J', run: () => keepReading(cur.id) });
-    A.tunnels.slice(0, 5).forEach((t, i) => out.push({ sec: 'Branches from this page', icon: i + 1, k: (A.gloss[keyOf(t.target)] || {}).kind, title: esc(t.label), hook: esc(t.teaser || ''), tag: t.dir ? (DIR_MARK[t.dir] || [])[1] || '' : '', run: () => dig(t.target, { text: `Chosen from the branches, with the hook: ${t.teaser}`, dir: t.dir }, cur.id) }));
+    A.tunnels.slice(0, 6).forEach((t, i) => out.push({ sec: 'Branches from this page', icon: i + 1, k: (A.gloss[keyOf(t.target)] || {}).kind, title: esc(t.label), hook: esc(t.teaser || ''), tag: t.dir ? (DIR_MARK[t.dir] || [])[1] || '' : '', run: () => dig(t.target, { text: `Chosen from the branches, with the hook: ${t.teaser}`, dir: t.dir }, cur.id) }));
     A.questions.slice(0, 3).forEach(q => out.push({ sec: 'Open questions', icon: '?', k: 'mystery', title: esc(q), run: () => dig(q, { question: q }, cur.id) }));
     store.warrens.filter(w => w !== W && w.nodes[w.root]).slice(0, 3).forEach(w => { const c = w.nodes[w.current] || w.nodes[w.root]; out.push({ sec: 'Your other rabbit holes', icon: '↗', title: esc(w.nodes[w.root].title), hook: `Last on ${esc(clip(c.title, 44))}`, run: () => { location.hash = `#/w/${w.id}/${c.id}`; } }); });
   }

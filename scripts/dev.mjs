@@ -43,7 +43,8 @@ createServer(async (req, res) => {
       const ac = new AbortController(); res.on('close', () => { if (!res.writableFinished) ac.abort(); });
       const body = req.method === 'GET' || req.method === 'HEAD' ? undefined : Readable.toWeb(req);
       const request = new Request(url, { method: req.method, headers: /** @type {any} */ (req.headers), body, duplex: 'half', signal: ac.signal });
-      const response = await handleWrite(request);
+      /* the mock writer's answers are cached in memory like production's, so repeats and prefetches behave the same here */
+      const response = await handleWrite(request, process.env.DH_MOCK === '1' ? { textCache: true } : {});
       for (const [k, v] of response.headers) if (k !== 'set-cookie') res.setHeader(k, v);
       const cookies = response.headers.getSetCookie(); if (cookies.length) res.setHeader('set-cookie', cookies);
       res.writeHead(response.status);

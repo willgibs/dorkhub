@@ -38,7 +38,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 - Streaming order: nothing may ever appear above where the reader already is.
 - A clicked topic stays the page title (`titleIsLocked`). Links are specific and
   surprising, not umbrella subjects or a parade of people.
-- No tracking of what people click. Only the current path may shape a page.
+- No tracking of what people click. Pages are written for their topic, never the reader;
+  exact repeats are reused (same topic, voice, model, prompt version), and a rewrite is private.
 - Icon-only controls; labels live in tooltips (`data-tip`).
 - The brand is Dorkhub; keep dig/dirt/tunnel metaphors out of the copy.
 - The landing page stays light: its job is getting a visitor into their first page.

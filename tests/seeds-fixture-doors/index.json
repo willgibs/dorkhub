@@ -1,0 +1,24 @@
+{
+  "doors": {
+    "great emu war": {
+      "title": "The Great Emu War",
+      "file": "../seeds-fixture/emu-war/index.txt",
+      "children": {
+        "lewis gun": {
+          "title": "Lewis gun",
+          "file": "../seeds-fixture/emu-war/lewis-gun.txt"
+        },
+        "how many emus did the army kill": {
+          "title": "How many emus did the army kill?",
+          "file": "../seeds-fixture/emu-war/how-many.txt",
+          "question": true
+        }
+      }
+    },
+    "why is ice slippery": {
+      "title": "Why is ice slippery?",
+      "file": "../seeds-fixture/ice.txt",
+      "question": true
+    }
+  }
+}

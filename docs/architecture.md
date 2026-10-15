@@ -17,23 +17,33 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).
-- **The page format** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
-  `src/shared/article.js`): `# title`, `> deck`, `~ bridge`, `+++` link plan
+- **The page format, v3** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
+  `src/shared/article.js`): `# Title :: kind`, `> deck`, `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
-  (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `>>>` next page,
-  `===` branches, `???` questions, `&&&` a hook for every planned link. Kinds come before
-  the body so links appear in colour; hooks come last because only hover cards need them.
-  The parser still reads v1 pages (head facts, `%%%` timeline, hooks in the plan): their
-  facts and timeline become panels below the first paragraph.
+  (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
+  topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
+  their own, `&&&` a hook for every planned link. Kinds come before the body so links appear
+  in colour; hooks come last because only hover cards need them. The page's own kind counts
+  once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
+  six cards, de-duplicated and never the page itself.
+  The parser still reads older pages: v2's `~` bridge, `>>>` next page (shown as the first
+  card) and branch directions, and v1's head facts and `%%%` timeline (panels below the
+  first paragraph).
+- **Page identity** (`src/shared/world.js`, shared by page and server): pages are written for
+  their topic, never for the reader's path. `pageId()` is the topic after trivial cleanup
+  (`topicKey`: case, accents, punctuation, a leading "the"; other scripts keep their own
+  text), the voice, whether it answers a question, the sense of a name chosen inside another
+  page (`ctx`), and, for a connecting page, its unordered pair. Similar topics ("whale",
+  "blue whale") are different pages; nothing tries to be clever about meaning.
 - **State in the browser.** Rabbit holes live in localStorage (`dorkhub:holes:v1`). The
   reader's key and last known trial count live in `dorkhub:auth:v1`.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
-  live in Runtime Cache for 14 days.
+  live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
 
 ## Lifecycle of a write (`lib/write.js`)
 
 1. **Gatekeeping.** POST only, same origin, and a JSON body of at most 64 KB:
-   `{ task, input, fresh? }`.
+   `{ task, input, fresh?, cachedOnly? }`.
 2. **Validation.** `task` must be one of `TASKS` in `lib/prompts.js`. Its validator clips
    and normalizes the input, and a `BadInput` becomes a 400.
 3. **Writer** (`lib/ai.js`):
@@ -44,17 +54,28 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
      recorded real output from `lib/recorded.js` when it has some for the request, at a
      writer's pace (`DH_MOCK_PACE=quick` for the browser test), and writes a synthetic
      stand-in otherwise.
-4. **Trial** (no key). Find the device cookie (`dh_id`, HttpOnly, `Path=/api`) and check
+4. **Written ahead of time** (pages, not `fresh`). `lib/seeds.js` serves a pre-written page
+   for its topic to every reader, keys included, in the default voice; never for a
+   connecting page or a name chosen inside another page. `x-dh-cache: seed`.
+5. **Answered before** (not `fresh`). Cacheable tasks look up
+   `<ns>:sha256([PROMPT_VERSION, model, task, pageId or prompt])`, where `<ns>` is `text` in
+   production and `text-preview` or `text-local` elsewhere (`textNs`), so preview and mock
+   answers never reach production. The model is in the key, so a weaker model never fills a
+   stronger one's page. `x-dh-cache: hit`.
+   Seeds and hits come before the trial: they are free and instant even when the trial is
+   over or paused, and they set no cookie and no trial header.
+6. **Prefetch stops here.** `cachedOnly` (pages only) answers 204 with `no-store` when
+   there is nothing to serve. It never writes, reserves or sets a cookie.
+7. **Trial** (no key). Find the device cookie (`dh_id`, HttpOnly, `Path=/api`) and check
    what's left at device, network and IPv6 /48 scope. If an allowance is empty, return 402
    with `trial_over` or `tools_over`.
-5. **Cache.** Cacheable tasks look up `sha256([PROMPT_VERSION, model, task, prompt])`
-   unless `fresh` is set. Hits are instant and free.
-6. **Reserve** one unit at every scope atomically, and roll back if any scope goes over.
-7. **Write** with `streamText` and wait for the first word. If none comes, refund the
+8. **Reserve** one unit at every scope atomically, and roll back if any scope goes over.
+9. **Write** with `streamText` and wait for the first word. If none comes, refund the
    unit, unless the reader hung up after the writer started, and return the error status.
-8. **Stream** plain text. A mid-stream failure or cut-off appends one trailer:
-   `\u0000` + JSON. Only clean stops that pass `task.usable()` are cached. Every write logs
-   one line (task, model, tokens, ms, end), never content, IPs, cookies or keys.
+10. **Stream** plain text. A mid-stream failure or cut-off appends one trailer:
+   `\u0000` + JSON. Only clean stops that pass `task.usable()` are cached, and never a
+   `fresh` answer. Every write logs one line (task, model, tokens, ms, end, cached), never
+   content, IPs, cookies or keys.
 
 ## Error codes (`STATUS` in `lib/ai.js`; reader-facing text is `errText()` in `src/app/02-util.js`)
 
@@ -80,7 +101,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   It is never logged, cached or echoed.
 - Trial units are reserved before writing and refunded only if nothing was bought.
 - Only finished answers are cached: a clean stop, not aborted, passing `usable()`.
-  `fresh` never reads the cache.
+- A rewrite (`fresh`) is private: it never reads the shared page and is never cached, so
+  one reader can't replace everyone's page.
+- Nothing about the reader's path reaches a page prompt or its cache key; old browsers
+  that still send `path`, `seen` or `ratings` get the same page as everyone else.
 - `supportsCancellation` is on, so a disconnect can end the function at any moment. Any
   work after one goes through the request-bound deferrer in `lib/write.js`.
 - The mock writer never answers in production (`mockAllowed`).
@@ -100,8 +124,11 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 ## Client side of the protocol
 
 `write(task, input, { signal, onText, fresh, key })` in `src/app/02-util.js` resolves to
-`{ text, truncated }` or throws `{ code, text }`. `writeJSON` wraps it with `looseJSON`.
-The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing page line.
+`{ text, truncated, seeded }` or throws `{ code, text }`. `writeJSON` wraps it with
+`looseJSON`. The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing
+page line; seeds and cache hits carry none, so the count stays as it was. `fresh` is sent
+only when the reader rewrites a page in the voice it is already in (`node.wlens`); a retry,
+another voice, or a page after adding a key may all be served from cache.
 
 ## Tests
 
@@ -111,8 +138,10 @@ The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing 
 | Fonts, CSP, cache and crawler headers | `tests/page.test.js` |
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
+| Pre-written pages: served by topic, both index shapes, the real seeds complete | `tests/seeds.test.js` |
+| Page identity: topic keys, questions, senses, connecting pairs in either order | `tests/world.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
-| The endpoint end to end with the mock writer | `tests/write.test.js` |
+| The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
 | A Chromium walkthrough on desktop and phone | `scripts/e2e.mjs` |
 
 ## Operations
