@@ -1,9 +1,11 @@
 /* ================= the landing page ================= */
+/* Example paths for the landing: every step a name most people know, every chain ending somewhere
+   surprising. Each starts at a door, so a click opens a page written ahead of time. */
 const CHAINS = [
-  { lede: 'From a medieval cipher to the hexagons inside your brain', steps: ['Voynich manuscript', 'Radiocarbon dating', 'Bomb pulse', 'Adult neurogenesis', 'Hippocampus', 'Grid cells', 'Hexagonal lattices'] },
-  { lede: 'From a 1630s market bubble to the bacteria that became part of you', steps: ['Tulip mania', 'Tulip breaking virus', 'Aphids', 'Buchnera', 'Endosymbiosis', 'Mitochondrial Eve'] },
-  { lede: 'From a war Australia lost to birds, to the woman who mapped the ocean floor', steps: ['The Great Emu War', 'Ratites', 'Gondwana', 'Continental drift', 'Marie Tharp', 'Mid-Atlantic Ridge'] },
-  { lede: 'From a question about skating to the atmosphere of 800,000 years ago', steps: ['Why is ice slippery?', 'Premelting', 'Michael Faraday', 'Regelation', 'Glaciers', 'Ice cores'] },
+  { lede: 'From a war Australia lost to emus, to the dinosaur on your dinner plate', steps: ['The Great Emu War', 'Emus', 'Flightless birds', 'Dinosaurs', 'Tyrannosaurus rex', 'Chickens'] },
+  { lede: 'From a 1630s flower craze to the nutmeg island the Dutch kept instead of New York', steps: ['Tulip mania', 'Dutch Golden Age', 'Spice trade', 'Nutmeg', 'New Amsterdam', 'New York City'] },
+  { lede: 'From an 1859 solar storm to why your phone’s GPS needs Einstein', steps: ['The Carrington Event', 'Solar storms', 'Satellites', 'GPS', 'Atomic clocks', 'Relativity'] },
+  { lede: 'From a book nobody can read to the test for thinking machines', steps: ['The Voynich manuscript', 'Codebreaking', 'Enigma machine', 'Alan Turing', 'Turing test', 'Artificial intelligence'] },
 ];
 const DOORS = [
   { t: 'The Carrington Event', h: 'The 1859 solar storm that set telegraph offices sparking.', k: 'event' },
@@ -25,7 +27,7 @@ function surprise() {
   const pool = DOORS.filter(d => !shown.has(d.t));
   newWarren((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t);
 }
-const doorHTML = (d, today) => `<button class="door${today ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-kind="${d.k}" data-tip="${today ? 'Today’s rabbit hole. ' : ''}${esc(d.h)}"><i></i>${esc(d.t)}</button>`;
+const doorHTML = (d, today) => `<button class="door${today ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-tip="${today ? 'Today’s rabbit hole. ' : ''}${esc(d.h)}">${esc(d.t)}</button>`;
 /* the presets re-roll as a set: the shown ones step back quickly, the new ones rise in a beat apart, and none repeats */
 function shufflePresets() {
   const list = $('#presetList'); if (!list || list.dataset.busy) return;
@@ -101,11 +103,6 @@ function viewStart() {
   <figure class="stage intro-r"><div class="demo" id="demo" aria-hidden="true"></div><figcaption class="stage-cap"><span>A demo of one rabbit hole, three pages deep.</span>${reducedMotion() ? '' : `<button class="tool ib" type="button" id="demoPause" data-act="demo-pause" aria-pressed="false"${tipAttrs('Pause the demo')}>${ic('pause')}</button>`}</figcaption></figure>
 </section>
 
-<section class="land-sec" aria-labelledby="goH">
-  <h2 id="goH" class="land-h">Where rabbit holes go</h2>
-  <ul class="chains">${CHAINS.slice(0, 3).map(c => `<li class="chain" data-seed="${esc(c.steps[0])}" role="button" tabindex="0"><p class="ch-l">${esc(c.lede)}</p><ol class="ch-dots">${c.steps.map((t, i) => `<li data-s="${stratumOf(i)}" style="--i:${i}"><i></i><span>${esc(t)}</span></li>`).join('')}</ol><span class="ch-go">Start at ${esc(c.steps[0])} →</span></li>`).join('')}</ul>
-</section>
-
 <section class="land-sec" aria-labelledby="howH">
   <h2 id="howH" class="land-h">How it works</h2>
   <ul class="ideas">
@@ -113,6 +110,11 @@ function viewStart() {
     <li><ol class="spectrum" aria-label="Eight levels, from Curious to Beyond">${LEVELS.map((l, i) => `<li data-s="${i}" title="${esc(l.name)}"><i></i></li>`).join('')}</ol><h3>The deeper you go, the nerdier it gets</h3><p>Eight levels, from Curious to Beyond, each with its own colour. Pages get more specific as you descend.</p></li>
     <li><p class="mini-bridge" data-s="1">From <u>Voynich manuscript</u>: here’s how a lab read a calf’s date of death from a page of parchment.</p><h3>Written for your path</h3><p>Every page opens by connecting to where you came from, so a rabbit hole reads like one story.</p></li>
   </ul>
+</section>
+
+<section class="land-sec" aria-labelledby="goH">
+  <h2 id="goH" class="land-h">Where rabbit holes go</h2>
+  <ul class="chains">${CHAINS.slice(0, 3).map(c => `<li class="chain" data-seed="${esc(c.steps[0])}" role="button" tabindex="0"><p class="ch-l">${esc(c.lede)}</p><ol class="ch-dots">${c.steps.map((t, i) => `<li data-s="${stratumOf(i)}" style="--i:${i}"><i></i><span>${esc(t)}</span></li>`).join('')}</ol><span class="ch-go">Start at ${esc(c.steps[0])} →</span></li>`).join('')}</ul>
 </section>
 
 ${saved.length ? `<section class="land-sec saved" aria-labelledby="savedH"><h2 id="savedH" class="land-h">Your rabbit holes</h2><ul class="cards">${saved.slice(0, 6).map(w => {

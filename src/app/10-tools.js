@@ -96,17 +96,17 @@ function landHTML(node) {
   const by = {}; node.land.forEach((o, i) => { (by[o.bearing] = by[o.bearing] || []).push({ o, i }); });
   let svg = `<rect width="${Wd}" height="${Ht}" rx="14" fill="${bg}"/>`;
   [1, 2, 3].forEach(d => { svg += `<circle cx="${cx}" cy="${cy}" r="${34 + d * 50}" fill="none" stroke="${ink}" stroke-opacity=".16" stroke-dasharray="2 5"/>`; });
-  Object.entries(BEARINGS).forEach(([b, deg]) => { const a = deg * Math.PI / 180; svg += `<text x="${(cx + Math.cos(a) * 268).toFixed(1)}" y="${(cy + Math.sin(a) * 226 + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" font-family="Atkinson Hyperlegible Next, system-ui, sans-serif" font-weight="700" fill="${ink}" opacity=".5">${b}</text>`; });
+  Object.entries(BEARINGS).forEach(([b, deg]) => { const a = deg * Math.PI / 180; svg += `<text x="${(cx + Math.cos(a) * 268).toFixed(1)}" y="${(cy + Math.sin(a) * 226 + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="${ink}" opacity=".5">${b}</text>`; });
   const pts = [];
   Object.entries(by).forEach(([b, arr]) => arr.forEach((x, j) => { const spread = (j - (arr.length - 1) / 2) * 24; const a = (BEARINGS[b] + spread) * Math.PI / 180; const r = 34 + x.o.distance * 50; pts.push({ ...x, x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); }));
   pts.forEach(p => { svg += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="${ink}" stroke-opacity=".2"/>`; });
-  svg += `<circle cx="${cx}" cy="${cy}" r="26" fill="${glow}"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Atkinson Hyperlegible Next, system-ui, sans-serif" font-weight="800" fill="${ink}" stroke="${bg}" stroke-width="5" paint-order="stroke">${esc(clip(node.title, 30))}</text>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="26" fill="${glow}"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Inter, system-ui, sans-serif" font-weight="800" fill="${ink}" stroke="${bg}" stroke-width="5" paint-order="stroke">${esc(clip(node.title, 30))}</text>`;
   pts.forEach(p => {
     const dug = findByKey(keyOf(p.o.name)); const r = 14 - p.o.distance * 2;
     /* labels lean away from the centre, so neighbours on the same bearing don't collide */
     const side = p.x < cx - 24 ? -1 : p.x > cx + 24 ? 1 : 0;
     const lx = p.x + side * (r + 7), ly = side ? p.y + 4.5 : p.y + r + 15;
-    svg += `<a href="#" data-land="${p.i}" data-nid="${node.id}"${kattr(p.o.kind)} aria-label="${esc(p.o.name)}: ${esc(p.o.relation)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" style="fill:var(--kc,${ink})" fill-opacity="${dug ? 1 : .8}"${dug ? ` stroke="${glow}" stroke-width="3"` : ''}/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${side < 0 ? 'end' : side > 0 ? 'start' : 'middle'}" font-size="12.5" font-family="Atkinson Hyperlegible Next, system-ui, sans-serif" font-weight="700" fill="${ink}" stroke="${bg}" stroke-width="5" paint-order="stroke">${esc(clip(p.o.name, 24))}</text></a>`;
+    svg += `<a href="#" data-land="${p.i}" data-nid="${node.id}"${kattr(p.o.kind)} aria-label="${esc(p.o.name)}: ${esc(p.o.relation)}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" style="fill:var(--kc,${ink})" fill-opacity="${dug ? 1 : .8}"${dug ? ` stroke="${glow}" stroke-width="3"` : ''}/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${side < 0 ? 'end' : side > 0 ? 'start' : 'middle'}" font-size="12.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="${ink}" stroke="${bg}" stroke-width="5" paint-order="stroke">${esc(clip(p.o.name, 24))}</text></a>`;
   });
   return `<p>What surrounds <b>${esc(node.title)}</b>.<span class="land-hint"> Closer rings are closer relatives.</span> Pick anything to open a page on it.</p>
 <figure class="land"><svg viewBox="-24 -8 ${Wd + 48} ${Ht + 16}" role="img" aria-label="Radial map of topics around ${esc(node.title)}">${svg}</svg></figure>
