@@ -54,8 +54,8 @@ never watches you: only the path you are on shapes the next page.
 
 - Logo: the dotted wordmark "dorkhub", alone in the top bar (Will, 2026-10-15). The glasses
   with yellow tape (#FFD43B) on the bridge stay as the favicon.
-- Type: Inter for the interface, titles, figures and keys (tabular numerals); Literata for
-  reading; Doto for the wordmark and dotted display moments.
+- Type: Inter for everything, reading included (Will, 2026-10-15), with tabular numerals
+  for figures and keys; Doto for the wordmark and dotted display moments.
 - Eight nerd levels, each with its own accent: Curious, Hooked, Invested, Obsessed, Deep
   nerd, Specialist, Galaxy brain, Beyond. The page tints toward the current level.
 - Eight link kinds, each with a colour: ideas, phenomena, mechanisms, places, people,

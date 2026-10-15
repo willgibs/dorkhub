@@ -8,7 +8,7 @@ const read = (/** @type {string} */ f) => readFileSync(new URL(`../${f}`, import
 test('every font the page asks for ships with it, and nothing loads from a third party', () => {
   const css = read('src/styles.css'); const head = read('src/head.html'); const build = read('scripts/build.mjs');
   const urls = [...css.matchAll(/url\((\/fonts\/[^)]+)\)/g), ...head.matchAll(/href="(\/fonts\/[^"]+)"/g)].map(m => m[1]);
-  assert.ok(urls.length >= 8, 'the @font-face rules and preloads point at /fonts/');
+  assert.ok(urls.length >= 4, 'the @font-face rules and preloads point at /fonts/');
   for (const u of urls) assert.ok(existsSync(new URL(`../src/static${u}`, import.meta.url)), `${u} is missing from src/static`);
   assert.doesNotMatch(css + head, /fonts\.googleapis|fonts\.gstatic/);
   assert.match(build, /"font-src 'self'"/);
