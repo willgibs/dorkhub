@@ -951,7 +951,10 @@ body.at-start .omni-btn{display:none}
 @media (max-width:1000px){ .intro-sec{grid-template-columns:minmax(0,1fr)} .demo{height:470px} .ideas{grid-template-columns:minmax(0,1fr);gap:32px} }
 @media (max-width:820px){ .chain{grid-template-columns:minmax(0,1fr)} .ch-go{justify-self:start} }
 @media (max-width:560px){
-  .hero{min-height:calc(86svh - var(--top-h));padding-top:20px;padding-bottom:56px}
+  /* the hero is exactly one screen: the next section starts at the fold and arrives on the first scroll */
+  .hero{min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px));padding-top:20px;padding-bottom:56px}
+  /* the heading fits the width on one line ("Learn about anything" is about 9.2em wide in Inter) */
+  .s-h{font-size:min(calc((100vw - 44px) / 9.3),44px);white-space:nowrap}
   .pr-list .door:nth-child(4){display:none}
   .cbox{padding:14px 10px 8px 16px}
   #seedIn,.cmirror{font-size:16px}

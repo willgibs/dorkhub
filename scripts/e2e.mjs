@@ -49,7 +49,7 @@ async function run(page, { mobile = false } = {}) {
   /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
     const h = await page.evaluate(() => { const box = document.querySelector('#seedBox'); const cs = box && getComputedStyle(box); return { h1: document.querySelector('h1')?.textContent, beam: !!box && box.classList.contains('beam') && !!box.querySelector('.beam-bloom'), anim: cs ? cs.animationName : '', send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
-    if (h.h1 !== 'What do you want to learn?' || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)}`);
+    if (h.h1 !== 'Learn about anything' || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)}`);
     await page.fill('#seedIn', 'Why do cats purr?');
     const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '' }; });
     if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
