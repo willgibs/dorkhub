@@ -1,3 +1,5 @@
+# Only the front page is for search engines. Topic pages are written for whoever opens them
+# (and say noindex too); the API is never for crawlers.
 User-agent: *
-Allow: /
-Disallow: /api/
+Allow: /$
+Disallow: /

@@ -35,8 +35,28 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   text), the voice, whether it answers a question, the sense of a name chosen inside another
   page (`ctx`), and, for a connecting page, its unordered pair. Similar topics ("whale",
   "blue whale") are different pages; nothing tries to be clever about meaning.
-- **State in the browser.** Rabbit holes live in localStorage (`dorkhub:holes:v1`). The
-  reader's key and last known trial count live in `dorkhub:auth:v1`.
+- **State in the browser** (`dorkhub:world:v1` in localStorage; `store` in `src/app/02-util.js`):
+  `pages` by `pageId` (request, title, kind, text, links, first/last read, saved, the tools'
+  results), `trails` (each sitting: up to 30 of up to 120 steps `[page, when, from, how]`, a new
+  one after 30 minutes away or from the front page), `pos` (where each topic sits in Your
+  world), `legacy` (old `#/w/` addresses to pages) and settings. A browser with rabbit holes
+  (`dorkhub:holes:v1`) moves in once through `migrateHoles` (`src/shared/world.js`); the old
+  key stays for one release. Saving drops the oldest unsaved page texts past 200, or when the
+  browser is full (`textsToDrop`), never the page on screen; a dropped page refetches when
+  opened (free while still cached). The reader's key and last known trial count live in
+  `dorkhub:auth:v1`.
+- **Addresses** (`routeOf` / `parseRoute` in `src/shared/world.js`): `/` the front page,
+  `/world` Your world, `/<topic>` a page (its key with hyphens; `?v=` another voice, `?in=`
+  the sense of a name chosen on a page, `?q=1` a question the address can't show),
+  `/connect/<a>/<b>` a connecting page. Names the site uses get a trailing hyphen. `vercel.json`
+  rewrites single dot-free paths and `/connect/a/b` to the page (files and the API come first)
+  with `X-Robots-Tag: noindex`; `robots.txt` allows only `/`; `scripts/dev.mjs` mirrors it.
+- **Your world** (`src/shared/graph.js`, drawn by `src/app/11-world.js`): `buildGraph` makes
+  one node per topic read (any voice), the moves between them from the trails, and up to 8
+  unread invitations per page plus any topic two pages lead to, capped at 500 read and 300
+  unread. A small force simulation (springs, Barnes-Hut repulsion, centring) runs only while
+  something moves; positions persist. The sidebar shows `localGraph`, the neighbourhood of
+  the page on screen.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
   live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
 
@@ -114,35 +134,44 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   above the reader: half-written lines of the plan, a panel or the hooks are held back;
   a panel never sits above the first paragraph; at most two panels, never two in a row;
   a lead picture shows only if it is ready before the first paragraph is finished.
-- No crawlable topic URLs: pages live behind `#` routes in the reader's browser. Writes
-  are POST-only and same-origin; `api/picture` answers only `Sec-Fetch-Site: same-origin`
-  (a 403 that is never cached otherwise) and every answer is CDN-cached; `/api/*` carries
-  `X-Robots-Tag: noindex` and `robots.txt` disallows it.
+- Topic addresses are for readers, not crawlers: `robots.txt` allows only `/`, every topic
+  address says `noindex`, and a page arrived at from outside Dorkhub is shown only if it is
+  already written (a `cachedOnly` ask); otherwise it waits for the reader to press "Write
+  this page", so a shared link or a crawler never spends anything by itself. Writes are
+  POST-only and same-origin; `api/picture` answers only `Sec-Fetch-Site: same-origin` (a 403
+  that is never cached otherwise) and every answer is CDN-cached; `/api/*` carries
+  `X-Robots-Tag: noindex`.
 - Unknown paths get the static 404 page with no rewrite, so stale URLs never cost a
   function call.
 
 ## Client side of the protocol
 
-`write(task, input, { signal, onText, fresh, key })` in `src/app/02-util.js` resolves to
-`{ text, truncated, seeded }` or throws `{ code, text }`. `writeJSON` wraps it with
+`write(task, input, { signal, onText, fresh, cachedOnly, key })` in `src/app/02-util.js`
+resolves to `{ text, truncated, seeded, none }` (`none`: a `cachedOnly` ask found nothing) or
+throws `{ code, text }`. `writeJSON` wraps it with
 `looseJSON`. The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing
 page line; seeds and cache hits carry none, so the count stays as it was. `fresh` is sent
-only when the reader rewrites a page in the voice it is already in (`node.wlens`); a retry,
+only when the reader rewrites a page in the voice it is already in (`page.wlens`); a retry,
 another voice, or a page after adding a key may all be served from cache.
+Prefetch (`prefetch` in `src/app/07-reading.js`) asks `cachedOnly` on a pause over a link or
+card and for the first two cards once the end of a page is in view: one ask at a time, 12 per
+page and 30 a minute, none under Save-Data. What it finds opens at once; the page never says
+which pages were cached.
 
 ## Tests
 
 | What | Where |
 | --- | --- |
 | Parser, including every prefix of every recorded page, hand-written v2 edge cases (`tests/fixtures.js`) and mock pages (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
-| Fonts, CSP, cache and crawler headers | `tests/page.test.js` |
+| Fonts, CSP, cache and crawler headers, topic addresses and their rewrites, the page's size budget | `tests/page.test.js` |
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Pre-written pages: served by topic, both index shapes, the real seeds complete | `tests/seeds.test.js` |
-| Page identity: topic keys, questions, senses, connecting pairs in either order | `tests/world.test.js` |
+| Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
+| Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
-| A Chromium walkthrough on desktop and phone | `scripts/e2e.mjs` |
+| A Chromium walkthrough on desktop and phone: addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
 
 ## Operations
 

@@ -31,6 +31,9 @@ const { handleWrite } = await import('../lib/write.js');
 const { handlePicture } = await import('../lib/picture.js');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2' };
 const port = Number(process.env.PORT) || 3000;
+/* The page's own addresses, as vercel.json rewrites them: a single word without a dot (a topic, or
+   /world), and /connect/a/b. Everything else is a file, the API, or the 404 page. */
+const appPath = (/** @type {string} */ p) => /^\/(?!api$|fonts$)[^/.]+$/.test(p) || /^\/connect\/[^/.]+\/[^/.]+$/.test(p);
 
 createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `localhost:${port}`}`);
@@ -54,9 +57,11 @@ createServer(async (req, res) => {
     }
     const rel = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, '');
     let file = join(root, 'public', rel === '/' ? 'index.html' : rel);
-    let status = 200;
-    if (!file.startsWith(join(root, 'public')) || !existsSync(file) || extname(file) === '') { file = join(root, 'public', '404.html'); status = 404; }
-    res.writeHead(status, { 'content-type': TYPES[/** @type {keyof typeof TYPES} */ (extname(file))] || 'application/octet-stream', 'cache-control': 'no-store' });
+    let status = 200; const headers = {};
+    /* a topic's address serves the page, the way vercel.json rewrites it, and is kept out of search engines */
+    if (appPath(url.pathname) && !(existsSync(file) && extname(file))) { file = join(root, 'public', 'index.html'); headers['x-robots-tag'] = 'noindex'; }
+    else if (!file.startsWith(join(root, 'public')) || !existsSync(file) || extname(file) === '') { file = join(root, 'public', '404.html'); status = 404; }
+    res.writeHead(status, { 'content-type': TYPES[/** @type {keyof typeof TYPES} */ (extname(file))] || 'application/octet-stream', 'cache-control': 'no-store', ...headers });
     res.end(readFileSync(file));
   } catch (e) {
     console.error(e);

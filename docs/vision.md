@@ -12,9 +12,14 @@ Read five things or a hundred and keep going; nothing pressures what you click n
 The feeling we are after: **it should feel like magic, and you should get lost learning.**
 Dorkhub is generous by default (free to try, no account) and never watches you. Pages are
 written for their topic, never for the reader, so the same topic in the same voice is the
-same page for everyone, and a repeat opens instantly and free (Will, 2026-10-15). The world
-reader, Your world and the new homepage are being built (`docs/backlog.md`); until they
-land, the reading page below still has levels and a path.
+same page for everyone, and a repeat opens instantly and free (Will, 2026-10-15).
+
+Everything you read becomes **Your world**: a map of the topics you've read, lit in the
+colours of what they are, joined to each other and to the topics they lead to. It's the
+heart of the product (Will's Obsidian note: the graph is what makes people want one more
+page), and it stays out of the way while you read: the reading page carries the article, its
+cards and its tools; Your world is one step away, in the sidebar or at /world. The new
+homepage comes next (`docs/backlog.md`).
 
 ## What matters most, in order
 
@@ -24,11 +29,14 @@ land, the reading page below still has levels and a path.
 2. **Discovery.** The links are the product. They are specific and surprising: ideas,
    phenomena, mechanisms, mysteries, strange objects, places and events a curious person
    would stop reading to look up. Never umbrella subjects, never a parade of people.
-3. **Flow.** Moving on should feel continuous and effortless: the next page flows in below
-   (J), the thing you clicked becomes the next title, and nothing ever jumps.
-4. **Depth on demand.** Tools around a page (peek, expand, sketch, around this, connect,
-   skeptic mode, quiz, recap, the thread) are there when wanted and quiet when not. Will
-   wants this secondary UI to feel as clean and considered as the articles themselves.
+3. **Flow.** Moving on should feel effortless: one topic per screen at its own address, the
+   thing you clicked becomes the next title, back returns you to where you were, and
+   nothing ever jumps. Free movement, not a tunnel: no levels, no single "next page".
+4. **Depth on demand.** Tools around a page (save, peek, expand, sketch, around this,
+   connect, skeptic mode, quiz, recap, your trail) are there when wanted and quiet when not.
+   Will wants this secondary UI to feel as clean and considered as the articles themselves.
+   World features never add weight to the article: they are hidden magic, there when you
+   pause (Will, 2026-10-15).
 5. **The landing page** has one job: get a visitor into their first page. It stays light:
    one composer, front and centre, with presets for anyone who would rather not type.
 
@@ -39,9 +47,9 @@ land, the reading page below still has levels and a path.
   happening at once is distracting, not impressive.
 - **Dense, with breathing room.** High information density in a minimal design, but every
   section gets room to present cleanly instead of being pressed together.
-- **Colour carries information.** The multi-colour lineup is loved: link colours say what
-  a link leads to, level colours say how deep you are. Use colour to add meaning and mix
-  hues for density, never as decoration, and never rainbow everywhere.
+- **Colour carries information.** The multi-colour lineup is loved: a colour says what a
+  topic is, on its links, as the page's accent and in Your world. Use colour to add meaning
+  and mix hues for density, never as decoration, and never rainbow everywhere.
 - **Streaming never surprises.** Nothing may appear above where the reader already is. No
   "where did that come from?" moments; asides and late blocks settle in smoothly.
 - **A clicked topic stays the title.** Only questions and connecting pages pick their own.
@@ -59,10 +67,9 @@ land, the reading page below still has levels and a path.
   with yellow tape (#FFD43B) on the bridge stay as the favicon.
 - Type: Inter for everything, reading included (Will, 2026-10-15), with tabular numerals
   for figures and keys; Doto for the wordmark and dotted display moments.
-- Eight nerd levels, each with its own accent: Curious, Hooked, Invested, Obsessed, Deep
-  nerd, Specialist, Galaxy brain, Beyond. The page tints toward the current level.
-- Eight link kinds, each with a colour: ideas, phenomena, mechanisms, places, people,
-  events, things, mysteries.
+- Eight kinds of topic, each with a colour: ideas, phenomena, mechanisms, places, people,
+  events, things, mysteries. A page tints toward the colour of what it is about, and its
+  dot in Your world glows in it.
 - Voice: warm, specific, plain words, never condescending. Light and dark themes.
 - The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
   and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
@@ -70,6 +77,10 @@ land, the reading page below still has levels and a path.
   appears once: the beam riding the composer's edge.
 - Dots say the machine is working: the Doto wordmark, thinking orbs during a real wait (a
   different motion for each kind of wait), and pictures that resolve out of a field of dots.
+- Your world is lit dots on deep paper: each topic glows in its colour, sized by how
+  connected it is, with hairline links and faint invitations at the edges. It moves only
+  when something changes (a new topic springs in, a trail replays), then rests. Dark mode
+  is the showpiece; light mode gets the same care.
 
 ## Anatomy of a page (the generative UI)
 
@@ -91,11 +102,21 @@ opening; no model is involved in finding it.
 so nothing recurring may charm on page 10 and annoy by page 500. Taste through restraint.
 The delight is the snappy, clean stream: the page being written around you.
 
-Around it: hover/tap a link for its hook, then peek without leaving; expand any paragraph
-(plainer, deeper, an example, the counterpoint); sketch a diagram; around this (a radial
-map of neighbours); connect two pages you've read; skeptic mode; listen; a quiz on what
-stuck; a recap; "how did I get here?"; the map, index and timeline sidebar; ask anything
-(/). Keyboard first: J, 1–5, U, S, K, L, C, P, T, D, Q, R, I, A, M, N, ?.
+Around it: hover/tap a link for its hook (and whether you've read it, or which of your
+pages also lead there), then peek without leaving; expand any paragraph (plainer, deeper,
+an example, the counterpoint); save it with the star; sketch a diagram; around this (a
+radial map of neighbours); connect it to any topic you've read; skeptic mode; listen; a
+quiz and a recap of the trail you're on; "how did I get here?" (your trail); the sidebar
+(Your world beside the page, your index, your trails, deep time); ask anything (/).
+Keyboard first: 1–6, S, G, T, F, K, L, C, P, D, Q, R, I, A, M, N, ?. On a phone the top bar
+keeps a plain menu (keys, voice, theme, export, shortcuts, a new topic) and one gooey
+button holds the learning tools (search, Your world, save, around this).
+
+**Your world** (/world): the whole map, with find, kind filters, focus (everything within
+two links), Replay (a trail walked again across the map), and a picture of it to keep;
+then what you read by kind, your most connected topic, your saved pages and your trails.
+Only where the map is already visible does it grow as you read; while you read, only the
+count beside Your world moves.
 
 ## How it is paid for
 

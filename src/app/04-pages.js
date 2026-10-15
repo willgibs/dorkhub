@@ -1,108 +1,102 @@
-/* ================= model ================= */
-let W = null;
-let NAV_DIR = null;
-const ACTIVE = new Map();
+/* ================= model: pages by topic, the one on screen, and how you move between them ================= */
+let CUR = '';                    // the page on screen
+const ACTIVE = new Map();        // pages being written: id -> AbortController
 const PCACHE = new WeakMap();
-const REV = new Map();          // smooth reveal: nodeId -> { node, shown }
-function mkNode(w, { title, parent = null, depth = 0, from = null, seed = null, lens = null }) {
-  const n = { id: uid(), title: clip(String(title).trim(), 120), keys: [keyOf(title)], parent, depth, from, seed, lens: LENSES[lens] ? lens : null, text: '', status: 'empty', created: Date.now(), deck: '', drift: null };
-  w.nodes[n.id] = n; w.order.push(n.id); return n;
+const REV = new Map();           // smooth reveal: page id -> { node, shown }
+const pageOf = id => (id && store.pages[id]) || null;
+const curPage = () => pageOf(CUR);
+const cleanTitle = t => clip(String(t || '').replace(/\s+/g, ' ').trim(), 160);
+/* a page in your world for this request, made the first time it is asked for */
+function ensurePage(req, hint = null) {
+  const id = pageId(req); let p = store.pages[id];
+  if (!p) { const at = Date.now(); p = store.pages[id] = { id, req, title: clip(capFirst(req.bridge ? `${req.bridge[0]} and ${req.bridge[1]}` : req.title), 120), status: 'empty', text: '', deck: '', kind: '', hint: hint || null, first: at, last: at, saved: 0 }; }
+  else if (hint && !p.hint) p.hint = hint;
+  return p;
 }
-function newWarren(title, { demo = false, src = null } = {}) {
-  title = String(title || '').trim(); if (!title) return;
-  const w = { id: uid(), created: Date.now(), updated: Date.now(), nodes: {}, order: [], loops: [], root: null, current: null, demo };
-  const n = mkNode(w, { title, from: isQuestion(title) ? { question: title } : null });
-  w.root = n.id; w.current = n.id;
-  store.warrens.unshift(w); if (store.warrens.length > 10) store.warrens.length = 10;
-  W = w; save(true); nav(n.id, 'down', src);
+const displayText = p => { const r = REV.get(p.id); const t = p.text || ''; return r ? t.slice(0, Math.floor(r.shown)) : t; };
+const isLive = p => p.status === 'digging' || p.status === 'empty' || REV.has(p.id);
+function parsed(p) {
+  const t = displayText(p); const live = isLive(p); const c = PCACHE.get(p); const len = (p.text || '').length;
+  if (c && c.len === t.length && c.live === live && c.src === len) return c.A;
+  const A = parseArticle(t, live); PCACHE.set(p, { len: t.length, live, src: len, A }); return A;
 }
-const pathTo = n => { const out = []; let x = n; while (x) { out.unshift(x); x = x.parent ? W.nodes[x.parent] : null; } return out; };
-const childrenOf = id => W.order.map(x => W.nodes[x]).filter(n => n.parent === id);
-const findByKey = k => k ? W.order.map(x => W.nodes[x]).find(n => n.keys.includes(k)) : null;
-const displayText = node => { const r = REV.get(node.id); return r ? node.text.slice(0, Math.floor(r.shown)) : node.text; };
-const isLive = node => node.status === 'digging' || node.status === 'empty' || REV.has(node.id);
-function parsed(node) {
-  const t = displayText(node); const live = isLive(node); const c = PCACHE.get(node);
-  if (c && c.len === t.length && c.live === live && c.src === node.text.length) return c.A;
-  const A = parseArticle(t, live); PCACHE.set(node, { len: t.length, live, src: node.text.length, A }); return A;
-}
-/* Everything received so far, not just what has been revealed: hooks and kinds for seeds and link cards. */
+/* Everything received so far, not just what has been revealed: hooks and kinds for link cards. */
 const FCACHE = new WeakMap();
-function full(node) {
-  const live = node.status === 'digging' || node.status === 'empty'; const c = FCACHE.get(node);
-  if (c && c.len === node.text.length && c.live === live) return c.A;
-  const A = parseArticle(node.text, live); FCACHE.set(node, { len: node.text.length, live, A }); return A;
+function full(p) {
+  const live = p.status === 'digging' || p.status === 'empty'; const c = FCACHE.get(p); const t = p.text || '';
+  if (c && c.len === t.length && c.live === live) return c.A;
+  const A = parseArticle(t, live); FCACHE.set(p, { len: t.length, live, A }); return A;
 }
-function seedFor(parent, target) {
-  const A = full(parent); const k = keyOf(target); const g = A.gloss[k]; const hook = hookOf(A, k);
+/* what a link on one page says about where it goes: its hook and its kind, so the next page arrives in colour */
+function hintFor(p, target) {
+  if (!p || !p.text) return null; const A = full(p); const k = keyOf(target); const g = A.gloss[k]; const hook = hookOf(A, k);
   const kind = (g && g.kind) || (A.tunnels.find(t => keyOf(t.target) === k) || {}).kind || '';
   return hook || kind ? { gloss: hook, kind } : null;
 }
+const titleLocked = p => titleIsLocked({ title: p.req.title, q: p.req.q, bridge: p.req.bridge });
+const shownTitle = (p, A) => titleLocked(p) ? (A.title && keyOf(A.title) === keyOf(p.req.title) ? A.title : capFirst(p.req.title)) : (A.title || p.title);
+/* the page's kind as a colour: on a first visit the link's kind holds, so the colour never changes mid-read */
+const accentOf = p => kindOf(p.accent || p.kind || (p.hint && p.hint.kind)) || 'concept';
+/* the topics a finished page links to, kept so Your world can draw them without reading the page again */
+function linksFrom(A, p) {
+  const out = new Map(); const self = topicKey(p.title); const own = topicKey(p.req.title);
+  const add = (name, kind, hook) => { const k = topicKey(name); if (k && k !== self && k !== own && !out.has(k)) out.set(k, [k, clip(name, 80), kind || '', clip(plain(hook || ''), 100)]); };
+  /* the topics the page offers to keep exploring first: they are its invitations */
+  for (const c of cardsOf(A)) add(c.target, c.kind, c.teaser);
+  for (const g of Object.values(A.gloss)) add(g.name, g.kind, g.gloss);
+  return [...out.values()].slice(0, 28);
+}
+/* a read topic in your world, by its key: the page you'd open for it */
+function readPageFor(k) {
+  let best = null;
+  for (const p of Object.values(store.pages)) if ((p.status === 'done' || p.status === 'partial') && nodeKeyOf(p) === k && (!best || p.last > best.last)) best = p;
+  return best;
+}
 
-/* navigation with page transitions: the thing you clicked becomes the next title */
-const canVT = () => typeof document.startViewTransition === 'function' && !reducedMotion();
+/* ================= moving: one topic per screen, at a clean address ================= */
+/* a page transition needs frames to run in; a page in a hidden tab just changes */
+const canVT = () => typeof document.startViewTransition === 'function' && !reducedMotion() && document.visibilityState === 'visible';
 let HERO = false;
-function clearHero() { HERO = false; document.documentElement.classList.remove('vt-up'); $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); }
-function go(hash, { dir = null, src = null } = {}) {
-  NAV_DIR = dir;
-  const run = () => { if (location.hash !== hash) history.pushState(null, '', hash); route(); };
+function clearHero() { HERO = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); }
+/* the thing you clicked becomes the next title */
+function go(url, { src = null, replace = false } = {}) {
+  const run = () => { if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0 }, '', url); } route(); };
   if (!canVT()) { run(); return; }
   if (src && src.isConnected) { src.style.viewTransitionName = 'hero'; HERO = true; }
-  document.documentElement.classList.toggle('vt-up', dir === 'up');
-  try { const t = document.startViewTransition(run); t.finished.finally(clearHero); } catch (e) { clearHero(); run(); }
+  try { const t = document.startViewTransition(run); quiet(t); t.finished.finally(clearHero).catch(() => {}); } catch (e) { clearHero(); run(); }
 }
-function nav(nid, dir, src) { go(`#/w/${W.id}/${nid}`, { dir, src }); }
-function dig(target, ctx = {}, fromId, src) {
-  if (!W) return;
-  const cur = W.nodes[fromId || W.current]; target = String(target || '').trim().replace(/\s+/g, ' ');
-  if (!target || !cur) return;
-  W.current = cur.id;
-  const k = keyOf(target); const ex = findByKey(k);
-  if (ex) {
-    if (ex.id === cur.id) return;
-    if (ex.parent !== cur.id && cur.parent !== ex.id && !W.loops.some(([a, b]) => a === cur.id && b === ex.id)) W.loops.push([cur.id, ex.id]);
-    save(); nav(ex.id, ex.depth > cur.depth ? 'down' : 'up', src); return;
-  }
-  if (W.order.length >= 90) { toast('This rabbit hole is enormous. Start a new one to keep going.'); return; }
-  const n = mkNode(W, { title: target, parent: cur.id, depth: cur.depth + 1, from: ctx, seed: seedFor(cur, target), lens: ctx.lens });
-  W.updated = Date.now(); save(); nav(n.id, 'down', src);
+/* a transition that is skipped (a hidden tab, a second click mid-flight) is fine: the page still changes */
+const quiet = t => { for (const k of ['ready', 'updateCallbackDone', 'finished']) if (t && t[k]) t[k].catch(() => {}); return t; };
+function rememberScroll() { try { history.replaceState({ ...(history.state || {}), y: scrollY }, ''); } catch (e) { /* fine */ } }
+/**
+ * The one way to move: open a page on `target` (a topic, a question, a phrase you selected), from
+ * the page you are on. It joins your trail; whatever you read becomes part of your world.
+ * via: start | link | card | question | ask | select | search | world | connect | around | sketch | peek | index | trail
+ */
+function openTopic(target, { via = 'link', src = null, hint = null, lens = null, ctx = '', q = null, bridge = null } = {}) {
+  const title = cleanTitle(target); if (!title && !bridge) return;
+  const from = via === 'start' ? null : CUR || null;
+  const req = { title: bridge ? cleanTitle(target || `${bridge[0]} and ${bridge[1]}`) : title, lens: LENSES[lens] ? lens : store.settings.lens, q: !bridge && (q == null ? asksQuestion(title) : !!q), ctx: bridge ? '' : cleanTitle(ctx), bridge: bridge ? bridge.map(cleanTitle) : null };
+  const p = ensurePage(req, hint || hintFor(pageOf(from), title));
+  if (p.id === CUR) return;
+  addStep(store.trails, p.id, { from, via });
+  p.last = Date.now(); OPENED.add(p.id); save();
+  go(routeOf(req), { src });
 }
+/* pages opened in this visit by the reader's own hand: those are written without asking */
+const OPENED = new Set();
+/* the request for a page, as the server reads it */
+const pageInput = p => ({ title: p.req.title, lens: p.req.lens, q: p.req.q, ctx: p.req.ctx, bridge: p.req.bridge });
+/* the context the small tools share: which page they run on */
+const ctxInput = p => ({ title: p.title });
 
-/* ================= what the writer is told: structured context, never a prompt =================
-   The server (lib/prompts.js) turns this into the page prompt. Field limits there are the
-   source of truth; these mirror them so requests stay small. */
-const titleLocked = node => titleIsLocked(node);
-const pathInput = node => pathTo(node).slice(0, -1).map(n => ({ title: n.title, deck: n.deck ? clip(n.deck, 400) : '' }));
-function fromInput(node) {
-  const f = node.from; if (!f) return null;
-  if (f.bridge) { const o = W.nodes[f.bridge]; return { kind: 'bridge', other: o ? o.title : f.bridgeTitle || '' }; }
-  if (f.cont) return { kind: 'cont', text: clip(f.text || '', 600) };
-  if (f.question) return { kind: 'question', question: clip(f.question, 240) };
-  if (f.text) return { kind: 'passage', text: clip(f.text, 600) };
-  return null;
+/* ================= the trail you're on ================= */
+const curTrail = () => store.trails[0] || null;
+/* the pages of a trail, in the order you first opened them, each once */
+function trailPages(t = curTrail()) {
+  if (!t) return []; const seen = new Set(); const out = [];
+  for (const [pid] of t.steps) { if (seen.has(pid)) continue; seen.add(pid); const p = pageOf(pid); if (p) out.push(p); }
+  return out;
 }
-/* What the page they just came from already covered (its headings and links, in order), so the
-   next page builds on it instead of retelling it. */
-function seenInput(node) {
-  const p = node.parent ? W.nodes[node.parent] : null; if (!p || !p.text) return [];
-  const out = []; const keys = new Set(node.keys);
-  const A = parsed(p);
-  for (const s of [...A.blocks.map(b => b.t === 'h' ? '#' + b.s : b.s), ...A.panels.flatMap(x => x.rows.flat())]) {
-    if (s[0] === '#') out.push(clip(plain(s.slice(1)), 80));
-    else for (const m of s.matchAll(/\[\[([^\]]+)\]\]/g)) { const t = splitLink(m[1])[1]; const k = keyOf(t); if (!keys.has(k)) { keys.add(k); out.push(clip(t, 80)); } }
-  }
-  return out.slice(0, 24);
-}
-/* The panel types the last two pages on the path used, so the writer can vary them. */
-const panelsInput = node => [...new Set(pathTo(node).slice(-3, -1).flatMap(n => n.text ? parsed(n).panels.filter(p => !p.v1).map(p => p.type) : []))];
-function pageInput(node) {
-  const path = pathTo(node); const onPath = new Set(path.map(n => n.id));
-  return {
-    title: node.title, depth: node.depth, lens: node.lens || store.settings.lens, kind: (node.seed && node.seed.kind) || '', panels: panelsInput(node),
-    path: pathInput(node), from: fromInput(node), seen: seenInput(node),
-    others: W.order.map(x => W.nodes[x]).filter(n => !onPath.has(n.id) && n.status === 'done').map(n => n.title).slice(-24),
-    ratings: path.filter(n => n.reaction).slice(-3).map(n => ({ title: n.title, rating: n.reaction })),
-  };
-}
-/* The context most small tools share: where the reader is, and how they got there. */
-const ctxInput = node => ({ title: node.title, path: pathInput(node).map(p => ({ title: p.title })) });
+/* how many topics are in your world: the count beside Your world */
+function worldCount() { const s = new Set(); for (const p of Object.values(store.pages)) if (p.status === 'done' || p.status === 'partial') s.add(nodeKeyOf(p)); return s.size; }

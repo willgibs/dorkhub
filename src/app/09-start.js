@@ -1,25 +1,11 @@
-function renderTrail() {
-  if (!W) return; const path = pathTo(W.nodes[W.current]);
-  let items = path.map((n, i) => i === path.length - 1 ? `<b aria-current="page">${esc(n.title)}</b>` : `<a href="#/w/${W.id}/${n.id}">${esc(n.title)}</a>`);
-  if (items.length > 4) items = [items[0], '<span>…</span>', ...items.slice(-2)];
-  $('#trail').innerHTML = items.join('<i aria-hidden="true">›</i>');
-  $('#gauge').innerHTML = meterHTML(W.nodes[W.current].depth);
-}
-
-/* ================= the front page ================= */
-function ladderHTML() {
-  return `<ol class="ladder" aria-label="Levels of nerd: an example path through eight levels">${LEVELS.map((l, i) => `<li data-s="${i}"><span class="ln">${i}</span><span class="lt">${esc(l.name)}<em>${esc(EXAMPLE_DIG[i])}</em></span><span class="lm">${esc(l.medium)}</span></li>`).join('')}</ol>
-<p class="ladder-cap">Every link takes you one level deeper, from curious to galaxy brain. This example path runs from a medieval cipher to the hexagons inside your brain.</p>`;
-}
-function columnSVG() { return ladderHTML(); }
-/* One quiet line under the start box: what reading costs right now. */
+/* ================= the trial line: what reading costs right now ================= */
 function trialLine() {
   if (auth.byok) return '';
   const n = pagesLeft();
   if (n > 0) return `<p class="status live" id="status">${n >= TRIAL_PAGES ? `Your first ${n} pages are on us.` : `${n} more free page${n === 1 ? '' : 's'} on this device.`} No account needed.</p>`;
   return `<p class="status" id="status"><span>You’ve read your free pages. <button class="linkish" type="button" data-act="keys">Add your own key</button> to keep going.</span></p>`;
 }
-/* ================= voice menu: in the top bar while reading, in the composer on the landing ================= */
+/* ================= voice menu: in the top bar while reading, in the composer on the front page ================= */
 function renderVoice() {
   const fieldset = `<fieldset><legend>Voice</legend>${Object.entries(LENSES).map(([k, [n, d]]) => `<label><input type="radio" name="lens" value="${k}"${store.settings.lens === k ? ' checked' : ''}><b>${n}</b><span>${d}</span></label>`).join('')}</fieldset>`;
   $('#voicePop').innerHTML = `${fieldset}<p class="fine">Applies to new pages. Press R to rewrite the one you are reading.</p>`;
@@ -28,7 +14,7 @@ function renderVoice() {
 function setLens(lens) {
   store.settings.lens = lens; save(); renderVoice();
   const chips = $('#seedChips'); if (chips) chips.innerHTML = voiceChipHTML();
-  if (W) $$('.chamber').forEach(sec => { const n = W.nodes[sec.dataset.nid]; if (n) paintTools(n, sec); });
+  const p = curPage(); const sec = p && secFor(p.id); if (sec) paintTools(p, sec);
 }
 document.addEventListener('change', e => {
   if (e.target.name !== 'lens' || !LENSES[e.target.value]) return;
