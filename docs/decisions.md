@@ -65,3 +65,22 @@ One line each, newest last. Why, not just what.
   - with static colours (its hue-shift filter repainted every frame);
   - paused off screen, and held still under reduced motion.
 - 2026-10-15 · Fixed: a clicked link never morphed into the next page's title. The new title wasn't given the transition's name, so only "Continue reading" morphed. The route now names it, and the composer's morph uses the same route.
+- 2026-10-15 · Thinking orbs, from libraries.dev (MIT), show every real wait, one motion per kind of wait:
+  - connecting while links are chosen;
+  - composing while words are written, expanded or recapped;
+  - searching for a peek, around this or skeptic mode;
+  - shaping for a sketch;
+  - solving for a quiz.
+  The engine is ported to `src/vendor/orbs.js`, and `tests/orbs.test.js` checks it dot by dot against the library's golden vectors. One loop paints the orbs that are on screen and stops when none are (a finished page requests no animation frames). Orbs are drawn in `--mute`, and reduced motion gets one still frame.
+- 2026-10-15 · Pictures load behind dots (Will: make the Wikipedia images' loading feel good while covering the wait).
+  - The slot is reserved as soon as the picture lookup answers, at the picture's own shape. Before, it waited for the image to decode. The rule is unchanged: only if the first paragraph is still being written. The trigger is earlier, so more pages get a picture.
+  - While the image loads, the slot breathes with transitions.dev's Pro dot field, drawn on one canvas instead of about 2,000 animated elements.
+  - Once the image arrives, its colours sweep in as a mosaic (libraries.dev's Image reveal, without three.js), and the photo fades in sharp over it. The whole reveal takes about 1.5 s.
+  - Pictures seen on an earlier visit appear plainly, and a picture that fails removes its slot.
+- 2026-10-15 · Phones and narrow windows: the top bar's search, map, voice and keys move into one button in the bottom-right corner (transitions.dev's Pro gooey plus menu). It splits into four droplets along an arc up and left, and merges back with a dip on close. The top bar keeps the wordmark and the level meter. Up next docks to the button's left, and toasts rise above that row.
+- 2026-10-15 · The reading page on the new tokens:
+  - titles at weight 700 instead of 800;
+  - the top bar's hairline only once the page has scrolled under it;
+  - menus, the link card, sheets, ask-anything, toasts and up next all on one raised surface with one elevation;
+  - opens on transitions.dev's timings (scale .96 for dialogs, .98 for cards).
+  The page grows by about 53 KB raw across both PRs (budget 60 KB), and no new requests.

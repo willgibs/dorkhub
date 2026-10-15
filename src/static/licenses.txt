@@ -2,9 +2,14 @@ Dorkhub uses these third-party works. Thank you to their authors.
 
 Fonts (Literata, Atkinson Hyperlegible Next and Mono, Doto): SIL Open Font License 1.1, see /fonts/OFL.txt.
 
-Motion recipes from transitions.dev by Jakub Antalik, used under a Transitions Pro licence.
+Motion recipes from transitions.dev by Jakub Antalik: the icon swap and texts reveal, and, under a
+Transitions Pro licence, the gooey plus menu (the tools button on a phone) and the image
+generation placeholder (the dots a picture loads behind).
 
-border-beam (https://libraries.dev/beam), ported to plain CSS in Dorkhub's page:
+From libraries.dev by Jakub Antalik, each under the MIT licence below:
+- border-beam (https://libraries.dev/beam): ported to plain CSS, the composer's beam;
+- thinking-orbs (https://libraries.dev/orbs): its geometry ported to plain JS, the orbs that show a wait;
+- img-fx (https://libraries.dev/image): its reveal, redrawn on a 2D canvas, a picture resolving out of a mosaic.
 
 MIT License
 

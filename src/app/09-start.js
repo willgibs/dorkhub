@@ -33,7 +33,8 @@ function setLens(lens) {
 document.addEventListener('change', e => {
   if (e.target.name !== 'lens' || !LENSES[e.target.value]) return;
   const cv = e.target.closest('.cvoice'); /* found before the menu is redrawn under it */
-  setLens(e.target.value); if (cv) cv.open = false;
+  const inSheet = !!e.target.closest('#sheet');
+  setLens(e.target.value); if (cv) cv.open = false; if (inSheet) sheet.close();
   toast(`${LENSES[store.settings.lens][0]} voice for new pages.`);
 });
 document.addEventListener('click', e => { $$('details.voice[open]').forEach(v => { if (!v.contains(e.target)) v.open = false; }); });

@@ -47,6 +47,18 @@ Will wants the generative UI and the whole experience solid first. Judge everyth
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
 (merged 2026-10-14). From Will's review of #3:
 
+- **The new hero and identity are in review.**
+  - willgibs/dorkhub#6, the hero: one composer, the border beam, presets and the fine note.
+  - willgibs/dorkhub#7, the reading page, stacked on #6: thinking orbs, pictures that resolve
+    out of dots, the gooey tools button on phones, and the new surfaces.
+  - Shots: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ
+  - Merge #6 first, then #7, each after Will's look with verify and e2e green; then check
+    production.
+  - Not done: up next dripping out of the tools button, the goo's planned stretch goal (it
+    docks beside the button instead).
+  - Left out on purpose: libraries.dev's Voice (a mic would send readers' audio to Google or
+    Apple), Metal and Bot avatars (decoration).
+  - Once live pages exist: check the orbs' pacing and the picture reveal on real timings.
 - **The landing hero and the panel polish are live** (PRs willgibs/dorkhub#4 and
   willgibs/dorkhub#5, merged after Will's look at the previews). For later rounds, reinstall
   the transitions.dev skills with `npx skills add Jakubantalik/transitions.dev`; for Pro,
