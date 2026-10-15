@@ -3,7 +3,7 @@
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Now (2026-10-15, end of session)
-- **Live:** `main` is eb61875, and Will looked at every preview before it merged:
+- **Live:** `main` is 6476d92, and Will looked at every preview before it merged:
   - the polish pass (PR willgibs/dorkhub#8): one motion scale, a paused page with free doors,
     calm failed pages, icon-closed sheets, a phone scrim and voice sheet, the 404 in the
     identity. Shots: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
@@ -11,6 +11,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     - Inter for the interface; then #11 put article text in Inter too (Literata is gone);
     - a wordmark-only nav and plain preset chips;
     - How it works before Where rabbit holes go, and chains of familiar names.
+  - his annotated landing notes (#12): "Learn about anything", a darker dark theme, a
+    theme switch, a one-screen phone hero with a one-line heading.
   - the open phone tools above toasts (#9). Shots for #9 and #10:
     https://claude.ai/artifact/ESExHbGpi2R97bkWDJhVpg
   - Verify (69 tests) and e2e passed on each merged tree.

@@ -141,3 +141,12 @@ One line each, newest last. Why, not just what.
   - Article text is Inter at 18 px (17 px on phones) on a 64ch measure. Inter's italic is self-hosted for quotes and equations.
   - Literata is removed.
   - Production check: only Inter and Doto load, and article text is in Inter. Everything else behaves as before (free chain door, paused card with `pages=10`, tools above toasts, the 404). The logs show only the known "no gateway credits" error, from the check.
+- 2026-10-15 · Will's annotated landing notes, PR willgibs/dorkhub#12, merged as 6476d92 after his look at the preview. Verify (69 tests) and e2e passed.
+  - **Dark paper is darker (#0B0C0E)**, so the composer's beam has contrast.
+  - **The Continue pill** drops its level badge and the raised top highlight, for one even hairline.
+  - **The composer's resting edge** is fainter (7% ink), so the beam carries it.
+  - **The key pill and send button** are both 36 px.
+  - **The landing's empty top-right holds a theme switch**: same as your device, light or dark, kept in this browser. Settings are allow-listed on load, so `theme` is on the list.
+  - **The heading is "Learn about anything"** (Will's copy, no period). It's 36 px at most on desktop. On phones it's sized to the width so it sits on one line (about 34 to 42 px). The composer text is 17 px (16 on phones, which stops iOS zooming in).
+  - **The phone hero is exactly one screen tall**, and the next section starts at the fold.
+  - Production check: the heading, the one-line phone heading and the one-screen phone hero, plus the dark paper, the 36 px buttons and the theme switch (it survives a reload). Also checked: Inter only, the chain door free, the paused card with `pages=10`, and the tools above toasts. The logs show only the known "no gateway credits" error, from the check.
