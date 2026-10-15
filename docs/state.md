@@ -18,9 +18,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   - Verify (69 tests) and e2e are green; e2e now covers the paused page and the phone voice
     sheet. Checked on the preview in Will's Chrome: the door page, the help sheet and its
     150 ms close.
-  - Merge only after Will's look.
-- **Production today:** every typed topic gets the paused card, because the gateway has no
-  credits. Once #8 merges, that card offers free door pages instead of a dead end.
+- **Production today:** with no gateway credits, every typed topic gets the paused card; #8
+  makes it offer free door pages instead of a dead end.
 - **Will's standing call:** grounding, and every model, prompt, fact or performance test,
   waits until the base product settles (`docs/decisions.md`).
 
