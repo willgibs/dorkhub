@@ -25,7 +25,7 @@ const inline = (dir, f) => {
   if (/^\s*import\s/m.test(code)) throw new Error(`src/${dir}/${f} must not import anything: it is inlined into the page`);
   return code.replace(/^export (const|function|class|let|async function) /gm, '$1 ').trimEnd();
 };
-const shared = ['article.js', 'models.js', 'world.js'].map((f) => inline('shared', f));
+const shared = ['article.js', 'models.js', 'world.js', 'graph.js'].map((f) => inline('shared', f));
 const vendorDir = join(root, 'src', 'vendor');
 const vendorFiles = existsSync(vendorDir) ? readdirSync(vendorDir).sort() : [];
 const vendor = vendorFiles.filter((f) => f.endsWith('.js')).map((f) => inline('vendor', f));

@@ -22,8 +22,11 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 `npx playwright install chromium` once). Pushing `main` deploys production immediately.
 
 ## Map
-- `src/app/NN-*.js`: the page, one IIFE in filename order; `16-router.js` boots it.
-- `src/shared/`: used by page and server, inlined by the build, so no imports allowed.
+- `src/app/NN-*.js`: the page, one IIFE in filename order; `16-router.js` boots it and routes clean
+  addresses (`/black-holes`, `/world`, `/connect/a/b`); `11-world.js` draws Your world.
+- `src/shared/`: used by page and server, inlined by the build (imports between them are stripped).
+  `world.js`: page identity, addresses, trails, the move-in from rabbit holes; `graph.js`: Your world's
+  data and physics.
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
 - `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
@@ -34,7 +37,7 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 
 ## Will's standing product calls (the why is in docs/vision.md)
 - One point of focus at a time. Readability first: light, minimal, high information density. Colour carries meaning
-  (link-kind and level colours), never decoration, and never rainbow everywhere.
+  (the eight kind colours, on links, page accents and Your world), never decoration, and never rainbow everywhere.
 - Streaming order: nothing may ever appear above where the reader already is.
 - A clicked topic stays the page title (`titleIsLocked`). Links are specific and
   surprising, not umbrella subjects or a parade of people.

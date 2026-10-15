@@ -1,48 +1,70 @@
-/* ================= index, reactions, voices, taste learning ================= */
-function linksOf(node) {
-  const A = parsed(node); if (A._links) return A._links;
+/* ================= what you've read: one index over your world, rebuilt only when it changes ================= */
+let WV = 0;                       // bumps whenever a page finishes, is saved or leaves
+let WIDX = null;
+const touchWorld = () => { WV++; };
+/* read topics by key (the page you'd open for each), and which of your pages link to each topic */
+function worldIndex() {
+  if (WIDX && WIDX.v === WV) return WIDX;
+  const read = new Map(), back = new Map();
+  for (const p of Object.values(store.pages)) {
+    if (p.status !== 'done' && p.status !== 'partial') continue;
+    const k = nodeKeyOf(p); const ex = read.get(k); if (!ex || (p.last || 0) > (ex.last || 0)) read.set(k, p);
+    for (const [lk] of p.links || []) { let a = back.get(lk); if (!a) back.set(lk, a = []); if (!a.includes(p.id)) a.push(p.id); }
+  }
+  return (WIDX = { v: WV, read, back });
+}
+/* pages read before Dorkhub kept their links get them in the background, a few at a time */
+function backfillLinks() {
+  const todo = Object.values(store.pages).filter(p => !p.links && p.text && (p.status === 'done' || p.status === 'partial'));
+  if (!todo.length) return;
+  const idle = window.requestIdleCallback || (f => setTimeout(() => f({ timeRemaining: () => 8 }), 60));
+  const run = d => { while (todo.length && d.timeRemaining() > 2) { const p = todo.shift(); p.links = linksFrom(parseArticle(p.text, false), p); } touchWorld(); if (todo.length) idle(run); else { save(); renderSide(); } };
+  idle(run);
+}
+/* every topic a page links, by key, in the order they appear */
+function linksOf(p) {
+  const A = parsed(p); if (A._links) return A._links;
   const out = new Map(); const grab = s => { for (const m of String(s).matchAll(/\[\[([^\]]+)\]\]/g)) { const [, t] = splitLink(m[1]); const k = keyOf(t); if (k && !out.has(k)) out.set(k, t); } };
-  A.blocks.forEach(b => grab(b.s)); A.notes.forEach(n => grab(n.s)); A.panels.forEach(p => [p.title, ...p.heads, ...p.rows.flat()].forEach(grab));
-  A.tunnels.forEach(t => { const k = keyOf(t.target); if (k && !out.has(k)) out.set(k, t.target); });
+  A.blocks.forEach(b => grab(b.s)); A.notes.forEach(n => grab(n.s)); A.panels.forEach(x => [x.title, ...x.heads, ...x.rows.flat()].forEach(grab));
+  cardsOf(A).forEach(c => { const k = keyOf(c.target); if (k && !out.has(k)) out.set(k, c.target); });
   A._links = out; return out;
 }
-function buildIndex(w = W) {
+/* everything you've met: the pages you've read and every topic they mention (the Index) */
+function buildIndex() {
   const idx = new Map();
-  const touch = (k, name) => { let e = idx.get(k); if (!e) { e = { key: k, name, gloss: '', kind: '', mentions: new Set(), node: null }; idx.set(k, e); } return e; };
-  for (const n of w.order.map(x => w.nodes[x])) {
-    if (!n.text) continue; const A = parsed(n);
-    for (const [k, t] of linksOf(n)) { if (n.keys.includes(k)) continue; touch(k, t).mentions.add(n.id); }
+  const touch = (k, name) => { let e = idx.get(k); if (!e) { e = { key: k, name, gloss: '', kind: '', mentions: new Set(), page: null }; idx.set(k, e); } return e; };
+  const read = Object.values(store.pages).filter(p => p.text && (p.status === 'done' || p.status === 'partial'));
+  for (const p of read) {
+    const A = parsed(p); const own = new Set([keyOf(p.title), keyOf(p.req.title)]);
+    for (const [k, t] of linksOf(p)) { if (own.has(k)) continue; touch(k, t).mentions.add(p.id); }
     for (const [k, g] of Object.entries(A.gloss)) { const e = touch(k, g.name || k); if (!e.gloss) e.gloss = hookOf(A, k); if (!e.kind) e.kind = g.kind; }
   }
-  for (const n of w.order.map(x => w.nodes[x])) { const e = touch(n.keys[n.keys.length - 1], n.title); e.name = n.title; e.node = n; if (n.deck && !e.gloss) e.gloss = plain(n.deck); n.keys.forEach(k => { const o = idx.get(k); if (o && o !== e) { o.mentions.forEach(m => e.mentions.add(m)); if (!e.gloss) e.gloss = o.gloss; if (!e.kind) e.kind = o.kind; idx.delete(k); } }); }
+  for (const p of read) {
+    const k = keyOf(p.title); const e = touch(k, p.title); e.name = p.title; if (!e.page || p.last > e.page.last) e.page = p; if (p.deck && !e.gloss) e.gloss = plain(p.deck); if (p.kind && !e.kind) e.kind = p.kind;
+    const k2 = keyOf(p.req.title); const o = k2 !== k && idx.get(k2); if (o) { o.mentions.forEach(m => e.mentions.add(m)); if (!e.gloss) e.gloss = o.gloss; if (!e.kind) e.kind = o.kind; idx.delete(k2); }
+  }
   return [...idx.values()];
 }
-const KIND_GROUP = { concept: 'concept', idea: 'concept', phenomenon: 'phenomenon', mechanism: 'mechanism', technique: 'mechanism', place: 'place', person: 'person', event: 'event', era: 'event', thing: 'thing', creature: 'thing', work: 'thing', mystery: 'mystery' };
-const KIND_LABEL = { concept: 'Ideas', phenomenon: 'Phenomena', mechanism: 'Mechanisms', place: 'Places', person: 'People', event: 'Events', thing: 'Things', mystery: 'Mysteries' };
-const kindOf = k => KIND_GROUP[k] || '';
-const kattr = k => { const g = kindOf(k); return g ? ` data-kind="${g}"` : ''; };
-const REACT = { basic: ['Too basic', 'too basic, go further'], right: ['Just right', 'just right'], lost: ['Lost me', 'lost them, slow down and explain more'], wow: ['Mind-blown', 'loved it, more like this'] };
-const LENS_SHORT = { story: 'a story', nerd: 'deep nerd', kid: 'for a kid', skeptic: 'a skeptic' };
-const LENS_PHRASE = { encyclopedic: 'encyclopedic', story: 'told as a story', nerd: 'for deep nerds', kid: 'for a curious kid', skeptic: 'through a skeptic’s eyes' };
 const plural = k => ({ person: 'people', phenomenon: 'phenomena', mystery: 'mysteries', creature: 'creatures' }[k] || k + 's');
 const fmt = h => h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
-function holeHTML(disp, target, cur) {
-  const k = keyOf(target); if (!k || (cur && cur.keys.includes(k))) return fmt(esc(disp));
-  const ex = findByKey(k); const cls = ex ? (ex.parent === cur.id ? ' dug' : ' loop') : '';
-  const g = cur && parsed(cur).gloss[k]; const kind = (g && g.kind) || (ex && ex.seed && ex.seed.kind) || '';
-  return `<a class="hole${cls}" href="#" data-t="${esc(target)}"${kattr(kind)}>${fmt(esc(disp))}</a>`;
+/* a link is a real address, so a middle click or ⌘-click opens it in a new tab; one to a topic you've read carries a quiet mark */
+function holeHTML(disp, target, p) {
+  const k = keyOf(target); if (!k || (p && (keyOf(p.req.title) === k || keyOf(p.title) === k))) return fmt(esc(disp));
+  const g = p && parsed(p).gloss[k]; const kind = (g && g.kind) || '';
+  const read = worldIndex().read.has(topicKey(target));
+  return `<a class="hole${read ? ' read' : ''}" href="${esc(routeOf({ title: target, lens: store.settings.lens }))}" data-t="${esc(target)}"${kattr(kind)}>${fmt(esc(disp))}</a>`;
 }
-function inline(s, cur) {
+function inline(s, p) {
   let out = '', last = 0; const re = /\[\[([^\]\n]+?)\]\]/g; let m;
-  while ((m = re.exec(s))) { out += fmt(esc(s.slice(last, m.index))); const [d, t] = splitLink(m[1]); out += holeHTML(d, t, cur); last = re.lastIndex; }
+  while ((m = re.exec(s))) { out += fmt(esc(s.slice(last, m.index))); const [d, t] = splitLink(m[1]); out += holeHTML(d, t, p); last = re.lastIndex; }
   return out + fmt(esc(s.slice(last)));
 }
-const shownTitle = (node, A) => titleLocked(node) ? (A.title && keyOf(A.title) === keyOf(node.title) ? A.title : capFirst(node.title)) : (A.title || node.title);
-function finalize(node) {
-  const A = parseArticle(node.text, false);
-  if (A.title) { const k = keyOf(A.title); if (k && !node.keys.includes(k) && !titleLocked(node)) node.keys.push(k); }
-  node.title = clip(shownTitle(node, A), 120);
-  node.deck = A.deck || node.deck;
+/* a page has finished: its title, deck and kind settle, and its links join your world */
+function finalize(p) {
+  const A = parseArticle(p.text || '', false);
+  p.title = clip(shownTitle(p, A), 120);
+  p.deck = A.deck || p.deck; if (A.kind) p.kind = A.kind;
+  p.links = linksFrom(A, p); touchWorld();
 }
 
 /* ================= smooth reveal: text glides in at a steady pace =================
@@ -51,55 +73,58 @@ function finalize(node) {
    of time) still streams in the way a live page does. */
 const REV_MIN = 84, REV_MAX = 960;   // characters a second
 let revRaf = 0, revLast = 0;
-function reveal(node, from = 0) { if (reducedMotion()) return; REV.set(node.id, { node, shown: from }); if (!revRaf) { revLast = performance.now(); revRaf = requestAnimationFrame(revealLoop); } }
+function reveal(p, from = 0) { if (reducedMotion()) return; REV.set(p.id, { node: p, shown: from }); if (!revRaf) { revLast = performance.now(); revRaf = requestAnimationFrame(revealLoop); } }
 function revealLoop(now) {
   revRaf = 0; const dt = Math.min(.1, Math.max(0, (now - revLast) / 1000)); revLast = now;
   for (const [id, r] of REV) {
-    const target = r.node.text.length; const backlog = target - r.shown;
+    const target = (r.node.text || '').length; const backlog = target - r.shown;
     if (backlog > 0) r.shown = Math.min(target, r.shown + Math.max(REV_MIN, Math.min(REV_MAX, backlog * 5)) * dt);
     const finished = r.node.status !== 'digging' && r.shown >= target;
     if (finished) REV.delete(id);
     if (backlog > 0 || finished) paint(r.node, !finished);
-    if (finished) { renderMap(); renderTrail(); }
+    if (finished) pageDone(r.node);
   }
   if (REV.size) revRaf = requestAnimationFrame(revealLoop);
 }
 
-/* ================= generation ================= */
-const secFor = nid => $(`.chamber[data-nid="${nid}"]`);
-function fakeStream(node, text) {
-  node.text = text; node.status = 'done'; finalize(node); save();
-  reveal(node, 0); paint(node); renderMap(); renderTrail();
+/* ================= writing a page ================= */
+const secFor = id => { const s = $('.chamber'); return s && s.dataset.pid === id ? s : null; };
+/* text that arrived whole (written ahead of time, or already written for someone) still reveals the way a live page does */
+function fill(p, text, seeded) {
+  p.text = text; p.status = 'done'; p.seeded = !!seeded; p.error = null; p.errorCode = null; finalize(p); save();
+  reveal(p, 0); paint(p); if (!REV.has(p.id)) pageDone(p);
 }
-async function generate(node, { fresh = false } = {}) {
-  if (ACTIVE.has(node.id)) return;
-  const w = W; const demo = DEMO[node.keys.find(k => DEMO[k])];
-  if (w.demo && demo && !fresh) return fakeStream(node, demo);
-  node.status = 'digging'; node.text = ''; node.error = null; node.errorCode = null; node.doubts = null; node.thread = null; node.peeks = []; node.unfolds = {};
-  reveal(node, 0); paint(node); renderMap();
-  const ctl = new AbortController(); ACTIVE.set(node.id, ctl);
-  if (ACTIVE.size > 2) { const [oldId, oldCtl] = ACTIVE.entries().next().value; if (oldId !== node.id) oldCtl.abort(); }
+async function generate(p, { fresh = false } = {}) {
+  if (ACTIVE.has(p.id)) return;
+  p.status = 'digging'; p.text = ''; p.error = null; p.errorCode = null; p.doubts = null; p.peeks = []; p.unfolds = {}; p.reveals = null;
+  reveal(p, 0); paint(p);
+  const ctl = new AbortController(); ACTIVE.set(p.id, ctl);
+  if (ACTIVE.size > 2) { const [oldId, oldCtl] = ACTIVE.entries().next().value; if (oldId !== p.id) oldCtl.abort(); }
   let queued = false;
   try {
-    const input = pageInput(node); node.wlens = input.lens; /* the voice this text is in */
+    const input = pageInput(p); p.wlens = input.lens; /* the voice this text is in */
     const res = await write('page', input, {
       signal: ctl.signal, fresh,
-      onText: ({ text }) => { node.text = text; if (!REV.has(node.id) && !queued) { queued = true; requestAnimationFrame(() => { queued = false; paint(node, true); }); } },
+      onText: ({ text }) => { p.text = text; if (!REV.has(p.id) && !queued) { queued = true; requestAnimationFrame(() => { queued = false; paint(p, true); }); } },
     });
-    node.text = res.text; node.status = res.truncated ? 'partial' : 'done'; node.seeded = !!res.seeded; finalize(node);
+    p.text = res.text; p.status = res.truncated ? 'partial' : 'done'; p.seeded = !!res.seeded; finalize(p);
   } catch (e) {
     const code = (e && e.code) || 'upstream_error';
-    node.text = typeof e?.text === 'string' ? e.text : '';
-    if (code === 'refused') node.text = '';
-    if (code === 'cancelled') node.status = node.text ? 'partial' : 'empty';
-    else if (code === 'trial_over' && demo && !node.text) { ACTIVE.delete(node.id); REV.delete(node.id); return fakeStream(node, demo); }
-    else { node.status = node.text ? 'partial' : 'error'; node.error = errText(code); node.errorCode = code; }
-    if (node.text) finalize(node);
-    if (node.status !== 'done') REV.delete(node.id);
+    p.text = typeof e?.text === 'string' ? e.text : '';
+    if (code === 'refused') p.text = '';
+    if (code === 'cancelled') p.status = p.text ? 'partial' : 'empty';
+    else { p.status = p.text ? 'partial' : 'error'; p.error = errText(code); p.errorCode = code; }
+    if (p.text) finalize(p);
+    if (p.status !== 'done') REV.delete(p.id);
   } finally {
-    ACTIVE.delete(node.id); w.updated = Date.now(); save();
-    if (W === w && !REV.has(node.id)) { paint(node); renderMap(); renderTrail(); }
+    ACTIVE.delete(p.id); save();
+    if (!REV.has(p.id)) { paint(p); pageDone(p); }
   }
+}
+/* a page finished revealing: Your world grows (quietly: only its count moves while you read) */
+function pageDone(p) {
+  if (p.status !== 'done' && p.status !== 'partial') return;
+  touchWorld(); renderWorldBtn(true); if (VIEW === 'page') { renderRail(); syncFab(); } worldGrew(p);
 }
 
 /* ================= keyed rendering: elements are created once, then only updated ================= */
@@ -113,58 +138,68 @@ function patch(container, items, animate = true) {
     if (!el) { el = document.createElement(it.tag || 'div'); el.dataset.k = it.k; el.className = ((it.cls || '') + (animate && !reducedMotion() ? ' enter' : '')).trim(); }
     else { existing.delete(it.k); const want = ((it.cls || '') + (el.classList.contains('enter') ? ' enter' : '')).trim(); if (el.className !== want) el.className = want; }
     if (it.role && el.getAttribute('role') !== it.role) el.setAttribute('role', it.role);
+    if (it.attrs) for (const [a, v] of Object.entries(it.attrs)) if (el.getAttribute(a) !== v) el.setAttribute(a, v);
     if (it.fill) it.fill(el); else if (it.ink != null) inkHTML(el, it.html, it.ink); else setHTML(el, it.html);
     place(container, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());
 }
 const UF_LABEL = { simpler: 'In plainer words', deeper: 'One level deeper', example: 'For example', counter: 'The counterpoint' };
-const levelOf = d => LEVELS[stratumOf(d)];
-function chamberHTML(node, via) {
-  const prev = via ? W.nodes[via] : null;
-  const change = prev && stratumOf(prev.depth) !== stratumOf(node.depth);
-  return `<section class="chamber" data-nid="${node.id}" data-s="${stratumOf(node.depth)}" aria-label="${esc(node.title)}">
-  ${change ? `<div class="levelband"><p><span>Level <b>${node.depth}</b></span><span>${esc(levelOf(node.depth).name)}</span></p></div>` : ''}
+function chamberHTML(p) {
+  return `<section class="chamber" data-pid="${esc(p.id)}" aria-label="${esc(p.title)}">
   <article class="article">
-    <div class="recap-slot">${via ? '' : recapHTML(node)}</div>
     <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-cols"><div class="h-main"></div><aside class="h-pic" hidden></aside></div></header>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
-    ${node.depth === 0 ? '<p class="fineprint"></p>' : ''}
+    <p class="fineprint"></p>
   </article>
 </section>`;
 }
-function paint(node, streamOnly) {
-  const sec = secFor(node.id); if (!sec) return;
-  const A = parsed(node); const live = isLive(node);
-  const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && node.status === 'done' && node.id === (W && W.current)) announce(`${shownTitle(node, A)}: page ready.`); }
-  paintHead(node, sec, A, live); paintBody(node, sec, A, live); paintEnd(node, sec, A, live);
-  /* the first page of a rabbit hole says when its opening pages were written ahead of time; the note
-     that pages can be wrong sits once at the bottom of the stream (.colfoot), not on every page */
-  const fp = node.depth === 0 && $('.fineprint', sec);
-  if (fp) setHTML(fp, node.seeded ? 'The first pages of this path were written ahead of time; past them, every page is written live for your path.' : '');
+/* The page's colour is its kind. A new page opens in the colour of the link you followed and takes its
+   own kind from its title line, which arrives before a single word of the page shows; from then on the
+   colour holds for the visit, so it never changes while you read. */
+let ACC = null;
+function accentFor(p, A) {
+  if (!ACC || ACC.id !== p.id) ACC = { id: p.id, kind: (p.status === 'done' && p.kind) || (p.hint && p.hint.kind) || p.kind || '', settled: p.status === 'done' };
+  if (!ACC.settled && A.kind && !A.blocks.length) { ACC.kind = A.kind; ACC.settled = true; }
+  if (A.blocks.length) ACC.settled = true;
+  return kindOf(ACC.kind) || 'concept';
+}
+function paint(p, streamOnly) {
+  const sec = secFor(p.id); if (!sec) return;
+  const A = parsed(p); const live = isLive(p);
+  /* a page arrived at from outside waits for the reader's word (guard in 16-router.js) */
+  if (GUARD.has(p.id)) {
+    sec._guard = true; const acc = accentFor(p, A); document.documentElement.dataset.accent = acc;
+    paintHead(p, sec, A, true); setHTML($('.a-body', sec), guardHTML(p)); setHTML($('.a-end', sec), ''); setHTML($('.tools', sec), '');
+    return;
+  }
+  if (sec._guard) { sec._guard = false; for (const s of ['.a-body', '.a-end', '.tools']) { const el = $(s, sec); el.innerHTML = ''; el._h = null; } }
+  const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && p.status === 'done' && p.id === CUR) announce(`${shownTitle(p, A)}: page ready.`); }
+  const acc = accentFor(p, A); if (document.documentElement.dataset.accent !== acc) document.documentElement.dataset.accent = acc;
+  paintHead(p, sec, A, live); paintBody(p, sec, A, live); paintEnd(p, sec, A, live);
+  /* the note that pages can be wrong sits once at the bottom (.colfoot); a page written ahead of time says so here */
+  setHTML($('.fineprint', sec), p.seeded && !live ? 'This page was written ahead of time.' : '');
   if (!streamOnly) {
-    paintTools(node, sec); paintDoubt(node, sec);
-    if (W && node.id === W.current) updateUpNext();
-    if (node.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !W || document.body.classList.contains('at-start')) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
+    paintTools(p, sec); paintDoubt(p, sec);
+    if (p.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !CUR) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
-/* The head: where you are and the page's tools on one quiet row, then the title (already there,
-   from the link you clicked), the deck and the bridge back to where you came from. */
-function paintHead(node, sec, A, live) {
-  const head = $('.a-head', sec); const parent = node.parent ? W.nodes[node.parent] : null;
-  const title = shownTitle(node, A); const lvl = levelOf(node.depth); const kd = kindOf(node.seed && node.seed.kind);
-  setHTML($('.where', head), `<span class="mk" data-tip="Level ${node.depth}: ${esc(lvl.name)}. Page ${pathTo(node).length} of this rabbit hole">${node.depth}</span>${kd ? `<span class="kdot2" data-kind="${kd}" data-tip="${esc(capFirst(node.seed.kind))}"></span>` : ''}${node.lens ? `<span class="kind lens">${esc(LENS_PHRASE[node.lens])}</span>` : ''}`);
+/* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
+   there, from the link you clicked) and the deck. */
+function paintHead(p, sec, A, live) {
+  const head = $('.a-head', sec); const title = shownTitle(p, A);
+  const kind = A.kind || (ACC && ACC.id === p.id && ACC.kind) || p.kind || '';
+  const lens = p.req.lens !== 'encyclopedic' && LENS_PHRASE[p.req.lens] ? LENS_PHRASE[p.req.lens] : '';
+  setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}`);
   const main = []; const head0 = live && !A.blocks.length;
   main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
-  const seedDeck = live && node.seed && node.seed.gloss ? node.seed.gloss : '';
+  const seedDeck = live && p.hint && p.hint.gloss ? p.hint.gloss : '';
   const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length);
-  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, node), ink: head0 });
+  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, p), ink: head0 });
   else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
-  const from = node.from && node.from.bridge && W.nodes[node.from.bridge] && parent ? `Connecting <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a> and <a href="#/w/${W.id}/${node.from.bridge}">${esc(W.nodes[node.from.bridge].title)}</a>` : parent ? `From <a href="#/w/${W.id}/${parent.id}">${esc(parent.title)}</a>` : 'Where it starts';
-  if (A.bridge) main.push({ k: 'bridge', cls: 'bridge', html: `<p class="bridge-from">${from}</p>${A.bridge ? `<p class="bridge-t">${inline(A.bridge, node)}</p>` : ''}`, ink: head0 });
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
 }
@@ -260,9 +295,10 @@ function paintPanel(el, p, node, j) {
 }
 const panelItem = (p, j, node) => ({ k: 'pn' + j, tag: 'section', cls: 'panel', fill: el => paintPanel(el, p, node, j) });
 
-function noteItem(n, node, j) {
-  const callback = [...n.s.matchAll(/\[\[([^\]]+)\]\]/g)].some(m => { const ex = findByKey(keyOf(splitLink(m[1])[1])); return ex && ex.id !== node.id && ex.status === 'done'; });
-  return { k: 'n' + j, tag: 'aside', cls: 'mnote' + (callback ? ' cb' : ''), html: `${callback ? `<span class="ml" data-tip="A callback to a page you already read">${ic('loop')}</span>` : ''}${inline(n.s, node)}` };
+/* a note that points at a topic you've read says so, quietly */
+function noteItem(n, p, j) {
+  const known = [...n.s.matchAll(/\[\[([^\]]+)\]\]/g)].some(m => { const k = topicKey(splitLink(m[1])[1]); return k !== nodeKeyOf(p) && worldIndex().read.has(k); });
+  return { k: 'n' + j, tag: 'aside', cls: 'mnote' + (known ? ' cb' : ''), html: `${known ? `<span class="ml" data-tip="Links to a topic you’ve read">${ic('loop')}</span>` : ''}${inline(n.s, p)}` };
 }
 function extrasItems(node, i) {
   const items = [];
@@ -314,7 +350,7 @@ function picField(box) {
   const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b;
   const F = { box, cv, ctx: cv.getContext('2d'), k, w, h, cols, rows, dots, ink: `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`, t0: null, img: null };
   box._f = F; PICS.add(F); drawPic(F, reducedMotion() ? 0 : performance.now()); if (!reducedMotion()) wakePics();
-  const nid = box.closest('.chamber')?.dataset.nid; if (nid && PICREADY.has(nid)) revealPic(null, PICREADY.get(nid), box);
+  const pid = box.closest('.chamber')?.dataset.pid; if (pid && PICREADY.has(pid)) revealPic(null, PICREADY.get(pid), box);
 }
 function drawPic(F, now) {
   const { ctx, k, w, h, dots } = F; if (!ctx) return; ctx.setTransform(k, 0, 0, k, 0, 0); ctx.clearRect(0, 0, w, h);
@@ -350,7 +386,7 @@ function revealPic(node, img, box0) {
 function finishPic(F) {
   const box = F.box; PICS.delete(F); box._f = null; F.cv.remove(); box.classList.remove('loading', 'reveal'); box.classList.add('shown');
   /* the slot now looks exactly like a plain picture; tell the renderer so it doesn't redraw it */
-  const fig = box.closest('figure'); const node = W && W.nodes[box.closest('.chamber')?.dataset.nid]; if (fig && node && node.pic) fig._h = picItem(node.pic, false).html;
+  const fig = box.closest('figure'); const node = pageOf(box.closest('.chamber')?.dataset.pid); if (fig && node && node.pic) fig._h = picItem(node.pic, false).html;
   if (node) { PICFRESH.delete(node.id); PICREADY.delete(node.id); }
 }
 function dropPic(node) {
@@ -372,7 +408,7 @@ function paintBody(node, sec, A, live) {
   /* known from an earlier visit: it's there from the start; found during this one: only while the first paragraph is still being written */
   if (node.pic && !PICAT.has(node.id)) { const p1 = A.blocks.findIndex(b => b.t === 'p'); PICAT.set(node.id, !PICASKED.has(node.id) || (live && !A.bodyDone && (p1 < 0 || p1 === lastIdx))); }
   const pic = node.pic && PICAT.get(node.id) ? node.pic : null;
-  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing links for your path' : 'Writing this page for your path', orb: A.wait ? 'connecting' : 'composing' });
+  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing what to link' : 'Writing this page', orb: A.wait ? 'connecting' : 'composing' });
   /* facts sit in the margin beside their paragraph on a wide screen (below it on a narrow one); the rest in the reading column */
   const side = new Map(), flow = [];
   A.panels.forEach((p, j) => { const b = A.blocks[p.at - 1]; if (p.type === 'facts' && b && b.t === 'p') { if (!side.has(p.at - 1)) side.set(p.at - 1, []); side.get(p.at - 1).push([p, j]); } else flow.push([p, j]); });

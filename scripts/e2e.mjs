@@ -2,14 +2,15 @@
 // mock writer. Not part of `npm test` because it needs Chromium (Playwright):
 //   npx playwright install chromium   (once)
 //   npm run e2e
-// Walks the whole reader flow on desktop and on a phone in dark mode: first page, a link,
-// every tool, the end of the trial, a bad key, a good key. Screenshots go to $E2E_SHOTS
-// (default .e2e/, which is git-ignored).
+// Walks the whole reader on desktop and on a phone in dark mode: a page at its own address, the
+// cards, back and forward, every tool, Save, Your world, the sidebar, a link from outside (the
+// guard), the end of the trial, a bad key, a good key; then a browser with rabbit holes from
+// before moves in. Screenshots go to $E2E_SHOTS (default .e2e/, which is git-ignored).
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { topicKey } from '../src/shared/world.js';
+import { slugOf, topicKey } from '../src/shared/world.js';
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -19,7 +20,7 @@ mkdirSync(shots, { recursive: true });
 const port = 3900 + Math.floor(Math.random() * 90);
 const base = `http://localhost:${port}`;
 /* A small trial keeps the run short, and goes through the same setting production uses. */
-const PAGES = 4;
+const PAGES = 5;
 const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_PICTURES: 'off', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
 await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
 
@@ -30,27 +31,31 @@ const results = [];
    are linked, so a step that expects to spend a free page opens a topic that is neither. */
 const written = new Set();
 const seeded = new Set(Object.keys(JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages));
+const fresh = (/** @type {string} */ t) => t && !written.has(topicKey(t)) && !seeded.has(topicKey(t));
 const step = async (name, fn) => { const t = Date.now(); try { await fn(); results.push(`ok   ${name} (${Date.now() - t} ms)`); } catch (e) { results.push(`FAIL ${name}: ${String(e.message).split('\n')[0]}`); throw e; } };
 
 async function run(page, { mobile = false } = {}) {
   page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
   page.on('console', m => { if (m.type() === 'error' && !/ERR_TUNNEL_CONNECTION_FAILED|fonts\.g|status of (40[12]|503)/.test(m.text() + (m.location()?.url || ''))) errors.push(`console: ${m.text()}`); });
   const tag = mobile ? 'mobile' : 'desktop';
-  page.on('response', r => { if (!r.url().endsWith('/api/write') || r.status() !== 200 || r.headers()['x-dh-cache']) return; const b = r.request().postDataJSON(); if (b && b.task === 'page') written.add(topicKey(b.input?.title)); });
+  page.on('response', r => { if (!r.url().endsWith('/api/write') || r.status() !== 200 || r.headers()['x-dh-cache']) return; const b = r.request().postDataJSON(); if (b && b.task === 'page' && !b.cachedOnly) written.add(topicKey(b.input?.title)); });
   const first = mobile ? 'Moss piglets' : 'Water bears';
-  const badge = () => page.locator('#keyBtn .kb-n').textContent();
-  /* a page is done when the newest one is no longer busy and its branches are in */
-  const waitDone = async () => { await page.waitForFunction(() => { const a = [...document.querySelectorAll('.chamber .article')].pop(); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .row[data-t]'); }, null, { timeout: 20000 }); };
+  /* what is left of the trial, as the server last said */
+  const left = () => page.evaluate(n => { try { const t = JSON.parse(localStorage.getItem('dorkhub:auth:v1') || '{}').trial; return String(t ? t.pages : n); } catch (e) { return String(n); } }, PAGES);
+  /* a page is done when it is no longer busy and its cards are in */
+  const waitDone = async () => { await page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 }); };
 
   await step(`${tag}: landing`, async () => {
     await page.goto(base);
     await page.waitForSelector('#seedIn');
     const line = await page.locator('#status').textContent();
     if (!line.includes(`first ${PAGES} pages are on us`)) throw new Error(`status line: ${line}`);
-    if ((await badge()) !== String(PAGES)) throw new Error(`badge ${await badge()}`);
+    if ((await page.locator('#seedKey b').textContent()) !== String(PAGES)) throw new Error('the composer’s key pill');
     /* the fonts are our own files, so they load under the page's CSP without asking any third party */
     const fams = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, '')); });
     for (const f of ['Inter']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
+    const off = await page.evaluate(() => document.querySelectorAll('.intro-sec,#demo,.chains,.ideas,.saved').length);
+    if (off) throw new Error('the front page still describes rabbit holes');
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
   /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
@@ -66,20 +71,20 @@ async function run(page, { mobile = false } = {}) {
     const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
   });
-  await step(`${tag}: a door page is written ahead of time, and free`, async () => {
+  await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
-    const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length }));
-    if (p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/.test(p.fine)) throw new Error(`door page: ${JSON.stringify(p)}`);
-    if ((await badge()) !== String(PAGES)) throw new Error(`a door page spent a free page: badge ${await badge()}`);
+    const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
+    if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/.test(p.fine) || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
-  await step(`${tag}: the dice opens a door that isn't on screen`, async () => {
+  await step(`${tag}: the dice opens a pre-written topic that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="surprise"]').click(); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
     if (shown.includes(p.title) || !/written ahead of time/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
-    if ((await badge()) !== String(PAGES)) throw new Error(`the dice spent a free page: badge ${await badge()}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`the dice spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* paused (no credits for free pages): nothing is spent, the page says so first and asks nothing,
@@ -88,29 +93,17 @@ async function run(page, { mobile = false } = {}) {
     await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.task === 'page' && /moths/.test(JSON.stringify(b.input))) await r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'trial_paused' }) }); else await r.continue(); });
     await page.fill('#seedIn', 'Why do moths fly toward lights?'); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.statusnote.paused .door', { timeout: 20000 });
-    const st = await page.evaluate(() => { const a = document.querySelector('.article'); return { doors: a.querySelectorAll('.statusnote .door').length, ask: !!a.querySelector('.ask'), react: !!a.querySelector('.react'), tools: a.querySelectorAll('.tools [data-act]').length, first: /** @type {HTMLElement} */ (a.querySelector('.a-end > div'))?.dataset.k }; });
-    if (st.doors !== 3 || st.ask || st.react || st.tools || st.first !== 'status') throw new Error(`paused page: ${JSON.stringify(st)}`);
-    if ((await badge()) !== String(PAGES)) throw new Error(`a paused page spent a free page: badge ${await badge()}`);
+    const st = await page.evaluate(() => { const a = document.querySelector('.article'); return { doors: a.querySelectorAll('.statusnote .door').length, ask: !!a.querySelector('.ask'), cards: !!a.querySelector('.card'), tools: a.querySelectorAll('.tools [data-act]').length, first: /** @type {HTMLElement} */ (a.querySelector('.a-end > div'))?.dataset.k }; });
+    if (st.doors !== 3 || st.ask || st.cards || st.tools || st.first !== 'status') throw new Error(`paused page: ${JSON.stringify(st)}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`a paused page spent a free page: ${await left()}`);
     await page.screenshot({ path: `${shots}/${tag}-2-paused.png` });
     const door = await page.locator('.statusnote .door').first().getAttribute('data-seed');
     await page.locator('.statusnote .door').first().click();
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, door, { timeout: 20000 }); await waitDone();
-    if ((await badge()) !== String(PAGES)) throw new Error(`the door spent a free page: badge ${await badge()}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`the pre-written page spent a free page: ${await left()}`);
     await page.unroute('**/api/write');
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
-  /* the demo is a picture, not a control, and it pauses when asked */
-  if (!mobile) {
-    await step(`${tag}: the demo pauses and plays`, async () => {
-      /* the demo lives below the first screen now, and runs only while it is in view */
-      await page.locator('#demo').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
-      await page.locator('#demoPause').click();
-      const d = await page.evaluate(() => ({ pressed: document.querySelector('#demoPause')?.getAttribute('aria-pressed'), held: !!document.querySelector('#demo.held'), events: getComputedStyle(/** @type {Element} */ (document.querySelector('#demo'))).pointerEvents }));
-      if (d.pressed !== 'true' || !d.held || d.events !== 'none') throw new Error(`demo: ${JSON.stringify(d)}`);
-      await page.locator('#demoPause').click();
-      if (await page.locator('#demo.held').count()) throw new Error('the demo stayed paused');
-    });
-  }
   /* pictures come from our own endpoint: one found on desktop, none on the phone */
   if (!mobile) {
     await page.route('**/api/picture?t=*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ src: '/api/picture?f=a%2Fab%2FTest.jpg&w=500', w: 500, h: 300, alt: 'A test picture', credit: 'E2E', license: 'CC0', file: 'https://commons.wikimedia.org/wiki/File:Test.jpg' }) }));
@@ -122,30 +115,32 @@ async function run(page, { mobile = false } = {}) {
     await page.fill('#seedIn', first); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
     const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], orb: /** @type {any} */ (window).__orb, now: !!document.querySelector('.status-line'), orbsLeft: document.querySelectorAll('.a-body canvas.orb').length }));
-    if (!status.seen.length || status.now) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
+    if (!status.seen.length || status.now || status.seen.some(s => /path/.test(s))) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
     if (!status.orb || status.orbsLeft) throw new Error(`thinking orb: ${JSON.stringify(status)}`);
-    const title = await page.locator('.a-title').first().textContent(); if (title !== first) throw new Error(`title ${title}`);
-    if ((await badge()) !== String(PAGES - 1)) throw new Error(`badge ${await badge()}`);
+    const where = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, kind: document.querySelector('.where .kind')?.textContent || '', accent: document.documentElement.dataset.accent }));
+    if (where.url !== `/${slugOf(first)}` || where.title !== first || !where.kind || !where.accent) throw new Error(`the page: ${JSON.stringify(where)}`);
+    if ((await left()) !== String(PAGES - 1)) throw new Error(`free pages ${await left()}`);
     /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
     await page.evaluate(() => window.scrollTo(0, 0));
     const lay = await page.evaluate(() => {
       const pb = document.querySelector('.a-body .pb'); const p = pb.querySelector('.pcol > p').getBoundingClientRect(); const f = pb.querySelector('.mcol .panel[data-type="facts"]')?.getBoundingClientRect();
-      return { top: p.top, vh: innerHeight, beside: f ? f.left >= p.right : null, below: f ? f.top >= p.bottom : null, v1: !!document.querySelector('.h-side,.glance-band,.drift,.caret'), tools: !!document.querySelector('.a-head .h-row .tools [data-act="sketch"]'), order: [...document.querySelectorAll('.a-end > div')].map(d => d.dataset.k).join(' ') };
+      return { top: p.top, vh: innerHeight, beside: f ? f.left >= p.right : null, below: f ? f.top >= p.bottom : null, v1: !!document.querySelector('.h-side,.glance-band,.drift,.caret,.levelband,.react,.next'), tools: !!document.querySelector('.a-head .h-row .tools [data-act="save"]'), order: [...document.querySelectorAll('.a-end > div')].map(d => d.dataset.k).join(' '), cards: document.querySelectorAll('.a-end .card').length };
     });
     if (lay.top > lay.vh * .75) throw new Error(`the first paragraph starts at ${Math.round(lay.top)} of ${lay.vh}`);
     if (mobile ? !lay.below : !lay.beside) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
-    if (lay.v1) throw new Error('v1 head furniture is still on the page');
-    if (!lay.tools) throw new Error('the page tools are not in the head row');
-    if (lay.order !== 'react branches qs ask') throw new Error(`the end of the page is out of order: ${lay.order}`);
+    if (lay.v1) throw new Error('levels, reactions or the old next page are still on the page');
+    if (!lay.tools) throw new Error('the Save star is not in the head row');
+    if (lay.order !== 'cards qs ask' || lay.cards !== 6) throw new Error(`the end of the page: ${JSON.stringify(lay)}`);
     /* the picture's slot is reserved at its own shape, holds that height through the dot field and the reveal, and ends as a plain picture */
     if (!mobile) await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
     const pic = await page.evaluate(() => ({ n: document.querySelectorAll('figure.pic').length, inFirst: !!document.querySelector('.a-body .pb .mcol figure.pic img'), credit: document.querySelector('figure.pic figcaption')?.textContent || '', h0: Math.round(/** @type {any} */ (window).__picH0), h: Math.round(document.querySelector('.pic-box')?.getBoundingClientRect().height || 0), field: !!document.querySelector('.pic-field') }));
     if (mobile ? pic.n !== 0 : !(pic.inFirst && pic.credit === 'E2E · CC0' && pic.h0 > 0 && pic.h === pic.h0 && !pic.field)) throw new Error(`picture: ${JSON.stringify(pic)}`);
-    if (!(await page.locator('#upnext').isHidden())) throw new Error('the up-next pill shows at the top of a page');
-    /* the one note that pages can be wrong: once, after the last page */
+    /* the one note that pages can be wrong: once, after the page */
     const foot = await page.evaluate(() => { const f = document.querySelector('#view > .colfoot'); return { text: f?.textContent || '', after: !!f && f.previousElementSibling?.id === 'column', n: document.querySelectorAll('.colfoot').length }; });
     if (!/can make mistakes/.test(foot.text) || !foot.after || foot.n !== 1) throw new Error(`fine note: ${JSON.stringify(foot)}`);
-    await page.screenshot({ path: `${shots}/${tag}-2-page.png`, fullPage: false });
+    await page.screenshot({ path: `${shots}/${tag}-3-page.png`, fullPage: false });
+    await page.locator('.a-end').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
+    await page.screenshot({ path: `${shots}/${tag}-4-keep-exploring.png`, fullPage: false });
   });
   await step(`${tag}: a guess keeps its answer until asked`, async () => {
     if (await page.locator('.panel[data-type="guess"] .pn-a').count()) throw new Error('the answer showed before it was asked for');
@@ -153,31 +148,40 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForFunction(() => document.querySelector('.panel[data-type="guess"] .pn-a')?.textContent === '0' && document.activeElement === document.querySelector('.pn-a'), null, { timeout: 5000 });
   });
   if (mobile) {
-    /* on a phone the top bar's tools live in one gooey button: it opens, a droplet opens the map, Escape closes it again */
+    /* on a phone the learning tools live in one gooey button: it opens, Save saves, Escape closes it again */
     await step(`${tag}: the tools button`, async () => {
       await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
       if ((await page.locator('#fab').getAttribute('data-open')) !== 'true') throw new Error('the tools button did not open');
-      await page.locator('[data-fab="map"]').tap(); await page.waitForTimeout(350);
-      const st = await page.evaluate(() => ({ map: document.querySelector('#map')?.classList.contains('open'), fab: document.querySelector('#fab')?.getAttribute('data-open') }));
-      if (!st.map || st.fab !== 'false') throw new Error(`map from the tools button: ${JSON.stringify(st)}`);
-      await page.keyboard.press('Escape'); await page.waitForTimeout(350);
+      const labels = await page.$$eval('.fab-item', bs => bs.map(b => b.getAttribute('data-fab')).join(' '));
+      if (labels !== 'ask world save land') throw new Error(`the tools: ${labels}`);
+      await page.screenshot({ path: `${shots}/${tag}-5-tools.png` });
+      await page.locator('[data-fab="save"]').tap(); await page.waitForTimeout(350);
+      const st = await page.evaluate(() => ({ saved: document.querySelector('.tool.save')?.getAttribute('aria-pressed'), fab: document.querySelector('#fab')?.getAttribute('data-open') }));
+      if (st.saved !== 'true' || st.fab !== 'false') throw new Error(`save from the tools button: ${JSON.stringify(st)}`);
       await page.locator('.fab-main').tap(); await page.waitForTimeout(300); await page.keyboard.press('Escape'); await page.waitForTimeout(300);
-      const after = await page.evaluate(() => ({ map: document.querySelector('#map')?.classList.contains('open'), fab: document.querySelector('#fab')?.getAttribute('data-open'), focus: document.activeElement?.classList.contains('fab-main') }));
-      if (after.map || after.fab !== 'false' || !after.focus) throw new Error(`closing: ${JSON.stringify(after)}`);
+      const after = await page.evaluate(() => ({ fab: document.querySelector('#fab')?.getAttribute('data-open'), focus: document.activeElement?.classList.contains('fab-main') }));
+      if (after.fab !== 'false' || !after.focus) throw new Error(`closing: ${JSON.stringify(after)}`);
     });
-    await step(`${tag}: the voice sheet`, async () => {
-      await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
-      await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
+    /* the occasional things live in a plain menu in the top bar */
+    await step(`${tag}: the menu and the voice sheet`, async () => {
+      await page.locator('#menuBtn').tap(); await page.waitForSelector('#menu.is-open [data-mn="voice"]');
+      const items = await page.$$eval('#menu .mn-i', bs => bs.filter(b => getComputedStyle(b).display !== 'none').map(b => b.getAttribute('data-mn')).join(' '));
+      if (items !== 'keys voice theme export new') throw new Error(`menu: ${items}`);
+      const keys = await page.locator('[data-mn="keys"] em').textContent();
+      if (keys !== `${PAGES - 1} free`) throw new Error(`the menu’s free pages: ${keys}`);
+      await page.waitForTimeout(300); await page.screenshot({ path: `${shots}/${tag}-6-menu.png` });
+      await page.locator('[data-mn="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
       const v = await page.evaluate(() => { const l = document.querySelector('#sheet .voice-pop label'); const cs = getComputedStyle(l); return { grid: cs.display, font: getComputedStyle(l.closest('.voice-pop')).fontFamily, focus: document.activeElement?.id || document.activeElement?.className }; });
       if (v.grid !== 'grid' || !/Inter/.test(v.font) || v.focus !== 'sheetBody') throw new Error(`voice sheet: ${JSON.stringify(v)}`);
       /* a choice closes the sheet; the flow then goes back to the encyclopedic voice the same way */
       for (const lens of ['story', 'encyclopedic']) {
         if (lens !== 'story') {
-          await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
           /* the choice's toast is still up, and the open tools sit above it */
+          await page.locator('.fab-main').tap(); await page.waitForTimeout(450);
           const over = await page.evaluate(() => { const t = document.querySelector('.toast')?.getBoundingClientRect(); if (!t) return 'no toast'; for (const b of document.querySelectorAll('.fab-item')) { const r = b.getBoundingClientRect(); const x = (Math.max(r.left, t.left) + Math.min(r.right, t.right)) / 2, y = (Math.max(r.top, t.top) + Math.min(r.bottom, t.bottom)) / 2; if (x > r.left && x < r.right && x > t.left && x < t.right && y > r.top && y < r.bottom && y > t.top && y < t.bottom) { const ts = document.querySelector('.toasts'); ts.style.pointerEvents = 'auto'; const hit = document.elementFromPoint(x, y); ts.style.pointerEvents = ''; return hit?.closest('#fab') ? 'tools on top' : 'toast on top'; } } return 'no overlap'; });
           if (over === 'toast on top') throw new Error('a toast covers the open tools');
-          await page.locator('[data-fab="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
+          await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+          await page.locator('#menuBtn').tap(); await page.waitForSelector('#menu.is-open [data-mn="voice"]'); await page.locator('[data-mn="voice"]').tap(); await page.waitForSelector('#sheet[open] .voice-pop label');
         }
         await page.locator(`#sheet .voice-pop input[value="${lens}"]`).check(); await page.waitForTimeout(400);
         if (await page.evaluate(() => document.querySelector('#sheet')?.hasAttribute('open'))) throw new Error(`the voice sheet stayed open after choosing ${lens}`);
@@ -199,14 +203,17 @@ async function run(page, { mobile = false } = {}) {
       await page.keyboard.press('Escape');
     });
   }
-  await step(`${tag}: a link opens the next page`, async () => {
+  await step(`${tag}: a link opens the next page at its own address`, async () => {
     const targets = await page.$$eval('.a-body a.hole', as => as.map(a => a.getAttribute('data-t') || ''));
-    const target = targets.find(t => t && !written.has(topicKey(t)) && !seeded.has(topicKey(t)));
+    const target = targets.find(fresh);
     if (!target) throw new Error('every link on the page is pre-written or already written');
-    const link = await page.locator(`.a-body a.hole[data-t="${target}"]`).first().elementHandle();
+    const link = page.locator(`.a-body a.hole[data-t="${target}"]`).first();
+    if ((await link.getAttribute('href')) !== `/${slugOf(target)}`) throw new Error(`the link's address: ${await link.getAttribute('href')}`);
     if (mobile) { await link.tap(); await page.waitForTimeout(150); await link.tap(); } else await link.click();
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, target, { timeout: 20000 });
-    await waitDone(); if ((await badge()) !== String(PAGES - 2)) throw new Error(`badge ${await badge()}`);
+    await waitDone();
+    if ((await page.evaluate(() => location.pathname)) !== `/${slugOf(target)}`) throw new Error('the address did not follow');
+    if ((await left()) !== String(PAGES - 2)) throw new Error(`free pages ${await left()}`);
   });
   if (mobile) {
     /* the desktop run wrote this page: opening it again is instant and free */
@@ -215,16 +222,22 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('.ask input').last().fill('Water bears'); await page.locator('.ask input').last().press('Enter');
       const r = await hit; if (r.headers()['x-dh-cache'] !== 'hit') throw new Error(`not reused: ${r.headers()['x-dh-cache']}`);
       await page.waitForFunction(() => document.querySelector('.a-title')?.textContent === 'Water bears', null, { timeout: 20000 }); await waitDone();
-      if ((await badge()) !== String(PAGES - 2)) throw new Error(`a page already written spent a free page: badge ${await badge()}`);
+      if ((await left()) !== String(PAGES - 2)) throw new Error(`a page already written spent a free page: ${await left()}`);
     });
   }
   if (!mobile) {
-    await step(`${tag}: J continues below and moves focus to the new title`, async () => {
-      const before = await page.locator('.chamber').count();
-      await page.keyboard.press('j');
-      await page.waitForFunction(n => document.querySelectorAll('.chamber').length > n, before, { timeout: 20000 }); await waitDone();
-      const focused = await page.evaluate(() => document.activeElement === [...document.querySelectorAll('.a-title')].pop());
-      if (!focused) throw new Error('focus stayed behind');
+    await step(`${tag}: a key opens a card, and back returns to where you were`, async () => {
+      await page.evaluate(() => window.scrollTo(0, 600)); await page.waitForTimeout(400);
+      const was = await page.evaluate(() => ({ url: location.pathname, y: Math.round(scrollY) }));
+      await page.keyboard.press('1');
+      await page.waitForFunction(u => location.pathname !== u, was.url, { timeout: 20000 }); await waitDone();
+      const next = await page.evaluate(() => ({ url: location.pathname, focused: document.activeElement === document.querySelector('.a-title') }));
+      if (!next.focused) throw new Error('focus stayed behind');
+      await page.goBack(); await page.waitForFunction(u => location.pathname === u, was.url);
+      await page.waitForTimeout(400);
+      const back = await page.evaluate(() => Math.round(scrollY));
+      if (Math.abs(back - was.y) > 4) throw new Error(`back to ${back}, not ${was.y}`);
+      await page.goForward(); await page.waitForFunction(u => location.pathname === u, next.url); await waitDone();
     });
     await step(`${tag}: expand a paragraph`, async () => {
       await page.locator('.pb').first().hover(); await page.locator('.ptool').first().click();
@@ -234,25 +247,68 @@ async function run(page, { mobile = false } = {}) {
     await step(`${tag}: sketch`, async () => { await page.keyboard.press('k'); await page.waitForSelector('.sketch .sk-chain', { timeout: 15000 }); });
     await step(`${tag}: skeptic mode`, async () => { await page.keyboard.press('d'); await page.waitForSelector('.doubt ol li', { timeout: 15000 }); });
     await step(`${tag}: around this`, async () => { await page.keyboard.press('l'); await page.waitForSelector('.land-list li', { timeout: 15000 }); await page.keyboard.press('Escape'); });
-    await step(`${tag}: the thread`, async () => { await page.keyboard.press('t'); await page.waitForSelector('.thread-line', { timeout: 15000 }); await page.keyboard.press('Escape'); });
+    await step(`${tag}: your trail`, async () => {
+      await page.keyboard.press('t'); await page.waitForSelector('.trail-list li', { timeout: 15000 });
+      const n = await page.locator('.trail-list li').count(); if (n < 3) throw new Error(`${n} steps on the trail`);
+      await page.screenshot({ path: `${shots}/${tag}-5-trail.png` }); await page.keyboard.press('Escape');
+    });
     await step(`${tag}: quiz`, async () => { await page.keyboard.press('q'); await page.waitForSelector('.qz-o button', { timeout: 15000 }); await page.keyboard.press('Escape'); });
-    await step(`${tag}: recap`, async () => { await page.locator('#notesBtn').click({ force: true }).catch(() => page.keyboard.press('f')); await page.waitForSelector('#sheetBody h1', { timeout: 15000 }); await page.keyboard.press('Escape'); });
+    await step(`${tag}: recap`, async () => { await page.keyboard.press('f'); await page.waitForSelector('#sheetBody h1', { timeout: 15000 }); await page.keyboard.press('Escape'); });
+    await step(`${tag}: save`, async () => {
+      await page.waitForTimeout(400); await page.keyboard.press('s');
+      await page.waitForFunction(() => document.querySelector('.tool.save')?.getAttribute('aria-pressed') === 'true');
+    });
+    /* the sidebar: Your world beside the page, then the index and the trails */
+    await step(`${tag}: the sidebar`, async () => {
+      await page.keyboard.press('m'); await page.waitForSelector('#miniStage canvas');
+      await page.waitForTimeout(900); await page.screenshot({ path: `${shots}/${tag}-6-sidebar.png` });
+      await page.locator('[data-tab="index"]').click(); await page.waitForSelector('#ixList .ix');
+      await page.locator('[data-tab="trails"]').click(); await page.waitForSelector('.trails li');
+      await page.locator('[data-tab="world"]').click(); await page.keyboard.press('m');
+      if (!(await page.evaluate(() => document.body.classList.contains('side-rail')))) throw new Error('the sidebar stayed open');
+    });
+    await step(`${tag}: Your world`, async () => {
+      const saved = await page.evaluate(() => document.querySelector('.a-title')?.textContent || '');
+      await page.keyboard.press('g'); await page.waitForSelector('#wpStage canvas');
+      const w = await page.evaluate(() => ({ url: location.pathname, sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent), label: document.querySelector('#wpStage')?.getAttribute('aria-label') || '' }));
+      if (w.url !== '/world' || !/topics read/.test(w.sum) || !w.saved.includes(saved) || !/topics you have read/.test(w.label)) throw new Error(`your world: ${JSON.stringify(w)}`);
+      await page.waitForTimeout(1200); await page.screenshot({ path: `${shots}/${tag}-7-world.png` });
+      /* finding a topic flies to it, and its card opens it */
+      await page.fill('#wpFind', saved.slice(0, 5)); await page.press('#wpFind', 'Enter');
+      await page.waitForSelector('.gv-tip.act [data-gv="open"]', { timeout: 5000 });
+      await page.locator('.gv-tip.act [data-gv="open"]').click();
+      await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, saved, { timeout: 10000 });
+    });
   }
+  /* a link from outside: free if it is already written, otherwise written only when asked */
+  await step(`${tag}: a link from outside waits to be asked`, async () => {
+    const before = await left(); const topic = `Guarded ${tag} topic`;
+    await page.goto(`${base}/${slugOf(topic)}`); await page.waitForSelector('.guard [data-act="write-page"]', { timeout: 10000 });
+    if ((await left()) !== before) throw new Error('the guard spent a free page');
+    await page.screenshot({ path: `${shots}/${tag}-8-guard.png` });
+    await page.locator('[data-act="write-page"]').click(); await waitDone();
+    if ((await left()) !== String(+before - 1)) throw new Error(`after writing: ${await left()}`);
+    if (mobile) {
+      /* the desktop run wrote Water bears: from outside, it opens at once */
+      await page.goto(`${base}/water-bears`); await waitDone();
+      if (await page.locator('.guard').count()) throw new Error('a written page waited to be asked');
+    }
+  });
   await step(`${tag}: the trial runs out`, async () => {
     for (let i = 1; i <= PAGES && !(await page.locator('.statusnote.paywall').count()); i++) {
       const title = `Mock ${tag} topic ${i}`;
       await page.locator('.ask input').last().fill(title); await page.locator('.ask input').last().press('Enter');
-      await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .row[data-t]') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
+      await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .card') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
     }
     await page.waitForSelector('.statusnote.paywall', { timeout: 20000 });
-    if ((await badge()) !== '0') throw new Error(`badge ${await badge()}`);
+    if ((await left()) !== '0') throw new Error(`free pages ${await left()}`);
+    if ((await page.locator('.statusnote.paywall .door').count()) !== 3) throw new Error('the paywall offers no free pages');
     await page.locator('.statusnote.paywall').scrollIntoViewIfNeeded();
-    await page.screenshot({ path: `${shots}/${tag}-3-paywall.png` });
+    await page.screenshot({ path: `${shots}/${tag}-9-paywall.png` });
   });
   await step(`${tag}: a bad key is turned down`, async () => {
     await page.locator('.statusnote.paywall [data-act="keys"]').click();
     await page.waitForSelector('#keyForm'); await page.waitForTimeout(450);
-    await page.screenshot({ path: `${shots}/${tag}-4-keys.png` });
     await page.fill('#keyIn', 'sk-ant-bad-0000000000'); await page.locator('[data-act="key-save"]').click();
     await page.waitForFunction(() => /turned that key down/.test(document.querySelector('#keyMsg')?.textContent || ''), null, { timeout: 15000 });
   });
@@ -261,9 +317,32 @@ async function run(page, { mobile = false } = {}) {
     await page.fill('#keyIn', 'sk-ant-test-0000000000'); await page.locator('[data-act="key-save"]').click();
     await page.waitForSelector('#sheet:not([open])', { state: 'attached', timeout: 15000 });
     await waitDone();
-    if ((await page.locator('#keyBtn').getAttribute('data-state')) !== 'key') throw new Error('key state');
-    await page.screenshot({ path: `${shots}/${tag}-5-with-key.png` });
+    if (!mobile && (await page.locator('#keyBtn').getAttribute('data-state')) !== 'key') throw new Error('key state');
   });
+}
+
+/* A browser that read Dorkhub before: its rabbit holes move into Your world, and an old address finds its page. */
+async function movingIn() {
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 860 } });
+  const page = await ctx.newPage(); page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  const text = (/** @type {string} */ t, /** @type {string} */ k) => `# ${t} :: ${k}\n> A deck about ${t}.\n+++\n[[Ice friction]] :: mystery\n---\nA paragraph about ${t} that links [[Ice friction]].\n\nA second paragraph.\n\nA third.\n===\n- [[Ice friction]] :: why ice is slippery :: mystery\n???\nWhat is ${t}?\n&&&\n[[Ice friction]] :: why ice is slippery\n`;
+  const old = { settings: { lens: 'encyclopedic' }, warrens: [{ id: 'wold', created: Date.now() - 864e5, updated: Date.now() - 864e5, root: 'n1', current: 'n2', order: ['n1', 'n2'], nodes: {
+    n1: { id: 'n1', title: 'Old topic one', depth: 0, parent: null, from: null, status: 'done', text: text('Old topic one', 'creature'), created: Date.now() - 864e5 },
+    n2: { id: 'n2', title: 'Old topic two', depth: 1, parent: 'n1', from: { text: 'x' }, status: 'done', text: text('Old topic two', 'place'), created: Date.now() - 864e5 + 1000, reaction: 'wow' },
+  } }] };
+  await ctx.addInitScript(o => { if (!localStorage.getItem('dorkhub:holes:v1')) localStorage.setItem('dorkhub:holes:v1', o); }, JSON.stringify(old));
+  let writes = 0; page.on('request', r => { if (r.url().endsWith('/api/write') && !r.postDataJSON()?.cachedOnly) writes++; });
+  await step('moving in: rabbit holes become Your world', async () => {
+    await page.goto(base); await page.waitForSelector('.resume');
+    const cont = await page.locator('.resume b').textContent(); if (cont !== 'Old topic two') throw new Error(`continue: ${cont}`);
+    await page.goto(`${base}/#/w/wold/n1`); await page.waitForFunction(() => location.pathname === '/old-topic-one');
+    await page.waitForSelector('.a-end .card');
+    if (writes) throw new Error('a page you had read was written again');
+    await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas');
+    const w = await page.evaluate(() => ({ sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent) }));
+    if (!/2 topics read/.test(w.sum) || !w.saved.includes('Old topic two')) throw new Error(`moved in: ${JSON.stringify(w)}`);
+  });
+  await ctx.close();
 }
 
 try {
@@ -278,6 +357,7 @@ try {
   await run(desk);
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
   await run(await ctx.newPage(), { mobile: true });
+  await movingIn();
 } catch (e) { const pages = browser.contexts().flatMap(c => c.pages()); await pages.at(-1)?.screenshot({ path: `${shots}/failure.png` }).catch(() => {}); }
 await browser.close();
 server.kill();

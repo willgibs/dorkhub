@@ -56,7 +56,7 @@ async function saveKey(btn) {
     await write('check', {}, { key: { provider, model, key } });
     auth.byok = { provider, model, key }; saveAuth(); renderKeyBtn();
     sheet.close(); toast(`Saved. New pages are written by ${modelName(model)}.`);
-    const cur = W && W.nodes[W.current]; /* the page that was waiting on a key gets written now */
+    const cur = curPage(); /* the page that was waiting on a key gets written now */
     if (cur && cur.status === 'error' && ['trial_over', ...KEY_FIX].includes(cur.errorCode)) generate(cur);
   } catch (e) {
     btn.disabled = false;

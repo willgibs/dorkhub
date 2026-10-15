@@ -4,36 +4,57 @@ const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-const uid = () => Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4);
-const stratumOf = d => Math.min(7, Math.max(0, d | 0));
 function relTime(ts) { const m = (Date.now() - ts) / 6e4; if (m < 1) return 'just now'; if (m < 60) return `${Math.round(m)} min ago`; const h = m / 60; if (h < 24) return `${Math.round(h)}h ago`; const d = h / 24; if (d < 2) return 'yesterday'; if (d < 30) return `${Math.round(d)} days ago`; return `${Math.round(d / 30)} months ago`; }
 const isDark = () => { const t = document.documentElement.dataset.theme; if (t) return t === 'dark'; return matchMedia('(prefers-color-scheme: dark)').matches; };
-const pal = d => (isDark() ? PAL.dark : PAL.light)[stratumOf(d)];
+const kindHex = k => (isDark() ? KIND_HEX.dark : KIND_HEX.light)[kindOf(k) || 'concept'];
 function announce(msg) { const el = $('#srLive'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 60); }
 function toast(msg, ms = 3200) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 360); }, ms); }
 
-/* ================= storage ================= */
-const KEY = 'dorkhub:holes:v1';
+/* ================= storage: your world, kept in this browser =================
+   Pages by id (pageId: topic, voice, question, sense, pair), the trails you took between them, where
+   each topic sits in Your world, and settings. A browser that read Dorkhub before this moves its
+   rabbit holes in once (migrateHoles); the old store is left in place for one release. */
+const KEY = 'dorkhub:world:v1', OLD_KEY = 'dorkhub:holes:v1';
 const store = (() => {
-  const base = { warrens: [], settings: { lens: 'encyclopedic', side: 'rail' } };
+  const base = { v: 1, pages: {}, trails: [], pos: {}, legacy: {}, current: '', settings: { lens: 'encyclopedic', side: 'rail' } };
+  const settings = s => {
+    if (!s || typeof s !== 'object') return;
+    if (s.side === 'open' || s.side === 'rail') base.settings.side = s.side;
+    if (s.tipped) base.settings.tipped = true;
+    if (s.theme === 'light' || s.theme === 'dark') base.settings.theme = s.theme;
+    if (LENSES[s.lens]) base.settings.lens = s.lens;
+  };
   try {
-    const j = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem('warren:v1') || 'null');
-    if (j && j.settings && (j.settings.side === 'open' || j.settings.side === 'rail')) base.settings.side = j.settings.side;
-    if (j && j.settings && j.settings.tipped) base.settings.tipped = true;
-    if (j && j.settings && (j.settings.theme === 'light' || j.settings.theme === 'dark')) base.settings.theme = j.settings.theme;
-    if (j && Array.isArray(j.warrens)) base.warrens = j.warrens.filter(w => w && w.id && w.nodes && w.root && w.nodes[w.root]);
-    if (j && j.settings && LENSES[j.settings.lens]) base.settings.lens = j.settings.lens;
+    const j = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (j && j.v === 1) {
+      settings(j.settings);
+      if (j.pages && typeof j.pages === 'object') base.pages = j.pages;
+      if (Array.isArray(j.trails)) base.trails = j.trails.filter(t => t && t.id && Array.isArray(t.steps));
+      if (j.pos && typeof j.pos === 'object') base.pos = j.pos;
+      if (j.legacy && typeof j.legacy === 'object') base.legacy = j.legacy;
+      if (typeof j.current === 'string') base.current = j.current;
+    } else {
+      const old = JSON.parse(localStorage.getItem(OLD_KEY) || localStorage.getItem('warren:v1') || 'null');
+      if (old) { settings(old.settings); const m = migrateHoles(old, base.settings.lens); base.pages = m.pages; base.trails = m.trails; base.legacy = m.legacy; base.current = m.current; base.moved = true; }
+    }
   } catch (e) { /* start fresh */ }
-  base.warrens.forEach(w => { w.loops = w.loops || []; Object.values(w.nodes).forEach(n => { if (n.status === 'digging') n.status = n.text ? 'partial' : 'empty'; }); });
+  for (const [id, p] of Object.entries(base.pages)) {
+    if (!p || !p.req || typeof p.title !== 'string') { delete base.pages[id]; continue; }
+    p.id = id; if (p.status === 'digging') p.status = p.text ? 'partial' : 'empty';
+  }
   return base;
 })();
 let saveTimer = 0;
+/* Saving drops the oldest page texts first when the browser runs out of room: never a saved page or
+   the one being read. A dropped page stays in Your world and is fetched again when it's opened. */
 function save(now) {
   clearTimeout(saveTimer);
   const doSave = () => {
-    for (let tries = 0; tries < 6; tries++) {
+    const protect = [CUR, store.current].filter(Boolean);
+    for (const id of textsToDrop(store.pages, { keep: 200, protect })) store.pages[id].text = null;
+    for (let keep = 160; keep >= 0; keep -= 40) {
       try { localStorage.setItem(KEY, JSON.stringify(store)); return; }
-      catch (e) { const drop = store.warrens.length > 1 ? store.warrens.findLastIndex(w => w !== W) : -1; if (drop < 0) return; store.warrens.splice(drop, 1); }
+      catch (e) { for (const id of textsToDrop(store.pages, { keep, protect })) store.pages[id].text = null; }
     }
   };
   if (now) doSave(); else saveTimer = setTimeout(doSave, 400);
@@ -61,14 +82,16 @@ function noteTrial(res) {
   const m = /pages=(\d+);\s*extras=(\d+)/.exec(res.headers.get('x-dh-trial') || ''); if (!m) return;
   auth.trial = { pages: +m[1], extras: +m[2], of: TRIAL_PAGES, at: Date.now() }; saveAuth(); renderKeyBtn();
 }
-/* Resolves { text, truncated }. Rejects with { code, text } where text is whatever arrived first. */
-async function write(task, input, { signal, onText, fresh = false, key = auth.byok } = {}) {
+/* Resolves { text, truncated, seeded, none }: none means a cachedOnly ask found nothing written yet.
+   Rejects with { code, text } where text is whatever arrived first. */
+async function write(task, input, { signal, onText, fresh = false, cachedOnly = false, key = auth.byok } = {}) {
   const headers = { 'content-type': 'application/json' };
   if (key) { headers['x-dh-provider'] = key.provider; headers['x-dh-model'] = key.model; headers['x-dh-key'] = key.key; }
   let res;
-  try { res = await fetch('/api/write', { method: 'POST', headers, body: JSON.stringify({ task, input, fresh }), signal, credentials: 'same-origin' }); }
+  try { res = await fetch('/api/write', { method: 'POST', headers, body: JSON.stringify({ task, input, fresh, ...(cachedOnly ? { cachedOnly: true } : {}) }), signal, credentials: 'same-origin' }); }
   catch (e) { throw writeError(signal && signal.aborted ? 'cancelled' : navigator.onLine === false ? 'offline' : 'dropped'); }
   noteTrial(res);
+  if (res.status === 204) return { text: '', truncated: false, seeded: false, none: true };
   if (!res.ok || !res.body) { let code = ''; try { code = (await res.json()).error || ''; } catch (e) { /* not ours: the firewall or the platform */ } throw writeError(code || { 413: 'too_large', 429: 'rate_limited', 503: 'trial_paused' }[res.status] || 'upstream_error'); }
   const reader = res.body.getReader(); const dec = new TextDecoder(); let raw = '', text = '';
   const split = () => { const z = raw.indexOf('\u0000'); text = z < 0 ? raw : raw.slice(0, z); return z; };
@@ -78,7 +101,7 @@ async function write(task, input, { signal, onText, fresh = false, key = auth.by
   raw += dec.decode(); const z = split();
   let tail = {}; if (z >= 0) { try { tail = JSON.parse(raw.slice(z + 1)); } catch (e) { /* ignore a garbled trailer */ } }
   if (tail.error) throw writeError(tail.error, text);
-  return { text, truncated: !!tail.truncated, seeded: res.headers.get('x-dh-cache') === 'seed' };
+  return { text, truncated: !!tail.truncated, seeded: res.headers.get('x-dh-cache') === 'seed', none: false };
 }
 async function writeJSON(task, input, opts) { const { text } = await write(task, input, opts); const v = looseJSON(text); if (v == null) throw writeError('bad_output'); return v; }
 function errText(code) {
@@ -90,13 +113,13 @@ function errText(code) {
     case 'key_limit': return 'Your key has hit its rate or spending limit with its provider. Try again soon.';
     case 'model_unavailable': return 'That model isn’t available to your key right now. Pick another in Keys.';
     case 'rate_limited': return 'Lots of readers at once. Give it a minute, then try again.';
-    case 'too_large': return 'This rabbit hole got too big to describe in one go. Start a new one from here.';
+    case 'too_large': return 'That was too much to write about in one go. Try something shorter.';
     case 'refused': return 'The writer declined this page. Try a different link.';
     case 'offline': return 'You seem to be offline. Reconnect, then try again.';
     case 'bad_output': return 'That came back garbled. Try again.';
     default: return 'The connection dropped partway through. Try again.';
   }
 }
-/* the theme follows the device unless the reader picked one on the landing */
+/* the theme follows the device unless the reader picked one */
 function applyTheme() { const t = store.settings.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
 applyTheme();
