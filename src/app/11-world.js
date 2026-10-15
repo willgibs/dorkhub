@@ -121,10 +121,11 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
       if (t >= 1) camTo = null; busy = true;
     }
     for (const [i, t0] of born) if (now - t0 > 1100) born.delete(i);
-    /* the first trace, a newcomer's ping and a hovered topic's running links all need frames */
-    if (born.size || dashLive || (seenAt > 0 && now - seenAt < SPREAD + TRACE + 240)) busy = true;
     if (replay) { stepReplay(now); busy = true; }
     draw(now);
+    /* the first trace, a newcomer's ping and a hovered topic's running links all need frames; asked after
+       drawing, since the frame that first sees the map is the one that starts its trace */
+    if (born.size || dashLive || (seenAt > 0 && now - seenAt < SPREAD + TRACE + 240)) busy = true;
     if (busy && visible && !document.hidden) wake();
   }
   function keepPositions() {
@@ -394,7 +395,9 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
   }
   /* ---------- life ---------- */
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(resize) : null; if (ro) ro.observe(host); else addEventListener('resize', resize);
-  const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) wake(); }) : null; if (io) io.observe(cv);
+  /* the latest of what may be several changes since the last call: a map mounted just before a quick scroll
+     gets "hidden" and "shown" together */
+  const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { visible = es[es.length - 1].isIntersecting; if (visible) wake(); }) : null; if (io) io.observe(cv);
   resize();
   return {
     el: cv, setData, frameView, setFocus, flyTo, picture, startReplay, stopReplay, wake, hideTip,
