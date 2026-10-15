@@ -128,3 +128,12 @@ One line each, newest last. Why, not just what.
   - **How it works comes before Where rabbit holes go**, so the level colours are explained before the chains use them.
   - **The chains are made of names most people know.** Each still starts at a door, so the click is free even while paused. Shown: Great Emu War → chickens, tulip mania → New York City, Carrington Event → relativity.
   - PR willgibs/dorkhub#9, also waiting for his look, lifts the open phone tools above toasts.
+- 2026-10-15 · Will looked at both previews, kept Literata for article text, and said merge. #9 went in as 7ef9b0c and #10 as 2b9a7af. Verify (69 tests) and e2e passed on the combined tree, which `main` matches exactly. Production was then checked:
+  - Inter, Doto and Literata load, and the landing H1 and titles are in Inter, the article text in Literata;
+  - the top bar shows the wordmark alone, the chips are plain, and the trial line has no dot;
+  - How it works comes before Where rabbit holes go, with the new chains;
+  - the Emu War chain opened its page free from seeds;
+  - a typed topic paused with `pages=10` and plain chips;
+  - on a phone, with a toast up, the open tools are the top layer (z-index 75 over 70);
+  - the 404 and the licences name Inter;
+  - the function logs show only the known "no gateway credits" error, from these checks.
