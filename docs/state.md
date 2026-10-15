@@ -18,7 +18,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   offers free door pages instead of a dead end.
 - **Will's standing call:** grounding, and every model, prompt, fact or performance test,
   waits until the base product settles (`docs/decisions.md`).
-
 - **In review (Will's look, then merge):**
   - PR willgibs/dorkhub#10: Inter, a wordmark-only nav, plain chips, How it works first, and
     new chains. https://dorkhub-git-experience-inter-landing-willgibs.vercel.app
