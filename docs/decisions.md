@@ -187,4 +187,4 @@ One line each, newest last. Why, not just what.
   - Production check: the new page was live about 20 s after the merge. Topic addresses, `/world` and `/connect/a/b` answer 200 with `noindex`; `/` carries none; robots.txt allows only `/`; files, fonts (cached for good) and the API keep their own addresses; `/a/b` is a 404.
   - In a browser: a pre-written topic opened from outside (Tardigrades) shows at once and joins Your world when its reveal ends; an unwritten one (Glass frogs) waits for "Write this page"; a pause over a link asks `cachedOnly` and gets 204; an old store moves in with its toast. Nothing was written and the console stayed clean.
   - The logs show no warnings or errors, and hold only event flags (`seed`, `cachedOnly`, `cached`), no page content.
-  - Known gap: today's seeds predate v3, so opened straight from an address they have no kind (default blue, no label) and four cards. The content step replaces them.
+  - Known gap: today's seeds predate v3, so opened straight from an address they have no kind (default blue, no label). The content step replaces them.

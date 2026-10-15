@@ -15,7 +15,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   prefetch misses return 204; an old store moves in; the logs show no warnings or errors.
 - **Production today:** no gateway credits, so typed topics pause and seeds open free.
 - **Known gap:** today's 12 seeds predate v3. Opened straight from an address they show no kind
-  (default blue, no label) and four cards. The content step replaces them.
+  (default blue, no label). The content step replaces them.
 - **Parked:** `experience/new-doors` (heading sizes, the "A topic, question, or idea…"
   placeholder) folds into PR C.
 
