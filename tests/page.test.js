@@ -48,3 +48,13 @@ test('the page stays within its size budget', () => {
   const html = read('public/index.html');
   assert.ok(html.length < 372 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
 });
+
+/* The page ships without its comments (src keeps them), but licence notices travel with the code. */
+test('the page script ships without its comments, licence notices kept', () => {
+  const html = read('public/index.html'); const script = html.slice(html.lastIndexOf('<script>') + 8, html.lastIndexOf('</script>'));
+  assert.match(script, /^\(\(\) => \{\n'use strict';/);
+  const blocks = [...script.matchAll(/\/\*[\s\S]*?\*\//g)].map(m => m[0]);
+  assert.ok(blocks.length >= 1, 'the vendored notices are there');
+  for (const b of blocks) assert.match(b, /licen[cs]e|copyright/i, `a comment shipped: ${b.slice(0, 60)}`);
+  assert.doesNotMatch(script, /^\s*\/\/ /m, 'no line comments');
+});
