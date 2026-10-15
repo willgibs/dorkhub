@@ -43,7 +43,7 @@ async function run(page, { mobile = false } = {}) {
     if ((await badge()) !== String(PAGES)) throw new Error(`badge ${await badge()}`);
     /* the fonts are our own files, so they load under the page's CSP without asking any third party */
     const fams = await page.evaluate(async () => { await document.fonts.ready; return [...document.fonts].filter(f => f.status === 'loaded').map(f => f.family.replace(/"/g, '')); });
-    for (const f of ['Literata', 'Inter']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
+    for (const f of ['Inter']) if (!fams.includes(f)) throw new Error(`${f} did not load (${fams.join(', ') || 'none'})`);
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
   /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */

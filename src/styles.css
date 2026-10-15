@@ -1,15 +1,13 @@
 /* ================= fonts: self-hosted, so no third party sees a reader (OFL: /fonts/OFL.txt) ================= */
+@font-face{font-family:"Inter";font-style:italic;font-weight:400 600;font-display:swap;src:url(/fonts/inter-italic-v20-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/inter-v20-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
 @font-face{font-family:"Inter";font-style:normal;font-weight:400 800;font-display:swap;src:url(/fonts/inter-v20-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 @font-face{font-family:"Doto";font-style:normal;font-weight:900;font-display:swap;src:url(/fonts/doto-v3-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Literata";font-style:italic;font-weight:400;font-display:swap;src:url(/fonts/literata-italic-v40-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:"Literata";font-style:italic;font-weight:400;font-display:swap;src:url(/fonts/literata-italic-v40-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
-@font-face{font-family:"Literata";font-style:normal;font-weight:400 600;font-display:swap;src:url(/fonts/literata-v40-latin-ext.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C4,U+2113,U+2C60-2C7F,U+A720-A7FF}
-@font-face{font-family:"Literata";font-style:normal;font-weight:400 600;font-display:swap;src:url(/fonts/literata-v40-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
 
 /* ================= tokens: plain paper, one accent per level ================= */
 :root{
-  --f-read:"Literata",Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  /* reading text is Inter too, set a little smaller and on a shorter measure than a serif would be */
+  --f-read:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-ui:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   /* figures and key caps: Inter too, with tabular numerals wherever this is used */
   --f-mono:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -221,7 +219,7 @@ body.at-start .map,body.at-start .trail,body.at-start .gauge,body.at-start .map-
 .kind{display:inline-block;font-size:12.5px;font-weight:600;color:var(--mute)}
 .kind.lens{color:var(--acc)}
 .a-title{margin-top:10px;font:700 clamp(34px,4.6vw,56px)/1.05 var(--f-ui);letter-spacing:-.025em;overflow-wrap:anywhere;max-width:20ch}
-.deck{margin-top:14px;max-width:34em;font:400 clamp(19px,1.8vw,21px)/1.5 var(--f-read);color:var(--mute)}
+.deck{margin-top:14px;max-width:36em;font:400 clamp(18px,1.6vw,20px)/1.5 var(--f-read);color:var(--mute)}
 .deck.seed{color:var(--faint)}
 .bridge{margin-top:22px;max-width:40em;padding:0 0 0 14px;border-left:2px solid var(--acc-line)}
 .bridge-from{font:600 12.5px var(--f-ui);color:var(--faint)}
@@ -254,13 +252,13 @@ body.at-start .map,body.at-start .trail,body.at-start .gauge,body.at-start .map-
 @media (hover:none){ .mi kbd,.mi.keys-mi{display:none} }
 
 /* ================= reading ================= */
-.body{margin-top:28px;font:400 19.5px/1.72 var(--f-read);font-optical-sizing:auto;font-feature-settings:"kern","liga","onum"}
+.body{margin-top:28px;font:400 18px/1.7 var(--f-read);font-optical-sizing:auto;font-feature-settings:"kern","liga"}
 .body>h2{max-width:34ch;margin:1.7em 0 .45em;font:700 clamp(22px,2.2vw,26px)/1.2 var(--f-ui);letter-spacing:-.018em}
 .body>ul{max-width:64ch;margin:0 0 1em;padding-left:1.1em}
 /* margin notes (and a facts panel) float into the right margin beside their paragraph, Tufte-style:
    a tall one never stretches its paragraph, and the next one settles below it */
 .a-body{display:flow-root}
-.pb{position:relative;max-width:66ch}
+.pb{position:relative;max-width:64ch}
 .pcol>p{margin:0 0 1.1em}
 .lead{font-size:1.06em}
 .ptool{position:absolute;left:-34px;top:.35em;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--faint);font:600 14px/1 var(--f-read);cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
@@ -1004,7 +1002,7 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 }
 @media (max-width:560px){
   .gauge{display:none}
-  .body{font-size:18.5px}
+  .body{font-size:17px}
   #newBtn{display:none}
   .article{padding-top:28px}
 }
