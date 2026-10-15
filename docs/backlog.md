@@ -44,40 +44,55 @@ keep `docs/state.md` current._
 ## 2. The experience (Will's priority, before the model eval)
 
 Will wants the generative UI and the whole experience solid first. Judge everything
-against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1; v2 is PR willgibs/dorkhub#3.
-From Will's review of #3 (2026-10-14):
+against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
+(merged 2026-10-14). From Will's review of #3:
 
-- **Merge #3.** Will: "Can rework then merge, or merge then circle back." Our pick: merge
-  once verify and e2e are green, check production, then polish on new branches.
-- **Landing hero.** The landing's one job is getting a visitor to their first page. Will:
-  - the H1 ("Get lost learning.") is too loud;
-  - the entry (the input and "Start reading") feels a bit disguised;
-  - the demo card "feels like page UI instead of what it is: a visual". It shows the
-    product well, but should present as a demo, not as part of the site.
-- **Panel polish.** The types are right, but they need refinement "to feel beautiful
-  instead of generic". Use the transitions.dev skills (in `~/.claude/skills`; reinstall
-  with `npx skills add Jakubantalik/transitions.dev`, and for Pro `npx transitions-dev
-  login`, then `npx transitions-dev skill`; Pro licenses Will personally). The README
-  names recorded pages that show off the panels. Keep the page-500 test.
-- **The door list, before any more seeds.** Will wants this plan right before more pages
-  are written. Bring him a proposal (12 doors plus the "Surprise me" topics, each with a
-  reason) and wait for his approval. Criteria: interesting to any new visitor; a real
-  range of fields (today's 12 lean on space and biology, with nothing on art, music,
-  language, maths, the body or the mind); well documented, so every claim can be checked;
-  a good Wikipedia lead picture; evergreen and not grim. The 12 written stay until
-  replaced.
+- **Landing hero: in review,** PR willgibs/dorkhub#4. His notes were: the H1 is too loud; the
+  entry feels disguised; the demo "feels like page UI instead of what it is: a visual".
+  Waiting for his look at the preview (before/after shots in `docs/state.md`).
+- **Panel polish: in review,** PR willgibs/dorkhub#5. The types were right but needed polish
+  "to feel beautiful instead of generic", with the transitions.dev ideas landing. Reinstall
+  the skills with `npx skills add Jakubantalik/transitions.dev`; for Pro, `npx transitions-dev
+  login`, then `npx transitions-dev skill` (Pro licenses Will personally). Keep the page-500
+  test.
+- **The door list, before any more seeds. Proposal sent 2026-10-14** (the artifact in
+  `docs/state.md`), waiting for his numbers.
+  - Criteria: interesting to any new visitor; a real range of fields; well documented, so
+    every claim can be checked; a good Wikipedia lead picture; evergreen and not grim;
+    specific, not an umbrella subject.
+  - Keep: the Carrington Event, Why is ice slippery?, Whale falls, Tulip mania, Fresnel
+    lenses, Umami.
+  - New: Ultramarine (art), the theremin (music), Linear B (language), Benford's law (maths),
+    Pareidolia (the mind), Why do we yawn? (the body). Each hook was checked against its
+    Wikipedia article.
+  - Off the landing: Tardigrades and the Antikythera mechanism (stock curiosities our own
+    prompt bars as links), the Voynich manuscript (Linear B covers lost scripts), Kessler
+    syndrome (a second space door), Bioluminescence (an umbrella subject). Their pages
+    stay and join the dice.
+  - The Great Emu War's Wikipedia lead picture is a dead emu, shown beside the opening, so
+    it leaves the dice too unless its picture is turned off.
+  - Surprise me: pre-written pages only (built in #4). Once credits land, a pool of 13 live
+    topics, also in the artifact.
+  - When he picks: write and fully check each new door, update `DOORS` and `CHAINS` (each
+    chain starts at a door), and rebuild the index. The 12 written stay until replaced.
 - **Layer 2 (pages one click off the doors) is on hold.** Our advice: stop at the doors
   for now and let credits start at the second page. A live Haiku page should cost about
   a cent (estimate; measure in §1), while each pre-written page needs a full fact-check
   (about 250–300k Claude tokens each for the doors), and all 240 would need redoing if
   the door list or the format changed. Revisit once real costs are known.
-- **Accuracy** (Will: factual errors in a knowledge tool are "very, very bad"). Plan to
-  bring him:
-  - pre-written pages: a full source check of every number, date, name and attribution;
-  - live pages: factual accuracy as a hard gate in the model eval (`docs/eval-plan.md`),
-    scored by fact-checking a sample of real pages per model;
-  - if the eval shows the number-heavy panels (figures, guess, timeline) invite errors,
-    tighten or cut them in the prompt;
+- **Accuracy** (Will: factual errors in a knowledge tool are "very, very bad"). Plan sent
+  2026-10-14:
+  - pre-written pages: a full source check of every number, date, name and attribution
+    (done for the 12 doors, and the rule for every new one);
+  - live pages, our recommendation: test grounding. Give the writer the topic's Wikipedia
+    intro as reference notes (`lib/picture.js` already looks the article up for its
+    picture) and tell it to take numbers, dates and names from them. Fact-check stand-in
+    pages written with and without the notes before proposing a prompt change; it costs
+    some input tokens and a little latency before the first word;
+  - factual accuracy is a hard gate in the model eval (`docs/eval-plan.md`), scored by
+    fact-checking a sample of real pages per model;
+  - if the number-heavy panels (figures, guess, timeline) invite errors, tighten or cut
+    them in the prompt;
   - the stand-ins in `lib/recorded.js` are not fact-checked; they replay only in dev,
     e2e and previews, never in production.
 - **Live pages.** Re-read at least 5 live pages once credits exist, to confirm what the
