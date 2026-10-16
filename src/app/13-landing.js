@@ -1,23 +1,11 @@
 /* ================= the front page: one composer to start from, and ways in below it =================
    Its job is to get a visitor into their first page. The suggestions under the composer and the cards
-   below it lead into the topics planned as pages written ahead of time, chosen and drawn by hand
-   (lib/front.js; the build puts the list in FRONT and the cards in /front.json). Surprise me, and the
-   doors a paused or used-up page offers, open only pages already written: free and instant. */
-const DOORS = [
-  { t: 'The Carrington Event', h: 'The 1859 solar storm that set telegraph offices sparking.', k: 'event' },
-  { t: 'Tardigrades', h: 'Animals that survive freezing, boiling and the vacuum of space.', k: 'thing' },
-  { t: 'Whale falls', h: 'One dead whale can feed a deep-sea ecosystem for decades.', k: 'phenomenon' },
-  { t: 'The Antikythera mechanism', h: 'A 2,000-year-old Greek computer, found in a shipwreck.', k: 'thing' },
-  { t: 'The Voynich manuscript', h: 'A 600-year-old book that nobody can read.', k: 'mystery' },
-  { t: 'Umami', h: 'The fifth taste, first identified in a bowl of seaweed broth.', k: 'concept' },
-  { t: 'Why is ice slippery?', h: 'Physicists have argued about it since Michael Faraday.', k: 'mystery' },
-  { t: 'The Great Emu War', h: 'In 1932 Australia sent machine guns after emus. The emus won.', k: 'event' },
-  { t: 'Kessler syndrome', h: 'How one collision could lock us out of orbit for generations.', k: 'phenomenon' },
-  { t: 'Fresnel lenses', h: 'How lighthouses folded a giant lens into rings of glass.', k: 'mechanism' },
-  { t: 'Tulip mania', h: 'The 1630s bubble where a single bulb reportedly cost a house.', k: 'event' },
-  { t: 'Bioluminescence', h: 'Most animals in the deep ocean make their own light.', k: 'phenomenon' },
-];
-/* Surprise me opens a page that isn't on screen: written ahead of time, so it's free, instant and checked */
+   below it lead into the front page's topics, chosen and drawn by hand (lib/front.js; the build puts the
+   list in FRONT and the cards in /front.json). Each opens a page written ahead of time, or its placeholder
+   until it is. Surprise me, and the doors a paused or used-up page offers, open only those, and the pages
+   written before them (EARLIER): free and instant. */
+const DOORS = [...FRONT, ...EARLIER];
+/* Surprise me opens a page that isn't on screen: written ahead of time, so it's free and instant */
 function surprise() {
   const shown = new Set($$('.door[data-seed]').map(b => b.dataset.seed));
   const pool = DOORS.filter(d => !shown.has(d.t));

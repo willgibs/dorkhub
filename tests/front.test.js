@@ -3,10 +3,12 @@
 // cipher is the machine's own.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { CARDS, FRONT, THREADS, frontData } from '../lib/front.js';
+import { readFileSync } from 'node:fs';
+import { CARDS, DOORS, EARLIER, FRONT, THREADS, frontData } from '../lib/front.js';
 import { WIDTHS } from '../lib/picture.js';
-import { KINDS } from '../src/shared/article.js';
+import { KINDS, parseArticle } from '../src/shared/article.js';
 import { enigma } from '../src/shared/enigma.js';
+import { topicKey } from '../src/shared/world.js';
 
 const titles = new Set(FRONT.map(t => t.t));
 const https = (/** @type {string} */ u) => /^https:\/\/[^\s"]+$/.test(u);
@@ -19,6 +21,22 @@ test('the planned topics: each once, with a kind, a hook and a source', () => {
     assert.ok(t.h.length > 20 && t.h.length <= 100 && /[.!?]$/.test(t.h), `${t.t}: hook ${t.h}`);
     assert.ok(https(t.src), `${t.t}: source`);
   }
+});
+
+/* Surprise me and a paused page offer these: the front page's topics first, then the pages written before
+   it, each once, each written (or, for the front page's, a placeholder until it is), each in its page's colour */
+test('the pages written ahead of time: the front page\'s topics, then the earlier pages, each once', () => {
+  const idx = JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages;
+  assert.deepEqual(DOORS.map(d => d.t), [...FRONT, ...EARLIER].map(d => d.t));
+  assert.equal(new Set(DOORS.map(d => topicKey(d.t))).size, DOORS.length, 'no topic twice');
+  for (const d of DOORS) {
+    assert.ok(KINDS.includes(d.k) && d.h.length > 20 && /[.!?]$/.test(d.h), `${d.t}: kind and hook`);
+    const p = idx[topicKey(d.t)];
+    if (!p) { assert.ok(FRONT.some(f => f.t === d.t), `${d.t}: written`); continue; }
+    const A = parseArticle(readFileSync(new URL(`../lib/seeds/${p.file}`, import.meta.url), 'utf8'), false);
+    assert.equal(A.kind, parseArticle(`# x :: ${d.k}\n`, false).kind, `${d.t}: the kind its page names`);
+  }
+  for (const p of Object.values(idx)) assert.ok(DOORS.some(d => d.t === /** @type {any} */ (p).title), `${/** @type {any} */ (p).title}: offered`);
 });
 
 test('the threads join two planned topics, each with a short label and a source, and leave none alone', () => {

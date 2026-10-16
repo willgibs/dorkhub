@@ -88,8 +88,18 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   Between the two groups of cards, a still map of every planned topic and its threads: the
   topic pointed at shows beside the map (`makeGraph`'s `panel`), and each of its threads is
   tagged at its middle with its label. A reader's world takes the last card's place, at its
-  size. Surprise me, and the doors a paused or used-up page offers, draw only on `DOORS`, the
-  pages already written: free and instant.
+  size. Surprise me, and the doors a paused or used-up page offers, draw on `DOORS`: the front
+  page's topics, then the pages written before them (`EARLIER`), each free and instant.
+- **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
+  placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a
+  real page's shape (an opening, sections, two notes, two panels, six cards, three questions),
+  its card's hook, and its threads with their labels; nothing else it says is a claim about the
+  topic, and a test holds every number on it to `lib/front.js`. Its links follow the threads
+  (then one thread further, then the rest of the map, nearest first), so every link and card
+  opens another page written ahead of time. A written page in `lib/seeds` replaces it with no
+  other change. `node scripts/seeds.mjs brief "<title>"` gives a writer the page's own prompt
+  plus what the front page says about the topic (hooks and drawings) and its threads, each
+  with its source, to keep and to link.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
   live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
 
@@ -109,7 +119,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
      stand-in otherwise.
 4. **Written ahead of time** (pages, not `fresh`). `lib/seeds.js` serves a pre-written page
    for its topic to every reader, keys included, in the default voice; never for a
-   connecting page or a name chosen inside another page. `x-dh-cache: seed`.
+   connecting page or a name chosen inside another page. `x-dh-cache: seed`. A front-page
+   topic not written yet gets its placeholder the same way, with `x-dh-cache: placeholder`
+   (logged as `{ seed: true, placeholder: true }`).
 5. **Answered before** (not `fresh`). Cacheable tasks look up
    `<ns>:sha256([PROMPT_VERSION, model, task, pageId or prompt])`, where `<ns>` is `text` in
    production and `text-preview` or `text-local` elsewhere (`textNs`), so preview and mock
@@ -180,8 +192,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 ## Client side of the protocol
 
 `write(task, input, { signal, onText, fresh, cachedOnly, key })` in `src/app/02-util.js`
-resolves to `{ text, truncated, seeded, none }` (`none`: a `cachedOnly` ask found nothing) or
-throws `{ code, text }`. `writeJSON` wraps it with
+resolves to `{ text, truncated, seeded, none }` (`none`: a `cachedOnly` ask found nothing;
+`seeded`: true for a page written ahead of time, `'placeholder'` for a placeholder, which the
+page's fine print then names; opened again from the top, a stored placeholder asks `cachedOnly`
+for its page and takes the written one in its place) or throws `{ code, text }`. `writeJSON` wraps it with
 `looseJSON`. The `x-dh-trial` header (`pages=N; extras=M`) updates the badge and the landing
 page line; seeds and cache hits carry none, so the count stays as it was. `fresh` is sent
 only when the reader rewrites a page in the voice it is already in (`page.wlens`); a retry,
@@ -199,8 +213,8 @@ which pages were cached.
 | Fonts, CSP, cache and crawler headers, topic addresses and their rewrites, the page's size budget | `tests/page.test.js` |
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
-| Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind | `tests/seeds.test.js` |
-| The front page's feed: a card for every page written ahead of time, saying only what its page says | `tests/feed.test.js` |
+| Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
+| The front page by hand: topics, threads and cards each with a source, drawings labelled and inert, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
 | Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |

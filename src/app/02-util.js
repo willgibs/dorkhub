@@ -82,8 +82,9 @@ function noteTrial(res) {
   const m = /pages=(\d+);\s*extras=(\d+)/.exec(res.headers.get('x-dh-trial') || ''); if (!m) return;
   auth.trial = { pages: +m[1], extras: +m[2], of: TRIAL_PAGES, at: Date.now() }; saveAuth(); renderKeyBtn();
 }
-/* Resolves { text, truncated, seeded, none }: none means a cachedOnly ask found nothing written yet.
-   Rejects with { code, text } where text is whatever arrived first. */
+/* Resolves { text, truncated, seeded, none }: none means a cachedOnly ask found nothing written yet, and
+   seeded is true for a page written ahead of time ('placeholder' for one of the front page's topics not
+   written yet). Rejects with { code, text } where text is whatever arrived first. */
 async function write(task, input, { signal, onText, fresh = false, cachedOnly = false, key = auth.byok } = {}) {
   const headers = { 'content-type': 'application/json' };
   if (key) { headers['x-dh-provider'] = key.provider; headers['x-dh-model'] = key.model; headers['x-dh-key'] = key.key; }
@@ -101,7 +102,8 @@ async function write(task, input, { signal, onText, fresh = false, cachedOnly = 
   raw += dec.decode(); const z = split();
   let tail = {}; if (z >= 0) { try { tail = JSON.parse(raw.slice(z + 1)); } catch (e) { /* ignore a garbled trailer */ } }
   if (tail.error) throw writeError(tail.error, text);
-  return { text, truncated: !!tail.truncated, seeded: res.headers.get('x-dh-cache') === 'seed', none: false };
+  const from = res.headers.get('x-dh-cache');
+  return { text, truncated: !!tail.truncated, seeded: from === 'placeholder' ? 'placeholder' : from === 'seed', none: false };
 }
 async function writeJSON(task, input, opts) { const { text } = await write(task, input, opts); const v = looseJSON(text); if (v == null) throw writeError('bad_output'); return v; }
 function errText(code) {

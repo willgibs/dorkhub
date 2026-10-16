@@ -10,6 +10,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { FRONT } from '../lib/front.js';
 import { slugOf, topicKey } from '../src/shared/world.js';
 
 const require = createRequire(import.meta.url);
@@ -30,7 +31,7 @@ const results = [];
 /* Pages are written once per topic and then reused, and pre-written topics are free wherever they
    are linked, so a step that expects to spend a free page opens a topic that is neither. */
 const written = new Set();
-const seeded = new Set(Object.keys(JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages));
+const seeded = new Set([...Object.keys(JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages), ...FRONT.map(f => topicKey(f.t))]);
 const fresh = (/** @type {string} */ t) => t && !written.has(topicKey(t)) && !seeded.has(topicKey(t));
 const step = async (name, fn) => { const t = Date.now(); try { await fn(); results.push(`ok   ${name} (${Date.now() - t} ms)`); } catch (e) { results.push(`FAIL ${name}: ${String(e.message).split('\n')[0]}`); throw e; } };
 
@@ -107,12 +108,33 @@ async function run(page, { mobile = false } = {}) {
     if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
+  /* a card leads into one of the front page's topics: until its page is written it opens a placeholder, free
+     and instant, shaped like a page, and every page it leads to opens free too */
+  await step(`${tag}: a card opens its topic free, a placeholder until it is written`, async () => {
+    const card = page.locator('.wc[data-card="black-holes"] .wc-t a'); await card.scrollIntoViewIfNeeded(); await card.click(); await waitDone();
+    const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, kind: document.querySelector('.where .kind')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, cards: [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('.a-end .card'))].map(c => c.dataset.t || ''), qs: document.querySelectorAll('.a-end [data-q]').length }));
+    if (p.url !== '/black-holes' || p.title !== 'Black holes' || p.kind !== 'Phenomenon' || !/placeholder/i.test(p.fine) || p.paras < 3 || p.cards.length !== 6 || p.qs !== 3) throw new Error(`placeholder: ${JSON.stringify(p)}`);
+    if ((await left()) !== String(PAGES)) throw new Error(`a placeholder spent a free page: ${await left()}`);
+    await page.screenshot({ path: `${shots}/${tag}-1e-placeholder.png` });
+    await page.locator('.a-end .card').first().click();
+    await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, p.cards[0], { timeout: 20000 }); await waitDone();
+    const next = await page.evaluate(() => document.querySelector('.fineprint')?.textContent || '');
+    if (!/placeholder/i.test(next) || (await left()) !== String(PAGES)) throw new Error(`the next page: ${next}, ${await left()} free pages`);
+    /* once its page is written, the placeholder kept in this browser gives way to it */
+    const written = '# Black holes :: phenomenon\n> Written at last.\n---\nThe written page, with a link to [[Supernovas]].\n===\n- [[Supernovas]] :: A star that blew up. :: phenomenon\n???\nWhat is left after a supernova?\n';
+    await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.cachedOnly && b.input && b.input.title === 'Black holes') await r.fulfill({ status: 200, headers: { 'content-type': 'text/plain; charset=utf-8', 'x-dh-cache': 'seed' }, body: written }); else await r.continue(); });
+    await page.goto(`${base}/black-holes`); await page.waitForFunction(() => /The written page/.test(document.querySelector('.a-body')?.textContent || ''), null, { timeout: 20000 }); await waitDone();
+    const after = await page.evaluate(() => document.querySelector('.fineprint')?.textContent || '');
+    if (!/written ahead of time/.test(after)) throw new Error(`the written page: ${after}`);
+    await page.unroute('**/api/write');
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
   await step(`${tag}: the dice opens a pre-written topic that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="surprise"]').click(); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
-    if (shown.includes(p.title) || !/written ahead of time/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
+    if (shown.includes(p.title) || !/written ahead of time|placeholder/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
     if ((await left()) !== String(PAGES)) throw new Error(`the dice spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
