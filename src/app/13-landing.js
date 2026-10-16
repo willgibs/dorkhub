@@ -32,17 +32,25 @@ function shufflePresets() {
    title, which links to the page. Between the two groups of cards, a map of every planned topic and
    the threads that tie them, labelled when you point at one. A reader's own world takes the last slot. */
 let FRONTD = null, FRONTP = null, THREADMAP = null, WORLDCARD = null; const THREAD_POS = new Map();
+/* the cards' look comes with them: only the front page loads /front.css, so reading pages never carry it */
+const frontCss = () => new Promise(done => { if ($('#frontCss')) { done(); return; } const l = document.createElement('link'); l.id = 'frontCss'; l.rel = 'stylesheet'; l.href = '/front.css'; l.onload = l.onerror = () => done(); document.head.appendChild(l); });
 function loadFront() {
-  FRONTP = FRONTP || fetch('/front.json').then(r => (r.ok ? r.json() : null)).then(j => (FRONTD = j && Array.isArray(j.cards) ? j : { cards: [], threads: [] }), () => { FRONTP = null; return null; });
+  FRONTP = FRONTP || Promise.all([fetch('/front.json').then(r => (r.ok ? r.json() : null)), frontCss()]).then(([j]) => (FRONTD = j && Array.isArray(j.cards) ? j : { cards: [], threads: [] }), () => { FRONTP = null; return null; });
   return FRONTP;
 }
 const slugOfCard = t => topicKey(t).replace(/[^a-z0-9]+/g, '-');
+/* a card tells its story once a visit, when it first comes into view; without motion every card shows finished */
+const PLAYED = new Set(); const LIVE = new Set(['flytrap', 'enigma']);
+const motionOK = () => !reducedMotion() && typeof IntersectionObserver === 'function';
 function wayHTML(c, i) {
   const href = routeOf({ title: c.t, lens: 'encyclopedic', q: asksQuestion(c.t), ctx: '', bridge: null });
-  const live = c.fx === 'flytrap' || c.fx === 'enigma'; const go = `href="${esc(href)}" data-way="${esc(c.t)}" data-fk="${esc(c.k)}" data-h="${esc(c.hook)}"`;
-  return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${live ? ' wc-live' : ''}" data-card="${slugOfCard(c.t)}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''} style="--i:${i}">
+  const slug = slugOfCard(c.t), live = LIVE.has(c.fx); const go = `href="${esc(href)}" data-way="${esc(c.t)}" data-fk="${esc(c.k)}" data-h="${esc(c.hook)}"`;
+  /* every card opens its page from the arrow in its corner; one without controls of its own opens from anywhere on it */
+  const open = live ? `<a class="wc-open" ${go}${tipAttrs('Open the page')}>${ic('arrow')}</a>` : `<span class="wc-open" aria-hidden="true">${ic('arrow')}</span>`;
+  return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${live ? ' wc-live' : ''}${motionOK() && !PLAYED.has(slug) ? ' armed' : ''}" data-card="${slug}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''} style="--i:${i}">
   <div class="wc-art">${c.art}</div>
-  <div class="wc-txt"><p class="wc-meta"><span class="wc-n">${String(i + 1).padStart(2, '0')}</span><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3><p class="wc-h">${esc(c.hook)}</p>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${live ? `<a class="wc-go" ${go}>Open the page ${ic('right')}</a>` : ''}</div>
+  <div class="wc-txt"><p class="wc-meta"><span class="wc-n">${String(i + 1).padStart(2, '0')}</span><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3><p class="wc-h">${esc(c.hook)}</p>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}</div>
+  ${open}
 </article>`;
 }
 const frontShellHTML = () => `<section class="ways" id="ways" aria-labelledby="waysH">
@@ -84,7 +92,7 @@ function renderThreads() {
 function worldCardHTML(slot) {
   const seen = new Set(); const read = Object.values(store.pages).filter(p => p.status === 'done' || p.status === 'partial').sort((a, b) => b.last - a.last).filter(p => { const k = nodeKeyOf(p); if (seen.has(k)) return false; seen.add(k); return true; });
   const n = worldCount();
-  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-txt"><p class="wc-meta"><span class="wc-n">YOU</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3><p class="wc-h"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><ul class="ww-list">${read.slice(0, 3).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}>${esc(clip(p.title, 34))}</a></li>`).join('')}</ul></div></article>`;
+  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-txt"><p class="wc-meta"><span class="wc-n">YOU</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3><p class="wc-h"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><ul class="ww-list">${read.slice(0, 3).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}>${esc(clip(p.title, 34))}</a></li>`).join('')}</ul></div><a class="wc-open" href="/world"${tipAttrs('Open Your world')}>${ic('arrow')}</a></article>`;
 }
 function mountWorldCard() {
   const host = $('#worldStage'); if (!host) return; if (WORLDCARD) WORLDCARD.destroy();
@@ -93,14 +101,36 @@ function mountWorldCard() {
   WORLDCARD = makeGraph(host, { mini: true, still: true, positions: MINI_POS });
   WORLDCARD.setData(start ? localGraph(full, start, 24, 6) : { nodes: [], edges: [] }, { center: start });
 }
-/* ---------- the cards that do something: a cube's count rolls in, a flytrap counts, an Enigma types ---------- */
-let FX_IO = null;
+/* ---------- the cards that do something: each tells its story when first seen; a cube's count rolls in, a
+   flytrap counts, an Enigma types, a clock drifts, and charts read out what you point at ---------- */
+let FX_IO = null; const FX_STOP = [];
 function startFx() {
-  if (FX_IO) FX_IO.disconnect();
-  const seen = el => { el.classList.add('seen'); const n = $('[data-fx="odometer"]', el); if (n && !n.dataset.done) odometer(n); };
-  if (typeof IntersectionObserver !== 'function' || reducedMotion()) $$('.wc').forEach(el => { el.classList.add('seen', 'still'); });
-  else { FX_IO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen(e.target); FX_IO.unobserve(e.target); } }), { threshold: .35 }); $$('.wc').forEach(el => FX_IO.observe(el)); }
-  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx);
+  if (FX_IO) FX_IO.disconnect(); FX_STOP.splice(0).forEach(f => f());
+  const cards = $$('#ways .wc');
+  const seen = el => { el.classList.add('seen'); PLAYED.add(el.dataset.card || ''); const n = $('[data-fx="odometer"]', el); if (n && !n.dataset.done) odometer(n); if (el.dataset.fx === 'enigma') enigmaDemo(el); };
+  if (!motionOK()) cards.forEach(el => el.classList.add('seen'));
+  else { FX_IO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen(/** @type {HTMLElement} */ (e.target)); FX_IO.unobserve(e.target); } }), { threshold: .35 }); cards.forEach(el => (el.classList.contains('armed') ? FX_IO.observe(el) : el.classList.add('seen'))); }
+  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx); $$('.wc[data-fx="ticker"]').forEach(tickerFx);
+  cards.forEach(el => { if ($('[data-read]', el)) readoutFx(el); });
+}
+/* a chart answers the pointer: whatever part carries a reading shows it in the card's line for it. The card's
+   link lies over the drawing, so the parts are found by position rather than by events of their own */
+function readoutFx(card) {
+  const out = $('.wc-read', card); if (!out || card.dataset.reads) return; card.dataset.reads = '1';
+  const rest = out.innerHTML; let on = null;
+  const show = hit => { if (hit === on) return; if (on) on.classList.remove('on'); on = hit; if (on) on.classList.add('on'); card.classList.toggle('reading', !!on); out.innerHTML = on ? esc(on.dataset.read) : rest; };
+  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(document.elementsFromPoint(e.clientX, e.clientY).find(el => el.dataset && el.dataset.read && card.contains(el)) || null); });
+  card.addEventListener('pointerleave', () => show(null));
+}
+/* Time travel: how far an uncorrected satellite clock and your map would have drifted since this page opened
+   (38.6 µs and about 11.4 km a day), counted only while the card is on screen */
+function tickerFx(card) {
+  const ns = $('.tt-ns', card), m = $('.tt-m', card); if (!ns || !m) return;
+  const dot = n => n.toFixed(1).replace('.', '<i>.</i>');
+  const tick = () => { const s = performance.now() / 1000; ns.innerHTML = `+${dot(s * 38600 / 86400)}`; m.innerHTML = dot(s * 11400 / 86400); };
+  tick(); if (typeof IntersectionObserver !== 'function') return; let t = 0;
+  const io = new IntersectionObserver(([e]) => { clearInterval(t); if (e.isIntersecting) { tick(); t = setInterval(tick, 200); } }); io.observe(card);
+  FX_STOP.push(() => { io.disconnect(); clearInterval(t); });
 }
 /* the cube's number rolls in, digit by digit, like a slot machine settling from the left */
 function odometer(el) {
@@ -108,33 +138,66 @@ function odometer(el) {
   el.innerHTML = [...text].map(ch => (/\d/.test(ch) ? `<span class="od" style="--d:${ch};--k:${k++}"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</span></span>` : esc(ch) + (ch === ',' ? '<wbr>' : ''))).join('');
   el.setAttribute('aria-label', text); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
 }
-/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it, five start digestion */
+/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it, five start digestion. The
+   meter under it counts, marked where it shuts and where it starts to digest */
 function flytrapFx(card) {
   const art = $('.wc-art', card); if (!art || art.dataset.wired) return; art.dataset.wired = '1';
-  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><p class="ft-read" aria-live="polite"><span class="ft-c">0</span><span class="ft-s">Touch a hair</span><i class="ft-bar"></i></p>`);
-  let n = 0, armed = 0, timer = 0, rest = 0; const say = (c, t) => { $('.ft-c', art).textContent = c; $('.ft-s', art).textContent = t; };
+  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><div class="ft-meter" aria-live="polite"><b class="ft-c">0</b><span class="ft-s">Touch a hair</span><ol class="ft-steps">${[1, 2, 3, 4, 5].map(i => `<li${i === 2 ? ' data-l="Shuts"' : i === 5 ? ' data-l="Digests"' : ''}><i></i></li>`).join('')}</ol></div>`);
+  let n = 0, armed = 0, timer = 0, rest = 0; const steps = $$('.ft-steps li', art);
+  const say = (c, t) => { $('.ft-c', art).textContent = c; $('.ft-s', art).textContent = t; steps.forEach((s, i) => s.classList.toggle('on', i < +c)); };
   const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say('0', 'Touch a hair'); };
   $('.ft-btn', art).addEventListener('click', () => {
     clearTimeout(rest); const now = Date.now(); if (armed && now - armed > 20000 && n < 2) n = 0;
     n = Math.min(n + 1, 5); card.classList.remove('zap'); void card.offsetWidth; card.classList.add('zap');
     if (n === 1) { armed = now; card.dataset.state = 'armed'; say('1', 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
-    else if (n < 5) { clearTimeout(timer); card.dataset.state = 'shut'; say(String(n), n === 2 ? 'Shut. Keep going' : `${5 - n} more to digest`); }
+    else if (n < 5) { clearTimeout(timer); card.dataset.state = 'shut'; say(String(n), n === 2 ? 'Shut, in a tenth of a second' : `${5 - n} more to digest`); }
     else { card.dataset.state = 'digest'; say('5', 'Digesting'); }
     rest = setTimeout(reset, 9000);
   });
 }
-/* an Enigma you can type into: rotors I, II, III and reflector B from AAA. The lamp your last letter
-   becomes lights, and the tape below pairs every letter with its lamp: no letter ever lights itself */
+/* an Enigma you can type into or tap: rotors I, II, III and reflector B from AAA. Each letter steps the rotors (their
+   windows roll on), lights the lamp it becomes and joins the tape; the tally counts the letters that lit themselves,
+   which never happens. First seen, it types WETTER by itself, once */
+const EN_DEMO = new WeakMap();
+const enigmaStop = card => { const t = EN_DEMO.get(card); if (t) { clearInterval(t); EN_DEMO.delete(card); } };
+function enigmaPress(card, c) {
+  const input = $('.en-in input', card); if (!input || input.value.length >= 16) return;
+  const k = $(`.en-keys [data-k="${c}"]`, card); if (k) { k.classList.add('down'); setTimeout(() => k.classList.remove('down'), 140); }
+  input.value += c; input.dispatchEvent(new Event('input', { bubbles: true }));
+}
 function enigmaFx(card) {
   const input = $('.en-in input', card); if (!input || input.dataset.wired) return; input.dataset.wired = '1';
-  const pl = $('.en-pl', card), cy = $('.en-cy', card), lamps = new Map($$('.en-lamps i', card).map(i => [i.dataset.l, i]));
-  input.addEventListener('input', () => {
-    const plain = input.value.toUpperCase().replace(/[^A-Z]/g, ''); const { out, pos } = enigma(plain, 'AAA');
-    $$('.en-r span', card).forEach((s, i) => { s.textContent = pos[i]; });
+  const pl = $('.en-pl', card), cy = $('.en-cy', card), lamps = new Map($$('.en-lamps i', card).map(i => [i.dataset.l, i])), wheels = $$('.en-rw', card), at = [0, 0, 0];
+  $('.en-tape', card).insertAdjacentHTML('beforeend', `<button class="en-x" type="button"${tipAttrs('Clear')}>${ic('x')}</button>`);
+  /* a rotor only turns forwards: past Z it rolls on to the ring's second A, then sits back on the first */
+  const roll = (w, i, to) => {
+    const strip = $('.en-strip', w), from = at[i]; at[i] = to; w.dataset.at = String.fromCharCode(65 + to); if (to === from) return;
+    if (to > from) { strip.style.setProperty('--i', String(to)); return; }
+    strip.style.setProperty('--i', '26'); setTimeout(() => { if (at[i] !== to) return; strip.classList.add('snap'); strip.style.setProperty('--i', String(to)); void strip.offsetWidth; strip.classList.remove('snap'); }, 260);
+  };
+  const show = () => {
+    const plain = input.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 16); if (input.value !== plain) input.value = plain;
+    const { out, pos } = enigma(plain, 'AAA');
+    wheels.forEach((w, i) => roll(w, i, pos.charCodeAt(i) - 65));
     for (const l of lamps.values()) l.classList.remove('on');
     if (out) lamps.get(out[out.length - 1])?.classList.add('on');
     pl.innerHTML = [...plain].map(c => `<i>${c}</i>`).join(''); cy.innerHTML = [...out].map(c => `<i>${c}</i>`).join('');
+    $('.en-n', card).textContent = String([...plain].filter((c, i) => c === out[i]).length); $('.en-of', card).textContent = String(plain.length);
+    card.classList.toggle('typed', !!plain);
+  };
+  input.addEventListener('input', () => { if (!EN_DEMO.has(card) || input.dataset.demo !== '1') enigmaStop(card); show(); });
+  card.addEventListener('click', e => {
+    const k = e.target.closest('.en-keys button'); if (k) { enigmaStop(card); enigmaPress(card, k.dataset.k); return; }
+    if (e.target.closest('.en-x')) { enigmaStop(card); input.value = ''; show(); }
   });
+  /* with a key of the machine in focus, the keyboard types too */
+  card.addEventListener('keydown', e => { if (e.target === input || e.metaKey || e.ctrlKey || e.altKey || !e.target.closest('.en')) return; const c = e.key.toUpperCase(); if (/^[A-Z]$/.test(c)) { e.preventDefault(); enigmaStop(card); enigmaPress(card, c); } });
+  if (!motionOK()) { input.value = 'WETTER'; show(); }
+}
+function enigmaDemo(card) {
+  const input = $('.en-in input', card); if (!input || input.value || EN_DEMO.has(card)) return;
+  let i = 0; const t = setInterval(() => { if (i >= 6 || input.value.length !== i) { enigmaStop(card); delete input.dataset.demo; return; } input.dataset.demo = '1'; enigmaPress(card, 'WETTER'[i++]); input.dataset.demo = ''; }, 300);
+  EN_DEMO.set(card, t); FX_STOP.push(() => enigmaStop(card));
 }
 const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
 /* the key pill: free pages left, or the model a reader's own key writes with */
@@ -195,7 +258,7 @@ function watchBeam() {
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
 function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } if (FX_IO) { FX_IO.disconnect(); FX_IO = null; } for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } if (FX_IO) { FX_IO.disconnect(); FX_IO = null; } FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
