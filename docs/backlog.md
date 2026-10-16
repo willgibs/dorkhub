@@ -61,12 +61,12 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
 - **PR F, the reading page calmer** (live since 2026-10-15, willgibs/dorkhub#18): one centred
   column (asides, facts and the picture under their paragraph), one rhythm in the top bar, no
   rail (the sidebar's toggle sits before the wordmark).
-- **PR E, the front page curated** (willgibs/dorkhub#17): cards made by hand that lead into the
-  front page's 33 topics, a map of the threads between them, and the suggestions drawn from them.
-  It ships with placeholders for the 32 pages not written yet (Will, 2026-10-15), each free and
-  instant, each replaced by its page once that is written.
+- **PR E, the front page curated** (live since 2026-10-16, willgibs/dorkhub#17): cards made by
+  hand that lead into the front page's 33 topics, a map of the threads between them, and the
+  suggestions drawn from them, with a placeholder for each of the 32 pages not written yet (Will,
+  2026-10-15), each free and instant, each replaced by its page once that is written.
 - **Next: the article page design**, still in progress with Will. The 12 pages written ahead
-  of time serve as demo placeholders meanwhile, tweaked as needed.
+  of time and the 32 placeholders serve as demo pages meanwhile, tweaked as needed.
 - **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
   final (Will, 2026-10-15), then written and fact-checked only on his explicit go (about 8 to
   10M tokens). Their placeholders stand in meanwhile. For each page: `node scripts/seeds.mjs
