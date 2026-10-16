@@ -58,6 +58,9 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   gone in PR B.
 - **PR D, the map redrawn** (live since 2026-10-15, willgibs/dorkhub#16): Your world, the
   sidebar and the front page's map drawn like an instrument, not glow.
+- **PR F, the reading page calmer** (live since 2026-10-15, willgibs/dorkhub#18): one centred
+  column (asides, facts and the picture under their paragraph), one rhythm in the top bar, no
+  rail (the sidebar's toggle sits before the wordmark).
 - **PR E, the front page curated** (willgibs/dorkhub#17, a draft): cards made by hand that lead
   into the 32 planned topics, a map of the threads between them, and the suggestions drawn from
   them. It ships with the 32 pages; production keeps PR C's front page until then.
