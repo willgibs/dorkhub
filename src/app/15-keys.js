@@ -7,11 +7,14 @@ function keyLabel() {
   const k = auth.byok; const n = pagesLeft();
   return k ? `Writing with your ${PROVIDERS[k.provider].name} key: ${modelName(k.model)}` : n > 0 ? `${n} free page${n === 1 ? '' : 's'} left. Bring your own key any time` : 'Free pages used. Add your own key';
 }
+/* the free pages left, set like Your world's count: a page spent pops its digit in */
+let KCOUNT = -1;
 function renderKeyBtn() {
   const k = auth.byok; const n = pagesLeft(); const label = keyLabel(); const state = k ? 'key' : n > 0 ? 'trial' : 'out';
   /* the top bar's key while reading, and the composer's key pill on the landing */
   for (const b of [$('#keyBtn'), $('#seedKey')]) { if (!b) continue; b.dataset.state = state; b.dataset.tip = label; b.setAttribute('aria-label', `Keys. ${label}`); }
-  const kb = $('#keyBtn .kb-n'); if (kb) kb.textContent = k ? '' : String(n);
+  const kb = $('#keyBtn .tb-c');
+  if (kb) { const v = k ? '' : String(n); if (v !== kb.textContent.replace(/\s+/g, '')) { if (v && KCOUNT >= 0 && n < KCOUNT && !reducedMotion()) setDigits(kb, v); else kb.textContent = v; } KCOUNT = k ? -1 : n; }
   const sk = $('#seedKey'); if (sk) sk.innerHTML = seedKeyHTML();
   const slot = $('#statusSlot'); if (slot) slot.innerHTML = trialLine();
 }

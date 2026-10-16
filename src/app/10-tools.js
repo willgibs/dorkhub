@@ -1,20 +1,20 @@
 /* ================= the sidebar: Your world beside the page, your index, your trails, deep time ================= */
 let SIDE = 'world', IDXQ = '', IDXSORT = 'az', IDXKIND = '';
 const narrow = () => matchMedia('(max-width: 900px)').matches;
-const railMode = () => store.settings.side !== 'open' || narrow();
-function applySide() { document.body.classList.toggle('side-rail', store.settings.side !== 'open'); }
+const sideClosed = () => store.settings.side !== 'open' || narrow();
+/* the sidebar opens and closes from its toggle in the top bar (or M); closed, it takes no room at all */
+function applySide() {
+  const open = store.settings.side === 'open'; document.body.classList.toggle('side-closed', !open);
+  const b = $('#sideBtn'); if (!b) return; const label = open ? 'Close the sidebar' : 'Open the sidebar';
+  b.setAttribute('aria-expanded', String(open)); b.dataset.tip = label; b.setAttribute('aria-label', label);
+}
 function renderSide() {
   if (VIEW !== 'page') return;
-  renderRail(); if (railMode()) { sleepMini(); return; }
+  if (sideClosed()) { sleepMini(); return; }
   $$('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === SIDE)));
   for (const k of ['world', 'index', 'trails', 'time']) $(`#${k}Pane`).hidden = SIDE !== k;
   if (SIDE !== 'world') sleepMini();
   if (SIDE === 'world') renderMini(); else if (SIDE === 'index') renderIndex(); else if (SIDE === 'trails') renderTrails(); else renderTime();
-}
-/* collapsed, the sidebar is a rail: its toggle and how many topics are in your world */
-function renderRail() {
-  const n = worldCount();
-  $('#railbar').innerHTML = `<button class="rail-toggle" type="button" data-act="side-toggle"${tipAttrs('Open the sidebar', 'M')}>${ic('right')}</button><button class="rail-n" type="button" data-act="side-world"${tipAttrs(`${n} topic${n === 1 ? '' : 's'} in your world`)}>${ic('world')}<b>${n}</b></button>`;
 }
 function toggleSide(open) {
   store.settings.side = (open ?? store.settings.side !== 'open') ? 'open' : 'rail'; save(); applySide(); renderSide();

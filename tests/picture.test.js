@@ -43,7 +43,7 @@ test('a freely licensed lead picture comes back credited, and cached by the CDN'
   const r = await handlePicture(req('t=Tulip%20mania'), deps);
   assert.equal(r.status, 200); assert.match(r.headers.get('cache-control') || '', /s-maxage=\d+/);
   const p = await r.json();
-  assert.deepEqual(p, { src: '/api/picture?f=6%2F6a%2FSatire_on_Tulip_Mania.jpg&w=500', w: 500, h: 320, alt: 'Dutch bubble', credit: 'Jan Brueghel the Younger', license: 'Public domain', file: 'https://commons.wikimedia.org/wiki/File:Satire_on_Tulip_Mania.jpg' });
+  assert.deepEqual(p, { src: '/api/picture?f=6%2F6a%2FSatire_on_Tulip_Mania.jpg&w=960', w: 960, h: 614, alt: 'Dutch bubble', credit: 'Jan Brueghel the Younger', license: 'Public domain', file: 'https://commons.wikimedia.org/wiki/File:Satire_on_Tulip_Mania.jpg' });
 });
 
 test('no picture when the image is not on Commons, too small, or unlicensed; misses are cached too', async () => {

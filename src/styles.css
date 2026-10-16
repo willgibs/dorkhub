@@ -80,17 +80,22 @@ kbd{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding:
 .linkish:hover{color:var(--ink)}
 
 /* ================= top bar ================= */
-.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:18px;height:var(--top-h);padding:0 20px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color var(--d-fast) var(--ease-out);view-transition-name:topbar}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:6px;height:var(--top-h);padding:0 20px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color var(--d-fast) var(--ease-out);view-transition-name:topbar}
 /* the hairline appears once the page has moved under the bar */
 body.scrolled .top{border-bottom-color:var(--line)}
 .logo{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none}
 .logo span{font:900 22px/1 var(--f-dot);letter-spacing:.01em}
-.top-r{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
-.tb{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:0;border-radius:7px;background:transparent;color:var(--mute);font:600 14px/1.2 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none}
-.tb:hover{background:var(--panel);color:var(--ink)}
+/* the top bar's actions share one shape: an icon in a 36 px target, or an icon and its count with the
+   same padding either side; a count is set the same everywhere. Space inside a target is tighter than
+   between targets, so each icon reads with its own number. */
+.top-r{display:flex;align-items:center;gap:2px;margin-left:auto;flex:none}
+.tb{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;min-width:36px;padding:0 11px 0 10px;border:0;border-radius:9px;background:transparent;color:var(--mute);font:600 13px/1 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none;transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
+.tb.ib{width:36px;padding:0}
+.tb:hover,.tb[aria-expanded="true"],.voice[open]>.tb{background:var(--panel);color:var(--ink)}
 .tb::-webkit-details-marker{display:none}
+.tb-c{font:600 13px/1 var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:.01em;color:var(--ink)}
+.tb-c:empty{display:none}
 .voice{position:relative}
-.voice[open]>.tb{background:var(--panel);color:var(--ink)}
 .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(330px,86vw);padding:12px 14px 10px;border-radius:var(--r-3);background:var(--surface);box-shadow:var(--sh-3);transform-origin:top right;animation:popin var(--d-fast) var(--ease-out) both}
 .pop fieldset,.voice-pop fieldset{margin:0 0 10px;padding:0;border:0;min-width:0}
 .pop legend,.voice-pop legend{padding:0;margin-bottom:4px;font-weight:700;font-size:13px;color:var(--mute)}
@@ -108,14 +113,15 @@ body.scrolled .top{border-bottom-color:var(--line)}
 .sh-body .voice-pop label span{font-size:14px}
 .sh-body .voice-pop label:has(input:checked){background:var(--panel)}
 /* Your world: its glyph and how many topics are in it; the count's digits pop in when it grows */
-.world-btn{gap:7px;padding:6px 10px 6px 9px;color:var(--mute)}
-.world-btn b,.world-btn .t-digit-group{font:600 13px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
 body.at-world .world-btn{background:var(--panel);color:var(--ink)}
+/* the sidebar's toggle sits before the wordmark, on a page only */
+.side-btn{display:none;margin-left:-9px}
+body:not(.at-start):not(.at-world) .side-btn{display:inline-flex}
 .menu-btn{display:none}
 .prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--acc);transition:width .12s linear}
 body.at-start .prog{display:none}
 
-/* ================= shell & sidebar: Your world beside the page, collapsed to a rail by default ================= */
+/* ================= shell & sidebar: Your world beside the page, closed by default ================= */
 .shell{display:grid;grid-template-columns:var(--side-w,288px) minmax(0,1fr);min-height:calc(100% - var(--top-h));transition:grid-template-columns var(--d-medium) var(--ease-out)}
 body.at-start .shell,body.at-world .shell{grid-template-columns:minmax(0,1fr)}
 body.at-start .side,body.at-world .side{display:none!important}
@@ -125,22 +131,16 @@ body.at-start .side,body.at-world .side{display:none!important}
 .stabs{display:flex;gap:14px}
 .stabs button{padding:4px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mute);font:600 13.5px var(--f-ui);cursor:pointer}
 .stabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc)}
-.side-hide{margin-left:auto}
 .side-pane{flex:1;min-height:0;overflow:auto}
 .side-foot{display:flex;align-items:center;gap:2px;padding:10px 12px 12px;border-top:1px solid var(--line)}
-.railbar{display:none}
+/* closed, the sidebar takes no room at all; its toggle lives in the top bar. Its contents keep their
+   width while it slides, and drop out of the tab order once it has gone */
+.side>*{min-width:288px}
+.side{overflow:hidden;transition:visibility 0s linear 0s}
 @media (min-width:901px){
-  body.side-rail{--side-w:52px}
-  body.side-rail .side>*:not(.railbar){display:none!important}
-  body.side-rail .railbar{display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;padding:12px 0 14px}
+  body.side-closed{--side-w:0px}
+  body.side-closed .side{visibility:hidden;border-right-width:0;transition:visibility 0s linear var(--d-medium),border-right-width 0s linear var(--d-medium)}
 }
-.rail-toggle,.rail-n{display:grid;place-items:center;border:0;background:transparent;color:var(--mute);cursor:pointer}
-.rail-toggle{width:32px;height:32px;border-radius:8px}
-.rail-toggle .ic{width:16px;height:16px}
-.rail-n{gap:4px;padding:8px 6px;border-radius:10px}
-.rail-n .ic{width:18px;height:18px}
-.rail-n b{font:600 11.5px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
-.rail-toggle:hover,.rail-n:hover{background:var(--panel);color:var(--ink)}
 .ix-tools{position:sticky;top:0;z-index:1;display:grid;gap:8px;padding:8px 12px 10px;background:var(--base)}
 .ix-tools input{width:100%;padding:7px 11px;border:1px solid var(--line-2);border-radius:8px;background:transparent;font:14px var(--f-ui)}
 .ix-sort{display:flex;gap:12px}
@@ -182,7 +182,8 @@ body.at-start .side,body.at-world .side{display:none!important}
 .column{display:block}
 .chamber{background:var(--bg);color:var(--ink);transition:background-color .6s ease}
 .chamber:last-child{min-height:calc(100dvh - var(--top-h))}
-.article{max-width:1120px;margin:0 auto;padding:40px clamp(20px,4vw,56px) 72px}
+/* one column, centred in the room it has, whatever the sidebar does: everything a page has lives in it */
+.article{max-width:calc(720px + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:40px clamp(20px,4vw,56px) 72px}
 .h-row,.h-main,.a-doubt,.a-end,.fineprint{max-width:720px}
 .where{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:13px;color:var(--faint)}
 .kind{display:inline-block;font-size:12.5px;font-weight:600;color:var(--mute)}
@@ -191,12 +192,9 @@ body.at-start .side,body.at-world .side{display:none!important}
 .a-title{margin-top:10px;font:700 clamp(34px,4.6vw,56px)/1.05 var(--f-ui);letter-spacing:-.025em;overflow-wrap:anywhere;max-width:20ch}
 .deck{margin-top:14px;max-width:36em;font:400 clamp(18px,1.6vw,20px)/1.5 var(--f-read);color:var(--mute)}
 .deck.seed{color:var(--faint)}
-/* the head: what this is and the page's tools on one quiet row; a side column for the picture on a wide screen */
+/* the head: what this is and the page's tools on one quiet row */
 .h-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
 .h-row .where{min-width:0}
-.h-cols{display:grid;grid-template-columns:minmax(0,1fr)}
-.h-pic{display:none}
-@media (min-width:1241px){ .h-cols{grid-template-columns:minmax(0,66ch) minmax(0,210px);column-gap:48px;align-items:start} }
 .tools{display:flex;align-items:center;gap:0;flex:none}
 .h-row .tool{color:var(--faint)}
 .h-row .tool:hover,.h-row .more[open]>summary{color:var(--ink)}
@@ -219,10 +217,11 @@ body.at-start .side,body.at-world .side{display:none!important}
 .body{margin-top:28px;font:400 18px/1.7 var(--f-read);font-optical-sizing:auto;font-feature-settings:"kern","liga"}
 .body>h2{max-width:34ch;margin:1.7em 0 .45em;font:700 clamp(22px,2.2vw,26px)/1.2 var(--f-ui);letter-spacing:-.018em}
 .body>ul{max-width:64ch;margin:0 0 1em;padding-left:1.1em}
-/* margin notes (and a facts panel) float into the right margin beside their paragraph, Tufte-style:
-   a tall one never stretches its paragraph, and the next one settles below it */
+/* a paragraph, then what belongs to it: its expansions, then its aside, a facts panel or the page's
+   picture. The writer puts an aside straight after its paragraph, so it always arrives at the bottom of
+   what is written and never moves anything a reader has passed. */
 .a-body{display:flow-root}
-.pb{position:relative;max-width:64ch}
+.pb{position:relative;display:flex;flex-direction:column;max-width:64ch}
 .pcol>p{margin:0 0 1.1em}
 .lead{font-size:1.06em}
 .ptool{position:absolute;left:-34px;top:.35em;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--faint);font:600 14px/1 var(--f-read);cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
@@ -231,8 +230,9 @@ body.at-start .side,body.at-world .side{display:none!important}
 .ptool:hover,.ptool[aria-expanded="true"]{background:var(--panel);color:var(--ink)}
 /* on touch, a paragraph's ¶ waits for a tap on that paragraph, so a page of them never clutters the column */
 @media (pointer:coarse){.ptool{left:auto;right:-2px;top:-26px;pointer-events:none}.pb.tapped .ptool{opacity:1;pointer-events:auto}}
-.mcol{float:right;clear:right;width:210px;margin-right:-258px;display:grid;gap:18px;padding:.45em 0 18px}
-.mnote{font:400 13.5px/1.55 var(--f-ui);color:var(--mute);padding-left:12px;border-left:1px solid var(--line-2)}
+.mcol{order:2;display:grid;gap:14px;max-width:66ch;margin:-.3em 0 1.45em}
+.mcol:empty{display:none}
+.mnote{max-width:58ch;padding:1px 0 1px 14px;border-left:2px solid var(--line-2);font:400 14.5px/1.6 var(--f-ui);color:var(--mute)}
 .mnote.enter{animation:notein var(--d-slow) var(--ease-out) both}
 @keyframes notein{from{opacity:0;transform:translateX(8px);filter:blur(var(--blur-s))}}
 .mnote .ml{display:block;margin-bottom:2px;font:600 11px/1.3 var(--f-ui);color:var(--acc)}
@@ -265,7 +265,7 @@ body.at-start .side,body.at-world .side{display:none!important}
 .xp-h button:hover{background:var(--panel);color:var(--ink)}
 .xp-go{margin-top:6px;padding:0;border:0;background:none;color:var(--link);font:600 13.5px var(--f-ui);cursor:pointer}
 .xp-go:hover{text-decoration:underline}
-.sketch{margin:6px 0 34px;padding:18px 0 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);max-width:calc(66ch + 258px)}
+.sketch{margin:6px 0 34px;padding:18px 0 12px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .sketch p{max-width:none!important;margin:0}
 .sk-t{display:flex;align-items:baseline;gap:10px;margin-bottom:14px!important;font:700 17px/1.2 var(--f-ui)}
 .sk-t span{font:600 11.5px var(--f-ui);color:var(--acc)}
@@ -318,14 +318,10 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .panel[data-type="timeline"] .pn-r:not(:last-child)::after{content:"";position:absolute;left:4px;top:calc(.5em + 12px);bottom:calc(3px - .5em);width:1px;background:var(--acc-line)}
 .panel[data-type="timeline"] .pn-r.pn-gap::after{width:0;background:none;border-left:1px dashed var(--acc-line)}
 .pn-k{padding-left:22px;font:600 13px/1.5 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
-/* facts: label over value, in the margin on a wide screen */
+/* facts: label over value, a few to a row */
 .panel[data-type="facts"] .pn-rows,.panel[data-type="list"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px 24px}
-.panel[data-type="facts"] .pn-r,.panel[data-type="list"] .pn-r{display:grid;gap:1px}
-@media (min-width:1241px){
-  .mcol .panel{margin:0;padding:2px 0 0;border-bottom:0}
-  .mcol .pn-h{margin-bottom:10px}
-  .mcol .panel .pn-rows{grid-template-columns:minmax(0,1fr);gap:9px;font-size:13.5px}
-}
+.panel[data-type="facts"] .pn-r,.panel[data-type="list"] .pn-r{display:grid;align-content:start;gap:2px}
+.mcol .panel{margin:6px 0 0}
 /* steps: numbered stops on one line, like the map */
 .panel[data-type="steps"] .pn-rows{counter-reset:st;display:grid}
 .panel[data-type="steps"] .pn-r{counter-increment:st;position:relative;display:grid;gap:2px;padding:0 0 16px 38px}
@@ -409,7 +405,9 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .pic figcaption{margin-top:6px;font:400 11.5px/1.4 var(--f-ui);color:var(--faint)}
 .pic figcaption a{color:inherit;text-decoration:none}
 .pic figcaption a:hover{text-decoration:underline}
-@media (max-width:1240px){ .pic{margin:0 0 4px} .pic-box{width:min(100%,calc(min(46vh,420px) * var(--arn,1.5)))} }
+/* the lead picture, after the opening paragraph: at its own shape, never taller than about a third of the screen */
+.mcol .pic{margin:4px 0 2px}
+.pic-box{width:min(100%,calc(min(36vh,320px) * var(--arn,1.5)))}
 @media (prefers-reduced-motion:reduce){ .pic-box.reveal img,.pic-box.reveal .pic-field{transition:none} }
 
 /* ================= after the article: where to go next ================= */
@@ -575,9 +573,6 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 
 
 /* ================= search or ask anything ================= */
-.omni-btn{display:inline-flex;align-items:center;gap:8px;width:clamp(170px,22vw,280px);padding:6px 8px 6px 10px;border:1px solid var(--line-2);border-radius:9px;background:var(--base);color:var(--faint);font:500 13.5px var(--f-ui);cursor:pointer;transition:border-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
-.omni-btn span{flex:1;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.omni-btn:hover{border-color:var(--ink);color:var(--mute)}
 body.at-start .omni-btn{display:none}
 .omni{width:min(640px,calc(100vw - 24px));margin-top:12vh;padding:0;border:0;border-radius:var(--r-4);background:var(--surface);box-shadow:var(--sh-3)}
 .omni[open]{animation:sheetin var(--d-fast) var(--ease-out)}
@@ -596,7 +591,6 @@ body.at-start .omni-btn{display:none}
 .om-foot{display:flex;gap:16px;padding:9px 14px;border-top:1px solid var(--line);font-size:12px;color:var(--faint)}
 .om-foot kbd{margin-right:3px}
 @media (hover:none),(max-width:560px){ .om-i .od,.om-foot,.om-row kbd{display:none} }
-@media (max-width:900px){ .omni-btn{width:auto;padding:7px 9px} .omni-btn span,.omni-btn kbd{display:none} }
 
 
 /* ================= the tools button on a phone: a liquid split into four droplets =================
@@ -638,7 +632,7 @@ body.at-start .omni-btn{display:none}
    around this) while a page is open; the top bar keeps the wordmark and a plain menu for everything else */
 @media (max-width:900px){
   body:not(.at-start):not(.at-world) .fab{display:block}
-  .top .omni-btn,.top #keyBtn,.top #voice,.top .world-btn{display:none!important}
+  .top .omni-btn,.top #keyBtn,.top #voice,.top .world-btn,.top .side-btn{display:none!important}
   body:not(.at-start) .menu-btn{display:inline-flex}
   body:not(.at-start) .toasts{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
   /* the last line of the page scrolls clear of the button */
@@ -680,9 +674,7 @@ body.at-start .omni-btn{display:none}
 .tip kbd{margin-left:7px;border-color:currentColor;color:inherit;opacity:.65}
 .ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .ic .f{fill:currentColor;stroke:none}
-.tool.ib,.tb.ib{justify-content:center;width:34px;height:34px;padding:0}
-.omni-btn{width:auto;gap:8px;padding:6px 8px 6px 10px}
-.omni-btn .ic{width:16px;height:16px}
+.tool.ib{justify-content:center;width:34px;height:34px;padding:0}
 @keyframes mkpulse{50%{box-shadow:0 0 0 3px var(--base),0 0 0 6px color-mix(in srgb,var(--acc) 30%,transparent)}}
 .mnote .ml{display:inline-flex;margin:0 4px 0 0;vertical-align:-3px;color:var(--acc)}
 .mnote .ml .ic{width:14px;height:14px}
@@ -833,10 +825,6 @@ body:not(.at-start) .theme-btn{display:none}
 
 
 /* ================= responsive ================= */
-@media (max-width:1240px){
-  .pb{display:flex;flex-direction:column}
-  .mcol{order:2;float:none;width:auto;margin:0;padding:0 0 1.2em;max-width:60ch}
-}
 @media (max-width:900px){
   .shell{grid-template-columns:minmax(0,1fr)}
   .side{display:none!important}
@@ -861,12 +849,8 @@ body:not(.at-start) .theme-btn{display:none}
 }
 
 /* ================= keys: free pages, your own key ================= */
-.key-btn{position:relative;gap:5px}
-.key-btn .kb-n{min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--panel);color:var(--ink);font:600 11px/18px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
-.key-btn .kb-n:empty{display:none}
-.key-btn:hover .kb-n{background:var(--base)}
-.key-btn[data-state="out"] .kb-n{background:var(--ink);color:var(--base)}
-.key-btn[data-state="key"]::after{content:"";position:absolute;right:6px;top:6px;width:6px;height:6px;border-radius:50%;background:#22A06B;box-shadow:0 0 0 2px var(--bg)}
+.key-btn[data-state="out"]{color:var(--ink);box-shadow:inset 0 0 0 1px var(--line-2)}
+.key-btn[data-state="key"] .tb-c{display:block;width:6px;height:6px;border-radius:50%;background:#22A06B}
 .keysheet{font:400 15px/1.55 var(--f-ui)}
 .keysheet p{margin:0}
 .keysheet fieldset{margin:0;padding:0;border:0;min-width:0}

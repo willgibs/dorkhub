@@ -433,7 +433,7 @@ function renderMini(grow = []) {
 }
 /* a page finished: it springs into the map beside it, if that map is open; otherwise only the count moves */
 function worldGrew(p) {
-  if (VIEW !== 'page' || railMode() || SIDE !== 'world' || !MINI) return;
+  if (VIEW !== 'page' || sideClosed() || SIDE !== 'world' || !MINI) return;
   renderMini([nodeKeyOf(p)]);
 }
 

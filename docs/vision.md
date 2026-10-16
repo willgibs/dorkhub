@@ -90,7 +90,7 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
 Written in one streamed pass, top to bottom, in the format defined in `lib/prompts.js`
 (`FORMAT`) and parsed by `src/shared/article.js`: title and the topic's kind (a creature,
 a mystery, an event…; it shapes the page) · deck · link plan (a kind for every link, so
-links arrive in colour) · body with margin notes and up to two **panels** · six topics to
+links arrive in colour) · body with asides and up to two **panels** · six topics to
 keep exploring, each with its hook and kind, some deeper into the subject and at least two
 leaping into another field · three open questions that stand on their own · a hook for
 every link (for hover cards).
@@ -98,8 +98,12 @@ every link (for hover cards).
 Panels (v2) are information the writer lays out and Dorkhub draws: timeline, facts, steps,
 compare, theories, figures, myth, formula, guess. The writer uses one only when it shows
 something prose can't, most pages one or none, never two in a row; the body stays the
-page. A page's lead picture (Wikipedia, freely licensed, credited) may sit beside the
-opening; no model is involved in finding it.
+page. A page's lead picture (Wikipedia, freely licensed, credited) may follow the opening
+paragraph; no model is involved in finding it.
+
+**One column** (Will, 2026-10-15: a side column beside the text "creates a visual cluster"): a
+page reads down a single centred column, and its asides, a facts panel and its picture sit in
+it, below the paragraph they belong to. Nothing sits beside the words but white space.
 
 **The page-500 test** (Will, 2026-10-14): a reader scrolls through hundreds of these pages,
 so nothing recurring may charm on page 10 and annoy by page 500. Taste through restraint.
@@ -110,7 +114,9 @@ pages also lead there), then peek without leaving; expand any paragraph (plainer
 an example, the counterpoint); save it with the star; sketch a diagram; around this (a
 radial map of neighbours); connect it to any topic you've read; skeptic mode; listen; a
 quiz and a recap of the trail you're on; "how did I get here?" (your trail); the sidebar
-(Your world beside the page, your index, your trails, deep time); ask anything (/).
+(Your world beside the page, your index, your trails, deep time; closed, it takes no room, and
+its toggle sits before the wordmark); ask anything (/). The top bar's actions share one shape,
+and Your world has one entry point there, its count beside it.
 Keyboard first: 1–6, S, G, T, F, K, L, C, P, D, Q, R, I, A, M, N, ?. On a phone the top bar
 keeps a plain menu (keys, voice, theme, export, shortcuts, a new topic) and one gooey
 button holds the learning tools (search, Your world, save, around this).

@@ -124,7 +124,7 @@ async function generate(p, { fresh = false } = {}) {
 /* a page finished revealing: Your world grows (quietly: only its count moves while you read) */
 function pageDone(p) {
   if (p.status !== 'done' && p.status !== 'partial') return;
-  touchWorld(); renderWorldBtn(true); if (VIEW === 'page') { renderRail(); syncFab(); } worldGrew(p);
+  touchWorld(); renderWorldBtn(true); if (VIEW === 'page') syncFab(); worldGrew(p);
 }
 
 /* ================= keyed rendering: elements are created once, then only updated ================= */
@@ -148,7 +148,7 @@ const UF_LABEL = { simpler: 'In plainer words', deeper: 'One level deeper', exam
 function chamberHTML(p) {
   return `<section class="chamber" data-pid="${esc(p.id)}" aria-label="${esc(p.title)}">
   <article class="article">
-    <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-cols"><div class="h-main"></div><aside class="h-pic" hidden></aside></div></header>
+    <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-main"></div></header>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
@@ -311,8 +311,8 @@ function extrasItems(node, i) {
 }
 /* ================= pictures: a page's lead picture, resolving out of dots =================
    Looked up by title (no model involved) while the page is written. As soon as the lookup says
-   there is one, its slot is reserved at the picture's own shape (beside the first paragraph, below
-   it on a phone) if the first paragraph is still being written; otherwise it waits for the next
+   there is one, its slot is reserved at the picture's own shape (below the first paragraph) if the
+   first paragraph is still being written; otherwise it waits for the next
    visit, so it never moves anything a reader has seen. While the picture loads, the slot holds a
    field of dots that breathe on their own clocks (transitions.dev's Pro image placeholder); once
    it has arrived, the dots take its colours and grow into a mosaic along a diagonal sweep (the
@@ -409,7 +409,7 @@ function paintBody(node, sec, A, live) {
   if (node.pic && !PICAT.has(node.id)) { const p1 = A.blocks.findIndex(b => b.t === 'p'); PICAT.set(node.id, !PICASKED.has(node.id) || (live && !A.bodyDone && (p1 < 0 || p1 === lastIdx))); }
   const pic = node.pic && PICAT.get(node.id) ? node.pic : null;
   if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing what to link' : 'Writing this page', orb: A.wait ? 'connecting' : 'composing' });
-  /* facts sit in the margin beside their paragraph on a wide screen (below it on a narrow one); the rest in the reading column */
+  /* a facts panel goes with its paragraph, below it with any aside; the rest where the writer put them */
   const side = new Map(), flow = [];
   A.panels.forEach((p, j) => { const b = A.blocks[p.at - 1]; if (p.type === 'facts' && b && b.t === 'p') { if (!side.has(p.at - 1)) side.set(p.at - 1, []); side.get(p.at - 1).push([p, j]); } else flow.push([p, j]); });
   const panelsAt = i => flow.filter(([p]) => p.at === i).forEach(([p, j]) => want.push({ k: 'pn' + j, type: 'panel', p, j }));
@@ -445,7 +445,7 @@ function paintBody(node, sec, A, live) {
       el.dataset.i = w.i; $('.ptool', el).dataset.i = w.i;
       const p = $('.pcol > p', el); inkHTML(p, w.html, w.tip); p.classList.toggle('lead', w.lead);
       patch($('.px', el), extrasItems(node, w.i));
-      /* margin notes and any facts panel beside this paragraph, in the order they were written */
+      /* this paragraph's asides and any facts panel, below it, in the order they were written */
       const notes = A.notes.map((n, g) => ({ n, g })).filter(x => x.n.n === w.pi); const items = []; const sp = [...w.side];
       notes.forEach((x, j) => { while (sp.length && sp[0][0].o <= x.g) { const [pp, pj] = sp.shift(); items.push(panelItem(pp, pj, node)); } items.push({ ...noteItem(x.n, node, j), ink: writing && x.g === A.notes.length - 1 }); });
       sp.forEach(([pp, pj]) => items.push(panelItem(pp, pj, node)));
