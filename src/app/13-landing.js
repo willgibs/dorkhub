@@ -128,21 +128,28 @@ function beatFx(el) {
   const play = FX_PLAY.get(el); if (play) play();
 }
 /* the stage: the cards still waiting, played one at a time. A card counts as in view once 60% of it (or of the
-   screen, for one taller than the screen) shows; a scroll faster than about 1.4 px/ms is a fling, and nothing
-   starts until it has been still for a moment */
+   screen, for one taller than the screen) shows, and is ready once it has stayed in view for a moment, so one a
+   fling only carries past never starts; a scroll faster than about 1.4 px/ms is a fling, and nothing starts until it
+   has been still for a moment. A card scrolled away mid-story ends its turn: the eye has moved on, to the next. */
+const DWELL = 150;
 function stage(waiting) {
-  const S = { left: new Set(waiting), busy: 0, fling: 0, raf: 0, ready: false, y: scrollY, t: performance.now(), io: null, stop: () => {} };
+  const S = { left: new Set(waiting), since: new Map(), cur: null, busy: 0, fling: 0, raf: 0, wait: 0, ready: false, y: scrollY, t: performance.now(), io: null, stop: () => {} };
   STAGE = S;
-  const inView = el => { const r = el.getBoundingClientRect(), h = innerHeight, shown = Math.min(r.bottom, h) - Math.max(r.top, 0); return shown > 0 && shown >= Math.min(r.height, h) * .6; };
+  const shown = el => { const r = el.getBoundingClientRect(), h = innerHeight; return Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0)) / Math.min(r.height, h); };
+  const done = () => { clearTimeout(S.busy); S.busy = 0; if (S.cur) S.cur.classList.remove('playing'); S.cur = null; };
   const next = () => {
-    if (STAGE !== S || S.busy || S.fling || !S.ready) return;
-    const now = [...S.left].filter(inView).map(el => ({ el, r: el.getBoundingClientRect() })).sort((a, b) => (Math.abs(a.r.top - b.r.top) > 48 ? a.r.top - b.r.top : a.r.left - b.r.left));
-    if (!now.length) return;
-    const { el } = now[0]; S.left.delete(el); S.io.unobserve(el);
-    el.classList.add('seen', 'playing'); PLAYED.add(el.dataset.card || el.id);
+    if (STAGE !== S) return;
+    const t = performance.now();
+    if (S.cur && shown(S.cur) < .25) done();
+    S.left.forEach(el => { if (shown(el) < .6) S.since.delete(el); else if (!S.since.has(el)) S.since.set(el, t); });
+    if (S.busy || S.fling || !S.ready) return;
+    const now = [...S.since].filter(([, t0]) => t - t0 >= DWELL).map(([el]) => ({ el, r: el.getBoundingClientRect() })).sort((a, b) => (Math.abs(a.r.top - b.r.top) > 48 ? a.r.top - b.r.top : a.r.left - b.r.left));
+    if (!now.length) { if (S.since.size) { clearTimeout(S.wait); S.wait = setTimeout(soon, Math.min(...S.since.values()) + DWELL - t); } return; }
+    const { el } = now[0]; S.left.delete(el); S.since.delete(el); S.io.unobserve(el);
+    S.cur = el; el.classList.add('seen', 'playing'); PLAYED.add(el.dataset.card || el.id);
     if (el.id === 'threads') { if (THREADMAP) THREADMAP.play(); } else beatFx(el);
     /* the next one starts as this one settles: one card leads at a time, and the eye moves on with it */
-    S.busy = setTimeout(() => { el.classList.remove('playing'); S.busy = 0; next(); }, Math.max(600, (Number(el.dataset.beat) || 1200) * .7));
+    S.busy = setTimeout(() => { done(); next(); }, Math.max(600, (Number(el.dataset.beat) || 1200) * .7));
   };
   const soon = () => { if (!S.raf) S.raf = requestAnimationFrame(() => { S.raf = 0; next(); }); };
   const onScroll = () => {
@@ -153,7 +160,7 @@ function stage(waiting) {
   addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', soon);
   /* the first story waits for the composer to finish rising */
   const go = setTimeout(() => { S.ready = true; soon(); }, 700);
-  S.stop = () => { clearTimeout(S.busy); clearTimeout(S.fling); clearTimeout(go); cancelAnimationFrame(S.raf); S.io.disconnect(); removeEventListener('scroll', onScroll); removeEventListener('resize', soon); $$('#ways .playing').forEach(el => el.classList.remove('playing')); };
+  S.stop = () => { clearTimeout(S.busy); clearTimeout(S.fling); clearTimeout(S.wait); clearTimeout(go); cancelAnimationFrame(S.raf); S.io.disconnect(); removeEventListener('scroll', onScroll); removeEventListener('resize', soon); $$('#ways .playing').forEach(el => el.classList.remove('playing')); };
 }
 function stopStage() { if (STAGE) { STAGE.stop(); STAGE = null; } }
 /* a drawing answers the pointer: whatever part carries a reading (data-read) is named in a small label beside the

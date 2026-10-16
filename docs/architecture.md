@@ -101,10 +101,11 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
     coming toward you is brighter, the cube's count).
   - **One card at a time** (`stage` in `13-landing.js`; Will, 2026-10-16: when everything moves at
     once nothing is seen). Cards are rendered `armed` when motion is allowed. A card plays its
-    entrance (gets `seen`, and `playing` while it leads) only when 60% of it shows, the page isn't
-    being flung (faster than about 1.4 px/ms, and still for 180 ms), and no other card is leading;
-    waiting cards keep a still first frame and go in reading order, each starting as the one before
-    it settles (70% of its `beat`). The map of threads takes its turn too (`makeGraph`'s `hold` and
+    entrance (gets `seen`, and `playing` while it leads) only once 60% of it has shown for 150 ms
+    (`DWELL`: a card a fling only carries past never starts), the page isn't being flung (faster than
+    about 1.4 px/ms, and still for 180 ms), and no other card is leading; waiting cards keep a still
+    first frame and go in reading order, each starting as the one before it settles (70% of its
+    `beat`), or sooner if the reader scrolls that one away (under 25% showing). The map of threads takes its turn too (`makeGraph`'s `hold` and
     `play()`). CSS keyed on `armed`/`seen` draws paths in (`dr`, `pathLength="1"`) and fades parts
     (`fade`, delays `w1`–`w16`); some entrances are the page's (`FX_PLAY`). The finished drawing is
     the default, so reduced motion shows it whole and nothing plays.
@@ -252,7 +253,7 @@ which pages were cached.
 | Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
-| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
+| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling nor play one it only passed, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
 
 ## Operations
 

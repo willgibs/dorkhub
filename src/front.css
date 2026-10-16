@@ -307,7 +307,8 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .vz .fw-burst{fill:none;stroke-width:1.25;stroke-linecap:round;--t:.55s;--e:var(--ease-out)}
 .vz .fw-head{fill:none;stroke-width:2.4;stroke-linecap:round}
 .vz .fw-blur{stroke-width:5;opacity:.75}
-.vz .fw-haze{opacity:.09}
+.vz .fw-haze{opacity:.09;transition:opacity 1.6s var(--ease-out) .5s}
+.wc.armed:not(.seen) .fw-haze{opacity:0}
 .vz .fw-m{transition:opacity var(--d-fast) var(--ease-out)}
 .wc.reading .fw-m{opacity:.3}
 .wc.reading .fw-m:has(.hit.on){opacity:1}

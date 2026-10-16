@@ -84,12 +84,17 @@ async function run(page, { mobile = false } = {}) {
     const words = await page.evaluate(() => ({ hooks: document.querySelectorAll('#ways .wc-h, #ways .wc-n').length, caps: [...document.querySelectorAll('#ways .wc:not(.wc-world)')].filter(c => c.querySelector('.wc-cap .wc-kind .kind') && c.querySelector('.wc-cap .wc-t a')).length }));
     if (words.hooks || words.caps !== 13) throw new Error(`cards' words: ${JSON.stringify(words)}`);
     await page.screenshot({ path: `${shots}/${tag}-1b-front.png` });
-    /* one card plays at a time: after a fling down the page, sample what is playing until it settles */
+    /* one card plays at a time: after a fling down the page, sample what is playing until it settles. The fling
+       starts with the hero half in view, short of its turn, and only cards where it lands may play, none it passed */
     if (!mobile) {
+      await page.evaluate(() => { const r = /** @type {HTMLElement} */ (document.querySelector('#ways .wc-hero')).getBoundingClientRect(); window.scrollTo(0, window.scrollY + r.top - (innerHeight - r.height * .5)); });
+      await page.waitForTimeout(900);
+      const seenBefore = await page.$$eval('#ways .seen', cs => cs.map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
       for (let i = 0; i < 14; i++) { await page.mouse.wheel(0, 150); await page.waitForTimeout(12); }
       let most = 0, played = 0; const t0 = Date.now();
       while (Date.now() - t0 < 5000) { const n = await page.evaluate(() => [document.querySelectorAll('#ways .playing').length, document.querySelectorAll('#ways .seen').length]); most = Math.max(most, n[0]); played = n[1]; await page.waitForTimeout(70); }
-      if (most > 1 || !played) throw new Error(`the stage played ${most} at once (${played} seen)`);
+      const passed = await page.$$eval('#ways .seen', cs => cs.filter(c => { const r = c.getBoundingClientRect(); return r.bottom <= 0 || r.top >= innerHeight; }).map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
+      if (most > 1 || !played || passed.some(k => !seenBefore.includes(k))) throw new Error(`the stage played ${most} at once (${played} seen; played though only flung past: ${passed})`);
     }
     /* every card tells its story on its turn, and ends finished: bring each to the middle of the screen and wait for it */
     for (const c of await page.locator('#ways .wc').all()) { await c.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForFunction(el => el.classList.contains('seen') && !el.classList.contains('playing'), await c.elementHandle(), { timeout: 8000 }); }
