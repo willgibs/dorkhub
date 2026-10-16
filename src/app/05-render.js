@@ -91,7 +91,7 @@ function revealLoop(now) {
 const secFor = id => { const s = $('.chamber'); return s && s.dataset.pid === id ? s : null; };
 /* text that arrived whole (written ahead of time, or already written for someone) still reveals the way a live page does */
 function fill(p, text, seeded) {
-  p.text = text; p.status = 'done'; p.seeded = !!seeded; p.error = null; p.errorCode = null; finalize(p); save();
+  p.text = text; p.status = 'done'; p.seeded = seeded || false; p.error = null; p.errorCode = null; finalize(p); save();
   reveal(p, 0); paint(p); if (!REV.has(p.id)) pageDone(p);
 }
 async function generate(p, { fresh = false } = {}) {
@@ -107,7 +107,7 @@ async function generate(p, { fresh = false } = {}) {
       signal: ctl.signal, fresh,
       onText: ({ text }) => { p.text = text; if (!REV.has(p.id) && !queued) { queued = true; requestAnimationFrame(() => { queued = false; paint(p, true); }); } },
     });
-    p.text = res.text; p.status = res.truncated ? 'partial' : 'done'; p.seeded = !!res.seeded; finalize(p);
+    p.text = res.text; p.status = res.truncated ? 'partial' : 'done'; p.seeded = res.seeded || false; finalize(p);
   } catch (e) {
     const code = (e && e.code) || 'upstream_error';
     p.text = typeof e?.text === 'string' ? e.text : '';
@@ -180,7 +180,7 @@ function paint(p, streamOnly) {
   const acc = accentFor(p, A); if (document.documentElement.dataset.accent !== acc) document.documentElement.dataset.accent = acc;
   paintHead(p, sec, A, live); paintBody(p, sec, A, live); paintEnd(p, sec, A, live);
   /* the note that pages can be wrong sits once at the bottom (.colfoot); a page written ahead of time says so here */
-  setHTML($('.fineprint', sec), p.seeded && !live ? 'This page was written ahead of time.' : '');
+  setHTML($('.fineprint', sec), live || !p.seeded ? '' : p.seeded === 'placeholder' ? 'A placeholder until this page is written.' : 'This page was written ahead of time.');
   if (!streamOnly) {
     paintTools(p, sec); paintDoubt(p, sec);
     if (p.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !CUR) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);

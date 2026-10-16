@@ -42,12 +42,18 @@ function showPage(input) {
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */
   if (ACTIVE.has(p.id)) return;
-  if (p.text && p.status !== 'empty') return;
+  if (p.text && p.status !== 'empty') { if (p.seeded === 'placeholder' && !(history.state && history.state.y)) recheck(p); return; }
   const pf = PF.got.get(p.id); if (pf) { delete p.guarded; fill(p, pf.text, pf.seeded); return; }
   if (p.status === 'error') return;
   if ((p.status === 'done' || p.status === 'partial') && !p.text) { guard(p, 'cleared'); return; }
   if (OPENED.has(p.id) || known || (FIRST && fromHere())) { delete p.guarded; if (!OPENED.has(p.id)) { addStep(store.trails, p.id, { from: null, via: FIRST && fromHere() ? 'link' : 'start' }); OPENED.add(p.id); } generate(p); return; }
   p.guarded = true; guard(p, 'ask');
+}
+/* A placeholder is kept only until its page is written: opened again from the top, it asks for the page
+   (free, and never a write), and takes the written one, or a newer placeholder, in its place. */
+async function recheck(p) {
+  try { const r = await write('page', pageInput(p), { cachedOnly: true }); if (CUR === p.id && !r.none && r.text && r.text !== p.text && !ACTIVE.has(p.id)) fill(p, r.text, r.seeded); }
+  catch (e) { /* keep the placeholder */ }
 }
 /* A page arrived at from outside Dorkhub: free if it is already written, otherwise written only
    when the reader asks, so a shared link or a crawler never spends anything by itself. */
@@ -103,7 +109,7 @@ document.addEventListener('click', e => {
   const fold = e.target.closest('[data-fold]'); if (fold) { const p = curPage(); if (p && p.unfolds) { delete p.unfolds[fold.dataset.fold]; save(); paint(p); } return; }
   const pc = e.target.closest('[data-peek-close]'); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) { x.open = false; save(); paint(p); } return; }
   const pd = e.target.closest('[data-peek-dig]'); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
-  const fc = e.target.closest('a[data-feed]'); if (fc) { if (!plainClick(e)) return; e.preventDefault(); openTopic(fc.dataset.feed, { via: 'start', src: $('.fc-t', fc), hint: { kind: fc.dataset.fk || '', gloss: fc.dataset.h || '' } }); return; }
+  const wy = e.target.closest('a[data-way]'); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
   const seed = e.target.closest('[data-seed]'); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
   /* any other address of ours opens here, without a reload */
   const a = e.target.closest('a[href^="/"]');
@@ -118,7 +124,6 @@ document.addEventListener('click', e => {
   const p = curPage();
   if (x === 'surprise') surprise();
   else if (x === 'shuffle') shufflePresets();
-  else if (x === 'feed-shuffle') shuffleFeed();
   else if (x === 'voice-clear') { setLens('encyclopedic'); $('#seedIn')?.focus({ preventScroll: true }); }
   else if (x === 'stop' && p) { const c = ACTIVE.get(p.id); if (c) c.abort(); }
   else if (x === 'write-page') writeGuarded();

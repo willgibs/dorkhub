@@ -1,131 +1,140 @@
-/* ================= the front page: one composer to start from, and today's pages below it =================
-   Its job is to get a visitor into their first page. The topics below the composer were written
-   ahead of time, so a click on one opens at once and costs nothing, even while free pages are paused. */
-const DOORS = [
-  { t: 'The Carrington Event', h: 'The 1859 solar storm that set telegraph offices sparking.', k: 'event' },
-  { t: 'Tardigrades', h: 'Animals that survive freezing, boiling and the vacuum of space.', k: 'thing' },
-  { t: 'Whale falls', h: 'One dead whale can feed a deep-sea ecosystem for decades.', k: 'phenomenon' },
-  { t: 'The Antikythera mechanism', h: 'A 2,000-year-old Greek computer, found in a shipwreck.', k: 'thing' },
-  { t: 'The Voynich manuscript', h: 'A 600-year-old book that nobody can read.', k: 'mystery' },
-  { t: 'Umami', h: 'The fifth taste, first identified in a bowl of seaweed broth.', k: 'concept' },
-  { t: 'Why is ice slippery?', h: 'Physicists have argued about it since Michael Faraday.', k: 'mystery' },
-  { t: 'The Great Emu War', h: 'In 1932 Australia sent machine guns after emus. The emus won.', k: 'event' },
-  { t: 'Kessler syndrome', h: 'How one collision could lock us out of orbit for generations.', k: 'phenomenon' },
-  { t: 'Fresnel lenses', h: 'How lighthouses folded a giant lens into rings of glass.', k: 'mechanism' },
-  { t: 'Tulip mania', h: 'The 1630s bubble where a single bulb reportedly cost a house.', k: 'event' },
-  { t: 'Bioluminescence', h: 'Most animals in the deep ocean make their own light.', k: 'phenomenon' },
-];
-/* Surprise me opens a page that isn't on screen: written ahead of time, so it's free, instant and checked */
+/* ================= the front page: one composer to start from, and ways in below it =================
+   Its job is to get a visitor into their first page. The suggestions under the composer and the cards
+   below it lead into the front page's topics, chosen and drawn by hand (lib/front.js; the build puts the
+   list in FRONT and the cards in /front.json). Each opens a page written ahead of time, or its placeholder
+   until it is. Surprise me, and the doors a paused or used-up page offers, open only those, and the pages
+   written before them (EARLIER): free and instant. */
+const DOORS = [...FRONT, ...EARLIER];
+/* Surprise me opens a page that isn't on screen: written ahead of time, so it's free and instant */
 function surprise() {
   const shown = new Set($$('.door[data-seed]').map(b => b.dataset.seed));
   const pool = DOORS.filter(d => !shown.has(d.t));
   openTopic((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t, { via: 'start' });
 }
-const doorHTML = (d, today) => `<button class="door${today ? ' today' : ''}" type="button" data-seed="${esc(d.t)}" data-tip="${today ? 'Today’s topic. ' : ''}${esc(d.h)}">${esc(d.t)}</button>`;
+const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
+/* days turn over at the reader's own midnight */
+const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
+/* the suggestions: four of the planned topics, the same four all day, re-rolled as a set by shuffle */
+function suggestions(n = 4) { const a = FRONT.slice(); let s = dayN(); for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); }
 /* the presets re-roll as a set: the shown ones step back quickly, the new ones rise in a beat apart, and none repeats */
 function shufflePresets() {
   const list = $('#presetList'); if (!list || list.dataset.busy) return;
   const shown = new Set($$('.door', list).map(b => b.dataset.seed));
-  const pool = DOORS.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, 4);
-  const swap = () => { list.innerHTML = pool.map(d => doorHTML(d, false)).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
+  const pool = FRONT.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, 4);
+  const swap = () => { list.innerHTML = pool.map(doorHTML).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
   if (reducedMotion()) { swap(); return; }
   list.dataset.busy = '1'; list.classList.remove('in'); list.classList.add('out');
   setTimeout(() => { swap(); setTimeout(() => { delete list.dataset.busy; }, 600); }, 160);
 }
-/* ================= the feed: today's pages, written ahead of time =================
-   Below the composer, cards that peek above the fold. Today's topic leads (the one the presets start
-   with), the rest follow in the day's order, and shuffle deals them again. Every card opens a page that
-   is already written: free, and at once. A card only says what its page says (lib/feed.js); the cards
-   come from /feed.json, so reading pages never carry them. */
-let FEED = null, FEEDP = null, FEED_SEED = 0, FEED_SEEN = false, FEEDMAP = null;
-const FEED_POS = new Map();
-/* days turn over at the reader's own midnight, with the date the feed shows */
-const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
-function loadFeed() {
-  FEEDP = FEEDP || fetch('/feed.json').then(r => (r.ok ? r.json() : null)).then(j => (FEED = Array.isArray(j && j.topics) ? j.topics : []), () => { FEEDP = null; return []; });
-  return FEEDP;
+
+/* ================= ways in: the cards, the map of threads, and a reader's world =================
+   Each card is its own piece (lib/front.js): a visual that leads into one topic, its hook, and its
+   title, which links to the page. Between the two groups of cards, a map of every planned topic and
+   the threads that tie them, labelled when you point at one. A reader's own world takes the last slot. */
+let FRONTD = null, FRONTP = null, THREADMAP = null, WORLDCARD = null; const THREAD_POS = new Map();
+function loadFront() {
+  FRONTP = FRONTP || fetch('/front.json').then(r => (r.ok ? r.json() : null)).then(j => (FRONTD = j && Array.isArray(j.cards) ? j : { cards: [], threads: [] }), () => { FRONTP = null; return null; });
+  return FRONTP;
 }
-/* the day's order: the same for everyone all day (a seeded shuffle), today's topic first */
-function dealFeed(seed) {
-  let s = seed | 0; const rnd = () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  const all = FEED.slice(); for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
-  const lead = seed === dayN() ? all.findIndex(f => f.t === DOORS[seed % DOORS.length].t) : -1;
-  if (lead > 0) all.unshift(all.splice(lead, 1)[0]);
-  return all.slice(0, 12);
+const slugOfCard = t => topicKey(t).replace(/[^a-z0-9]+/g, '-');
+function wayHTML(c, i) {
+  const href = routeOf({ title: c.t, lens: 'encyclopedic', q: asksQuestion(c.t), ctx: '', bridge: null });
+  const live = c.fx === 'flytrap' || c.fx === 'enigma'; const go = `href="${esc(href)}" data-way="${esc(c.t)}" data-fk="${esc(c.k)}" data-h="${esc(c.hook)}"`;
+  return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${live ? ' wc-live' : ''}" data-card="${slugOfCard(c.t)}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''} style="--i:${i}">
+  <div class="wc-art">${c.art}</div>
+  <div class="wc-txt"><p class="wc-meta"><span class="wc-n">${String(i + 1).padStart(2, '0')}</span><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3><p class="wc-h">${esc(c.hook)}</p>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${live ? `<a class="wc-go" ${go}>Open the page ${ic('right')}</a>` : ''}</div>
+</article>`;
 }
-/* each card shows its page one way: the lead with its picture, a big number, a myth put right, an open question, or a picture */
-const feedFormat = (f, i, seed) => (i === 0 ? 'lead' : f.fig ? 'num' : f.myth ? 'myth' : (i + seed) % 3 === 0 || !f.pic ? 'q' : 'pic');
-function feedCardHTML(f, i, seed, at) {
-  const fmt = feedFormat(f, i, seed);
-  const href = routeOf({ title: f.t, lens: 'encyclopedic', q: asksQuestion(f.t), ctx: '', bridge: null });
-  const kind = `<span class="kind"${kattr(f.k)}>${esc(capFirst(f.k))}</span>`, title = `<b class="fc-t">${esc(f.t)}</b>`;
-  const pic = f.pic ? `<span class="fc-img"><img src="${esc(f.pic.src)}" alt="" width="${+f.pic.w || 500}" height="${+f.pic.h || 375}"${i ? ' loading="lazy"' : ''} decoding="async"></span>` : '';
-  const credit = f.pic && (f.pic.credit || f.pic.license) ? `<span class="fc-cr">${esc([f.pic.credit, f.pic.license].filter(Boolean).join(' · '))}</span>` : '';
-  const from = `<span class="fc-from">${kind}${title}</span>`;
-  const myth = f.myth ? `<span class="fc-m"><em>Myth</em><s>${esc(f.myth[0])}</s></span><span class="fc-m"><em>Actually</em>${esc(f.myth[1])}</span>` : '';
-  /* the lead says one more thing its page says: the myth it puts right, its big number, or a question it leaves open */
-  const more = myth || (f.fig ? `<span class="fc-n">${esc(f.fig[0])}</span><span class="fc-cap">${esc(capFirst(f.fig[1]))}</span>` : f.q.length ? `<span class="fc-m"><em>Still open</em>${esc(f.q[seed % f.q.length])}</span>` : '');
-  const body = fmt === 'lead' ? `${pic}<span class="fc-body">${seed === dayN() ? '<span class="fc-eye">Today’s topic</span>' : ''}${kind}${title}<span class="fc-d">${esc(f.d)}</span>${more ? `<span class="fc-more">${more}</span>` : ''}${credit}</span>`
-    : fmt === 'pic' ? `${pic}<span class="fc-body">${kind}${title}<span class="fc-h">${esc(f.h)}</span>${credit}</span>`
-    : fmt === 'num' ? `<span class="fc-n">${esc(f.fig[0])}</span><span class="fc-cap">${esc(capFirst(f.fig[1]))}</span>${from}`
-    : fmt === 'myth' ? `${myth}${from}`
-    : `<span class="fc-qm" aria-hidden="true">?</span><span class="fc-qt">${esc(f.q[(seed + i) % f.q.length] || f.h)}</span>${from}`;
-  return `<a class="fc fc-${fmt}" href="${esc(href)}" data-feed="${esc(f.t)}" data-fk="${esc(f.k)}" data-h="${esc(f.h)}"${kattr(f.k)} style="--i:${at}">${body}</a>`;
-}
-const feedShellHTML = () => `<section class="feed" id="feed" aria-labelledby="feedH">
-  <header class="fd-top"><div><h2 class="fd-h" id="feedH">${esc(new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }))}</h2><p class="fd-sub">Written ahead of time, so they’re free and open at once.</p></div><button class="pr-shuf" type="button" data-act="feed-shuffle"${tipAttrs('Shuffle these')}>${ic('shuffle')}</button></header>
-  <div class="fd-cards" id="feedA"></div>
-  <div class="fd-world" id="feedWorld"></div>
-  <div class="fd-cards" id="feedB"></div>
+const frontShellHTML = () => `<section class="ways" id="ways" aria-labelledby="waysH">
+  <h2 class="ways-h" id="waysH">Ways in</h2>
+  <div class="bento" id="bentoA"></div>
+  <div class="threads" id="threads"></div>
+  <div class="bento" id="bentoB"></div>
 </section>`;
-function renderFeed(anim) {
-  const A = $('#feedA'), B = $('#feedB'); if (!A || !B || !FEED) return;
-  if (!FEED.length) { $('#feed').hidden = true; return; }
-  const list = dealFeed(FEED_SEED); const card = (f, i) => feedCardHTML(f, i, FEED_SEED, i < 6 ? i : i - 6);
-  A.innerHTML = list.slice(0, 6).map(card).join(''); B.innerHTML = list.slice(6).map((f, j) => card(f, j + 6)).join('');
-  for (const el of [A, B]) { el.classList.remove('out'); el.classList.toggle('in', !!anim); }
+function renderFront() {
+  const A = $('#bentoA'), B = $('#bentoB'); if (!A || !B || !FRONTD) return;
+  if (!FRONTD.cards.length) { $('#ways').hidden = true; return; }
+  const cards = FRONTD.cards; const cut = cards.findIndex(c => c.t === 'Fireworks'); const split = cut > 0 ? cut : Math.ceil(cards.length / 2);
+  /* a reader's world takes the last card's place, at its size */
+  const mine = worldCount() > 0; const last = cards[cards.length - 1]; const later = cards.slice(split).filter(c => !(mine && c === last));
+  A.innerHTML = cards.slice(0, split).map(wayHTML).join('');
+  B.innerHTML = later.map((c, j) => wayHTML(c, split + j)).join('') + (mine ? worldCardHTML(last) : '');
+  renderThreads(); if (mine) mountWorldCard(); startFx();
 }
-/* between the cards, a map: for someone new, these pages and where they lead; for a reader, their own world */
-function renderFeedWorld() {
-  const el = $('#feedWorld'); if (!el || el.dataset.built) return; el.dataset.built = '1';
-  const mine = worldCount() > 0; el.classList.toggle('mine', mine);
-  if (!mine) {
-    const leads = new Set(FEED.flatMap(f => f.cards.map(c => topicKey(c[0])))); for (const f of FEED) leads.delete(topicKey(f.t));
-    el.innerHTML = `<div class="fw-side"><h3 class="fw-h">A world of topics</h3><p class="fw-p">Every page here, and the topics each one opens onto. What you read becomes Your world.</p><p class="fw-stats"><b>${FEED.length}</b> pages · <b>${leads.size}</b> topics they lead to</p></div><div class="fw-stage" id="feedStage" role="img" aria-label="A map of these pages and the topics they lead to"></div>`;
-  }
-  else {
-    const seen = new Set(); const read = Object.values(store.pages).filter(p => p.status === 'done' || p.status === 'partial').sort((a, b) => b.last - a.last).filter(p => { const k = nodeKeyOf(p); if (seen.has(k)) return false; seen.add(k); return true; });
-    const saved = read.filter(p => p.saved).sort((a, b) => b.saved - a.saved); const n = worldCount();
-    const row = p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}>${esc(clip(p.title, 46))}</a></li>`;
-    el.innerHTML = `<div class="fw-side"><h3 class="fw-h">Your world</h3><p class="fw-stats"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><div class="fw-lists"><div><h4>Recently</h4><ul>${read.slice(0, 5).map(row).join('')}</ul></div>${saved.length ? `<div><h4>Saved</h4><ul>${saved.slice(0, 4).map(row).join('')}</ul></div>` : ''}</div><a class="fw-open" href="/world">Open Your world ${ic('right')}</a></div><div class="fw-stage" id="feedStage" role="img" aria-label="The topics you've read and where they lead"></div>`;
-  }
-  const host = $('#feedStage'); if (FEEDMAP) FEEDMAP.destroy();
-  if (mine) {
-    const full = worldGraph(); const last = pageOf(store.current);
-    const start = last && (last.status === 'done' || last.status === 'partial') ? nodeKeyOf(last) : (full.nodes.find(n => n.read) || {}).key || '';
-    FEEDMAP = makeGraph(host, { mini: true, still: true, positions: MINI_POS });
-    FEEDMAP.setData(start ? localGraph(full, start, 48, 12) : { nodes: [], edges: [] }, { center: start });
-    return;
-  }
-  /* these pages as if read, so they shine; what they lead to waits faintly around them */
-  const pages = {};
-  for (const f of FEED) { const req = { title: f.t, lens: 'encyclopedic', q: asksQuestion(f.t), ctx: '', bridge: null }; const id = pageId(req); pages[id] = { id, req, title: f.t, status: 'done', text: 'x', kind: f.k, first: 1, last: 1, links: f.cards.map(([t, k, h]) => [topicKey(t), t, k, h]) }; }
-  const g = buildGraph(pages, [], { perPage: 6 }); const hook = new Map(FEED.map(f => [topicKey(f.t), f.h]));
-  for (const n of g.nodes) if (n.read) n.hook = hook.get(n.key) || '';
-  FEEDMAP = makeGraph(host, { still: true, positions: FEED_POS, describe: n => (n.read ? 'Ready to read' : 'One click away'), open: n => openTopic(n.title, { via: 'start', hint: n.kind || n.hook ? { gloss: n.hook, kind: n.kind } : null }) });
-  FEEDMAP.setData(g);
+/* the map of threads: every planned topic, and why each one leads to the next */
+function renderThreads() {
+  const el = $('#threads'); if (!el) return;
+  el.innerHTML = `<div class="th-side"><h2 class="th-h">Pull a thread</h2><div class="th-body" aria-live="polite"><p class="th-p">Every topic here is tied to others. Point at one to see why.</p><p class="th-stats"><b>${FRONT.length}</b> topics · <b>${FRONTD.threads.length}</b> threads</p></div></div><div class="th-stage" id="threadStage" role="img" aria-label="A map of the topics and the threads between them"></div>`;
+  /* the topic you point at, and every thread it has, beside the map (it stays until you point at another) */
+  const body = $('.th-body', el);
+  const panel = n => {
+    if (!n || body.dataset.at === n.key) return; body.dataset.at = n.key;
+    const mine = FRONTD.threads.filter(t => t.a === n.title || t.b === n.title);
+    const href = routeOf({ title: n.title, lens: 'encyclopedic', q: asksQuestion(n.title), ctx: '', bridge: null });
+    body.innerHTML = `<p class="th-k"><span class="kind"${kattr(n.kind)}>${esc(capFirst(n.kind))}</span><span>${mine.length} thread${mine.length === 1 ? '' : 's'}</span></p><h3 class="th-t">${esc(n.title)}</h3><p class="th-p">${esc(n.hook)}</p><ul class="th-list">${mine.map(t => `<li><b>${esc(t.a === n.title ? t.b : t.a)}</b><span>${esc(t.l)}</span></li>`).join('')}</ul><a class="wc-go" href="${esc(href)}" data-way="${esc(n.title)}" data-fk="${esc(n.kind)}" data-h="${esc(n.hook)}">Open the page ${ic('right')}</a>`;
+  };
+  const nodes = FRONT.map(f => ({ key: topicKey(f.t), pid: '', title: f.t, kind: f.k, read: true, saved: 0, first: 0, last: 0, hook: f.h, count: 0, deg: 0, cur: false, x: 0, y: 0, vx: 0, vy: 0, fx: null, fy: null }));
+  const at = new Map(nodes.map((n, i) => [n.title, i])); const edges = [];
+  for (const th of FRONTD.threads) { const a = at.get(th.a), b = at.get(th.b); if (a == null || b == null) continue; edges.push({ a, b, move: false, unread: false, len: 96, label: th.l }); nodes[a].deg++; nodes[b].deg++; }
+  if (THREADMAP) THREADMAP.destroy();
+  THREADMAP = makeGraph($('#threadStage'), { still: true, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }) });
+  THREADMAP.setData({ nodes, edges });
 }
-/* shuffle deals the cards again: the shown ones step back quickly, the new ones rise in a beat apart */
-function shuffleFeed() {
-  const A = $('#feedA'), B = $('#feedB'); if (!A || !B || !FEED || !FEED.length || A.dataset.busy) return;
-  let s; do s = Math.floor(Math.random() * 1e9); while (s === dayN()); FEED_SEED = s;
-  if (reducedMotion()) { renderFeed(false); return; }
-  A.dataset.busy = '1'; A.classList.add('out'); B.classList.add('out');
-  setTimeout(() => { renderFeed(true); setTimeout(() => { delete A.dataset.busy; }, 600); }, 160);
+/* a reader's world, in the last slot: the neighbourhood of the last page read, and what they read lately */
+function worldCardHTML(slot) {
+  const seen = new Set(); const read = Object.values(store.pages).filter(p => p.status === 'done' || p.status === 'partial').sort((a, b) => b.last - a.last).filter(p => { const k = nodeKeyOf(p); if (seen.has(k)) return false; seen.add(k); return true; });
+  const n = worldCount();
+  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-txt"><p class="wc-meta"><span class="wc-n">YOU</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3><p class="wc-h"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><ul class="ww-list">${read.slice(0, 3).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}>${esc(clip(p.title, 34))}</a></li>`).join('')}</ul></div></article>`;
 }
-function startFeed() {
-  if (!FEED_SEED) FEED_SEED = dayN();
-  loadFeed().then(() => { if (VIEW !== 'home') return; renderFeed(!FEED_SEEN && !reducedMotion()); FEED_SEEN = true; if (FEED && FEED.length) renderFeedWorld(); });
+function mountWorldCard() {
+  const host = $('#worldStage'); if (!host) return; if (WORLDCARD) WORLDCARD.destroy();
+  const full = worldGraph(); const last = pageOf(store.current);
+  const start = last && (last.status === 'done' || last.status === 'partial') ? nodeKeyOf(last) : (full.nodes.find(n => n.read) || {}).key || '';
+  WORLDCARD = makeGraph(host, { mini: true, still: true, positions: MINI_POS });
+  WORLDCARD.setData(start ? localGraph(full, start, 24, 6) : { nodes: [], edges: [] }, { center: start });
+}
+/* ---------- the cards that do something: a cube's count rolls in, a flytrap counts, an Enigma types ---------- */
+let FX_IO = null;
+function startFx() {
+  if (FX_IO) FX_IO.disconnect();
+  const seen = el => { el.classList.add('seen'); const n = $('[data-fx="odometer"]', el); if (n && !n.dataset.done) odometer(n); };
+  if (typeof IntersectionObserver !== 'function' || reducedMotion()) $$('.wc').forEach(el => { el.classList.add('seen', 'still'); });
+  else { FX_IO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen(e.target); FX_IO.unobserve(e.target); } }), { threshold: .35 }); $$('.wc').forEach(el => FX_IO.observe(el)); }
+  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx);
+}
+/* the cube's number rolls in, digit by digit, like a slot machine settling from the left */
+function odometer(el) {
+  el.dataset.done = '1'; const text = el.textContent; let k = 0;
+  el.innerHTML = [...text].map(ch => (/\d/.test(ch) ? `<span class="od" style="--d:${ch};--k:${k++}"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</span></span>` : esc(ch) + (ch === ',' ? '<wbr>' : ''))).join('');
+  el.setAttribute('aria-label', text); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
+}
+/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it, five start digestion */
+function flytrapFx(card) {
+  const art = $('.wc-art', card); if (!art || art.dataset.wired) return; art.dataset.wired = '1';
+  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><p class="ft-read" aria-live="polite"><span class="ft-c">0</span><span class="ft-s">Touch a hair</span><i class="ft-bar"></i></p>`);
+  let n = 0, armed = 0, timer = 0, rest = 0; const say = (c, t) => { $('.ft-c', art).textContent = c; $('.ft-s', art).textContent = t; };
+  const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say('0', 'Touch a hair'); };
+  $('.ft-btn', art).addEventListener('click', () => {
+    clearTimeout(rest); const now = Date.now(); if (armed && now - armed > 20000 && n < 2) n = 0;
+    n = Math.min(n + 1, 5); card.classList.remove('zap'); void card.offsetWidth; card.classList.add('zap');
+    if (n === 1) { armed = now; card.dataset.state = 'armed'; say('1', 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
+    else if (n < 5) { clearTimeout(timer); card.dataset.state = 'shut'; say(String(n), n === 2 ? 'Shut. Keep going' : `${5 - n} more to digest`); }
+    else { card.dataset.state = 'digest'; say('5', 'Digesting'); }
+    rest = setTimeout(reset, 9000);
+  });
+}
+/* an Enigma you can type into: rotors I, II, III and reflector B from AAA. The lamp your last letter
+   becomes lights, and the tape below pairs every letter with its lamp: no letter ever lights itself */
+function enigmaFx(card) {
+  const input = $('.en-in input', card); if (!input || input.dataset.wired) return; input.dataset.wired = '1';
+  const pl = $('.en-pl', card), cy = $('.en-cy', card), lamps = new Map($$('.en-lamps i', card).map(i => [i.dataset.l, i]));
+  input.addEventListener('input', () => {
+    const plain = input.value.toUpperCase().replace(/[^A-Z]/g, ''); const { out, pos } = enigma(plain, 'AAA');
+    $$('.en-r span', card).forEach((s, i) => { s.textContent = pos[i]; });
+    for (const l of lamps.values()) l.classList.remove('on');
+    if (out) lamps.get(out[out.length - 1])?.classList.add('on');
+    pl.innerHTML = [...plain].map(c => `<i>${c}</i>`).join(''); cy.innerHTML = [...out].map(c => `<i>${c}</i>`).join('');
+  });
 }
 const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
 /* the key pill: free pages left, or the model a reader's own key writes with */
@@ -150,8 +159,7 @@ let LANDED = false;
 function viewStart() {
   /* Continue reopens the last page you read */
   const last = pageOf(store.current); const cont = last && (last.status === 'done' || last.status === 'partial') ? last : [...worldIndex().read.values()].sort((a, b) => b.last - a.last)[0];
-  const today = DOORS[dayN() % DOORS.length];
-  const doors = [today, ...DOORS.filter(d => d !== today).sort(() => Math.random() - .5).slice(0, 3)];
+  const doors = suggestions(4);
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
@@ -171,12 +179,12 @@ function viewStart() {
     <p class="seed-err" id="seedErr" aria-live="polite"></p>
   </form>
   <div class="presets rise" style="--i:3" role="group" aria-label="Or start with one of these">
-    <div class="pr-list" id="presetList">${doors.map((d, i) => doorHTML(d, i === 0)).join('')}</div>
+    <div class="pr-list" id="presetList">${doors.map(doorHTML).join('')}</div>
     <button class="pr-shuf" type="button" data-act="shuffle"${tipAttrs('Show other topics')}>${ic('shuffle')}</button>
   </div>
   <div id="statusSlot" class="rise" style="--i:4">${trialLine()}</div>
 </section>
-${feedShellHTML()}
+${frontShellHTML()}
 <footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p></footer>`;
 }
 /* the beam only runs while someone can see it */
@@ -186,8 +194,8 @@ function watchBeam() {
   BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); startFeed(); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } if (FEEDMAP) { FEEDMAP.destroy(); FEEDMAP = null; } }
+function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } if (FX_IO) { FX_IO.disconnect(); FX_IO = null; } for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });

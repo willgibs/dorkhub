@@ -17,7 +17,8 @@ export const KEY = { 'x-dh-provider': 'anthropic', 'x-dh-model': 'anthropic/clau
 export function client({ env = {}, store = memoryStore(), counters = undefined, ip = '203.0.113.7', textCache = true } = {}) {
   let cookie = '';
   const logs = [];
-  /* the endpoint tests run without the real pre-written pages, so any title is written (by the mock) */
+  /* the endpoint tests run without the real pre-written pages, so any title is written (by the mock),
+     except the front page's topics, which open their placeholders (lib/placeholder.js) */
   const deps = { env: { DH_MOCK: '1', DH_MOCK_FAST: '1', VERCEL_ENV: 'development', ...env }, store, counters: counters ?? cacheCounters(store), textCache, log: (/** @type {any} */ l) => logs.push(l), seeds: new URL('./no-seeds/', import.meta.url) };
   return {
     store, logs, counters: deps.counters,

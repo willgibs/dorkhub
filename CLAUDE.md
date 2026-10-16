@@ -30,8 +30,11 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
 - `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
-- `lib/feed.js`: the front page's cards, read from the pages written ahead of time;
-  `node scripts/seeds.mjs feed` writes them, with each page's picture, to `src/static/feed.json`.
+- `lib/front.js`: the front page, by hand: its topics (`FRONT`), the cards with their drawings, the
+  threads between topics, each with its source, and `DOORS` (those topics, then the pages written
+  before them); the build writes `public/front.json`.
+- `lib/placeholder.js`: a front-page topic whose page isn't written yet opens a placeholder, built
+  from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page.
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`
@@ -47,8 +50,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
   exact repeats are reused (same topic, voice, model, prompt version), and a rewrite is private.
 - Icon-only controls; labels live in tooltips (`data-tip`).
 - The brand is Dorkhub; keep dig/dirt/tunnel metaphors out of the copy.
-- The front page gets people started: the composer first, then today's pages written ahead
-  of time (free and instant), as cards that peek above the fold. No marketing.
+- The front page gets people started: the composer first, then ways in made by hand, cards that
+  peek above the fold, each opening a page free and instant. No marketing.
 
 ## Rules
 - Prompts change only in `lib/prompts.js`; bump `PROMPT_VERSION` when the output format
