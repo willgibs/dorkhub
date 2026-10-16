@@ -143,7 +143,6 @@ document.addEventListener('click', e => {
   else if (x === 'listen') listen(p);
   else if (x === 'help') $('#help').showModal();
   else if (x === 'side-toggle') toggleSide();
-  else if (x === 'side-world') { SIDE = 'world'; toggleSide(true); }
   else if (x === 'recap') recapTrail(false);
   else if (x === 'save-notes') { const t = curTrail(); if (t && t.notes) saveFile(`${fileSlug((trailPages(t)[0] || {}).title || 'trail')}-recap.md`, t.notes); }
   else if (x === 'copy-notes') { const t = curTrail(); if (t && t.notes) navigator.clipboard?.writeText(t.notes).then(() => toast('Copied.'), () => toast('Copy isn’t allowed here. Select the text instead.')); }

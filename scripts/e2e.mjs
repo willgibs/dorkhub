@@ -137,14 +137,14 @@ async function run(page, { mobile = false } = {}) {
     const where = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, kind: document.querySelector('.where .kind')?.textContent || '', accent: document.documentElement.dataset.accent }));
     if (where.url !== `/${slugOf(first)}` || where.title !== first || !where.kind || !where.accent) throw new Error(`the page: ${JSON.stringify(where)}`);
     if ((await left()) !== String(PAGES - 1)) throw new Error(`free pages ${await left()}`);
-    /* reading first: the opening paragraph starts on the first screen; a facts panel sits beside its paragraph, or below it on a phone */
+    /* reading first: the opening paragraph starts on the first screen; one column, a facts panel below its paragraph and lined up with it */
     await page.evaluate(() => window.scrollTo(0, 0));
     const lay = await page.evaluate(() => {
       const pb = document.querySelector('.a-body .pb'); const p = pb.querySelector('.pcol > p').getBoundingClientRect(); const f = pb.querySelector('.mcol .panel[data-type="facts"]')?.getBoundingClientRect();
-      return { top: p.top, vh: innerHeight, beside: f ? f.left >= p.right : null, below: f ? f.top >= p.bottom : null, v1: !!document.querySelector('.h-side,.glance-band,.drift,.caret,.levelband,.react,.next'), tools: !!document.querySelector('.a-head .h-row .tools [data-act="save"]'), order: [...document.querySelectorAll('.a-end > div')].map(d => d.dataset.k).join(' '), cards: document.querySelectorAll('.a-end .card').length };
+      return { top: p.top, vh: innerHeight, inline: f ? Math.abs(f.left - p.left) < 2 : null, below: f ? f.top >= p.bottom : null, v1: !!document.querySelector('.h-side,.glance-band,.drift,.caret,.levelband,.react,.next'), tools: !!document.querySelector('.a-head .h-row .tools [data-act="save"]'), order: [...document.querySelectorAll('.a-end > div')].map(d => d.dataset.k).join(' '), cards: document.querySelectorAll('.a-end .card').length };
     });
     if (lay.top > lay.vh * .75) throw new Error(`the first paragraph starts at ${Math.round(lay.top)} of ${lay.vh}`);
-    if (mobile ? !lay.below : !lay.beside) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
+    if (!lay.below || !lay.inline) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
     if (lay.v1) throw new Error('levels, reactions or the old next page are still on the page');
     if (!lay.tools) throw new Error('the Save star is not in the head row');
     if (lay.order !== 'cards qs ask' || lay.cards !== 6) throw new Error(`the end of the page: ${JSON.stringify(lay)}`);
@@ -275,14 +275,17 @@ async function run(page, { mobile = false } = {}) {
       await page.waitForTimeout(400); await page.keyboard.press('s');
       await page.waitForFunction(() => document.querySelector('.tool.save')?.getAttribute('aria-pressed') === 'true');
     });
-    /* the sidebar: Your world beside the page, then the index and the trails */
+    /* the sidebar: closed, it takes no room; its toggle in the top bar (or M) opens Your world beside the page, then the index and the trails */
     await step(`${tag}: the sidebar`, async () => {
-      await page.keyboard.press('m'); await page.waitForSelector('#miniStage canvas');
+      const shut = await page.evaluate(() => ({ w: document.querySelector('#side')?.getBoundingClientRect().width, exp: document.querySelector('#sideBtn')?.getAttribute('aria-expanded'), rail: !!document.querySelector('#railbar,.rail-n') }));
+      if (shut.w !== 0 || shut.exp !== 'false' || shut.rail) throw new Error(`the closed sidebar: ${JSON.stringify(shut)}`);
+      await page.locator('#sideBtn').click(); await page.waitForSelector('#miniStage canvas');
+      if ((await page.locator('#sideBtn').getAttribute('aria-expanded')) !== 'true') throw new Error('the toggle did not say the sidebar is open');
       await page.waitForTimeout(900); await page.screenshot({ path: `${shots}/${tag}-6-sidebar.png` });
       await page.locator('[data-tab="index"]').click(); await page.waitForSelector('#ixList .ix');
       await page.locator('[data-tab="trails"]').click(); await page.waitForSelector('.trails li');
       await page.locator('[data-tab="world"]').click(); await page.keyboard.press('m');
-      if (!(await page.evaluate(() => document.body.classList.contains('side-rail')))) throw new Error('the sidebar stayed open');
+      if (!(await page.evaluate(() => document.body.classList.contains('side-closed')))) throw new Error('the sidebar stayed open');
     });
     await step(`${tag}: Your world`, async () => {
       const saved = await page.evaluate(() => document.querySelector('.a-title')?.textContent || '');

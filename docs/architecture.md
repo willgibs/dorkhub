@@ -17,6 +17,14 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   ranges (`lean()` in the build), so nothing inside a string, template or regex is touched and
   licence notices stay. Anything only one view needs, like the front page's cards, is a separate
   file fetched by that view.
+- **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (720 px
+  of content). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
+  what belongs to it (`.mcol`): its asides (`^` notes), a facts panel the writer put after it,
+  and, after the first paragraph, the lead picture. An aside is written straight after its
+  paragraph, so it always arrives at the bottom of what is written. The sidebar is closed by
+  default and then takes no room; its toggle (`#sideBtn`, or M) sits before the wordmark. The top
+  bar's actions share one shape: search, Your world with its count, keys with the free pages
+  left (both counts set alike, digits popping in as they change), voice.
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).
