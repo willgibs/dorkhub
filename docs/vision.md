@@ -38,12 +38,17 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
    pause (Will, 2026-10-15).
 5. **The front page** gets a visitor into their first page. One composer, front and centre,
    with suggestions for anyone who would rather not type; below it, peeking above the fold,
-   ways in: cards made by hand, each its own drawing leading into one topic (the aurora's
-   colours by height, Krakatoa's pressure wave going round the world, a flytrap you can touch,
-   an Enigma you can type into), and a map of the threads between the topics that says why
-   each leads to the next. While the front page is updated by hand, every card is designed on
-   its own, and no two look alike. A reader finds their own world in the last card's place.
-   No marketing (Will, 2026-10-15).
+   ways in: cards made by hand, each its own drawing leading into one topic (a black hole's
+   disk as Luminet first drew one, the aurora's colours by height, a sheet in Miura's fold that
+   opens in one pull, a flytrap you can touch, an Enigma you can type into), and a map of the
+   threads between the topics that says why each leads to the next. While the front page is
+   updated by hand, every card is designed on its own, and no two look alike. A reader finds
+   their own world in the last card's place. No marketing (Will, 2026-10-15).
+   The drawing is the card (Will, 2026-10-16): it fills the card, with only the topic's kind and
+   title; the visitor clicks in to find out what it shows. Short labels stay where the drawing
+   would lose its meaning without them, and the rest answers the pointer. As you scroll, one
+   card tells its story at a time, in reading order, so each is seen; nothing moves for its own
+   sake after that. The front page's topics are chosen for what their cards can show.
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 

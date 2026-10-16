@@ -112,8 +112,8 @@ export function trapView(phi, C) {
   };
   const lobes = [lobe(1), lobe(-1)].sort((p, q) => p.z - q.z);
   /* the stalk: a neck from the hinge's end, widening into the flat leaf that runs off the card */
-  const st = [[-LH - .04, 0, 0], [-LH - .32, -.22, -.05], [-LH - .78, -.6, -.1], [-LH - 1.35, -1.1, -.14], [-LH - 2.1, -1.75, -.18]];
-  const half = [.035, .07, .2, .33, .42];
+  const st = [[-LH - .04, 0, 0], [-LH - .28, -.2, -.05], [-LH - .62, -.5, -.1], [-LH - 1.05, -.9, -.14], [-LH - 1.6, -1.4, -.18]];
+  const half = [.035, .07, .16, .26, .33];
   const wing = (/** @type {number} */ side) => st.map((q, i) => [q[0] - side * half[i] * .63, q[1] + side * half[i] * .78, q[2]]);
   const stalk = `M${wing(1).map(P).join('L')}L${wing(-1).reverse().map(P).join('L')}Z`, vein = `M${st.map(P).join('L')}`;
   return { lobes, stalk, vein, hinge: `M${P([-LH, 0, 0])}L${P([LH, 0, 0])}` };
