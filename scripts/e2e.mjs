@@ -247,7 +247,11 @@ async function run(page, { mobile = false } = {}) {
   await step(`${tag}: a guess keeps its answer until asked`, async () => {
     if (await page.locator('.panel[data-type="guess"] .pn-a').count()) throw new Error('the answer showed before it was asked for');
     await page.locator('.panel[data-type="guess"] .pn-reveal').click();
-    await page.waitForFunction(() => document.querySelector('.panel[data-type="guess"] .pn-a')?.textContent === '0' && document.activeElement === document.querySelector('.pn-a'), null, { timeout: 5000 });
+    await page.waitForFunction(() => !!document.querySelector('.panel[data-type="guess"] .pn-a') && document.activeElement === document.querySelector('.pn-a'), null, { timeout: 5000 });
+    /* its number rolls in on reels drawn for the eye; a screen reader hears it once, from text, and none of the reels */
+    const heard = await page.locator('.panel[data-type="guess"] .pn-a').ariaSnapshot();
+    const reels = await page.$$eval('.panel[data-type="guess"] .odo', os => os.filter(o => !o.closest('[aria-hidden="true"]')).length);
+    if (heard.trim() !== '- paragraph: "0"' || reels) throw new Error(`the guess's answer, read aloud: ${heard} (${reels} reels not hidden)`);
   });
   if (mobile) {
     /* on a phone the learning tools live in one gooey button: it opens, Save saves, Escape closes it again */
