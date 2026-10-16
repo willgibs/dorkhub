@@ -72,16 +72,32 @@ async function run(page, { mobile = false } = {}) {
     const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
   });
-  /* below the composer, ways in: every card its own drawing leading into a planned topic, the first one
-     peeking above the fold; a flytrap that counts touches; an Enigma that never lights the key pressed;
-     and a map of the threads between the topics that says why, beside it, for the topic pointed at */
+  /* below the composer, ways in: every card its own drawing leading into a planned topic, with only its kind and
+     title, the first one peeking above the fold; one card plays at a time, never two even after a fling; a flytrap
+     that counts touches; an Enigma that never lights the key pressed; drawings that answer the pointer; and a map of
+     the threads between the topics that says why, beside it, for the topic pointed at */
   await step(`${tag}: ways in below the composer`, async () => {
     await page.waitForSelector('#bentoB .wc'); await page.evaluate(() => window.scrollTo(0, 0)); await page.waitForTimeout(600);
     const f = await page.evaluate(() => { const cards = [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('#ways .wc'))]; return { n: cards.length, hero: cards[0].classList.contains('wc-hero'), peek: Math.round(cards[0].getBoundingClientRect().top), vh: innerHeight, drawn: cards.filter(c => c.querySelector('.wc-art [role="img"][aria-label], .wc-art img[alt], .wc-art .tt, .wc-art .en')).length, links: cards.map(c => { const a = /** @type {HTMLAnchorElement} */ (c.querySelector('.wc-t a')); return [a.getAttribute('href'), a.dataset.way]; }), map: !!document.querySelector('#threadStage canvas'), chips: document.querySelectorAll('.door[data-seed]').length }; });
     if (f.n !== 13 || !f.hero || f.peek >= f.vh || f.drawn !== f.n || !f.map || f.chips !== 4 || f.links.some(([h, t]) => !t || h !== `/${slugOf(t)}`)) throw new Error(`ways in: ${JSON.stringify(f)}`);
+    /* a card says only its kind and title: no number, no hook */
+    const words = await page.evaluate(() => ({ hooks: document.querySelectorAll('#ways .wc-h, #ways .wc-n').length, caps: [...document.querySelectorAll('#ways .wc:not(.wc-world)')].filter(c => c.querySelector('.wc-cap .wc-kind .kind') && c.querySelector('.wc-cap .wc-t a')).length }));
+    if (words.hooks || words.caps !== 13) throw new Error(`cards' words: ${JSON.stringify(words)}`);
     await page.screenshot({ path: `${shots}/${tag}-1b-front.png` });
-    /* every card tells its story once it is seen, and ends finished: scroll them all into view, then check */
-    for (const c of await page.locator('#ways .wc').all()) { await c.scrollIntoViewIfNeeded(); await page.waitForTimeout(120); }
+    /* one card plays at a time: after a fling down the page, sample what is playing until it settles. The fling
+       starts with the hero half in view, short of its turn, and only cards where it lands may play, none it passed */
+    if (!mobile) {
+      await page.evaluate(() => { const r = /** @type {HTMLElement} */ (document.querySelector('#ways .wc-hero')).getBoundingClientRect(); window.scrollTo(0, window.scrollY + r.top - (innerHeight - r.height * .5)); });
+      await page.waitForTimeout(900);
+      const seenBefore = await page.$$eval('#ways .seen', cs => cs.map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
+      for (let i = 0; i < 14; i++) { await page.mouse.wheel(0, 150); await page.waitForTimeout(12); }
+      let most = 0, played = 0; const t0 = Date.now();
+      while (Date.now() - t0 < 5000) { const n = await page.evaluate(() => [document.querySelectorAll('#ways .playing').length, document.querySelectorAll('#ways .seen').length]); most = Math.max(most, n[0]); played = n[1]; await page.waitForTimeout(70); }
+      const passed = await page.$$eval('#ways .seen', cs => cs.filter(c => { const r = c.getBoundingClientRect(); return r.bottom <= 0 || r.top >= innerHeight; }).map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
+      if (most > 1 || !played || passed.some(k => !seenBefore.includes(k))) throw new Error(`the stage played ${most} at once (${played} seen; played though only flung past: ${passed})`);
+    }
+    /* every card tells its story on its turn, and ends finished: bring each to the middle of the screen and wait for it */
+    for (const c of await page.locator('#ways .wc').all()) { await c.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForFunction(el => el.classList.contains('seen') && !el.classList.contains('playing'), await c.elementHandle(), { timeout: 8000 }); }
     await page.waitForTimeout(2200);
     const done = await page.evaluate(() => { const cards = [...document.querySelectorAll('#ways .wc')]; const draws = [...document.querySelectorAll('#ways .wc .dr')].filter(d => d.getClientRects().length); return { unseen: cards.filter(c => !c.classList.contains('seen')).map(c => c.dataset.card), unfinished: draws.filter(d => parseFloat(getComputedStyle(d).strokeDashoffset) > .01).length, draws: draws.length }; });
     if (done.unseen.length || done.unfinished || !done.draws) throw new Error(`entrances: ${JSON.stringify(done)}`);
@@ -104,17 +120,24 @@ async function run(page, { mobile = false } = {}) {
     const tapped = await en.evaluate(c => [c.querySelector('.en-pl')?.textContent, c.querySelector('.en-cy')?.textContent?.length, c.querySelector('.en-lamps i.on')?.textContent]);
     if (tapped[0] !== 'WE' || tapped[1] !== 2 || !tapped[2] || tapped[2] === 'E') throw new Error(`the Enigma's keys: ${JSON.stringify(tapped)}`);
     await en.screenshot({ path: `${shots}/${tag}-1c-enigma.png` });
-    /* Time travel's drift ticks while it is on screen */
-    const tt = page.locator('.wc[data-card="time-travel"]'); await tt.scrollIntoViewIfNeeded();
-    const d0 = await tt.locator('.tt-ns').textContent(); await page.waitForTimeout(700); const d1 = await tt.locator('.tt-ns').textContent();
-    if (!d0 || d0 === d1) throw new Error(`the drift did not tick: ${d0} then ${d1}`);
-    /* a chart reads out the part the pointer is on */
+    /* drawings answer the pointer: the black hole names the part pointed at; the magnet's filings turn toward it;
+       the folded sheet opens and closes across the card */
     if (!mobile) {
-      const rb = page.locator('.wc[data-card="rubiks-cube"]'); await rb.scrollIntoViewIfNeeded();
-      const bar = /** @type {{ x: number, y: number, width: number, height: number }} */ (await rb.locator('.hit').nth(14).boundingBox());
-      await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height - 20);
-      const read = await rb.locator('.wc-read').textContent();
-      if (!/^14 moves · 6,989,320,578,825,358 positions$/.test(read || '')) throw new Error(`the cube's reading: ${read}`);
+      const bh = page.locator('.wc[data-card="black-holes"]'); await bh.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForTimeout(300);
+      const hb = /** @type {{ x: number, y: number, width: number, height: number }} */ (await bh.boundingBox());
+      await page.mouse.move(hb.x + hb.width * .5, hb.y + hb.height * .3, { steps: 4 }); await page.waitForTimeout(200);
+      const read = await bh.evaluate(c => c.classList.contains('reading') ? c.querySelector('.wc-read')?.textContent : '');
+      if (!/far side of the disk/.test(read || '')) throw new Error(`the black hole's reading: ${read}`);
+      const mg = page.locator('.wc[data-card="magnets"]'); await mg.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForTimeout(1600);
+      const ink = () => mg.evaluate(c => { const cv = /** @type {HTMLCanvasElement} */ (c.querySelector('.mg-cv')); const d = /** @type {CanvasRenderingContext2D} */ (cv.getContext('2d')).getImageData(0, 0, cv.width, cv.height).data; let n = 0, h = 0; for (let i = 3; i < d.length; i += 4) if (d[i] > 40) { n++; h = (h * 31 + i) % 1000003; } return [n, h]; });
+      const before = await ink(); const mb = /** @type {{ x: number, y: number, width: number, height: number }} */ (await mg.boundingBox());
+      await page.mouse.move(mb.x + mb.width * .8, mb.y + mb.height * .8, { steps: 6 }); await page.waitForTimeout(700); const after = await ink();
+      if (before[0] < 1500 || before[1] === after[1]) throw new Error(`the magnet's filings: ${JSON.stringify({ before, after })}`);
+      const mi = page.locator('.wc[data-card="origami"]'); await mi.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForTimeout(1600);
+      const face = () => mi.evaluate(c => c.querySelector('.vz-w .mi-f')?.getAttribute('d') || '');
+      const rest = await face(); const ob = /** @type {{ x: number, y: number, width: number, height: number }} */ (await mi.boundingBox());
+      await page.mouse.move(ob.x + ob.width * .15, ob.y + ob.height * .6, { steps: 6 }); await page.waitForTimeout(700);
+      if (!rest || (await face()) === rest) throw new Error('the fold did not answer the pointer');
       await page.mouse.move(0, 0);
     }
     if (!mobile) {
@@ -361,8 +384,8 @@ async function run(page, { mobile = false } = {}) {
     /* back on the front page, a reader's own world takes the last card's place */
     await step(`${tag}: the front page shows your world`, async () => {
       await page.goto(base); await page.waitForSelector('.wc-world #worldStage canvas');
-      const w = await page.evaluate(() => ({ stats: document.querySelector('.wc-world .wc-h')?.textContent || '', recent: document.querySelectorAll('.wc-world .ww-list li').length, cards: document.querySelectorAll('#ways .wc').length, last: document.querySelector('#bentoB .wc:last-child')?.classList.contains('wc-world') }));
-      if (!/topics? read/.test(w.stats) || !w.recent || w.cards !== 13 || !w.last) throw new Error(`the front page's world: ${JSON.stringify(w)}`);
+      const w = await page.evaluate(() => ({ stats: document.querySelector('.wc-world .ww-stats')?.textContent || '', cards: document.querySelectorAll('#ways .wc').length, last: document.querySelector('#bentoB .wc:last-child')?.classList.contains('wc-world') }));
+      if (!/topics? read/.test(w.stats) || w.cards !== 13 || !w.last) throw new Error(`the front page's world: ${JSON.stringify(w)}`);
       await page.locator('.wc-world').scrollIntoViewIfNeeded(); await page.waitForTimeout(1500);
       /* its map draws its topics on its own (in their kind colours), with nothing pointed at */
       const lit = await page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#worldStage canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; return n; });

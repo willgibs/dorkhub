@@ -37,7 +37,7 @@ else if (cmd === 'brief') {
   const card = CARDS.find(c => c.t === t.t); const promises = [{ text: t.h, src: [t.src] }];
   if (card) {
     if (card.hook && card.hook !== t.h) promises.push({ text: card.hook, src: card.src });
-    for (const m of (card.art() + (card.more || '')).matchAll(/role="img" aria-label="([^"]+)"/g)) promises.push({ text: `Its card's drawing shows ${unesc(m[1])}.`, src: card.src });
+    for (const m of (card.art() + (card.more || '')).matchAll(/role="img" aria-label="([^"]+)"/g)) promises.push({ text: `Its card's drawing shows ${unesc(m[1]).replace(/^(A|An|The) /, w => w.toLowerCase())}.`, src: card.src });
   }
   const threads = THREADS.filter(x => x.a === t.t || x.b === t.t).map(x => ({ to: x.a === t.t ? x.b : x.a, label: x.l, src: x.src }));
   process.stdout.write(`${pagePrompt(pageInput({ title: t.t, lens: 'encyclopedic' }))}\n${seedBrief({ promises, threads })}\n`);

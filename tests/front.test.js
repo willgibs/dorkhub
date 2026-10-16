@@ -1,6 +1,6 @@
 // The front page, made by hand (lib/front.js): every topic, card and thread is checkable, each card's
-// drawing is accessible and inert, the bento tiles without holes at every width, and the Enigma card's
-// cipher is the machine's own.
+// drawing is accessible and inert and true to its subject, the bento tiles without holes at every width,
+// and the Enigma card's cipher is the machine's own.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -8,6 +8,8 @@ import { CARDS, DOORS, EARLIER, FRONT, THREADS, frontData } from '../lib/front.j
 import { WIDTHS } from '../lib/picture.js';
 import { KINDS, parseArticle } from '../src/shared/article.js';
 import { enigma } from '../src/shared/enigma.js';
+import { FOLD, barField, miura } from '../src/shared/plates.js';
+import { trace } from '../lib/plates/blackhole.js';
 import { topicKey } from '../src/shared/world.js';
 
 const titles = new Set(FRONT.map(t => t.t));
@@ -61,6 +63,13 @@ test('every card leads into a planned topic, with a source, and a drawing that i
     assert.ok(card.src.length && card.src.every(https), `${c.t}: sources`);
     const html = c.art + (c.more || '');
     assert.match(html, /role="img" aria-label="[^"]{20,}"|<img [^>]*alt="[^"]{10,}"|class="(tt|en)"/, `${c.t}: its drawing says what it shows`);
+    /* a canvas is drawn by the page and says nothing of its own: the labelled drawing beside it does */
+    for (const m of html.matchAll(/<canvas[^>]*>/g)) assert.match(m[0], /aria-hidden="true"/, `${c.t}: its canvas is hidden from assistive tech`);
+    /* the card shows its drawing, kind and title, nothing to read: no sentence of prose in its markup */
+    const words = html.replace(/<[^>]+>/g, '\n').split('\n').map(w => w.trim()).filter(Boolean);
+    assert.ok(words.every(w => w.length <= 48), `${c.t}: a long line on the card: ${words.find(w => w.length > 48)}`);
+    /* it plays its story on its turn, and the page waits for it */
+    assert.ok(card.beat && card.beat >= 600 && card.beat <= 2500, `${c.t}: its entrance's length`);
     assert.doesNotMatch(html, /\son[a-z]+=|<script|javascript:|style="/i, `${c.t}: nothing runs, nothing is styled inline (the page's CSP)`);
     /* nothing loads from anywhere else: a picture comes through the proxy, and a reference stays inside the card */
     for (const m of html.matchAll(/\b(?:src|href)="([^"]*)"/g)) {
@@ -73,7 +82,8 @@ test('every card leads into a planned topic, with a source, and a drawing that i
     const w = Number(/&amp;w=(\d+)/.exec(c.art)?.[1]); assert.ok(WIDTHS.includes(w), `${c.t}: width ${w}`);
     assert.ok(c.credit && /·/.test(c.credit), `${c.t}: credit and licence`);
   }
-  assert.ok(JSON.stringify(data).length < 128 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
+  /* the drawings carry real geometry (some 5,000 dots in the black hole's disk alone): about 50 KB compressed */
+  assert.ok(JSON.stringify(data).length < 192 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
 });
 
 /* the cards share one page: an id in one card's drawing (a gradient, a mask, a path for words to follow) must not
@@ -85,15 +95,46 @@ test('no two drawings use the same id', () => {
 });
 
 /* a wide drawing has a phone version, drawn for the narrow column rather than shrunk; and whatever answers the
-   pointer has a short reading and a line on its card to show it in */
-test('wide drawings come in a phone version, and readings are short and have somewhere to go', () => {
+   pointer has a short reading (the page shows it beside the pointer) */
+test('wide drawings come in a phone version, and readings are short', () => {
   for (const c of frontData().cards) {
     const html = c.art + (c.more || '');
-    if (c.size === 'wide' && /<svg/.test(c.art)) assert.ok(/class="vz vz-w"/.test(c.art) && /class="vz vz-n"/.test(c.art), `${c.t}: a phone version`);
+    if (c.size === 'wide' && /<svg/.test(c.art)) assert.ok(/class="vz vz-w/.test(c.art) && /class="vz vz-n/.test(c.art), `${c.t}: a phone version`);
     const reads = [...html.matchAll(/data-read="([^"]*)"/g)].map(m => m[1]);
     for (const r of reads) assert.ok(r.length >= 3 && r.length <= 90, `${c.t}: reading "${r}"`);
-    if (reads.length) assert.match(html, /class="wc-read"/, `${c.t}: a line for its readings`);
   }
+});
+
+/* the drawings are computed from their subjects, so they are checked against them */
+test('the drawings are true to their subjects', () => {
+  /* Miura's fold: every face stays a flat parallelogram with unit sides however far it folds, and it shuts up
+     along its length as it folds */
+  let span = Infinity;
+  for (const deg of [5, 30, 55, 80]) {
+    const th = deg * Math.PI / 180, p = miura(FOLD.m, FOLD.n, th, 1, 1, FOLD.gam), at = (/** @type {number} */ i, /** @type {number} */ j) => p[i * (FOLD.n + 1) + j];
+    const len = (/** @type {number[]} */ a, /** @type {number[]} */ b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+    for (const [i, j] of [[0, 0], [3, 2], [7, 5], [FOLD.m - 1, FOLD.n - 1]]) {
+      assert.ok(Math.abs(len(at(i, j), at(i + 1, j)) - 1) < 1e-9 && Math.abs(len(at(i, j), at(i, j + 1)) - 1) < 1e-9, `fold ${deg}°: sides`);
+      const d1 = at(i + 1, j + 1).map((v, k) => v - at(i + 1, j)[k]), d2 = at(i, j + 1).map((v, k) => v - at(i, j)[k]);
+      assert.ok(d1.every((v, k) => Math.abs(v - d2[k]) < 1e-9), `fold ${deg}°: a parallelogram`);
+    }
+    const s = at(FOLD.m, 0)[0]; assert.ok(s < span, `fold ${deg}°: shorter as it folds`); span = s;
+  }
+  /* Luminet's black hole: rays closer than 3√3 M fall in, so the shadow is about 2.6 times the horizon's width;
+     the far side shows over the top; the gas coming toward you (on the left) is brighter */
+  assert.equal(trace(0, 5.1).at, 'shadow'); assert.notEqual(trace(0, 5.35).at, 'shadow');
+  assert.equal(Math.round(3 * Math.sqrt(3) / 2 * 10) / 10, 2.6);
+  const top = trace(0, 9); assert.ok(top.at === 'disk' && top.r > 6, 'the far side, over the top');
+  const left = trace(-12, -1), right = trace(12, -1);
+  assert.ok(left.at === 'disk' && right.at === 'disk' && left.f > 2 * right.f, 'brighter coming toward you');
+  /* the bar magnet: its field runs out of the north pole (on the right) and back into the south */
+  const [bxN] = barField(260, 196), [bxS] = barField(104, 196);
+  assert.ok(bxN > 0 && bxS > 0, 'out of north, round, into south');
+  /* the cube: its pieces fit together 8! × 3⁷ × 12!/2 × 2¹¹ ways, the count on its card */
+  const fact = (/** @type {number} */ n) => { let r = 1n; for (let i = 2n; i <= BigInt(n); i++) r *= i; return r; };
+  const ways = fact(8) * 3n ** 7n * fact(12) / 2n * 2n ** 11n;
+  assert.equal(ways.toLocaleString('en-US'), '43,252,003,274,489,856,000');
+  assert.match(frontData().cards.find(c => c.t === 'Rubik’s Cube')?.art || '', /43,252,003,<wbr>274,489,856,000/);
 });
 
 /* only the front page wears the cards' look: it lives in src/front.css, which the build ships as /front.css */
@@ -102,6 +143,8 @@ test('the cards\' styles live in their own sheet, not the page\'s', () => {
   assert.doesNotMatch(page, /\.(wc|vz|bento|threads)[-{.:\s]/, 'a front-page rule left in styles.css');
   const front = readFileSync(new URL('../public/front.css', import.meta.url), 'utf8');
   assert.match(front, /\.bento\{/); assert.doesNotMatch(front, /\/\*/, 'shipped without its notes');
+  /* with the rules the build computes from the drawings: the fold's shades and the cube's pieces coming apart */
+  assert.match(front, /\.vz\.mi\{--s0:/); assert.match(front, /\.rb-q25\{transform:translate/);
 });
 
 /* CSS grid's dense packing, as the browser does it: each card takes the first place it fits */

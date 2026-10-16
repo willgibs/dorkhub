@@ -111,7 +111,7 @@ test('every topic on the front page opens free: its page, or a placeholder until
 test('the brief for a front-page topic carries its prompt, its card\'s claims and every thread, with sources', () => {
   const out = execFileSync(process.execPath, [fileURLToPath(new URL('../scripts/seeds.mjs', import.meta.url)), 'brief', 'Black holes'], { encoding: 'utf8' });
   assert.ok(out.startsWith(pagePrompt(pageInput({ title: 'Black holes' }))), 'the page\'s own prompt first, unchanged');
-  for (const c of [FRONT[0].h, FRONT[0].src, /** @type {any} */ (CARDS.find(c => c.t === 'Black holes')).hook, 'Its card\'s drawing shows Earth']) assert.ok(out.includes(c), c);
+  for (const c of [FRONT[0].h, FRONT[0].src, /** @type {any} */ (CARDS.find(c => c.t === 'Black holes')).hook, 'Its card\'s drawing shows a black hole with a disk of gas']) assert.ok(out.includes(c), c);
   for (const th of THREADS.filter(x => x.a === 'Black holes' || x.b === 'Black holes')) assert.ok(out.includes(`- [[${th.a === 'Black holes' ? th.b : th.a}]]: ${th.l} (${th.src})`), th.l);
 });
 

@@ -77,31 +77,53 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
   `lib/front.js` is the front page made by hand: `FRONT`, the planned topics, each with a kind,
   a hook and a source (the build puts titles, kinds and hooks in the page for the suggestions);
-  `CARDS`, each with its size, hook, sources and a drawing in SVG coloured only through theme
-  classes (`.vz`); and `THREADS`, pairs of topics with a short label and a source. The build
-  writes `public/front.json` (the cards with their drawings, the topics, the threads) and
-  `public/front.css` (`src/front.css`: every rule for the cards and the map), both fetched by the
-  front page only, so reading pages carry neither. A wide card's drawing comes twice, `vz-w` and
-  a phone version `vz-n` drawn for the narrow column, switched by CSS; ids inside drawings are
-  unique across cards (tested). The cards sit in a dense grid of 6 columns (`tall` 2×3, `sq`,
-  `wide`, `big`, the hero; 4 on a tablet, where a card may take another size so nothing leaves a
-  hole; a test packs the grid as the browser does; one column on a phone).
-  - **Entrances:** each card tells its story once a visit, when it is first seen. A card is
-    rendered `armed` when motion is allowed and the observer adds `seen`; CSS keyed on the two
-    draws paths in (`dr`, `pathLength="1"`), pops (`vpop`) and fades parts with delay classes
-    `w1`–`w16`. The finished drawing is the default, so reduced motion or no script shows it whole.
-    Class names in drawings must not collide with the page's own (`.pop` is a popover).
-  - **Effects** (`startFx`): the cube's count rolls in; the flytrap counts touches on a meter
-    and snaps shut; the Enigma (`src/shared/enigma.js`, a real Enigma I, tested) types from its
-    keys or the keyboard, rolls its rotor windows, lights its lamps, keeps a tape and a tally and
-    types WETTER once on first sight; Time travel's drift ticks while on screen; and parts with a
-    `data-read` reading show it in the card's `.wc-read` line, found by position
-    (`elementsFromPoint`) since the card's link lies over its drawing. Each stops with the page.
+  `CARDS`, each with its size, hook, sources, entrance length (`beat`), whether it is night in
+  either theme, and its drawing; and `THREADS`, pairs of topics with a short label and a source.
+  A card shows only its drawing, edge to edge, with its kind and title in the top corner (Will,
+  2026-10-16); its hook goes with its link (the opened page's hint, the placeholder's promise, the
+  writer's brief) but not on the card. The build writes `public/front.json` (the cards with their
+  drawings, the topics, the threads) and `public/front.css` (`src/front.css`, every rule for the
+  cards and the map, plus the few rules `plateCss()` computes from the drawings: the fold's shades
+  at rest, how far each cube piece moves), both fetched by the front page only, so reading pages
+  carry neither. A wide card's drawing comes twice, `vz-w` and a phone version `vz-n`, switched by
+  CSS; ids inside drawings are unique across cards (tested). The cards sit in a dense grid of 6
+  columns (`tall` 2×3, `sq`, `wide`, `big`, the hero; 4 on a tablet, where a card may take another
+  size so nothing leaves a hole; a test packs the grid as the browser does; one column on a phone,
+  each card with a shape of its own).
+  - **Drawings, computed:** the black hole is ray-traced at build time as Luminet did in 1979
+    (`lib/plates/blackhole.js`: photon paths integrated once per impact parameter, the disk's
+    light from Page–Thorne flux and redshift, stippled by error diffusion); Lightning grows from a
+    seed as a stepped leader; Atlantis is a model built to Plato's measurements; Pompeii's column
+    is to scale. Geometry the page also moves lives in `src/shared/plates.js`, inlined into the
+    page: Miura's fold at any angle (`foldView`), the flytrap's lobes at any opening (`trapView`),
+    and the bar magnet's field and filings (`barField`, `filings`). A test checks the drawings
+    against their subjects (the fold's faces stay unit parallelograms, the shadow is 3√3 M, the gas
+    coming toward you is brighter, the cube's count).
+  - **One card at a time** (`stage` in `13-landing.js`; Will, 2026-10-16: when everything moves at
+    once nothing is seen). Cards are rendered `armed` when motion is allowed. A card plays its
+    entrance (gets `seen`, and `playing` while it leads) only once 60% of it has shown for 150 ms
+    (`DWELL`: a card a fling only carries past never starts), the page isn't being flung (faster than
+    about 1.4 px/ms, and still for 180 ms), and no other card is leading; waiting cards keep a still
+    first frame and go in reading order, each starting as the one before it settles (70% of its
+    `beat`), or sooner if the reader scrolls that one away (under 25% showing). The map of threads takes its turn too (`makeGraph`'s `hold` and
+    `play()`). CSS keyed on `armed`/`seen` draws paths in (`dr`, `pathLength="1"`) and fades parts
+    (`fade`, delays `w1`–`w16`); some entrances are the page's (`FX_PLAY`). The finished drawing is
+    the default, so reduced motion shows it whole and nothing plays.
+  - **Effects** (`startFx`): the cube's count rolls in; the flytrap counts touches on a meter and
+    snaps shut by turning its lobes in three dimensions; the Enigma (`src/shared/enigma.js`, a real
+    Enigma I, tested) types from its keys or the keyboard, rolls its rotor windows, lights its
+    lamps, keeps a paper tape and a tally, and types WETTER once on its turn; the magnet's filings
+    are drawn on a canvas (about 1,000, chained along field lines), swing into line on its turn and
+    turn toward the pointer; the Miura sheet's faces are laid and moved by the page, opening on its
+    turn and folding as the pointer crosses it; and parts with a `data-read` reading show it in a
+    small label beside the pointer, found by position (`elementsFromPoint`) since the card's link
+    lies over its drawing. Each stops with the page.
   Between the two groups of cards, a still map of every planned topic and its threads: the
   topic pointed at shows beside the map (`makeGraph`'s `panel`), and each of its threads is
   tagged at its middle with its label. A reader's world takes the last card's place, at its
-  size. Surprise me, and the doors a paused or used-up page offers, draw on `DOORS`: the front
-  page's topics, then the pages written before them (`EARLIER`), each free and instant.
+  size, as their map edge to edge. Surprise me, and the doors a paused or used-up page offers,
+  draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
+  free and instant.
 - **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
   placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a
   real page's shape (an opening, sections, two notes, two panels, six cards, three questions),
@@ -226,12 +248,12 @@ which pages were cached.
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
-| The front page by hand: topics, threads and cards each with a source, drawings labelled and inert, ids unique across cards, a phone version of each wide drawing, short readings with a line to show them in, the cards' styles in their own sheet, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
+| The front page by hand: topics, threads and cards each with a source, drawings labelled and inert (a canvas hidden from assistive tech), no line of prose on a card, an entrance length for each, ids unique across cards, a phone version of each wide drawing, short readings, drawings true to their subjects, the cards' styles in their own sheet with the computed rules, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
 | Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
-| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, finish their entrances, and the flytrap, the Enigma's keys and tally, the drift and a chart's reading work), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
+| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling nor play one it only passed, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
 
 ## Operations
 

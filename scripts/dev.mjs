@@ -1,6 +1,6 @@
 // Local development: serves public/ and runs the real /api/write handler in-process.
 // Writes with the mock writer (free, offline) unless AI_GATEWAY_API_KEY is set in
-// .env.local, or you pass --live. Rebuilds the page whenever src/ changes.
+// .env.local, or you pass --live. Rebuilds the page whenever src/ or lib/ changes.
 //
 //   npm run dev            mock writer, http://localhost:3000
 //   npm run dev -- --live  your AI Gateway key from .env.local
@@ -25,7 +25,8 @@ if (!live) process.env.DH_MOCK = '1';
 const build = () => { const r = spawnSync(process.execPath, [join(root, 'scripts/build.mjs')], { stdio: 'inherit', env: process.env }); return r.status === 0; };
 build();
 let timer;
-watch(join(root, 'src'), { recursive: true }, () => { clearTimeout(timer); timer = setTimeout(build, 120); });
+/* lib/ too: the front page's cards are drawn there (lib/front.js), and one build at a time keeps public/ whole */
+for (const dir of ['src', 'lib']) watch(join(root, dir), { recursive: true }, () => { clearTimeout(timer); timer = setTimeout(build, 120); });
 
 const { handleWrite } = await import('../lib/write.js');
 const { handlePicture } = await import('../lib/picture.js');
