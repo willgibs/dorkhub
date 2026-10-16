@@ -101,6 +101,9 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForTimeout(2200);
     const done = await page.evaluate(() => { const cards = [...document.querySelectorAll('#ways .wc')]; const draws = [...document.querySelectorAll('#ways .wc .dr')].filter(d => d.getClientRects().length); return { unseen: cards.filter(c => !c.classList.contains('seen')).map(c => c.dataset.card), unfinished: draws.filter(d => parseFloat(getComputedStyle(d).strokeDashoffset) > .01).length, draws: draws.length }; });
     if (done.unseen.length || done.unfinished || !done.draws) throw new Error(`entrances: ${JSON.stringify(done)}`);
+    /* the cube's count rolls in on reels drawn for the eye; a screen reader still hears the number, once and whole */
+    const count = await page.locator('[data-card="rubiks-cube"] .rb-n').ariaSnapshot();
+    if (!count.includes('43,252,003,274,489,856,000') || /\d \d/.test(count)) throw new Error(`the cube's count, read aloud: ${count.slice(0, 120)}`);
     if (!mobile) for (const c of await page.locator('#ways .wc').all()) { const name = await c.getAttribute('data-card'); if (name) await c.screenshot({ path: `${shots}/${tag}-card-${name}.png` }); }
     /* the flytrap counts touches, shuts on the second and digests at five */
     const ft = page.locator('.wc[data-fx="flytrap"]'); await ft.scrollIntoViewIfNeeded();
