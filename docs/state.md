@@ -10,12 +10,11 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     facts and the picture under their paragraph), one rhythm in the top bar, no rail;
   - PR E (willgibs/dorkhub#17, d694248): the front page by hand (`lib/front.js`), replacing PR C's
     feed: 13 cards each drawn its own way, leading into its 33 topics; a map of their threads;
-    suggestions from them. Review page with screenshots: claude.ai/artifact/VN7fYsuKtckwLHtDZoxQiM.
-- **Up for Will's look: PR G, the cards finished** (branch `experience/cards-finished`): every card
-  redrawn with its own material and one entrance story when first seen, a phone version of each
-  wide drawing, new sizes (Black holes tall, Pompeii square, Time travel wide), a new hero photo
-  where the red shows above the green, and the cards' styles moved to `/front.css`. Verify (107)
-  and e2e (46) green. Merge after his look, then the production check.
+    suggestions from them. Review page with screenshots: claude.ai/artifact/VN7fYsuKtckwLHtDZoxQiM;
+  - PR G (willgibs/dorkhub#19, 3f5cefd): the cards finished: each composed whole with a material of
+    its own, one entrance when first seen, a phone version; Black holes tall, Pompeii square, Time
+    travel wide; a hero photo with red above green; styles in `/front.css`. Review page with each
+    card before and after: claude.ai/artifact/WQaHrnUE8TESzQsQ4FSdn2.
 - **The 32 as placeholders** (Will, 2026-10-15): each of the front page's topics not written yet
   opens a placeholder (`lib/placeholder.js`) at its own address, free and instant, shaped like a
   page, claiming only what `lib/front.js` has checked and linking along the threads. A written
@@ -34,7 +33,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   pricing (backlog §0).
 
 ## Next
-1. Will's look at PR G's preview; then his next priority (the article page design continues from PR F).
+1. Will's next notes; the article page design continues from PR F.
 2. Runtime Cache across production deploys: confirm once credits land.
 3. Later, each on Will's go: PR E's tweaks, writing the 32, a durable store, one write per page
    in flight, graph keyboard navigation, re-recording the three mock pages that say "your path".

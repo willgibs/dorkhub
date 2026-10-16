@@ -65,7 +65,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   hand that lead into the front page's 33 topics, a map of the threads between them, and the
   suggestions drawn from them, with a placeholder for each of the 32 pages not written yet (Will,
   2026-10-15), each free and instant, each replaced by its page once that is written.
-- **PR G, the cards finished** (up for Will's look, 2026-10-16): every card redrawn and composed,
+- **PR G, the cards finished** (live since 2026-10-16, willgibs/dorkhub#19): every card redrawn and composed,
   with a material of its own, one entrance story when first seen, a phone version, and new
   layout sizes (Black holes tall, Pompeii square, Time travel wide); the cards' styles move to
   `/front.css`. Details in `docs/decisions.md`.
