@@ -175,19 +175,26 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .vz .mg-edge{fill:none;stroke:rgba(0,0,0,.25);stroke-width:.8}
 .vz .mg-l{font:700 14px/1 var(--f-ui);letter-spacing:0;fill:#fff}
 
-/* Volcanoes: the barograph's pen draws the five days, and each pass is numbered as it is reached */
-.wc[data-card="volcanoes"] .vk-trace{--t:1.6s;stroke-width:1.5}
-.vz .vk-pin{fill:var(--surface);stroke:var(--kc);stroke-width:1}
-.vz .vk-n{font-size:8.5px;font-weight:700;letter-spacing:0;fill:var(--kc)}
-
-/* Pompeii: the note on its plaster, the same in either theme; the charcoal writes itself, then the date it
-   reads as drops to its place on the calendar */
-.wc[data-card="pompeii"] .wc-art{margin:auto -18px -14px;padding-top:12px}
-.wc[data-card="pompeii"] .wc-art>.vz{max-height:none}
-.vz .pp-wall{fill:#E5DBCA;stroke:rgba(0,0,0,.14)}
-.vz .pp-ch{fill:none;stroke:#2A2420;stroke-opacity:.92;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;--t:.36s;--e:var(--ease-out)}
-.vz .pp-date{font-size:22px}
-.vz .vk-sheet{fill:var(--ink);fill-opacity:.025;stroke:none}
+/* Pompeii: the eruption to scale, a pale day sky on paper and dusk at night. On its turn the column climbs, its crown
+   spreads downwind, and the pumice falls */
+.vz.pp{--pp-s0:#D5DDE6;--pp-s1:#F2F0EB;--pp-shade:#8C8780;--pp-lit:#C9C3B9;--pp-land:#CFC7B6;--pp-sea:#B4C3D0;--pp-stone:#5B5752}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.pp{--pp-s0:#0A0D14;--pp-s1:#1A1B21;--pp-shade:#3A393C;--pp-lit:#615E62;--pp-land:#25221E;--pp-sea:#111924;--pp-stone:#958F88}}
+:root[data-theme="dark"] .vz.pp{--pp-s0:#0A0D14;--pp-s1:#1A1B21;--pp-shade:#3A393C;--pp-lit:#615E62;--pp-land:#25221E;--pp-sea:#111924;--pp-stone:#958F88}
+.vz .pp-s0{stop-color:var(--pp-s0)}.vz .pp-s1{stop-color:var(--pp-s1)}
+.vz .pp-deep{fill:var(--pp-shade);filter:brightness(.82)}.vz .pp-shade{fill:var(--pp-shade)}.vz .pp-lit{fill:var(--pp-lit)}
+.vz .pp-stone{fill:none;stroke:var(--pp-stone);stroke-width:1.1;stroke-linecap:round;stroke-opacity:.6}
+.vz .pp-land{fill:var(--pp-land)}.vz .pp-sea{fill:var(--pp-sea)}.vz .pp-mount{fill:var(--pp-shade)}
+.vz .pp-town{fill:var(--ink);fill-opacity:.75}
+.vz .pp-tick{fill:none;stroke:var(--ink);stroke-opacity:.45}
+.vz .pp-t{font-size:9.5px}
+.vz .pp-big{font:650 18px/1 var(--f-ui);letter-spacing:-.01em;fill:var(--ink)}
+.vz .pp-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
+.vz .pp-riser{transform-box:view-box;transform-origin:0 298px}
+.wc.armed:not(.seen) .pp-riser{transform:scaleY(0)}
+.wc.armed.seen .pp-riser{animation:vzrise 1.15s cubic-bezier(.3,.55,.3,1) both}
+.wc.armed:not(.seen) .pp-fall{opacity:0}
+.wc.armed.seen .pp-fall{animation:ppfall .9s var(--ease-out) 1s both}
+@keyframes ppfall{from{opacity:0;transform:translate(-6px,-20px)}}
 
 /* Northern lights: the photograph, cropped tall, its scale of heights down the right edge: numbers outside the axis,
    the bands against it, the words inside. On its turn the bands rise, red after green */
@@ -212,32 +219,6 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.armed.seen .nl-lab{animation:fade var(--d-vslow) var(--ease-out) both}
 .wc.armed.seen .nl-lg{animation-delay:.35s}.wc.armed.seen .nl-lr{animation-delay:.65s}
 .wc[data-card="northern-lights"] .wc-cr{color:rgba(255,255,255,.55)}
-
-/* Time travel: a timing board, bars from zero (−10 to +50 µs a day across the track), and the drift ticking under it */
-.wc[data-card="time-travel"] .wc-art{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-end;gap:9px}
-.tt{--z:16.667%;display:grid;gap:5px}
-.tt-row,.tt-ax{display:grid;grid-template-columns:64px minmax(0,1fr) 54px;align-items:center;column-gap:10px}
-.tt-l{font:600 10px/1 var(--f-ui);letter-spacing:.07em;color:var(--faint)}
-.tt-bar{position:relative;height:12px;background:linear-gradient(90deg,transparent calc(var(--z) - .5px),var(--line-2) calc(var(--z) - .5px),var(--line-2) calc(var(--z) + .5px),transparent calc(var(--z) + .5px))}
-.tt-bar i{position:absolute;top:2px;bottom:2px;border-radius:2px;background:color-mix(in srgb,var(--ink) 26%,transparent);transform-origin:var(--o,left) center}
-.tt-sp .tt-bar i{right:calc(100% - var(--z));width:12%;--o:right}
-.tt-gr .tt-bar i{left:var(--z);width:76.333%}
-.tt-net .tt-bar i{left:var(--z);width:64.333%;background:var(--kc)}
-.tt-row b{font:900 15px/1 var(--f-dot);letter-spacing:.02em;text-align:right;color:var(--mute)}
-.tt b i,.tt-live b i{font-family:var(--f-ui);font-style:normal;font-weight:700;letter-spacing:0}
-.tt-net b{color:var(--kc);font-size:17px}
-.tt-net .tt-l{color:var(--ink)}
-.tt-ticks{position:relative;display:flex;justify-content:space-between;margin-left:calc(var(--z) - 3px);font:600 9.5px/1 var(--f-ui);color:var(--faint);font-variant-numeric:tabular-nums}
-.tt-ax b{font:600 9.5px/1 var(--f-ui);letter-spacing:.04em;color:var(--faint);text-align:right}
-.tt-live{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;padding-top:8px;border-top:1px solid var(--line);font:500 11.5px/1.2 var(--f-ui);color:var(--faint)}
-.tt-live span{margin-right:auto}
-.tt-live b{font:900 15px/1 var(--f-dot);letter-spacing:.02em;color:var(--ink);font-variant-numeric:tabular-nums}
-.tt-live em{font-style:normal;margin-right:8px}
-.tt-live em:last-child{margin-right:0}
-.wc.armed:not(.seen) .tt-bar i{transform:scaleX(0)}
-.wc.armed.seen .tt-bar i{animation:ttbar var(--d-vslow) var(--ease-out) both}
-.wc.armed.seen .tt-gr .tt-bar i{animation-delay:.15s}.wc.armed.seen .tt-net .tt-bar i{animation-delay:.45s}
-@keyframes ttbar{from{transform:scaleX(0)}}
 
 /* Rubik's Cube: its pieces in black plastic with their stickers, apart. On its turn the solid cube comes apart, centres
    first, then edges, then corners (how far each moves, the build writes from lib/front.js), and the count rolls in */
@@ -286,21 +267,6 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .ft-steps li i{position:absolute;inset:0;border-radius:50%;background:#C3262F;opacity:.45;transform:scale(0)}
 .wc[data-state="armed"] .ft-steps li:nth-child(2) i{animation:ftmem 20s linear forwards}
 @keyframes ftmem{from{transform:scale(1)}to{transform:scale(0)}}
-
-/* Quicksand: a section through the sand, edge to edge under the words; the person sinks until it holds them */
-.wc[data-card="quicksand"] .wc-art{margin:auto -18px -16px;padding-top:8px}
-.wc[data-card="quicksand"] .wc-art>.vz{max-height:none}
-.vz .qs-wet{fill:var(--kc);fill-opacity:.07;stroke:none}
-.vz .qs-grain{fill:none;stroke:var(--ink);stroke-opacity:.24;stroke-linecap:round;stroke-width:1.6}
-.vz .qs-g1{stroke-width:2.6}.vz .qs-g2{stroke-width:3.8;stroke-opacity:.2}
-.vz .qs-solid{fill:var(--ink);fill-opacity:.88}
-.vz .qs-ghost{fill:var(--surface);fill-opacity:.55;stroke:var(--ink);stroke-opacity:.5}
-.vz .qs-you{fill:var(--ink);fill-opacity:.5}
-.vz .qs-k{fill:var(--kc)}
-.vz .qs-car{fill:none;stroke:var(--ink);stroke-opacity:.7;stroke-linejoin:round}
-.wc.armed:not(.seen) .qs-body{transform:translateY(-74px)}
-.wc.armed.seen .qs-body{animation:qssink 1.5s cubic-bezier(.3,0,.3,1) .15s both}
-@keyframes qssink{0%{transform:translateY(-74px)}62%{transform:translateY(5px)}80%{transform:translateY(-2px)}100%{transform:none}}
 
 /* Lightning: night in either theme. The bolt's strokes, finest for the furthest branches, its glow, and the cloud lit
    from below. On its turn the leader creeps down in twelve steps, faint; the return stroke flashes the channel once,
@@ -373,17 +339,11 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.reading .fw-m{opacity:.3}
 .wc.reading .fw-m:has(.hit.on){opacity:1}
 
-/* Dreams: the night draws itself in from 23:00, its dreaming stretches appearing as it reaches them */
-.vz .dr-band{fill:var(--kc);fill-opacity:.07;stroke:none}
-.vz .dr-trace{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:1.2;stroke-linejoin:round;--t:1.6s}
-.wc[data-card="dreams"].reading .hit.on{fill:var(--ink);fill-opacity:.06}
-@media (hover:none){.wc[data-card="dreams"] .wc-read{display:none}}
-
-/* Enigma: the machine's top, black in either theme, its rotor letters on ivory rings and its lamps lit in the
-   topic's colour; the words beside it keep the tape, the tally and why the flaw mattered */
-.wc[data-card="enigma-machine"] .wc-art{align-self:stretch;display:flex}
-.wc[data-card="enigma-machine"] .wc-txt{align-self:stretch}
-.en{--kc:#F08CF5;flex:1;display:grid;align-content:center;justify-items:center;gap:14px;padding:16px 12px;border-radius:12px;background:#0E0F12;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07),inset 0 1px 0 rgba(255,255,255,.05);color:#E8E8EA}
+/* Enigma: the card is the machine's top, black in either theme: its rotor letters on ivory rings, its lamps lit in the
+   topic's colour, its keys to tap; beside it a paper tape of your letters over the lamps they lit, and the tally */
+.wc[data-card="enigma-machine"]{background:#0D0E11}
+.wc[data-card="enigma-machine"] .wc-art{display:grid;place-items:center end;padding-right:max(26px,5%)}
+.en{--kc:#F08CF5;display:grid;justify-items:center;gap:12px;color:#E8E8EA}
 .en-r{display:flex;gap:22px;padding:2px 0 4px}
 .en-rw{position:relative;width:30px;height:40px;overflow:hidden;border-radius:5px;background:#E6DFCF;box-shadow:0 0 0 2px #1D1F23,0 0 0 3px rgba(255,255,255,.07)}
 .en-strip{--i:0;display:flex;flex-direction:column;transform:translateY(calc(9px - var(--i) * 22px));transition:transform 260ms var(--ease-out)}
@@ -400,34 +360,49 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .en-keys button:hover{background:#363940}
 .en-keys button:is(.down,:active){transform:translateY(1.5px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.7)}
 .en-keys button:focus-visible{outline:2px solid var(--kc);outline-offset:2px}
-/* the tape: your letters over the lamps they lit; the field under it takes a keyboard */
-.en-tape{position:relative;display:grid;gap:5px;margin-top:14px;padding:10px 34px 10px 12px;border-radius:8px;background:var(--sunken);box-shadow:inset 0 0 0 1px var(--line)}
-.en-tape:focus-within{box-shadow:inset 0 0 0 1.5px var(--kc)}
+/* the tape: a strip of paper with your letters over the lamps they lit; the field under it takes a keyboard */
+.en-tape{position:absolute;left:18px;top:86px;z-index:2;display:grid;gap:7px;width:min(244px,34%);padding:12px 36px 12px 14px;border-radius:3px;background:#EEE8DA;box-shadow:0 1px 0 rgba(0,0,0,.35),0 10px 24px -14px rgba(0,0,0,.9);color:#16171A}
+.en-tape:focus-within{box-shadow:0 0 0 2px var(--kc),0 10px 24px -14px rgba(0,0,0,.9)}
 .en-tape p,.en-in{position:relative;display:flex;align-items:center;gap:10px;min-height:18px}
-.en-tape span{flex:none;width:28px;font:600 10px/1 var(--f-ui);letter-spacing:.08em;color:var(--faint)}
+.en-tape span{flex:none;width:28px;font:600 9.5px/1 var(--f-ui);letter-spacing:.08em;color:#6E6A60}
 .en-in input{position:absolute;inset:-4px 0;width:100%;padding:0;border:0;opacity:0;cursor:text}
 .en-tape b{display:flex;min-width:0;overflow:hidden;font:900 16px/1 var(--f-dot)}
 .en-tape b i{flex:none;width:11.5px;font-style:normal;text-align:center}
-.en-pl{color:var(--ink)}
-.en-cy{color:var(--kc)}
-.en-pl:empty::before{content:"Type, or tap the keys";font:500 12px/1 var(--f-ui);color:var(--faint)}
-.en-x{position:absolute;right:6px;top:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--faint);cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
+.en-pl{color:#16171A}
+.en-cy{color:#A21CAF}
+.en-pl:empty::before{content:"Type, or tap the keys";font:500 12px/1 var(--f-ui);color:#7A766C}
+.en-x{position:absolute;right:6px;top:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:transparent;color:#6E6A60;cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
 .wc.typed .en-x{opacity:1}
-.en-x:hover{color:var(--ink);background:var(--line)}
+.en-x:hover{color:#16171A;background:rgba(0,0,0,.07)}
 .en-x .ic{width:14px;height:14px}
-.en-tally{display:flex;align-items:baseline;gap:8px;margin-top:12px;font:500 12.5px/1.3 var(--f-ui);color:var(--mute)}
-.en-n{font:900 30px/1 var(--f-dot);color:var(--kc)}
+.en-tally{position:absolute;left:18px;top:178px;z-index:2;display:flex;align-items:baseline;gap:8px;max-width:34%;font:500 12.5px/1.3 var(--f-ui);color:rgba(236,236,238,.72)}
+.en-n{font:900 30px/1 var(--f-dot);color:#F08CF5}
 .en-of{font-style:normal;font-variant-numeric:tabular-nums}
-.en-why{margin-top:8px;font:400 12.5px/1.45 var(--f-ui);color:var(--faint)}
-.en-k{margin-top:auto;padding-top:10px;font:600 9.5px/1.55 var(--f-ui);letter-spacing:.07em;color:var(--faint);font-variant-numeric:tabular-nums}
+
+/* Infinity: Cantor's list, set like type on a table running off into the distance, its diagonal lit in the kind's
+   colour; the new number in the foreground. On its turn the diagonal lights from near to far, digit by digit */
+.vz .in-g,.vz .in-0,.vz .in-n{font-family:var(--f-ui);font-weight:500;letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz .in-n{fill:var(--faint);font-weight:600}
+.vz .in-0{fill:var(--mute)}
+.vz .in-on{fill:var(--kc);font-weight:700}
+.vz .in-cell{fill:var(--kc);fill-opacity:.16;stroke:var(--kc);stroke-opacity:.5;stroke-width:.8}
+.vz .in-more{font:600 13px/1 var(--f-ui);fill:var(--faint)}
+.vz .in-rule{stroke:var(--line-2)}
+.vz .in-new{font:650 19px/1 var(--f-ui);letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz .in-nd{fill:var(--kc)}
+.vz .in-tag{font:600 12px/1 var(--f-ui);letter-spacing:0;fill:var(--kc)}
+.vz .in-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
+.vz :is(.in-cell,.in-on){transform-box:fill-box;transform-origin:center}
+.wc.armed:not(.seen) :is(.in-cell,.in-on){opacity:0}
+.wc.armed.seen :is(.in-cell,.in-on){animation:vzpop .45s var(--ease-pop) both}
+.wc.armed.seen :is(.in-d1,.in-r1 .in-on){animation-delay:0.00s}.wc.armed.seen :is(.in-d2,.in-r2 .in-on){animation-delay:0.11s}.wc.armed.seen :is(.in-d3,.in-r3 .in-on){animation-delay:0.22s}.wc.armed.seen :is(.in-d4,.in-r4 .in-on){animation-delay:0.33s}.wc.armed.seen :is(.in-d5,.in-r5 .in-on){animation-delay:0.44s}.wc.armed.seen :is(.in-d6,.in-r6 .in-on){animation-delay:0.55s}.wc.armed.seen :is(.in-d7,.in-r7 .in-on){animation-delay:0.66s}.wc.armed.seen :is(.in-d8,.in-r8 .in-on){animation-delay:0.77s}
+
 
 /* a reader's world, in the last slot */
 .wc-world{display:grid;grid-template-columns:150px minmax(0,1fr);column-gap:16px;padding:0}
 .wc-world .wc-art{position:relative;margin:0}
 .ww-stage{position:absolute;inset:0;background:var(--stage);border-right:1px solid var(--line)}
 .wc-world .wc-txt{padding:14px 16px 14px 0}
-.wc[data-card="infinity"] .wc-art>.vz{max-height:none}
-.vz .in-cell{fill-opacity:.2}
 .wc-world.wc-sq{display:flex;flex-direction:column}
 .wc-world.wc-sq .wc-art{flex:1;order:0;margin:0;padding:0}
 .wc-world.wc-sq .ww-stage{border-right:0;border-bottom:1px solid var(--line)}
@@ -475,7 +450,11 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   .wc{aspect-ratio:var(--ar,1.05)}
   .wc-hero{--ar:1.2}.wc-tall{--ar:.76}.wc-sq{--ar:1.04}.wc-wide{--ar:1.5}.wc-big{--ar:1.05}.wc-small{--ar:2}
   .nl-scale{top:70px;bottom:44px}
-  .en{padding:14px 6px}
+  /* a phone: the tape and the tally under the title, the machine below them */
+  .wc[data-card="enigma-machine"]{--ar:.7}
+  .wc[data-card="enigma-machine"] .wc-art{place-items:end center;padding:0 0 18px}
+  .en-tape{top:78px;right:18px;width:auto}
+  .en-tally{top:166px;max-width:none}
   .en-lamps p,.en-keys p{gap:5px}
   .en-lamps i,.en-keys button{width:28px;height:28px;font-size:11px}
   .wc-world{grid-template-columns:120px minmax(0,1fr);min-height:150px;aspect-ratio:auto}
