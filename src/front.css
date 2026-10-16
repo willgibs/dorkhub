@@ -302,38 +302,73 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.armed.seen .qs-body{animation:qssink 1.5s cubic-bezier(.3,0,.3,1) .15s both}
 @keyframes qssink{0%{transform:translateY(-74px)}62%{transform:translateY(5px)}80%{transform:translateY(-2px)}100%{transform:none}}
 
-/* Giant squid: the plate runs to the card's edges; its eye grows in from the size of yours until it won't fit */
-.wc[data-card="giant-squid"] .wc-art{margin:auto -18px -16px;padding-top:6px}
-.wc[data-card="giant-squid"] .wc-art>.vz{max-height:none}
-.vz .sq-white{fill:var(--ink);fill-opacity:.06;stroke:var(--ink);stroke-opacity:.55;stroke-width:1.2}
-.vz .sq-iris{fill:var(--kc);fill-opacity:.2;stroke:var(--kc);stroke-width:1.4}
-.vz .sq-fib{fill:none;stroke:var(--kc);stroke-opacity:.35}
-.vz .sq-you{fill:var(--surface);stroke:var(--ink);stroke-opacity:.7;stroke-width:1.2}
-.vz .sq-yi{fill:var(--ink);fill-opacity:.3}
-.vz.sq{overflow:hidden}
-.vz .sq-eye{transform-box:view-box;transform-origin:332px 72px}
+/* Lightning: night in either theme. The bolt's strokes, finest for the furthest branches, its glow, and the cloud lit
+   from below. On its turn the leader creeps down in twelve steps, faint; the return stroke flashes the channel once,
+   lighting the cloud and the hill; then it rests, as in a long exposure */
+.vz .lt-cloud{fill:#151A29;opacity:.95}
+.vz .lt-under{fill:#232A40;opacity:.8}
+.vz .lt-lit{opacity:.55}
+.vz .lt-b{fill:none;stroke:#ECE8FF;stroke-linecap:round;stroke-linejoin:round}
+.vz .lt-d0{stroke-width:1.5}.vz .lt-d1{stroke-width:1;stroke-opacity:.78}.vz .lt-d2{stroke-width:.7;stroke-opacity:.55}.vz .lt-d3{stroke-width:.55;stroke-opacity:.4}
+.vz .lt-near .lt-b{stroke:#A898FF;stroke-width:3;stroke-opacity:.6}
+.vz .lt-wide{fill:none;stroke:#8E7FE0;stroke-width:10;opacity:.5}
+.vz .lt-core{fill:none;stroke:#fff;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.vz .lt-hill{fill:#020307}
+.vz .lt-glow{fill:#A898FF;opacity:.32}
+.vz .lt-fig{font:650 22px/1 var(--f-ui);letter-spacing:-.01em;fill:#fff;font-variant-numeric:tabular-nums}
+.vz .lt-note{font:500 11.5px/1 var(--f-ui);letter-spacing:0;fill:rgba(255,255,255,.66)}
+.wc.armed:not(.seen) :is(.lt-b,.lt-core,.lt-wide,.lt-glow,.lt-lit,.lt-label){opacity:0}
+.wc.armed.seen .lt-b{animation:fade 40ms linear both}
+.wc.armed.seen .lt-s1{animation-delay:70ms}.wc.armed.seen .lt-s2{animation-delay:140ms}.wc.armed.seen .lt-s3{animation-delay:210ms}.wc.armed.seen .lt-s4{animation-delay:280ms}.wc.armed.seen .lt-s5{animation-delay:350ms}
+.wc.armed.seen .lt-s6{animation-delay:420ms}.wc.armed.seen .lt-s7{animation-delay:490ms}.wc.armed.seen .lt-s8{animation-delay:560ms}.wc.armed.seen .lt-s9{animation-delay:630ms}.wc.armed.seen .lt-s10{animation-delay:700ms}.wc.armed.seen .lt-s11{animation-delay:770ms}
+.wc.armed.seen .lt-bolt{animation:ltlead 1.5s linear both}
+@keyframes ltlead{0%,57%{opacity:.42}60%,72%{opacity:1}100%{opacity:1}}
+.wc.armed.seen .lt-core{animation:ltcore .55s var(--ease-out) .88s both}
+@keyframes ltcore{from{opacity:0;stroke-width:6}}
+.wc.armed.seen :is(.lt-wide,.lt-glow){animation:ltflash 1.1s var(--ease-out) .88s both}
+.wc.armed.seen .lt-lit{animation:ltlit 1.1s var(--ease-out) .88s both}
+@keyframes ltflash{0%{opacity:0}12%{opacity:.95}}
+@keyframes ltlit{0%{opacity:0}12%{opacity:1}}
+.wc.armed.seen .lt-label{animation:fade var(--d-vslow) var(--ease-out) 1.25s both}
+
+/* Giant squid: its skin and its eye in their own colours, paler on paper, deeper at night. On its turn its eye grows
+   from the size of yours until it runs off the card */
+.vz.sq{overflow:hidden;--sq-k0:#F4E1D6;--sq-k1:#E8C8B8;--sq-cell:#A8482F;--sq-rim:#D7AE9C;--sq-white:#26303C;--sq-i0:#6F8BA6;--sq-i1:#A9BED1;--sq-i2:#D7E2EA;--sq-fib:#41566E;--sq-pupil:#07090D}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.sq{--sq-k0:#2A1310;--sq-k1:#160A08;--sq-cell:#B4523A;--sq-rim:#4A2620;--sq-white:#121820;--sq-i0:#3C536C;--sq-i1:#7D97B1;--sq-i2:#B7CBDB;--sq-fib:#1D2A39;--sq-pupil:#000}}
+:root[data-theme="dark"] .vz.sq{--sq-k0:#2A1310;--sq-k1:#160A08;--sq-cell:#B4523A;--sq-rim:#4A2620;--sq-white:#121820;--sq-i0:#3C536C;--sq-i1:#7D97B1;--sq-i2:#B7CBDB;--sq-fib:#1D2A39;--sq-pupil:#000}
+.vz .sq-k0{stop-color:var(--sq-k0)}.vz .sq-k1{stop-color:var(--sq-k1)}
+.vz .sq-i0{stop-color:var(--sq-i0)}.vz .sq-i1{stop-color:var(--sq-i1)}.vz .sq-i2{stop-color:var(--sq-i2)}
+.vz .sq-cell{fill:none;stroke:var(--sq-cell);stroke-linecap:round}
+.vz .sq-c0{stroke-width:2;stroke-opacity:.45}.vz .sq-c1{stroke-width:3.4;stroke-opacity:.38}.vz .sq-c2{stroke-width:5.2;stroke-opacity:.3}
+.vz .sq-rim{fill:var(--sq-rim)}
+.vz .sq-white{fill:var(--sq-white)}
+.vz .sq-fib{fill:none;stroke:var(--sq-fib);stroke-opacity:.45;stroke-width:1}
+.vz .sq-pupil{fill:var(--sq-pupil)}
+.vz .sq-glint{fill:#fff;fill-opacity:.85}.vz .sq-g2{fill-opacity:.6}
+.vz .sq-dim{stroke:var(--ink);stroke-opacity:.5}
+.vz .sq-lt{font:600 11.5px/1 var(--f-ui);letter-spacing:0;fill:var(--ink)}
+.vz .sq-lb{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
+.vz .sq-chip{fill:var(--surface);stroke:var(--line-2)}
+.vz .sq-you{fill:#F6F6F4;stroke:#C9C9C4;stroke-width:.8}
+.vz .sq-youi{fill:#6B4B2E}
+.vz .sq-eye{transform-box:view-box;transform-origin:312px 205px}
 .wc.armed:not(.seen) .sq-eye{transform:scale(.09)}
 .wc.armed.seen .sq-eye{animation:sqgrow 1.5s cubic-bezier(.2,.7,.2,1) .1s both}
 @keyframes sqgrow{from{transform:scale(.09)}}
-@media (hover:none){.wc[data-card="fireworks"] .wc-read{display:none}}
 
-/* Fireworks: the card is the night in either theme, like the hero's photograph; the bursts go off in turn */
-.wc[data-card="fireworks"]{background:#070A14;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
-.wc[data-card="fireworks"] :is(.wc-meta,.wc-n,.wc-read){color:rgba(255,255,255,.6)}
-.wc[data-card="fireworks"] .wc-h{color:rgba(255,255,255,.78)}
-.wc[data-card="fireworks"].reading .wc-read{color:#fff}
-.wc[data-card="fireworks"] .wc-open{color:rgba(255,255,255,.55)}
-.wc[data-card="fireworks"]:hover .wc-open{color:#fff}
-.wc[data-card="fireworks"] [data-kind="thing"]{--kc:#F08CF5}
-.wc[data-card="fireworks"] .vz{--ink:#fff;--faint:rgba(255,255,255,.62)}
-.vz .fw-ax{stroke:#fff;stroke-opacity:.45}
-.vz .fw-t{fill:rgba(255,255,255,.6)}
-.vz .fw-sym{font-size:11px;font-weight:700;letter-spacing:.02em;fill:#fff}
-.vz .fw-trail{fill:none;stroke-width:1;stroke-opacity:.45;stroke-dasharray:2 3;--t:.3s}
+/* Fireworks: the night in either theme; each shell bursts above its own lines on the ruler, left to right, its stars
+   brightest at their ends; pointing at one names it */
+.vz .fw-ax{stroke:#fff;stroke-opacity:.38}
+.vz .fw-t{fill:rgba(255,255,255,.55)}
+.vz .fw-sym{font-size:11px;font-weight:700;letter-spacing:.02em;fill:#fff;fill-opacity:.88}
+.vz .fw-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:rgba(255,255,255,.62)}
+.vz .fw-trail{fill:none;stroke-width:1;stroke-opacity:.42;stroke-dasharray:2 3;--t:.3s}
 .wc.armed.seen .fw-trail{stroke-dasharray:1 1}
 .vz .fw-line{fill:none;stroke-width:1.8}
-.vz .fw-spark{fill:none;stroke-width:2.6;stroke-linecap:round}
-.vz .fw-burst{fill:none;stroke-width:1.3;stroke-linecap:round;--t:.45s;--e:var(--ease-out)}
+.vz .fw-burst{fill:none;stroke-width:1.25;stroke-linecap:round;--t:.55s;--e:var(--ease-out)}
+.vz .fw-head{fill:none;stroke-width:2.4;stroke-linecap:round}
+.vz .fw-blur{stroke-width:5;opacity:.75}
+.vz .fw-haze{opacity:.09}
 .vz .fw-m{transition:opacity var(--d-fast) var(--ease-out)}
 .wc.reading .fw-m{opacity:.3}
 .wc.reading .fw-m:has(.hit.on){opacity:1}
