@@ -114,7 +114,7 @@ let STAGE = null; const FX_STOP = [];
 function startFx() {
   stopStage(); FX_STOP.splice(0).forEach(f => f());
   const cards = $$('#ways .wc');
-  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx); $$('.wc[data-fx="origami"]').forEach(origamiFx);
+  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx); $$('.wc[data-fx="origami"]').forEach(origamiFx); $$('.wc[data-fx="magnets"]').forEach(magnetsFx);
   cards.forEach(el => { if ($('[data-read]', el)) readoutFx(el); });
   if (!motionOK()) { cards.forEach(el => el.classList.add('seen')); if (THREADMAP) THREADMAP.play(); return; }
   cards.forEach(el => { if (!el.classList.contains('armed')) el.classList.add('seen'); });
@@ -202,28 +202,90 @@ function origamiFx(card) {
   card.addEventListener('pointerleave', () => { if (tween) return; aim = FOLD.rest; go(); });
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });
 }
+/* Magnets: about 1,800 filings on a canvas, each turned along the field where it lies (src/shared/plates.js). Waiting
+   its turn they lie scattered; on its turn they swing into line, rippling out from the bar; with a mouse the pointer is
+   a pole they turn toward, and when it leaves they settle back. Drawn in the theme's ink, again when the theme changes */
+function magnetsFx(card) {
+  const cv = $('.mg-cv', card); if (!cv || cv.dataset.wired) return; cv.dataset.wired = '1';
+  const ctx = cv.getContext('2d'), F = filings(), rand = F.map((_, i) => ((i * 7919) % 360) / 360 * Math.PI);
+  const ang = new Float32Array(F.length), aim = new Float32Array(F.length);
+  let W = 0, H = 0, s = 1, ox = 0, oy = 0, raf = 0, pole = null, pull = 0, play = 0, ink = '';
+  const along = p => F.forEach((q, i) => { const [bx, by] = barField(q.x, q.y, p); aim[i] = Math.atan2(by, bx) + q.jit; });
+  const size = () => { const r = card.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1); W = r.width; H = r.height; cv.width = Math.round(W * d); cv.height = Math.round(H * d); s = Math.max(W / BAR.W, H / BAR.H); ox = (W - BAR.W * s) / 2; oy = (H - BAR.H * s) / 2; ctx.setTransform(d, 0, 0, d, 0, 0); ink = getComputedStyle(card).getPropertyValue('--ink').trim() || '#18181B'; };
+  const draw = () => {
+    ctx.clearRect(0, 0, W, H); ctx.strokeStyle = ink; ctx.lineCap = 'round';
+    /* fainter and finer away from the bar, where the field is weak */
+    for (const a of [0, 1, 2]) for (const heavy of [false, true]) {
+      ctx.globalAlpha = [.3, .5, .72][a] + (heavy ? .1 : 0); ctx.lineWidth = heavy ? 1.45 : 1.05; ctx.beginPath();
+      F.forEach((q, i) => { if (q.a !== a || (q.w > 1.2) !== heavy) return; const c = Math.cos(ang[i]) * q.len / 2 * s, n = Math.sin(ang[i]) * q.len / 2 * s, x = ox + q.x * s, y = oy + q.y * s; ctx.moveTo(x - c, y - n); ctx.lineTo(x + c, y + n); });
+      ctx.stroke();
+    }
+  };
+  /* a filing has no ends to tell apart: it turns the short way to its line */
+  const near = (a, b) => { let d = (b - a) % Math.PI; if (d > Math.PI / 2) d -= Math.PI; if (d < -Math.PI / 2) d += Math.PI; return d; };
+  const loop = now => {
+    raf = 0; let moving = false;
+    if (play) { const t = now - play; F.forEach((q, i) => { const delay = Math.hypot(q.x - BAR.cx, (q.y - BAR.cy) * 1.4) / 260 * 650, k = Math.min(1, Math.max(0, (t - delay) / 520)); const e = 1 - Math.pow(1 - k, 3); ang[i] = rand[i] + near(rand[i], aim[i]) * e; }); if (t > 1300) { play = 0; } moving = true; }
+    else { F.forEach((q, i) => { const d = near(ang[i], aim[i]); if (Math.abs(d) > .002) { ang[i] += d * .22; moving = true; } }); }
+    draw(); if (moving) raf = requestAnimationFrame(loop);
+  };
+  const go = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  size(); along(null);
+  const waiting = card.classList.contains('armed') && !card.classList.contains('seen');
+  F.forEach((_, i) => { ang[i] = waiting ? rand[i] : aim[i]; }); draw();
+  FX_PLAY.set(card, () => { play = performance.now(); go(); });
+  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || play) return; const r = card.getBoundingClientRect(); pole = [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s, 2.6]; along(pole); go(); });
+  card.addEventListener('pointerleave', () => { if (!pole) return; pole = null; along(null); go(); });
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { size(); draw(); }) : null; if (ro) ro.observe(card);
+  const mo = new MutationObserver(() => { size(); draw(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  const mq = matchMedia('(prefers-color-scheme: dark)'), re = () => { size(); draw(); }; mq.addEventListener('change', re);
+  FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); if (ro) ro.disconnect(); mo.disconnect(); mq.removeEventListener('change', re); });
+}
 /* the cube's number rolls in, digit by digit, like a slot machine settling from the left */
 function odometer(el) {
   el.dataset.done = '1'; const text = el.textContent; let k = 0;
   el.innerHTML = [...text].map(ch => (/\d/.test(ch) ? `<span class="od" style="--d:${ch};--k:${k++}"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</span></span>` : esc(ch) + (ch === ',' ? '<wbr>' : ''))).join('');
   el.setAttribute('aria-label', text); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
 }
-/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it, five start digestion. The
-   meter under it counts, marked where it shuts and where it starts to digest */
+/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it in about a tenth of a second (the
+   page turns its lobes about the midrib, src/shared/plates.js, with a little overshoot, so the teeth cross), and five
+   start digestion. The meter under it counts, marked where it shuts and where it starts to digest */
 function flytrapFx(card) {
-  const art = $('.wc-art', card); if (!art || art.dataset.wired) return; art.dataset.wired = '1';
-  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><div class="ft-meter" aria-live="polite"><b class="ft-c">0</b><span class="ft-s">Touch a hair</span><ol class="ft-steps">${[1, 2, 3, 4, 5].map(i => `<li${i === 2 ? ' data-l="Shuts"' : i === 5 ? ' data-l="Digests"' : ''}><i></i></li>`).join('')}</ol></div>`);
-  let n = 0, armed = 0, timer = 0, rest = 0; const steps = $$('.ft-steps li', art);
-  const say = (c, t) => { $('.ft-c', art).textContent = c; $('.ft-s', art).textContent = t; steps.forEach((s, i) => s.classList.toggle('on', i < +c)); };
-  const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say('0', 'Touch a hair'); };
+  const art = $('.wc-art', card), sv = $('.vz.ft', card); if (!art || !sv || art.dataset.wired) return; art.dataset.wired = '1';
+  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><div class="ft-meter" aria-live="polite"><span class="ft-s">Touch a hair</span><ol class="ft-steps">${[1, 2, 3, 4, 5].map(i => `<li${i === 2 ? ' data-l="Shuts"' : i === 5 ? ' data-l="Digests"' : ''}><i></i></li>`).join('')}</ol></div>`);
+  let n = 0, armed = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0; const steps = $$('.ft-steps li', art);
+  /* the trap at an opening: each lobe's face, rim, teeth, hairs and nectar, and the line its colour follows */
+  const draw = () => {
+    const v = trapView(phi, TRAP);
+    v.lobes.forEach((l, i) => {
+      const g = $(`.ft-l${i}`, sv), gr = $(`#ft-g${i}`, sv); if (!g) return;
+      $('.ft-shell', g).setAttribute('d', l.shell);
+      const face = $('.ft-face', g); face.setAttribute('d', l.face); face.setAttribute('class', `ft-face${l.inside ? '' : ' ft-hid'}`);
+      $('.ft-rim', g).setAttribute('d', l.rim); $('.ft-teeth', g).setAttribute('d', l.teeth); $('.ft-hair', g).setAttribute('d', l.hairs.map(h => h.d).join(''));
+      $('.ft-nectar', g).setAttribute('d', l.nectar.map(([x, y]) => `M${x} ${y}h0`).join(''));
+      /* shut, the hairs and the nectar are inside */
+      for (const sel of ['.ft-hair', '.ft-nectar']) $(sel, g).classList.toggle('ft-hid', !l.inside);
+      if (gr) ['x1', 'y1', 'x2', 'y2'].forEach((a, j) => gr.setAttribute(a, String(l.across[j])));
+    });
+  };
+  /* close (or open) over ms, overshooting a little when it snaps */
+  const move = (to, ms, snap) => {
+    if (raf) cancelAnimationFrame(raf); const from = phi, t0 = performance.now();
+    if (reducedMotion()) { phi = to; draw(); return; }
+    const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
+    raf = requestAnimationFrame(step);
+  };
+  const say = (c, t) => { $('.ft-s', art).textContent = t; steps.forEach((s, i) => s.classList.toggle('on', i < c)); };
+  const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say(0, 'Touch a hair'); if (phi !== TRAP.open) move(TRAP.open, 900, false); };
   $('.ft-btn', art).addEventListener('click', () => {
     clearTimeout(rest); const now = Date.now(); if (armed && now - armed > 20000 && n < 2) n = 0;
     n = Math.min(n + 1, 5); card.classList.remove('zap'); void card.offsetWidth; card.classList.add('zap');
-    if (n === 1) { armed = now; card.dataset.state = 'armed'; say('1', 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
-    else if (n < 5) { clearTimeout(timer); card.dataset.state = 'shut'; say(String(n), n === 2 ? 'Shut, in a tenth of a second' : `${5 - n} more to digest`); }
-    else { card.dataset.state = 'digest'; say('5', 'Digesting'); }
+    if (n === 1) { armed = now; card.dataset.state = 'armed'; say(1, 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
+    else if (n < 5) { clearTimeout(timer); if (card.dataset.state !== 'shut') move(TRAP.shut, 140, true); card.dataset.state = 'shut'; say(n, n === 2 ? 'Shut, in a tenth of a second' : `${5 - n} more to digest`); }
+    else { card.dataset.state = 'digest'; move(TRAP.shut * .2, 300, false); say(5, 'Digesting'); }
     rest = setTimeout(reset, 9000);
   });
+  FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(rest); });
 }
 /* an Enigma you can type into or tap: rotors I, II, III and reflector B from AAA. Each letter steps the rotors (their
    windows roll on), lights the lamp it becomes and joins the tape; the tally counts the letters that lit themselves,
