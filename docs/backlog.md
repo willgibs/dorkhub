@@ -69,7 +69,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   with a material of its own, one entrance story when first seen, a phone version, and new
   layout sizes (Black holes tall, Pompeii square, Time travel wide); the cards' styles move to
   `/front.css`. Details in `docs/decisions.md`.
-- **PR H, the drawing leads** (up for Will's look, 2026-10-16): every card is its drawing, edge to
+- **PR H, the drawing leads** (live since 2026-10-16, willgibs/dorkhub#20): every card is its drawing, edge to
   edge, with only its kind and title; one card plays at a time as you scroll; Black holes becomes
   the hero (a ray-traced disk, as Luminet drew one in 1979), Northern lights tall; Origami,
   Atlantis, Magnets and Lightning replace Volcanoes, Time travel, Quicksand and Dreams on the cards
