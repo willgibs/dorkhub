@@ -28,9 +28,10 @@ function shufflePresets() {
 }
 
 /* ================= ways in: the cards, the map of threads, and a reader's world =================
-   Each card is its own piece (lib/front.js): a visual that leads into one topic, its hook, and its
-   title, which links to the page. Between the two groups of cards, a map of every planned topic and
-   the threads that tie them, labelled when you point at one. A reader's own world takes the last slot. */
+   Each card is its own piece (lib/front.js): a drawing, edge to edge, that leads into one topic, with only its kind
+   and its title, which links to the page (Will, 2026-10-16: the drawings are the point, and a visitor clicks in to
+   find out what they show). Between the two groups of cards, a map of every planned topic and the threads that tie
+   them, labelled when you point at one. A reader's own world takes the last slot. */
 let FRONTD = null, FRONTP = null, THREADMAP = null, WORLDCARD = null; const THREAD_POS = new Map();
 /* the cards' look comes with them: only the front page loads /front.css, so reading pages never carry it */
 const frontCss = () => new Promise(done => { if ($('#frontCss')) { done(); return; } const l = document.createElement('link'); l.id = 'frontCss'; l.rel = 'stylesheet'; l.href = '/front.css'; l.onload = l.onerror = () => done(); document.head.appendChild(l); });
@@ -39,18 +40,18 @@ function loadFront() {
   return FRONTP;
 }
 const slugOfCard = t => topicKey(t).replace(/[^a-z0-9]+/g, '-');
-/* a card tells its story once a visit, when it first comes into view; without motion every card shows finished */
+/* a card tells its story once a visit, on its turn (see stage); without motion every card shows finished */
 const PLAYED = new Set(); const LIVE = new Set(['flytrap', 'enigma']);
 const motionOK = () => !reducedMotion() && typeof IntersectionObserver === 'function';
-function wayHTML(c, i) {
+function wayHTML(c) {
   const href = routeOf({ title: c.t, lens: 'encyclopedic', q: asksQuestion(c.t), ctx: '', bridge: null });
   const slug = slugOfCard(c.t), live = LIVE.has(c.fx); const go = `href="${esc(href)}" data-way="${esc(c.t)}" data-fk="${esc(c.k)}" data-h="${esc(c.hook)}"`;
   /* every card opens its page from the arrow in its corner; one without controls of its own opens from anywhere on it */
   const open = live ? `<a class="wc-open" ${go}${tipAttrs('Open the page')}>${ic('arrow')}</a>` : `<span class="wc-open" aria-hidden="true">${ic('arrow')}</span>`;
-  return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${live ? ' wc-live' : ''}${motionOK() && !PLAYED.has(slug) ? ' armed' : ''}" data-card="${slug}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''} style="--i:${i}">
+  return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${c.night ? ' wc-night' : ''}${live ? ' wc-live' : ''}${motionOK() && !PLAYED.has(slug) ? ' armed' : ''}" data-card="${slug}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''}${c.beat ? ` data-beat="${c.beat}"` : ''}>
   <div class="wc-art">${c.art}</div>
-  <div class="wc-txt"><p class="wc-meta"><span class="wc-n">${String(i + 1).padStart(2, '0')}</span><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3><p class="wc-h">${esc(c.hook)}</p>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}</div>
-  ${open}
+  <div class="wc-cap"><p class="wc-kind"><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3></div>
+  ${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${open}
 </article>`;
 }
 const frontShellHTML = () => `<section class="ways" id="ways" aria-labelledby="waysH">
@@ -65,8 +66,8 @@ function renderFront() {
   const cards = FRONTD.cards; const cut = cards.findIndex(c => c.t === 'Fireworks'); const split = cut > 0 ? cut : Math.ceil(cards.length / 2);
   /* a reader's world takes the last card's place, at its size */
   const mine = worldCount() > 0; const last = cards[cards.length - 1]; const later = cards.slice(split).filter(c => !(mine && c === last));
-  A.innerHTML = cards.slice(0, split).map(wayHTML).join('');
-  B.innerHTML = later.map((c, j) => wayHTML(c, split + j)).join('') + (mine ? worldCardHTML(last) : '');
+  A.innerHTML = cards.slice(0, split).map(c => wayHTML(c)).join('');
+  B.innerHTML = later.map(c => wayHTML(c)).join('') + (mine ? worldCardHTML(last) : '');
   renderThreads(); if (mine) mountWorldCard(); startFx();
 }
 /* the map of threads: every planned topic, and why each one leads to the next */
@@ -85,7 +86,9 @@ function renderThreads() {
   const at = new Map(nodes.map((n, i) => [n.title, i])); const edges = [];
   for (const th of FRONTD.threads) { const a = at.get(th.a), b = at.get(th.b); if (a == null || b == null) continue; edges.push({ a, b, move: false, unread: false, len: 96, label: th.l }); nodes[a].deg++; nodes[b].deg++; }
   if (THREADMAP) THREADMAP.destroy();
-  THREADMAP = makeGraph($('#threadStage'), { still: true, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }) });
+  /* the map traces in on its turn among the cards, once a visit */
+  const hold = motionOK() && !PLAYED.has('threads'); el.classList.toggle('armed', hold); el.dataset.beat = '1300';
+  THREADMAP = makeGraph($('#threadStage'), { still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }) });
   THREADMAP.setData({ nodes, edges });
 }
 /* a reader's world, in the last slot: the neighbourhood of the last page read, and what they read lately */
@@ -101,36 +104,103 @@ function mountWorldCard() {
   WORLDCARD = makeGraph(host, { mini: true, still: true, positions: MINI_POS });
   WORLDCARD.setData(start ? localGraph(full, start, 24, 6) : { nodes: [], edges: [] }, { center: start });
 }
-/* ---------- the cards that do something: each tells its story when first seen; a cube's count rolls in, a
-   flytrap counts, an Enigma types, a clock drifts, and charts read out what you point at ---------- */
-let FX_IO = null; const FX_STOP = [];
+/* ---------- one card at a time ----------
+   Will (2026-10-16): when everything moves at once, nothing is seen. So a card tells its story (its entrance) once a
+   visit, and only when it is mostly in view, the page has stopped being flung, and no other card is telling one. The
+   rest wait, still, in their first frames, and go in reading order: a screenful reached in one fling plays left to
+   right, top to bottom, each card starting as the one before it settles. The map of threads takes its turn too. Without motion every card
+   simply shows finished, and the cards' controls and readings work either way. */
+let STAGE = null; const FX_STOP = [];
 function startFx() {
-  if (FX_IO) FX_IO.disconnect(); FX_STOP.splice(0).forEach(f => f());
+  stopStage(); FX_STOP.splice(0).forEach(f => f());
   const cards = $$('#ways .wc');
-  const seen = el => { el.classList.add('seen'); PLAYED.add(el.dataset.card || ''); const n = $('[data-fx="odometer"]', el); if (n && !n.dataset.done) odometer(n); if (el.dataset.fx === 'enigma') enigmaDemo(el); };
-  if (!motionOK()) cards.forEach(el => el.classList.add('seen'));
-  else { FX_IO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { seen(/** @type {HTMLElement} */ (e.target)); FX_IO.unobserve(e.target); } }), { threshold: .35 }); cards.forEach(el => (el.classList.contains('armed') ? FX_IO.observe(el) : el.classList.add('seen'))); }
-  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx); $$('.wc[data-fx="ticker"]').forEach(tickerFx);
+  $$('.wc[data-fx="flytrap"]').forEach(flytrapFx); $$('.wc[data-fx="enigma"]').forEach(enigmaFx); $$('.wc[data-fx="origami"]').forEach(origamiFx);
   cards.forEach(el => { if ($('[data-read]', el)) readoutFx(el); });
+  if (!motionOK()) { cards.forEach(el => el.classList.add('seen')); if (THREADMAP) THREADMAP.play(); return; }
+  cards.forEach(el => { if (!el.classList.contains('armed')) el.classList.add('seen'); });
+  const map = $('#threads.armed');
+  stage([...cards.filter(el => el.classList.contains('armed')), ...(map ? [map] : [])]);
 }
-/* a chart answers the pointer: whatever part carries a reading shows it in the card's line for it. The card's
-   link lies over the drawing, so the parts are found by position rather than by events of their own */
+/* what a card does as its story starts, beyond what its stylesheet plays */
+const FX_PLAY = new WeakMap();
+function beatFx(el) {
+  const n = $('[data-fx="odometer"]', el); if (n && !n.dataset.done) odometer(n);
+  if (el.dataset.fx === 'enigma') enigmaDemo(el);
+  const play = FX_PLAY.get(el); if (play) play();
+}
+/* the stage: the cards still waiting, played one at a time. A card counts as in view once 60% of it (or of the
+   screen, for one taller than the screen) shows; a scroll faster than about 1.4 px/ms is a fling, and nothing
+   starts until it has been still for a moment */
+function stage(waiting) {
+  const S = { left: new Set(waiting), busy: 0, fling: 0, raf: 0, ready: false, y: scrollY, t: performance.now(), io: null, stop: () => {} };
+  STAGE = S;
+  const inView = el => { const r = el.getBoundingClientRect(), h = innerHeight, shown = Math.min(r.bottom, h) - Math.max(r.top, 0); return shown > 0 && shown >= Math.min(r.height, h) * .6; };
+  const next = () => {
+    if (STAGE !== S || S.busy || S.fling || !S.ready) return;
+    const now = [...S.left].filter(inView).map(el => ({ el, r: el.getBoundingClientRect() })).sort((a, b) => (Math.abs(a.r.top - b.r.top) > 48 ? a.r.top - b.r.top : a.r.left - b.r.left));
+    if (!now.length) return;
+    const { el } = now[0]; S.left.delete(el); S.io.unobserve(el);
+    el.classList.add('seen', 'playing'); PLAYED.add(el.dataset.card || el.id);
+    if (el.id === 'threads') { if (THREADMAP) THREADMAP.play(); } else beatFx(el);
+    /* the next one starts as this one settles: one card leads at a time, and the eye moves on with it */
+    S.busy = setTimeout(() => { el.classList.remove('playing'); S.busy = 0; next(); }, Math.max(600, (Number(el.dataset.beat) || 1200) * .7));
+  };
+  const soon = () => { if (!S.raf) S.raf = requestAnimationFrame(() => { S.raf = 0; next(); }); };
+  const onScroll = () => {
+    const t = performance.now(), v = Math.abs(scrollY - S.y) / Math.max(8, t - S.t); S.y = scrollY; S.t = t;
+    if (v > 1.4 || S.fling) { clearTimeout(S.fling); S.fling = setTimeout(() => { S.fling = 0; soon(); }, 180); } else soon();
+  };
+  S.io = new IntersectionObserver(soon, { threshold: [0, .3, .6, .9] }); S.left.forEach(el => S.io.observe(el));
+  addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', soon);
+  /* the first story waits for the composer to finish rising */
+  const go = setTimeout(() => { S.ready = true; soon(); }, 700);
+  S.stop = () => { clearTimeout(S.busy); clearTimeout(S.fling); clearTimeout(go); cancelAnimationFrame(S.raf); S.io.disconnect(); removeEventListener('scroll', onScroll); removeEventListener('resize', soon); $$('#ways .playing').forEach(el => el.classList.remove('playing')); };
+}
+function stopStage() { if (STAGE) { STAGE.stop(); STAGE = null; } }
+/* a drawing answers the pointer: whatever part carries a reading (data-read) is named in a small label beside the
+   pointer. The card's link lies over the drawing, so the parts are found by position rather than by events of their
+   own; touch has no pointer to follow, so the drawings say what they must without it */
 function readoutFx(card) {
-  const out = $('.wc-read', card); if (!out || card.dataset.reads) return; card.dataset.reads = '1';
-  const rest = out.innerHTML; let on = null;
-  const show = hit => { if (hit === on) return; if (on) on.classList.remove('on'); on = hit; if (on) on.classList.add('on'); card.classList.toggle('reading', !!on); out.innerHTML = on ? esc(on.dataset.read) : rest; };
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(document.elementsFromPoint(e.clientX, e.clientY).find(el => el.dataset && el.dataset.read && card.contains(el)) || null); });
-  card.addEventListener('pointerleave', () => show(null));
+  if (card.dataset.reads) return; card.dataset.reads = '1';
+  const out = document.createElement('p'); out.className = 'wc-read'; out.setAttribute('aria-hidden', 'true'); card.appendChild(out);
+  let on = null;
+  const show = (hit, x, y) => {
+    if (hit !== on) { if (on) on.classList.remove('on'); on = hit; if (on) { on.classList.add('on'); out.textContent = on.dataset.read; } card.classList.toggle('reading', !!on); }
+    if (!on) return;
+    const r = card.getBoundingClientRect(), w = out.offsetWidth, h = out.offsetHeight;
+    const left = Math.min(Math.max(8, x - r.left + 14), r.width - w - 8), top = y - r.top + 18 + h > r.height - 8 ? y - r.top - h - 12 : y - r.top + 18;
+    out.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
+  };
+  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(document.elementsFromPoint(e.clientX, e.clientY).find(el => el.dataset && el.dataset.read && card.contains(el)) || null, e.clientX, e.clientY); });
+  card.addEventListener('pointerleave', () => show(null, 0, 0));
 }
-/* Time travel: how far an uncorrected satellite clock and your map would have drifted since this page opened
-   (38.6 µs and about 11.4 km a day), counted only while the card is on screen */
-function tickerFx(card) {
-  const ns = $('.tt-ns', card), m = $('.tt-m', card); if (!ns || !m) return;
-  const dot = n => n.toFixed(1).replace('.', '<i>.</i>');
-  const tick = () => { const s = performance.now() / 1000; ns.innerHTML = `+${dot(s * 38600 / 86400)}`; m.innerHTML = dot(s * 11400 / 86400); };
-  tick(); if (typeof IntersectionObserver !== 'function') return; let t = 0;
-  const io = new IntersectionObserver(([e]) => { clearInterval(t); if (e.isIntersecting) { tick(); t = setInterval(tick, 200); } }); io.observe(card);
-  FX_STOP.push(() => { io.disconnect(); clearInterval(t); });
+/* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded shut; on its turn it
+   pulls open to rest; with a mouse, pointing across the card opens it toward the right and folds it toward the left,
+   and when the pointer leaves it settles back to rest */
+function origamiFx(card) {
+  const sheets = $$('.vz.mi', card); if (!sheets.length || card.dataset.wired) return; card.dataset.wired = '1';
+  let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null;
+  const draw = () => {
+    for (const el of sheets) {
+      if (!el.getClientRects().length) continue;
+      const { faces, shadow } = foldView(th, el.classList.contains('vz-n') ? 'n' : 'w'), ps = $$('.mi-f', el);
+      faces.forEach((f, k) => { if (!ps[k]) return; ps[k].setAttribute('d', f.d); ps[k].setAttribute('class', `mi-f mi-o${f.o}`); });
+      $('.mi-shadow', el).setAttribute('d', shadow);
+      for (let o = 0; o < 4; o++) el.style.setProperty(`--s${o}`, (faces.find(f => f.o === o)?.s || 0).toFixed(3));
+    }
+  };
+  const loop = now => {
+    raf = 0;
+    if (tween) { const t = Math.min(1, (now - tween.t0) / tween.ms), e = 1 - Math.pow(1 - t, 3); th = tween.from + (tween.to - tween.from) * e; if (t >= 1) { tween = null; aim = th; } }
+    else th += (aim - th) * .16;
+    draw(); if (tween || Math.abs(aim - th) > .002) raf = requestAnimationFrame(loop);
+  };
+  const go = () => { if (!raf) raf = requestAnimationFrame(loop); };
+  if (th !== FOLD.rest) draw();
+  FX_PLAY.set(card, () => { tween = { from: th, to: FOLD.rest, t0: performance.now(), ms: 1400 }; go(); });
+  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || reducedMotion()) return; const r = card.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left - r.width * .12) / (r.width * .76))); tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * f; go(); });
+  card.addEventListener('pointerleave', () => { if (tween) return; aim = FOLD.rest; go(); });
+  FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });
 }
 /* the cube's number rolls in, digit by digit, like a slot machine settling from the left */
 function odometer(el) {
@@ -258,7 +328,7 @@ function watchBeam() {
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
 function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } if (FX_IO) { FX_IO.disconnect(); FX_IO = null; } FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });

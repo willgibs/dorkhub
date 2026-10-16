@@ -5,7 +5,9 @@
 .ways{max-width:1180px;margin:0 auto;padding:0 28px}
 .ways-h{padding:22px 0 16px;border-top:1px solid var(--line);font:650 19px/1.25 var(--f-ui);letter-spacing:-.012em}
 .bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:168px;grid-auto-flow:dense;gap:14px}
-.wc{position:relative;display:flex;flex-direction:column;min-width:0;padding:16px 18px;border-radius:var(--r-2);background:var(--surface);box-shadow:var(--sh-1);color:var(--ink);overflow:hidden;isolation:isolate;transition:box-shadow var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out)}
+/* a card is its drawing, edge to edge, with only its kind and title in the top corner (Will, 2026-10-16: the
+   drawings are the point; a visitor clicks in to find out what they show) */
+.wc{position:relative;min-width:0;border-radius:var(--r-2);background:var(--surface);box-shadow:var(--sh-1);color:var(--ink);overflow:hidden;isolation:isolate;transition:box-shadow var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out)}
 .wc:not(.wc-live):hover,.wc:focus-within{box-shadow:var(--sh-2)}
 .wc:not(.wc-live):hover{transform:translateY(-1px)}
 .wc-hero{grid-column:span 4;grid-row:span 3}
@@ -14,47 +16,40 @@
 .wc-wide{grid-column:span 4}
 .wc-big{grid-column:span 4;grid-row:span 2}
 .wc-small{grid-column:span 2}
-.wc-txt{position:relative;z-index:1;display:flex;flex-direction:column;min-width:0}
-.wc-meta{display:flex;align-items:center;gap:10px;padding-right:30px;font:600 10.5px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.wc-meta .kind{font-size:10.5px}
-.wc-n{font-variant-numeric:tabular-nums;color:var(--faint)}
+/* the drawing lies under everything else on the card (the card isolates it) */
+.wc-art{position:absolute;inset:0;z-index:-1}
+.wc-art>.vz{width:100%;height:100%}
+.wc-cap{max-width:calc(100% - 64px);padding:15px 18px 0}
+.wc-kind{display:flex;align-items:center;font:600 10.5px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.wc-kind .kind{font-size:10.5px}
 .wc-t{margin-top:7px;font:650 19px/1.2 var(--f-ui);letter-spacing:-.014em;text-wrap:balance}
 .wc-t a{color:inherit;text-decoration:none}
 /* a card without its own controls opens its page from anywhere on it */
-.wc:not(.wc-live) .wc-t a::after{content:"";position:absolute;inset:-400px;z-index:3}
+.wc:not(.wc-live) .wc-t a::after{content:"";position:absolute;inset:0;z-index:3}
 .wc:not(.wc-live) .wc-t a:focus-visible{outline:none}
 .wc:not(.wc-live):has(.wc-t a:focus-visible){box-shadow:0 0 0 2px var(--acc),var(--sh-2)}
-.wc-h{margin-top:5px;max-width:46ch;font-size:14px;line-height:1.45;color:var(--mute)}
-.wc-h b{color:var(--ink);font-variant-numeric:tabular-nums}
-.wc-cr{margin-top:8px;font-size:11px;color:var(--faint)}
+.wc-cr{position:absolute;left:18px;bottom:13px;z-index:1;font-size:11px;color:var(--faint)}
 /* every card's corner: the way into its page (on a card with controls, the only one besides its title) */
 .wc-open{position:absolute;right:11px;top:11px;z-index:4;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;color:var(--faint);transition:color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
 span.wc-open{pointer-events:none}
-/* on a card whose words sit beside its drawing, the arrow keeps to the words' corner */
-@media (min-width:761px){.wc-wide .wc-open,.wc-big .wc-open,.wc-tab-big .wc-open{right:auto;left:226px}}
 .wc-open .ic{width:16px;height:16px;transition:transform var(--d-fast) var(--ease-out)}
 .wc:hover .wc-open,.wc:focus-within .wc-open{color:var(--ink)}
 .wc:not(.wc-live):hover .wc-open .ic,a.wc-open:hover .ic{transform:translateX(2px)}
 a.wc-open:hover{background:var(--sunken)}
 a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+/* a night subject is night in either theme: light words, and the kinds' colours as they are on dark */
+.wc-night{--ink:#ECECEE;--mute:rgba(236,236,238,.78);--faint:rgba(236,236,238,.6);--surface:#06070B;--sunken:rgba(255,255,255,.08);--line:rgba(236,236,238,.09);background:#06070B;box-shadow:0 0 0 1px rgba(255,255,255,.06)}
+.wc-night:not(.wc-live):hover,.wc-night:focus-within{box-shadow:0 0 0 1px rgba(255,255,255,.1),0 16px 36px -18px rgba(0,0,0,.7)}
+.wc-night [data-kind="concept"]{--kc:#93B4FF}.wc-night [data-kind="phenomenon"]{--kc:#5CD0D8}.wc-night [data-kind="mechanism"]{--kc:#7FD483}.wc-night [data-kind="place"]{--kc:#F5B94A}
+.wc-night [data-kind="person"]{--kc:#FF9F6E}.wc-night [data-kind="event"]{--kc:#FF8A9E}.wc-night [data-kind="thing"]{--kc:#F08CF5}.wc-night [data-kind="mystery"]{--kc:#B89CFF}
 /* the map's panel still says it in words */
 .wc-go{position:relative;z-index:4;display:inline-flex;align-items:center;gap:5px;margin-top:10px;font:600 13px var(--f-ui);color:var(--ink);text-decoration:none}
 .wc-go .ic{width:14px;height:14px;transition:transform var(--d-fast) var(--ease-out)}
 .wc-go:hover .ic{transform:translateX(2px)}
-.wc-art{position:relative;min-width:0}
-/* a square: the words on top, the drawing below */
-.wc-sq .wc-art,.wc-tall .wc-art{order:2;margin-top:auto;padding-top:10px}
-.wc-sq .wc-art>.vz{width:auto;max-width:100%;max-height:178px;margin-inline:auto}
-/* a wide card: the words beside the drawing */
-.wc-wide,.wc-big{display:grid;grid-template-columns:minmax(0,236px) minmax(0,1fr);column-gap:22px;align-items:center}
-.wc-big{align-items:start}
-.wc-big .wc-art{align-self:center}
-.wc-wide .wc-art,.wc-big .wc-art{order:2}
-.wc-wide .wc-art>.vz{max-height:136px}
-.wc-small .wc-art{order:2;margin-top:auto}
-/* a chart's line for what the pointer is on */
-.wc-read{min-height:15px;margin-top:6px;font:500 11.5px/1.3 var(--f-ui);color:var(--faint);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.wc.reading .wc-read{color:var(--ink)}
+/* what the pointer is on, said beside it: a drawing's parts carry their readings (data-read) */
+.wc-read{position:absolute;left:0;top:0;z-index:5;max-width:min(280px,80%);padding:5px 9px;border-radius:7px;background:var(--surface);box-shadow:0 0 0 1px var(--line-2),0 6px 18px -8px rgba(0,0,0,.35);font:500 11.5px/1.35 var(--f-ui);color:var(--ink);font-variant-numeric:tabular-nums;pointer-events:none;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
+.wc.reading .wc-read{opacity:1}
+.wc-night .wc-read{background:#16171C;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 6px 18px -8px rgba(0,0,0,.6)}
 
 /* the drawings: hairline SVG in the theme's ink, colour only for the topic's kind or the light itself */
 .vz{display:block;width:100%;height:auto;overflow:visible}
@@ -106,25 +101,72 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .w1{--w:.1s}.w2{--w:.2s}.w3{--w:.3s}.w4{--w:.4s}.w5{--w:.5s}.w6{--w:.6s}.w7{--w:.7s}.w8{--w:.8s}
 .w9{--w:.9s}.w10{--w:1s}.w11{--w:1.1s}.w12{--w:1.2s}.w13{--w:1.3s}.w14{--w:1.4s}.w15{--w:1.5s}.w16{--w:1.6s}
 
-/* Black holes: a plate under the words that runs to the card's edges. On first sight Earth's outline collapses
-   into the hole, speeding up, as the grid behind it bends into its ring; then the hole, its ghost and its size */
-.wc-tall .wc-art,.wc[data-card="black-holes"] .wc-art{flex:1;display:flex;min-height:0;margin:10px -18px -16px;padding:0}
-.wc[data-card="black-holes"] .wc-art>.vz{flex:1;width:100%;height:auto;min-height:0;overflow:hidden}
-.bh-grid{fill:none;stroke:var(--ink);stroke-opacity:.13}
-.bh-flat,.bh-sq{opacity:0}
-.wc.armed:not(.seen) :is(.bh-flat,.bh-sq){opacity:1}
-.wc.armed:not(.seen) .bh-lens{opacity:0}
-.wc.armed.seen .bh-sq{animation:bhsq 1.15s cubic-bezier(.55,0,.85,.4) both}
-.wc.armed.seen .bh-flat{animation:bhout 1.1s cubic-bezier(.55,0,.85,.4) both}
-.wc.armed.seen .bh-lens{animation:fade 1.1s cubic-bezier(.55,0,.85,.4) both}
-@keyframes bhsq{0%{opacity:1;transform:scale(1)}88%{opacity:1}100%{opacity:0;transform:scale(.1)}}
-@keyframes bhout{from{opacity:1}to{opacity:0}}
-.bh-hole{--w:.95s}
-.bh-earth,.bh-fig{--w:1.15s}
-.vz .bh-eq{font-style:italic;fill:var(--faint)}
-@media (max-width:760px){
-  .wc[data-card="black-holes"] .wc-art>.vz{aspect-ratio:365/430;flex:none}
-}
+/* Black holes: Luminet's disk in dots, night in either theme (the drawing's units are half-pixels, so its dots and
+   lines scale with the card). On its turn the curves of equal radius trace in, the dots fill from the hole outward,
+   and the curves fade to a whisper */
+.vz.bh{overflow:hidden}
+.vz .bh-d{fill:none;stroke:#FFF3E2;stroke-linecap:round;vector-effect:none}
+.vz .bh-s0{stroke-width:2.1}.vz .bh-s1{stroke-width:2.7}.vz .bh-s2{stroke-width:3.5}
+.vz .bh-ring{fill:none;stroke:#FFF3E2;stroke-opacity:.85;stroke-width:2.2}
+.vz .bh-star{fill:none;stroke:#DCE4FF;stroke-linecap:round;stroke-width:2;vector-effect:none}
+.vz .bh-st0{stroke-opacity:.28}.vz .bh-st1{stroke-opacity:.48}.vz .bh-st2{stroke-opacity:.78}
+.vz .bh-iso{fill:none;stroke:#FFF3E2;stroke-opacity:.05;stroke-width:2}
+.vz .bh-glow{opacity:.55}
+.vz .bh-hit-ring{fill:none;stroke:transparent;stroke-width:14;vector-effect:none}
+.wc.armed:not(.seen) :is(.bh-g,.bh-glow){opacity:0}
+.wc.armed.seen .bh-iso{animation:bhiso 1.7s var(--ease-out) var(--w,0s) both}
+@keyframes bhiso{0%{stroke-dashoffset:1;stroke-opacity:.4}40%{stroke-dashoffset:0;stroke-opacity:.4}100%{stroke-dashoffset:0;stroke-opacity:.05}}
+.wc.armed.seen .bh-ring{--t:.9s;--w:.25s;--e:var(--ease-out)}
+.wc.armed.seen .bh-g{animation:fade .7s var(--ease-out) both}
+.wc.armed.seen .bh-g1{animation-delay:.15s}.wc.armed.seen .bh-g2{animation-delay:.3s}.wc.armed.seen .bh-g3{animation-delay:.45s}.wc.armed.seen .bh-g4{animation-delay:.6s}
+.wc.armed.seen .bh-g0{animation-delay:0s}
+.wc.armed.seen .bh-glow{animation:fade .8s var(--ease-out) .9s both}
+.wc.armed.seen .bh-g0,.wc.armed.seen .bh-ring{animation-delay:.35s}
+
+/* Origami: a sheet in Miura's fold, white paper in the light and graphite in the dark, over its soft shadow. Each face
+   is one of four ways round; how dark each is (--s0 to --s3) the build sets at rest and the page sets while it moves */
+.vz.mi{--mi-paper:#FFFCF7;--mi-ink:#2C384E;--mi-edge:rgba(44,56,78,.16);--mi-drop:rgba(44,56,78,.2)}
+.wc[data-card="origami"]{background:#ECE8E0}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root:not([data-theme="light"]) .wc[data-card="origami"]{background:#121316}}
+:root[data-theme="dark"] .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root[data-theme="dark"] .wc[data-card="origami"]{background:#121316}
+.vz .mi-shadow{fill:var(--mi-drop);stroke:none}
+.vz .mi-f{stroke:var(--mi-edge);stroke-width:.7;stroke-linejoin:round}
+.vz .mi-o0{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s0,0) * 100%),var(--mi-paper))}
+.vz .mi-o1{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s1,0) * 100%),var(--mi-paper))}
+.vz .mi-o2{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s2,0) * 100%),var(--mi-paper))}
+.vz .mi-o3{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s3,0) * 100%),var(--mi-paper))}
+.wc[data-fx="origami"]{cursor:ew-resize}
+
+/* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines, its land stippled, its walls in
+   Plato's metals. On its turn it rises from the island outward, and the orichalcum catches the light once */
+.vz.at{--at-sea:color-mix(in srgb,var(--ink) 8%,var(--surface));--at-land:var(--surface);--at-cliff:color-mix(in srgb,var(--ink) 18%,var(--surface))}
+.vz .at-water{fill:var(--at-sea);stroke:none}
+.vz .at-wave{fill:none;stroke:var(--ink);stroke-opacity:.22;stroke-width:.55}
+.vz .at-top{fill:var(--at-land);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-cliff{fill:var(--at-cliff);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-stip{fill:none;stroke:var(--ink);stroke-opacity:.34;stroke-width:1.1;stroke-linecap:round}
+.vz .at-plain{stroke-opacity:.18}
+.vz .at-track{fill:none;stroke:var(--ink);stroke-opacity:.35;stroke-width:.7}
+.vz .at-canal{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-shore{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-wall{stroke:none}
+.vz .at-rim{fill:none;stroke-width:1.2}
+.vz .at-brass{fill:#A07A40}.vz .at-brass-l{stroke:#C99B57}
+.vz .at-tin{fill:#8C949E}.vz .at-tin-l{stroke:#B9C1CA}
+.vz .at-ori{fill:#B5492A}.vz .at-ori-l{stroke:#E8774E}
+.vz .at-glint{fill:none;stroke:#FFE6CF;stroke-width:2.4;stroke-dasharray:.14 .86;opacity:0}
+.vz .at-temple{fill:var(--ink);fill-opacity:.85}
+.vz .at-temple-top{fill:var(--ink);fill-opacity:.55}
+.vz .at-src{font-size:9.5px;letter-spacing:.06em}
+.vz .at-lv{transform-box:view-box;transform-origin:182px 190px}
+.wc.armed:not(.seen) .at-lv{opacity:0}
+.wc.armed:not(.seen) .at-l0{opacity:1}
+.wc.armed.seen .at-lv{animation:atrise .7s var(--ease-out) both}
+.wc.armed.seen .at-l0{animation:none}
+.wc.armed.seen .at-l1{animation-delay:.12s}.wc.armed.seen .at-l2{animation-delay:.32s}.wc.armed.seen .at-l3{animation-delay:.52s}.wc.armed.seen .at-l4{animation-delay:.72s}
+@keyframes atrise{from{opacity:0;transform:translateY(5px)}}
+.wc.armed.seen .at-glint{animation:atglint 1s var(--ease-in-out) 1.2s both}
+@keyframes atglint{0%{opacity:0;stroke-dashoffset:0}20%{opacity:1}80%{opacity:1}100%{opacity:0;stroke-dashoffset:-1}}
 
 /* Volcanoes: the barograph's pen draws the five days, and each pass is numbered as it is reached */
 .wc[data-card="volcanoes"] .vk-trace{--t:1.6s;stroke-width:1.5}
@@ -140,24 +182,29 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .vz .pp-date{font-size:22px}
 .vz .vk-sheet{fill:var(--ink);fill-opacity:.025;stroke:none}
 
-/* Northern lights: the photograph, the words over its foot, the altitude scale on the right */
-.wc-hero{padding:0;background:#05070C;color:#fff}
-.wc-hero .wc-art{position:absolute;inset:0}
-.nl-img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 52%}
-.wc-hero .wc-art::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,6,12,.9) 0%,rgba(4,6,12,.5) 30%,rgba(4,6,12,0) 56%),linear-gradient(to left,rgba(4,6,12,.62) 0%,rgba(4,6,12,0) 34%)}
-.nl-scale{position:absolute;right:16px;bottom:22px;z-index:2;width:196px;--ink:#fff;--faint:rgba(255,255,255,.7);--mute:rgba(255,255,255,.82)}
-.wc-hero .wc-txt{position:absolute;left:0;bottom:0;z-index:2;max-width:min(470px,60%);padding:26px 28px}
-.wc-hero .wc-meta,.wc-hero .wc-n{color:rgba(255,255,255,.7)}
-.wc-hero [data-kind="concept"]{--kc:#93B4FF}.wc-hero [data-kind="phenomenon"]{--kc:#5CD0D8}.wc-hero [data-kind="mechanism"]{--kc:#7FD483}.wc-hero [data-kind="place"]{--kc:#F5B94A}
-.wc-hero [data-kind="person"]{--kc:#FF9F6E}.wc-hero [data-kind="event"]{--kc:#FF8A9E}.wc-hero [data-kind="thing"]{--kc:#F08CF5}.wc-hero [data-kind="mystery"]{--kc:#B89CFF}
-.wc-hero .wc-t{margin-top:9px;font:700 clamp(30px,3.2vw,42px)/1.04 var(--f-ui);letter-spacing:-.026em;color:#fff}
-.wc-hero .wc-h{margin-top:8px;font-size:16px;color:rgba(255,255,255,.84)}
-.wc-hero .wc-cr{color:rgba(255,255,255,.5)}
-
-/* the hero's scale: soft-ended bands rise up it in turn */
-.vz .nl-band{transform-box:fill-box;transform-origin:50% 100%}
+/* Northern lights: the photograph, cropped tall, its scale of heights down the right edge: numbers outside the axis,
+   the bands against it, the words inside. On its turn the bands rise, red after green */
+.wc[data-card="northern-lights"] .wc-art::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,6,12,.5) 0%,rgba(4,6,12,0) 20%),linear-gradient(to top,rgba(4,6,12,.7) 0%,rgba(4,6,12,0) 24%),linear-gradient(to left,rgba(4,6,12,.55) 0%,rgba(4,6,12,0) 50%)}
+.nl-img{display:block;width:100%;height:100%;object-fit:cover;object-position:36% 50%}
+.nl-scale{position:absolute;right:14px;top:74px;bottom:46px;z-index:2;width:170px;font:600 9.5px/1 var(--f-ui);color:rgba(255,255,255,.66);font-variant-numeric:tabular-nums}
+.nl-ax{position:absolute;right:30px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.42)}
+.nl-tk{position:absolute;right:0;width:22px;text-align:right;font-weight:600;transform:translateY(50%)}
+.nl-tk::before{content:"";position:absolute;right:26px;top:50%;width:5px;height:1px;background:rgba(255,255,255,.42)}
+.nl-k0{bottom:0}.nl-k1{bottom:20%}.nl-k2{bottom:40%}.nl-k3{bottom:60%}.nl-k4{bottom:80%}.nl-k5{bottom:100%}
+.nl-km{position:absolute;right:0;top:-22px;letter-spacing:.07em;font-weight:600}
+.nl-band{position:absolute;right:35px;width:5px;border-radius:3px;transform-origin:50% 100%}
+.nl-red{bottom:60%;height:40%;background:linear-gradient(to top,rgba(255,84,104,0),#FF5468 14%,#FF5468 86%,rgba(255,84,104,0))}
+.nl-green{bottom:20%;height:40%;background:linear-gradient(to top,rgba(86,240,140,0),#56F08C 14%,#56F08C 86%,rgba(86,240,140,0))}
+.nl-lab{position:absolute;right:50px;display:grid;justify-items:end;gap:3px;transform:translateY(50%);font:500 10.5px/1 var(--f-ui);letter-spacing:.02em;color:rgba(255,255,255,.7);white-space:nowrap}
+.nl-lab b{font:600 12px/1 var(--f-ui);letter-spacing:0;color:#fff}
+.nl-lr{bottom:80%}.nl-lg{bottom:40%}
 .wc.armed:not(.seen) .nl-band{transform:scaleY(0)}
-.wc.armed.seen .nl-band{animation:rbbar 700ms var(--ease-out) var(--w,0s) both}
+.wc.armed:not(.seen) .nl-lab{opacity:0}
+.wc.armed.seen .nl-band{animation:rbbar 700ms var(--ease-out) both}
+.wc.armed.seen .nl-red{animation-delay:.3s}
+.wc.armed.seen .nl-lab{animation:fade var(--d-vslow) var(--ease-out) both}
+.wc.armed.seen .nl-lg{animation-delay:.35s}.wc.armed.seen .nl-lr{animation-delay:.65s}
+.wc[data-card="northern-lights"] .wc-cr{color:rgba(255,255,255,.55)}
 
 /* Time travel: a timing board, bars from zero (−10 to +50 µs a day across the track), and the drift ticking under it */
 .wc[data-card="time-travel"] .wc-art{align-self:stretch;display:flex;flex-direction:column;justify-content:flex-end;gap:9px}
@@ -377,33 +424,24 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   .wc-hero{grid-column:span 4}
   .threads{grid-template-columns:minmax(0,1fr)}
   .th-side{padding-bottom:0}
-  .wc-tab-wide{grid-column:span 4;grid-row:span 1;display:grid;grid-template-columns:minmax(0,236px) minmax(0,1fr);column-gap:22px;align-items:center}
-  .wc-tab-wide .wc-art{margin-top:0;padding-top:0}
-  .wc-tab-wide .wc-art>.vz{max-height:136px}
-  /* a tall card squares up, and a square one can widen beside its words */
+  /* each card can take another size on a tablet, so both groups still close (tests/front.test.js) */
+  .wc-tab-wide{grid-column:span 4;grid-row:span 1}
   .wc-tab-sq{grid-column:span 2;grid-row:span 2}
-  .wc-tab-big{grid-column:span 4;grid-row:span 2;display:grid;grid-template-columns:minmax(0,236px) minmax(0,1fr);column-gap:22px;align-items:start}
-  .wc.wc-tab-big .wc-art{grid-column:2;grid-row:1 / span 2;align-self:stretch;display:flex;margin:-16px -18px -16px 0;padding:0}
-  .wc.wc-tab-big .wc-txt{grid-column:1;grid-row:1}
-  .wc.wc-tab-big .wc-art>.vz{width:100%;height:100%}
+  .wc-tab-big{grid-column:span 4;grid-row:span 2}
+  .wc-tab-tall{grid-column:span 2;grid-row:span 3}
 }
 @media (max-width:760px){
-  .tt-live span{flex-basis:100%}
   .vz-w{display:none}
   .vz-n{display:block}
   .ways{padding:0 16px}
+  /* one column: each card keeps a shape of its own */
   .bento{display:flex;flex-direction:column;gap:12px}
-  .wc{min-height:0}
-  .wc-hero{min-height:560px}
-  .wc-hero .wc-txt{max-width:none;padding:22px 20px 22px}
-  .nl-scale{top:16px;bottom:auto;width:176px}
-  .wc-wide,.wc-big,.wc-tab-wide{display:flex;align-items:stretch}
-  .wc-big .wc-art{align-self:stretch}
-  .wc-wide .wc-art,.wc-big .wc-art,.wc-sq .wc-art,.wc-small .wc-art{margin-top:14px}
-  .wc-wide .wc-art>.vz{max-height:none}
+  .wc{aspect-ratio:var(--ar,1.05)}
+  .wc-hero{--ar:1.2}.wc-tall{--ar:.76}.wc-sq{--ar:1.04}.wc-wide{--ar:1.5}.wc-big{--ar:1.05}.wc-small{--ar:2}
+  .nl-scale{top:70px;bottom:44px}
   .en{padding:14px 6px}
   .en-lamps p,.en-keys p{gap:5px}
   .en-lamps i,.en-keys button{width:28px;height:28px;font-size:11px}
-  .wc-world{grid-template-columns:120px minmax(0,1fr);min-height:150px}
+  .wc-world{grid-template-columns:120px minmax(0,1fr);min-height:150px;aspect-ratio:auto}
   .th-stage{min-height:420px}
 }

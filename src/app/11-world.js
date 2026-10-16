@@ -18,13 +18,14 @@ const TAU = Math.PI * 2;
  * scrolls the page over it; a topic is opened by a click, or on a phone by a tap on its card.
  * describe and open replace the card's status line and what opening a topic does; panel, given, takes the
  * card's place entirely (the front page's map shows a pointed-at topic beside the map, not over it).
- * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
+ * hold: its first trace waits for play() (the front page's map takes its turn among the cards).
+ * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
  */
-function makeGraph(host, { mini = false, still = false, positions = null, describe = null, open = null, panel = null } = {}) {
+function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
-  let cw = 0, ch = 0, DPR = 1, raf = 0, visible = typeof IntersectionObserver !== 'function', alive = true;
+  let cw = 0, ch = 0, DPR = 1, raf = 0, visible = typeof IntersectionObserver !== 'function', alive = true, held = hold;
   /** @type {{ nodes: any[], edges: any[] }} */ let g = { nodes: [], edges: [] }; let sim = null; let adj = [];
   const cam = { x: 0, y: 0, k: 1 }; let camTo = null;
   let hover = -1, sel = -1, drag = null, focusSet = null, focusKey = '', replay = null;
@@ -184,7 +185,7 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     const N = g.nodes; const k = cam.k, ox = cw / 2 - cam.x * k, oy = ch / 2 - cam.y * k;
     const P = N.map(n => [n.x * k + ox, n.y * k + oy]);
     grid(ctx, cw, ch, k, ox, oy, 1 / DPR, 1);
-    if (!seenAt) { if (!visible || !N.length) return; seenAt = reducedMotion() ? -1e9 : now; if (seenAt > 0) planTrace(P); }
+    if (!seenAt) { if (!visible || !N.length || held) return; seenAt = reducedMotion() ? -1e9 : now; if (seenAt > 0) planTrace(P); }
     const since = now - seenAt;
     const hi = hover >= 0 ? hover : sel; const nb = hi >= 0 ? new Set([hi, ...adj[hi]]) : null;
     const trailSet = replay ? replay.lit : null;
@@ -424,6 +425,8 @@ function makeGraph(host, { mini = false, still = false, positions = null, descri
     find(q) { const s = q.trim().toLowerCase(); if (!s) return -1; const i = g.nodes.findIndex(n => n.title.toLowerCase().startsWith(s)); return i >= 0 ? i : g.nodes.findIndex(n => n.title.toLowerCase().includes(s)); },
     select(i) { sel = i; hover = -1; if (i >= 0) { const n = g.nodes[i]; flyTo({ x: n.x, y: n.y, k: Math.max(cam.k, 1.4) }); setTimeout(() => { if (sel === i) showTip(i, true); }, reducedMotion() ? 0 : 680); } else hideTip(); wake(); },
     sleep() { if (raf) cancelAnimationFrame(raf); raf = 0; },
+    /* a map held back (the front page's, waiting its turn among the cards) traces in when asked */
+    play() { held = false; wake(); },
     destroy() { alive = false; if (raf) cancelAnimationFrame(raf); if (ro) ro.disconnect(); if (io) io.disconnect(); keepPositions(); cv.remove(); tip.remove(); },
   };
 }
