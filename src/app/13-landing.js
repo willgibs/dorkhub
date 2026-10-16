@@ -179,6 +179,8 @@ function readoutFx(card) {
    and when the pointer leaves it settles back to rest */
 function origamiFx(card) {
   const sheets = $$('.vz.mi', card); if (!sheets.length || card.dataset.wired) return; card.dataset.wired = '1';
+  /* the sheet's faces, laid here rather than shipped, since they move */
+  for (const el of sheets) { const g = $('.mi-sheet', el); g.innerHTML = '<path class="mi-f"/>'.repeat(Number(g.dataset.faces) || 0); }
   let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null;
   const draw = () => {
     for (const el of sheets) {
@@ -196,8 +198,11 @@ function origamiFx(card) {
     draw(); if (tween || Math.abs(aim - th) > .002) raf = requestAnimationFrame(loop);
   };
   const go = () => { if (!raf) raf = requestAnimationFrame(loop); };
-  if (th !== FOLD.rest) draw();
+  draw();
   FX_PLAY.set(card, () => { tween = { from: th, to: FOLD.rest, t0: performance.now(), ms: 1400 }; go(); });
+  /* a sheet hidden at first (a phone's or a desk's) is laid when it shows */
+  const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => draw()) : null; if (ro) ro.observe(card);
+  FX_STOP.push(() => { if (ro) ro.disconnect(); });
   card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || reducedMotion()) return; const r = card.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left - r.width * .12) / (r.width * .76))); tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * f; go(); });
   card.addEventListener('pointerleave', () => { if (tween) return; aim = FOLD.rest; go(); });
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });

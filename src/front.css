@@ -51,53 +51,25 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.reading .wc-read{opacity:1}
 .wc-night .wc-read{background:#16171C;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 6px 18px -8px rgba(0,0,0,.6)}
 
-/* the drawings: hairline SVG in the theme's ink, colour only for the topic's kind or the light itself */
+/* the drawings: SVG plates in the theme's ink, or in the subject's own colours and light */
 .vz{display:block;width:100%;height:auto;overflow:visible}
 .vz :is(line,path,circle,ellipse,rect,polyline){vector-effect:non-scaling-stroke}
 /* a wide drawing has a phone version drawn for the narrow column */
 .vz-n{display:none}
-.vz .h{fill:none;stroke:var(--ink);stroke-opacity:.16}
-.vz .hp{fill:none;stroke:var(--ink);stroke-opacity:.07}
 .vz .a{fill:none;stroke:var(--ink);stroke-opacity:.42}
-.vz .s{fill:none;stroke:var(--ink);stroke-opacity:.82;stroke-width:1.25}
-.vz .k{fill:none;stroke:var(--kc);stroke-width:1.6;stroke-linejoin:round;stroke-linecap:round}
-.vz .kt{fill:none;stroke:var(--kc);stroke-width:1.1}
-.vz .kk{fill:none;stroke:var(--kc);stroke-width:4;stroke-linecap:round}
-.vz .kf{fill:var(--kc)}
-.vz .if{fill:var(--ink)}
-.vz .sf{fill:var(--surface);stroke:var(--ink);stroke-opacity:.82}
-.vz .dt{fill:var(--ink);fill-opacity:.2}
-.vz .kfa{fill:var(--kc);fill-opacity:.13}
-.vz .bf{fill:var(--base)}
-.vz .su{fill:var(--surface)}
-/* a black hole is black in either theme; an eye is drawn as one looks: a near-black pupil, a white catchlight */
-.vz .bk{fill:#000}
-.vz .pf{fill:#0D0E11;stroke:var(--ink);stroke-opacity:.6}
-.vz .hl{fill:#fff}
-.vz .ik{fill:none;stroke:var(--ink);stroke-width:6;stroke-linecap:round}
-/* type in a drawing: capitals only on scales; notes in sentence case on their leaders; one figure */
+/* type in a drawing: small capitals on scales, sentence case for a note, one figure at most */
 .vz text{font:600 10px/1 var(--f-ui);letter-spacing:.07em;fill:var(--faint)}
-.vz .tb{fill:var(--ink)}
-.vz .tk{fill:var(--kc)}
 .vz .tn{font-variant-numeric:tabular-nums;letter-spacing:.03em}
-.vz .tl{font-size:12px}
-.vz .tc{font-weight:500;font-size:11.5px;letter-spacing:0;fill:var(--mute)}
-.vz .tf{font-weight:650;font-size:26px;letter-spacing:-.015em;fill:var(--ink);font-variant-numeric:tabular-nums}
-.vz .tu{font-weight:600;font-size:11px;letter-spacing:.04em}
 .vz .hit{fill:transparent;stroke:none}
-/* words over a drawing keep a margin of the card's own colour */
-.vz .halo{paint-order:stroke;stroke:var(--surface);stroke-width:6px;stroke-linejoin:round;stroke-opacity:1}
-/* entrances: a card armed for one tells its story when it is first seen; any other card shows the finished
-   drawing. Draw-in paths keep their own stroke width, since dash lengths follow the path's own units */
+/* entrances: a card armed for one tells its story on its turn (the page plays one at a time); any other card shows
+   the finished drawing. Draw-in paths keep their own stroke width, since dash lengths follow the path's own units */
 .vz .dr{vector-effect:none}
-.vz .vpop,.vz .grow{transform-box:fill-box;transform-origin:center}
 .wc.armed:not(.seen) .dr{stroke-dasharray:1 1;stroke-dashoffset:1}
 .wc.armed.seen .dr{stroke-dasharray:1 1;animation:vzdraw var(--t,1.2s) var(--e,linear) var(--w,0s) both}
 @keyframes vzdraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
-.wc.armed:not(.seen) :is(.vpop,.fade){opacity:0}
-.wc.armed.seen .vpop{animation:vzpop var(--t,var(--d-vslow)) var(--ease-pop) var(--w,0s) both}
-@keyframes vzpop{from{opacity:0;transform:scale(.4)}}
+.wc.armed:not(.seen) .fade{opacity:0}
 .wc.armed.seen .fade{animation:fade var(--t,var(--d-vslow)) var(--ease-out) var(--w,0s) both}
+@keyframes vzpop{from{opacity:0;transform:scale(.4)}}
 @keyframes vzrise{from{transform:scaleY(0)}}
 .w1{--w:.1s}.w2{--w:.2s}.w3{--w:.3s}.w4{--w:.4s}.w5{--w:.5s}.w6{--w:.6s}.w7{--w:.7s}.w8{--w:.8s}
 .w9{--w:.9s}.w10{--w:1s}.w11{--w:1.1s}.w12{--w:1.2s}.w13{--w:1.3s}.w14{--w:1.4s}.w15{--w:1.5s}.w16{--w:1.6s}
@@ -181,7 +153,8 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.pp{--pp-s0:#0A0D14;--pp-s1:#1A1B21;--pp-shade:#3A393C;--pp-lit:#615E62;--pp-land:#25221E;--pp-sea:#111924;--pp-stone:#958F88}}
 :root[data-theme="dark"] .vz.pp{--pp-s0:#0A0D14;--pp-s1:#1A1B21;--pp-shade:#3A393C;--pp-lit:#615E62;--pp-land:#25221E;--pp-sea:#111924;--pp-stone:#958F88}
 .vz .pp-s0{stop-color:var(--pp-s0)}.vz .pp-s1{stop-color:var(--pp-s1)}
-.vz .pp-deep{fill:var(--pp-shade);filter:brightness(.82)}.vz .pp-shade{fill:var(--pp-shade)}.vz .pp-lit{fill:var(--pp-lit)}
+.vz :is(.pp-deep,.pp-shade,.pp-lit){fill:none;stroke-linecap:round;vector-effect:none}
+.vz .pp-deep{stroke:var(--pp-shade);filter:brightness(.82)}.vz .pp-shade{stroke:var(--pp-shade)}.vz .pp-lit{stroke:var(--pp-lit)}
 .vz .pp-stone{fill:none;stroke:var(--pp-stone);stroke-width:1.1;stroke-linecap:round;stroke-opacity:.6}
 .vz .pp-land{fill:var(--pp-land)}.vz .pp-sea{fill:var(--pp-sea)}.vz .pp-mount{fill:var(--pp-shade)}
 .vz .pp-town{fill:var(--ink);fill-opacity:.75}
@@ -440,6 +413,8 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   .wc-tab-sq{grid-column:span 2;grid-row:span 2}
   .wc-tab-big{grid-column:span 4;grid-row:span 2}
   .wc-tab-tall{grid-column:span 2;grid-row:span 3}
+  /* a square drawing widened on a tablet keeps its own shape, centred, rather than being blown up and cropped */
+  .wc-tab-big:not(.wc-big) .wc-art>.vz{width:auto;max-width:100%;margin-inline:auto}
 }
 @media (max-width:760px){
   .vz-w{display:none}
