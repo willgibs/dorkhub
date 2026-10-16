@@ -252,11 +252,14 @@ function magnetsFx(card) {
   const mq = matchMedia('(prefers-color-scheme: dark)'), re = () => { size(); draw(); }; mq.addEventListener('change', re);
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); if (ro) ro.disconnect(); mo.disconnect(); mq.removeEventListener('change', re); });
 }
-/* the cube's number rolls in, digit by digit, like a slot machine settling from the left */
+/* the cube's number rolls in, digit by digit, like a slot machine settling from the left. The reels are for the eye
+   and hidden from screen readers, which read the number once, whole, from hidden text (a paragraph's aria-label is
+   ignored, and digits in boxes of their own are read one by one) */
 function odometer(el) {
   el.dataset.done = '1'; const text = el.textContent; let k = 0;
-  el.innerHTML = [...text].map(ch => (/\d/.test(ch) ? `<span class="od" style="--d:${ch};--k:${k++}"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</span></span>` : esc(ch) + (ch === ',' ? '<wbr>' : ''))).join('');
-  el.setAttribute('aria-label', text); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
+  const reels = [...text].map(ch => (/\d/.test(ch) ? `<span class="od" style="--d:${ch};--k:${k++}"><span>0<br>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</span></span>` : esc(ch) + (ch === ',' ? '<wbr>' : ''))).join('');
+  el.innerHTML = `<span class="sr">${esc(text)}</span><span aria-hidden="true">${reels}</span>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
 }
 /* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it in about a tenth of a second (the
    page turns its lobes about the midrib, src/shared/plates.js, with a little overshoot, so the teeth cross), and five

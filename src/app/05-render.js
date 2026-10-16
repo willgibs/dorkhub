@@ -245,7 +245,9 @@ const digitsHTML = s => esc(s).replace(/[0-9]/g, (d, i) => `<span class="dg" sty
 const FIGURE = /^((?:[~≈<>±]\s?)?(?:[$£€¥]\s?)?[−-]?\d(?:[\d,.]*\d)?(?:\s?(?:%|‰|°[CF]?|×))?\+?)\s+(\S.*)$/;
 const numHTML = s => { const m = FIGURE.exec(String(s).trim()); return m ? `${digitsHTML(m[1])}<small>${esc(m[2])}</small>` : digitsHTML(s); };
 /* a guess's answer leads with its number when it has one ("About 29, …" → about 29), whose digits
-   roll in like an odometer when the reader asks; the reel lives in CSS, so the text stays the number */
+   roll in like an odometer when the reader asks; the reel lives in CSS. The reels are for the eye and hidden
+   from screen readers, which hear the phrase once, whole, from hidden text (digits in boxes of their own are
+   read one by one, "about 2 9") */
 const ANSWER = /^(?:(about|around|roughly|nearly|almost|over|under|more than|less than|fewer than|only|just|some|exactly)\s+)?([−-]?\d(?:[\d,.]*\d)?(?:\s?(?:%|‰|×))?)(?:\s(million|billion|trillion|thousand|hundred|percent|per cent))?(?=$|[\s,.;:)])/i;
 const reelHTML = s => { let i = 0; return esc(s).replace(/[0-9]/g, d => `<span class="odo" style="--d:${d};--i:${i++}">${d}</span>`); };
 const row = (k, html, extra = {}) => ({ k, cls: 'pn-r', html, ...extra });
@@ -275,7 +277,7 @@ const PANEL_UI = {
     if (a && !open) out.push(row('btn', `<button class="pn-reveal" type="button" data-guess="${j}" aria-expanded="false">Reveal the answer</button>`));
     if (a && open) {
       const said = a.slice(1).join(' ').trim(); const m = ANSWER.exec(said);
-      const big = m ? `${m[1] ? `<small>${esc(m[1].toLowerCase())}</small>` : ''}${reelHTML(m[2])}${m[3] ? `<small class="after">${esc(m[3].toLowerCase())}</small>` : ''}` : '';
+      const big = m ? `<span class="sr">${esc([m[1], m[2], m[3]].filter(Boolean).join(' ').toLowerCase())}</span><span aria-hidden="true">${m[1] ? `<small>${esc(m[1].toLowerCase())}</small>` : ''}${reelHTML(m[2])}${m[3] ? `<small class="after">${esc(m[3].toLowerCase())}</small>` : ''}</span>` : '';
       const rest = m ? said.slice(m[0].length) : said;
       out.push(row('a', `<div class="pn-a">${big ? `<p class="pn-big">${big}</p>` : ''}${/[\p{L}\p{N}]/u.test(rest) ? `<p class="pn-said">${inline(said, n)}</p>` : ''}</div>`));
     }
