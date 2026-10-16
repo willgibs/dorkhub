@@ -91,11 +91,10 @@ function renderThreads() {
   THREADMAP = makeGraph($('#threadStage'), { still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }) });
   THREADMAP.setData({ nodes, edges });
 }
-/* a reader's world, in the last slot: the neighbourhood of the last page read, and what they read lately */
+/* a reader's world, in the last slot: the neighbourhood of the last page read, edge to edge, and how far it reaches */
 function worldCardHTML(slot) {
-  const seen = new Set(); const read = Object.values(store.pages).filter(p => p.status === 'done' || p.status === 'partial').sort((a, b) => b.last - a.last).filter(p => { const k = nodeKeyOf(p); if (seen.has(k)) return false; seen.add(k); return true; });
   const n = worldCount();
-  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-txt"><p class="wc-meta"><span class="wc-n">YOU</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3><p class="wc-h"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><ul class="ww-list">${read.slice(0, 3).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}>${esc(clip(p.title, 34))}</a></li>`).join('')}</ul></div><a class="wc-open" href="/world"${tipAttrs('Open Your world')}>${ic('arrow')}</a></article>`;
+  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-cap"><p class="wc-kind"><span class="ww-you">You</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3></div><p class="ww-stats"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><a class="wc-open" href="/world"${tipAttrs('Open Your world')}>${ic('arrow')}</a></article>`;
 }
 function mountWorldCard() {
   const host = $('#worldStage'); if (!host) return; if (WORLDCARD) WORLDCARD.destroy();

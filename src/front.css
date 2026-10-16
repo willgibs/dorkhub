@@ -371,18 +371,11 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.armed.seen :is(.in-d1,.in-r1 .in-on){animation-delay:0.00s}.wc.armed.seen :is(.in-d2,.in-r2 .in-on){animation-delay:0.11s}.wc.armed.seen :is(.in-d3,.in-r3 .in-on){animation-delay:0.22s}.wc.armed.seen :is(.in-d4,.in-r4 .in-on){animation-delay:0.33s}.wc.armed.seen :is(.in-d5,.in-r5 .in-on){animation-delay:0.44s}.wc.armed.seen :is(.in-d6,.in-r6 .in-on){animation-delay:0.55s}.wc.armed.seen :is(.in-d7,.in-r7 .in-on){animation-delay:0.66s}.wc.armed.seen :is(.in-d8,.in-r8 .in-on){animation-delay:0.77s}
 
 
-/* a reader's world, in the last slot */
-.wc-world{display:grid;grid-template-columns:150px minmax(0,1fr);column-gap:16px;padding:0}
-.wc-world .wc-art{position:relative;margin:0}
-.ww-stage{position:absolute;inset:0;background:var(--stage);border-right:1px solid var(--line)}
-.wc-world .wc-txt{padding:14px 16px 14px 0}
-.wc-world.wc-sq{display:flex;flex-direction:column}
-.wc-world.wc-sq .wc-art{flex:1;order:0;margin:0;padding:0}
-.wc-world.wc-sq .ww-stage{border-right:0;border-bottom:1px solid var(--line)}
-.wc-world.wc-sq .wc-txt{padding:12px 18px 16px}
-.ww-list{display:grid;margin:8px 0 0;padding:0;list-style:none}
-.ww-list a{display:flex;align-items:center;gap:8px;padding:2px 0;font-size:13px;color:var(--ink);text-decoration:none}
-.ww-list a::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--kc,var(--line-2))}
+/* a reader's world, in the last slot: their map, edge to edge, and how far it reaches */
+.ww-stage{position:absolute;inset:0;background:var(--stage)}
+.ww-you{color:var(--faint)}
+.ww-stats{position:absolute;left:18px;bottom:15px;z-index:1;font:500 12px/1.3 var(--f-ui);color:var(--mute);pointer-events:none}
+.ww-stats b{color:var(--ink);font-variant-numeric:tabular-nums}
 
 /* the map of threads, between the two groups of cards */
 .threads{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.7fr);margin:14px 0;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
@@ -432,6 +425,5 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   .en-tally{top:166px;max-width:none}
   .en-lamps p,.en-keys p{gap:5px}
   .en-lamps i,.en-keys button{width:28px;height:28px;font-size:11px}
-  .wc-world{grid-template-columns:120px minmax(0,1fr);min-height:150px;aspect-ratio:auto}
   .th-stage{min-height:420px}
 }
