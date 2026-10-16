@@ -57,19 +57,51 @@ test('every card leads into a planned topic, with a source, and a drawing that i
   for (const c of data.cards) {
     const card = /** @type {import('../lib/front.js').Card} */ (CARDS.find(x => x.t === c.t));
     assert.ok(titles.has(c.t), c.t);
-    assert.ok(['hero', 'big', 'wide', 'sq', 'small'].includes(c.size), `${c.t}: size ${c.size}`);
+    assert.ok(['hero', 'tall', 'big', 'wide', 'sq', 'small'].includes(c.size), `${c.t}: size ${c.size}`);
     assert.ok(card.src.length && card.src.every(https), `${c.t}: sources`);
     const html = c.art + (c.more || '');
     assert.match(html, /role="img" aria-label="[^"]{20,}"|<img [^>]*alt="[^"]{10,}"|class="(tt|en)"/, `${c.t}: its drawing says what it shows`);
     assert.doesNotMatch(html, /\son[a-z]+=|<script|javascript:|style="/i, `${c.t}: nothing runs, nothing is styled inline (the page's CSP)`);
-    for (const m of html.matchAll(/\b(?:src|href)="([^"]*)"/g)) assert.match(m[1], /^\/api\/picture\?f=[^"]+&amp;w=\d+$/, `${c.t}: ${m[1]}`);
+    /* nothing loads from anywhere else: a picture comes through the proxy, and a reference stays inside the card */
+    for (const m of html.matchAll(/\b(?:src|href)="([^"]*)"/g)) {
+      if (m[1].startsWith('#')) { assert.ok(html.includes(`id="${m[1].slice(1)}"`), `${c.t}: ${m[1]} is in the card`); continue; }
+      assert.match(m[1], /^\/api\/picture\?f=[^"]+&amp;w=\d+$/, `${c.t}: ${m[1]}`);
+    }
   }
   /* a photograph comes through the picture proxy, at a width it serves, and says whose it is */
   for (const c of data.cards.filter(c => /<img /.test(c.art))) {
     const w = Number(/&amp;w=(\d+)/.exec(c.art)?.[1]); assert.ok(WIDTHS.includes(w), `${c.t}: width ${w}`);
     assert.ok(c.credit && /·/.test(c.credit), `${c.t}: credit and licence`);
   }
-  assert.ok(JSON.stringify(data).length < 80 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
+  assert.ok(JSON.stringify(data).length < 128 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
+});
+
+/* the cards share one page: an id in one card's drawing (a gradient, a mask, a path for words to follow) must not
+   be another's, or one card would borrow another's */
+test('no two drawings use the same id', () => {
+  const ids = frontData().cards.flatMap(c => [...(c.art + (c.more || '')).matchAll(/\sid="([^"]+)"/g)].map(m => m[1]));
+  assert.ok(ids.length, 'the drawings have their defs');
+  assert.equal(new Set(ids).size, ids.length, `twice: ${ids.filter((x, i) => ids.indexOf(x) !== i).join(', ')}`);
+});
+
+/* a wide drawing has a phone version, drawn for the narrow column rather than shrunk; and whatever answers the
+   pointer has a short reading and a line on its card to show it in */
+test('wide drawings come in a phone version, and readings are short and have somewhere to go', () => {
+  for (const c of frontData().cards) {
+    const html = c.art + (c.more || '');
+    if (c.size === 'wide' && /<svg/.test(c.art)) assert.ok(/class="vz vz-w"/.test(c.art) && /class="vz vz-n"/.test(c.art), `${c.t}: a phone version`);
+    const reads = [...html.matchAll(/data-read="([^"]*)"/g)].map(m => m[1]);
+    for (const r of reads) assert.ok(r.length >= 3 && r.length <= 90, `${c.t}: reading "${r}"`);
+    if (reads.length) assert.match(html, /class="wc-read"/, `${c.t}: a line for its readings`);
+  }
+});
+
+/* only the front page wears the cards' look: it lives in src/front.css, which the build ships as /front.css */
+test('the cards\' styles live in their own sheet, not the page\'s', () => {
+  const page = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  assert.doesNotMatch(page, /\.(wc|vz|bento|threads)[-{.:\s]/, 'a front-page rule left in styles.css');
+  const front = readFileSync(new URL('../public/front.css', import.meta.url), 'utf8');
+  assert.match(front, /\.bento\{/); assert.doesNotMatch(front, /\/\*/, 'shipped without its notes');
 });
 
 /* CSS grid's dense packing, as the browser does it: each card takes the first place it fits */
@@ -82,7 +114,7 @@ function holes(/** @type {{ w: number, h: number }[]} */ items, /** @type {numbe
   let n = 0; for (const row of g) for (let x = 0; x < cols; x++) if (!row[x]) n++; return n;
 }
 test('the cards tile without holes, on a desktop and on a tablet', () => {
-  const desk = { hero: [4, 3], big: [4, 2], wide: [4, 1], sq: [2, 2], small: [2, 1] };
+  const desk = { hero: [4, 3], tall: [2, 3], big: [4, 2], wide: [4, 1], sq: [2, 2], small: [2, 1] };
   const tab = { ...desk };
   const cut = CARDS.findIndex(c => c.t === 'Fireworks'); assert.ok(cut > 0, 'the map of threads sits before Fireworks');
   for (const [name, part] of [['above the map', CARDS.slice(0, cut)], ['below it', CARDS.slice(cut)]]) {

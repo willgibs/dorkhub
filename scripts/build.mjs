@@ -16,6 +16,8 @@ import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = (...p) => readFileSync(join(root, 'src', ...p), 'utf8');
+/** a stylesheet ships without its notes (they stay in the source) */
+const css = (/** @type {string} */ f) => src(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n[ \t]*(?=\n)/g, '').trim();
 const out = join(root, 'public');
 
 /** A module inlined into the page: no imports, and `export` stripped so it joins the shared scope.
@@ -87,7 +89,7 @@ const html = [
   src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`),
   '<style>',
   /* the stylesheet's notes stay in the source; the page ships without them (vendored notices stay) */
-  src('styles.css').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\n[ \t]*(?=\n)/g, '').trimEnd(),
+  css('styles.css'),
   ...vendorCss,
   '</style>',
   '</head>',
@@ -103,6 +105,8 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), html);
 cpSync(join(root, 'src', 'static'), out, { recursive: true });
-/* the front page's cards and map, made by hand in lib/front.js: only the front page fetches them */
+/* the front page's cards and map, made by hand in lib/front.js, and their look (src/front.css): only the
+   front page fetches them, so reading pages carry neither */
 writeFileSync(join(out, 'front.json'), JSON.stringify(frontData()));
+writeFileSync(join(out, 'front.css'), `${css('front.css')}\n`);
 console.log(`public/index.html  ${(html.length / 1024).toFixed(0)} KB (script ${(script.length / 1024).toFixed(0)} KB)  ${shared.length} shared + ${vendor.length + vendorCss.length} vendored + ${modules.length} app modules`);

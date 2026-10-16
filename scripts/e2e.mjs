@@ -80,18 +80,43 @@ async function run(page, { mobile = false } = {}) {
     const f = await page.evaluate(() => { const cards = [.../** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll('#ways .wc'))]; return { n: cards.length, hero: cards[0].classList.contains('wc-hero'), peek: Math.round(cards[0].getBoundingClientRect().top), vh: innerHeight, drawn: cards.filter(c => c.querySelector('.wc-art [role="img"][aria-label], .wc-art img[alt], .wc-art .tt, .wc-art .en')).length, links: cards.map(c => { const a = /** @type {HTMLAnchorElement} */ (c.querySelector('.wc-t a')); return [a.getAttribute('href'), a.dataset.way]; }), map: !!document.querySelector('#threadStage canvas'), chips: document.querySelectorAll('.door[data-seed]').length }; });
     if (f.n !== 13 || !f.hero || f.peek >= f.vh || f.drawn !== f.n || !f.map || f.chips !== 4 || f.links.some(([h, t]) => !t || h !== `/${slugOf(t)}`)) throw new Error(`ways in: ${JSON.stringify(f)}`);
     await page.screenshot({ path: `${shots}/${tag}-1b-front.png` });
+    /* every card tells its story once it is seen, and ends finished: scroll them all into view, then check */
+    for (const c of await page.locator('#ways .wc').all()) { await c.scrollIntoViewIfNeeded(); await page.waitForTimeout(120); }
+    await page.waitForTimeout(2200);
+    const done = await page.evaluate(() => { const cards = [...document.querySelectorAll('#ways .wc')]; const draws = [...document.querySelectorAll('#ways .wc .dr')].filter(d => d.getClientRects().length); return { unseen: cards.filter(c => !c.classList.contains('seen')).map(c => c.dataset.card), unfinished: draws.filter(d => parseFloat(getComputedStyle(d).strokeDashoffset) > .01).length, draws: draws.length }; });
+    if (done.unseen.length || done.unfinished || !done.draws) throw new Error(`entrances: ${JSON.stringify(done)}`);
+    if (!mobile) for (const c of await page.locator('#ways .wc').all()) { const name = await c.getAttribute('data-card'); if (name) await c.screenshot({ path: `${shots}/${tag}-card-${name}.png` }); }
+    /* the flytrap counts touches, shuts on the second and digests at five */
     const ft = page.locator('.wc[data-fx="flytrap"]'); await ft.scrollIntoViewIfNeeded();
     await ft.locator('.ft-btn').click(); const one = await ft.getAttribute('data-state');
     await ft.locator('.ft-btn').click(); const two = await ft.getAttribute('data-state');
-    if (one !== 'armed' || two !== 'shut') throw new Error(`the flytrap: ${one}, then ${two}`);
+    const lit = await ft.evaluate(c => c.querySelectorAll('.ft-steps li.on').length);
+    if (one !== 'armed' || two !== 'shut' || lit !== 2) throw new Error(`the flytrap: ${one}, then ${two}, ${lit} steps lit`);
+    /* the Enigma: typing or tapping lights the lamp each letter becomes, steps the rotors, and never lights a key itself */
     const en = page.locator('.wc[data-fx="enigma"]'); await en.scrollIntoViewIfNeeded();
     await en.locator('.en-in input').fill('AAAAA');
-    const e1 = await en.evaluate(c => ({ out: c.querySelector('.en-cy')?.textContent, rotors: [...c.querySelectorAll('.en-r span')].map(s => s.textContent).join(''), lit: c.querySelector('.en-lamps i.on')?.textContent }));
-    if (e1.out !== 'BDZGO' || e1.rotors !== 'AAF' || e1.lit !== 'O') throw new Error(`the Enigma: ${JSON.stringify(e1)}`);
+    const e1 = await en.evaluate(c => ({ out: c.querySelector('.en-cy')?.textContent, rotors: [.../** @type {NodeListOf<HTMLElement>} */ (c.querySelectorAll('.en-rw'))].map(s => s.dataset.at).join(''), lit: c.querySelector('.en-lamps i.on')?.textContent, n: c.querySelector('.en-n')?.textContent, of: c.querySelector('.en-of')?.textContent }));
+    if (e1.out !== 'BDZGO' || e1.rotors !== 'AAF' || e1.lit !== 'O' || e1.n !== '0' || e1.of !== '5') throw new Error(`the Enigma: ${JSON.stringify(e1)}`);
     await en.locator('.en-in input').fill('WETTERVORHERSAGE');
     const same = await en.evaluate(c => { const a = c.querySelector('.en-pl')?.textContent || '', b = c.querySelector('.en-cy')?.textContent || ''; return a.length === 16 && b.length === 16 ? [...a].filter((x, i) => x === b[i]).length : -1; });
     if (same !== 0) throw new Error(`the Enigma lit a letter as itself: ${same}`);
+    await en.locator('.en-x').click(); await en.locator('.en-keys [data-k="W"]').click(); await en.locator('.en-keys [data-k="E"]').click();
+    const tapped = await en.evaluate(c => [c.querySelector('.en-pl')?.textContent, c.querySelector('.en-cy')?.textContent?.length, c.querySelector('.en-lamps i.on')?.textContent]);
+    if (tapped[0] !== 'WE' || tapped[1] !== 2 || !tapped[2] || tapped[2] === 'E') throw new Error(`the Enigma's keys: ${JSON.stringify(tapped)}`);
     await en.screenshot({ path: `${shots}/${tag}-1c-enigma.png` });
+    /* Time travel's drift ticks while it is on screen */
+    const tt = page.locator('.wc[data-card="time-travel"]'); await tt.scrollIntoViewIfNeeded();
+    const d0 = await tt.locator('.tt-ns').textContent(); await page.waitForTimeout(700); const d1 = await tt.locator('.tt-ns').textContent();
+    if (!d0 || d0 === d1) throw new Error(`the drift did not tick: ${d0} then ${d1}`);
+    /* a chart reads out the part the pointer is on */
+    if (!mobile) {
+      const rb = page.locator('.wc[data-card="rubiks-cube"]'); await rb.scrollIntoViewIfNeeded();
+      const bar = /** @type {{ x: number, y: number, width: number, height: number }} */ (await rb.locator('.hit').nth(14).boundingBox());
+      await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height - 20);
+      const read = await rb.locator('.wc-read').textContent();
+      if (!/^14 moves · 6,989,320,578,825,358 positions$/.test(read || '')) throw new Error(`the cube's reading: ${read}`);
+      await page.mouse.move(0, 0);
+    }
     if (!mobile) {
       const stage = page.locator('#threadStage'); await stage.scrollIntoViewIfNeeded(); await page.waitForTimeout(1300);
       const box = /** @type {{ x: number, y: number, width: number, height: number }} */ (await stage.boundingBox()); let found = false;

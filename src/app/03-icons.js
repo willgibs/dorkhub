@@ -17,6 +17,7 @@ const ICON_PATHS = {
   help: '<circle cx="12" cy="12" r="8.8"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"/><circle class="f" cx="12" cy="16.9" r="1"/>',
   left: '<path d="m14.5 6-6 6 6 6"/>',
   right: '<path d="m9.5 6 6 6-6 6"/>',
+  arrow: '<path d="M5 12h13.5M12.5 6l6 6-6 6"/>',
   /* Save: a star that fills when the page is saved */
   star: '<path d="M12 3.8l2.45 5 5.5.8-3.98 3.88.94 5.47L12 16.37l-4.91 2.58.94-5.47-3.98-3.88 5.5-.8z"/>',
   loop: '<path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/>',
