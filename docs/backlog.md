@@ -65,6 +65,10 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   hand that lead into the front page's 33 topics, a map of the threads between them, and the
   suggestions drawn from them, with a placeholder for each of the 32 pages not written yet (Will,
   2026-10-15), each free and instant, each replaced by its page once that is written.
+- **PR G, the cards finished** (up for Will's look, 2026-10-16): every card redrawn and composed,
+  with a material of its own, one entrance story when first seen, a phone version, and new
+  layout sizes (Black holes tall, Pompeii square, Time travel wide); the cards' styles move to
+  `/front.css`. Details in `docs/decisions.md`.
 - **Next: the article page design**, still in progress with Will. The 12 pages written ahead
   of time and the 32 placeholders serve as demo pages meanwhile, tweaked as needed.
 - **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
