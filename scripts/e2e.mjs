@@ -453,8 +453,8 @@ async function movingIn() {
   await ctx.addInitScript(o => { if (!localStorage.getItem('dorkhub:holes:v1')) localStorage.setItem('dorkhub:holes:v1', o); }, JSON.stringify(old));
   let writes = 0; page.on('request', r => { if (r.url().endsWith('/api/write') && !r.postDataJSON()?.cachedOnly) writes++; });
   await step('moving in: rabbit holes become Your world', async () => {
-    await page.goto(base); await page.waitForSelector('.resume');
-    const cont = await page.locator('.resume b').textContent(); if (cont !== 'Old topic two') throw new Error(`continue: ${cont}`);
+    await page.goto(base); await page.waitForSelector('.door-cont');
+    const cont = await page.locator('.door-cont').textContent(); if (cont?.trim() !== 'Continue Old topic two') throw new Error(`continue: ${cont}`);
     await page.goto(`${base}/#/w/wold/n1`); await page.waitForFunction(() => location.pathname === '/old-topic-one');
     await page.waitForSelector('.a-end .card');
     if (writes) throw new Error('a page you had read was written again');
