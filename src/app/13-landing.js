@@ -14,7 +14,7 @@ function surprise() {
 const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
 /* the page you were last on leads the suggestions, with a mark of its own: it reopens where you left off, and
    shuffling leaves it be */
-const contHTML = p => `<a class="door door-cont" href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)} data-tip="Continue where you left off"><span class="dc-mark" aria-hidden="true">${ic('play')}</span><span class="sr">Continue </span>${esc(clip(p.title, 34))}</a>`;
+const contHTML = p => `<a class="door door-cont" href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)} data-tip="Continue where you left off"><span class="dc-mark" aria-hidden="true">${ic('play')}</span><span class="sr">Continue </span><span class="dc-t">${esc(clip(p.title, 34))}</span></a>`;
 /* days turn over at the reader's own midnight */
 const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
 /* the suggestions: four of the planned topics, the same four all day, re-rolled as a set by shuffle */

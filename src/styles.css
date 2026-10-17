@@ -720,7 +720,8 @@ body.at-start .omni-btn{display:none}
 .presets{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;max-width:720px;margin-top:4px}
 .pr-list{display:contents}
 .door{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 15px;border:0;border-radius:var(--r-pill);background:transparent;color:var(--ink);font:500 14px/1 var(--f-ui);cursor:pointer;box-shadow:inset 0 0 0 1px var(--line-2);transition:box-shadow var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
-.door-cont{text-decoration:none}
+.door-cont{max-width:100%;text-decoration:none}
+.dc-t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dc-mark{display:inline-flex;flex:none;margin-left:-3px;color:var(--kc,var(--acc))}
 .dc-mark .ic{width:13px;height:13px;fill:currentColor;stroke:none}
 .door:hover{background:var(--surface);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 30%,transparent),0 6px 16px -10px rgba(16,17,20,.3)}
@@ -740,7 +741,9 @@ body.at-start .omni-btn{display:none}
   .hero{--peek:148px;min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek));padding-top:20px;padding-bottom:24px}
   /* the heading fits the width on one line ("Learn about anything" is about 9.2em wide in Inter) */
   .s-h{font-size:min(calc((100vw - 44px) / 10.5),38px);white-space:nowrap}
-  .pr-list .door:nth-child(4),.presets:has(.door-cont) .pr-list .door:nth-child(3){display:none}
+  /* one row on a phone: two suggestions, or the page to continue and one, then shuffle */
+  .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
+  .door-cont{max-width:58vw}
   .cbox{padding:14px 10px 8px 16px}
   #seedIn,.cmirror{font-size:16px}
   .cmirror{left:16px;top:16px}
