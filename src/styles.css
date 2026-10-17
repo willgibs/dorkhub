@@ -684,7 +684,8 @@ body.at-start .omni-btn{display:none}
 .hero{--peek:196px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:min(860px,calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek)));max-width:780px;margin:0 auto;padding:clamp(32px,6vh,72px) 20px clamp(24px,5vh,56px);text-align:center}
 .hero.intro .rise{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * 60ms)}
 @keyframes risein{from{opacity:0;transform:translateY(var(--dist-medium));filter:blur(var(--blur-m))}}
-.s-h{font:600 clamp(28px,3.6vw,42px)/1.1 var(--f-ui);letter-spacing:-.022em;text-wrap:balance}
+/* the heading asks, and the composer under it answers: set large, tight and plain, about as wide as the composer */
+.s-h{font:600 clamp(32px,4vw,56px)/1.06 var(--f-ui);letter-spacing:-.032em;text-wrap:balance}
 /* the composer: one surface with the beam riding its edge; what you type, then the tools that shape it */
 .composer{position:relative;z-index:5;width:100%;margin-top:30px;text-align:left}
 .cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
@@ -739,8 +740,8 @@ body.at-start .omni-btn{display:none}
 @media (max-width:560px){
   /* the hero is exactly one screen */
   .hero{--peek:148px;min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek));padding-top:20px;padding-bottom:24px}
-  /* the heading fits the width on one line ("Learn about anything" is about 9.2em wide in Inter) */
-  .s-h{font-size:min(calc((100vw - 44px) / 10.5),38px);white-space:nowrap}
+  /* the question takes two even lines on a phone ("curious about?" is about 6.4em wide in Inter) */
+  .s-h{font-size:min(calc((100vw - 40px) / 7.4),40px)}
   /* one row on a phone: two suggestions, or the page to continue and one, then shuffle */
   .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
   .door-cont{max-width:58vw}

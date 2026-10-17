@@ -375,7 +375,7 @@ function viewStart() {
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
-  <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">Learn about anything</h1>
+  <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">What are you curious about?</h1>
   <form class="composer rise" style="--i:1" id="seedForm" autocomplete="off">
     <div class="cbox beam" id="seedBox">
       <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, question, or idea…" enterkeyhint="go"></textarea>
