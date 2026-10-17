@@ -75,6 +75,12 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   on a pointed-at topic's links, a radar ping for a newcomer and a marker that drives Replay. A `still` view (the front page) never pans, zooms or drags, so a finger
   scrolls the page over it; a tap shows a topic's card and a second opens it.
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
+  The hero (`viewStart`): the heading, whose last word steps once through four of `FRONT`'s topics
+  in their kinds' colours to "anything" (`livingWord`, the first arrival of a visit only, never
+  without motion; screen readers hear the whole heading from hidden text), the composer, and the
+  suggestions, led by the page you were last on (`contHTML`, a `door-cont` chip with a play mark,
+  which shuffle leaves be). On a phone they keep to one row, and the heading's word takes a line
+  of its own. The cards have no heading; their section is labelled for screen readers.
   `lib/front.js` is the front page made by hand: `FRONT`, the planned topics, each with a kind,
   a hook and a source (the build puts titles, kinds and hooks in the page for the suggestions);
   `CARDS`, each with its size, hook, sources, entrance length (`beat`), whether it is night in

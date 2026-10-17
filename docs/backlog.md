@@ -74,6 +74,10 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   the hero (a ray-traced disk, as Luminet drew one in 1979), Northern lights tall; Origami,
   Atlantis, Magnets and Lightning replace Volcanoes, Time travel, Quicksand and Dreams on the cards
   (all eight stay among the 33). Details in `docs/decisions.md`.
+- **PR I, the hero** (up for Will's look, 2026-10-17, willgibs/dorkhub#22): dark mode near
+  black, no heading over the cards, Continue as the first suggestion with a play mark, and the
+  heading's last word stepping once through four topics in their colours to "anything" (Will chose
+  this over A, "What are you curious about?"). Details in `docs/decisions.md`.
 - **Next: the article page design**, still in progress with Will. The 12 pages written ahead
   of time and the 32 placeholders serve as demo pages meanwhile, tweaked as needed.
 - **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is

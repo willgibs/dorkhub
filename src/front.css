@@ -3,7 +3,6 @@
    reading pages never carry the cards' look. Tokens, kind colours and the motion scale come from styles.css. */
 /* ways in: hand-made cards in a bento, each its own piece; a map of threads between the two groups */
 .ways{max-width:1180px;margin:0 auto;padding:0 28px}
-.ways-h{padding:22px 0 16px;border-top:1px solid var(--line);font:650 19px/1.25 var(--f-ui);letter-spacing:-.012em}
 .bento{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:168px;grid-auto-flow:dense;gap:14px}
 /* a card is its drawing, edge to edge, with only its kind and title in the top corner (Will, 2026-10-16: the
    drawings are the point; a visitor clicks in to find out what they show) */

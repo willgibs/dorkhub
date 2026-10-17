@@ -62,7 +62,9 @@ async function run(page, { mobile = false } = {}) {
   /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
     const h = await page.evaluate(() => { const box = document.querySelector('#seedBox'); const cs = box && getComputedStyle(box); return { h1: document.querySelector('h1')?.textContent, beam: !!box && box.classList.contains('beam') && !!box.querySelector('.beam-bloom'), anim: cs ? cs.animationName : '', send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
-    if (h.h1 !== 'Learn about anything' || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)}`);
+    /* the heading as read aloud: its last word may still be stepping through topics, but it is heard whole */
+    const named = await page.locator('h1').ariaSnapshot();
+    if (!named.includes('heading "Learn about anything"') || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
     await page.fill('#seedIn', 'Why do cats purr?');
     const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '' }; });
     if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
@@ -453,8 +455,8 @@ async function movingIn() {
   await ctx.addInitScript(o => { if (!localStorage.getItem('dorkhub:holes:v1')) localStorage.setItem('dorkhub:holes:v1', o); }, JSON.stringify(old));
   let writes = 0; page.on('request', r => { if (r.url().endsWith('/api/write') && !r.postDataJSON()?.cachedOnly) writes++; });
   await step('moving in: rabbit holes become Your world', async () => {
-    await page.goto(base); await page.waitForSelector('.resume');
-    const cont = await page.locator('.resume b').textContent(); if (cont !== 'Old topic two') throw new Error(`continue: ${cont}`);
+    await page.goto(base); await page.waitForSelector('.door-cont');
+    const cont = await page.locator('.door-cont').textContent(); if (cont?.trim() !== 'Continue Old topic two') throw new Error(`continue: ${cont}`);
     await page.goto(`${base}/#/w/wold/n1`); await page.waitForFunction(() => location.pathname === '/old-topic-one');
     await page.waitForSelector('.a-end .card');
     if (writes) throw new Error('a page you had read was written again');
