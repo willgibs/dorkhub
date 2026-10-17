@@ -49,6 +49,11 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
    would lose its meaning without them, and the rest answers the pointer. As you scroll, one
    card tells its story at a time, in reading order, so each is seen; nothing moves for its own
    sake after that. The front page's topics are chosen for what their cards can show.
+   The hero (Will, 2026-10-17): the heading, the composer and the suggestions, nothing above them
+   and no heading over the cards. The heading says "Learn about anything", but on a visit's first
+   arrival its last word first steps through a few of the front page's topics, each in its kind's
+   colour, once, so "anything" comes having been shown. The page you were last on leads the
+   suggestions, marked with a small play mark in its kind's colour.
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 
@@ -80,7 +85,8 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
 - Eight kinds of topic, each with a colour: ideas, phenomena, mechanisms, places, people,
   events, things, mysteries. A page tints toward the colour of what it is about, and its
   dot in Your world glows in it.
-- Voice: warm, specific, plain words, never condescending. Light and dark themes.
+- Voice: warm, specific, plain words, never condescending. Light and dark themes; dark is near
+  black, for contrast (Will, 2026-10-17).
 - The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
   and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
   scale, effects ported from libraries.dev. The brand spectrum (all eight link colours)
