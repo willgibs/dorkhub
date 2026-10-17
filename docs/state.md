@@ -12,7 +12,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     and title, and one plays at a time as you scroll (`stage` in `13-landing.js`). Black holes is
     the hero; Origami, Atlantis, Magnets and Lightning took the cards of Volcanoes, Time travel,
     Quicksand and Dreams (all still among the 33); #21 (8fdd424) numbers read whole to screen readers.
-- **Up for Will's look: PR I, the hero** (branch `experience/hero-b`, Will's pick of two; review
+- **Up for Will's look: PR I, the hero** (willgibs/dorkhub#22, Will's pick of two; review
   claude.ai/artifact/LXoc6k1PZTw7BtirrhYBxx): near-black dark mode, no "Ways in", Continue as the first
   suggestion, and "Learn about …" stepping once through four topics to "anything".
 - **The 32 as placeholders** (Will, 2026-10-15): each front-page topic not written yet opens a
