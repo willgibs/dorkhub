@@ -368,6 +368,32 @@ function seedMirror(v) {
   box.appendChild(m); i.style.color = 'transparent'; return m;
 }
 let LANDED = false;
+/* the heading's last word steps once through a few of the front page's topics, each in its kind's colour, and comes
+   to rest on "anything": the first arrival of a visit only, and never without motion. Screen readers hear the
+   heading whole ("Learn about anything") from hidden text */
+const LIVING = [['black holes', 'Black holes'], ['Atlantis', 'Atlantis'], ['origami', 'Origami'], ['Pompeii', 'Pompeii']];
+const livingKind = t => (FRONT.find(f => f.t === t) || {}).k || '';
+const livingHTML = live => (live
+  ? `<span class="lw" data-live aria-hidden="true"><span class="lw-w"${kattr(livingKind(LIVING[0][1]))}>${esc(LIVING[0][0])}</span></span><span class="lw-m" aria-hidden="true"></span>`
+  : '<span class="lw" aria-hidden="true">anything</span>');
+let LW_T = [];
+function livingWord() {
+  const slot = $('.lw[data-live]'), w = slot && $('.lw-w', slot), m = $('.lw-m'); if (!slot || !w || !m) return;
+  const fit = t => { m.textContent = t; return m.getBoundingClientRect().width; };
+  const steps = [...LIVING.slice(1).map(([t, title]) => [t, livingKind(title)]), ['anything', '']];
+  slot.style.width = `${fit(w.textContent)}px`;
+  /* each word holds long enough to read, steps out softly, and the line glides to the next word's width */
+  steps.forEach(([t, k], i) => {
+    const at = 1100 + i * 1300;
+    LW_T.push(setTimeout(() => { w.classList.remove('in'); w.classList.add('out'); }, at));
+    LW_T.push(setTimeout(() => {
+      w.textContent = t; if (k) w.setAttribute('data-kind', kindOf(k) || k); else w.removeAttribute('data-kind');
+      slot.style.width = `${fit(t)}px`; w.classList.remove('out'); void w.offsetWidth; w.classList.add('in');
+      if (i === steps.length - 1) LW_T.push(setTimeout(() => { slot.style.width = ''; slot.removeAttribute('data-live'); }, 600));
+    }, at + 170));
+  });
+}
+function stopLiving() { LW_T.forEach(clearTimeout); LW_T = []; }
 function viewStart() {
   /* Continue reopens the last page you read */
   const last = pageOf(store.current); const cont = last && (last.status === 'done' || last.status === 'partial') ? last : [...worldIndex().read.values()].sort((a, b) => b.last - a.last)[0];
@@ -375,7 +401,7 @@ function viewStart() {
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
-  <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">Learn about anything</h1>
+  <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">Learn about <span class="sr">anything</span>${livingHTML(intro)}</h1>
   <form class="composer rise" style="--i:1" id="seedForm" autocomplete="off">
     <div class="cbox beam" id="seedBox">
       <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, question, or idea…" enterkeyhint="go"></textarea>
@@ -405,8 +431,8 @@ function watchBeam() {
   BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
