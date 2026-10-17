@@ -12,13 +12,14 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     and title, and one plays at a time as you scroll (`stage` in `13-landing.js`). Black holes is
     the hero; Origami, Atlantis, Magnets and Lightning took the cards of Volcanoes, Time travel,
     Quicksand and Dreams (all still among the 33); #21 (8fdd424) numbers read whole to screen readers.
+- **Up for Will's look: the hero, two ways** (claude.ai/artifact/LXoc6k1PZTw7BtirrhYBxx): both have a near-black
+  dark mode, no "Ways in" and Continue as the first suggestion; A (`experience/hero-a`) asks "What are you curious
+  about?", B (`experience/hero-b`) steps "Learn about …" through four topics to "anything". Nothing merged.
 - **The 32 as placeholders** (Will, 2026-10-15): each front-page topic not written yet opens a
   placeholder (`lib/placeholder.js`) at its own address, free and instant, claiming only what
   `lib/front.js` has checked. The writer's brief: `node scripts/seeds.mjs brief "<title>"`.
-- **One door list**, `DOORS` in `lib/front.js`: the front page's 33 topics, then the 11 pages
-  written before them. Surprise me and a paused page's doors draw on all of them.
-- **Production today:** no gateway credits, so typed topics pause; the front page's topics and
-  the earlier pages open free. Logs clean. The article page design is in progress with Will.
+- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages (Surprise me, doors).
+- **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
 ## Open
 - A brisk scroll passes some cards before their turn; they play when scrolled back to. Calm over
@@ -31,8 +32,9 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
 
 ## Next
-1. The article page design continues from PR F, on Will's direction.
-2. Runtime Cache across production deploys: confirm once credits land.
-3. Later, each on Will's go: a card swap from the runners-up (Diamonds, Supernovas, Apollo 11,
+1. Will's pick between hero A and B (or a mix), then a PR, his look and the merge.
+2. The article page design continues from PR F, on Will's direction.
+3. Runtime Cache across production deploys: confirm once credits land.
+4. Later, each on Will's go: a card swap from the runners-up (Diamonds, Supernovas, Apollo 11,
    Stonehenge), writing the 32, a durable store, one write per page in flight, graph keyboard
    navigation, re-recording the three mock pages that say "your path".
