@@ -43,10 +43,12 @@ test('topic addresses serve the page, and nothing else is caught', () => {
 
 /* The page is one file: keep it small. Your world (the graph and its simulation) was paid for by the
    demo and the rabbit-hole furniture it replaced; the front page's feed by shipping the stylesheet
-   without its notes; and the hand-made cards live in /front.json, so reading pages never carry them. */
+   without its notes; and the hand-made cards live in /front.json, so reading pages never carry them. The article
+   page's rethink (2026-10-18: a card's drawing carried into its page, the link card in the margin, sources, the end
+   drawn as threads) costs about 17 KB raw, 4 KB compressed. */
 test('the page stays within its size budget', () => {
   const html = read('public/index.html');
-  assert.ok(html.length < 372 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
+  assert.ok(html.length < 384 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
 });
 
 /* The page ships without its comments (src keeps them), but licence notices travel with the code. */

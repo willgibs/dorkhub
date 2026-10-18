@@ -98,7 +98,11 @@ test('every topic on the front page opens free: its page, or a placeholder until
     for (const l of links) assert.ok(free.has(topicKey(l)), `${T.t}: ${l} opens a page written ahead of time`);
     for (const th of THREADS.filter(x => x.a === T.t || x.b === T.t)) assert.ok(s.text.includes(`(${th.l})`), `${T.t}: the thread to ${th.a === T.t ? th.b : th.a}`);
     const counts = [THREADS.length, FRONT.length, 6, THREADS.filter(x => x.a === T.t || x.b === T.t).length].map(String);
-    for (const n of nums(s.text)) assert.ok(checked.includes(n) || counts.includes(n), `${T.t}: ${n} comes from nowhere checked`);
+    /* its sources are what its claims were checked against, not claims: the topic's own, its card's and its threads' */
+    const [said] = s.text.split('\n@@@\n');
+    for (const n of nums(said)) assert.ok(checked.includes(n) || counts.includes(n), `${T.t}: ${n} comes from nowhere checked`);
+    const card = CARDS.find(c => c.t === T.t); const theirs = new Set([T.src, ...(card ? card.src : []), ...THREADS.filter(x => x.a === T.t || x.b === T.t).map(x => x.src)]);
+    assert.ok(A.sources.length >= 1 && A.sources.every(x => theirs.has(x.url) && x.label), `${T.t}: lists the sources its claims were checked against, each named`);
     assert.doesNotMatch(s.text, /mock|lorem/i, `${T.t}: no stand-in from the mock writer`);
   }
   assert.equal(placeholderText('Tulip mania'), null, 'only the front page\'s topics have placeholders');

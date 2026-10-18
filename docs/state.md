@@ -25,13 +25,14 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   completeness for now; Will may want every card to get a turn (shorter turns when several wait).
 
 ## Blocked on Will
-- The article page design (his direction next).
+- **PR J, the article page:** Will chose B (the page perfected, plus the thread); willgibs/dorkhub#23
+  waits for his merge word. Before the 32, his calls: a specimen label under every title, the 32 keeping sources.
 - Writing the 32 (and rewriting Bioluminescence): on hold until that design is final, then only
   on his go (about 8 to 10M tokens). Then settle Mona Lisa's and Fingerprints' pictures.
 - AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
 
 ## Next
-1. The article page design continues from PR F, on Will's direction.
+1. #23 at Will's word: merge, then check production (vision.md's anatomy of a page already describes it).
 2. Runtime Cache across production deploys: confirm once credits land.
 3. Later, each on Will's go: a card swap from the runners-up (Diamonds, Supernovas, Apollo 11,
    Stonehenge), writing the 32, a durable store, one write per page in flight, graph keyboard

@@ -57,6 +57,37 @@ function wayHTML(c) {
   ${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${open}
 </article>`;
 }
+/* ================= a front-page topic's page opens with its card's drawing =================
+   The drawing carries into the page it leads to and becomes the page's plate, above its title: clicked on the front
+   page, the page transition moves it there; opened any other way, its place is kept from the first frame while the
+   drawing loads, so nothing moves under the reader, and it tells its story once. Its controls and readings work as
+   they do on the card. Questions and connecting pages are pages of their own, with no plate. */
+const cardFor = p => { if (!p || p.req.bridge || p.req.q) return null; const k = topicKey(p.req.title); return FRONT.find(f => f.c && topicKey(f.t) === k) || null; };
+function plateCardHTML(c, play) {
+  return `<div class="wc wc-plate wc-${c.size}${c.night ? ' wc-night' : ''}${LIVE.has(c.fx) ? ' wc-live' : ''}${play ? ' armed' : ' seen'}" data-card="${slugOfCard(c.t)}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''}${c.beat ? ` data-beat="${c.beat}"` : ''}><div class="wc-art">${c.art}</div>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}</div>`;
+}
+/* the plate's place in the head: the card at its own shape, on a mat as wide as the column */
+function plateSlotHTML(p) {
+  const f = cardFor(p); if (!f) return '';
+  const c = FRONTD && FRONTD.cards.find(x => x.t === f.t);
+  return `<div class="a-plate pl-${f.c}${f.n ? ' night' : ''}" data-plate="${esc(f.t)}">${c ? plateCardHTML(c, false) : `<div class="wc wc-plate wc-${f.c}${f.n ? ' wc-night' : ''}" aria-hidden="true"></div>`}</div>`;
+}
+function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
+function mountPlate(p) {
+  const slot = $('.a-plate'); if (!slot || slot.dataset.mounted) return; slot.dataset.mounted = '1';
+  const wire = el => {
+    if (el.dataset.fx === 'flytrap') flytrapFx(el); else if (el.dataset.fx === 'enigma') enigmaFx(el); else if (el.dataset.fx === 'origami') origamiFx(el); else if (el.dataset.fx === 'magnets') magnetsFx(el);
+    if ($('[data-read]', el)) readoutFx(el);
+  };
+  const ready = $('.wc[data-card]', slot); if (ready) { wire(ready); return; }
+  loadFront().then(() => {
+    const c = FRONTD && FRONTD.cards.find(x => x.t === slot.dataset.plate);
+    if (CUR !== p.id || !slot.isConnected) return; if (!c) { slot.remove(); return; }
+    const slug = slugOfCard(c.t), play = motionOK() && !PLAYED.has(slug);
+    slot.innerHTML = plateCardHTML(c, play); const el = $('.wc', slot); wire(el);
+    if (play) setTimeout(() => { if (!el.isConnected) return; el.classList.add('seen'); PLAYED.add(slug); beatFx(el); }, 450);
+  });
+}
 /* the cards need no heading: they say what they are (Will, 2026-10-17) */
 const frontShellHTML = () => `<section class="ways" id="ways" aria-label="Ways in">
   <div class="bento" id="bentoA"></div>

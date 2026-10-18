@@ -11,7 +11,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, write
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Script } from 'node:vm';
-import { EARLIER, FRONT, frontData, plateCss } from '../lib/front.js';
+import { CARDS, EARLIER, FRONT, frontData, plateCss } from '../lib/front.js';
 import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -61,7 +61,9 @@ const script = await lean([
   '(() => {',
   "'use strict';",
   `const TRIAL_PAGES = ${trialConfig(process.env).pages};`,
-  `const FRONT = ${JSON.stringify(FRONT.map(({ t, k, h }) => ({ t, k, h })))};`,
+  /* a topic with a card on the front page carries the card's size (c) and whether it is night (n): its page keeps the
+     drawing's place from the first frame, before /front.json brings the drawing itself */
+  `const FRONT = ${JSON.stringify(FRONT.map(({ t, k, h }) => { const c = CARDS.find(x => x.t === t); return c ? { t, k, h, c: c.size, ...(c.night ? { n: 1 } : {}) } : { t, k, h }; }))};`,
   `const EARLIER = ${JSON.stringify(EARLIER)};`,
   ...shared,
   ...vendor,

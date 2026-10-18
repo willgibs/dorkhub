@@ -396,6 +396,14 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .th-stage{position:relative;min-height:clamp(400px,44vw,540px)}
 .threads .gv-canvas{touch-action:pan-y;cursor:default}
 
+/* a card carried into its page as the page's plate (styles.css frames it): mounted, it keeps its card's look; filling
+   the plate, it gives up its own corners and edge; a wide drawing shows its narrow version */
+.a-plate .wc{transform:none!important}
+.a-plate.pl-hero .wc,.a-plate.pl-big .wc{border-radius:0;box-shadow:none}
+.a-plate.pl-wide .vz-w{display:none}
+.a-plate.pl-wide .vz-n{display:block}
+.a-plate [data-card="enigma-machine"]{--par:.7}
+@media (max-width:760px){ .a-plate .wc{border-radius:0;box-shadow:none} }
 @media (max-width:1100px){
   .bento{grid-template-columns:repeat(4,minmax(0,1fr))}
   .wc-hero{grid-column:span 4}

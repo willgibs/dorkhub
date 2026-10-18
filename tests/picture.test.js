@@ -43,7 +43,18 @@ test('a freely licensed lead picture comes back credited, and cached by the CDN'
   const r = await handlePicture(req('t=Tulip%20mania'), deps);
   assert.equal(r.status, 200); assert.match(r.headers.get('cache-control') || '', /s-maxage=\d+/);
   const p = await r.json();
-  assert.deepEqual(p, { src: '/api/picture?f=6%2F6a%2FSatire_on_Tulip_Mania.jpg&w=960', w: 960, h: 614, alt: 'Dutch bubble', credit: 'Jan Brueghel the Younger', license: 'Public domain', file: 'https://commons.wikimedia.org/wiki/File:Satire_on_Tulip_Mania.jpg' });
+  assert.deepEqual(p, { src: '/api/picture?f=6%2F6a%2FSatire_on_Tulip_Mania.jpg&w=960', w: 960, h: 614, alt: 'Dutch bubble', desc: '', credit: 'Jan Brueghel the Younger', license: 'Public domain', file: 'https://commons.wikimedia.org/wiki/File:Satire_on_Tulip_Mania.jpg' });
+});
+
+test('a picture says what it shows: the article\'s own caption, or the first sentence of its English description', async () => {
+  const media = (/** @type {string} */ caption) => ({ items: [{ title: 'File:Satire_on_Tulip_Mania.jpg', leadImage: true, caption: { text: caption } }] });
+  const meta = (/** @type {string} */ d) => ({ query: { pages: [{ imageinfo: [{ extmetadata: { ...META.query.pages[0].imageinfo[0].extmetadata, ImageDescription: { value: d } } }] }] } });
+  const desc = async (/** @type {any} */ med, /** @type {any} */ met) => (await (await handlePicture(req('t=Tulip%20mania'), wiki([['page/summary/Tulip_mania', summary({})], ['page/media-list/', med], ['commons.wikimedia.org/w/api.php', met]]).deps)).json()).desc;
+  assert.equal(await desc(media('Satire on tulip mania by Jan Brueghel the Younger, c. 1640[3]'), META), 'Satire on tulip mania by Jan Brueghel the Younger, c. 1640', 'the article\'s caption, without its footnote');
+  assert.equal(await desc(404, meta('<div lang="en">Monkeys dressed as tulip traders, weighing bulbs. Oil on panel.</div><div lang="nl">Apen</div>')), 'Monkeys dressed as tulip traders, weighing bulbs', 'else the English description\'s first sentence');
+  assert.equal(await desc(404, meta('Satire op de tulpenmanie, door Jan Brueghel de Jonge')), '', 'never another language');
+  assert.equal(await desc(404, meta('Tulip mania')), '', 'nor one that only repeats the name');
+  assert.equal(await desc(media(`A painting of ${'tulip traders in a tavern, '.repeat(6)}with monkeys`), META), `A painting of ${'tulip traders in a tavern, '.repeat(5).slice(0, -2)}`, 'a long one ends at a clause');
 });
 
 test('no picture when the image is not on Commons, too small, or unlicensed; misses are cached too', async () => {

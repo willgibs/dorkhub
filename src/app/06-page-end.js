@@ -8,10 +8,56 @@ function rowsBlock(el, heading, rows) {
   setHTML($('.eh', el), heading);
   patch($('.rows', el), rows);
 }
-/* Keep exploring: six equal cards, each edged in the colour of what it is. A topic you've read says so. */
-function cardsBlock(el, items) {
-  if (!el._built) { el.innerHTML = `<h2 class="eh">Keep exploring</h2><div class="cards6"></div>`; el._built = true; }
-  patch($('.cards6', el), items);
+/* ================= where it leads: the page as a point on its threads =================
+   The six ways on, drawn as threads out of this page, the way the front page draws its map of threads and Your world
+   draws what you have read: this page a solid point (and the page you came from behind it), each way on a ring at the
+   end of its thread, named as the front page names its cards (its kind in small capitals, its title, its hook). A topic
+   you've read is solid; one that your other pages lead to too says which. The threads draw in once, the first time the
+   end of a page comes into view, and this page pings as it joins your world. On a phone the threads hang from one stem. */
+function fanBlock(el, items, p, complete) {
+  if (!el._built) { el.innerHTML = `<h2 class="eh">Where it leads</h2><div class="fan"><svg class="fan-svg" aria-hidden="true"></svg><div class="fan-in"></div><div class="fan-out"></div></div>`; el._built = true; watchFan(el, p); }
+  patch($('.fan-out', el), items);
+  /* the point and the threads wait until all six ways on are there, so nothing moves while they arrive */
+  const from = complete ? fromOf(p) : null;
+  setHTML($('.fan-in', el), complete ? `${from ? `<a class="fan-from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><i class="fan-dot"></i><span>From</span><b>${esc(clip(from.title, 34))}</b></a>` : ''}<p class="fan-me"${kattr(p.kind || (ACC && ACC.kind) || '')}><i class="fan-dot"></i><b>${esc(clip(p.title, 48))}</b></p>` : '');
+  el.classList.toggle('fan-ready', complete);
+  /* while a page streams it is painted every frame: the threads are redrawn only when the ways on change */
+  const sig = `${complete}|${items.map(it => it.k + it.cls).join()}`; if (el._fan !== sig) { el._fan = sig; requestAnimationFrame(() => drawFan(el)); }
+}
+const fanNarrow = () => matchMedia('(max-width: 560px)').matches;
+function drawFan(el) {
+  const fan = $('.fan', el); const svg = fan && $('.fan-svg', fan); const me = fan && $('.fan-me .fan-dot', fan);
+  if (!svg) return; if (!me || fanNarrow()) { svg.innerHTML = ''; return; }
+  const box = fan.getBoundingClientRect(); const at = d => { const r = d.getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
+  const [mx, my] = at(me); const out = [];
+  const fromDot = $('.fan-from .fan-dot', fan);
+  if (fromDot) { const [fx, fy] = at(fromDot); out.push(`<path class="fan-t in" style="--i:0" d="M${fx} ${fy}C${fx} ${(fy + my) / 2},${fx} ${my},${mx} ${my}" pathLength="1"/>`); }
+  $$('.fan-door', fan).forEach((door, i) => {
+    const [x, y] = at($('.fan-dot', door)); const k = (x - mx) * .55;
+    out.push(`<path class="fan-t${door.classList.contains('is-read') ? ' read' : ''}" data-n="${i + 1}"${door.dataset.kind ? ` data-kind="${door.dataset.kind}"` : ''} style="--i:${i + 1}" d="M${mx} ${my}C${mx + k} ${my},${x - k} ${y},${x} ${y}" pathLength="1"/>`);
+  });
+  svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`); svg.innerHTML = out.join('');
+}
+/* redrawn when the column changes width; drawn in, once, the first time it comes into view */
+const FAN_SEEN = new Set();
+function watchFan(el, p) {
+  if (typeof ResizeObserver === 'function') { const ro = new ResizeObserver(() => drawFan(el)); ro.observe(el); }
+  if (reducedMotion() || FAN_SEEN.has(p.id) || typeof IntersectionObserver !== 'function') { el.classList.add('fan-drawn', 'fan-settled'); FAN_SEEN.add(p.id); return; }
+  const io = new IntersectionObserver(es => {
+    if (!es.some(e => e.isIntersecting) || !el.classList.contains('fan-ready')) return; io.disconnect(); FAN_SEEN.add(p.id);
+    /* new to your world this visit: it pings as it joins */
+    if ((p.first || 0) >= BOOT) el.classList.add('fan-new');
+    el.classList.add('fan-drawn'); setTimeout(() => el.classList.add('fan-settled'), 1600);
+  }, { threshold: .35 });
+  io.observe(el);
+}
+/* which of your other pages lead to a topic too (not this one, nor the one you came from, which says nothing new):
+   the latest of them, and how many more */
+function alsoOn(target, p) {
+  const came = (fromOf(p) || {}).id;
+  const ids = (worldIndex().back.get(topicKey(target)) || []).filter(id => id !== p.id && id !== came); if (!ids.length) return '';
+  const pages = ids.map(pageOf).filter(Boolean).sort((a, b) => (b.last || 0) - (a.last || 0)); if (!pages.length) return '';
+  return `Also on ${esc(clip(pages[0].title, 32))}${pages.length > 1 ? ` and ${pages.length - 1} more of your pages` : ''}`;
 }
 const KEY_FIX = ['bad_key', 'key_limit', 'model_unavailable'];
 /* three pages written ahead of time, the same three for a page every time it is painted */
@@ -35,10 +81,11 @@ function paintEnd(p, sec, A, live) {
   const st = statusNote(p); if (st) blocks.push({ k: 'status', html: st });
   const cards = cardsOf(A).map((c, i) => {
     const read = worldIndex().read.get(topicKey(c.target)); const kind = c.kind || (A.gloss[keyOf(c.target)] || {}).kind || '';
-    return { k: 'c' + keyOf(c.target), tag: 'a', cls: `card${read ? ' is-read' : ''}`, attrs: { href: routeOf({ title: c.target, lens: store.settings.lens }), 'data-t': c.target, 'data-n': String(i + 1), ...(kindOf(kind) ? { 'data-kind': kindOf(kind) } : {}) },
-      html: `<span class="cd-top"><span class="cd-n"${matchMedia('(hover: hover)').matches ? ` data-tip="Press ${i + 1}"` : ''}>${i + 1}</span>${read ? `<span class="cd-read" data-tip="You read this ${esc(relTime(read.last))}">Read</span>` : ''}</span><span class="cd-t">${esc(c.label)}</span>${c.teaser ? `<span class="cd-h">${inline(capFirst(plain(c.teaser)), p)}</span>` : ''}` };
+    const also = read ? '' : alsoOn(c.target, p);
+    return { k: 'c' + keyOf(c.target), tag: 'a', cls: `card fan-door${read ? ' is-read' : ''}`, attrs: { href: routeOf({ title: c.target, lens: store.settings.lens }), 'data-t': c.target, 'data-n': String(i + 1), ...(kindOf(kind) ? { 'data-kind': kindOf(kind) } : {}) },
+      html: `<i class="fan-dot" aria-hidden="true"></i><span class="cd-top">${kindOf(kind) ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : '<span></span>'}${read ? `<span class="cd-read" data-tip="You read this ${esc(relTime(read.last))}">Read</span>` : matchMedia('(hover: hover)').matches ? `<kbd class="cd-n" data-tip="Press ${i + 1}">${i + 1}</kbd>` : ''}</span><span class="cd-t">${esc(c.label)}</span>${c.teaser ? `<span class="cd-h">${inline(capFirst(plain(c.teaser)), p)}</span>` : ''}${also ? `<span class="fan-also">${also}</span>` : ''}` };
   });
-  if (cards.length) blocks.push({ k: 'cards', cards });
+  if (cards.length) blocks.push({ k: 'cards', cards, complete: !live || A.questions.length > 0 || cards.length >= 6 });
   if (A.questions.length) blocks.push({ k: 'qs', rows: A.questions.map((q, i) => ({ k: 'q' + i, html: rowHTML({ mark: '?', markTip: 'Opens a page that answers it', title: esc(q), href: routeOf({ title: q, q: true, lens: store.settings.lens }), attrs: `data-q="${esc(q)}" data-kind="mystery"` }) })), heading: 'Open questions' });
   if (!failed && (!live || A.bodyDone)) blocks.push({ k: 'ask', html: `<form class="ask" autocomplete="off"><label class="sr" for="ask-in">Ask your own question</label><span class="rk" aria-hidden="true">?</span><input id="ask-in" placeholder="Ask your own question" maxlength="160"><button class="ask-go" type="submit" aria-label="Open a page that answers it">↵</button></form>` });
   const existing = new Map(); for (const el of end.children) if (el.dataset.k) existing.set(el.dataset.k, el);
@@ -46,7 +93,7 @@ function paintEnd(p, sec, A, live) {
   for (const b of blocks) {
     let el = existing.get(b.k);
     if (el) existing.delete(b.k); else { el = document.createElement('div'); el.dataset.k = b.k; el.className = ((b.rows || b.cards ? 'eblock' : '') + (anim ? ' enter' : '')).trim(); }
-    if (b.cards) cardsBlock(el, b.cards); else if (b.rows) rowsBlock(el, b.heading, b.rows); else setHTML(el, b.html);
+    if (b.cards) fanBlock(el, b.cards, p, b.complete); else if (b.rows) rowsBlock(el, b.heading, b.rows); else setHTML(el, b.html);
     place(end, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());
