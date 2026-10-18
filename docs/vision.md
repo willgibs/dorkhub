@@ -106,17 +106,30 @@ a mystery, an event…; it shapes the page) · deck · link plan (a kind for eve
 links arrive in colour) · body with asides and up to two **panels** · six topics to
 keep exploring, each with its hook and kind, some deeper into the subject and at least two
 leaping into another field · three open questions that stand on their own · a hook for
-every link (for hover cards).
+every link (for hover cards). A page written ahead of time also keeps the sources it was
+checked against; a live writer is never asked for them.
 
 Panels (v2) are information the writer lays out and Dorkhub draws: timeline, facts, steps,
 compare, theories, figures, myth, formula, guess. The writer uses one only when it shows
 something prose can't, most pages one or none, never two in a row; the body stays the
 page. A page's lead picture (Wikipedia, freely licensed, credited) may follow the opening
-paragraph; no model is involved in finding it.
+paragraph, across the column, captioned with what it shows; no model is involved in finding
+or captioning it.
 
 **One column** (Will, 2026-10-15: a side column beside the text "creates a visual cluster"): a
 page reads down a single centred column, and its asides, a facts panel and its picture sit in
-it, below the paragraph they belong to. Nothing sits beside the words but white space.
+it, below the paragraph they belong to. Nothing sits beside the words but white space, and a
+link's card while you point at it, in the margin where there's room, so it never covers them.
+Lines run about 70 characters (20 px type on a 680 px column).
+
+**A point on its threads** (Will's pick of PR J, 2026-10-18): a page knows where it sits among
+yours. Its head names the page you came from, and a front-page topic's page opens with its
+card's drawing, carried from the card. Once the title scrolls away it waits in the top bar. The
+end is drawn the way the front page draws its threads and Your world what you've read: this
+page a point (the page you came from behind it), a hairline out to each of its six ways on, each
+on a ring in its kind's colour, filled once read; then its open questions; then, on a page
+written ahead of time, that it was checked fact by fact, with its sources. Kinds, panel names
+and the end's headings are set in the front page's small capitals.
 
 **The page-500 test** (Will, 2026-10-14): a reader scrolls through hundreds of these pages,
 so nothing recurring may charm on page 10 and annoy by page 500. Taste through restraint.
