@@ -176,6 +176,11 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, p.cards[0], { timeout: 20000 }); await waitDone();
     const next = await page.evaluate(() => document.querySelector('.fineprint')?.textContent || '');
     if (!/placeholder/i.test(next) || (await left()) !== String(PAGES)) throw new Error(`the next page: ${next}, ${await left()} free pages`);
+    /* the thread: it says where you came from, and its end is this page as a point with a thread out to each way on
+       (on a phone, hanging from one stem) and one in from the page you came from */
+    if (!mobile) await page.waitForFunction(() => document.querySelectorAll('.fan-svg .fan-t').length >= 7, null, { timeout: 5000 }).catch(() => {});
+    const thread = await page.evaluate(() => ({ from: document.querySelector('.where .from b')?.textContent || '', me: document.querySelector('.fan-me b')?.textContent || '', title: document.querySelector('.a-title')?.textContent || '', fanFrom: document.querySelector('.fan-from b')?.textContent || '', out: document.querySelectorAll('.fan-svg .fan-t:not(.in)').length, in: document.querySelectorAll('.fan-svg .fan-t.in').length, rings: document.querySelectorAll('.a-end .fan-door .fan-dot').length }));
+    if (thread.from !== 'Black holes' || thread.fanFrom !== 'Black holes' || thread.me !== thread.title || thread.rings !== 6 || (!mobile && (thread.out !== 6 || thread.in !== 1))) throw new Error(`the thread: ${JSON.stringify(thread)}`);
     /* once its page is written, the placeholder kept in this browser gives way to it */
     const written = '# Black holes :: phenomenon\n> Written at last.\n---\nThe written page, with a link to [[Supernovas]].\n===\n- [[Supernovas]] :: A star that blew up. :: phenomenon\n???\nWhat is left after a supernova?\n';
     await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.cachedOnly && b.input && b.input.title === 'Black holes') await r.fulfill({ status: 200, headers: { 'content-type': 'text/plain; charset=utf-8', 'x-dh-cache': 'seed' }, body: written }); else await r.continue(); });
@@ -190,7 +195,7 @@ async function run(page, { mobile = false } = {}) {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="surprise"]').click(); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
-    if (shown.includes(p.title) || !/written ahead of time|placeholder/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
+    if (shown.includes(p.title) || !/written ahead of time|placeholder/i.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
     if ((await left()) !== String(PAGES)) throw new Error(`the dice spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });

@@ -195,13 +195,21 @@ function provenanceHTML(p, A) {
   if (!src.length) return `<p class="pv">${line}</p>`;
   return `<details class="pv"><summary>${line}<span class="pv-n">${src.length} source${src.length === 1 ? '' : 's'}</span></summary><ol class="pv-list">${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label || s.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0])}</a></li>`).join('')}</ol></details>`;
 }
+/* the page you came here from, by following one of its links, its cards or its questions; nothing when you started here */
+const FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'sketch', 'connect']);
+function fromOf(p) {
+  const t = curTrail(); if (!t) return null;
+  for (let i = t.steps.length - 1; i >= 0; i--) { const [pid, , from, via] = t.steps[i]; if (pid !== p.id) continue; const f = from && from !== p.id && FROM_VIA.has(via) ? pageOf(from) : null; return f && f.title ? f : null; }
+  return null;
+}
 /* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
    there, from the link you clicked) and the deck. */
 function paintHead(p, sec, A, live) {
   const head = $('.a-head', sec); const title = shownTitle(p, A);
   const kind = A.kind || (ACC && ACC.id === p.id && ACC.kind) || p.kind || '';
   const lens = p.req.lens !== 'encyclopedic' && LENS_PHRASE[p.req.lens] ? LENS_PHRASE[p.req.lens] : '';
-  setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}`);
+  const from = fromOf(p);
+  setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}${from ? `<a class="from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><span>From</span><b>${esc(clip(from.title, 44))}</b></a>` : ''}`);
   const main = []; const head0 = live && !A.blocks.length;
   main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
