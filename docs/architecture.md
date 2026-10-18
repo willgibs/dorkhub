@@ -17,11 +17,17 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   ranges (`lean()` in the build), so nothing inside a string, template or regex is touched and
   licence notices stay. Anything only one view needs, like the front page's cards, is a separate
   file fetched by that view.
-- **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (720 px
-  of content). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
+- **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (680 px
+  of content; body text at 20 px sets about 70 characters a line). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
   what belongs to it (`.mcol`): its asides (`^` notes), a facts panel the writer put after it,
-  and, after the first paragraph, the lead picture. An aside is written straight after its
-  paragraph, so it always arrives at the bottom of what is written. The sidebar is closed by
+  and, after the first paragraph, the lead picture: a plate across the column (a tall or square picture on a mat),
+  captioned with what it shows (`desc` from `api/picture`) and its credit. An aside is written straight after its
+  paragraph, so it always arrives at the bottom of what is written. A front-page topic with a card opens with the card's
+  drawing as its plate, above the title (`plateSlotHTML`/`mountPlate` in `13-landing.js`): the build gives each card
+  topic its size (`c` in `FRONT`), so the slot is kept from the first frame; the drawing and `/front.css` come with
+  `/front.json`, fetched only for those topics; from the front page the view transition carries the card's drawing
+  (`plate`) into it; its effects are the card's own. A link's card sits in the margin beside its line where there is
+  room (`placeCard` in `07-reading.js`), and once the title has scrolled away it waits in the top bar (`#topT`). The sidebar is closed by
   default and then takes no room; its toggle (`#sideBtn`, or M) sits before the wordmark. The top
   bar's actions share one shape: search, Your world with its count, keys with the free pages
   left (both counts set alike, digits popping in as they change), voice.
@@ -33,7 +39,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
   (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
-  their own, `&&&` a hook for every planned link. Kinds come before the body so links appear
+  their own, `&&&` a hook for every planned link, and, only on a page written ahead of time, `@@@` the sources it
+  was checked against (`- Label :: https://…`; a live writer is never asked for them, and the page lists them only
+  for a seeded page). Kinds come before the body so links appear
   in colour; hooks come last because only hover cards need them. The page's own kind counts
   once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
   six cards, de-duplicated and never the page itself.
@@ -251,7 +259,7 @@ which pages were cached.
 | --- | --- |
 | Parser, including every prefix of every recorded page, hand-written v2 edge cases (`tests/fixtures.js`) and mock pages (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
 | Fonts, CSP, cache and crawler headers, topic addresses and their rewrites, the page's size budget | `tests/page.test.js` |
-| Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy | `tests/picture.test.js` |
+| Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy, captions (the article's own, else an English description, never a bare name) | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
 | The front page by hand: topics, threads and cards each with a source, drawings labelled and inert (a canvas hidden from assistive tech), no line of prose on a card, an entrance length for each, ids unique across cards, a phone version of each wide drawing, short readings, drawings true to their subjects, the cards' styles in their own sheet with the computed rules, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |

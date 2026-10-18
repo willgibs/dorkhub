@@ -78,7 +78,11 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   black, no heading over the cards, Continue as the first suggestion with a play mark, and the
   heading's last word stepping once through four topics in their colours to "anything" (Will chose
   this over A, "What are you curious about?"). Details in `docs/decisions.md`.
-- **Next: the article page design**, still in progress with Will. The 12 pages written ahead
+- **PR J, the article page** (up for Will's look: A on `experience/article-a`, B on `experience/article-b`): A rebuilds what was built in a lesser
+  way (the measure, a card's drawing carried into its page, the picture as a captioned plate, the link card in the
+  margin, the title in the top bar, a calmer ending, sources); B adds the thread (where you came from, the end drawn as
+  threads out to the six ways on). Details in `docs/decisions.md`.
+- **Next: the article page design**, settled with Will's pick of PR J. The 12 pages written ahead
   of time and the 32 placeholders serve as demo pages meanwhile, tweaked as needed.
 - **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
   final (Will, 2026-10-15), then written and fact-checked only on his explicit go (about 8 to
