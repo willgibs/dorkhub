@@ -78,17 +78,17 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   black, no heading over the cards, Continue as the first suggestion with a play mark, and the
   heading's last word stepping once through four topics in their colours to "anything" (Will chose
   this over A, "What are you curious about?"). Details in `docs/decisions.md`.
-- **PR J, the article page** (willgibs/dorkhub#23, B, Will's pick; up for his merge word): the measure, a
+- **PR J, the article page** (live since 2026-10-18, willgibs/dorkhub#23, B, Will's pick of two): the measure, a
   card's drawing carried into its page, the picture as a captioned plate, the link card in the margin, the title
   in the top bar, the small capitals, sources, and the thread (where you came from, the end drawn as threads out
   to the six ways on). A stays on `experience/article-a`. Details in `docs/decisions.md`.
-- **The article page design** settles when #23 merges; the 12 pages written ahead of time and the 32
-  placeholders serve as demo pages meanwhile. **(Will)** Not built, each for his call: a short specimen label
+- **The article page design** is settled (#23); the 12 pages written ahead of time and the 32
+  placeholders stand in until the 32 are written. **(Will)** Not built, each for his call: a short specimen label
   under every title (two or three key facts shaped by the kind; it changes what the writer is asked for, so best
   settled before the 32), the 32 keeping their sources from their fact-check, a ruler of time under long
   timelines, the link card as a sheet on phones.
-- **(Will) The 32 new topics** plus Bioluminescence: on hold until the article page design is
-  final (Will, 2026-10-15), then written and fact-checked only on his explicit go (about 8 to
+- **(Will) The 32 new topics** plus Bioluminescence: the article page design is final (#23,
+  2026-10-18); they are written and fact-checked only on his explicit go (about 8 to
   10M tokens). Their placeholders stand in meanwhile. For each page: `node scripts/seeds.mjs
   brief "<title>"`, write, fact-check (the front page's own claims included), save it as
   `lib/seeds/<slug>/index.txt`, `node scripts/seeds.mjs index`, `npm run verify`; the written
