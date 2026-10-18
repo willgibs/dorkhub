@@ -12,6 +12,9 @@ function surprise() {
   openTopic((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t, { via: 'start' });
 }
 const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
+/* the page you were last on leads the suggestions, with a mark of its own: it reopens where you left off, and
+   shuffling leaves it be */
+const contHTML = p => `<a class="door door-cont" href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)} data-tip="Continue where you left off"><span class="dc-mark" aria-hidden="true">${ic('play')}</span><span class="sr">Continue </span><span class="dc-t">${esc(clip(p.title, 34))}</span></a>`;
 /* days turn over at the reader's own midnight */
 const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
 /* the suggestions: four of the planned topics, the same four all day, re-rolled as a set by shuffle */
@@ -20,7 +23,7 @@ function suggestions(n = 4) { const a = FRONT.slice(); let s = dayN(); for (let 
 function shufflePresets() {
   const list = $('#presetList'); if (!list || list.dataset.busy) return;
   const shown = new Set($$('.door', list).map(b => b.dataset.seed));
-  const pool = FRONT.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, 4);
+  const pool = FRONT.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, shown.size || 4);
   const swap = () => { list.innerHTML = pool.map(doorHTML).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
   if (reducedMotion()) { swap(); return; }
   list.dataset.busy = '1'; list.classList.remove('in'); list.classList.add('out');
@@ -54,8 +57,8 @@ function wayHTML(c) {
   ${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${open}
 </article>`;
 }
-const frontShellHTML = () => `<section class="ways" id="ways" aria-labelledby="waysH">
-  <h2 class="ways-h" id="waysH">Ways in</h2>
+/* the cards need no heading: they say what they are (Will, 2026-10-17) */
+const frontShellHTML = () => `<section class="ways" id="ways" aria-label="Ways in">
   <div class="bento" id="bentoA"></div>
   <div class="threads" id="threads"></div>
   <div class="bento" id="bentoB"></div>
@@ -365,16 +368,41 @@ function seedMirror(v) {
   box.appendChild(m); i.style.color = 'transparent'; return m;
 }
 let LANDED = false;
+/* the heading's last word steps once through a few of the front page's topics, each in its kind's colour, and comes
+   to rest on "anything": the first arrival of a visit only, and never without motion. Screen readers hear the
+   heading whole ("Learn about anything") from hidden text */
+const LIVING = [['black holes', 'Black holes'], ['Atlantis', 'Atlantis'], ['origami', 'Origami'], ['Pompeii', 'Pompeii']];
+const livingKind = t => (FRONT.find(f => f.t === t) || {}).k || '';
+const livingHTML = live => (live
+  ? `<span class="lw" data-live aria-hidden="true"><span class="lw-w"${kattr(livingKind(LIVING[0][1]))}>${esc(LIVING[0][0])}</span></span><span class="lw-m" aria-hidden="true"></span>`
+  : '<span class="lw" aria-hidden="true">anything</span>');
+let LW_T = [];
+function livingWord() {
+  const slot = $('.lw[data-live]'), w = slot && $('.lw-w', slot), m = $('.lw-m'); if (!slot || !w || !m) return;
+  const fit = t => { m.textContent = t; return m.getBoundingClientRect().width; };
+  const steps = [...LIVING.slice(1).map(([t, title]) => [t, livingKind(title)]), ['anything', '']];
+  slot.style.width = `${fit(w.textContent)}px`;
+  /* each word holds long enough to read, steps out softly, and the line glides to the next word's width */
+  steps.forEach(([t, k], i) => {
+    const at = 1100 + i * 1300;
+    LW_T.push(setTimeout(() => { w.classList.remove('in'); w.classList.add('out'); }, at));
+    LW_T.push(setTimeout(() => {
+      w.textContent = t; if (k) w.setAttribute('data-kind', kindOf(k) || k); else w.removeAttribute('data-kind');
+      slot.style.width = `${fit(t)}px`; w.classList.remove('out'); void w.offsetWidth; w.classList.add('in');
+      if (i === steps.length - 1) LW_T.push(setTimeout(() => { slot.style.width = ''; slot.removeAttribute('data-live'); }, 600));
+    }, at + 170));
+  });
+}
+function stopLiving() { LW_T.forEach(clearTimeout); LW_T = []; }
 function viewStart() {
   /* Continue reopens the last page you read */
   const last = pageOf(store.current); const cont = last && (last.status === 'done' || last.status === 'partial') ? last : [...worldIndex().read.values()].sort((a, b) => b.last - a.last)[0];
-  const doors = suggestions(4);
+  const doors = suggestions(cont ? 3 : 4);
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
-  ${cont ? `<a class="resume rise" style="--i:0" href="${esc(routeOf(cont.req))}" data-goto="${esc(cont.id)}"${kattr(cont.kind)}>Continue <b>${esc(clip(cont.title, 40))}</b><span class="rs-go">→</span></a>` : ''}
-  <h1 class="s-h rise" style="--i:1" id="startH" tabindex="-1">Learn about anything</h1>
-  <form class="composer rise" style="--i:2" id="seedForm" autocomplete="off">
+  <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">Learn about <span class="sr">anything</span>${livingHTML(intro)}</h1>
+  <form class="composer rise" style="--i:1" id="seedForm" autocomplete="off">
     <div class="cbox beam" id="seedBox">
       <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, question, or idea…" enterkeyhint="go"></textarea>
       <div class="ctools">
@@ -387,11 +415,11 @@ function viewStart() {
     </div>
     <p class="seed-err" id="seedErr" aria-live="polite"></p>
   </form>
-  <div class="presets rise" style="--i:3" role="group" aria-label="Or start with one of these">
-    <div class="pr-list" id="presetList">${doors.map(doorHTML).join('')}</div>
+  <div class="presets rise" style="--i:2" role="group" aria-label="Or start with one of these">
+    ${cont ? contHTML(cont) : ''}<div class="pr-list" id="presetList">${doors.map(doorHTML).join('')}</div>
     <button class="pr-shuf" type="button" data-act="shuffle"${tipAttrs('Show other topics')}>${ic('shuffle')}</button>
   </div>
-  <div id="statusSlot" class="rise" style="--i:4">${trialLine()}</div>
+  <div id="statusSlot" class="rise" style="--i:3">${trialLine()}</div>
 </section>
 ${frontShellHTML()}
 <footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p></footer>`;
@@ -403,8 +431,8 @@ function watchBeam() {
   BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-function startLanding() { watchBeam(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
