@@ -51,9 +51,11 @@ function watchFan(el, p) {
   }, { threshold: .35 });
   io.observe(el);
 }
-/* which of your other pages lead to a topic too: the latest of them, and how many more */
+/* which of your other pages lead to a topic too (not this one, nor the one you came from, which says nothing new):
+   the latest of them, and how many more */
 function alsoOn(target, p) {
-  const ids = (worldIndex().back.get(topicKey(target)) || []).filter(id => id !== p.id); if (!ids.length) return '';
+  const came = (fromOf(p) || {}).id;
+  const ids = (worldIndex().back.get(topicKey(target)) || []).filter(id => id !== p.id && id !== came); if (!ids.length) return '';
   const pages = ids.map(pageOf).filter(Boolean).sort((a, b) => (b.last || 0) - (a.last || 0)); if (!pages.length) return '';
   return `Also on ${esc(clip(pages[0].title, 32))}${pages.length > 1 ? ` and ${pages.length - 1} more of your pages` : ''}`;
 }
