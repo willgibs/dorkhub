@@ -148,11 +148,11 @@ const UF_LABEL = { simpler: 'In plainer words', deeper: 'One level deeper', exam
 function chamberHTML(p) {
   return `<section class="chamber" data-pid="${esc(p.id)}" aria-label="${esc(p.title)}">
   <article class="article">
-    <header class="a-head"><div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-main"></div></header>
+    <header class="a-head">${plateSlotHTML(p)}<div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-main"></div></header>
     <div class="a-body body"></div>
     <section class="a-doubt"></section>
     <div class="a-end"></div>
-    <p class="fineprint"></p>
+    <div class="fineprint"></div>
   </article>
 </section>`;
 }
@@ -179,12 +179,21 @@ function paint(p, streamOnly) {
   const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && p.status === 'done' && p.id === CUR) announce(`${shownTitle(p, A)}: page ready.`); }
   const acc = accentFor(p, A); if (document.documentElement.dataset.accent !== acc) document.documentElement.dataset.accent = acc;
   paintHead(p, sec, A, live); paintBody(p, sec, A, live); paintEnd(p, sec, A, live);
-  /* the note that pages can be wrong sits once at the bottom (.colfoot); a page written ahead of time says so here */
-  setHTML($('.fineprint', sec), live || !p.seeded ? '' : p.seeded === 'placeholder' ? 'A placeholder until this page is written.' : 'This page was written ahead of time.');
+  /* the note that pages can be wrong sits once at the bottom (.colfoot); a page written ahead of time says how it was
+     made, and what it was checked against */
+  setHTML($('.fineprint', sec), live || !p.seeded ? '' : provenanceHTML(p, A));
   if (!streamOnly) {
     paintTools(p, sec); paintDoubt(p, sec);
     if (p.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !CUR) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
+}
+/* A page written ahead of time was checked fact by fact; one that keeps its sources lists them, under one quiet line.
+   Only a page written ahead of time can carry sources: a live writer is never asked for any, so none can be made up. */
+function provenanceHTML(p, A) {
+  const said = p.seeded === 'placeholder' ? 'A placeholder until this page is written. Its few claims were checked against sources.' : 'Written ahead of time and checked fact by fact.';
+  const line = `<span class="pv-l">${ic('check')}<span>${said}</span></span>`; const src = A.sources || [];
+  if (!src.length) return `<p class="pv">${line}</p>`;
+  return `<details class="pv"><summary>${line}<span class="pv-n">${src.length} source${src.length === 1 ? '' : 's'}</span></summary><ol class="pv-list">${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label || s.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0])}</a></li>`).join('')}</ol></details>`;
 }
 /* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
    there, from the link you clicked) and the deck. */
@@ -330,16 +339,23 @@ function picFor(node, A) {
     .then(p => {
       PICLOAD.delete(node.id);
       if (!p || typeof p.src !== 'string' || !p.src.startsWith('/api/picture?')) { node.pic = null; save(); return; }
-      node.pic = { src: p.src, w: +p.w || 0, h: +p.h || 0, alt: String(p.alt || ''), credit: String(p.credit || ''), license: String(p.license || ''), file: String(p.file || '') };
+      node.pic = { src: p.src, w: +p.w || 0, h: +p.h || 0, alt: String(p.alt || ''), desc: clip(String(p.desc || ''), 200), credit: String(p.credit || ''), license: String(p.license || ''), file: String(p.file || '') };
       PICFRESH.add(node.id); save(); if (secFor(node.id)) paint(node, true);
       const img = new Image(); img.src = p.src;
       img.decode().then(() => revealPic(node, img), () => dropPic(node));
     });
 }
+/* The plate's shape. A landscape picture fills the column at its own shape (a 4:3 gives up a sliver top and bottom
+   so the plate stays under half a screen); a tall or square one stands whole on a mat instead of being cropped. */
+const PIC_WIDE = 1.42;
+function picShape(p) {
+  const r = p.w && p.h ? p.w / p.h : 1.5;
+  return r >= 1.2 ? { mat: false, style: `--par:${Math.max(r, PIC_WIDE).toFixed(4)}` } : { mat: true, style: `--par:${PIC_WIDE};--parn:${Math.max(r, .8).toFixed(4)}` };
+}
 function picItem(p, fresh) {
   const by = [p.credit ? esc(p.credit) : 'Wikimedia Commons', esc(p.license)].filter(Boolean).join(' · ');
-  const ar = p.w && p.h ? ` style="--ar:${p.w}/${p.h};--arn:${(p.w / p.h).toFixed(4)}"` : '';
-  return { k: 'pic', tag: 'figure', cls: 'pic', html: `<div class="pic-box${fresh ? ' loading' : ''}"${ar}>${fresh ? '<canvas class="pic-field" aria-hidden="true"></canvas>' : ''}<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.w}" height="${p.h}" decoding="async"></div><figcaption><a href="${esc(p.file)}" target="_blank" rel="noopener noreferrer">${by}</a></figcaption>` };
+  const pl = picShape(p);
+  return { k: 'pic', tag: 'figure', cls: 'pic', html: `<div class="pic-box${pl.mat ? ' mat' : ''}${fresh ? ' loading' : ''}" style="${pl.style}">${fresh ? '<canvas class="pic-field" aria-hidden="true"></canvas>' : ''}<img src="${esc(p.src)}" alt="${esc(p.alt)}" width="${p.w}" height="${p.h}" decoding="async"></div><figcaption>${p.desc ? `<span>${esc(p.desc)}</span>` : ''}<a href="${esc(p.file)}" target="_blank" rel="noopener noreferrer">${by}</a></figcaption>` };
 }
 /* the dot field: a lattice of dots, each breathing on its own tempo and phase, drawn on one canvas */
 const PIC_PITCH = 5, PIC_CYCLE = 1400, PIC_SWEEP = 700;
@@ -380,8 +396,13 @@ function revealPic(node, img, box0) {
   const F = box && box._f; if (!F || F.t0 != null) return;
   if (reducedMotion()) { finishPic(F); return; }
   try {
-    const oc = document.createElement('canvas'); oc.width = F.cols; oc.height = F.rows; const octx = oc.getContext('2d'); octx.drawImage(img, 0, 0, F.cols, F.rows);
-    const px = octx.getImageData(0, 0, F.cols, F.rows).data; for (const d of F.dots) { const i = (d.r * F.cols + d.c) * 4; d.col = `rgb(${px[i]},${px[i + 1]},${px[i + 2]})`; }
+    /* each dot takes the colour of the picture where it lies: the picture covers the plate, or stands on its mat,
+       where the dots have nothing to take and simply fade */
+    const oc = document.createElement('canvas'); oc.width = F.cols; oc.height = F.rows; const octx = oc.getContext('2d');
+    const ir = (img.naturalWidth || 1) / (img.naturalHeight || 1), br = F.w / F.h, whole = F.box.classList.contains('mat');
+    const [dw, dh] = (whole ? ir > br : ir < br) ? [F.w, F.w / ir] : [F.h * ir, F.h]; const sx = F.cols / F.w, sy = F.rows / F.h;
+    octx.drawImage(img, (F.w - dw) / 2 * sx, (F.h - dh) / 2 * sy, dw * sx, dh * sy);
+    const px = octx.getImageData(0, 0, F.cols, F.rows).data; for (const d of F.dots) { const i = (d.r * F.cols + d.c) * 4; if (px[i + 3] > 127) d.col = `rgb(${px[i]},${px[i + 1]},${px[i + 2]})`; }
   } catch (e) { /* no colours to borrow: the dots simply give way to the picture */ }
   F.t0 = performance.now(); wakePics();
 }

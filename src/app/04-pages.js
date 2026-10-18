@@ -48,13 +48,14 @@ function linksFrom(A, p) {
 /* ================= moving: one topic per screen, at a clean address ================= */
 /* a page transition needs frames to run in; a page in a hidden tab just changes */
 const canVT = () => typeof document.startViewTransition === 'function' && !reducedMotion() && document.visibilityState === 'visible';
-let HERO = false;
-function clearHero() { HERO = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); }
-/* the thing you clicked becomes the next title */
-function go(url, { src = null, replace = false } = {}) {
+let HERO = false, PLATE = false;
+function clearHero() { HERO = PLATE = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); }
+/* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate */
+function go(url, { src = null, plate = null, replace = false } = {}) {
   const run = () => { if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0 }, '', url); } route(); };
   if (!canVT()) { run(); return; }
   if (src && src.isConnected) { src.style.viewTransitionName = 'hero'; HERO = true; }
+  if (plate && plate.isConnected) { plate.style.viewTransitionName = 'plate'; PLATE = true; }
   try { const t = document.startViewTransition(run); quiet(t); t.finished.finally(clearHero).catch(() => {}); } catch (e) { clearHero(); run(); }
 }
 /* a transition that is skipped (a hidden tab, a second click mid-flight) is fine: the page still changes */
@@ -65,7 +66,7 @@ function rememberScroll() { try { history.replaceState({ ...(history.state || {}
  * the page you are on. It joins your trail; whatever you read becomes part of your world.
  * via: start | link | card | question | ask | select | search | world | connect | around | sketch | peek | index | trail
  */
-function openTopic(target, { via = 'link', src = null, hint = null, lens = null, ctx = '', q = null, bridge = null } = {}) {
+function openTopic(target, { via = 'link', src = null, plate = null, hint = null, lens = null, ctx = '', q = null, bridge = null } = {}) {
   const title = cleanTitle(target); if (!title && !bridge) return;
   const from = via === 'start' ? null : CUR || null;
   const req = { title: bridge ? cleanTitle(target || `${bridge[0]} and ${bridge[1]}`) : title, lens: LENSES[lens] ? lens : store.settings.lens, q: !bridge && (q == null ? asksQuestion(title) : !!q), ctx: bridge ? '' : cleanTitle(ctx), bridge: bridge ? bridge.map(cleanTitle) : null };
@@ -73,7 +74,7 @@ function openTopic(target, { via = 'link', src = null, hint = null, lens = null,
   if (p.id === CUR) return;
   addStep(store.trails, p.id, { from, via });
   p.last = Date.now(); OPENED.add(p.id); save();
-  go(routeOf(req), { src });
+  go(routeOf(req), { src, plate });
 }
 /* pages opened in this visit by the reader's own hand: those are written without asking */
 const OPENED = new Set();

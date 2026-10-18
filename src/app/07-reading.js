@@ -4,10 +4,17 @@ function updateProg() {
   const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
   pr.style.width = `${(v * 100).toFixed(1)}%`;
 }
+/* the page's title in the top bar, once the title itself has gone under it */
+function syncTopTitle() {
+  const h1 = VIEW === 'page' && $('.a-title'); const on = !!h1 && h1.getBoundingClientRect().bottom < TOP_H() + 4;
+  if (on) { const p = curPage(); const t = $('#topT'); const want = h1.textContent; if (t.dataset.t !== want) { t.dataset.t = want; $('.top-tt', t).textContent = want; } const k = kindOf((p && p.kind) || (ACC && ACC.kind) || ''); const kd = $('.kind', t); if (kd.dataset.kind !== k) { if (k) kd.dataset.kind = k; else delete kd.dataset.kind; } }
+  document.body.classList.toggle('titled', on);
+}
+$('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
 /* back and forward return you to where you were on a page */
 let scrollQ = false, scrollT = 0;
 addEventListener('scroll', () => {
-  if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); if (!hcard.hidden && Math.abs(scrollY - hcY) > 90) hideCard(); }); }
+  if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Math.abs(scrollY - hcY) > 90) hideCard(); }); }
   clearTimeout(scrollT); scrollT = setTimeout(rememberScroll, 160);
 }, { passive: true });
 
@@ -69,10 +76,27 @@ ${wn.line ? `<p class="hc-else">${wn.line}</p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'} ↵</button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!wn.read ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;
   hcard.hidden = false; hcY = scrollY;
-  const r = a.getBoundingClientRect(); const w = 320; let x = r.left + scrollX; x = Math.max(12 + scrollX, Math.min(x, scrollX + innerWidth - w - 12));
-  const below = r.bottom + 10 + hcard.offsetHeight < innerHeight;
-  hcard.style.left = `${x}px`; hcard.style.top = `${(below ? r.bottom + 8 : r.top - hcard.offsetHeight - 8) + scrollY}px`;
+  placeCard(a);
 }
+/* Where there is room, the card sits in the margin beside the line it belongs to, a hairline leading to it, so it
+   never covers what you are reading; otherwise just below the link (or above it, near the bottom of the screen). */
+const HC_GAP = 32;
+function placeCard(a) {
+  const r = a.getBoundingClientRect(); const body = a.closest('.article')?.querySelector('.a-body'); const cr = body && body.getBoundingClientRect();
+  const free = cr && !a.closest('.a-end') ? innerWidth - cr.right - HC_GAP - 16 : 0; const room = free >= 240;
+  hcard.classList.toggle('in-margin', room); hcard.style.width = room ? `${Math.min(310, Math.floor(free))}px` : '';
+  const ch = hcard.offsetHeight;
+  if (room) {
+    const mid = (r.top + r.bottom) / 2; const top = Math.max(TOP_H() + 12, Math.min(mid - 24, innerHeight - ch - 12));
+    hcard.style.left = `${cr.right + HC_GAP + scrollX}px`; hcard.style.top = `${top + scrollY}px`;
+    hcard.style.setProperty('--ly', `${Math.round(Math.max(14, Math.min(ch - 14, mid - top)))}px`);
+    return;
+  }
+  const w = 320; let x = r.left + scrollX; x = Math.max(12 + scrollX, Math.min(x, scrollX + innerWidth - w - 12));
+  const below = r.bottom + 10 + ch < innerHeight;
+  hcard.style.left = `${x}px`; hcard.style.top = `${(below ? r.bottom + 8 : r.top - ch - 8) + scrollY}px`;
+}
+const TOP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--top-h')) || 56;
 function hideCard() { clearTimeout(hcTimer); if (!hcard.hidden) { hcard.hidden = true; hc = null; } }
 document.addEventListener('mouseover', e => {
   const a = e.target.closest && e.target.closest('a.hole,a.card');
@@ -83,7 +107,8 @@ document.addEventListener('mouseover', e => {
 document.addEventListener('mouseout', e => {
   if (!matchMedia('(hover: hover)').matches || Date.now() - lastTouch < 900) return;
   const a = e.target.closest && e.target.closest('a.hole,#hcard'); if (!a) return;
-  clearTimeout(hcTimer); hideTimer = setTimeout(hideCard, 240);
+  /* a card in the margin is further from its link, so it waits a little longer for the pointer to reach it */
+  clearTimeout(hcTimer); hideTimer = setTimeout(hideCard, hcard.classList.contains('in-margin') ? 520 : 240);
 });
 document.addEventListener('focusin', e => { const a = e.target.closest && e.target.closest('a.hole,a.card'); if (a) pfIntent(a); if (a && a.matches('a.hole') && e.target.matches(':focus-visible')) showCard(a); });
 hcard.addEventListener('click', e => {

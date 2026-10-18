@@ -8,7 +8,8 @@ function rowsBlock(el, heading, rows) {
   setHTML($('.eh', el), heading);
   patch($('.rows', el), rows);
 }
-/* Keep exploring: six equal cards, each edged in the colour of what it is. A topic you've read says so. */
+/* Keep exploring: six ways on, each named the way the front page names its cards (its kind in small capitals, then its
+   title), with its hook. A topic you've read says so. */
 function cardsBlock(el, items) {
   if (!el._built) { el.innerHTML = `<h2 class="eh">Keep exploring</h2><div class="cards6"></div>`; el._built = true; }
   patch($('.cards6', el), items);
@@ -36,7 +37,7 @@ function paintEnd(p, sec, A, live) {
   const cards = cardsOf(A).map((c, i) => {
     const read = worldIndex().read.get(topicKey(c.target)); const kind = c.kind || (A.gloss[keyOf(c.target)] || {}).kind || '';
     return { k: 'c' + keyOf(c.target), tag: 'a', cls: `card${read ? ' is-read' : ''}`, attrs: { href: routeOf({ title: c.target, lens: store.settings.lens }), 'data-t': c.target, 'data-n': String(i + 1), ...(kindOf(kind) ? { 'data-kind': kindOf(kind) } : {}) },
-      html: `<span class="cd-top"><span class="cd-n"${matchMedia('(hover: hover)').matches ? ` data-tip="Press ${i + 1}"` : ''}>${i + 1}</span>${read ? `<span class="cd-read" data-tip="You read this ${esc(relTime(read.last))}">Read</span>` : ''}</span><span class="cd-t">${esc(c.label)}</span>${c.teaser ? `<span class="cd-h">${inline(capFirst(plain(c.teaser)), p)}</span>` : ''}` };
+      html: `<span class="cd-top">${kindOf(kind) ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : '<span></span>'}${read ? `<span class="cd-read" data-tip="You read this ${esc(relTime(read.last))}">Read</span>` : matchMedia('(hover: hover)').matches ? `<kbd class="cd-n" data-tip="Press ${i + 1}">${i + 1}</kbd>` : ''}</span><span class="cd-t">${esc(c.label)}</span>${c.teaser ? `<span class="cd-h">${inline(capFirst(plain(c.teaser)), p)}</span>` : ''}` };
   });
   if (cards.length) blocks.push({ k: 'cards', cards });
   if (A.questions.length) blocks.push({ k: 'qs', rows: A.questions.map((q, i) => ({ k: 'q' + i, html: rowHTML({ mark: '?', markTip: 'Opens a page that answers it', title: esc(q), href: routeOf({ title: q, q: true, lens: store.settings.lens }), attrs: `data-q="${esc(q)}" data-kind="mystery"` }) })), heading: 'Open questions' });

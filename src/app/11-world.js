@@ -38,7 +38,7 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
   const setPos = (k, v) => { if (pos instanceof Map) pos.set(k, v); else pos[k] = v; };
   function themeColors() {
     const cs = getComputedStyle(document.documentElement); const dark = isDark();
-    const ink = cs.getPropertyValue('--ink').trim() || (dark ? '#ECECEE' : '#18181B'), base = cs.getPropertyValue('--base').trim() || (dark ? '#0B0C0E' : '#FCFCFB');
+    const ink = cs.getPropertyValue('--ink').trim() || (dark ? '#ECECEE' : '#18181B'), base = cs.getPropertyValue('--base').trim() || (dark ? '#050506' : '#FCFCFB');
     /* what the canvas sits on, so a hollow circle can hide the hairline behind it */
     let stage = getComputedStyle(host).backgroundColor; if (!stage || /^(transparent|rgba\(0, 0, 0, 0\))$/.test(stage)) stage = base;
     colors = { dark, ink, base, stage, kinds: dark ? KIND_HEX.dark : KIND_HEX.light };

@@ -9,7 +9,8 @@ const BOOT = Date.now();
 function setView(v) {
   if (VIEW === 'world' && v !== 'world') leaveWorld();
   if (VIEW === 'home' && v !== 'home') stopLanding();
-  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world');
+  if (VIEW === 'page' && v !== 'page') stopPlate();
+  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.remove('titled');
 }
 function closeFloating() { hideSel(); hideCard(); closePMenu(); closeMenu(); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
 function route() {
@@ -33,12 +34,14 @@ function showPage(input) {
   const req = { ...input, lens: LENSES[input.lens] ? input.lens : 'encyclopedic' };
   const id = pageId(req); const known = !!store.pages[id] && !store.pages[id].guarded;
   const p = ensurePage(req);
-  setView('page'); const arrived = CUR !== id; CUR = id; store.current = id; ACC = null; PF.view = 0;
+  const arrived = CUR !== id; if (arrived && VIEW === 'page') stopPlate();
+  setView('page'); CUR = id; store.current = id; ACC = null; PF.view = 0;
   $('#view').innerHTML = `<div class="column" id="column">${chamberHTML(p)}</div><p class="colfoot">Written by AI for this topic. It can make mistakes, so check anything you plan to repeat.</p>`;
   document.title = `${p.title}: dorkhub`;
   if (HERO) { const t = $('.a-title'); if (t) t.style.viewTransitionName = 'hero'; }
-  paint(p); renderSide(); syncFab(); renderWorldBtn();
-  window.scrollTo(0, (history.state && history.state.y) || 0); updateProg();
+  if (PLATE) { const w = $('.a-plate .wc'); if (w) w.style.viewTransitionName = 'plate'; }
+  paint(p); mountPlate(p); renderSide(); syncFab(); renderWorldBtn();
+  window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); syncTopTitle();
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */
   if (ACTIVE.has(p.id)) return;
@@ -109,7 +112,7 @@ document.addEventListener('click', e => {
   const fold = e.target.closest('[data-fold]'); if (fold) { const p = curPage(); if (p && p.unfolds) { delete p.unfolds[fold.dataset.fold]; save(); paint(p); } return; }
   const pc = e.target.closest('[data-peek-close]'); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) { x.open = false; save(); paint(p); } return; }
   const pd = e.target.closest('[data-peek-dig]'); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
-  const wy = e.target.closest('a[data-way]'); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
+  const wy = e.target.closest('a[data-way]'); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
   const seed = e.target.closest('[data-seed]'); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
   /* any other address of ours opens here, without a reload */
   const a = e.target.closest('a[href^="/"]');

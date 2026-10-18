@@ -36,6 +36,8 @@ const ICON_PATHS = {
   trail: '<circle cx="5.5" cy="18" r="2"/><circle cx="18.5" cy="6" r="2"/><path d="M7.5 18h6.5a3.5 3.5 0 0 0 0-7H10a3.5 3.5 0 0 1 0-7h6.5" stroke-dasharray="2.2 2.6"/>',
   image: '<rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.7"/><path d="m4.5 17.5 5-4.5 3.5 3 2.5-2 4 3.5"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  /* checked: a page written ahead of time, its facts checked against sources */
+  check: '<path d="m5.5 12.5 4 4 9-9"/>',
   theme: '<circle cx="12" cy="12" r="8"/><path class="f" d="M12 4a8 8 0 0 1 0 16z"/>',
 };
 const ic = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
