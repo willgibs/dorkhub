@@ -190,7 +190,7 @@ async function run(page, { mobile = false } = {}) {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="surprise"]').click(); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
-    if (shown.includes(p.title) || !/written ahead of time|placeholder/.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
+    if (shown.includes(p.title) || !/written ahead of time|placeholder/i.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
     if ((await left()) !== String(PAGES)) throw new Error(`the dice spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
