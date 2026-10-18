@@ -2,7 +2,7 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-10-16)
+## Now (2026-10-18)
 - **Live on dorkhub.com**, each merged after Will's look at its preview and checked on production:
   - willgibs/dorkhub#13 pages written for their topic; #14 the world reader; #16 maps drawn like
     instruments; #18 the reading page calmer (one column, one rhythm in the top bar);
@@ -12,9 +12,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     and title, and one plays at a time as you scroll (`stage` in `13-landing.js`). Black holes is
     the hero; Origami, Atlantis, Magnets and Lightning took the cards of Volcanoes, Time travel,
     Quicksand and Dreams (all still among the 33); #21 (8fdd424) numbers read whole to screen readers.
-- **Up for Will's look: PR I, the hero** (willgibs/dorkhub#22, Will's pick of two; review
-  claude.ai/artifact/LXoc6k1PZTw7BtirrhYBxx): near-black dark mode, no "Ways in", Continue as the first
-  suggestion, and "Learn about …" stepping once through four topics to "anything".
+  - willgibs/dorkhub#22 (94798de) the hero: near-black dark mode, no "Ways in", Continue as the first
+    suggestion, and "Learn about …" stepping once through four topics to "anything" (Will's pick of two).
 - **The 32 as placeholders** (Will, 2026-10-15): each front-page topic not written yet opens a
   placeholder (`lib/placeholder.js`) at its own address, free and instant, claiming only what
   `lib/front.js` has checked. The writer's brief: `node scripts/seeds.mjs brief "<title>"`.
@@ -32,9 +31,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
 
 ## Next
-1. PR I: Will's look, then the merge and the production check.
-2. The article page design continues from PR F, on Will's direction.
-3. Runtime Cache across production deploys: confirm once credits land.
-4. Later, each on Will's go: a card swap from the runners-up (Diamonds, Supernovas, Apollo 11,
+1. The article page design continues from PR F, on Will's direction.
+2. Runtime Cache across production deploys: confirm once credits land.
+3. Later, each on Will's go: a card swap from the runners-up (Diamonds, Supernovas, Apollo 11,
    Stonehenge), writing the 32, a durable store, one write per page in flight, graph keyboard
    navigation, re-recording the three mock pages that say "your path".

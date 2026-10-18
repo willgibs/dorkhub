@@ -74,7 +74,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   the hero (a ray-traced disk, as Luminet drew one in 1979), Northern lights tall; Origami,
   Atlantis, Magnets and Lightning replace Volcanoes, Time travel, Quicksand and Dreams on the cards
   (all eight stay among the 33). Details in `docs/decisions.md`.
-- **PR I, the hero** (up for Will's look, 2026-10-17, willgibs/dorkhub#22): dark mode near
+- **PR I, the hero** (live since 2026-10-18, willgibs/dorkhub#22): dark mode near
   black, no heading over the cards, Continue as the first suggestion with a play mark, and the
   heading's last word stepping once through four topics in their colours to "anything" (Will chose
   this over A, "What are you curious about?"). Details in `docs/decisions.md`.
