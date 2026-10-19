@@ -97,6 +97,15 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
 - Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
   write per page in flight, graph keyboard navigation, re-recording the three mock pages that
   still say "your path".
+- **PR K, pages people can share** (up for Will's look, willgibs/dorkhub#24): a link to a page unfurls as that
+  page (its title, its deck, and a picture in the house style: its card's drawing, else its Wikipedia lead picture,
+  else its words), an icon to share among a page's tools (the share sheet on a phone, else copied), a trail as a
+  link (`/trail/a/b/c`, drawn as threads, walked page by page), and link previews let in by robots.txt while every
+  topic address stays noindex. **(Will)** His calls: the robots exception for link previews; the topic's line on
+  the pictures (iMessage and X show no description). Details in `docs/decisions.md`. Once a page is written,
+  `node scripts/share.mjs` makes its picture (a test names the pages whose picture is missing or out of date).
+  Later, if wanted: a picture for a typed topic once its page is cached (the function may read a cached page),
+  and a direction mark on a trail's threads.
 
 Will wants the generative UI and the whole experience solid first. Judge everything
 against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
@@ -182,9 +191,9 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
   exist, and re-measure page weight after v2.
 
 **Ideas to bring to Will** (don't build without his go):
-- Shareable pages or the Hub (`docs/prototype/`).
+- Shareable pages or the Hub (`docs/prototype/`). Shareable pages and trails: PR K (above); the Hub is still out.
 - A Pro waitlist.
-- An Open Graph image.
+- An Open Graph image. Built in PR K: a picture for every page known ahead of time, and the front page's.
 - Privacy-preserving page-view analytics. This would need a change to the footer's "nothing
   you read is tracked."
 

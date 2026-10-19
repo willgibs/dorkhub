@@ -19,7 +19,7 @@ function trailHTML(t) {
 }
 function trailSheet(t = curTrail()) {
   if (!t || !t.steps.length) { toast('Your trail starts with your first page.'); return; }
-  openSheet('How you got here', trailHTML(t), `<a class="btn glow" href="/world?trail=${esc(t.id)}" data-world-replay="${esc(t.id)}">See it in Your world</a><button class="btn ghost" type="button" data-act="recap">Recap this trail</button>`);
+  openSheet('How you got here', trailHTML(t), `<a class="btn glow" href="/world?trail=${esc(t.id)}" data-world-replay="${esc(t.id)}">See it in Your world</a><button class="btn ghost" type="button" data-act="recap">Recap this trail</button><button class="btn ghost" type="button" data-act="share-trail">Share this trail</button>`);
 }
 
 /* ================= recap: what you found on this trail ================= */

@@ -16,11 +16,58 @@
     },
     "api/picture.js": {
       "maxDuration": 10
+    },
+    "api/share.js": {
+      "maxDuration": 5,
+      "includeFiles": "{lib/seeds/index.json,src/static/share/index.json}"
     }
   },
   "rewrites": [
     {
+      "source": "/:topic((?!api$|fonts$)[^/.]+)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": {
+            "re": "Slackbot|Twitterbot|facebookexternalhit|Facebot|Discordbot|LinkedInBot|TelegramBot|^WhatsApp/"
+          }
+        }
+      ],
+      "destination": "/api/share?topic=:topic"
+    },
+    {
       "source": "/connect/:a/:b",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": {
+            "re": "Slackbot|Twitterbot|facebookexternalhit|Facebot|Discordbot|LinkedInBot|TelegramBot|^WhatsApp/"
+          }
+        }
+      ],
+      "destination": "/api/share?a=:a&b=:b"
+    },
+    {
+      "source": "/trail/:steps*",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": {
+            "re": "Slackbot|Twitterbot|facebookexternalhit|Facebot|Discordbot|LinkedInBot|TelegramBot|^WhatsApp/"
+          }
+        }
+      ],
+      "destination": "/api/share?trail=:steps*"
+    },
+    {
+      "source": "/connect/:a/:b",
+      "destination": "/"
+    },
+    {
+      "source": "/trail/:steps*",
       "destination": "/"
     },
     {
@@ -64,6 +111,15 @@
       ]
     },
     {
+      "source": "/share/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
       "source": "/api/(.*)",
       "headers": [
         {
@@ -83,6 +139,15 @@
     },
     {
       "source": "/connect/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/trail/(.*)",
       "headers": [
         {
           "key": "X-Robots-Tag",

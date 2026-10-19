@@ -487,6 +487,94 @@ async function movingIn() {
   await ctx.close();
 }
 
+/* Pages people can share: a link unfurls as its page (a page written ahead of time, a placeholder, and by its address a
+   topic typed by a reader, which only a link preview is told); the share action hands on the clean address and reports
+   nothing; and a trail travels as a link, drawn as threads, each of its pages free if written and otherwise asked for. */
+async function sharing() {
+  const UA = { bot: 'Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)', reader: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15' };
+  const head = async (/** @type {string} */ path, /** @type {string} */ ua) => { const html = await (await fetch(base + path, { headers: { 'user-agent': ua } })).text(); return Object.fromEntries([...html.matchAll(/<meta (?:property|name)="([^"]+)" content="([^"]*)">/g)].map(m => [m[1], m[2]])); };
+  const size = (/** @type {Buffer} */ b) => { if (b.readUInt32BE(0) === 0x89504e47) return [b.readUInt32BE(16), b.readUInt32BE(20)]; for (let i = 2; i < b.length;) { const m = b[i + 1]; if (m >= 0xc0 && m <= 0xc3) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; i += 2 + b.readUInt16BE(i + 2); } return [0, 0]; };
+  await step('sharing: a link to a page written ahead of time, a placeholder or a typed topic previews as itself', async () => {
+    for (const [path, title, line] of [['/whale-falls', 'Whale falls', /^A whale that sinks after death/], ['/black-holes', 'Black holes', /^Squeeze Earth into an 18 mm marble/]]) {
+      for (const ua of [UA.bot, UA.reader]) {
+        const t = await head(path, ua);
+        if (t['og:title'] !== title || !line.test(t['og:description'] || '') || t['og:url'] !== base + path || t['twitter:card'] !== 'summary_large_image' || t.robots !== 'noindex') throw new Error(`${path}: ${JSON.stringify(t)}`);
+        const img = await fetch(t['og:image']); const buf = Buffer.from(await img.arrayBuffer());
+        if (!img.ok || !/^image\/(jpeg|png)$/.test(img.headers.get('content-type') || '') || size(buf).join() !== '1200,630' || t['og:image'] === `${base}/share/dorkhub.jpg`) throw new Error(`${path}'s picture: ${t['og:image']} ${img.status} ${size(buf)}`);
+      }
+    }
+    /* a topic nobody wrote ahead of time: a link preview reads its title from the address; a reader gets the page */
+    const bot = await head('/octopus-camouflage', UA.bot), reader = await head('/octopus-camouflage', UA.reader);
+    if (bot['og:title'] !== 'Octopus camouflage' || bot['og:url'] !== `${base}/octopus-camouflage` || bot['og:image'] !== `${base}/share/dorkhub.jpg` || bot.robots !== 'noindex') throw new Error(`a typed topic, to a preview: ${JSON.stringify(bot)}`);
+    if (reader['og:title'] !== 'dorkhub: learn about anything') throw new Error(`a typed topic, to a reader: ${JSON.stringify(reader)}`);
+    const trail = await head('/trail/black-holes/supernovas', UA.bot);
+    if (trail['og:title'] !== 'A trail from Black holes to Supernovas' || !trail['og:image'].endsWith('/share/black-holes.jpg')) throw new Error(`a trail, to a preview: ${JSON.stringify(trail)}`);
+  });
+  const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 } });
+  await ctx.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+  const page = await ctx.newPage(); page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  /** @type {string[]} */ const sent = []; let writes = 0;
+  page.on('request', r => { sent.push(r.url()); if (r.url().endsWith('/api/write') && !r.postDataJSON()?.cachedOnly) writes++; });
+  await step('sharing: the share action copies the page’s clean address, and reports nothing', async () => {
+    await page.goto(`${base}/whale-falls`); await page.waitForFunction(() => document.querySelector('.article')?.getAttribute('aria-busy') === 'false' && document.querySelector('.a-end .card'), null, { timeout: 20000 });
+    const btn = page.locator('.tools [data-act="share"]');
+    if ((await btn.getAttribute('data-tip')) !== 'Share this page' || (await btn.textContent())?.trim()) throw new Error('the share action is an icon with its label in a tooltip');
+    const before = sent.length; await btn.click(); await page.waitForSelector('.toast');
+    const copied = await page.evaluate(() => navigator.clipboard.readText()); const toast = await page.locator('.toast').last().textContent();
+    if (copied !== `${base}/whale-falls` || toast !== 'Link copied.') throw new Error(`share: ${copied} / ${toast}`);
+    if (sent.length !== before) throw new Error(`sharing sent ${sent.slice(before).join(', ')}`);
+    await page.locator('.a-head').screenshot({ path: `${shots}/share-tools.png` });
+  });
+  await step('sharing: a trail link opens its trail, drawn as threads, and lets you walk it', async () => {
+    const w0 = writes;
+    await page.goto(`${base}/trail/black-holes/supernovas/whale-falls/octopus-camouflage`); await page.waitForSelector('.fan.tr .fan-door'); await page.waitForTimeout(400);
+    const v = await page.evaluate(() => ({ h1: document.querySelector('h1')?.textContent, doors: [...document.querySelectorAll('.fan.tr .fan-door .cd-t')].map(d => d.textContent), threads: document.querySelectorAll('.fan.tr .fan-svg path').length, read: [...document.querySelectorAll('.fan.tr .fan-door')].map(d => d.classList.contains('is-read')), title: document.title }));
+    if (v.h1 !== 'From Black holes to Octopus camouflage' || v.doors.join() !== 'Black holes,Supernovas,Whale falls,Octopus camouflage' || v.threads !== 3 || v.read.join() !== 'false,false,true,false' || !/: dorkhub$/.test(v.title)) throw new Error(`the trail: ${JSON.stringify(v)}`);
+    await page.screenshot({ path: `${shots}/share-trail.png` });
+    /* a page written ahead of time (a placeholder, here) opens free and joins your trail from the step before it */
+    await page.locator('.fan-door[data-walk="1"]').click(); await page.waitForURL(`${base}/supernovas`);
+    await page.waitForFunction(() => document.querySelector('.article')?.getAttribute('aria-busy') === 'false' && document.querySelector('.a-end .card'), null, { timeout: 20000 });
+    const step1 = await page.evaluate(() => { const t = JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').trails[0]; return t.steps[t.steps.length - 1]; });
+    if (step1[0] !== 't|encyclopedic|supernovas|' || step1[3] !== 'trail') throw new Error(`the walk: ${JSON.stringify(step1)}`);
+    await page.goBack(); await page.waitForSelector('.fan.tr .fan-door.is-read >> text=Supernovas');
+    /* any other page waits to be asked, as a link from outside does */
+    await page.locator('.fan-door[data-walk="3"]').click(); await page.waitForURL(`${base}/octopus-camouflage`);
+    await page.waitForSelector('.guard [data-act="write-page"]');
+    if (writes !== w0) throw new Error(`walking the trail wrote ${writes - w0} pages`);
+  });
+  await ctx.close();
+  /* a reader's own trail, from a placeholder to the next by a card (both free) */
+  const own = await browser.newContext({ viewport: { width: 1360, height: 900 } });
+  await own.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+  const op = await own.newPage(); op.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  await step('sharing: how you got here travels as a trail link', async () => {
+    await op.goto(`${base}/black-holes`); await op.waitForSelector('.a-end .card');
+    await op.locator('.a-end .card').first().click(); await op.waitForFunction(() => location.pathname !== '/black-holes');
+    await op.waitForSelector('.a-end .card'); const here = await op.evaluate(() => location.pathname);
+    await op.keyboard.press('t'); await op.locator('[data-act="share-trail"]').click(); await op.waitForTimeout(300);
+    const copied = await op.evaluate(() => navigator.clipboard.readText());
+    if (copied !== `${base}/trail/black-holes${here}`) throw new Error(`the trail's link: ${copied} (here ${here})`);
+    await op.goto(copied); await op.waitForSelector('.fan.tr .fan-door');
+    if ((await op.locator('.fan.tr .fan-door.is-read').count()) !== 2) throw new Error('your own trail shows both pages read');
+  });
+  await own.close();
+  /* on a phone, the share sheet */
+  const phone = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
+  await phone.addInitScript(() => { Object.defineProperty(navigator, 'share', { value: async (/** @type {any} */ d) => { /** @type {any} */ (window).shared = d; }, configurable: true }); });
+  const mp = await phone.newPage(); mp.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  await step('sharing: on a phone, the share sheet', async () => {
+    await mp.goto(`${base}/whale-falls`); await mp.waitForSelector('.a-end .card');
+    await mp.locator('.tools [data-act="share"]').click(); await mp.waitForTimeout(200);
+    const d = await mp.evaluate(() => /** @type {any} */ (window).shared);
+    if (!d || d.url !== `${base}/whale-falls` || d.title !== 'Whale falls') throw new Error(`share sheet: ${JSON.stringify(d)}`);
+    await mp.goto(`${base}/trail/black-holes/supernovas/whale-falls`); await mp.waitForSelector('.fan.tr .fan-door'); await mp.waitForTimeout(300);
+    const scroll = await mp.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    if (scroll > 0) throw new Error(`the trail scrolls sideways by ${scroll} px`);
+    await mp.screenshot({ path: `${shots}/share-trail-mobile.png` });
+  });
+  await phone.close();
+}
+
 try {
   await step('reduced motion: the beam holds still and stays lit', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
@@ -500,6 +588,7 @@ try {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
   await run(await ctx.newPage(), { mobile: true });
   await movingIn();
+  await sharing();
 } catch (e) { const pages = browser.contexts().flatMap(c => c.pages()); await pages.at(-1)?.screenshot({ path: `${shots}/failure.png` }).catch(() => {}); }
 await browser.close();
 server.kill();
