@@ -48,7 +48,9 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
   surprising, not umbrella subjects or a parade of people.
 - No tracking of what people click. Pages are written for their topic, never the reader;
   exact repeats are reused (same topic, voice, model, prompt version), and a rewrite is private.
-- Icon-only controls; labels live in tooltips (`data-tip`).
+- Icon-only controls; labels live in tooltips (`data-tip`). A few polished, purposeful tools, never tooling for its own sake.
+- Design for what the writer sends: every page is generative, so layouts hold the outliers (a long title, fact or
+  name) gracefully instead of leaning on prompt rules, which are fickle across models.
 - The brand is Dorkhub; keep dig/dirt/tunnel metaphors out of the copy.
 - The front page gets people started: the composer first, then ways in made by hand, cards that
   peek above the fold, each opening a page free and instant. No marketing.

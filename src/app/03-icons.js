@@ -2,8 +2,6 @@
 const ICON_PATHS = {
   /* Your world: a small constellation of topics and the links between them */
   world: '<circle cx="5.5" cy="7" r="2.1"/><circle cx="17.5" cy="5.5" r="2.1"/><circle cx="12" cy="13.5" r="2.4"/><circle cx="6.5" cy="19" r="1.7"/><circle cx="18.5" cy="17.5" r="1.7"/><path d="M7.4 8.3l3 3.6M15.8 6.6l-2.6 5M10.4 15.2l-2.7 2.6M14.2 14.8l2.8 1.8"/>',
-  /* a sketch: two boxes and the step between them */
-  sketch: '<rect x="3.5" y="5" width="7" height="6" rx="1.6"/><rect x="13.5" y="13" width="7" height="6" rx="1.6"/><path d="M7 11v4.5c0 .8.7 1.5 1.5 1.5H13.5M11 14.5l2.5 2.5-2.5 2.5"/>',
   around: '<circle cx="12" cy="12" r="8.8"/><path d="m15.6 8.4-2.2 5-5 2.2 2.2-5z"/>',
   connect: '<path d="M10 14a4.2 4.2 0 0 0 6 0l3-3a4.2 4.2 0 0 0-6-6l-1 1"/><path d="M14 10a4.2 4.2 0 0 0-6 0l-3 3a4.2 4.2 0 0 0 6 6l1-1"/>',
   listen: '<path d="M4 9.5v5h3.8L13 19V5L7.8 9.5z"/><path d="M16.5 9a4.5 4.5 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/>',

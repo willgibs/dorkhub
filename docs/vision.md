@@ -31,9 +31,11 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
 3. **Flow.** Moving on should feel effortless: one topic per screen at its own address, the
    thing you clicked becomes the next title, back returns you to where you were, and
    nothing ever jumps. Free movement, not a tunnel: no levels, no single "next page".
-4. **Depth on demand.** Tools around a page (save, peek, expand, sketch, around this,
+4. **Depth on demand.** Tools around a page (save, peek, expand, around this,
    connect, skeptic mode, quiz, recap, your trail) are there when wanted and quiet when not.
-   Will wants this secondary UI to feel as clean and considered as the articles themselves.
+   Will wants this secondary UI to feel as clean and considered as the articles themselves:
+   a few polished, purposeful tools rather than a bunch of random tooling, so one that isn't
+   reliably beautiful goes (Sketch it, a generated diagram, dropped 2026-10-19).
    World features never add weight to the article: they are hidden magic, there when you
    pause (Will, 2026-10-15).
 5. **The front page** gets a visitor into their first page. One composer, front and centre,
@@ -52,8 +54,12 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
    The hero (Will, 2026-10-17): the heading, the composer and the suggestions, nothing above them
    and no heading over the cards. The heading says "Learn about anything", but on a visit's first
    arrival its last word first steps through a few of the front page's topics, each in its kind's
-   colour, once, so "anything" comes having been shown. The page you were last on leads the
-   suggestions, marked with a small play mark in its kind's colour.
+   colour, once, so "anything" comes having been shown: black holes, Atlantis, time travel, DNA
+   (Will, 2026-10-19: four corners of what there is to know, and widths that alternate, so the line
+   shrinks and grows at every step). The page you were last on leads the suggestions, marked with
+   a small play mark in its kind's colour, and isn't suggested again beside it. The composer has
+   the first screen to itself: the heading is set at most 48 px, and the cards peek in by a card's
+   name and the edge of its drawing, no more (Will, 2026-10-19).
 
 ## Principles (Will's standing calls; CLAUDE.md has the short form)
 
@@ -84,7 +90,9 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
   for figures and keys; Doto for the wordmark and dotted display moments.
 - Eight kinds of topic, each with a colour: ideas, phenomena, mechanisms, places, people,
   events, things, mysteries. A page tints toward the colour of what it is about, and its
-  dot in Your world glows in it.
+  dot in Your world glows in it. A kind named in words is its word in its colour, with no dot
+  beside it (the word already carries the colour), and the page's title in the top bar is set
+  in its colour the same way (Will, 2026-10-19).
 - Voice: warm, specific, plain words, never condescending. Light and dark themes; dark is near
   black, for contrast (Will, 2026-10-17).
 - The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
@@ -107,7 +115,16 @@ links arrive in colour) · body with asides and up to two **panels** · six topi
 keep exploring, each with its hook and kind, some deeper into the subject and at least two
 leaping into another field · three open questions that stand on their own · a hook for
 every link (for hover cards). Under its deck, every page carries a line of key facts: three
-readings shaped by its kind (a creature's size, a place's whereabouts, a mystery's verdict).
+readings shaped by its kind (a creature's size, a place's whereabouts, a mystery's verdict), side
+by side when each value fits on a line of its own, and down the column as label and value when one
+doesn't.
+
+**Designed for what the writer sends** (Will, 2026-10-19): every page is generative, so its design
+must hold the outliers beautifully (a long title, a long fact, a long name) rather than lean on
+prompt rules to keep them short, which are far more fickle across models. Compact, clean inputs
+are welcome; the design never depends on them. So a title is set by its length (a question takes
+two or three lines at a smaller size, never four large), the key facts choose side by side or down
+the column by what fits, and the end's point carries no name to collide with.
 
 **One bar for every page** (Will, 2026-10-19): the front page's cards and suggestions are an
 economical, engaging way in, and the pages behind them are what any page is. A page written ahead
@@ -132,10 +149,13 @@ Lines run about 70 characters (20 px type on a 680 px column).
 yours. Its head names the page you came from, and a front-page topic's page opens with its
 card's drawing, carried from the card. Once the title scrolls away it waits in the top bar. The
 end is drawn the way the front page draws its threads and Your world what you've read: this
-page a point (the page you came from behind it), a hairline out to each of its six ways on, each
-on a ring in its kind's colour, filled once read; then its open questions; then, on a page
-written ahead of time, a quiet note that it was. Kinds, panel names
-and the end's headings are set in the front page's small capitals.
+page an unnamed point (its title is in the top bar by then; Will, 2026-10-19), a hairline out to
+each of its six ways on, meeting each at the edge of a ring in its kind's colour, filled once
+read; then its open questions. Kinds, panel names and the end's headings are set in the front
+page's small capitals. A page written ahead of time says nothing about it: reading it feels the
+same as reading one written just now (Will, 2026-10-19: that note took from the feel of a page
+made as you ask). That pages already written open instantly and free is said once, as a small
+win, beside your free pages.
 
 **The page-500 test** (Will, 2026-10-14): a reader scrolls through hundreds of these pages,
 so nothing recurring may charm on page 10 and annoy by page 500. Taste through restraint.
@@ -143,13 +163,14 @@ The delight is the snappy, clean stream: the page being written around you.
 
 Around it: hover/tap a link for its hook (and whether you've read it, or which of your
 pages also lead there), then peek without leaving; expand any paragraph (plainer, deeper,
-an example, the counterpoint); save it with the star; sketch a diagram; around this (a
+an example, the counterpoint); save it with the star; around this (a
 radial map of neighbours); connect it to any topic you've read; skeptic mode; listen; a
 quiz and a recap of the trail you're on; "how did I get here?" (your trail); the sidebar
 (Your world beside the page, your index, your trails, deep time; closed, it takes no room, and
 its toggle sits before the wordmark); ask anything (/). The top bar's actions share one shape,
-and Your world has one entry point there, its count beside it.
-Keyboard first: 1–6, S, G, T, F, K, L, C, P, D, Q, R, I, A, M, N, ?. On a phone the top bar
+and Your world has one entry point there, its count beside it, set as part of its icon; the theme
+switch is there on every page.
+Keyboard first: 1–6, S, G, T, F, L, C, P, D, Q, R, I, A, M, N, ?. On a phone the top bar
 keeps a plain menu (keys, voice, theme, export, shortcuts, a new topic) and one gooey
 button holds the learning tools (search, Your world, save, around this).
 

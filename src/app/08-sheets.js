@@ -7,7 +7,7 @@ sheet.addEventListener('close', () => { if (sheet.open) return; if (sheetCtl) sh
 $('#sheetX').addEventListener('click', () => sheet.close());
 
 /* ================= your trail: how you got here, step by step ================= */
-const VIA = { start: 'where you started', link: 'a link on', card: 'kept exploring from', question: 'a question on', ask: 'asked on', select: 'selected on', search: 'searched for', world: 'from Your world', connect: 'connecting', around: 'around', sketch: 'a sketch of', peek: 'a peek on', index: 'from your index', trail: 'from your trail' };
+const VIA = { start: 'where you started', link: 'a link on', card: 'kept exploring from', question: 'a question on', ask: 'asked on', select: 'selected on', search: 'searched for', world: 'from Your world', connect: 'connecting', around: 'around', sketch: 'a sketch of' /* trails from before sketches were dropped */, peek: 'a peek on', index: 'from your index', trail: 'from your trail' };
 function viaLine(step) {
   const [, at, from, via] = step; const f = pageOf(from); const when = new Date(at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   const how = VIA[via] || 'opened'; const needsFrom = !['start', 'search', 'world', 'index', 'trail'].includes(via);

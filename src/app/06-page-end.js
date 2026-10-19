@@ -10,33 +10,35 @@ function rowsBlock(el, heading, rows) {
 }
 /* ================= where it leads: the page as a point on its threads =================
    The six ways on, drawn as threads out of this page, the way the front page draws its map of threads and Your world
-   draws what you have read: this page a solid point (and the page you came from behind it), each way on a ring at the
-   end of its thread, named as the front page names its cards (its kind in small capitals, its title, its hook). A topic
-   you've read is solid; one that your other pages lead to too says which. The threads draw in once, the first time the
-   end of a page comes into view, and this page pings as it joins your world. On a phone the threads hang from one stem. */
+   draws what you have read: this page a solid point, each way on a ring at the end of its thread, named as the front
+   page names its cards (its kind in small capitals, its title, its hook). The point goes unnamed: the page's title is
+   in the top bar by the time you're here, and a name beside it would have to fit whatever the writer called the page
+   (Will, 2026-10-19). A topic you've read is solid; one that your other pages lead to too says which. The threads draw
+   in once, the first time the end of a page comes into view, and this page pings as it joins your world. On a phone
+   the threads hang from one stem. */
 function fanBlock(el, items, p, complete) {
-  if (!el._built) { el.innerHTML = `<h2 class="eh">Where it leads</h2><div class="fan"><svg class="fan-svg" aria-hidden="true"></svg><div class="fan-in"></div><div class="fan-out"></div></div>`; el._built = true; watchFan(el, p); }
+  if (!el._built) { el.innerHTML = `<h2 class="eh">Where it leads</h2><div class="fan"><svg class="fan-svg" aria-hidden="true"></svg><div class="fan-in" aria-hidden="true"></div><div class="fan-out"></div></div>`; el._built = true; watchFan(el, p); }
   patch($('.fan-out', el), items);
   /* the point and the threads wait until all six ways on are there, so nothing moves while they arrive */
-  const from = complete ? fromOf(p) : null;
-  setHTML($('.fan-in', el), complete ? `${from ? `<a class="fan-from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><i class="fan-dot"></i><span>From</span><b>${esc(clip(from.title, 34))}</b></a>` : ''}<p class="fan-me"${kattr(p.kind || (ACC && ACC.kind) || '')}><i class="fan-dot"></i><b>${esc(clip(p.title, 48))}</b></p>` : '');
+  setHTML($('.fan-in', el), complete ? `<i class="fan-me"${kattr(p.kind || (ACC && ACC.kind) || '')}></i>` : '');
   el.classList.toggle('fan-ready', complete);
   /* while a page streams it is painted every frame: the threads are redrawn only when the ways on change */
   const sig = `${complete}|${items.map(it => it.k + it.cls).join()}`; if (el._fan !== sig) { el._fan = sig; requestAnimationFrame(() => drawFan(el)); }
 }
 const fanNarrow = () => matchMedia('(max-width: 560px)').matches;
+/* the middle of a dot in the map, read from the layout: a card still rising into place must not bend its thread, as a
+   reading off the screen would (it includes the rise, and a thread drawn mid-rise lands below its ring) */
+function fanAt(d, fan) { let x = d.offsetWidth / 2, y = d.offsetHeight / 2; for (let n = d; n && n !== fan; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; } return [x, y]; }
 function drawFan(el) {
-  const fan = $('.fan', el); const svg = fan && $('.fan-svg', fan); const me = fan && $('.fan-me .fan-dot', fan);
+  const fan = $('.fan', el); const svg = fan && $('.fan-svg', fan); const me = fan && $('.fan-me', fan);
   if (!svg) return; if (!me || fanNarrow()) { svg.innerHTML = ''; return; }
-  const box = fan.getBoundingClientRect(); const at = d => { const r = d.getBoundingClientRect(); return [r.left + r.width / 2 - box.left, r.top + r.height / 2 - box.top]; };
-  const [mx, my] = at(me); const out = [];
-  const fromDot = $('.fan-from .fan-dot', fan);
-  if (fromDot) { const [fx, fy] = at(fromDot); out.push(`<path class="fan-t in" style="--i:0" d="M${fx} ${fy}C${fx} ${(fy + my) / 2},${fx} ${my},${mx} ${my}" pathLength="1"/>`); }
+  const [mx, my] = fanAt(me, fan); const out = [];
+  /* each thread leaves the point level, and arrives level at the edge of its ring */
   $$('.fan-door', fan).forEach((door, i) => {
-    const [x, y] = at($('.fan-dot', door)); const k = (x - mx) * .55;
+    const dot = $('.fan-dot', door); const [cx, y] = fanAt(dot, fan); const x = cx - dot.offsetWidth / 2; const k = (x - mx) * .55;
     out.push(`<path class="fan-t${door.classList.contains('is-read') ? ' read' : ''}" data-n="${i + 1}"${door.dataset.kind ? ` data-kind="${door.dataset.kind}"` : ''} style="--i:${i + 1}" d="M${mx} ${my}C${mx + k} ${my},${x - k} ${y},${x} ${y}" pathLength="1"/>`);
   });
-  svg.setAttribute('viewBox', `0 0 ${Math.round(box.width)} ${Math.round(box.height)}`); svg.innerHTML = out.join('');
+  svg.setAttribute('viewBox', `0 0 ${fan.offsetWidth} ${fan.offsetHeight}`); svg.innerHTML = out.join('');
 }
 /* redrawn when the column changes width; drawn in, once, the first time it comes into view */
 const FAN_SEEN = new Set();
@@ -105,16 +107,14 @@ function paintTools(p, sec) {
   const b = (act, icon, label, key, on = true, extra = '', cls = '') => `<button class="tool ib${cls}" type="button" data-act="${act}"${tipAttrs(label, key)}${on ? '' : ' disabled'}${extra}>${ic(icon)}</button>`;
   const mi = (act, label, key, on = true, cls = '') => `<button class="mi${cls}" type="button" data-act="${act}"${on ? '' : ' disabled'}>${label}${key ? ` <kbd>${key}</kbd>` : ''}</button>`;
   if (p.status === 'digging') t.push(b('stop', 'stop', 'Stop writing', '', true, '', ' stop'));
-  /* a page that didn't come through has nothing to save, sketch, hear or quiz */
+  /* a page that didn't come through has nothing to save, hear or quiz */
   if (p.status === 'error' || p.status === 'offline') { setHTML($('.tools', sec), t.join('')); return; }
   t.push(b('save', 'star', p.saved ? 'Saved. Click to unsave' : 'Save this page', 'S', p.status !== 'empty', ` aria-pressed="${!!p.saved}"`, ' save'));
   const connect = worldIndex().read.size > 1;
-  const sketchLabel = p.figure && p.figure !== 'loading' ? 'Show the sketch' : 'Sketch it: a diagram of this page';
-  t.push(b('sketch', 'sketch', sketchLabel, 'K', ready, '', ' tw'));
   t.push(b('land', 'around', 'Around this: the topics nearby', 'L', ready, '', ' tw'));
   if (connect) t.push(b('bridge', 'connect', 'Connect to another topic you’ve read', 'C', ready, '', ' tw'));
   if (TTS) t.push(b('listen', SPEAK.id === p.id ? 'stop' : 'listen', SPEAK.id === p.id ? 'Stop listening' : 'Listen', 'P', ready, ` aria-pressed="${SPEAK.id === p.id}"`, ' tw'));
-  const more = [mi('sketch', sketchLabel, 'K', ready, ' tn'), mi('land', 'Around this', 'L', ready, ' tn')];
+  const more = [mi('land', 'Around this', 'L', ready, ' tn')];
   if (connect) more.push(mi('bridge', 'Connect to another topic', 'C', ready, ' tn'));
   if (TTS) more.push(mi('listen', SPEAK.id === p.id ? 'Stop listening' : 'Listen', 'P', ready, ' tn'));
   more.push(mi('trail', 'How did I get here?', 'T', true));

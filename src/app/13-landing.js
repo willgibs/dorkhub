@@ -17,13 +17,14 @@ const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}
 const contHTML = p => `<a class="door door-cont" href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)} data-tip="Continue where you left off"><span class="dc-mark" aria-hidden="true">${ic('play')}</span><span class="sr">Continue </span><span class="dc-t">${esc(clip(p.title, 34))}</span></a>`;
 /* days turn over at the reader's own midnight */
 const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4) / 864e5);
-/* the suggestions: four of the planned topics, the same four all day, re-rolled as a set by shuffle */
-function suggestions(n = 4) { const a = FRONT.slice(); let s = dayN(); for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); }
+/* the suggestions: four of the planned topics, the same four all day, re-rolled as a set by shuffle; never the page
+   Continue already offers */
+function suggestions(n = 4, not = '') { const a = FRONT.filter(d => topicKey(d.t) !== topicKey(not)); let s = dayN(); for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); }
 /* the presets re-roll as a set: the shown ones step back quickly, the new ones rise in a beat apart, and none repeats */
 function shufflePresets() {
   const list = $('#presetList'); if (!list || list.dataset.busy) return;
-  const shown = new Set($$('.door', list).map(b => b.dataset.seed));
-  const pool = FRONT.filter(d => !shown.has(d.t)).sort(() => Math.random() - .5).slice(0, shown.size || 4);
+  const shown = new Set($$('.door', list).map(b => b.dataset.seed)); const cont = (pageOf($('.door-cont')?.dataset.goto) || {}).title || '';
+  const pool = FRONT.filter(d => !shown.has(d.t) && topicKey(d.t) !== topicKey(cont)).sort(() => Math.random() - .5).slice(0, shown.size || 4);
   const swap = () => { list.innerHTML = pool.map(doorHTML).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
   if (reducedMotion()) { swap(); return; }
   list.dataset.busy = '1'; list.classList.remove('in'); list.classList.add('out');
@@ -401,8 +402,9 @@ function seedMirror(v) {
 let LANDED = false;
 /* the heading's last word steps once through a few of the front page's topics, each in its kind's colour, and comes
    to rest on "anything": the first arrival of a visit only, and never without motion. Screen readers hear the
-   heading whole ("Learn about anything") from hidden text */
-const LIVING = [['black holes', 'Black holes'], ['Atlantis', 'Atlantis'], ['origami', 'Origami'], ['Pompeii', 'Pompeii']];
+   heading whole ("Learn about anything") from hidden text. Four corners of what there is to know (space, legend, an
+   idea, life), and widths that alternate, so the line visibly shrinks and grows at every step (Will, 2026-10-19) */
+const LIVING = [['black holes', 'Black holes'], ['Atlantis', 'Atlantis'], ['time travel', 'Time travel'], ['DNA', 'DNA']];
 const livingKind = t => (FRONT.find(f => f.t === t) || {}).k || '';
 const livingHTML = live => (live
   ? `<span class="lw" data-live aria-hidden="true"><span class="lw-w"${kattr(livingKind(LIVING[0][1]))}>${esc(LIVING[0][0])}</span></span><span class="lw-m" aria-hidden="true"></span>`
@@ -428,7 +430,7 @@ function stopLiving() { LW_T.forEach(clearTimeout); LW_T = []; }
 function viewStart() {
   /* Continue reopens the last page you read */
   const last = pageOf(store.current); const cont = last && (last.status === 'done' || last.status === 'partial') ? last : [...worldIndex().read.values()].sort((a, b) => b.last - a.last)[0];
-  const doors = suggestions(cont ? 3 : 4);
+  const doors = suggestions(cont ? 3 : 4, cont ? cont.title : '');
   /* the first arrival of a visit rises in, line by line; coming back to it later doesn't replay that */
   const intro = !LANDED && !reducedMotion(); LANDED = true;
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">

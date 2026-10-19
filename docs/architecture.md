@@ -40,7 +40,7 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   from Wikipedia, proxied through our own origin; no model involved).
 - **The page format, v3.1** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
   `src/shared/article.js`): `# Title :: kind`, `> deck`, `!!!` three key facts (`Label :: value`, shown under
-  the deck once all three are in), `+++` link plan
+  the deck once all three are in, side by side or down the column by what fits: `fitFacts` in `05-render.js`), `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
   (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on

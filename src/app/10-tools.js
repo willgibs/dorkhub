@@ -160,42 +160,6 @@ function listen(p = curPage()) {
   };
   next();
 }
-/* ================= sketch it: a generated diagram of a page ================= */
-function normFigure(o) {
-  if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
-  const shape = ['chain', 'cycle', 'hub'].includes(o.shape) ? o.shape : 'chain';
-  const nodes = (Array.isArray(o.nodes) ? o.nodes : []).filter(n => n && n.label).slice(0, 7).map(n => ({ label: clip(String(n.label), 40), note: clip(String(n.note || ''), 90) }));
-  if (nodes.length < 3) return null;
-  return { shape, title: clip(String(o.title || ''), 70), caption: clip(String(o.caption || ''), 220), center: clip(String(o.center || ''), 40), nodes, links: (Array.isArray(o.links) ? o.links : []).map(x => clip(String(x || ''), 30)) };
-}
-async function sketch(p = curPage(), fresh = false) {
-  if (!p || p.status !== 'done' || p.figure === 'loading') return;
-  const reveal = () => { const s2 = secFor(p.id); const f = s2 && $('.sketch', s2); if (f) f.scrollIntoView({ block: 'center', behavior: reducedMotion() ? 'auto' : 'smooth' }); };
-  if (p.figure && !fresh) { reveal(); return; }
-  const prev = p.figure; p.figure = 'loading'; paint(p); reveal();
-  const A = parsed(p); const txt = [shownTitle(p, A), A.deck, ...A.blocks.map(b => b.s)].map(plain).join('\n');
-  try {
-    const fig = normFigure(await writeJSON('sketch', { ...ctxInput(p), page: clip(txt, 5000) }, { fresh: !!fresh })); if (!fig) throw writeError('bad_output');
-    p.figure = fig;
-  } catch (e) { p.figure = prev && prev !== 'loading' ? prev : null; toast(e?.code === 'bad_output' || e?.code === 'upstream_error' ? 'The sketch didn’t come out. Try again in a moment.' : errText(e?.code)); }
-  save(); paint(p); reveal();
-}
-function figureHTML(p) {
-  const f = p.figure; if (!f) return '';
-  if (f === 'loading') return `<figure class="sketch"><p class="digging">${waitHTML('shaping', 'Sketching this page')}</p></figure>`;
-  const box = n => `<button class="sk-n" type="button" data-sk="${esc(n.label)}" data-note="${esc(n.note)}"><b>${esc(n.label)}</b>${n.note ? `<span>${esc(n.note)}</span>` : ''}</button>`;
-  let body = '';
-  if (f.shape === 'chain') {
-    body = `<ol class="sk-chain">${f.nodes.map((n, i) => `<li class="sk-step"><span class="sk-i">${i + 1}</span>${box(n)}</li>${i < f.nodes.length - 1 ? `<li class="sk-arr" aria-hidden="true"><span>${esc(f.links[i] || '')}</span></li>` : ''}`).join('')}</ol>`;
-  } else {
-    const n = f.nodes.length;
-    const pos = f.nodes.map((_, i) => { const a = (-90 + i * 360 / n) * Math.PI / 180; return { x: 50 + Math.cos(a) * 37, y: 50 + Math.sin(a) * 39 }; });
-    const lines = f.shape === 'hub' ? pos.map(q => `<line x1="50" y1="50" x2="${q.x.toFixed(2)}" y2="${q.y.toFixed(2)}"/>`).join('') : `<ellipse cx="50" cy="50" rx="37" ry="39"/>`;
-    body = `<div class="sk-ring" data-shape="${f.shape}"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${lines}</svg><div class="sk-center${f.shape === 'cycle' ? ' cyc' : ''}">${f.shape === 'hub' ? esc(f.center || p.title) : '↻'}</div>${f.nodes.map((nn, i) => `<div class="sk-pos" style="left:${pos[i].x.toFixed(2)}%;top:${pos[i].y.toFixed(2)}%">${box(nn)}</div>`).join('')}</div>`;
-  }
-  return `<figure class="sketch" data-shape="${f.shape}"><p class="sk-t"><span>Sketch</span>${esc(f.title || 'How it fits together')}</p>${body}${f.caption ? `<figcaption>${esc(f.caption)}</figcaption>` : ''}<p class="sk-foot"><span>Every box opens a page.</span><button type="button" data-act="sketch-redo">Sketch again</button><button type="button" data-act="sketch-close">Remove</button></p></figure>`;
-}
-
 /* ================= what stuck? a quiz on the trail you're on ================= */
 async function recall(fresh) {
   const t = curTrail(); const done = trailPages(t).filter(p => p.text && p.status === 'done');

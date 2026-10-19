@@ -96,9 +96,8 @@ document.addEventListener('click', e => {
   if (!e.target.closest('#pmenu')) closePMenu();
   const card = e.target.closest('a.card[data-t]'); if (card) { if (!plainClick(e)) return; e.preventDefault(); openTopic(card.dataset.t, { via: 'card', src: $('.cd-t', card) }); return; }
   const q = e.target.closest('[data-q]'); if (q) { if (!plainClick(e)) return; e.preventDefault(); openTopic(q.dataset.q, { via: 'question', q: true, src: $('.rt', q) }); return; }
-  const gt = e.target.closest('[data-goto]'); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from,.fan-from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
+  const gt = e.target.closest('[data-goto]'); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
   const ld = e.target.closest('[data-land]'); if (ld) { if (!plainClick(e)) return; e.preventDefault(); const p = curPage(); const o = p && p.land && p.land[+ld.dataset.land]; if (o) { sheet.close(); openTopic(o.name, { via: 'around', hint: { gloss: o.relation, kind: o.kind } }); } return; }
-  const sk = e.target.closest('[data-sk]'); if (sk) { openTopic(sk.dataset.sk, { via: 'sketch', src: $('b', sk), hint: sk.dataset.note ? { gloss: sk.dataset.note, kind: '' } : null }); return; }
   const qz = e.target.closest('[data-qz]'); if (qz) { const t = curTrail(); const R = t && t.recall; if (R && R.picked == null) { R.picked = +qz.dataset.qz; if (R.picked === R.qs[R.i].answer) R.score++; save(); renderQuiz(); } return; }
   if (!e.target.closest('.more')) $$('details.more[open]').forEach(d => { d.open = false; });
   const tab = e.target.closest('[data-tab]'); if (tab) { SIDE = tab.dataset.tab; renderSide(); return; }
@@ -137,9 +136,6 @@ document.addEventListener('click', e => {
   else if (x === 'trail') trailSheet();
   else if (x === 'doubt') doubtPage(p);
   else if (x === 'land') landSheet(p);
-  else if (x === 'sketch') sketch(p);
-  else if (x === 'sketch-redo') sketch(p, true);
-  else if (x === 'sketch-close' && p) { p.figure = null; save(); paint(p); }
   else if (x === 'recall') recall(false);
   else if (x === 'recall-new') recall(true);
   else if (x === 'qz-next') { const t = curTrail(); if (t && t.recall) { t.recall.i++; t.recall.picked = null; save(); renderQuiz(); } }
@@ -159,7 +155,7 @@ document.addEventListener('click', e => {
 /* the same voice again is a private rewrite; another voice is another page, which may already be written */
 function rewrite(p) {
   const lens = store.settings.lens;
-  if ((p.wlens || p.req.lens) === lens) { p.figure = null; generate(p, { fresh: true }); return; }
+  if ((p.wlens || p.req.lens) === lens) { generate(p, { fresh: true }); return; }
   openTopic(p.req.title, { via: 'link', lens, ctx: p.req.ctx, q: p.req.q, bridge: p.req.bridge });
 }
 $('#helpX').addEventListener('click', () => $('#help').close());
@@ -194,7 +190,6 @@ document.addEventListener('keydown', e => {
   else if (k === 't') trailSheet();
   else if (k === 'd') doubtPage(p);
   else if (k === 'l') landSheet(p);
-  else if (k === 'k') sketch(p);
   else if (k === 'q') recall(false);
   else if (k === 'c') bridgeSheet(p);
   else if (k === 'p') listen(p);

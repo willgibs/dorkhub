@@ -158,7 +158,7 @@ async function run(page, { mobile = false } = {}) {
   await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
-    if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || !/written ahead of time/i.test(p.fine) || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
+    if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || p.fine.trim() || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
@@ -179,31 +179,39 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, p.cards[0], { timeout: 20000 }); await waitDone();
     const next = await page.evaluate(() => document.querySelector('.fineprint')?.textContent || '');
     if (!/placeholder/i.test(next) || (await left()) !== String(PAGES)) throw new Error(`the next page: ${next}, ${await left()} free pages`);
-    /* the thread: it says where you came from, and its end is this page as a point with a thread out to each way on
-       (on a phone, hanging from one stem) and one in from the page you came from */
-    if (!mobile) await page.waitForFunction(() => document.querySelectorAll('.fan-svg .fan-t').length >= 7, null, { timeout: 5000 }).catch(() => {});
-    const thread = await page.evaluate(() => ({ from: document.querySelector('.where .from b')?.textContent || '', me: document.querySelector('.fan-me b')?.textContent || '', title: document.querySelector('.a-title')?.textContent || '', fanFrom: document.querySelector('.fan-from b')?.textContent || '', out: document.querySelectorAll('.fan-svg .fan-t:not(.in)').length, in: document.querySelectorAll('.fan-svg .fan-t.in').length, rings: document.querySelectorAll('.a-end .fan-door .fan-dot').length }));
-    if (thread.from !== 'Origami' || thread.fanFrom !== 'Origami' || thread.me !== thread.title || thread.rings !== 6 || (!mobile && (thread.out !== 6 || thread.in !== 1))) throw new Error(`the thread: ${JSON.stringify(thread)}`);
+    /* the thread: the head says where you came from, and the page's end is this page as an unnamed point with a thread
+       out to each way on (on a phone, hanging from one stem), each thread arriving level at the edge of its ring, even
+       for a card that was still rising into place when the threads were drawn */
+    if (!mobile) await page.waitForFunction(() => document.querySelectorAll('.fan-svg .fan-t').length >= 6, null, { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(700);
+    const thread = await page.evaluate(() => {
+      const fan = document.querySelector('.fan'); const at = (/** @type {HTMLElement} */ d) => { let x = 0, y = d.offsetHeight / 2; for (let n = /** @type {HTMLElement | null} */ (d); n && n !== fan; n = /** @type {HTMLElement | null} */ (n.offsetParent)) { x += n.offsetLeft; y += n.offsetTop; } return [x, y]; };
+      const miss = [...document.querySelectorAll('.fan-svg .fan-t')].map(t => { const n = (t.getAttribute('d') || '').match(/-?[\d.]+/g)?.map(Number) || []; const ring = /** @type {HTMLElement} */ (document.querySelector(`.fan-door[data-n="${/** @type {HTMLElement} */ (t).dataset.n}"] .fan-dot`)); const [x, y] = at(ring); return Math.max(Math.abs(n[n.length - 2] - x), Math.abs(n[n.length - 1] - y)); });
+      return { from: document.querySelector('.where .from b')?.textContent || '', me: !!document.querySelector('.fan-me'), named: (document.querySelector('.fan-in')?.textContent || '').trim(), out: miss.length, miss: Math.max(0, ...miss), rings: document.querySelectorAll('.a-end .fan-door .fan-dot').length };
+    });
+    if (thread.from !== 'Origami' || !thread.me || thread.named || thread.rings !== 6 || (!mobile && (thread.out !== 6 || thread.miss > 1))) throw new Error(`the thread: ${JSON.stringify(thread)}`);
     /* once its page is written, the placeholder kept in this browser gives way to it */
     const written = '# Origami :: technique\n> Written at last.\n---\nThe written page, with a link to [[DNA]].\n===\n- [[DNA]] :: Folded into shapes of its own. :: thing\n???\nHow far can a sheet of paper be folded?\n';
     await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.cachedOnly && b.input && b.input.title === 'Origami') await r.fulfill({ status: 200, headers: { 'content-type': 'text/plain; charset=utf-8', 'x-dh-cache': 'seed' }, body: written }); else await r.continue(); });
     await page.goto(`${base}/origami`); await page.waitForFunction(() => /The written page/.test(document.querySelector('.a-body')?.textContent || ''), null, { timeout: 20000 }); await waitDone();
     const after = await page.evaluate(() => document.querySelector('.fineprint')?.textContent || '');
-    if (!/written ahead of time/i.test(after)) throw new Error(`the written page: ${after}`);
+    if (after.trim()) throw new Error(`the written page: ${after}`);
     await page.unroute('**/api/write');
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* a front-page topic written ahead of time, by the same writer as any page: its card's drawing as its plate, then
-     its line of key facts under the deck (one row on a wide screen, stacked on a phone) */
+     its key facts under the deck, side by side when every value fits on one line and down the column when one doesn't,
+     never wrapping a value side by side or running past the column; the page says nothing about when it was written */
   await step(`${tag}: a card's page written ahead of time opens with its drawing and its key facts`, async () => {
     const card = page.locator('.wc[data-card="black-holes"] .wc-t a'); await card.scrollIntoViewIfNeeded(); await card.click(); await waitDone();
     const p = await page.evaluate(() => {
       const kf = document.querySelector('.a-head .keyfacts'), deck = document.querySelector('.a-head .deck'), body = document.querySelector('.a-body');
-      const rows = kf ? [...kf.children].map(d => ({ dt: d.querySelector('dt')?.textContent || '', dd: d.querySelector('dd')?.textContent || '', top: Math.round(d.getBoundingClientRect().top) })) : [];
-      return { url: location.pathname, fine: document.querySelector('.fineprint')?.textContent || '', rows, under: !!kf && !!deck && deck.getBoundingClientRect().bottom <= kf.getBoundingClientRect().top, above: !!kf && !!body && kf.getBoundingClientRect().bottom <= body.getBoundingClientRect().top, plate: !!document.querySelector('.a-head > .a-plate .wc[data-card="black-holes"] svg.vz.bh') };
+      const rows = kf ? [...kf.children].map(d => { const dd = /** @type {HTMLElement} */ (d.querySelector('dd')); return { dt: d.querySelector('dt')?.textContent || '', dd: dd?.textContent || '', top: Math.round(d.getBoundingClientRect().top), lines: dd ? Math.round(dd.getBoundingClientRect().height / parseFloat(getComputedStyle(dd).lineHeight)) : 0 }; }) : [];
+      return { url: location.pathname, fine: document.querySelector('.fineprint')?.textContent || '', rows, fit: /** @type {HTMLElement | null} */ (kf)?.dataset.fit || '', over: kf ? kf.scrollWidth - kf.clientWidth : 0, under: !!kf && !!deck && deck.getBoundingClientRect().bottom <= kf.getBoundingClientRect().top, above: !!kf && !!body && kf.getBoundingClientRect().bottom <= body.getBoundingClientRect().top, plate: !!document.querySelector('.a-head > .a-plate .wc[data-card="black-holes"] svg.vz.bh') };
     });
-    const laid = new Set(p.rows.map(r => r.top)).size === (mobile ? 3 : 1);
-    if (p.url !== '/black-holes' || !/written ahead of time/i.test(p.fine) || p.rows.length !== 3 || p.rows.some(r => !r.dt || !r.dd) || !p.under || !p.above || !laid || !p.plate) throw new Error(`the written page: ${JSON.stringify(p)}`);
+    const tops = new Set(p.rows.map(r => r.top)).size;
+    const laid = p.over <= 1 && (p.fit === 'across' ? tops === 1 && p.rows.every(r => r.lines === 1) : p.fit === 'down' && tops === 3);
+    if (p.url !== '/black-holes' || p.fine.trim() || p.rows.length !== 3 || p.rows.some(r => !r.dt || !r.dd) || !p.under || !p.above || !laid || !p.plate) throw new Error(`the written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a page written ahead of time spent a free page: ${await left()}`);
     await page.screenshot({ path: `${shots}/${tag}-1f-written.png` });
     await page.goto(base); await page.waitForSelector('#seedIn');
@@ -211,9 +219,12 @@ async function run(page, { mobile = false } = {}) {
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
   await step(`${tag}: the dice opens a pre-written topic that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
+    /* the page Continue offers is never suggested beside it as well */
+    const cont = await page.evaluate(() => document.querySelector('.door-cont .dc-t')?.textContent || '');
+    if (cont && shown.includes(cont)) throw new Error(`suggested twice: ${cont} in ${JSON.stringify(shown)}`);
     await page.locator('[data-act="surprise"]').click(); await waitDone();
     const p = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.textContent || '', fine: document.querySelector('.fineprint')?.textContent || '' }));
-    if (shown.includes(p.title) || !/written ahead of time|placeholder/i.test(p.fine)) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
+    if (shown.includes(p.title) || !p.title) throw new Error(`dice: ${JSON.stringify({ shown, ...p })}`);
     if ((await left()) !== String(PAGES)) throw new Error(`the dice spent a free page: ${await left()}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
@@ -263,6 +274,10 @@ async function run(page, { mobile = false } = {}) {
     if (!lay.below || !lay.inline) throw new Error(`the facts panel is in the wrong place: ${JSON.stringify(lay)}`);
     if (lay.v1) throw new Error('levels, reactions or the old next page are still on the page');
     if (!lay.tools) throw new Error('the Save star is not in the head row');
+    /* the head: a kind is its word in its colour, with no dot; no sketch among the tools; the theme switch is in the top
+       bar on every page (on a phone, in the menu) */
+    const head = await page.evaluate(() => { const k = document.querySelector('.where .kind'); return { dot: k ? getComputedStyle(k, '::before').content : '', sketch: !!document.querySelector('[data-act="sketch"]'), theme: getComputedStyle(/** @type {Element} */ (document.querySelector('#themeBtn'))).display }; });
+    if (head.dot !== 'none' || head.sketch || (head.theme === 'none') !== mobile) throw new Error(`the head and the top bar: ${JSON.stringify(head)}`);
     if (lay.order !== 'cards qs ask' || lay.cards !== 6) throw new Error(`the end of the page: ${JSON.stringify(lay)}`);
     /* the picture's slot is reserved at its own shape, holds that height through the dot field and the reveal, and ends as a plain picture */
     if (!mobile) await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
@@ -281,8 +296,8 @@ async function run(page, { mobile = false } = {}) {
       await page.mouse.move(4, 300); await page.waitForTimeout(700);
       /* once the title has scrolled away, it waits in the top bar */
       await page.evaluate(() => window.scrollTo(0, 900)); await page.waitForTimeout(400);
-      const top = await page.evaluate(() => ({ on: document.body.classList.contains('titled'), t: document.querySelector('#topT')?.textContent || '' }));
-      if (!top.on || top.t !== first) throw new Error(`the top bar's title: ${JSON.stringify(top)}`);
+      const top = await page.evaluate(() => { const t = /** @type {HTMLElement} */ (document.querySelector('#topT')); return { on: document.body.classList.contains('titled'), t: t?.textContent || '', kind: t?.dataset.kind || '', coloured: !!t && getComputedStyle(t).color === getComputedStyle(/** @type {Element} */ (document.querySelector('.where .kind'))).color, dot: !!t?.querySelector('.kind') }; });
+      if (!top.on || top.t !== first || !top.kind || !top.coloured || top.dot) throw new Error(`the top bar's title: ${JSON.stringify(top)}`);
     }
     await page.locator('.a-end').scrollIntoViewIfNeeded(); await page.waitForTimeout(300);
     await page.screenshot({ path: `${shots}/${tag}-4-keep-exploring.png`, fullPage: false });
@@ -393,7 +408,6 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('[data-uf="simpler"]').click();
       await page.waitForFunction(() => /mock writer/.test(document.querySelector('.xp')?.textContent || ''), null, { timeout: 15000 });
     });
-    await step(`${tag}: sketch`, async () => { await page.keyboard.press('k'); await page.waitForSelector('.sketch .sk-chain', { timeout: 15000 }); });
     await step(`${tag}: skeptic mode`, async () => { await page.keyboard.press('d'); await page.waitForSelector('.doubt ol li', { timeout: 15000 }); });
     await step(`${tag}: around this`, async () => { await page.keyboard.press('l'); await page.waitForSelector('.land-list li', { timeout: 15000 }); await page.keyboard.press('Escape'); });
     await step(`${tag}: your trail`, async () => {

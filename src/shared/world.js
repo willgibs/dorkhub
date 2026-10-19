@@ -124,7 +124,7 @@ export function migrateHoles(old, lens = 'encyclopedic') {
           const status = n.status === 'digging' ? (text ? 'partial' : 'empty') : n.status;
           if (!text || (status !== 'done' && status !== 'partial')) continue;
           const at = n.created || seen; const A = parseArticle(text, false);
-          const p = { id: pid, title: String(n.title).slice(0, 120), req, text, status, deck: n.deck || A.deck || '', kind: A.kind || (n.seed && n.seed.kind) || '', hint: n.seed || null, first: at, last: Math.max(at, seen), saved: n.reaction === 'wow' ? at : 0, wlens: n.wlens || n.lens || lens, seeded: !!n.seeded, pic: n.pic === undefined ? undefined : n.pic, figure: n.figure && n.figure !== 'loading' ? n.figure : null, land: n.land || null, doubts: Array.isArray(n.doubts) ? n.doubts : null, reveals: n.reveals || null };
+          const p = { id: pid, title: String(n.title).slice(0, 120), req, text, status, deck: n.deck || A.deck || '', kind: A.kind || (n.seed && n.seed.kind) || '', hint: n.seed || null, first: at, last: Math.max(at, seen), saved: n.reaction === 'wow' ? at : 0, wlens: n.wlens || n.lens || lens, seeded: !!n.seeded, pic: n.pic === undefined ? undefined : n.pic, land: n.land || null, doubts: Array.isArray(n.doubts) ? n.doubts : null, reveals: n.reveals || null };
           const ex = pages[pid];
           if (!ex) pages[pid] = p;
           else { const newer = p.last > ex.last ? p : ex; const older = newer === p ? ex : p; pages[pid] = { ...older, ...newer, first: Math.min(ex.first, p.first), saved: ex.saved || p.saved }; }
