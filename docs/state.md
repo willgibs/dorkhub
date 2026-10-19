@@ -12,7 +12,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   - willgibs/dorkhub#23 (44de524) the article page (Will's pick of two): a 70-character measure, a card's drawing
     as its plate, the captioned picture, the link card in the margin, the title in the top bar, sources, the thread.
   - willgibs/dorkhub#25 (4b1ad4a) the front page's 33 pages, each written once by the production writer, and a line
-    of key facts on every page (format v3.1); the prompt fixed from first tries (`node scripts/score.mjs`).
+    of key facts on every page (format v3.1); the prompt fixed from first tries (`node scripts/score.mjs`);
+    #26 (c950086) a lead picture over the proxy's 2 MB cap steps down a width (Time travel's is back).
 - **One bar for every page** (Will, 2026-10-19): a page written ahead of time comes from the production writer
   in one pass, like any page; what a page gets wrong is fixed in the prompt, for every page, never in the page.
   Placeholders (`lib/placeholder.js`) remain for future front-page topics.
@@ -20,7 +21,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
 ## Open
-- A lead picture over the proxy's 2 MB cap (Time travel's) now steps down a width: up for Will's look on `fix/picture-fallback`.
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
 
 ## Blocked on Will
