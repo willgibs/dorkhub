@@ -279,6 +279,14 @@ async function run(page, { mobile = false } = {}) {
        bar on every page (on a phone, in the menu) */
     const head = await page.evaluate(() => { const k = document.querySelector('.where .kind'); return { dot: k ? getComputedStyle(k, '::before').content : '', sketch: !!document.querySelector('[data-act="sketch"]'), theme: getComputedStyle(/** @type {Element} */ (document.querySelector('#themeBtn'))).display }; });
     if (head.dot !== 'none' || head.sketch || (head.theme === 'none') !== mobile) throw new Error(`the head and the top bar: ${JSON.stringify(head)}`);
+    /* reading: body text at 17 px on a measure of 580 px (Will, 2026-10-19: at 20 px on 680 px the eye travelled too far
+       for the words each line carried); a link reads as the line around it, underlined in its kind's colour */
+    const read = await page.evaluate(() => {
+      const p = /** @type {HTMLElement} */ ([...document.querySelectorAll('.a-body .pcol > p')].find(x => !x.classList.contains('lead')) || document.querySelector('.a-body .pcol > p'));
+      const a = document.querySelector('.a-body .pcol > p a.hole[data-kind]'); const cs = a && getComputedStyle(a);
+      return { size: getComputedStyle(p).fontSize, width: Math.round(p.getBoundingClientRect().width), ink: !!cs && cs.color === getComputedStyle(/** @type {Element} */ (a.closest('p'))).color, underline: !!cs && cs.textDecorationLine.includes('underline') && cs.textDecorationColor !== cs.color };
+    });
+    if (read.size !== '17px' || read.width > 580 || !read.ink || !read.underline) throw new Error(`reading: ${JSON.stringify(read)}`);
     if (lay.order !== 'cards qs ask' || lay.cards !== 6) throw new Error(`the end of the page: ${JSON.stringify(lay)}`);
     /* the picture's slot is reserved at its own shape, holds that height through the dot field and the reveal, and ends as a plain picture */
     if (!mobile) await page.waitForSelector('.pic-box.shown', { timeout: 8000 });

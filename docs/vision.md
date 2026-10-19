@@ -27,7 +27,12 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
    chrome) competes with the text.
 2. **Discovery.** The links are the product. They are specific and surprising: ideas,
    phenomena, mechanisms, mysteries, strange objects, places and events a curious person
-   would stop reading to look up. Never umbrella subjects, never a parade of people.
+   would stop reading to look up. Never umbrella subjects, never a parade of people. Yet on
+   the page they are quiet (Will, 2026-10-19): a link reads as the words around it, with a
+   thin underline in its kind's colour, and takes its colour when pointed at. Unlike an
+   encyclopedia that can only link what exists, any phrase here can be selected and opened
+   as a page, so the writer's links are suggestions, and coloured words all over a line
+   pulled the eye away from the line being read.
 3. **Flow.** Moving on should feel effortless: one topic per screen at its own address, the
    thing you clicked becomes the next title, back returns you to where you were, and
    nothing ever jumps. Free movement, not a tunnel: no levels, no single "next page".
@@ -146,7 +151,9 @@ or captioning it.
 page reads down a single centred column, and its asides, a facts panel and its picture sit in
 it, below the paragraph they belong to. Nothing sits beside the words but white space, and a
 link's card while you point at it, in the margin where there's room, so it never covers them.
-Lines run about 70 characters (20 px type on a 680 px column).
+Lines run about 67 characters: 17 px type on a 580 px column (Will, 2026-10-19: at 20 px on 680 px the eye
+travelled too far across each line for the few words it carried, and reading tired it), with the title, deck,
+headings, notes, panels and the end's cards a step down with it.
 
 **A point on its threads** (Will's pick of PR J, 2026-10-18): a page knows where it sits among
 yours. Its head names the page you came from, and a front-page topic's page opens with its
