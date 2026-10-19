@@ -15,7 +15,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     travel · DNA; cards peek ~116 px); the theme switch on every page; a kind is its coloured word, no dot; the head
     built for any length (titles by length, key facts side by side or down the column by what fits); no sketch; no
     "Written ahead of time." on the page; where it leads with an unnamed point; and every surface audited with an
-    outlier page (`tests/outliers.js`, in the browser walk): long words break inside their boxes everywhere.
+    outlier page (`tests/outliers.js`, in the browser walk): long words break inside their boxes everywhere;
+    #28 (24d5a31) a photo that fails shows the aurora drawn under it, or is dropped, never its alt text.
 - **Will, 2026-10-19:** design for what the writer sends (layouts hold the outliers; prompt rules are fickle), and
   one bar for every page (a page written ahead of time is the production writer's one pass; fix the prompt, not pages).
 - **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages. **Production today:** no
@@ -24,7 +25,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 ## Open
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
 ## Blocked on Will
-- **willgibs/dorkhub#28**: a failed photo shows an aurora, never its alt text; his look at the preview, then merge.
 - **willgibs/dorkhub#24, sharing** (its own session): his look, and his call on letting link-preview bots read a
   page's title and deck while search engines stay out.
 - Whether to rewrite the 11 earlier pages in one pass too. Later: a ruler of time under timelines, the link card as a sheet on phones.
