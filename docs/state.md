@@ -15,11 +15,13 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   preview): a calmer hero (48 px heading; black holes · Atlantis · time travel · DNA; cards peek ~116 px); the theme
   switch on every page; counts set as part of their icons; a kind is its coloured word, no dot; the head built for any
   length (titles sized by length, key facts side by side or down the column by what fits); Sketch it removed front to
-  back; "Written ahead of time." off the page; where it leads with an unnamed point and threads that meet their rings.
+  back; "Written ahead of time." off the page; where it leads with an unnamed point and threads that meet their rings;
+  and every surface audited with an outlier page (`tests/outliers.js`, now in the browser walk): long words break inside
+  their boxes everywhere, Around this keeps names whole and its labels apart.
 - **Will, 2026-10-19:** design for what the writer sends (layouts hold the outliers; prompt rules are fickle), and
   one bar for every page (a page written ahead of time is the production writer's one pass; fix the prompt, not pages).
-- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages.
-- **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
+- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages. **Production today:** no
+  gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
 ## Open
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).

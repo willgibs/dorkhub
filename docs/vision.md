@@ -124,7 +124,10 @@ must hold the outliers beautifully (a long title, a long fact, a long name) rath
 prompt rules to keep them short, which are far more fickle across models. Compact, clean inputs
 are welcome; the design never depends on them. So a title is set by its length (a question takes
 two or three lines at a smaller size, never four large), the key facts choose side by side or down
-the column by what fits, and the end's point carries no name to collide with.
+the column by what fits, and the end's point carries no name to collide with. Everywhere words from the writer
+appear (the page, its cards and panels, link cards, the sidebar, Around this, Your world), a word too long for its box
+breaks inside it rather than pushing the box wider, and a name that leads somewhere is kept whole: shortened only where
+the whole of it is a tap away. An outlier page (`tests/outliers.js`) holds the line in the browser walk.
 
 **One bar for every page** (Will, 2026-10-19): the front page's cards and suggestions are an
 economical, engaging way in, and the pages behind them are what any page is. A page written ahead

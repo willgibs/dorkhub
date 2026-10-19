@@ -12,6 +12,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { FRONT } from '../lib/front.js';
 import { placeholderText } from '../lib/placeholder.js';
+import { DISEASE, LAW, OUTLIER_AROUND, QUESTION, RULES, VILLAGE, outlierPage } from '../tests/outliers.js';
 import { slugOf, topicKey } from '../src/shared/world.js';
 
 const require = createRequire(import.meta.url);
@@ -522,6 +523,76 @@ async function movingIn() {
   await ctx.close();
 }
 
+/* The outliers (tests/outliers.js): a page with everything a writer can send that a prompt asks it not to, a 149-character
+   question for a title, names of 58 and 63 letters in one word, a heading of 150 characters, wide panel cells and long
+   hooks. Whatever it holds, nothing runs past its box, the page never scrolls sideways, and every name stays whole
+   where it leads somewhere (Will, 2026-10-19: design for what the writer sends). In a browser of its own, so its pages
+   don't join the walk's world. */
+async function outliers(mobile) {
+  const tag = `outliers ${mobile ? 'mobile' : 'desktop'}`;
+  const ctx = await browser.newContext(mobile ? { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' } : { viewport: { width: 1360, height: 900 } });
+  const page = await ctx.newPage(); page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  const titles = new Set([QUESTION, VILLAGE, RULES, LAW, DISEASE]);
+  await page.route('**/api/write', async r => {
+    const b = r.request().postDataJSON() || {};
+    if (b.task === 'page' && b.cachedOnly) return r.fulfill({ status: 204 });
+    if (b.task === 'page' && titles.has(b.input?.title)) return r.fulfill({ status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: outlierPage(b.input.title) });
+    if (b.task === 'around') return r.fulfill({ status: 200, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: OUTLIER_AROUND });
+    return r.continue();
+  });
+  /* what runs past its box: the page scrolling sideways, a piece of text wider than the box it is set in, or anything
+     past the right edge of the screen */
+  const spills = (/** @type {string} */ root) => page.evaluate(root => {
+    const vw = document.documentElement.clientWidth; const out = [];
+    if (document.documentElement.scrollWidth > vw + 1) out.push(`the page scrolls sideways by ${document.documentElement.scrollWidth - vw} px`);
+    for (const el of document.querySelectorAll(`${root} *`)) {
+      if (el.children.length || !el.getClientRects().length || el.closest('svg')) continue;
+      const r = el.getBoundingClientRect(); const txt = (el.textContent || '').trim().slice(0, 30);
+      if (getComputedStyle(el).overflowX === 'visible' && el.scrollWidth > el.clientWidth + 2 && el.clientWidth) out.push(`"${txt}" is wider than its box by ${el.scrollWidth - el.clientWidth} px`);
+      if (r.right > vw + 1) out.push(`"${txt}" runs ${Math.round(r.right - vw)} px past the screen`);
+    }
+    return out.slice(0, 5);
+  }, root);
+  await step(`${tag}: a page of extremes keeps its shape`, async () => {
+    await page.goto(base); await page.waitForSelector('#seedIn');
+    await page.fill('#seedIn', QUESTION); await page.press('#seedIn', 'Enter');
+    await page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
+    await page.waitForTimeout(400);
+    const head = await page.evaluate(() => ({ title: document.querySelector('.a-title')?.className || '', fit: /** @type {HTMLElement | null} */ (document.querySelector('.keyfacts'))?.dataset.fit || '' }));
+    if (!/\bt-xl\b/.test(head.title) || head.fit !== 'down') throw new Error(`the head: ${JSON.stringify(head)}`);
+    const out = await spills('.article'); if (out.length) throw new Error(out.join('; '));
+    await page.screenshot({ path: `${shots}/${mobile ? 'mobile' : 'desktop'}-10-outliers.png` });
+    await page.locator('.a-end').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
+    await page.screenshot({ path: `${shots}/${mobile ? 'mobile' : 'desktop'}-10b-outliers-end.png` });
+  });
+  if (!mobile) await step(`${tag}: a link card holds a 58-letter name`, async () => {
+    const hole = page.locator(`.a-body a.hole[data-t="${VILLAGE}"]`).first(); await hole.scrollIntoViewIfNeeded(); await hole.hover();
+    await page.waitForSelector('#hcard:not([hidden])', { timeout: 3000 });
+    const out = await spills('#hcard'); if (out.length) throw new Error(out.join('; '));
+    await page.mouse.move(4, 300); await page.waitForTimeout(500);
+  });
+  await step(`${tag}: around this keeps every name whole, and its labels apart`, async () => {
+    await page.evaluate(() => window.scrollTo(0, 0)); await page.keyboard.press('l'); await page.waitForSelector('.land-list li', { timeout: 15000 });
+    const land = await page.evaluate(() => {
+      const names = [...document.querySelectorAll('.land-list b')].map(b => b.textContent || '');
+      const svg = document.querySelector('.land svg'); const vb = svg && /** @type {SVGSVGElement} */ (svg).viewBox.baseVal;
+      const boxes = [...document.querySelectorAll('.land a text')].map(t => /** @type {SVGTextElement} */ (t).getBBox());
+      const outside = vb ? boxes.filter(b => b.x < vb.x || b.x + b.width > vb.x + vb.width).length : 0;
+      let overlaps = 0; boxes.forEach((a, i) => boxes.slice(i + 1).forEach(b => { if (a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height) overlaps++; }));
+      return { names, labels: boxes.length, outside, overlaps };
+    });
+    if (land.names[0] !== VILLAGE || !land.names.includes(RULES)) throw new Error(`a name was cut: ${JSON.stringify(land.names.slice(0, 3))}`);
+    if (!mobile && (!land.labels || land.outside || land.overlaps)) throw new Error(`the map's labels: ${JSON.stringify(land)}`);
+    const out = await spills('#sheet'); if (out.length) throw new Error(out.join('; '));
+    await page.keyboard.press('Escape');
+  });
+  await step(`${tag}: Your world holds the long names`, async () => {
+    await page.goto(`${base}/world`); await page.waitForSelector('.wp-facts', { timeout: 10000 });
+    const out = await spills('.wpage'); if (out.length) throw new Error(out.join('; '));
+  });
+  await ctx.close();
+}
+
 try {
   await step('reduced motion: the beam holds still and stays lit', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
@@ -535,6 +606,7 @@ try {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
   await run(await ctx.newPage(), { mobile: true });
   await movingIn();
+  await outliers(false); await outliers(true);
 } catch (e) { const pages = browser.contexts().flatMap(c => c.pages()); await pages.at(-1)?.screenshot({ path: `${shots}/failure.png` }).catch(() => {}); }
 await browser.close();
 server.kill();

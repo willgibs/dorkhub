@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
 import { FIXTURES } from './fixtures.js';
+import { DISEASE, LAW, QUESTION, RULES, VILLAGE, outlierPage } from './outliers.js';
 import { mockModel, page as mockPage } from '../lib/mock.js';
 import { RECORDED } from '../lib/recorded.js';
 import { streamText } from 'ai';
@@ -140,7 +141,7 @@ const cutsOf = (/** @type {string} */ t) => { const c = new Set([t.length]); for
 
 const linkKeys = (/** @type {any} */ A) => [...A.blocks.map((/** @type {any} */ b) => b.s), ...A.notes.map((/** @type {any} */ n) => n.s), ...A.panels.flatMap((/** @type {any} */ p) => [...p.heads, ...p.rows.flat()])].flatMap(s => [...String(s).matchAll(/\[\[([^\]]+)\]\]/g)].map(m => keyOf(splitLink(m[1])[1])));
 const MOCKS = Array.from({ length: 8 }, (_, i) => ({ title: `mock page ${i}`, text: mockPage({ title: `Mock ${i}`, lens: 'encyclopedic' }) }));
-const STREAMED = [...RECORDED, ...FIXTURES, ...MOCKS];
+const STREAMED = [...RECORDED, ...FIXTURES, ...MOCKS, { title: QUESTION, text: outlierPage() }];
 
 test('streaming never shows something that later changes or disappears', () => {
   for (const r of STREAMED) {
@@ -182,6 +183,19 @@ test('streaming never shows something that later changes or disappears', () => {
       prev = A;
     }
   }
+});
+
+/* what a writer can send that a prompt asks it not to (tests/outliers.js); the page has to hold it, so the parser keeps it whole */
+test('the outliers: a question for a title, names of 58 and 63 letters and wide panels parse whole', () => {
+  const A = parseArticle(outlierPage(), false);
+  assert.equal(A.title, QUESTION); assert.equal(A.kind, 'creature');
+  assert.deepEqual(A.keyFacts.map(f => f.label), ['Smallest mature males on record', 'Largest females', 'Longest name on this page']);
+  assert.equal(A.keyFacts[2].value, VILLAGE, 'a value of one 58-letter word is kept whole');
+  assert.deepEqual(A.panels.map(p => p.type), ['compare', 'timeline']);
+  const cards = cardsOf(A);
+  assert.deepEqual(cards.map(c => c.target), [VILLAGE, RULES, LAW, 'Bioluminescent lure', 'Major histocompatibility complex', DISEASE], 'a name of any length stays whole: it is the page it opens');
+  assert.equal(cards[3].kind, 'thing', "a kind the format doesn't know falls back to the plan's");
+  assert.equal(A.questions.length, 3);
 });
 
 test('panels: rows, titles, headers and their place on the page', () => {

@@ -110,29 +110,54 @@ async function landSheet(p = curPage()) {
     /* the answer is written for the page, so it is the same for everyone; what this reader has already read is hidden here */
     const out = await writeJSON('around', ctxInput(p), { signal: ctl.signal });
     const read = worldIndex().read;
-    const list = (Array.isArray(out) ? out : []).filter(o => o && o.name && !read.has(topicKey(String(o.name)))).slice(0, 8).map(o => ({ name: clip(String(o.name), 40), relation: String(o.relation || ''), kind: KINDS.includes(o.kind) ? o.kind : '', bearing: BEARINGS[o.bearing] != null ? o.bearing : 'elsewhere', distance: Math.max(1, Math.min(3, parseInt(o.distance, 10) || 2)) }));
+    /* a name is kept whole (it is the page it opens); only the map shortens it, to the room its label has */
+    const list = (Array.isArray(out) ? out : []).filter(o => o && o.name && !read.has(topicKey(String(o.name)))).slice(0, 8).map(o => ({ name: cleanTitle(o.name), relation: String(o.relation || ''), kind: KINDS.includes(o.kind) ? o.kind : '', bearing: BEARINGS[o.bearing] != null ? o.bearing : 'elsewhere', distance: Math.max(1, Math.min(3, parseInt(o.distance, 10) || 2)) }));
     if (!list.length) throw writeError('bad_output');
     p.land = list; save(); if (sheet.open && sheetCtl === ctl) openSheet('Around this page', landHTML(p));
   } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
 }
+/* The map's labels are placed, not just drawn: nearest topics first, each tries the side away from the centre, then
+   under, over and the far side of its dot, shortened to the room before the map's edge, and takes the first place no
+   dot, ring label or other label holds; a label with no free place is shortened until one is, or left out (its dot
+   stays, and the list below has every name whole). So any names, of any length, read without colliding. */
+const LAND_EM = 7.6; /* about how wide a letter of a 12.5 px bold label is */
+function landLabels(pts, taken, Wd) {
+  const hits = b => taken.some(t => b.x0 < t.x1 && b.x1 > t.x0 && b.y0 < t.y1 && b.y1 > t.y0);
+  const boxOf = (anchor, x, y, w) => { const x0 = anchor === 'end' ? x - w : anchor === 'middle' ? x - w / 2 : x; return { x0: x0 - 2, y0: y - 12, x1: x0 + w + 2, y1: y + 4 }; };
+  const out = new Map();
+  [...pts].sort((a, b) => a.o.distance - b.o.distance).forEach(q => {
+    const r = 14 - q.o.distance * 2; const right = q.x >= Wd / 2;
+    const sides = { out: right ? ['start', q.x + r + 7, q.y + 4.5] : ['end', q.x - r - 7, q.y + 4.5], back: right ? ['end', q.x - r - 7, q.y + 4.5] : ['start', q.x + r + 7, q.y + 4.5], under: ['middle', q.x, q.y + r + 15], over: ['middle', q.x, q.y - r - 8] };
+    const tries = Math.abs(q.x - Wd / 2) < 5 ? [sides.under, sides.over, sides.out, sides.back] : [sides.out, sides.under, sides.over, sides.back];
+    const fit = ([anchor, x]) => Math.min(26, Math.floor((anchor === 'end' ? x + 20 : anchor === 'start' ? Wd + 20 - x : 2 * Math.min(x + 20, Wd + 20 - x)) / LAND_EM));
+    let got = null;
+    for (let n = 26; n >= 6 && !got; n -= 4) for (const t of tries) {
+      const k = Math.min(n, fit(t)); if (k < Math.min(6, q.o.name.length)) continue; const text = clip(q.o.name, k);
+      const b = boxOf(t[0], t[1], t[2], text.length * LAND_EM); if (!hits(b)) { got = { anchor: t[0], x: t[1], y: t[2], text, b }; break; }
+    }
+    if (got) { taken.push(got.b); out.set(q, got); }
+  });
+  return out;
+}
 function landHTML(p) {
   const Wd = 600, Ht = 470, cx = Wd / 2, cy = Ht / 2; const glow = kindHex(p.kind);
   const by = {}; p.land.forEach((o, i) => { (by[o.bearing] = by[o.bearing] || []).push({ o, i }); });
-  let svg = `<rect width="${Wd}" height="${Ht}" rx="14" style="fill:var(--sunken)"/>`;
+  let svg = `<rect width="${Wd}" height="${Ht}" rx="14" style="fill:var(--sunken)"/>`; const taken = [];
   [1, 2, 3].forEach(d => { svg += `<circle cx="${cx}" cy="${cy}" r="${34 + d * 50}" fill="none" stroke="currentColor" stroke-opacity=".16" stroke-dasharray="2 5"/>`; });
-  Object.entries(BEARINGS).forEach(([b, deg]) => { const a = deg * Math.PI / 180; svg += `<text x="${(cx + Math.cos(a) * 268).toFixed(1)}" y="${(cy + Math.sin(a) * 226 + 4).toFixed(1)}" text-anchor="middle" font-size="11.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="currentColor" opacity=".5">${b}</text>`; });
+  Object.entries(BEARINGS).forEach(([b, deg]) => { const a = deg * Math.PI / 180; const x = cx + Math.cos(a) * 268, y = cy + Math.sin(a) * 226 + 4; taken.push({ x0: x - b.length * 3.6 - 2, y0: y - 11, x1: x + b.length * 3.6 + 2, y1: y + 3 }); svg += `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" text-anchor="middle" font-size="11.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="currentColor" opacity=".5">${b}</text>`; });
   const pts = [];
   Object.entries(by).forEach(([b, arr]) => arr.forEach((x, j) => { const spread = (j - (arr.length - 1) / 2) * 24; const a = (BEARINGS[b] + spread) * Math.PI / 180; const r = 34 + x.o.distance * 50; pts.push({ ...x, x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); }));
-  pts.forEach(q => { svg += `<line x1="${cx}" y1="${cy}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="currentColor" stroke-opacity=".2"/>`; });
-  svg += `<circle cx="${cx}" cy="${cy}" r="26" fill="${glow}"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Inter, system-ui, sans-serif" font-weight="800" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(clip(p.title, 30))}</text>`;
+  pts.forEach(q => { const r = 14 - q.o.distance * 2; taken.push({ x0: q.x - r - 2, y0: q.y - r - 2, x1: q.x + r + 2, y1: q.y + r + 2 }); svg += `<line x1="${cx}" y1="${cy}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="currentColor" stroke-opacity=".2"/>`; });
+  const centre = clip(p.title, 30); taken.push({ x0: cx - 28, y0: cy - 28, x1: cx + 28, y1: cy + 28 }, { x0: cx - centre.length * 4.2, y0: cy + 30, x1: cx + centre.length * 4.2, y1: cy + 48 });
+  svg += `<circle cx="${cx}" cy="${cy}" r="26" fill="${glow}"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Inter, system-ui, sans-serif" font-weight="800" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(centre)}</text>`;
+  const labels = landLabels(pts, taken, Wd);
   pts.forEach(q => {
-    const r = 14 - q.o.distance * 2;
-    /* labels lean away from the centre, so neighbours on the same bearing don't collide */
-    const side = q.x < cx - 24 ? -1 : q.x > cx + 24 ? 1 : 0;
-    const lx = q.x + side * (r + 7), ly = side ? q.y + 4.5 : q.y + r + 15;
-    svg += `<a href="${esc(routeOf({ title: q.o.name, lens: store.settings.lens }))}" data-land="${q.i}"${kattr(q.o.kind)} aria-label="${esc(q.o.name)}: ${esc(q.o.relation)}"><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r}" style="fill:var(--kc,currentColor)" fill-opacity=".85"/><text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${side < 0 ? 'end' : side > 0 ? 'start' : 'middle'}" font-size="12.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(clip(q.o.name, 24))}</text></a>`;
+    const r = 14 - q.o.distance * 2; const l = labels.get(q);
+    svg += `<a href="${esc(routeOf({ title: q.o.name, lens: store.settings.lens }))}" data-land="${q.i}"${kattr(q.o.kind)} aria-label="${esc(q.o.name)}: ${esc(q.o.relation)}"><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="${r}" style="fill:var(--kc,currentColor)" fill-opacity=".85"/>${l ? `<text x="${l.x.toFixed(1)}" y="${l.y.toFixed(1)}" text-anchor="${l.anchor}" font-size="12.5" font-family="Inter, system-ui, sans-serif" font-weight="700" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(l.text)}</text>` : ''}</a>`;
   });
-  return `<p>What surrounds <b>${esc(p.title)}</b>.<span class="land-hint"> Closer rings are closer relatives.</span> Pick anything to open a page on it.</p>
+  /* the sheet is titled "Around this page" and the map's centre names it, so the line under the title needn't: a long
+     title (a question, say) would run it to three lines */
+  return `<p><span class="land-hint">Closer rings are closer relatives. </span>Pick anything to open a page on it.</p>
 <figure class="land"><svg viewBox="-24 -8 ${Wd + 48} ${Ht + 16}" role="img" aria-label="Radial map of topics around ${esc(p.title)}">${svg}</svg></figure>
 <ol class="land-list">${p.land.map((o, i) => `<li><a href="${esc(routeOf({ title: o.name, lens: store.settings.lens }))}" data-land="${i}"${kattr(o.kind)}><b><i class="kdot3" aria-hidden="true"></i>${esc(o.name)}</b>${o.kind ? `<span class="kind">${esc(o.kind)}</span>` : ''}<span class="ll-r">${esc(o.relation)}</span><span class="ll-b">${o.bearing}, ${['', 'next door', 'nearby', 'far'][o.distance]}</span></a></li>`).join('')}</ol>`;
 }
