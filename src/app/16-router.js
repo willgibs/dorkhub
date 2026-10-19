@@ -3,6 +3,7 @@
    /world           Your world
    /<topic>         a page (?v= another voice, ?in= the sense of a name chosen on a page, ?q=1)
    /connect/<a>/<b> a connecting page
+   /trail/<a>/<b>…  a trail someone shared (15-share.js)
    #/w/<id>/<id>    an address from before Dorkhub had clean links: sent on to its page */
 let VIEW = '', FIRST = true, GUARD = new Map();
 const BOOT = Date.now();
@@ -10,7 +11,7 @@ function setView(v) {
   if (VIEW === 'world' && v !== 'world') leaveWorld();
   if (VIEW === 'home' && v !== 'home') stopLanding();
   if (VIEW === 'page' && v !== 'page') stopPlate();
-  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.remove('titled');
+  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.toggle('at-trail', v === 'trail'); document.body.classList.remove('titled');
 }
 function closeFloating() { hideSel(); hideCard(); closePMenu(); closeMenu(); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
 function route() {
@@ -20,6 +21,7 @@ function route() {
   else if (h === '#/' || h === '#') history.replaceState({ y: 0 }, '', '/');
   const r = parseRoute(location.pathname, location.search);
   if (r.view === 'page') showPage(r.input);
+  else if (r.view === 'trail') showTrail(r.steps);
   else if (r.view === 'world') { setView('world'); CUR = ''; document.documentElement.dataset.accent = 'concept'; showWorld(); window.scrollTo(0, 0); renderWorldBtn(); updateProg(); }
   else { if (r.view === 'none') history.replaceState({ y: 0 }, '', '/'); showHome(); }
   FIRST = false;
@@ -62,7 +64,7 @@ async function recheck(p) {
    when the reader asks, so a shared link or a crawler never spends anything by itself. */
 async function guard(p, why) {
   GUARD.set(p.id, 'checking'); paint(p);
-  try { const r = await write('page', pageInput(p), { cachedOnly: true }); if (CUR !== p.id) return; if (!r.none && r.text) { GUARD.delete(p.id); delete p.guarded; addStep(store.trails, p.id, { from: null, via: 'start' }); OPENED.add(p.id); fill(p, r.text, r.seeded); return; } }
+  try { const r = await write('page', pageInput(p), { cachedOnly: true }); if (CUR !== p.id) return; if (!r.none && r.text) { GUARD.delete(p.id); delete p.guarded; addStep(store.trails, p.id, walked(p)); OPENED.add(p.id); fill(p, r.text, r.seeded); return; } }
   catch (e) { /* offer the button anyway */ }
   if (CUR !== p.id) return;
   GUARD.set(p.id, why); paint(p);
@@ -75,9 +77,11 @@ function guardHTML(p) {
 }
 function writeGuarded() {
   const p = curPage(); if (!p) return; GUARD.delete(p.id); delete p.guarded;
-  if (!OPENED.has(p.id)) { addStep(store.trails, p.id, { from: null, via: 'start' }); OPENED.add(p.id); }
+  if (!OPENED.has(p.id)) { addStep(store.trails, p.id, walked(p)); OPENED.add(p.id); }
   p.last = Date.now(); generate(p);
 }
+/* how a page arrived at from outside joins your trail: as a start, or from a shared trail's step before it */
+const walked = p => (WALK && WALK.id === p.id ? { from: WALK.from, via: 'trail' } : { from: null, via: 'start' });
 addEventListener('popstate', () => { if (canVT() && VIEW === 'page') { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 
@@ -94,6 +98,7 @@ document.addEventListener('click', e => {
   if (Date.now() - lastTouch < 700) tapPara(e.target);
   const pt = e.target.closest('.ptool'); if (pt) { if (pm && pm.btn === pt) closePMenu(); else openPMenu(pt); return; }
   if (!e.target.closest('#pmenu')) closePMenu();
+  const wk = e.target.closest('a[data-walk]'); if (wk) { if (!plainClick(e)) return; e.preventDefault(); walk(+wk.dataset.walk); return; }
   const card = e.target.closest('a.card[data-t]'); if (card) { if (!plainClick(e)) return; e.preventDefault(); openTopic(card.dataset.t, { via: 'card', src: $('.cd-t', card) }); return; }
   const q = e.target.closest('[data-q]'); if (q) { if (!plainClick(e)) return; e.preventDefault(); openTopic(q.dataset.q, { via: 'question', q: true, src: $('.rt', q) }); return; }
   const gt = e.target.closest('[data-goto]'); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from,.fan-from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
@@ -134,6 +139,8 @@ document.addEventListener('click', e => {
   /* rewriting in the voice the page is already in is a private rewrite; another voice is another page, which may already be written */
   else if (x === 'rewrite' && p && p.status !== 'digging') rewrite(p);
   else if (x === 'save') toggleSave(p);
+  else if (x === 'share') shareHere();
+  else if (x === 'share-trail') shareTrail();
   else if (x === 'trail') trailSheet();
   else if (x === 'doubt') doubtPage(p);
   else if (x === 'land') landSheet(p);

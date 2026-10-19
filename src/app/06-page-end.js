@@ -108,6 +108,7 @@ function paintTools(p, sec) {
   /* a page that didn't come through has nothing to save, sketch, hear or quiz */
   if (p.status === 'error' || p.status === 'offline') { setHTML($('.tools', sec), t.join('')); return; }
   t.push(b('save', 'star', p.saved ? 'Saved. Click to unsave' : 'Save this page', 'S', p.status !== 'empty', ` aria-pressed="${!!p.saved}"`, ' save'));
+  t.push(b('share', 'share', 'Share this page', '', p.status !== 'empty'));
   const connect = worldIndex().read.size > 1;
   const sketchLabel = p.figure && p.figure !== 'loading' ? 'Show the sketch' : 'Sketch it: a diagram of this page';
   t.push(b('sketch', 'sketch', sketchLabel, 'K', ready, '', ' tw'));

@@ -26,18 +26,20 @@ test('fonts are cached for good, and crawlers keep to the front page', () => {
 });
 
 /* A topic lives at its own address (dorkhub.com/black-holes): Vercel serves the page there, files and
-   the API keep theirs (the filesystem comes first), and every such address says noindex. */
+   the API keep theirs (the filesystem comes first), and every such address says noindex. A shared trail
+   (/trail/a/b/c) is served the same way. Only link previews are sent elsewhere (tests/share.test.js). */
 test('topic addresses serve the page, and nothing else is caught', () => {
   const v = JSON.parse(read('vercel.json'));
   /** @param {string} src */
-  const re = src => new RegExp(`^${src.replace(/:([a-z]+)/g, '[^/]+')}$`);
-  const rewrites = v.rewrites.map((/** @type {any} */ r) => ({ re: re(r.source), to: r.destination }));
+  const re = src => new RegExp(`^${src.replace(/\/:([a-z]+)\*/g, '(?:/[^/]+)*').replace(/:([a-z]+)/g, '[^/]+')}$`);
+  const readers = v.rewrites.filter((/** @type {any} */ r) => !r.has);
+  const rewrites = readers.map((/** @type {any} */ r) => ({ re: re(r.source), to: r.destination }));
   const served = (/** @type {string} */ p) => rewrites.some((/** @type {any} */ r) => r.re.test(p));
-  for (const p of ['/black-holes', '/world', '/rubiks-cube', '/connect/tulip-mania/radiocarbon-dating', '/world-', `/${encodeURIComponent('ブラックホール')}`]) assert.ok(served(p), p);
+  for (const p of ['/black-holes', '/world', '/rubiks-cube', '/connect/tulip-mania/radiocarbon-dating', '/world-', `/${encodeURIComponent('ブラックホール')}`, '/trail/black-holes/supernovas']) assert.ok(served(p), p);
   for (const p of ['/', '/api', '/fonts', '/a/b', '/favicon.svg', '/robots.txt', '/front.json', '/wp-login.php', '/connect/a']) assert.ok(!served(p), p);
-  assert.ok(v.rewrites.every((/** @type {any} */ r) => r.destination === '/'));
+  assert.ok(readers.every((/** @type {any} */ r) => r.destination === '/'));
   const noindex = v.headers.filter((/** @type {any} */ h) => h.headers.some((/** @type {any} */ x) => x.key === 'X-Robots-Tag' && /noindex/.test(x.value))).map((/** @type {any} */ h) => re(h.source));
-  for (const p of ['/black-holes', '/world', '/connect/a/b']) assert.ok(noindex.some((/** @type {RegExp} */ r) => r.test(p)), `${p} is noindex`);
+  for (const p of ['/black-holes', '/world', '/connect/a/b', '/trail/a/b']) assert.ok(noindex.some((/** @type {RegExp} */ r) => r.test(p)), `${p} is noindex`);
   assert.ok(!noindex.some((/** @type {RegExp} */ r) => r.test('/')), 'the front page stays findable');
 });
 
@@ -45,10 +47,12 @@ test('topic addresses serve the page, and nothing else is caught', () => {
    demo and the rabbit-hole furniture it replaced; the front page's feed by shipping the stylesheet
    without its notes; and the hand-made cards live in /front.json, so reading pages never carry them. The article
    page's rethink (2026-10-18: a card's drawing carried into its page, the link card in the margin, sources, the end
-   drawn as threads) costs about 17 KB raw, 4 KB compressed. */
+   drawn as threads) costs about 17 KB raw, 4 KB compressed. Sharing (2026-10-19: the front page's link-preview tags,
+   the share action, trail addresses and the trail view, drawn with the page end's own threads) about 6.8 KB raw,
+   1.9 KB compressed; the pictures a link shows are files of their own. */
 test('the page stays within its size budget', () => {
   const html = read('public/index.html');
-  assert.ok(html.length < 384 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
+  assert.ok(html.length < 392 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
 });
 
 /* The page ships without its comments (src keeps them), but licence notices travel with the code. */

@@ -1,0 +1,389 @@
+{
+ "v": 1,
+ "pages": {
+  "carrington-event": {
+   "file": "carrington-event.jpg",
+   "from": "picture",
+   "title": "The Carrington Event",
+   "kind": "event",
+   "line": "The 1859 solar storm that set telegraph offices sparking.",
+   "alt": "The Carrington Event: The 1859 solar storm that set telegraph offices sparking. The picture: Drawing of sunspots by Richard Carrington (1826-1875), the English astronomer",
+   "credit": "Richard Christopher Carrington · Public domain"
+  },
+  "tardigrades": {
+   "file": "tardigrades.png",
+   "from": "type",
+   "title": "Tardigrades",
+   "kind": "creature",
+   "line": "Animals that survive freezing, boiling and the vacuum of space.",
+   "alt": "Tardigrades: Animals that survive freezing, boiling and the vacuum of space."
+  },
+  "whale-falls": {
+   "file": "whale-falls.jpg",
+   "from": "picture",
+   "title": "Whale falls",
+   "kind": "phenomenon",
+   "line": "One dead whale can feed a deep-sea ecosystem for decades.",
+   "alt": "Whale falls: One dead whale can feed a deep-sea ecosystem for decades. The picture: A chemoautotrophic whale fall community in the Santa Cruz basin off southern California at a depth of 1,674 m (5,492 ft)",
+   "credit": "Craig Smith NOAA · Public domain"
+  },
+  "antikythera-mechanism": {
+   "file": "antikythera-mechanism.jpg",
+   "from": "picture",
+   "title": "The Antikythera mechanism",
+   "kind": "thing",
+   "line": "A 2,000-year-old Greek computer, found in a shipwreck.",
+   "alt": "The Antikythera mechanism: A 2,000-year-old Greek computer, found in a shipwreck. The picture: Main w:en:Antikythera mechanism fragment (fragment A)",
+   "credit": "Logg Tandy · CC BY 4.0"
+  },
+  "voynich-manuscript": {
+   "file": "voynich-manuscript.jpg",
+   "from": "picture",
+   "title": "The Voynich manuscript",
+   "kind": "mystery",
+   "line": "A 600-year-old book that nobody can read.",
+   "alt": "The Voynich manuscript: A 600-year-old book that nobody can read. The picture: A page from the mysterious Voynich manuscript, which is undeciphered to this day",
+   "credit": "Wikimedia Commons · Public domain"
+  },
+  "umami": {
+   "file": "umami.jpg",
+   "from": "picture",
+   "title": "Umami",
+   "kind": "concept",
+   "line": "The fifth taste, first identified in a bowl of seaweed broth.",
+   "alt": "Umami: The fifth taste, first identified in a bowl of seaweed broth. The picture: A small bowl of soy sauce with a blob of green wasabi paste on the side and chop sticks laid across the top",
+   "credit": "Melissa Doroquez · CC BY-SA 2.0"
+  },
+  "why-is-ice-slippery": {
+   "file": "why-is-ice-slippery.jpg",
+   "from": "picture",
+   "title": "Why is ice slippery?",
+   "kind": "mystery",
+   "line": "Physicists have argued about it since Michael Faraday.",
+   "alt": "Why is ice slippery?: Physicists have argued about it since Michael Faraday. The picture: Outdoor ice skaters in 1925",
+   "credit": "FOTO:Fortepan · Public domain"
+  },
+  "great-emu-war": {
+   "file": "great-emu-war.png",
+   "from": "type",
+   "title": "The Great Emu War",
+   "kind": "event",
+   "line": "In 1932 Australia sent machine guns after emus. The emus won.",
+   "alt": "The Great Emu War: In 1932 Australia sent machine guns after emus. The emus won."
+  },
+  "kessler-syndrome": {
+   "file": "kessler-syndrome.jpg",
+   "from": "picture",
+   "title": "Kessler syndrome",
+   "kind": "phenomenon",
+   "line": "How one collision could lock us out of orbit for generations.",
+   "alt": "Kessler syndrome: How one collision could lock us out of orbit for generations. The picture: Space debris populations (not to scale) seen from outside geosynchronous orbit (GSO)",
+   "credit": "NASA image · Public domain"
+  },
+  "fresnel-lenses": {
+   "file": "fresnel-lenses.jpg",
+   "from": "picture",
+   "title": "Fresnel lenses",
+   "kind": "mechanism",
+   "line": "How lighthouses folded a giant lens into rings of glass.",
+   "alt": "Fresnel lenses: How lighthouses folded a giant lens into rings of glass. The picture: First-order rotating catadioptric Fresnel lens, dated 1870, displayed at the Musée national de la Marine, Paris",
+   "credit": "Rama · CeCILL"
+  },
+  "tulip-mania": {
+   "file": "tulip-mania.jpg",
+   "from": "picture",
+   "title": "Tulip mania",
+   "kind": "event",
+   "line": "The 1630s bubble where a single bulb reportedly cost a house.",
+   "alt": "Tulip mania: The 1630s bubble where a single bulb reportedly cost a house. The picture: 17th-century economic bubble in the Netherlands",
+   "credit": "Jan Brueghel the Younger · Public domain"
+  },
+  "bioluminescence": {
+   "file": "bioluminescence.jpg",
+   "from": "picture",
+   "title": "Bioluminescence",
+   "kind": "phenomenon",
+   "line": "Most animals in the deep ocean make their own light.",
+   "alt": "Bioluminescence: Most animals in the deep ocean make their own light. The picture: Flying and glowing firefly, Photinus pyralis",
+   "credit": "art farmer from evansville indiana, usa · CC BY-SA 2.0"
+  },
+  "black-holes": {
+   "file": "black-holes.jpg",
+   "from": "card",
+   "title": "Black holes",
+   "kind": "phenomenon",
+   "line": "Squeeze Earth into an 18 mm marble and it would become one.",
+   "alt": "Black holes, a phenomenon: Squeeze Earth into an 18 mm marble and it would become one. A black hole with a disk of gas round it, seen from just above the disk and drawn in dots as Luminet first drew one in 1979: the far side of the disk bent up over the top, the near side passing in front, brighter on the left where the gas comes toward you, and a thin ring of light hugging the shadow"
+  },
+  "northern-lights": {
+   "file": "northern-lights.jpg",
+   "from": "card",
+   "title": "Northern lights",
+   "kind": "phenomenon",
+   "line": "The green and the red are the same oxygen, glowing at different heights.",
+   "alt": "Northern lights, a phenomenon: The green and the red are the same oxygen, glowing at different heights. The northern lights over Luray, Virginia: red light high above a band of green"
+  },
+  "venus-flytraps": {
+   "file": "venus-flytraps.jpg",
+   "from": "card",
+   "title": "Venus flytraps",
+   "kind": "creature",
+   "line": "It counts: two touches within 20 seconds shut it, five start digestion.",
+   "alt": "Venus flytraps, a creature: It counts: two touches within 20 seconds shut it, five start digestion. A Venus flytrap from above, open: two lobes red inside, rimmed with long teeth, three trigger hairs on each and beads of nectar on the rims, on a winged stalk"
+  },
+  "quicksand": {
+   "file": "quicksand.jpg",
+   "from": "picture",
+   "title": "Quicksand",
+   "kind": "phenomenon",
+   "line": "You can’t sink past your waist, but pulling a foot out takes the force to lift a car.",
+   "alt": "Quicksand: You can’t sink past your waist, but pulling a foot out takes the force to lift a car. The picture: Quicksand and a warning sign about it at a gravel quarry in England",
+   "credit": "Andrew Dunn · CC BY-SA 2.0"
+  },
+  "stonehenge": {
+   "file": "stonehenge.jpg",
+   "from": "picture",
+   "title": "Stonehenge",
+   "kind": "place",
+   "line": "Its Altar Stone came from the north of Scotland, about 750 km away.",
+   "alt": "Stonehenge: Its Altar Stone came from the north of Scotland, about 750 km away. The picture: Prehistoric monument in England",
+   "credit": "garethwiscombe · CC BY 2.0"
+  },
+  "supernovas": {
+   "file": "supernovas.jpg",
+   "from": "picture",
+   "title": "Supernovas",
+   "kind": "phenomenon",
+   "line": "In 1054 one shone in daylight for 23 days. Its wreck is the Crab Nebula.",
+   "alt": "Supernovas: In 1054 one shone in daylight for 23 days. Its wreck is the Crab Nebula. The picture: SN 1994D (bright spot on the lower left), a Type Ia supernova within its host galaxy, NGC 4526",
+   "credit": "NASA/ESA · Public domain"
+  },
+  "diamonds": {
+   "file": "diamonds.jpg",
+   "from": "picture",
+   "title": "Diamonds",
+   "kind": "thing",
+   "line": "Most natural diamonds are between 1 and 3.5 billion years old.",
+   "alt": "Diamonds: Most natural diamonds are between 1 and 3.5 billion years old. The picture: Form of carbon",
+   "credit": "DGPC/ADF Luísa Oliveira · CC0"
+  },
+  "volcanoes": {
+   "file": "volcanoes.jpg",
+   "from": "picture",
+   "title": "Volcanoes",
+   "kind": "phenomenon",
+   "line": "Krakatoa was heard 4,800 km away, and barometers caught its blast seven times.",
+   "alt": "Volcanoes: Krakatoa was heard 4,800 km away, and barometers caught its blast seven times. The picture: Augustine Volcano (Alaska) during its eruptive phase on January 24, 2006",
+   "credit": "Cyrus Read Geophysicist USGS · Public domain"
+  },
+  "coral-reefs": {
+   "file": "coral-reefs.jpg",
+   "from": "picture",
+   "title": "Coral reefs",
+   "kind": "place",
+   "line": "Under 1% of the sea floor, home to an estimated quarter of all marine species.",
+   "alt": "Coral reefs: Under 1% of the sea floor, home to an estimated quarter of all marine species. The picture: Biodiversity in a coral reef",
+   "credit": "Richard Ling wikipedia@rling.com · CC BY-SA 3.0"
+  },
+  "dreams": {
+   "file": "dreams.jpg",
+   "from": "picture",
+   "title": "Dreams",
+   "kind": "phenomenon",
+   "line": "The longest dream of the night comes just before you wake.",
+   "alt": "Dreams: The longest dream of the night comes just before you wake. The picture: In this illustration, politician Daniel O'Connell dreams of a confrontation between his outfit and that of George IV (r. 1820–1830; shown via a thought bubble)",
+   "credit": "Print made by: Robert Seymour · Public domain"
+  },
+  "fingerprints": {
+   "file": "fingerprints.png",
+   "from": "type",
+   "title": "Fingerprints",
+   "kind": "thing",
+   "line": "Koalas have them too, so like ours they could confuse a crime scene.",
+   "alt": "Fingerprints: Koalas have them too, so like ours they could confuse a crime scene."
+  },
+  "terracotta-army": {
+   "file": "terracotta-army.jpg",
+   "from": "picture",
+   "title": "Terracotta Army",
+   "kind": "work",
+   "line": "Some 8,000 soldiers, found in 1974 by farmers digging a well.",
+   "alt": "Terracotta Army: Some 8,000 soldiers, found in 1974 by farmers digging a well. The picture: Terracotta Army in Xi'an, China",
+   "credit": "xiquinhosilva · CC BY 2.0"
+  },
+  "atlantis": {
+   "file": "atlantis.jpg",
+   "from": "card",
+   "title": "Atlantis",
+   "kind": "mystery",
+   "line": "Every telling of it goes back to two dialogues Plato wrote around 360 BC.",
+   "alt": "Atlantis, a mystery: Every telling of it goes back to two dialogues Plato wrote around 360 BC. The ringed city of Atlantis as a model drawn to Plato’s measurements: an island 5 stadia across with Poseidon’s temple, rings of sea and land 1, 2, 2, 3 and 3 stadia wide, walls of orichalcum, tin and brass, a racecourse, and the canal leading in from the sea"
+  },
+  "magnets": {
+   "file": "magnets.jpg",
+   "from": "card",
+   "title": "Magnets",
+   "kind": "thing",
+   "line": "A strong enough magnet can float a living frog. It has been done, at 16 tesla.",
+   "alt": "Magnets, a thing: A strong enough magnet can float a living frog. It has been done, at 16 tesla. Iron filings round a bar magnet, lying along its field: looping from its north pole round to its south, crowded at the poles"
+  },
+  "infinity": {
+   "file": "infinity.jpg",
+   "from": "card",
+   "title": "Infinity",
+   "kind": "concept",
+   "line": "Some infinities are bigger than others.",
+   "alt": "Infinity, a concept: Some infinities are bigger than others. Cantor’s diagonal: a list of numbers between 0 and 1, numbered 1, 2, 3 and running off into the distance, its diagonal digits lit, and below it a new number built from them, each digit one more, which differs from every row and so is on no list"
+  },
+  "time-travel": {
+   "file": "time-travel.png",
+   "from": "type",
+   "title": "Time travel",
+   "kind": "idea",
+   "line": "GPS satellite clocks gain 38 microseconds a day, just as relativity says.",
+   "alt": "Time travel: GPS satellite clocks gain 38 microseconds a day, just as relativity says."
+  },
+  "ice-ages": {
+   "file": "ice-ages.jpg",
+   "from": "picture",
+   "title": "Ice ages",
+   "kind": "era",
+   "line": "We are living in one: there is still ice at both poles.",
+   "alt": "Ice ages: We are living in one: there is still ice at both poles. The picture: An artist's impression of ice age Earth at Pleistocene glacial maximum",
+   "credit": "Ittiz · CC BY-SA 3.0"
+  },
+  "fireworks": {
+   "file": "fireworks.jpg",
+   "from": "card",
+   "title": "Fireworks",
+   "kind": "thing",
+   "line": "Every colour is a metal, and blue is the hardest to make.",
+   "alt": "Fireworks, a thing: Every colour is a metal, and blue is the hardest to make. Fireworks in a night sky over a ruler of visible light from 400 to 700 nanometres: each metal’s shell bursts above its own lines, copper in the blue (the smallest, blue being the hardest), barium in the green, sodium in the yellow, calcium in the orange and strontium in the red"
+  },
+  "rubiks-cube": {
+   "file": "rubiks-cube.jpg",
+   "from": "card",
+   "title": "Rubik’s Cube",
+   "kind": "thing",
+   "line": "43 quintillion positions, and every one can be solved in 20 moves.",
+   "alt": "Rubik’s Cube, a thing: 43 quintillion positions, and every one can be solved in 20 moves. A Rubik’s Cube taken apart: its 8 corners, 12 edges and 6 centres floating apart in their places, white on top, green and red at the sides"
+  },
+  "pompeii": {
+   "file": "pompeii.jpg",
+   "from": "card",
+   "title": "Pompeii",
+   "kind": "place",
+   "line": "The textbook date of the eruption, 24 August 79, may be months off.",
+   "alt": "Pompeii, a place: The textbook date of the eruption, 24 August 79, may be months off. Vesuvius erupting in AD 79, drawn to scale: a column of ash and pumice rising up to 33 km over a mountain barely more than one kilometre high, spreading at its top like a pine tree, as Pliny wrote, and dropping pumice on Pompeii 8 km away"
+  },
+  "mona-lisa": {
+   "file": "mona-lisa.jpg",
+   "from": "picture",
+   "title": "Mona Lisa",
+   "kind": "work",
+   "line": "Its fame took off when it was stolen from the Louvre in 1911.",
+   "alt": "Mona Lisa: Its fame took off when it was stolen from the Louvre in 1911. The picture: Painting by Leonardo da Vinci",
+   "credit": "Leonardo da Vinci · Public domain"
+  },
+  "lightning": {
+   "file": "lightning.jpg",
+   "from": "card",
+   "title": "Lightning",
+   "kind": "phenomenon",
+   "line": "A bolt heats the air to 30,000 °C, five times hotter than the Sun’s surface.",
+   "alt": "Lightning, a phenomenon: A bolt heats the air to 30,000 °C, five times hotter than the Sun’s surface. A bolt of lightning at night from the base of a cloud to a hill, its channel branching as the stepped leader felt its way down: the air in it is heated to about 30,000 °C, five times hotter than the Sun’s surface"
+  },
+  "octopuses": {
+   "file": "octopuses.jpg",
+   "from": "picture",
+   "title": "Octopuses",
+   "kind": "creature",
+   "line": "Two-thirds of an octopus’s neurons are in its arms.",
+   "alt": "Octopuses: Two-thirds of an octopus’s neurons are in its arms. The picture: Soft-bodied eight-limbed order of molluscs",
+   "credit": "albert kok · CC BY-SA 3.0"
+  },
+  "hieroglyphs": {
+   "file": "hieroglyphs.jpg",
+   "from": "picture",
+   "title": "Hieroglyphs",
+   "kind": "concept",
+   "line": "For some 1,400 years nobody could read them, until Champollion in 1822.",
+   "alt": "Hieroglyphs: For some 1,400 years nobody could read them, until Champollion in 1822. The picture: Fragment of a wall with hieroglyphs from the tomb of Seti I (reign c.1294 or 1290 - 1279 BC)",
+   "credit": "unknown Egyptian scribe · Copyrighted free use"
+  },
+  "giant-squid": {
+   "file": "giant-squid.jpg",
+   "from": "card",
+   "title": "Giant squid",
+   "kind": "creature",
+   "line": "Its eyes reach 27 cm across, as big as any animal’s.",
+   "alt": "Giant squid, a creature: Its eyes reach 27 cm across, as big as any animal’s. A giant squid’s eye, 27 cm across, in its chromatophore-flecked skin, too big to fit on the card, beside a human eye, 2.4 cm across, at the same scale"
+  },
+  "dna": {
+   "file": "dna.jpg",
+   "from": "picture",
+   "title": "DNA",
+   "kind": "thing",
+   "line": "Unwound, the DNA in one of your cells would stretch about 2 metres.",
+   "alt": "DNA: Unwound, the DNA in one of your cells would stretch about 2 metres. The picture: The structure of the DNA double helix (type B-DNA)",
+   "credit": "Zephyris · CC BY-SA 3.0"
+  },
+  "antarctica": {
+   "file": "antarctica.jpg",
+   "from": "picture",
+   "title": "Antarctica",
+   "kind": "place",
+   "line": "If all its ice melted, the seas would rise about 58 metres.",
+   "alt": "Antarctica: If all its ice melted, the seas would rise about 58 metres. The picture: Earth's southernmost continent",
+   "credit": "Heraldry · CC BY-SA 3.0"
+  },
+  "origami": {
+   "file": "origami.jpg",
+   "from": "card",
+   "title": "Origami",
+   "kind": "technique",
+   "line": "A fold made for spacecraft opens a whole solar panel in one pull.",
+   "alt": "Origami, a technique: A fold made for spacecraft opens a whole solar panel in one pull. A sheet of paper in Miura’s fold, a zigzag of parallelograms that opens and closes in a single motion, as it opened a satellite’s solar array"
+  },
+  "boomerangs": {
+   "file": "boomerangs.jpg",
+   "from": "picture",
+   "title": "Boomerangs",
+   "kind": "thing",
+   "line": "Most boomerangs were never meant to come back.",
+   "alt": "Boomerangs: Most boomerangs were never meant to come back. The picture: An Egyptian boomerang; National Archaeological Museum, Athens, Greece",
+   "credit": "Tilemahos Efthimiadis from Athens · CC BY 2.0"
+  },
+  "enigma-machine": {
+   "file": "enigma-machine.jpg",
+   "from": "card",
+   "title": "Enigma machine",
+   "kind": "thing",
+   "line": "It never turned a letter into itself, and that flaw helped break it.",
+   "alt": "Enigma machine, a thing: It never turned a letter into itself, and that flaw helped break it. An Enigma machine: tap its keys or type"
+  },
+  "apollo-11": {
+   "file": "apollo-11.jpg",
+   "from": "picture",
+   "title": "Apollo 11",
+   "kind": "event",
+   "line": "Its computer had 2,048 words of memory, and flashed alarms minutes before landing.",
+   "alt": "Apollo 11: Its computer had 2,048 words of memory, and flashed alarms minutes before landing. The picture: Apollo 11 Hasselblad image from film magazine 40/S - EVA",
+   "credit": "Neil A. Armstrong · Public domain"
+  },
+  "holograms": {
+   "file": "holograms.jpg",
+   "from": "picture",
+   "title": "Holograms",
+   "kind": "thing",
+   "line": "Cut one in half and each piece still shows the whole scene.",
+   "alt": "Holograms: Cut one in half and each piece still shows the whole scene. The picture: Two photographs of a single hologram taken from different viewpoints",
+   "credit": "Holo-Mouse.jpg : Georg-Johann Lay derivative work: Epzcaw · Public domain"
+  }
+ },
+ "generic": {
+  "file": "dorkhub.jpg",
+  "from": "front",
+  "alt": "Dorkhub: “Learn about anything” above the box where you type a topic."
+ }
+}

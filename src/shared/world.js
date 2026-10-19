@@ -32,7 +32,7 @@ export function pageId({ title = '', lens = 'encyclopedic', q = false, ctx = '',
    a name chosen inside a page (?in=) and a question the address alone can't show (?q=1) ride in the
    query; a connecting page lives at /connect/a/b. Names the site itself uses get a trailing hyphen,
    which no topic's own address ever has. */
-const RESERVED = ['world', 'connect', 'api', 'fonts', 'index', 'about', 'pro', 'privacy', 'terms', 'help', 'settings', 'new', 'search', 'saved', 'trails', 'keys', 'licenses', '404'];
+const RESERVED = ['world', 'connect', 'trail', 'share', 'api', 'fonts', 'index', 'about', 'pro', 'privacy', 'terms', 'help', 'settings', 'new', 'search', 'saved', 'trails', 'keys', 'licenses', '404'];
 /** @param {unknown} t */
 export function slugOf(t) { const k = topicKey(t).replace(/ /g, '-'); return RESERVED.includes(k) ? `${k}-` : k; }
 /** @param {string} s */
@@ -53,16 +53,45 @@ export function routeOf({ title = '', lens = 'encyclopedic', q = false, ctx = ''
   const t = qs.toString(); return t ? `${path}?${t}` : path;
 }
 
+/* ---------- a trail as a link: how a reader got somewhere, page by page ----------
+   /trail/<a>/<b>/<c>: each page's address word in the order it was first opened (a connecting page is its pair
+   joined by "+"), the latest TRAIL_MAX of them. It names topics and nothing else: a voice, the sense of a name and
+   a question the words can't show stay with the reader who took it, and the trail opens each page in the default
+   voice, where the pages written ahead of time are free. */
+export const TRAIL_MAX = 12;
+/** @param {Partial<PageReq>[]} reqs */
+export function trailRouteOf(reqs) {
+  /** @type {string[]} */ const words = [];
+  for (const r of reqs) {
+    const w = r.bridge && r.bridge.length === 2 ? r.bridge.map(b => encodeURIComponent(slugOf(b))).join('+') : encodeURIComponent(slugOf(r.title));
+    if (w && !/^\+|\+$/.test(w) && !words.includes(w)) words.push(w);
+  }
+  return words.length ? `/trail/${words.slice(-TRAIL_MAX).join('/')}` : '';
+}
+/** The pages a trail's address names, in its order, each once. @param {string[]} words @returns {PageReq[]} */
+function trailOf(words) {
+  /** @type {PageReq[]} */ const out = []; const ids = new Set();
+  for (const w of words) {
+    const pair = w.split('+'); /** @type {PageReq | null} */ let req = null;
+    if (pair.length === 2) { const [a, b] = pair.map(titleOfSlug); if (a && b) req = { title: `${a} and ${b}`, lens: 'encyclopedic', q: false, ctx: '', bridge: [a, b] }; }
+    else if (pair.length === 1) { const title = titleOfSlug(w); if (title) req = { title, lens: 'encyclopedic', q: asksQuestion(title), ctx: '', bridge: null }; }
+    if (!req) continue; const id = pageId(req); if (ids.has(id)) continue;
+    ids.add(id); out.push(req); if (out.length === TRAIL_MAX) break;
+  }
+  return out;
+}
+
 /**
- * What an address shows: the front page, Your world, a page, or nothing we know.
+ * What an address shows: the front page, Your world, a page, a trail, or nothing we know.
  * @param {string} pathname @param {string} [search]
- * @returns {{ view: 'home' } | { view: 'world' } | { view: 'none' } | { view: 'page', input: PageReq }}
+ * @returns {{ view: 'home' } | { view: 'world' } | { view: 'none' } | { view: 'page', input: PageReq } | { view: 'trail', steps: PageReq[] }}
  */
 export function parseRoute(pathname, search = '') {
   const parts = String(pathname || '/').split('/').filter(Boolean).map(dec);
   const qs = new URLSearchParams(search || ''); const lens = (qs.get('v') || 'encyclopedic').toLowerCase();
   if (!parts.length) return { view: 'home' };
   if (parts.length === 1 && parts[0] === 'world') return { view: 'world' };
+  if (parts[0] === 'trail') { const steps = trailOf(parts.slice(1)); return steps.length ? { view: 'trail', steps } : { view: 'none' }; }
   if (parts.length === 3 && parts[0] === 'connect') {
     const a = titleOfSlug(parts[1]), b = titleOfSlug(parts[2]);
     if (a && b) return { view: 'page', input: { title: `${a} and ${b}`, lens, q: false, ctx: '', bridge: [a, b] } };

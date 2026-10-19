@@ -12,6 +12,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Script } from 'node:vm';
 import { CARDS, EARLIER, FRONT, frontData, plateCss } from '../lib/front.js';
+import { frontMeta, images, knownPages, metaTags, pageMeta, siteOf } from '../lib/share.js';
 import { trialConfig } from '../lib/trial.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -87,8 +88,10 @@ const csp = [
   "object-src 'none'",
 ].join('; ');
 
-const html = [
-  src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`),
+/* the page, with the head a link to it shows (lib/share.js): the front page's own, or a known page's */
+const site = siteOf(process.env);
+const pageHTML = (/** @type {import('../lib/share.js').Meta} */ meta) => [
+  src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`).replace('<!--meta-->', metaTags(meta, site)),
   '<style>',
   /* the stylesheet's notes stay in the source; the page ships without them (vendored notices stay) */
   css('styles.css'),
@@ -101,14 +104,26 @@ const html = [
   '</html>',
   '',
 ].join('\n');
+const html = pageHTML(frontMeta());
 if (!html.includes('Content-Security-Policy')) throw new Error('src/head.html lost its <!--csp--> placeholder');
+if (!html.includes('og:image')) throw new Error('src/head.html lost its <!--meta--> placeholder');
 
 rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 writeFileSync(join(out, 'index.html'), html);
 cpSync(join(root, 'src', 'static'), out, { recursive: true });
+/* Every page known before anyone asks (written ahead of time, or a front-page topic's placeholder) gets its address a
+   copy of the page whose head says what it is, so a link to it unfurls as itself: files come before the rewrites,
+   and cleanUrls serves black-holes.html at /black-holes. The page is the same page; only the head differs. */
+const known = await knownPages();
+for (const p of known) {
+  if (!/^[a-z0-9-]+$/.test(p.word) || existsSync(join(out, `${p.word}.html`))) throw new Error(`a known page can't take the address ${p.path}`);
+  writeFileSync(join(out, `${p.word}.html`), pageHTML(pageMeta(p)));
+}
+const pics = images().pages; const bare = known.filter(p => !pics[p.word]).map(p => p.title);
+if (bare.length) console.log(`${bare.length} known page${bare.length === 1 ? '' : 's'} without a picture of ${bare.length === 1 ? 'its' : 'their'} own yet (node scripts/share.mjs): ${bare.join(', ')}`);
 /* the front page's cards and map, made by hand in lib/front.js, and their look (src/front.css, with the few rules
    lib/front.js computes from its drawings): only the front page fetches them, so reading pages carry neither */
 writeFileSync(join(out, 'front.json'), JSON.stringify(frontData()));
 writeFileSync(join(out, 'front.css'), `${css('front.css')}\n${plateCss()}\n`);
-console.log(`public/index.html  ${(html.length / 1024).toFixed(0)} KB (script ${(script.length / 1024).toFixed(0)} KB)  ${shared.length} shared + ${vendor.length + vendorCss.length} vendored + ${modules.length} app modules`);
+console.log(`public/index.html  ${(html.length / 1024).toFixed(0)} KB (script ${(script.length / 1024).toFixed(0)} KB)  ${shared.length} shared + ${vendor.length + vendorCss.length} vendored + ${modules.length} app modules, and ${known.length} known pages' heads`);

@@ -1048,3 +1048,11 @@ body:not(.at-start) .theme-btn{display:none}
 .t-digit-group.is-animating .t-digit[data-same]{animation:none}
 @keyframes t-digit-pop-in{0%{transform:translateY(var(--dist-base));opacity:0;filter:blur(var(--blur-s))}100%{transform:translateY(0);opacity:1;filter:blur(0)}}
 @media (prefers-reduced-motion:reduce){ .t-digit-group .t-digit{animation:none!important} }
+
+/* ================= sharing (src/app/15-share.js) =================
+   A shared trail is drawn as a page's end draws its threads: its pages in one column, a thread from each to the next */
+.fan.tr{display:block}
+.fan.tr .fan-out::before{display:none}
+/* like Your world, a trail has no sidebar, nor the page's tools button on a phone */
+body.at-trail .shell{grid-template-columns:minmax(0,1fr)}
+body.at-trail :is(.side,.side-btn,.fab){display:none!important}
