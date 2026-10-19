@@ -171,7 +171,14 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 /* Northern lights: the photograph, cropped tall, its scale of heights down the right edge: numbers outside the axis,
    the bands against it, the words inside. On its turn the bands rise, red after green */
 .wc[data-card="northern-lights"] .wc-art::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,6,12,.5) 0%,rgba(4,6,12,0) 20%),linear-gradient(to top,rgba(4,6,12,.7) 0%,rgba(4,6,12,0) 24%),linear-gradient(to left,rgba(4,6,12,.55) 0%,rgba(4,6,12,0) 50%)}
-.nl-img{display:block;width:100%;height:100%;object-fit:cover;object-position:36% 50%}
+/* under the photograph, the aurora itself drawn soft, the red above the green as the scale has them: it shows while the
+   photo loads, and in its place if it never does. A photo that fails steps aside (05-render.js) and never prints its
+   alt text over the card */
+.wc[data-card="northern-lights"] .wc-art{background:radial-gradient(70% 34% at 38% 30%,rgba(255,84,104,.34),rgba(255,84,104,0) 70%),radial-gradient(80% 30% at 36% 62%,rgba(86,240,140,.3),rgba(86,240,140,0) 70%),#06070B}
+.nl-img{display:block;width:100%;height:100%;object-fit:cover;object-position:36% 50%;color:transparent}
+.nl-img.gone{visibility:hidden}
+/* and with no photo, no credit for one */
+.wc:has(.nl-img.gone) .wc-cr{visibility:hidden}
 .nl-scale{position:absolute;right:14px;top:74px;bottom:46px;z-index:2;width:170px;font:600 9.5px/1 var(--f-ui);color:rgba(255,255,255,.66);font-variant-numeric:tabular-nums}
 .nl-ax{position:absolute;right:30px;top:0;bottom:0;width:1px;background:rgba(255,255,255,.42)}
 .nl-tk{position:absolute;right:0;width:22px;text-align:right;font-weight:600;transform:translateY(50%)}
