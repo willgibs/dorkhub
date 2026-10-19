@@ -86,7 +86,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   the production writer in one pass, in small batches scored between, with the line of key facts on every page
   and the prompt fixed from what the first tries showed. Details in `docs/decisions.md`.
 - **Next: the writer, page by page** (Will, 2026-10-19: get any page right on the first try, quickly). Keep the
-  loop: small batches of first tries, scored against what the prompt asks, a rule only for a failure on two or more
+  loop: small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs <dir>`), a rule only for a failure on two or more
   pages of different kinds, a regression set unlike the front page whenever the prompt changes. Once credits land,
   the real writer replaces the stand-ins, and pages written ahead of time are rewritten when the prompt changes, so
   they never fall behind live pages (one bar). **(Will)** The 11 earlier pages (Tardigrades and the rest) were
