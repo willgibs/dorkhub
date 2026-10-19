@@ -9,10 +9,9 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   topics and a map of their threads; #19 the cards finished; #20 (857dfcf) the drawing leads, one card playing
   at a time (`stage` in `13-landing.js`); #21 numbers read whole to screen readers; #22 (94798de) the hero;
   #23 (44de524) the article page: the measure, a card's drawing as its plate, sources, the thread.
-- **Up for Will's look: pages people can share** (willgibs/dorkhub#24, `experience/sharing`; review page
-  https://claude.ai/artifact/TETXzAYcKuYQptPnWnQVpq): a link unfurls as its page (its title, deck and a
-  picture made by `node scripts/share.mjs`), a share icon among a page's tools, trails as links (`/trail/a/b/c`).
-  Built beside the writing of the 32 (`content/the-32`); the PR says what the two branches share.
+- **Up for Will's look: pages people can share** (willgibs/dorkhub#24; review https://claude.ai/artifact/TETXzAYcKuYQptPnWnQVpq):
+  a link unfurls as its page (title, deck, a picture from `node scripts/share.mjs`), a share icon in a page's tools,
+  trails as links (`/trail/a/b/c`). Built beside `content/the-32`; the PR says what the two branches share.
 - **The 32 as placeholders** (Will, 2026-10-15): each front-page topic not written yet opens a
   placeholder (`lib/placeholder.js`) at its own address, free and instant, claiming only what
   `lib/front.js` has checked. The writer's brief: `node scripts/seeds.mjs brief "<title>"`.
