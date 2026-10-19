@@ -10,7 +10,7 @@ import { CARDS, DOORS as AHEAD, FRONT, THREADS } from '../lib/front.js';
 import { placeholderText } from '../lib/placeholder.js';
 import { pageInput, pagePrompt } from '../lib/prompts.js';
 import { seedOf, seedText } from '../lib/seeds.js';
-import { KINDS, cardsOf, parseArticle } from '../src/shared/article.js';
+import { KINDS, cardsOf, keyOf, parseArticle } from '../src/shared/article.js';
 import { asksQuestion, topicKey } from '../src/shared/world.js';
 import { KEY, memoryStore, pageBody } from './helpers.js';
 
@@ -89,7 +89,15 @@ test('every topic on the front page opens free: its page, or a placeholder until
     const s = await seedOf(pageInput({ title: T.t }), dir);
     assert.ok(s, `${T.t}: opens free`);
     assert.equal(s.placeholder, !written.has(topicKey(T.t)), `${T.t}: a placeholder exactly while its page isn't written`);
-    if (!s.placeholder) continue;
+    if (!s.placeholder) {
+      /* written for the front page by the same writer as every page: in its card's colour, linking its threads, with its key facts */
+      const W = parseArticle(s.text, false);
+      assert.equal(W.kind, parseArticle(`# x :: ${T.k}\n`, false).kind, `${T.t}: the kind the front page shows, so it opens in its card's colour`);
+      for (const th of THREADS.filter(x => x.a === T.t || x.b === T.t)) { const to = th.a === T.t ? th.b : th.a; assert.ok(W.gloss[keyOf(to)], `${T.t}: links ${to}, its thread on the front page`); }
+      assert.equal(W.keyFacts.length, 3, `${T.t}: three key facts`);
+      for (const f of W.keyFacts) assert.ok(f.label.split(/\s+/).length <= 3 && f.value.split(/\s+/).length <= 7, `${T.t}: a short key fact, "${f.label} :: ${f.value}"`);
+      continue;
+    }
     const A = parseArticle(s.text, false);
     assert.ok(A.title === T.t && A.kind === parseArticle(`# x :: ${T.k}\n`, false).kind && A.deck === T.h, `${T.t}: its title, its kind and its hook`);
     assert.ok(A.blocks.filter(b => b.t === 'p').length >= 3 && A.blocks.filter(b => b.t === 'h').length >= 2 && A.notes.length === 2 && A.panels.length === 2, `${T.t}: shaped like a page`);

@@ -1,0 +1,79 @@
+# Hieroglyphs :: concept
+> A carved script went unread for about 1,400 years, until a broken stone with one decree in three scripts cracked it.
+!!!
+Earliest known :: about 3200 BCE, Abydos
+Signs catalogued :: over 700 in Gardiner's list
+Deciphered :: 1822, by Jean-François Champollion
++++
+[[Rosetta Stone]] :: thing
+[[Jean-François Champollion]] :: person
+[[Thomas Young (scientist)]] :: person
+[[Athanasius Kircher]] :: person
+[[Demotic (Egyptian)]] :: thing
+[[Hieratic]] :: thing
+[[Cartouche (Egyptian)]] :: thing
+[[Coptic language]] :: thing
+[[Karnak (temple)]] :: place
+[[Philae (island)]] :: place
+[[Ostracon]] :: thing
+[[Proto-Sinaitic script]] :: thing
+---
+Walk through the temple at [[Karnak (temple)|Karnak]] and the walls are crowded with tiny birds, coiled snakes, loaves of bread and seated men, each one a picture that might also be a sound. Scribes wrote this way for over three thousand years, carving prayers and royal victories into stone. The last dated inscription was cut on the island temple of [[Philae (island)|Philae]], and the knowledge faded as the temples and their scribes disappeared. For about 1,400 years after that, no one could read a line.
+
+::: timeline
+c. 3200 BCE :: Earliest known signs appear on tomb labels
+1799 :: French soldiers find the Rosetta Stone in the Nile delta
+1822 :: Champollion's letter to Dacier is read in Paris
+1824 :: Champollion publishes his Précis, setting out the full system
+1832 :: Champollion dies in Paris, aged 41
+:::
+
+## Pictures that spelled sounds
+
+Egyptian writing ran on three kinds of sign, and one picture could do more than one job. Some signs stood for whole words, such as a sun disk for ra, the word for sun. Others were pure sounds: an owl stood for the consonant m and a mouth for r, so a name could be spelled out in consonants. Finally came silent markers called determinatives, placed after a word to show its category, such as a seated man after words for people.
+
+^ The Egyptians called their script medju netjer, the god's words, while the Greek name means sacred carving.
+
+Most writing never reached a temple wall. Scribes used [[Hieratic|hieratic]], a fast cursive form of the signs, for accounts and letters on papyrus, and from the 7th century BCE [[Demotic (Egyptian)|Demotic]] took over much of the everyday paperwork. Crews who cut royal tombs also scratched notes and sketches onto flakes of limestone and broken pottery, known as [[Ostracon|ostraca]]. Those scraps show the same script running from royal monuments down to receipts, letters and doodles.
+
+## Centuries of wrong guesses
+
+Once the temples emptied, readers filled the gap with imagination. A Greek book attributed to Horapollo, probably from the 5th century CE, claimed that a vulture meant "mother" and a bee meant "king", because each picture carried a hidden idea. Renaissance scholars took such claims seriously, and in the 1650s the Jesuit scholar [[Athanasius Kircher]] published lavish "translations" that were pure invention. Those books were beautifully illustrated and wrong, and they kept scholars hunting for mystical meanings.
+
+The guesses were not foolish, since many signs really did stand for things and ideas. An owl on a temple wall looked like an owl, so few readers suspected it stood for a sound. The key stayed hidden in plain sight, because the sound signs looked exactly like the pictures around them.
+
+## A stone with one decree in three scripts
+
+The breakthrough began with one stone, the [[Rosetta Stone]], which carries a single royal decree three times over: hieroglyphs at the top, the everyday Demotic in the middle and Greek at the bottom. Scholars could read the Greek, so the Egyptian versions gave them a check on every guess. After French forces surrendered Egypt, the British claimed the stone and shipped it to London, where it is still on display.
+
+[[Thomas Young (scientist)|Thomas Young]], an English polymath, noticed that the oval rings called [[Cartouche (Egyptian)|cartouches]] enclosed royal names, and he matched a few signs to sounds. The ring acted like a label, so the royal name stood out from the ordinary text around it. Young got some signs right but never built a full system, and the rest of the work fell to others.
+
+[[Jean-François Champollion|Champollion]], a French scholar who had mastered [[Coptic language|Coptic]], the last stage of the Egyptian language, saw that hieroglyphs mixed sounds with pictures. He tested the idea on royal names, and the sounds he read matched the Greek forms of those names. Coptic also supplied the vowels that the signs left out, since the script never wrote them.
+
+^ Coptic lives on in Egyptian church services, so the language that opened hieroglyphs is still chanted in worship.
+
+The idea of a sign standing for a sound travelled beyond Egypt. Semitic-speaking miners in the Sinai borrowed a handful of Egyptian signs, and their [[Proto-Sinaitic script|Proto-Sinaitic]] inscriptions are a likely ancestor of the Phoenician alphabet. From Phoenician came the Greek and Latin letters you are reading now.
+===
+- [[Enigma machine]] :: Codebreakers beat Enigma with known words, guessing phrases a message must contain :: thing
+- [[Atlantis]] :: Plato credited Egyptian priests with a tale of Atlantis, a sunken island :: mystery
+- [[Boomerangs]] :: Tutankhamun was buried with curved throwing sticks that look much like Australian boomerangs :: thing
+- [[Linear B]] :: An architect cracked Linear B in 1952, revealing an early form of Greek :: thing
+- [[Maya script]] :: A Soviet scholar opened Maya glyphs using a 16th-century friar's alphabet :: thing
+- [[Behistun Inscription]] :: A cliff in Iran carved in three languages unlocked cuneiform, Mesopotamia's writing :: thing
+???
+Could anyone read hieroglyphs after the temple priests stopped writing them?
+Did the Rosetta Stone's Greek text translate every hieroglyphic sign?
+Did ancient Egyptians ever write hieroglyphs on anything except stone?
+&&&
+[[Rosetta Stone]] :: One royal decree, repeated in three scripts, turned into a key.
+[[Jean-François Champollion]] :: A language prodigy who spent over a decade on one puzzle.
+[[Thomas Young (scientist)]] :: Helped prove light is a wave, and picked out royal names.
+[[Athanasius Kircher]] :: A Jesuit who translated obelisks with total confidence and total error.
+[[Demotic (Egyptian)]] :: Cursive script that carried Egypt's paperwork for over a thousand years.
+[[Hieratic]] :: The same signs, written fast in ink, for priests and officials.
+[[Cartouche (Egyptian)]] :: An oval ring that gave scholars a way into royal names.
+[[Coptic language]] :: Egypt's final spoken stage, and a language that bridged millennia.
+[[Karnak (temple)]] :: Pharaohs kept adding halls to it for over a thousand years.
+[[Philae (island)]] :: An island temple that carved the last dated hieroglyphs.
+[[Ostracon]] :: Egyptian doodles, complaints and receipts, scratched on broken pottery.
+[[Proto-Sinaitic script]] :: Miners' scratches that may be the grandparent of our alphabet.

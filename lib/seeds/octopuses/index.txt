@@ -1,0 +1,76 @@
+# Octopuses :: creature
+> Eight arms that taste, grip and sometimes decide for themselves, and a body that can squeeze through any gap its beak fits.
+!!!
+Known species :: About 300 species
+Home :: Seabeds from shallows to deep sea
+Lifespan :: Usually one to two years
++++
+[[Giant squid]] :: creature
+[[Cuttlefish]] :: creature
+[[Nautilus (cephalopod)]] :: creature
+[[Coral reefs]] :: place
+[[Mimic octopus]] :: creature
+[[Chromatophore]] :: thing
+[[Stazione Zoologica Anton Dohrn]] :: place
+[[RNA editing]] :: mechanism
+[[Hectocotylus]] :: thing
+[[Common octopus]] :: creature
+---
+Lift a stone on a coral reef and the octopus beneath may already be gone: its skin has flushed to match the rock, and one arm is sliding into a crack. Octopuses are cephalopods, the same group as the [[Giant squid|giant squid]], [[Cuttlefish|cuttlefish]] and [[Nautilus (cephalopod)|nautilus]], but they have lost the outer shell that the nautilus still carries. Within a second it can change its look, its texture and its position, and it does so with no bones to hold it in shape.
+
+## Arms that decide for themselves
+
+An octopus carries roughly 500 million neurons, and about two-thirds of them sit in its arms rather than its head. Each sucker is studded with chemical and touch sensors, so an arm can taste a surface as well as feel it. Clusters of nerve cells in every arm handle much of the reaching and grasping, while the central brain sets the goal rather than each movement.
+
+An arm has no skeleton. It is a muscular hydrostat, a column of muscle that bends at any point, which lets it wrap, pull and reach around a rock. Elephant trunks work on the same principle.
+
+::: facts
+Hearts :: Two gill hearts, one body heart
+Blood :: Blue-green, carried by a copper-based protein
+Beak :: Its only hard part, made of chitin
+Eyes :: Camera-like, without the blind spot of ours
+Colour vision :: Probably absent, yet skin matches backgrounds
+:::
+
+## Skin that flashes
+
+Its skin is packed with [[chromatophores|Chromatophore]], pigment sacs that tiny muscles stretch open and that nerves switch on, so a pattern can flash across the body in well under a second. It can also raise small skin bumps that break up its outline. The same trick serves to deceive: the [[mimic octopus|Mimic octopus]], found off Indonesia, can impersonate a lionfish, a sea snake or a flatfish.
+
+^ Each chromatophore is wired straight to the nervous system, so the skin works less like paint and more like a screen.
+
+On [[Coral reefs|coral reefs]], some octopuses hunt alongside reef fish, and a 2024 study described the behaviour in the field. Reefs suit a hunter that works by touch and taste. Their camouflage, too, is tuned to a world of rock, coral and sand.
+
+## Learning, sleep and a short life
+
+In 1992, at the [[Stazione Zoologica Anton Dohrn|Naples zoological station]], Graziano Fiorito and Pietro Scotto showed that [[Common octopus|common octopuses]] can learn a task by watching a trained demonstrator. The animals also open jars and navigate mazes, so their learning is flexible rather than a single trick. Few invertebrates have been shown to learn this way, which makes the octopus an unusual test case for how minds evolve.
+
+Octopuses also edit their [[RNA editing|RNA]] far more than most animals do, a habit a team at Tel Aviv University reported in 2017. The study suggested the habit might help them cope with temperature, an idea still being tested. Editing the message rather than the gene lets an octopus fine-tune its nervous system without changing its DNA.
+
+Octopuses show two kinds of sleep, a quiet state and an active one with flickering skin and twitching arms, a pattern that echoes the two kinds of sleep in our own species. What the active phase is for, and whether an octopus has anything like dreams, remains open. Observations so far come from a handful of species, mostly kept in tanks.
+
+Most species live only a year or two, and a female guards her eggs until they hatch, then dies. Males hand over sperm with a modified arm, the [[Hectocotylus|hectocotylus]], and in some species that arm stays behind inside the female. Such short lives make long experiments hard, so much of the octopus's story is still being filled in.
+
+===
+- [[Dreams]] :: Octopuses have two kinds of sleep, like ours, and one is baffling :: phenomenon
+- [[Kraken]] :: A Norse sea monster, possibly inspired by giant squid, said to be island-sized :: creature
+- [[Coconut octopus]] :: An octopus that carries coconut shell halves as a portable shelter :: creature
+- [[Cephalopod ink]] :: Ink and mucus can hold a predator's gaze while the octopus slips away :: thing
+- [[Ammonite]] :: Shelled cousins that filled seas for over 300 million years before vanishing :: creature
+- [[Dumbo octopus]] :: Ear-like fins flap it across the deep seafloor, far below sunlight :: creature
+
+???
+What does an octopus's active sleep actually do?
+How can an octopus change its skin pattern so quickly?
+Could a severed octopus arm still grab food on its own?
+
+&&&
+[[Giant squid]] :: A deep-sea cousin that was filmed alive only in recent decades.
+[[Cuttlefish]] :: Skin that shows moving patterns as signals to rivals and mates.
+[[Nautilus (cephalopod)]] :: A living cephalopod still carrying a chambered shell.
+[[Coral reefs]] :: Crowded, bright and full of hiding places for patient hunters.
+[[Mimic octopus]] :: Can pass for a lionfish, a sea snake or a flatfish.
+[[Chromatophore]] :: A pigment sac that tiny muscles open, like a shutter.
+[[Stazione Zoologica Anton Dohrn]] :: A Naples laboratory where octopuses were shown to learn by watching.
+[[RNA editing]] :: Octopuses rewrite their own RNA far more than most animals do.
+[[Hectocotylus]] :: A male's arm that carries sperm, and sometimes stays behind.
+[[Common octopus]] :: The species that taught scientists much of what octopuses can learn.

@@ -106,8 +106,14 @@ a mystery, an event…; it shapes the page) · deck · link plan (a kind for eve
 links arrive in colour) · body with asides and up to two **panels** · six topics to
 keep exploring, each with its hook and kind, some deeper into the subject and at least two
 leaping into another field · three open questions that stand on their own · a hook for
-every link (for hover cards). A page written ahead of time also keeps the sources it was
-checked against; a live writer is never asked for them.
+every link (for hover cards). Under its deck, every page carries a line of key facts: three
+readings shaped by its kind (a creature's size, a place's whereabouts, a mystery's verdict).
+
+**One bar for every page** (Will, 2026-10-19): the front page's cards and suggestions are an
+economical, engaging way in, and the pages behind them are what any page is. A page written ahead
+of time comes from the same writer and prompt, in one pass, with no research and no fact-check, so
+the next page a reader opens is never a letdown after a showcase. What a page gets wrong is fixed
+in the prompt, for every page.
 
 Panels (v2) are information the writer lays out and Dorkhub draws: timeline, facts, steps,
 compare, theories, figures, myth, formula, guess. The writer uses one only when it shows
@@ -128,7 +134,7 @@ card's drawing, carried from the card. Once the title scrolls away it waits in t
 end is drawn the way the front page draws its threads and Your world what you've read: this
 page a point (the page you came from behind it), a hairline out to each of its six ways on, each
 on a ring in its kind's colour, filled once read; then its open questions; then, on a page
-written ahead of time, that it was checked fact by fact, with its sources. Kinds, panel names
+written ahead of time, a quiet note that it was. Kinds, panel names
 and the end's headings are set in the front page's small capitals.
 
 **The page-500 test** (Will, 2026-10-14): a reader scrolls through hundreds of these pages,

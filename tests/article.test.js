@@ -74,6 +74,21 @@ test('the link plan accepts bulleted lines and pre-body blocks do not end the bo
   assert.equal(A.bodyDone, false);
 });
 
+/* Every page carries a line of key facts right under its deck (v3.1); only a page written ahead of time can end with sources */
+test('the line of key facts and the sources: read in place, never ending the plan or the body', () => {
+  const page = '# Pompeii :: place\n> A town buried and kept.\n!!!\nWhere :: Near Naples, Italy\nBuried :: AD 79, by Vesuvius\nUnearthed :: Since 1748\nA fourth :: never shown\n+++\n[[Vesuvius]] :: place\n---\nThe town under [[Vesuvius]].\n\nMore.\n===\n- [[Herculaneum]] :: Its neighbour, kept in mud :: place\n???\nWhy did Pompeii stay buried?\n@@@\n- Wikipedia: Pompeii :: https://en.wikipedia.org/wiki/Pompeii\nhttps://example.org/not-a-link-list\n';
+  const A = parseArticle(page, false);
+  assert.deepEqual(A.keyFacts, [{ label: 'Where', value: 'Near Naples, Italy' }, { label: 'Buried', value: 'AD 79, by Vesuvius' }, { label: 'Unearthed', value: 'Since 1748' }], 'three at most, in order');
+  assert.equal(A.gloss[keyOf('Vesuvius')].kind, 'place', 'the link plan after them is still read');
+  assert.equal(A.blocks.filter(b => b.t === 'p').length, 2, 'they never become body text');
+  assert.equal(A.questions.length, 1);
+  assert.deepEqual(A.sources, [{ label: 'Wikipedia: Pompeii', url: 'https://en.wikipedia.org/wiki/Pompeii' }, { label: '', url: 'https://example.org/not-a-link-list' }]);
+  const S = parseArticle('# Pompeii :: place\n> A town buried and kept.\n!!!\nWhere :: Near Naples, Italy\nBuried :: AD 7', true);
+  assert.deepEqual(S.keyFacts.map(f => f.label), ['Where'], 'a fact still being written waits for its newline');
+  assert.equal(S.blocks.length, 0, 'and nothing reaches the body');
+  assert.deepEqual(parseArticle('# T\n> D.\n---\nBody.\n', false).keyFacts, [], 'an older page has none');
+});
+
 test('a clicked topic keeps its title; questions and connecting pages choose their own', () => {
   assert.equal(titleIsLocked({ title: 'Lewis gun' }), true);
   assert.equal(titleIsLocked({ title: 'Why is ice slippery?', q: true }), false);

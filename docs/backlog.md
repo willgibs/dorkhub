@@ -82,18 +82,15 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   card's drawing carried into its page, the picture as a captioned plate, the link card in the margin, the title
   in the top bar, the small capitals, sources, and the thread (where you came from, the end drawn as threads out
   to the six ways on). A stays on `experience/article-a`. Details in `docs/decisions.md`.
-- **The article page design** is settled (#23); the 12 pages written ahead of time and the 32
-  placeholders stand in until the 32 are written. **(Will)** Not built, each for his call: a short specimen label
-  under every title (two or three key facts shaped by the kind; it changes what the writer is asked for, so best
-  settled before the 32), the 32 keeping their sources from their fact-check, a ruler of time under long
-  timelines, the link card as a sheet on phones.
-- **(Will) The 32 new topics** plus Bioluminescence: the article page design is final (#23,
-  2026-10-18); they are written and fact-checked only on his explicit go (about 8 to
-  10M tokens). Their placeholders stand in meanwhile. For each page: `node scripts/seeds.mjs
-  brief "<title>"`, write, fact-check (the front page's own claims included), save it as
-  `lib/seeds/<slug>/index.txt`, `node scripts/seeds.mjs index`, `npm run verify`; the written
-  page replaces its placeholder. Then settle Mona Lisa's and Fingerprints' pictures (Wikipedia's
-  summary gives neither a usable one).
+- **The front page's 33 pages** (on `content/the-32`, up for Will's look): written the way any page is, by
+  the production writer in one pass, in small batches scored between, with the line of key facts on every page
+  and the prompt fixed from what the first tries showed. Details in `docs/decisions.md`.
+- **Next: the writer, page by page** (Will, 2026-10-19: get any page right on the first try, quickly). Keep the
+  loop: small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs <dir>`), a rule only for a failure on two or more
+  pages of different kinds, a regression set unlike the front page whenever the prompt changes. Once credits land,
+  the real writer replaces the stand-ins, and pages written ahead of time are rewritten when the prompt changes, so
+  they never fall behind live pages (one bar). **(Will)** The 11 earlier pages (Tardigrades and the rest) were
+  written and fact-checked the old way: rewrite them in one pass too?
 - Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
   write per page in flight, graph keyboard navigation, re-recording the three mock pages that
   still say "your path".

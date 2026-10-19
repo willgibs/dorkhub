@@ -18,14 +18,15 @@ export const splitLink = inner => { const i = inner.indexOf('|'); return i < 0 ?
 export const plain = s => String(s || '').replace(/\[\[([^\]]+)\]\]/g, (_, i) => splitLink(i)[0]).replace(/\*\*?([^*]+)\*\*?/g, '$1');
 
 /** @type {Record<string, string>} */
-/* @@@ is only ever written ahead of time: the sources a page was checked against (a live writer is never asked for any) */
-export const MARKS = { '===': 'tunnels', '+++': 'gloss', '^^^': 'notes', '???': 'questions', '>>>': 'next', '%%%': 'time', '&&&': 'hooks', '@@@': 'sources' };
+/* !!! is every page's line of key facts, right after the deck (format v3.1); @@@ is only ever written ahead of time,
+   the sources a page was checked against (a live writer is never asked for any) */
+export const MARKS = { '===': 'tunnels', '+++': 'gloss', '^^^': 'notes', '???': 'questions', '>>>': 'next', '%%%': 'time', '&&&': 'hooks', '@@@': 'sources', '!!!': 'keyfacts' };
 export const KINDS = ['concept', 'phenomenon', 'mechanism', 'mystery', 'technique', 'thing', 'place', 'event', 'era', 'person', 'creature', 'work', 'idea'];
 export const DIRS = ['deeper', 'sideways', 'wild'];
 /* The panels a writer may set between paragraphs (FORMAT in lib/prompts.js). Anything else renders as a plain labelled list. */
 export const PANELS = ['timeline', 'facts', 'steps', 'compare', 'theories', 'figures', 'myth', 'formula', 'guess'];
 const PANEL_ALIAS = { time: 'timeline', fact: 'facts', glance: 'facts', step: 'steps', process: 'steps', comparison: 'compare', versus: 'compare', theory: 'theories', explanations: 'theories', figure: 'figures', numbers: 'figures', stats: 'figures', misconception: 'myth', equation: 'formula', math: 'formula', quiz: 'guess', predict: 'guess' };
-const PRE_BODY = new Set(['time', 'gloss']);
+const PRE_BODY = new Set(['time', 'gloss', 'keyfacts']);
 const PLURAL = { people: 'person', phenomena: 'phenomenon', mysteries: 'mystery', ideas: 'idea' };
 
 /* A clicked topic stays the topic. Only questions and connecting pages choose their own title.
@@ -72,7 +73,8 @@ export function yearOf(t) {
  *   `o` how many margin notes came before it (its place among them).
  * @typedef {{ title: string, kind: string, deck: string, bridge: string, blocks: Block[], panels: Panel[], tunnels: Branch[],
  *   next: { label: string, target: string, why: string } | null, gloss: Record<string, Gloss>, notes: { n: number, s: string }[],
- *   questions: string[], sources: { label: string, url: string }[], bodyDone: boolean, wait: boolean }} Article
+ *   questions: string[], sources: { label: string, url: string }[], keyFacts: { label: string, value: string }[],
+ *   bodyDone: boolean, wait: boolean }} Article
  */
 /* Writers link both ways round ([[shown|Topic]] and the wiki habit [[Topic|shown]]) and sometimes
    link a plural of a planned topic. The link plan arrives before the body, so every link can be
@@ -154,7 +156,7 @@ export function parseArticle(raw, streaming) {
     text = text.replace(/\*\*[^*\n]*$/, m => m.replace(/\*\*/, '')).replace(/(^|[\s(])\*([^*\s][^*\n]*)$/, '$1$2').replace(/[[*]$/, '');
   }
   /** @type {Article} */
-  const A = { title: '', kind: '', deck: '', bridge: '', blocks: [], panels: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], sources: [], bodyDone: false, wait: false };
+  const A = { title: '', kind: '', deck: '', bridge: '', blocks: [], panels: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], sources: [], keyFacts: [], bodyDone: false, wait: false };
   let mode = 'body', pcount = 0, deckSeen = false, body = false, kept = 0, lastAfter = 0, paraOpen = false;
   /** @type {Set<string> | null} */ let plan = null;
   /** @type {Panel | null} */ let P = null;
@@ -179,7 +181,7 @@ export function parseArticle(raw, streaming) {
       P.done = true; P = null;
     }
     if (!L) { flush(); continue; }
-    const mk = /^(={3,}|\+{3,}|\^{3,}|\?{3,}|>{3,}|%{3,}|&{3,}|@{3,}|-{3,})\s*$/.exec(L);
+    const mk = /^(={3,}|\+{3,}|\^{3,}|\?{3,}|>{3,}|%{3,}|&{3,}|@{3,}|!{3,}|-{3,})\s*$/.exec(L);
     if (mk) {
       flush(); const k = mk[1].slice(0, 3);
       mode = k === '---' ? 'body' : k === '+++' && body ? 'hooks' : MARKS[k];
@@ -209,11 +211,17 @@ export function parseArticle(raw, streaming) {
       if (li === open) continue;
       mode = 'body';
     }
+    /* the line of key facts: "Label :: value", at most three; a line still being written waits for its newline */
+    if (mode === 'keyfacts') {
+      if ((m = /^[-*•]?\s*([^:]{1,40}?)\s+::\s+(.+)$/.exec(L))) { if (li !== open && A.keyFacts.length < 3) A.keyFacts.push({ label: m[1].trim(), value: clip(m[2].trim(), 80) }); continue; }
+      if (li === open) continue;
+      mode = 'body';
+    }
     if (mode === 'notes') { if ((m = /^\D{0,3}(\d{1,2})\s*(?:::|:|[.)–-])\s*(.+)$/.exec(L))) A.notes.push({ n: +m[1], s: m[2] }); continue; }
     if (mode === 'questions') { const q = L.replace(/^([-*•]|\d+[.)])\s*/, '').trim(); if (q.length > 3 && A.questions.length < 3) A.questions.push(q); continue; }
     /* "- Label :: https://…", or the address alone; a line still being written waits for its newline */
     if (mode === 'sources') { const sm = li === open ? null : /^[-*•]?\s*(?:(.+?)\s+::\s+)?(https:\/\/[^\s<>"]+)$/.exec(L); const url = sm ? sm[2] : ''; if (sm && A.sources.length < 16 && !A.sources.some(x => x.url === url)) A.sources.push({ label: (sm[1] || '').trim(), url }); continue; }
-    if (/^[=+^?>%&@:-]{1,2}$/.test(L) || /^#+$/.test(L) || CLOSER.test(L)) continue;
+    if (/^[=+^?>%&@!:-]{1,2}$/.test(L) || /^#+$/.test(L) || CLOSER.test(L)) continue;
     if ((m = OPENER.exec(L))) {
       if (li === open) continue;
       flush(); begin();
@@ -257,7 +265,7 @@ export function parseArticle(raw, streaming) {
     held.forEach(p => { p.at = at; p.after = 1; p.o = 0; });
     A.panels.unshift(...early, ...held);
   }
-  A.wait = !A.blocks.length && !A.bodyDone && (mode === 'gloss' || mode === 'time' || body || v1.facts.length > 0);
+  A.wait = !A.blocks.length && !A.bodyDone && (mode === 'gloss' || mode === 'time' || mode === 'keyfacts' || body || v1.facts.length > 0);
   /* links point at planned topics; a page with no plan is only straightened out once it is finished */
   const ps = /** @type {Set<string> | null} */ (plan);
   const G = ps && ps.size ? Object.fromEntries([...ps].map(k => [k, A.gloss[k]])) : !streaming && Object.keys(A.gloss).length ? A.gloss : null;

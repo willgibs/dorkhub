@@ -1,0 +1,75 @@
+# Apollo 11 :: event
+> Two people reached the Moon with a computer that had 2,048 words of memory and kept flashing alarms.
+!!!
+Date :: 16 to 24 July 1969
+Place :: Sea of Tranquility, the Moon
+Toll :: no deaths; 21.5 kg lunar samples
++++
+[[Apollo Guidance Computer]] :: thing
+[[Apollo Lunar Module]] :: thing
+[[Apollo command and service module]] :: thing
+[[Saturn V]] :: thing
+[[Core rope memory]] :: thing
+[[Kennedy Space Center]] :: place
+[[Sea of Tranquility]] :: place
+[[Neil Armstrong]] :: person
+[[Buzz Aldrin]] :: person
+[[Michael Collins]] :: person
+[[Lunar regolith]] :: thing
+[[Lunar laser ranging]] :: technique
+[[Solar wind]] :: phenomenon
+---
+At 4:17 in the afternoon, Eastern time, a spidery four-legged craft named [[Eagle|Apollo Lunar Module]] tilted toward the dark, flat plain of the [[Sea of Tranquility]], its descent engine kicking up dust across the ground. Inside, [[Neil Armstrong]] and [[Buzz Aldrin]] watched the altitude readouts while Mission Control debated whether a computer that kept complaining could be trusted. The final stretch would be flown by hand, toward a spot the crew chose themselves.
+
+## Three men, one rocket
+
+The [[Saturn V]] stood about 110 meters tall, and most of its launch mass was propellant. Engineers stacked the rocket in the Vehicle Assembly Building at [[Kennedy Space Center]] and crawled it to the pad. Atop the rocket sat the [[Columbia|Apollo command and service module]], which would carry the crew home, and the [[Eagle|Apollo Lunar Module]], which would carry two of them down. [[Michael Collins]] stayed in Columbia while [[Neil Armstrong]] and [[Buzz Aldrin]] moved into Eagle, a craft built for the Moon's vacuum and low gravity, and for nothing else. Its descent engine would brake the craft toward the surface, and a smaller engine on top would lift the crew back off.
+
+::: timeline
+16 July 1969 :: Saturn V lifts off from Pad 39A
+19 July 1969 :: The command module enters lunar orbit
+20 July 1969 :: Eagle lands in the Sea of Tranquility
+20 July 1969 :: Armstrong becomes the first person to walk on the Moon
+24 July 1969 :: The crew splashes down in the Pacific Ocean
+:::
+
+## The computer and the boulders
+
+The [[Apollo Guidance Computer]] had 2,048 words of erasable memory, its scratchpad for working numbers. Its program sat in a separate fixed memory of 36,864 words, built as [[Core rope memory]], where each bit depended on whether a wire ran through a ferrite ring or around it. Workers at Raytheon threaded those wires by hand, and the women who did the weaving were nicknamed the Little Old Ladies. The crew typed verb and noun codes into a keypad and display called the DSKY. The navigation had to fit inside that scratchpad, with almost no slack.
+
+^ Those 2,048 words came to about 4 kilobytes, roughly one thousandth of a typical phone photo.
+
+During the descent, the computer flashed the 1202 and 1201 alarms several minutes before touchdown. They meant the machine was overloaded, with more work arriving than its schedule could handle. It dropped lower-priority jobs and kept the guidance running. Flight controllers in Houston checked the numbers, saw that the lander was still on track, and told the crew to continue.
+
+The planned site turned out to be strewn with boulders, so Armstrong took manual control and steered past them toward a flatter patch, watching the fuel gauge fall. Nobody on the ground could fly the craft, so the final call rested with the two men inside. Eagle touched down with only seconds of fuel to spare, and Armstrong reported the landing to Houston.
+
+## What the Moon kept
+
+The first walk on the surface lasted about two and a half hours, and the crew gathered rock and soil to bring home, about 21.5 kilograms in all. Some of it was fine gray [[dust|Lunar regolith]], which clung to the suits and got into the cabin. They unrolled a sheet of aluminum foil to catch particles streaming from the [[solar wind|Solar wind]], then rolled it up and carried it back. They also set down a panel of mirrors that still bounces laser pulses from Earth, a target for [[Lunar laser ranging]].
+
+The footprints they left are still there, because the Moon has no wind or rain to wear them away. They could last for millions of years, unless a meteorite strikes the same spot. The rocks have fed decades of research, and laboratories still cut and measure them.
+===
+- [[Antarctica]] :: Moon rocks in the ice, lunar meteorites gathered from Antarctic blue ice :: place
+- [[Apollo 13]] :: An oxygen tank exploded, and the lunar lander became the crew's lifeboat :: event
+- [[Moon landing conspiracy theories]] :: Why Apollo photos show no stars, and what the cameras were set for :: phenomenon
+- [[Exposure (photography)]] :: The exposure setting that hides the stars in sunlit Apollo photographs :: concept
+- [[Magnetic-core memory]] :: Tiny magnetic rings that stored bits, the idea behind rope memory :: thing
+- [[Apollo 1]] :: A pure-oxygen cabin fire during a 1967 rehearsal killed three astronauts :: event
+???
+How did the Apollo Guidance Computer handle the 1202 alarms during landing?
+What have scientists learned from Apollo 11's 21.5 kilograms of Moon rock?
+What did Michael Collins do alone in orbit while Eagle landed?
+&&&
+[[Apollo Guidance Computer]] :: Flew the descent on 2,048 words of memory, alarms flashing
+[[Apollo Lunar Module]] :: A spidery lander with no streamlining, built only for vacuum
+[[Apollo command and service module]] :: The mothership that carried three men to the Moon and back
+[[Saturn V]] :: About 110 meters tall, it lifted three men from Florida
+[[Core rope memory]] :: Woven by hand, with 36,864 words of flight software inside
+[[Kennedy Space Center]] :: Florida site where Apollo 11's Saturn V rose from Pad 39A
+[[Sea of Tranquility]] :: A dark lava plain, smooth enough to land on
+[[Neil Armstrong]] :: The commander who took manual control with fuel running low
+[[Buzz Aldrin]] :: Second man on the Moon, who read the descent data aloud
+[[Michael Collins]] :: Alone behind the Moon on every orbit, out of radio contact
+[[Lunar regolith]] :: Gray dust, full of glass beads, that clung to the suits
+[[Lunar laser ranging]] :: A Moon mirror still bounces laser pulses back to Earth
+[[Solar wind]] :: Particles from the Sun, caught on aluminum foil and carried home

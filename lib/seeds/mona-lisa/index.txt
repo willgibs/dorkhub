@@ -1,0 +1,66 @@
+# Mona Lisa :: work
+> A small panel portrait that became a celebrity after a former Louvre employee carried it out under his smock in 1911.
+!!!
+Maker :: Leonardo da Vinci
+Medium :: Oil on poplar panel
+Size :: 77 by 53 centimetres
++++
+[[Leonardo da Vinci]] :: person
+[[Vincenzo Peruggia]] :: person
+[[Louvre]] :: place
+[[Salle des États]] :: place
+[[Uffizi]] :: place
+[[Clos Lucé]] :: place
+[[Sfumato]] :: technique
+[[Aerial perspective]] :: technique
+[[Panel painting]] :: technique
+[[Craquelure]] :: phenomenon
+---
+A woman sits in a chair with her hands folded, in front of a landscape of winding roads, a bridge and a pale river that dissolve into blue haze. Her face is modelled so softly that her smile seems to shift as you look at it, and the longer you look, the less sure you are where it begins. [[Leonardo da Vinci]] painted the portrait in oil on a poplar [[panel|Panel painting]], and it hangs today in the [[Salle des États]] of the [[Louvre]] in Paris.
+^ 'Mona' is a contraction of 'ma donna', meaning 'my lady', so the title is a form of address.
+
+## Who sat for it
+
+The sitter is traditionally identified as Lisa Gherardini, born in 1479, who married Francesco del Giocondo, a Florentine silk merchant. The Italian title, La Gioconda, is built on that married name, but no contract or payment record survives, so the commission rests on later accounts. Leonardo never handed the picture over and kept working on it for years. He carried it with him when he moved to France, where he spent his last years at [[Clos Lucé]] near Amboise.
+
+## Stolen under a smock
+
+On 21 August 1911 [[Vincenzo Peruggia]], a former Louvre employee, hid the panel under his smock and walked out of the museum. The empty wall went unnoticed until the next morning, when a visiting painter found the gap. Peruggia kept the picture in a trunk in his Paris lodgings for more than two years, and he later said he had wanted to return an Italian masterpiece to Italy.
+
+The theft made the painting a subject of newspapers across Europe and North America, and crowds came to the Louvre to stare at its empty wall. Before 1911 the portrait was admired by specialists, but the theft made it a household name. When Peruggia tried to sell it to a Florentine dealer, the dealer called in the director of the [[Uffizi]], and the police arrested him.
+
+::: timeline
+About 1503 :: Leonardo starts the portrait in Florence
+21 August 1911 :: A former Louvre employee takes the panel out of the museum
+22 August 1911 :: A visiting painter finds the empty wall
+December 1913 :: The thief offers it to a Florentine dealer
+1914 :: The painting returns to the Louvre
+:::
+
+## Sfumato and the making of a face
+
+Leonardo built up the face in thin, translucent layers of paint, a method later named [[sfumato|Sfumato]] after an Italian verb meaning to fade like smoke. There are no hard outlines around the eyes or the corners of the mouth, so the smile dissolves into shadow and the viewer's eye has to finish the shape. The landscape uses [[aerial perspective|Aerial perspective]], with the hills fading to blue and grey as they recede, an effect Leonardo described in his notes.
+
+The surface is crazed with fine cracks, a network of [[craquelure|Craquelure]] that appears in old paint as its layers age and shrink. The picture is also seen through old varnish, which has yellowed over the centuries and dims the colours Leonardo chose. Conservators have studied the surface with cameras and microscopes, and those images show the layers of paint beneath the varnish.
+===
+- [[Terracotta Army]] :: Once far more colourful: the soldiers' paint faded after the soil was lifted. :: thing
+- [[Duchenne smile]] :: Smiles that reach the eyes, mapped by a French neurologist using electric shocks. :: phenomenon
+- [[Dendrochronology]] :: Tree rings that date a poplar panel, a forest's diary read by scientists. :: technique
+- [[The Last Supper (Leonardo)]] :: Leonardo's Milan mural, painted on dry plaster, began to flake within decades. :: work
+- [[Vitruvian Man]] :: A nude man inside a circle and square, drawn in ink around 1490. :: work
+- [[Linear perspective]] :: The vanishing-point system that made painted rooms look deeper than their walls. :: technique
+???
+How did a former Louvre employee steal the Mona Lisa in 1911?
+Why does the Mona Lisa's smile seem to change with the viewer's gaze?
+Did Leonardo paint more than one version of the Mona Lisa?
+&&&
+[[Leonardo da Vinci]] :: Kept this portrait for years, and never handed it over.
+[[Vincenzo Peruggia]] :: Walked out of the Louvre with the panel under his smock.
+[[Louvre]] :: Its most famous wall went bare, and crowds came to stare.
+[[Salle des États]] :: The gallery where the Mona Lisa hangs behind protective glass.
+[[Uffizi]] :: Florence's gallery, whose director helped recover the stolen panel.
+[[Clos Lucé]] :: The manor where Leonardo spent his last years, near Amboise.
+[[Sfumato]] :: Edges that dissolve into smoky shadow instead of ending in lines.
+[[Aerial perspective]] :: Distant hills turn blue because air scatters light.
+[[Panel painting]] :: Pictures painted on wood, the medium before canvas took over.
+[[Craquelure]] :: The network of fine cracks that ages a painting's surface.

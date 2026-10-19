@@ -48,9 +48,10 @@ test('a name chosen inside a page keeps the sense it had there', () => {
 
 test('format v3: the kind on the title line, six equal cards, no bridge and no single next page', () => {
   const at = (/** @type {string} */ m) => FORMAT.indexOf(`\n${m}\n`);
-  const order = ['+++', '---', '===', '???', '&&&'].map(at);
+  const order = ['!!!', '+++', '---', '===', '???', '&&&'].map(at);
   assert.ok(order.every((x, i) => x > 0 && (i === 0 || x > order[i - 1])), `marker order ${order}`);
   assert.match(FORMAT, /^# Title :: kind$/m);
+  assert.match(FORMAT, /Key facts: exactly 3 lines, "Label :: value"/, 'v3.1: three key facts right after the deck');
   assert.match(FORMAT, /exactly 6 topics to open next, one per line: "- \[\[Topic\]\] :: hook under 14 words :: kind"/);
   assert.match(FORMAT, /at least two leap into a different field through one specific thread, and their hook names that thread/);
   assert.match(FORMAT, /"Mercury \(planet\)", never "Mercury"/);
