@@ -20,7 +20,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
 ## Open
-- Time travel's lead picture is over the picture proxy's 2 MB cap at 960 px, so it shows none: fall back to 500 px.
+- A lead picture over the proxy's 2 MB cap (Time travel's) now steps down a width: up for Will's look on `fix/picture-fallback`.
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
 
 ## Blocked on Will
