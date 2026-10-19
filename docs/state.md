@@ -16,9 +16,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   switch on every page; counts set as part of their icons; a kind is its coloured word, no dot; the head built for any
   length (titles sized by length, key facts side by side or down the column by what fits); Sketch it removed front to
   back; "Written ahead of time." off the page; where it leads with an unnamed point and threads that meet their rings.
-- **Design for what the writer sends** (Will, 2026-10-19): layouts hold the outliers; prompt rules are fickle.
-- **One bar for every page** (Will, 2026-10-19): a page written ahead of time comes from the production writer in
-  one pass, like any page; what a page gets wrong is fixed in the prompt, for every page, never in the page.
+- **Will, 2026-10-19:** design for what the writer sends (layouts hold the outliers; prompt rules are fickle), and
+  one bar for every page (a page written ahead of time is the production writer's one pass; fix the prompt, not pages).
 - **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages.
 - **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
@@ -29,8 +28,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **willgibs/dorkhub#27**: his look at the preview, then merge and a production check.
 - **willgibs/dorkhub#24, sharing** (its own session): his look, and his call on letting link-preview bots read a
   page's title and deck while search engines stay out.
-- Whether to rewrite the 11 earlier pages in one pass too. Later: a ruler of time under timelines, the link card
-  as a sheet on phones; Mona Lisa's and Fingerprints' pictures.
+- Whether to rewrite the 11 earlier pages in one pass too. Later: a ruler of time under timelines, the link card as a sheet on phones.
 - AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
 
 ## Next
