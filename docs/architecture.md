@@ -12,7 +12,7 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   JS between the shared and app modules (`export` stripped) and its CSS after
   `src/styles.css`, and `/licenses.txt` lists it.
   The orbs port is tested against the library's own golden vectors (`tests/orbs.test.js`).
-  The page has a size budget (`tests/page.test.js`, 372 KB raw). The page ships without its
+  The page has a size budget (`tests/page.test.js`, 392 KB raw). The page ships without its
   comments: the stylesheet's are stripped by pattern, the script's by TypeScript's own comment
   ranges (`lean()` in the build), so nothing inside a string, template or regex is touched and
   licence notices stay. Anything only one view needs, like the front page's cards, is a separate
@@ -35,9 +35,11 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   default and then takes no room; its toggle (`#sideBtn`, or M) sits before the wordmark. The top
   bar's actions share one shape: search, Your world with its count, keys with the free pages
   left (both counts set alike, digits popping in as they change), voice.
-- **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
-  writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
-  from Wikipedia, proxied through our own origin; no model involved).
+- **Three functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
+  writes), `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
+  from Wikipedia, proxied through our own origin; no model involved), and `api/share.js` →
+  `handleShare()` in `lib/share.js` (the head a link preview reads, for an address with no file of its own;
+  see Sharing).
 - **The page format, v3** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
   `src/shared/article.js`): `# Title :: kind`, `> deck`, `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
@@ -71,9 +73,24 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 - **Addresses** (`routeOf` / `parseRoute` in `src/shared/world.js`): `/` the front page,
   `/world` Your world, `/<topic>` a page (its key with hyphens; `?v=` another voice, `?in=`
   the sense of a name chosen on a page, `?q=1` a question the address can't show),
-  `/connect/<a>/<b>` a connecting page. Names the site uses get a trailing hyphen. `vercel.json`
-  rewrites single dot-free paths and `/connect/a/b` to the page (files and the API come first)
-  with `X-Robots-Tag: noindex`; `robots.txt` allows only `/`; `scripts/dev.mjs` mirrors it.
+  `/connect/<a>/<b>` a connecting page, `/trail/<a>/<b>/…` a trail someone shared (`trailRouteOf`). Names the
+  site uses get a trailing hyphen. `vercel.json` rewrites single dot-free paths, `/connect/a/b` and `/trail/…` to
+  the page (files and the API come first, so a known page's own copy is served at its address) with
+  `X-Robots-Tag: noindex`, except that a link preview asking for one with no file goes to `/api/share`;
+  `robots.txt` allows only `/`, but for link previews; `scripts/dev.mjs` mirrors it all.
+- **Sharing** (`lib/share.js`, `src/app/15-share.js`, `scripts/share.mjs`). A link unfurls as its page. The build
+  writes every page known ahead of time (each in `lib/seeds/index.json`, and each front-page placeholder)
+  `public/<word>.html`: the page itself, its head saying the page's title, deck, picture and address (Open Graph
+  and X's large card) and noindex. Any other address is named by the address alone, for link previews only
+  (`PREVIEW_BOTS`, matched on the User-Agent in vercel.json): `handleShare` reads the address and the known titles
+  and pictures, never writes, logs or sets a cookie, and answers `private`. The pictures (1200 × 630: a card's
+  drawing, else the page's Wikipedia lead picture, else its words) are rendered in Chromium from the built front
+  page by `node scripts/share.mjs` and committed to `src/static/share/` with `index.json`; the build and the
+  function read that index, and a page without a picture yet shows the front page's. The share icon among a
+  page's tools hands the clean address to the phone's share sheet, else the clipboard, and sends nothing. A trail
+  (the "How you got here" sheet shares yours, up to the page you're on) opens as a view of its own (`showTrail`),
+  drawn with the page end's threads; each of its pages opens as a link from outside does (`walk`, then
+  showPage's guard), joining your trail from the step before.
 - **Your world** (`src/shared/graph.js`, drawn by `src/app/11-world.js`): `buildGraph` makes
   one node per topic read (any voice), the moves between them from the trails, and up to 8
   unread invitations per page plus any topic two pages lead to, capped at 500 read and 300
@@ -231,8 +248,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   above the reader: half-written lines of the plan, a panel or the hooks are held back;
   a panel never sits above the first paragraph; at most two panels, never two in a row;
   a lead picture shows only if it is ready before the first paragraph is finished.
-- Topic addresses are for readers, not crawlers: `robots.txt` allows only `/`, every topic
-  address says `noindex`, and a page arrived at from outside Dorkhub is shown only if it is
+- Topic addresses are for readers, not crawlers: `robots.txt` allows only `/` (link previews alone may
+  read a page's head, and never `/api/`), every topic address says `noindex`, and a page arrived at from outside Dorkhub is shown only if it is
   already written (a `cachedOnly` ask); otherwise it waits for the reader to press "Write
   this page", so a shared link or a crawler never spends anything by itself. Writes are
   POST-only and same-origin; `api/picture` answers only `Sec-Fetch-Site: same-origin` (a 403
@@ -268,10 +285,11 @@ which pages were cached.
 | Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
 | The front page by hand: topics, threads and cards each with a source, drawings labelled and inert (a canvas hidden from assistive tech), no line of prose on a card, an entrance length for each, ids unique across cards, a phone version of each wide drawing, short readings, drawings true to their subjects, the cards' styles in their own sheet with the computed rules, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
+| Sharing: every known page at its own address with its own head (otherwise the page itself), its picture made for it (1200 × 630, its title, kind and line, credited), an address told by itself to link previews only, a function that never writes, robots.txt's one exception, trail addresses both ways | `tests/share.test.js` |
 | Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
-| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling nor play one it only passed, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |
+| A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling nor play one it only passed, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, a browser moving in, and sharing (each kind of page's head and picture, the share action on desktop and phone, a trail link walked) | `scripts/e2e.mjs` |
 
 ## Operations
 
