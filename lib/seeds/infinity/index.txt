@@ -1,0 +1,66 @@
+# Infinity :: concept
+> Infinity has no single size, and a clever diagonal of digits proves that some infinities outgrow others.
+!!!
+Origin :: Georg Cantor, 1874 and 1891
+Defining case :: real numbers from 0 to 1
+Counting numbers :: aleph-zero, the countable infinity
++++
+[[Hilbert’s paradox of the Grand Hotel]] :: concept
+[[David Hilbert]] :: person
+[[Countable set]] :: concept
+[[Actual infinity]] :: concept
+[[Zeno’s paradoxes]] :: concept
+[[Georg Cantor]] :: person
+[[Cantor’s diagonal argument]] :: technique
+[[Rubik’s Cube]] :: thing
+[[Continuum hypothesis]] :: mystery
+[[Black holes]] :: phenomenon
+[[Renormalization]] :: technique
+---
+Picture a hotel with a room for every counting number, all of them full. A new guest still gets a bed, because each guest moves to the next room and room 1 is left empty. Even a coach of infinitely many passengers fits, if each guest moves to the room with twice their number, leaving the odd-numbered rooms empty. This is [[Hilbert’s paradox of the Grand Hotel]], which [[David Hilbert]] used to show that a full infinite hotel can always take more. Behind the puzzle is a question about size, and [[Georg Cantor]] answered it in the 1870s.
+^ Georg Cantor, who proved this, suffered repeated breakdowns and died in a Halle sanatorium in 1918.
+
+## Matching instead of counting
+Galileo noticed a related paradox in 1638. Pairing each counting number with its square matches every square exactly, though squares grow sparser along the number line. He concluded that words like greater and smaller do not apply to infinite collections. Mathematicians call a set [[countable set|countable]] when its members can be listed in a sequence with none missed, and the counting numbers, the even numbers and the fractions all qualify. Huge is not endless, though: a [[Rubik’s Cube]] has about 43 quintillion arrangements, a vast but finite number.
+
+Aristotle separated a potential infinity, a process that never ends, from an [[actual infinity|Actual infinity]], a completed whole, and denied that the second could exist. [[Zeno’s paradoxes|Zeno of Elea]] had earlier used endless halvings of a distance to argue that motion is impossible, and such puzzles kept philosophers busy for centuries. Mathematicians largely avoided treating a completed infinity as a real object until the nineteenth century.
+
+## A list that can never be finished
+[[Georg Cantor]] treated completed infinite collections as objects, the opposite of Aristotle’s view. In 1874 he proved that the real numbers between 0 and 1 cannot be put into a list, and in 1891 he gave a simpler argument, the [[Cantor’s diagonal argument|diagonal argument]]. It assumes a list exists, with each number written as an endless decimal. It then builds a new number digit by digit, taking the first digit of the first number, the second of the second, and so on down the diagonal, changing each to a different digit. The new number differs from every row in at least one place, so it is on no list, and the assumption fails.
+^ Alan Turing used the same diagonal trick in 1936 to show that no machine can decide, for every machine, whether it runs forever.
+
+Cantor’s method leads to an endless ladder rather than a single infinity. He showed that the collection of all subsets of any set is always larger than the set itself, so there is no largest infinity. Two sets have the same size exactly when their members pair off one to one, and no such pairing exists between the counting numbers and the reals, so the reals are strictly larger.
+::: compare Counting numbers | Real numbers from 0 to 1
+Example :: 1, 2, 3, and so on | any decimal from 0 to 1
+Can it be listed? :: yes, in order | no, every list misses one
+Size :: aleph-zero | 2 to the power of aleph-zero
+:::
+
+## Where infinity breaks down
+Cantor could never settle whether any size lies between the counting numbers and the reals. His conjecture that none does became the [[Continuum hypothesis]], and [[David Hilbert]] put it first on his list of twenty-three problems in 1900. Kurt Gödel showed in 1940 that the standard axioms cannot disprove it, and Paul Cohen showed in 1963 that they cannot prove it. Some set theorists argue for new axioms that would decide it, while others regard it as genuinely undecided.
+
+In physics, an infinite answer is usually a warning rather than a result. General relativity predicts that the density at the centre of a [[Black holes|black hole]] rises without limit, a point called a singularity, and most physicists read that as a sign the theory has broken down. Quantum electrodynamics faced the same trouble, because calculations of an electron’s own energy came out infinite. Richard Feynman, Julian Schwinger and Sin-Itiro Tomonaga showed in the 1940s how to absorb such infinities into measured quantities, a method called [[renormalization|Renormalization]]. Their work shared the 1965 Nobel Prize in Physics.
+
+===
+- [[Aleph number]] :: Cantor’s endless ladder of infinite sizes, each rung above the last :: concept
+- [[Infinitesimal]] :: Smaller than any positive number yet not zero, the ghost that powered calculus :: concept
+- [[Shepard tone]] :: A tone that seems to climb forever, an endless staircase built from sound :: phenomenon
+- [[Shape of the universe]] :: Measurements suggest space is flat, yet flat space could still be finite :: mystery
+- [[Halting problem]] :: Why no program can always tell whether another will run forever :: concept
+- [[The Library of Babel]] :: Borges imagined a library holding every possible book, its galleries stretching without end :: work
+???
+Is the universe infinite in extent, or only very large?
+Why did Leopold Kronecker reject Cantor’s infinite sets as mathematics?
+Will physics ever remove the infinities inside black hole singularities?
+&&&
+[[Hilbert’s paradox of the Grand Hotel]] :: A full infinite hotel that still finds room for a coach.
+[[David Hilbert]] :: Gave the 1900 problem list that shaped a century of mathematics.
+[[Countable set]] :: Infinite sets that can still be lined up one after another.
+[[Actual infinity]] :: Whether a finished infinite whole can exist, which Aristotle denied.
+[[Zeno’s paradoxes]] :: Infinitely many steps that add up to a finite journey.
+[[Georg Cantor]] :: Made infinity precise, then paid a heavy personal price.
+[[Cantor’s diagonal argument]] :: A single diagonal that exposes every list as incomplete.
+[[Rubik’s Cube]] :: Finite, yet holding about 43 quintillion distinct arrangements.
+[[Continuum hypothesis]] :: A question standard mathematics cannot settle: is there a size between?
+[[Black holes]] :: Where gravity’s equations predict infinite density at the centre.
+[[Renormalization]] :: How physicists tamed infinite energies by folding them into measured constants.

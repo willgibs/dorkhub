@@ -1,0 +1,71 @@
+# Lightning :: phenomenon
+> A bolt is a channel of air hotter than the Sun's surface, and it begins as something faint, feeling its way down.
+!!!
+Strikes :: About 45 a second, worldwide
+Return stroke speed :: About a third of light speed
+Typical current :: About 30,000 amps
++++
+[[Stepped leader]] :: mechanism
+[[Return stroke]] :: mechanism
+[[Dielectric breakdown]] :: concept
+[[Plasma (physics)]] :: concept
+[[Thunder]] :: phenomenon
+[[Fulgurite]] :: thing
+[[Volcanoes]] :: place
+[[Ball lightning]] :: mystery
+[[Sprite (lightning)]] :: phenomenon
+[[Benjamin Franklin]] :: person
+[[Lightning rod]] :: thing
+---
+Picture a hill at night under a black cloud. Something faint creeps down from the cloud base in short jerks, branching as it goes and feeling for the ground. When it finds a path, a far brighter [[return stroke|Return stroke]] races back up the same channel, and the air inside it is heated to about 30,000 °C, roughly five times hotter than the Sun's surface. The whole event lasts well under a second, yet it is one of countless flashes that Earth sees every day.
+
+## Feeling for the ground
+
+A thundercloud builds its own electric field. Inside it, lighter ice crystals tend to carry positive charge and heavier graupel, the soft hail, tends to carry negative, though exactly how the separation happens is still debated. Once the field is strong enough, the air at the cloud's base suffers [[dielectric breakdown|Dielectric breakdown]] and a [[stepped leader|Stepped leader]] starts downward in jumps of roughly fifty metres. The leader can split at any step, which is why the bolt looks like a branching tree.
+
+^ Most flashes never reach the ground; they run between parts of the same cloud, which is why a sky can flicker without a single strike.
+
+The leader has no target and does not aim; it follows whichever path the electric field makes strongest at each step. That is why tall trees, masts and hills take so many hits, and why a lone tower on a plain can be struck again and again. Because each step is local and partly random, no two bolts take quite the same route.
+
+::: steps
+Connect :: An upward streamer climbs from the ground to meet the leader.
+Stroke :: The first return stroke is the brightest surge and carries the peak current.
+Dart leader :: A later leader follows the same channel, carrying fresh charge down.
+Flicker :: Many bolts restrike, often several times, along one path.
+:::
+
+## The channel, the thunder and the ground
+
+The channel is a thin [[plasma|Plasma (physics)]], hotter than anything around it, and air heated that fast cannot expand gently. It blows outward in a shock wave, and that wave is the crack and rumble of [[thunder|Thunder]]. Sound covers roughly a kilometre in three seconds, so counting between flash and rumble gives you the distance. The rumble lasts because a bolt is a long line of sound sources rather than a single point.
+
+Where a bolt meets sand, the heat fuses the grains into a hollow glassy tube, a [[fulgurite|Fulgurite]]. Some run several metres into the ground, and each one keeps the strike's branching path in glass. Geologists read fulgurites as a rare record of storms that left no other trace.
+
+A tall metal point wired to the ground gives a bolt a path that avoids the building around it. [[Benjamin Franklin|Benjamin Franklin]] championed the [[lightning rod|Lightning rod]] in Philadelphia in the 1750s. A rod does not stop a strike; it offers the current a low-resistance route to earth, so the damage goes into the ground instead of the wall.
+
+## Other bolts
+
+An erupting [[Volcanoes|volcano]] can make its own bolts, because ash particles colliding in the plume charge it much as ice does in a storm. Above the storm, [[Sprite (lightning)|red sprites]] flash for a few milliseconds in the thin air far above the cloud tops, first caught on video by a University of Minnesota team in 1989. [[Ball lightning]] is stranger still: a glowing sphere, sometimes reported drifting through rooms, that has never been reproduced reliably in a laboratory, and whether it is one phenomenon or several is still disputed.
+
+===
+- [[Venus flytraps]] :: Snapping shut on electrical signals that travel like nerve impulses :: creature
+- [[Quicksand]] :: Lightning can fuse the sand beneath your feet into glass :: phenomenon
+- [[St Elmo's fire]] :: A blue glow on ship masts, named for a saint of sailors :: phenomenon
+- [[Nitrogen fixation]] :: Bolts split air's nitrogen, and rain carries the result down to the soil :: mechanism
+- [[Apollo 12]] :: Two bolts struck its rocket seconds after liftoff, and it kept climbing :: event
+- [[Lichtenberg figure]] :: Fern-like branching marks left on skin after a lightning strike :: phenomenon
+???
+Why does most lightning never reach the ground?
+What would settle what ball lightning actually is?
+Why do tall trees and masts get struck so often?
+&&&
+[[Stepped leader]] :: A bolt's invisible scout, feeling its way down in jumps.
+[[Return stroke]] :: The bright surge that races back up the leader's path.
+[[Dielectric breakdown]] :: Air, a fine insulator, suddenly turns into a conductor.
+[[Plasma (physics)]] :: A gas stripped of electrons, hotter than the Sun's surface.
+[[Thunder]] :: One flash, many sound sources: that is why thunder rolls.
+[[Fulgurite]] :: Glass tubes that freeze a bolt's path in sand.
+[[Volcanoes]] :: Ash plumes that make their own lightning, storm or no storm.
+[[Ball lightning]] :: A glowing sphere that drifts, unexplained and unreproduced.
+[[Sprite (lightning)]] :: Red flashes that leap upward from storm tops into thin air.
+[[Benjamin Franklin]] :: A printer and statesman who turned lightning into a physics problem.
+[[Lightning rod]] :: A metal point offering a strike a route to earth.

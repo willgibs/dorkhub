@@ -1,0 +1,73 @@
+# Holograms :: thing
+> Cut one in half and each piece still shows the whole scene, a trick no photograph can manage.
+!!!
+Invented :: 1947, by Dennis Gabor
+Nobel Prize :: 1971, for holography
+Key ingredient :: coherent light, usually a laser
++++
+[[Dennis Gabor]] :: person
+[[Laser]] :: thing
+[[Coherence (physics)]] :: concept
+[[Wave interference]] :: phenomenon
+[[Diffraction]] :: phenomenon
+[[Emmett Leith]] :: person
+[[Rainbow hologram]] :: thing
+[[Holographic data storage]] :: technique
+[[Holographic interferometry]] :: technique
+[[Pepper's ghost]] :: technique
+[[Black holes]] :: phenomenon
+[[Stereoscopy]] :: technique
+---
+Look into a hologram and a small figure seems to hang in the glass, with depth you can judge by moving your head. Tilt the plate and the edges of the object swing into view. Yet the film holds no picture of the figure at all, only a fine pattern of light and dark that bends a laser beam back into the scene.
+
+^ Holography's inventor needed a laser that did not exist yet, so the idea waited about thirteen years for its light source.
+
+## Recording a wave, not a picture
+
+The trick is [[interference|Wave interference]]. Waves from the same laser reinforce where their crests line up and cancel where a crest meets a trough, and the lines of light and dark that result hold the object's wave in full. That includes both brightness and timing, the two things an ordinary photograph throws away.
+
+::: steps
+Split :: a laser beam divides into a reference beam and an object beam
+Scatter :: the object beam bounces off the scene and travels toward the film
+Interfere :: the two beams meet on the film and form a fringe pattern
+Record :: the film keeps the fringe pattern, not a picture of the object
+Reconstruct :: the reference beam, shone back through the film, recreates the wave
+:::
+
+Every point of the object sends light to every part of the film, so no spot holds one part of the scene alone. That is why a broken hologram keeps its scene: a fragment still [[diffracts|Diffraction]] light into the whole object, only dimmer and through a narrower window, as if the glass were a porthole. Holograms are often mistaken for [[stereoscopic 3D|Stereoscopy]], but a stereo pair only fools each eye, while a hologram rebuilds the wavefront, so depth shifts as you move.
+
+## From a microscope fix to the laser
+
+[[Dennis Gabor]] proposed the idea in 1947 while working on electron microscopes in Rugby, hoping to recover the phase that such microscopes lose. His scheme needed [[coherent|Coherence (physics)]] light, which ordinary lamps could supply only poorly. The first working [[laser|Laser]], built in 1960, changed that, and in 1962 [[Emmett Leith]] and Juris Upatnieks at the University of Michigan made some of the earliest laser holograms of real objects. Gabor won the 1971 Nobel Prize in Physics for the idea, more than two decades after proposing it.
+
+Early holograms needed laser light to be seen, and they looked dim. In the early 1960s Yuri Denisyuk, in the Soviet Union, showed that a reflection hologram could be seen in ordinary white light, because its film reflects back only the colour it recorded. In the late 1960s Stephen Benton developed the [[rainbow hologram|Rainbow hologram]], which shows bright, colour-shifting images under a plain lamp.
+
+## Uses, and a theory
+
+Holograms now protect banknotes and credit cards, where a shifting image is hard to copy. Engineers use [[holographic interferometry]] to measure tiny strains, because two overlaid recordings of a part reveal any movement as a pattern of fringes. [[Holographic data storage]] can spread data through a crystal's whole volume, though commercial systems remain rare. Stage shows sold as holograms are often something else: the 2012 Coachella appearance of Tupac Shakur was a film reflected off an angled screen, in the style of an old illusion called [[Pepper's ghost]].
+
+The word has also travelled into theoretical physics. In the 1990s, Gerard 't Hooft and Leonard Susskind proposed a holographic principle: everything inside a region might be described by information on its boundary. Its roots lie in [[black holes|Black holes]], whose entropy scales with the area of their surface rather than their volume. It remains a conjecture, not a settled fact, and no experiment has yet tested it directly.
+===
+- [[Electron microscope]] :: Holography was invented to fix the electron microscope's lost phase :: thing
+- [[Lenticular printing]] :: Flip-and-shimmer images on cereal boxes, made with lenses rather than laser light :: technique
+- [[Michelson interferometer]] :: Two mirrors and a split beam that once tested for the aether :: thing
+- [[Lunar laser ranging experiment]] :: Mirrors left by Apollo astronauts still bounce laser light back to Earth :: technique
+- [[Black hole information paradox]] :: Does a black hole destroy information, or only scramble it across its surface? :: mystery
+- [[Lippmann plate]] :: Colour photographs made by interference in 1891, a cousin of the hologram :: thing
+???
+Why does a broken hologram still show the whole scene?
+How did Dennis Gabor's 1947 idea relate to electron microscopes?
+Could the universe be a hologram, and how would we know?
+&&&
+[[Dennis Gabor]] :: Won a Nobel Prize for a microscope fix that became holography.
+[[Laser]] :: The coherent light that makes a clean interference record possible.
+[[Coherence (physics)]] :: Why ordinary lamps struggle to make holograms and lasers do not.
+[[Wave interference]] :: Crests meeting crests brighten; crests meeting troughs vanish.
+[[Diffraction]] :: How a fine film pattern bends light back into a scene.
+[[Emmett Leith]] :: Made some of the earliest laser holograms of real objects.
+[[Rainbow hologram]] :: Shows colour that shifts as you move, under a plain lamp.
+[[Holographic data storage]] :: Data stored through a crystal's whole volume, not just its surface.
+[[Holographic interferometry]] :: Overlaid recordings reveal movements thinner than a hair.
+[[Pepper's ghost]] :: A 19th-century illusion that still fools stage audiences today.
+[[Black holes]] :: A surface that may encode everything inside, per the holographic idea.
+[[Stereoscopy]] :: Two flat pictures that fool each eye into seeing depth.

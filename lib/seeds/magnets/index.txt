@@ -1,0 +1,77 @@
+# Magnets :: thing
+> A magnet strong enough can float a living frog, and the invisible field around it can be drawn with iron filings.
+!!!
+Natural magnet :: Lodestone, the mineral magnetite
+Curie temperature :: About 770 °C for iron
+Modern magnets :: Neodymium, iron and boron, from the 1980s
++++
+[[Ferromagnetism]] :: concept
+[[Magnetic domain]] :: concept
+[[Curie temperature]] :: concept
+[[Diamagnetism]] :: phenomenon
+[[Magnetic levitation]] :: phenomenon
+[[Hans Christian Ørsted]] :: person
+[[Michael Faraday]] :: person
+[[Electromagnetic induction]] :: mechanism
+[[Electromagnet]] :: thing
+[[Magnetic monopole]] :: concept
+[[Geodynamo]] :: mechanism
+[[Seafloor spreading]] :: mechanism
+[[Northern lights]] :: phenomenon
+---
+Lay a bar magnet under a sheet of paper, scatter iron filings over it, and the specks snap into curves that loop from one end of the magnet to the other. They crowd thickest at the two poles, where the field is strongest and its lines press closest together. The filings reveal a field that fills all the space around the magnet, not lines drawn on the paper. Each line leaves the north pole, arcs through the air and re-enters at the south pole, so every loop closes through the magnet itself.
+
+## Why iron sticks and a frog can float
+
+Only a few materials respond strongly: iron, nickel and cobalt. Their atoms carry tiny magnetic moments that line up across regions called [[magnetic domains|Magnetic domain]], so the fields of countless atoms add together. This behaviour is called [[ferromagnetism|Ferromagnetism]], and in a magnetised bar of iron most of the domains point the same way. Heat that iron past its [[Curie temperature]] and the alignment collapses, so the metal stops being magnetic while it stays hot.
+
+Every material responds to a magnetic field, most only feebly. Water, which makes up most of a frog, is slightly repelled, a push too faint to notice outside a very strong field. In 1997, at the High Field Magnet Laboratory in Nijmegen, Andre Geim and Michael Berry floated a live frog inside a 16-tesla magnet, where the upward push balanced the animal's weight. That lifting is called [[magnetic levitation|Magnetic levitation]], and it works because water is [[diamagnetic|Diamagnetism]], repelled rather than drawn in.
+
+^ A superconductor is a stronger diamagnet still, expelling the field entirely, which is why it can float above a magnet.
+
+## Magnetism and electricity, joined
+
+Magnetism was long studied apart from electricity, until [[Hans Christian Ørsted]] noticed in 1820, at the University of Copenhagen, that a current in a wire swung a nearby compass needle. [[Michael Faraday]] turned the idea around in 1831 at the Royal Institution in London, showing that a changing magnetic field could drive a current through a coil, a process now called [[electromagnetic induction|Electromagnetic induction]]. Together these results made the two into one subject, electromagnetism, which later gave the world motors, generators and radio.
+
+^ The north-seeking end of a compass needle is drawn toward Earth's south magnetic pole, which sits near the geographic North Pole.
+
+Wind wire around an iron core, pass a current through it, and the core becomes an [[electromagnet|Electromagnet]] that switches off the moment the current stops. That is how a scrapyard crane lifts a car, then lets go the instant its current is cut. Break a bar magnet in half and each piece is still a complete magnet, with its own north and south pole. No lone magnetic pole, a [[magnetic monopole|Magnetic monopole]], has ever been confirmed, although physicists have predicted one since the 1930s.
+
+## Earth as a giant magnet
+
+Earth behaves as if a bar magnet sat at its centre, tilted slightly away from its spin axis. That field comes from molten iron alloy churning in the outer core, a process called the [[geodynamo|Geodynamo]] that runs on the planet's internal heat. The field also shields the surface from the solar wind, a stream of charged particles from the Sun. Deflected toward the poles, those particles strike gas in the upper atmosphere, and the impacts make the [[northern lights|Northern lights]] glow.
+
+The field is not fixed, and it has reversed its polarity many times across geological history. Lava records the field's direction as it cools, so the rock keeps a compass reading from the past. Along mid-ocean ridges the new seafloor locks in each reversal as a stripe, and in 1963 Frederick Vine and Drummond Matthews read those stripes as evidence for [[seafloor spreading|Seafloor spreading]]. The most recent complete flip is preserved in rock of that age, and nobody can yet predict when the next will come.
+
+::: figures
+50 microtesla :: Typical strength of Earth's field at the surface
+780,000 years :: Age of the last complete reversal of Earth's field
+:::
+
+===
+- [[Venus flytraps]] :: The trap itself gives off a faint magnetic field of its own :: creature
+- [[Magnetotactic bacteria]] :: Microbes with chains of magnetite that steer them along Earth's field :: creature
+- [[Geomagnetic reversal]] :: Lava freezes a compass reading, and the rock keeps every swap :: phenomenon
+- [[Maglev]] :: Trains that hover above their track with no wheels touching it :: technique
+- [[Magnetic resonance imaging]] :: A scanner that images soft tissue with magnets and radio waves, not X-rays :: technique
+- [[Neodymium magnet]] :: Built from neodymium, iron and boron, the magnets inside many electric motors :: thing
+
+???
+Why did a 16-tesla magnet hold a live frog in midair?
+Why does Earth's magnetic field reverse, and what happens during a flip?
+Could a magnet's north and south poles ever be separated?
+
+&&&
+[[Ferromagnetism]] :: Atoms that align in teams, turning a bar into a magnet.
+[[Magnetic domain]] :: Tiny regions where atoms agree, each acting as a small magnet.
+[[Curie temperature]] :: The heat at which iron suddenly becomes an ordinary metal.
+[[Diamagnetism]] :: Almost everything is weakly repelled, including the water in you.
+[[Magnetic levitation]] :: Holds a frog or a train aloft, touching nothing.
+[[Hans Christian Ørsted]] :: A lecturer whose compass twitched, and electromagnetism began.
+[[Michael Faraday]] :: A bookbinder's apprentice who turned moving magnets into electricity.
+[[Electromagnetic induction]] :: A changing magnetic field pushes electrons along a wire.
+[[Electromagnet]] :: A magnet you can switch off, so cranes can drop cars.
+[[Magnetic monopole]] :: A lone pole, predicted for nearly a century, never found.
+[[Geodynamo]] :: A planet-sized dynamo, driven by molten iron, hidden beneath the crust.
+[[Seafloor spreading]] :: Ocean floor striped like a barcode, recording every magnetic flip.
+[[Northern lights]] :: Solar particles, steered by Earth's field, light the sky.

@@ -1,0 +1,71 @@
+# Quicksand :: phenomenon
+> Quicksand rarely swallows anyone whole, yet pulling a trapped foot free can take the force of lifting a car.
+!!!
+Where it forms :: saturated sand at springs and shorelines
+Saturated sand :: about 2,000 kg/m³, denser than water
+Human body :: about 1,000 kg/m³, less than sand
++++
+[[Soil liquefaction]] :: phenomenon
+[[Effective stress]] :: concept
+[[Pore water pressure]] :: concept
+[[Dilatancy]] :: concept
+[[Osborne Reynolds]] :: person
+[[Karl Terzaghi]] :: person
+[[Non-Newtonian fluid]] :: concept
+[[Archimedes' principle]] :: concept
+[[1964 Niigata earthquake]] :: event
+[[2011 Christchurch earthquake]] :: event
+[[Sand volcano]] :: phenomenon
+[[Tidal flat]] :: place
+---
+Step onto wet sand near a river or the sea and it can feel solid for a moment, then give way under your heel. Your shin slides in without warning, and each struggle shifts the grains around it and can tighten their grip. The name comes from an older English sense of quick, meaning alive, which suits ground that seems to move under you.
+^ Quicksand is not a special kind of sand, only loose, water-saturated sand fine enough to liquefy.
+
+## How water takes the grip away
+
+Dry sand holds weight because each grain presses against its neighbours, and the load above travels through the points where they touch. Water filling the gaps pushes back, and the pressure it exerts there is called [[Pore water pressure]]. What remains of the total load once that water pressure is subtracted is the [[Effective stress]], a concept [[Karl Terzaghi]] set out in the 1920s and that still underpins soil engineering. Quicksand is the state in which that remainder falls to almost nothing.
+::: steps
+Water rises :: Groundwater seeps upward through loose, saturated sand from a spring or the tide.
+Pressure climbs :: Water pressure between the grains rises toward the weight of the sand above.
+Contact breaks :: The grains lose their hold on one another and stop bearing the load.
+Sand flows :: The mixture moves like a thick liquid around anything pushed into it.
+:::
+
+Physicists class the liquefied mixture as a [[Non-Newtonian fluid]], so its resistance depends on how fast it is pushed, and a sharp jerk meets more resistance than a slow pull. The conditions arise where water rises through sand, such as at springs, along river banks and on [[tidal flats|Tidal flat]] that each tide keeps saturated. Its surface often looks like any other wet beach, which is why it catches people out.
+
+## Why you float, and why you stay stuck
+
+Wet sand is denser than a human body, at about 2,000 kilograms per cubic metre against roughly 1,000 for a person, so the mixture pushes back as you sink. This is [[Archimedes' principle]] at work: an object floats when the weight of fluid it pushes aside equals its own weight. A standing person therefore usually stops at about the waist, which is why you cannot normally sink past it. The picture of quicksand swallowing people whole is a myth, and the real hazard is being held in place while the tide comes in.
+
+The grip on a trapped leg has a second cause, which the engineer [[Osborne Reynolds]] described in 1885. He found that packed granular material expands when it is sheared, a property now called [[Dilatancy]]. When a leg pushes through dense, wet sand, the grains are forced apart and water is drawn into the gaps, which lowers the water pressure there and grips the leg harder. Estimates of the force needed to free a trapped foot vary, but in packed, wet sand it can approach the force needed to lift a car, so struggling is the wrong response.
+
+## When earthquakes do the same
+
+The same effect can strike a whole district during an earthquake. The shaking drives water up through loose, saturated ground, and in the [[1964 Niigata earthquake]] in Japan, ground under parts of the city of Niigata turned liquid. Engineers call the general process [[Soil liquefaction]], and at Niigata it tipped an apartment block onto its side, though the building itself stayed largely intact.
+
+The [[February 2011 quake|2011 Christchurch earthquake]] did the same across New Zealand's second-largest city, and the sand it forced to the surface built small cones called [[sand volcanoes|Sand volcano]] in streets and gardens. Houses in the worst-hit eastern suburbs tilted or sank as the soil beneath them lost its strength. Engineers now assess liquefaction risk before building on waterside sand.
+^ Geologists map where an earthquake liquefied the ground by surveying the sand volcanoes it left behind.
+===
+- [[Lightning]] :: Lightning fuses sand into glass, leaving hollow tubes called fulgurites. :: phenomenon
+- [[La Brea Tar Pits]] :: Ice Age animals sank into sticky tar and left their bones behind. :: place
+- [[Singing sand]] :: Sand that booms like a bass note when its grains slide. :: phenomenon
+- [[Bog body]] :: Peat bogs swallowed bodies and kept their skin for thousands of years. :: thing
+- [[Mud volcano]] :: Water-soaked sediment, pushed upward by pressure, builds cones and erupts. :: phenomenon
+- [[Sinkhole]] :: Water dissolving rock underground can open a hole under a town without warning. :: phenomenon
+???
+Why does wet sand sometimes hold a person's weight and sometimes not?
+Could an earthquake turn ordinary beach sand into quicksand?
+Can a rising tide drown someone stuck in quicksand on a beach?
+&&&
+[[Soil liquefaction]] :: Shaking can make the ground stop holding up buildings above it.
+[[Effective stress]] :: Subtracting water pressure from weight explains why soil can suddenly weaken.
+[[Pore water pressure]] :: Water in soil's gaps can carry the weight grains normally bear.
+[[Dilatancy]] :: Sheared sand swells and draws in water, locking things in place.
+[[Osborne Reynolds]] :: The engineer who described dilatancy also gave turbulence its key number.
+[[Karl Terzaghi]] :: The soil engineer who made groundwater pressure central to building design.
+[[Non-Newtonian fluid]] :: Cornstarch, ketchup and quicksand all defy simple liquid rules.
+[[Archimedes' principle]] :: Explains why steel ships float and why people float in quicksand.
+[[1964 Niigata earthquake]] :: An apartment block toppled onto its side, largely intact.
+[[2011 Christchurch earthquake]] :: Sand erupted through city streets and gardens, leaving cones behind.
+[[Sand volcano]] :: Tiny cones that map where the ground once liquefied.
+[[Tidal flat]] :: Each tide floods these flats and leaves the sand soaked.

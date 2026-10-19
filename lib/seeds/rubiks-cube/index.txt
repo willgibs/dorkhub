@@ -1,0 +1,65 @@
+# Rubik’s Cube :: thing
+> Twenty half-turns can undo any scramble, and nobody could prove it for over thirty years.
+!!!
+Invented :: Ernő Rubik, Budapest, 1974
+Reachable positions :: about 43 quintillion
+Stickers :: 54, nine on each face
++++
+[[Ernő Rubik]] :: person
+[[Ideal Toy Company]] :: thing
+[[World Rubik’s Cube Championship]] :: event
+[[Speedcubing]] :: technique
+[[Blindfold cubing]] :: technique
+[[Thistlethwaite’s algorithm]] :: technique
+[[God’s number]] :: concept
+[[Superflip]] :: concept
+[[Permutation]] :: concept
+[[Parity of a permutation]] :: concept
+---
+Hold a Rubik’s Cube and you hold 26 small pieces that look like one solid block until you turn a face. Each turn rotates one layer of nine pieces around its axis, and the six faces carry 54 coloured stickers between them. A few random turns leave it looking like a jumble, yet every jumble can be turned back into the solved state, with one colour on each face.
+
+## The pieces
+
+The 26 visible pieces come in three kinds: 8 corners with three colours each, 12 edges with two, and 6 centres with one. The centres are the exception, since each sits on a hidden core and never changes places with another centre. A turn only spins the centre of the face it belongs to, which is why the centres fix the colours of a solved cube. The usual scheme puts white opposite yellow, green opposite blue and red opposite orange, and it is drawn with white on top and green and red at the sides. Shown exploded, the pieces float apart in their places, and each turn is a [[permutation|Permutation]] that turns nine of them at once.
+
+## Counting the arrangements
+
+The cube has 43,252,003,274,489,856,000 reachable arrangements, about 43 quintillion, and the count comes from treating its pieces as a [[permutation|Permutation]] problem with twists attached. The eight corners can be placed in any order and each can be twisted three ways, but the last twist is forced once the other seven are set. The twelve edges follow the same pattern with flips, and one rule halves the result: the corner order and the edge order must have matching [[parity|Parity of a permutation]]. Multiplying these choices gives the total, and every arrangement in it can be reached by turns alone.
+::: figures
+40,320 :: ways to order the eight corners
+2,187 :: twist patterns the corners can take
+239,500,800 :: edge orders possible, given the corners
+2,048 :: flip patterns the edges can take
+:::
+
+In 2010 Tomas Rokicki, Herbert Kociemba, Morley Davidson and John Dethridge showed that every position can be solved in 20 moves or fewer, counting a half turn as one move. Their result settled [[God’s number]], the most moves any scramble needs, and when only quarter turns count, the figure is 26, proved in 2014. The [[superflip|Superflip]], which flips every edge in place while leaving the corners solved, is one of the positions that needs the full 20. A brute-force search of every arrangement was out of reach, so the proof grouped positions that behave alike and searched the groups instead.
+^ Checking one arrangement a second would take about 1.4 trillion years, roughly a hundred times the age of the universe.
+
+## From puzzle to sport
+
+[[Ernő Rubik]], an architecture lecturer in Budapest, built the first version in 1974 while working out how the parts of a moving three-dimensional object could stay joined. A hidden core holds the pieces together while each layer turns around it, so the cube can twist without falling apart. The American toy firm [[Ideal Toy Company]] took it abroad in 1980 as Rubik’s Cube, and in 1982 the first [[World Rubik’s Cube Championship]] was held in Budapest, where solvers competed for the world title.
+^ Its first name was the Magic Cube, a literal translation of the Hungarian Bűvös kocka.
+
+Most beginners solve it one layer at a time, with short sequences of turns that place each piece without disturbing those already set. Faster solvers memorise longer sequences and plan several pieces at once, and top [[speedcubers|Speedcubing]] now solve in under five seconds. Some go further and solve [[blindfolded|Blindfold cubing]], memorising the scramble before they begin. Mathematicians took a more systematic route, and [[Thistlethwaite’s algorithm]] solves any cube in at most 52 moves by stepping through a chain of smaller sets of positions, a method devised in the early 1980s.
+===
+- [[Enigma machine]] :: Permutations again, this time hiding messages in rotors that scrambled every letter :: thing
+- [[Infinity]] :: Huge, but finite: the cube’s count is vast yet exactly countable :: concept
+- [[Kociemba’s algorithm]] :: The two-phase solver that finds short, not shortest, answers almost instantly :: technique
+- [[Pyraminx]] :: The tetrahedron cousin, where the four tips twist on their own :: thing
+- [[Megaminx]] :: A dodecahedron with twelve pentagon faces, and a whole new set of turns :: thing
+- [[Tesseract]] :: The four-dimensional cube, drawn as a cube inside a cube :: thing
+???
+How did anyone prove that every Rubik’s Cube needs twenty moves or fewer?
+Why does the superflip, with every edge flipped, need twenty moves?
+Could a computer ever check every Rubik’s Cube arrangement one by one?
+&&&
+[[Ernő Rubik]] :: Built the first cube in 1974 while puzzling over moving parts
+[[Ideal Toy Company]] :: The firm that took a Budapest puzzle worldwide and renamed it
+[[World Rubik’s Cube Championship]] :: Budapest’s 1982 contest, where solvers first raced for the world title
+[[Speedcubing]] :: Top competitors now solve in under five seconds, from memorised sequences
+[[Blindfold cubing]] :: Solvers memorise the whole scramble, then work without seeing it
+[[Thistlethwaite’s algorithm]] :: Solves any cube within 52 moves, through smaller sets of positions
+[[God’s number]] :: The most moves any scramble needs, proved only in 2010
+[[Superflip]] :: Every edge flipped in place, yet still needs twenty moves
+[[Permutation]] :: The idea behind every scramble, and how the count multiplies
+[[Parity of a permutation]] :: The hidden rule halving the count, and forbidding a lone swap

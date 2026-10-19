@@ -1,0 +1,67 @@
+# Diamonds :: thing
+> Most diamonds began as carbon crushed deep under ancient continents, then rode a volcanic eruption to the surface.
+!!!
+Material :: carbon atoms in a cubic lattice
+Typical age :: 1 to 3.5 billion years
+Hardness :: 10 on the Mohs scale
++++
+[[Volcanoes]] :: phenomenon
+[[Kimberlite]] :: thing
+[[Diamond cubic]] :: concept
+[[Graphite]] :: thing
+[[Lonsdaleite]] :: thing
+[[Cullinan Diamond]] :: thing
+[[Cullinan Mine]] :: place
+[[Mohs scale]] :: concept
+[[Moissanite]] :: thing
+[[Carbonado]] :: mystery
+[[Diamond cutting]] :: technique
+---
+Somewhere far below the old continents, carbon atoms are pressed into a lattice so tight that the result is one of the hardest materials on Earth. Much later, a volcanic eruption can tear through the rock above and carry those crystals up from more than 150 kilometres down. Most people who wear them never think about that trip, which can take less time than the stone spent waiting underground.
+
+## Carbon under pressure
+
+Diamond is pure carbon, and its atoms form a rigid [[Diamond cubic]] lattice in which each atom is bonded to four neighbours. That structure needs extreme pressure and heat, which the mantle, roughly 150 to 200 kilometres down, supplies. Most natural diamonds crystallised between 1 and 3.5 billion years ago, when the roots of ancient continents provided those conditions.
+::: myth
+Myth :: Diamonds are made from compressed coal.
+Actually :: Most formed deep in the mantle long before coal forests existed.
+:::
+
+[[Graphite]] is the same element in a different arrangement: its atoms form loose sheets that slide over one another, which is why it marks paper and diamond does not. The contrast shows that structure, not the element alone, decides whether a material is soft enough to write with or hard enough to cut glass. Under the shock of a meteorite impact, carbon can also form [[Lonsdaleite]], a rarer hexagonal form.
+^ Most diamonds contain traces of nitrogen, which is why many of them look yellow or brown.
+
+## Carried up by eruptions
+
+Most mined diamonds reach the surface inside [[kimberlite|Kimberlite]], an unusual volcanic rock that erupts through the crust in narrow pipes. The [[volcanic eruptions|Volcanoes]] that drive it are fast enough that the diamonds survive the climb, and the pipes they leave behind are often the first clue miners look for. For centuries before that, many diamonds came from river gravels in India, where erosion had worn them loose from their original rock.
+^ Tiny mineral grains sealed inside some diamonds are samples of rock from the deep mantle.
+
+In January 1905 Frederick Wells, the superintendent of the [[Cullinan Mine]] near Pretoria, found a crystal of 3,106 carats, about 620 grams, now known as the [[Cullinan Diamond]]. In 1908 the stone was cleaved in Amsterdam, a risky operation that split it into several major pieces. One of the resulting stones now sits in the British royal sceptre.
+
+## Hard, but not unbreakable
+
+A diamond scores 10 on the [[Mohs scale]], the top of a ranking built on scratching, yet it can still split along its internal planes, a weakness called cleavage. Cutters exploit that weakness: they score a crystal along a chosen plane and then split it, a step that once made diamond cutting a gamble. [[Diamond cutting]] now relies on diamond dust and saw blades, because nothing common is hard enough to shape it.
+
+[[Moissanite]] looks so much like diamond that it fools many eyes, and it was first identified in 1893 by the chemist Henri Moissan in fragments of a meteorite. [[Carbonado]], a black, porous form of diamond, has a murkier past, and its origin remains disputed, with some researchers proposing a source in outer space. Its toughness makes it useful for drill bits rather than jewellery.
+===
+- [[Kimberley Process]] :: A certification scheme born from diamonds that funded wars in West Africa. :: event
+- [[Crown Jewels of the United Kingdom]] :: A royal sceptre and crown hold pieces cut from the Cullinan. :: thing
+- [[Diamond rain]] :: Carbon under planetary pressure may fall as diamonds on Neptune. :: phenomenon
+- [[Canyon Diablo meteorite]] :: Tiny diamonds in an Arizona iron meteorite, thought to be impact-made. :: thing
+- [[Synthetic diamond]] :: Some lab-grown stones are chemically identical to mined diamonds. :: technique
+- [[Hope Diamond]] :: A blue stone whose cursed reputation rests on legend, not records. :: thing
+???
+How do geologists date a diamond that formed a billion years ago?
+Why does a diamond that scratches almost nothing still split along planes?
+Can a lab-grown diamond be told apart from a mined one?
+&&&
+[[Volcanoes]] :: Eruptions act as elevators, lifting crystals from the mantle.
+[[Kimberlite]] :: Eroded pipes of this rock mark where miners dig for diamonds.
+[[Diamond cubic]] :: Four-way bonding makes diamond rigid, and also lets it cleave.
+[[Graphite]] :: Same carbon in loose sheets, which is why pencils write.
+[[Lonsdaleite]] :: A hexagonal carbon form made by meteorite impacts, rarer than diamond.
+[[Cullinan Diamond]] :: A 3,106-carat crystal, cut into stones now in royal regalia.
+[[Cullinan Mine]] :: A South African mine that gave up the Cullinan in 1905.
+[[Mohs scale]] :: Scratch tests that crown diamond the hardest of ten minerals.
+[[Moissanite]] :: Fools many eyes, and was first found inside a meteorite.
+[[Carbonado]] :: A black, porous diamond whose origin is still argued over.
+[[Diamond cutting]] :: Shaping a crystal with diamond dust, since nothing common is harder.

@@ -1,0 +1,75 @@
+# Antarctica :: place
+> A continent most people have never visited holds enough ice to lift the world's oceans about 58 metres.
+!!!
+Area :: about 14 million square kilometres
+Ice volume :: about 26 million cubic kilometres
+Coldest reading :: −89.2 °C at Vostok, 1983
++++
+[[Antarctic ice sheet]] :: thing
+[[Thwaites Glacier]] :: thing
+[[Ice ages]] :: era
+[[Vostok Station]] :: place
+[[Northern lights]] :: phenomenon
+[[Polar night]] :: phenomenon
+[[Emperor penguin]] :: creature
+[[Icefish]] :: creature
+[[Antifreeze protein]] :: mechanism
+[[Blue ice (glaciology)]] :: thing
+[[Apollo 11]] :: event
+[[Antarctic Treaty]] :: event
+---
+Antarctica is the coldest, driest and windiest continent on Earth, and about 98 per cent of it is buried under ice. That ice averages nearly two kilometres thick, lifting the land high above sea level, and the interior gets so little snow that it counts as a desert. In winter, temperatures there can fall below minus 60 degrees Celsius.
+
+^ Greenland's ice would raise the sea about 7 metres; Antarctica's holds roughly eight times that.
+
+## Ice that could move the sea
+
+If all of its ice melted, the [[Antarctic ice sheet]] would raise global sea level by about 58 metres, a figure known as its sea-level equivalent. Most of that volume sits on East Antarctica, but much of West Antarctica rests on bedrock below sea level, where warm ocean water can reach its underside. Where that water undercuts the ice, the point where it lifts off the bed can retreat inland, and some models show that retreat speeding up once it starts. [[Thwaites Glacier]], in West Antarctica, is the focus of that worry and has been nicknamed the Doomsday Glacier in the press.
+
+## Records in the ice
+
+Snow that compacts into ice traps tiny bubbles of ancient air, so a drilled core reads the atmosphere like a diary. The European EPICA project drilled more than three kilometres down at Dome C, and its core reaches back about 800,000 years, through eight glacial cycles of the [[ice ages|Ice ages]]. Its bubbles show carbon dioxide swinging between about 180 and 280 parts per million, rising and falling with each cycle's temperature. At [[Vostok Station]], a thermometer recorded minus 89.2 degrees Celsius on 21 July 1983, the lowest reliable reading on record.
+
+## Darkness, cold and unusual animals
+
+For about six months each year the sun never rises at the pole, and in that [[polar night|Polar night]] the [[southern lights|Northern lights]] glow in the sky. The aurora australis forms when charged particles from the Sun meet the upper atmosphere, the same process that lights the Arctic at the other end of the planet. The brightest displays tend to follow solar storms, when the Sun hurls extra particles toward Earth.
+
+::: compare Antarctica | Arctic
+Polar bears :: none on the continent | roam the Arctic sea ice
+Sea ice :: a ring that swells and shrinks each year | a pack that persists through summer near the pole
+Human residents :: research and support staff only | Indigenous peoples and settlements
+:::
+
+[[Emperor penguin|Emperor penguins]] breed through this darkness. Each female lays a single egg and heads out to sea to feed, while the male keeps it balanced on his feet under a fold of belly skin, fasting for about two months. The chicks hatch in late winter, when the light is only just returning.
+
+In the Southern Ocean, [[icefish|Icefish]] have no haemoglobin and no red blood cells, so their blood looks almost colourless. They carry oxygen dissolved in the plasma instead, and their survival in water close to freezing depends on [[antifreeze proteins|Antifreeze protein]] that bind to ice crystals and stop them growing. Cold water holds more dissolved oxygen than warm water, which makes the trick workable.
+
+## Meteorites and a shared continent
+
+Meteorites that land on the ice sheet are carried along by its slow flow, and wind-scoured [[blue ice|Blue ice (glaciology)]] brings them back to the surface. Those patches have yielded tens of thousands of meteorites since searches began in the 1960s. One of them, found in 1981, is a fragment of the Moon that reached Earth by impact, unlike the rocks that [[Apollo 11]] astronauts carried home from the Moon.
+
+Seven countries have territorial claims on Antarctica, and the [[Antarctic Treaty]] froze those claims rather than settling them. The treaty, signed in 1959 by twelve nations, reserves the continent for peaceful purposes and science. A 1991 protocol added a ban on mining that runs until 2048, so the continent's minerals are off limits for now.
+===
+- [[Lake Vostok]] :: Planetary scientists compare an ice-sealed lake with the ocean under Europa :: place
+- [[McMurdo Dry Valleys]] :: The driest valleys on Earth, used to test instruments meant for Mars :: place
+- [[Terra Australis]] :: A southern continent, drawn on maps for centuries before its coast was sighted :: concept
+- [[Mount Erebus]] :: On Ross Island, a volcano keeps a lava lake churning :: place
+- [[Roald Amundsen]] :: Amundsen reached the pole first in 1911, about five weeks ahead of Scott :: person
+- [[Antarctic krill]] :: A shrimp-like animal whose swarms feed whales, seals and penguins :: creature
+???
+How much would sea level rise if Antarctica's ice melted?
+Why do icefish survive without red blood cells?
+How did a piece of the Moon end up in Antarctic ice?
+&&&
+[[Antarctic ice sheet]] :: The ice that could add 58 metres to the world's oceans.
+[[Thwaites Glacier]] :: A glacier nicknamed the Doomsday Glacier, watched closely from space.
+[[Ice ages]] :: Ice cores here log climate swings across hundreds of millennia.
+[[Vostok Station]] :: The place where a thermometer read minus 89.2 degrees in 1983.
+[[Northern lights]] :: Its southern twin, the aurora australis, shimmers over the ice.
+[[Polar night]] :: Six months of darkness, with the stars wheeling overhead.
+[[Emperor penguin]] :: Males fast through winter, balancing one egg on their feet.
+[[Icefish]] :: Fish with no red blood cells, living in water near freezing.
+[[Antifreeze protein]] :: Molecules that stop ice crystals from growing in fish blood.
+[[Blue ice (glaciology)]] :: Bare ice where wind uncovers meteorites that fell long ago.
+[[Apollo 11]] :: Its Moon rocks came home with astronauts; Antarctica's Moon rock fell.
+[[Antarctic Treaty]] :: A 1959 pact that froze territorial claims rather than settling them.

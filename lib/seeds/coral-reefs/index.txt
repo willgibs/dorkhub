@@ -1,0 +1,69 @@
+# Coral reefs :: place
+> A reef is built by animals that run partly on sunlight, one skeleton at a time, over thousands of years.
+!!!
+Found in :: warm, sunlit tropical seas
+Seafloor cover :: under 1% of the ocean floor
+Species share :: an estimated quarter of marine species
++++
+[[Coral (animal)]] :: creature
+[[Zooxanthellae]] :: creature
+[[Coral bleaching]] :: phenomenon
+[[Great Barrier Reef]] :: place
+[[Atoll]] :: place
+[[Charles Darwin]] :: person
+[[Ice ages]] :: era
+[[Last Glacial Maximum]] :: era
+[[Fringing reef]] :: place
+[[Eniwetok Atoll]] :: place
+[[Ocean acidification]] :: phenomenon
+[[Crown-of-thorns starfish]] :: creature
+---
+From a plane above north-eastern Australia, the [[Great Barrier Reef]] looks like a mosaic of blue-green patches laid across the sea. Look closer and the mosaic turns out to be built by animals, tiny polyps that have been stacking limestone skeletons for thousands of years. Most of the reef's bulk is old skeleton, and only a thin living skin of coral covers it at any moment.
+
+## Animals that run partly on sunlight
+
+Each [[Coral (animal)|coral]] is a colony of polyps, soft-bodied animals that sit inside cups of calcium carbonate they draw from seawater. Their tissues host single-celled algae called [[Zooxanthellae]], which photosynthesise and pass sugars to the coral, while the coral gives the algae shelter and nutrients. That partnership is why reef-building corals need clear, sunlit water, and why most reefs stop growing where light runs thin.
+
+Reefs cover very little of the planet. Coral reefs occupy less than 1 per cent of the ocean floor, yet they are home to an estimated quarter of all marine species. That makes them one of the densest concentrations of life in the sea, packed into a sliver of the sea floor.
+^ Many of today's reefs grow on the skeletons of older reefs, so the living layer sits on a foundation far older than itself.
+
+## Sea level and sinking islands
+
+In 1842 [[Charles Darwin]] published his account of coral reefs, written after the voyage of HMS Beagle, and his explanation of atolls has shaped the field since. His idea ran from a [[Fringing reef|fringing reef]] that hugs a shore, to a barrier reef set further out, to an [[Atoll|atoll]]. It also predicted what drilling would find beneath an atoll, so the idea could be tested rather than merely argued. In the early 1950s, drilling at [[Eniwetok Atoll]] reached volcanic rock beneath a thick column of reef limestone, which fitted the prediction. The test did not settle everything, because sea-level swings during the [[Ice ages|ice ages]] also left their mark on reef growth.
+::: theories
+Subsidence :: Atolls form as volcanic islands sink while corals grow upward. :: accepted
+Glacial control :: Sea-level swings in the ice ages shaped reef growth on shelves. :: partly
+:::
+
+At the [[Last Glacial Maximum]], roughly 20,000 years ago, global sea level stood about 120 metres lower than it does now. Shelves that are now a few dozen metres under the sea were then dry or close to it, so reefs that had once grown there were left exposed. When the ice melted and the sea climbed again, many of the reefs on today's shelves grew upward through that rise, and some drowned where the water rose faster than they could keep up.
+
+## Too warm, too acidic
+
+The reef's fragility shows most clearly in [[Coral bleaching|bleaching]]. When water stays too warm for too long, corals expel their algae, lose their colour and turn white, and without the sugars the algae supply, they can starve unless the algae return. The [[Great Barrier Reef]] suffered mass bleaching in 1998, and again in 2016 and 2017, as heat waves swept along its length.
+^ Bleached coral is not automatically dead, and many colonies recover if cooler water returns in time.
+
+A second threat works more slowly: as the ocean absorbs carbon dioxide, its chemistry shifts toward [[Ocean acidification|acidification]], which makes it harder for corals and other organisms to build their skeletons. Outbreaks of the [[Crown-of-thorns starfish]] add a biological pressure, since the starfish feed on coral tissue, and outbreaks can strip large stretches of reef faster than corals regrow. Where pollution and warm water arrive together, recovery is slower, which is why managers focus on the pressures they can reduce locally.
+===
+- [[Octopuses]] :: Reef octopuses hunt alongside fish, a partnership documented in 2024. :: creature
+- [[Fluorescent protein]] :: A coral's red glow supplied the protein that lights up cells in labs. :: thing
+- [[Stromatolite]] :: Microbial reefs built billions of years before any animal could build one. :: thing
+- [[Great Blue Hole]] :: A giant sinkhole off Belize was dry land when seas sat far lower. :: place
+- [[Coral spawning]] :: Many corals spawn together on a few nights, timed by the moon. :: phenomenon
+- [[Mangrove]] :: Mangrove roots trap sediment that would otherwise smother nearby reefs. :: thing
+???
+How do reef corals survive in water with almost no nutrients?
+Why did the Great Barrier Reef bleach in 2016 and 2017?
+Can a damaged coral reef recover after a single bleaching event?
+&&&
+[[Coral (animal)]] :: Soft animals that build their own limestone homes, cup by cup.
+[[Zooxanthellae]] :: Algae that pay their rent in sugar, fuelling the reef.
+[[Coral bleaching]] :: Corals can turn white within weeks of a heat wave.
+[[Great Barrier Reef]] :: A reef system long enough to be seen from orbit.
+[[Atoll]] :: A coral ring that may crown a long-sunken volcano.
+[[Charles Darwin]] :: The naturalist whose atoll idea waited a century for a drill.
+[[Ice ages]] :: Ice ages moved the sea by more than a hundred metres.
+[[Last Glacial Maximum]] :: The ice age peak when shelves lay high and dry.
+[[Fringing reef]] :: A reef hugging a shore, the first stage of Darwin's sequence.
+[[Eniwetok Atoll]] :: A drill hole that reached volcanic rock under a thick reef.
+[[Ocean acidification]] :: Carbon dioxide makes seawater slowly harder for skeletons to form.
+[[Crown-of-thorns starfish]] :: Coral-eating starfish whose outbreaks can strip large stretches bare.

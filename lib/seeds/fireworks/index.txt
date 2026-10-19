@@ -1,0 +1,74 @@
+# Fireworks :: thing
+> Almost every colour in a firework is a metal's fingerprint of light, and blue is the hardest one to coax out of the sky.
+!!!
+Sodium yellow :: About 589 nanometres
+Visible light :: 400 to 700 nanometres
+Core ingredients :: Black powder and metal salts
++++
+[[Emission spectrum]] :: concept
+[[Flame test]] :: technique
+[[Visible spectrum]] :: concept
+[[Strontium]] :: thing
+[[Barium]] :: thing
+[[Copper(I) chloride]] :: thing
+[[Incandescence]] :: concept
+[[Northern lights]] :: phenomenon
+[[Nucleosynthesis]] :: mechanism
+[[Supernovas]] :: event
+[[Gunpowder]] :: thing
+[[Potassium nitrate]] :: thing
+---
+A shell leaves its mortar with a hollow thump, climbs for a few seconds and opens over the crowd. Light reaches you first, because it travels roughly a million times faster than sound, so the first thing you see is a ring of green that hangs and fades. That green is barium's, and nearly every other colour in the sky belongs to a metal too; the warm glow of hot charcoal, a case of [[incandescence|Incandescence]], is the main exception. The shell itself is a small machine, and its colour is decided by a few pellets of chemistry packed inside.
+
+## The colour is in the atoms
+
+Colour in fireworks follows the principle of the [[flame test|Flame test]]: heat a metal salt in a flame and its atoms take up energy, jump to higher energy levels and fall back, giving off light at wavelengths set by the atom itself. Each element therefore has its own [[emission spectrum|Emission spectrum]], a set of sharp lines rather than a smooth rainbow, and a shell packed with a metal salt bursts in that metal's lines. Sodium's bright line sits in the yellow of the [[visible spectrum|Visible spectrum]], which is why table salt in a flame glows so strongly yellow, while [[strontium|Strontium]] shines red and calcium orange. [[Barium]] supplies the green, and copper supplies the blue, the hardest colour of all to get right. Copper's blue comes from a molecule, [[copper(I) chloride|Copper(I) chloride]], that survives only in a cool flame. In a hotter flame the molecule breaks apart and the copper atoms shine green, so the blue depends on a cool burn with chlorine in the mix.
+
+^ The same narrow yellow line lights many sodium-vapour streetlamps, which are efficient precisely because they emit almost only that line.
+
+The same process paints the sky without any powder at all. Solar particles strike oxygen and nitrogen high over the poles, and the excited atoms glow green and red in the [[Northern lights]]. A firework does the same job in a few seconds, with a match and a fuse instead of a solar storm.
+
+## Where the metals were made
+
+Every metal in a firework was forged inside a star long before the Earth existed. Sodium and calcium were cooked in massive stars, while strontium and barium were built slowly in dying stars of modest mass, through a family of processes called [[nucleosynthesis|Nucleosynthesis]]. Copper was partly made in [[supernovas|Supernovas]], the explosions that scatter stellar material across space. A firework is therefore a small sample of stellar history, released in a few seconds.
+
+## Built to burst
+
+[[Gunpowder]] is a mix of charcoal, sulphur and saltpetre, and Chinese alchemists had written down its recipe by the 9th century. The earliest fireworks were bamboo stalks thrown into a fire, which split with a bang as the air trapped inside expanded. Colour came later, once makers learned to pack metal salts into stars that burned steadily.
+
+Most fireworks mix three kinds of ingredient: a fuel such as charcoal, an oxidiser such as [[potassium nitrate|Potassium nitrate]] or perchlorate that supplies oxygen, and the colour salts, bound into pellets called stars. The oxidiser sets how hot the burn runs, and that heat decides which metal's light wins. Too little oxidiser, and a star smokes instead of shining, so every mixture is tuned on the bench before it flies.
+
+::: steps
+Lift :: A charge of black powder throws the shell out of its mortar.
+Fuse :: A time fuse, lit at launch, burns through the climb.
+Burst :: At the top, the fuse fires a second charge that splits the shell.
+Stars :: The released pellets ignite and fly outward, each one glowing.
+Fade :: Each star burns for seconds, then cools and drifts down.
+:::
+
+===
+- [[Bioluminescence]] :: Fireflies make cold light, with no hot flame at all :: phenomenon
+- [[Fraunhofer lines]] :: Dark gaps in sunlight that revealed which elements sit in the Sun :: concept
+- [[Sodium-vapour lamp]] :: Streetlights that glow orange-yellow by exciting sodium vapour :: thing
+- [[Phosphorescence]] :: Glow-in-the-dark toys use strontium, which keeps glowing for hours :: phenomenon
+- [[Strontian]] :: A Scottish village whose name was given to strontium, the red in fireworks :: place
+- [[Sky lantern]] :: A paper balloon that carries a small flame across the night sky :: thing
+
+???
+Why is blue the hardest firework colour to make?
+Where were the metals in fireworks originally made?
+Why do some fireworks crackle with gold sparks?
+
+&&&
+[[Emission spectrum]] :: Light that comes in sharp lines, each one a chemical signature.
+[[Flame test]] :: Names a metal by its flame colour, a school-lab staple.
+[[Visible spectrum]] :: The thin band of light our eyes see, violet to red.
+[[Strontium]] :: Named after a Scottish village, and the source of firework red.
+[[Barium]] :: A soft, reactive metal whose compounds make firework green.
+[[Copper(I) chloride]] :: The blue-making molecule that hot flames tear apart.
+[[Incandescence]] :: Hot solids glow in a smooth spread of colour, not lines.
+[[Northern lights]] :: The same excited atoms, lit by solar particles over the poles.
+[[Nucleosynthesis]] :: How stars cook carbon, oxygen and the heavier metals.
+[[Supernovas]] :: Stellar explosions that seed space with heavy metals.
+[[Gunpowder]] :: Charcoal, sulphur and saltpetre, the recipe that began it all.
+[[Potassium nitrate]] :: The oxygen-rich salt that lets a firework burn hot.

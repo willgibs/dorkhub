@@ -1,5 +1,137 @@
 {
  "pages": {
+  "black holes": {
+   "title": "Black holes",
+   "file": "black-holes/index.txt"
+  },
+  "northern lights": {
+   "title": "Northern lights",
+   "file": "northern-lights/index.txt"
+  },
+  "venus flytraps": {
+   "title": "Venus flytraps",
+   "file": "venus-flytraps/index.txt"
+  },
+  "quicksand": {
+   "title": "Quicksand",
+   "file": "quicksand/index.txt"
+  },
+  "stonehenge": {
+   "title": "Stonehenge",
+   "file": "stonehenge/index.txt"
+  },
+  "supernovas": {
+   "title": "Supernovas",
+   "file": "supernovas/index.txt"
+  },
+  "diamonds": {
+   "title": "Diamonds",
+   "file": "diamonds/index.txt"
+  },
+  "volcanoes": {
+   "title": "Volcanoes",
+   "file": "volcanoes/index.txt"
+  },
+  "coral reefs": {
+   "title": "Coral reefs",
+   "file": "coral-reefs/index.txt"
+  },
+  "dreams": {
+   "title": "Dreams",
+   "file": "dreams/index.txt"
+  },
+  "fingerprints": {
+   "title": "Fingerprints",
+   "file": "fingerprints/index.txt"
+  },
+  "terracotta army": {
+   "title": "Terracotta Army",
+   "file": "terracotta-army/index.txt"
+  },
+  "atlantis": {
+   "title": "Atlantis",
+   "file": "atlantis/index.txt"
+  },
+  "magnets": {
+   "title": "Magnets",
+   "file": "magnets/index.txt"
+  },
+  "infinity": {
+   "title": "Infinity",
+   "file": "infinity/index.txt"
+  },
+  "time travel": {
+   "title": "Time travel",
+   "file": "time-travel/index.txt"
+  },
+  "ice ages": {
+   "title": "Ice ages",
+   "file": "ice-ages/index.txt"
+  },
+  "fireworks": {
+   "title": "Fireworks",
+   "file": "fireworks/index.txt"
+  },
+  "rubiks cube": {
+   "title": "Rubik’s Cube",
+   "file": "rubiks-cube/index.txt"
+  },
+  "pompeii": {
+   "title": "Pompeii",
+   "file": "pompeii/index.txt"
+  },
+  "mona lisa": {
+   "title": "Mona Lisa",
+   "file": "mona-lisa/index.txt"
+  },
+  "lightning": {
+   "title": "Lightning",
+   "file": "lightning/index.txt"
+  },
+  "octopuses": {
+   "title": "Octopuses",
+   "file": "octopuses/index.txt"
+  },
+  "hieroglyphs": {
+   "title": "Hieroglyphs",
+   "file": "hieroglyphs/index.txt"
+  },
+  "giant squid": {
+   "title": "Giant squid",
+   "file": "giant-squid/index.txt"
+  },
+  "dna": {
+   "title": "DNA",
+   "file": "dna/index.txt"
+  },
+  "antarctica": {
+   "title": "Antarctica",
+   "file": "antarctica/index.txt"
+  },
+  "origami": {
+   "title": "Origami",
+   "file": "origami/index.txt"
+  },
+  "boomerangs": {
+   "title": "Boomerangs",
+   "file": "boomerangs/index.txt"
+  },
+  "enigma machine": {
+   "title": "Enigma machine",
+   "file": "enigma-machine/index.txt"
+  },
+  "apollo 11": {
+   "title": "Apollo 11",
+   "file": "apollo-11/index.txt"
+  },
+  "holograms": {
+   "title": "Holograms",
+   "file": "holograms/index.txt"
+  },
+  "bioluminescence": {
+   "title": "Bioluminescence",
+   "file": "bioluminescence/index.txt"
+  },
   "carrington event": {
    "title": "The Carrington Event",
    "file": "carrington-event/index.txt"
@@ -44,10 +176,6 @@
   "tulip mania": {
    "title": "Tulip mania",
    "file": "tulip-mania/index.txt"
-  },
-  "bioluminescence": {
-   "title": "Bioluminescence",
-   "file": "bioluminescence/index.txt"
   }
  }
 }

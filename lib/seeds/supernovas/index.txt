@@ -1,0 +1,71 @@
+# Supernovas :: phenomenon
+> The iron in your blood was forged inside dying stars, and their explosions scattered it across the galaxy.
+!!!
+Milky Way rate :: about one or two per century
+Last galactic sighting :: 1604, Kepler's supernova
+Peak brightness :: rivals its whole host galaxy
++++
+[[Crab Nebula]] :: thing
+[[Pulsar]] :: thing
+[[Neutron star]] :: thing
+[[Black holes]] :: phenomenon
+[[Neutrino]] :: thing
+[[Type Ia supernova]] :: phenomenon
+[[White dwarf]] :: thing
+[[Chandrasekhar limit]] :: concept
+[[Supernova 1987A]] :: event
+[[Standard candle]] :: concept
+[[Dark energy]] :: mystery
+[[SN 1572]] :: event
+---
+In the summer of 1054, astronomers at the Song dynasty court in China logged a new star in the constellation Taurus. It shone in daylight for 23 days, and it stayed in the night sky for nearly two years. What they had logged was an old star dying, its core collapsing and its outer layers blown into space. Its wreck is the [[Crab Nebula]], a glowing cloud about 6,500 light-years away that is still expanding. Such explosions are called supernovas, and for a few weeks one can rival the light of its whole host galaxy.
+^ The same summer, papal legates excommunicated the patriarch of Constantinople, a split that became the East-West Schism.
+
+## A core that cannot hold itself up
+
+Core-collapse supernovas begin with a star of roughly eight solar masses or more, which ends its life by fusing lighter elements into heavier ones, layer by layer, until its centre is iron. Iron cannot release energy by fusing, so the core stops generating the pressure that holds gravity back. When the core passes a limit, it collapses in a fraction of a second, and the falling material bounces off a new ball of [[neutron star|Neutron star]] matter. A flood of [[neutrinos|Neutrino]] carries energy out of the core, and the shock they help revive blasts the outer layers into space at thousands of kilometres per second.
+
+If the core is heavy enough, nothing stops its collapse at the neutron star stage, and it becomes a [[Black holes|black hole]] instead. Whether a remnant ends as a neutron star or a black hole depends largely on the core's mass. Astronomers suspect some massive stars fail to explode at all and simply vanish, though such quiet collapses are hard to spot.
+::: figures
+10^46 J :: energy released by a core collapse
+20 km :: diameter of a typical neutron star
+:::
+
+## When a white dwarf goes too far
+
+The other main kind starts with a [[White dwarf|white dwarf]], the dense remnant of a Sun-like star that no longer fuses anything. Either the white dwarf pulls gas off a companion, or two of them spiral together and merge, and in both cases the mass climbs toward the [[Chandrasekhar limit]], beyond which electron pressure can no longer hold it up. Carbon ignites in the core, and the whole star is torn apart in a runaway thermonuclear blast, a [[Type Ia supernova]] that leaves no core behind.
+
+Because Type Ia explosions reach nearly the same peak brightness, astronomers use them as [[Standard candle|standard candles]] to measure distance. In 1998 Saul Perlmutter's team and Brian Schmidt's team, working separately, found that distant ones looked fainter than expected. That meant the universe's expansion has been speeding up rather than slowing, and the cause is unknown; it is usually called [[Dark energy]], a name for an effect rather than an explanation.
+^ Dark energy is thought to make up about 70 percent of the universe's total energy, far more than all the matter in stars.
+
+## Records in the sky and in the detectors
+
+In November 1572 the Danish astronomer Tycho Brahe watched a new star bloom in Cassiopeia, the supernova now known as [[SN 1572]]. He measured its position for months and found it did not shift against the background stars, which placed it far beyond the Moon. That challenged the old belief that the heavens never change, and in 1573 he published his observations as De nova stella.
+
+In February 1987, [[Supernova 1987A|a supernova]] exploded in the Large Magellanic Cloud, about 168,000 light-years away, the closest one seen since 1604. Its neutrinos reached Earth hours before its light did, and roughly twenty of them were caught by detectors in Japan and Ohio. On 24 February, Ian Shelton and Oscar Duhalde at Las Campanas Observatory in Chile noticed the new star.
+
+At the heart of the Crab sits a [[Pulsar|pulsar]], a [[Neutron star|neutron star]] spinning about thirty times a second. Its wind of charged particles keeps the nebula glowing, and as the spin slows, the Crab keeps changing almost a thousand years after the blast. Astronomers have followed that light from radio waves to gamma rays.
+===
+- [[Fireworks]] :: Firework colours come from metals forged in stars, before anyone lit a fuse :: technique
+- [[Cobalt]] :: Supernova light fades as cobalt decays, the metal that colours blue glass :: thing
+- [[Iron-60]] :: Iron-60 in deep-sea crust hints at blasts near Earth, millions of years ago :: thing
+- [[Light echo]] :: Dust rings around Supernova 1987A keep glowing with light from the old blast :: phenomenon
+- [[Gamma-ray burst]] :: Some gamma-ray bursts come from a massive star collapsing into a black hole :: phenomenon
+- [[Cosmic ray]] :: Dying stars' shockwaves may be firing particles through you right now :: phenomenon
+???
+How do astronomers tell a Type Ia supernova from a core-collapse one?
+Could a nearby supernova harm life on Earth?
+Why did Supernova 1987A's neutrinos arrive hours ahead of the light?
+&&&
+[[Crab Nebula]] :: a glowing wreck with a spinning neutron star at its heart
+[[Pulsar]] :: a neutron star whose beam sweeps past Earth once per spin
+[[Neutron star]] :: a city-sized ball holding more mass than the Sun
+[[Black holes]] :: the leftover that traps even light, sometimes born in a blast
+[[Neutrino]] :: a ghost particle, trillions pass through you every second
+[[Type Ia supernova]] :: a white dwarf's explosion that works like a ruler across space
+[[White dwarf]] :: a dead star Earth-sized, with a teaspoon weighing several tonnes
+[[Chandrasekhar limit]] :: the mass ceiling set by quantum rules, not by heat
+[[Supernova 1987A]] :: the nearby blast whose neutrinos beat its light to Earth
+[[Standard candle]] :: the cosmic lamp whose faintness revealed a speeding-up universe
+[[Dark energy]] :: the name for a push nobody can yet explain
+[[SN 1572]] :: Tycho Brahe's new star, which shook belief in unchanging heavens

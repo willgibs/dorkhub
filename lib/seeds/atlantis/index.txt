@@ -1,0 +1,74 @@
+# Atlantis :: mystery
+> Plato described a city of ringed sea and land, then said it sank in one day and night; every later telling starts with him.
+!!!
+First telling :: Plato's dialogues, around 360 BC
+Best candidate :: Thera's eruption, around 1600 BC
+Settled :: No; no city has been found
++++
+[[Minoan eruption]] :: event
+[[Akrotiri (Santorini)]] :: place
+[[Knossos]] :: place
+[[Spyridon Marinatos]] :: person
+[[Ignatius Donnelly]] :: person
+[[Timaeus (dialogue)]] :: work
+[[Critias (dialogue)]] :: work
+[[Stadion (unit)]] :: thing
+[[Orichalcum]] :: thing
+[[Bimini Road]] :: place
+[[Tartessos]] :: place
+[[Pillars of Heracles]] :: place
+[[Volcanoes]] :: phenomenon
+[[Hieroglyphs]] :: thing
+---
+Beyond the [[Pillars of Heracles]], Plato wrote, lay an island larger than Libya and Asia put together, ruled by the descendants of the sea god Poseidon. Its capital sat inside concentric rings of sea and land, a canal led in from the sea, and its walls shone with metal. Then, in one dreadful day and night, earthquakes and floods took the island beneath the waves. Every telling of Atlantis goes back to two dialogues Plato wrote around 360 BC, [[Timaeus (dialogue)|Timaeus]] and [[Critias (dialogue)|Critias]], and Critias breaks off partway through its story.
+^ Plato says the sinking left a mud shoal that still makes the sea there impassable.
+
+## Plato's numbers
+
+Plato measured the island in [[Stadion (unit)|stadia]], about 185 metres each in Athens. The central island was 5 stadia across, ringed by five bands of sea and land, 1, 2, 2, 3 and 3 stadia wide, starting with sea. Poseidon had fenced the hill of his mortal love, Cleito, with those rings, and their eldest son Atlas gave the island its name. The walls were brass on the outer ring, tin on the ring inside it, and [[Orichalcum|orichalcum]] around the citadel, which flashed like fire. A temple to Poseidon stood on the summit, sheathed in silver with gold pinnacles, and a racecourse for horses circled the rings.
+
+Plato says the story reached Athens through priests at Sais in Egypt, who told Solon that the war had come nine thousand years before his own time. Plato never names the script of their records, but Egyptian temple writing was [[Hieroglyphs|hieroglyphic]], a Greek word meaning 'sacred carvings', and it stayed largely unread until Champollion's decipherment in 1822.
+^ Counted back from Solon's day, about 600 BC, Plato's date falls near 9600 BC, roughly 8,000 years before Thera erupted.
+
+## The rival answers
+
+The most discussed candidate is the [[Minoan eruption]], which around 1600 BC blew apart the island of Thera, now Santorini. It ranks among the largest [[Volcanoes|volcanic]] eruptions of the past ten thousand years, and it buried the Bronze Age town of [[Akrotiri (Santorini)|Akrotiri]] under ash, where painted houses lay sealed for over three thousand years. In 1939 the archaeologist [[Spyridon Marinatos]] argued that the blast had wrecked Minoan Crete, and that a distorted memory of the ruin reached Plato as Atlantis. Thera's centre really did collapse and flood, which is what makes the comparison tempting, and Crete's palace at [[Knossos]] shows how rich that Minoan world was.
+
+The sunken continent owes much to [[Ignatius Donnelly]], a Minnesota politician whose 1882 book Atlantis: The Antediluvian World turned the island into a continent that seeded every ancient civilisation. Later candidates include [[Tartessos]], a rich kingdom of southern Spain whose capital is still unlocated, and the [[Bimini Road]] off the Bahamas, which divers took for a road before geologists called it natural rock.
+::: theories
+Plato's invention :: a moral fable about a greedy empire and an ideal Athens :: accepted
+Thera's eruption :: a real Bronze Age disaster, remembered as myth :: disputed
+Tartessos :: a lost kingdom of southern Spain was the city behind the legend :: rejected
+Bimini Road :: ancient ruins of a sunken city off the Bahamas :: rejected
+:::
+
+## What would settle it
+
+Critias sets old Athens, the ideal state Socrates sketched in the Republic, against an empire punished for its greed, and many scholars read the whole tale as moral fiction. What would settle the question is a datable, submerged city whose rings match Plato's measurements, or an independent ancient record of one. No Egyptian text naming Atlantis has turned up, and no excavation has found the rings.
+
+===
+- [[Mid-Atlantic Ridge]] :: Seafloor spreading here widens the Atlantic yearly, the geology behind sunken-continent doubts :: place
+- [[Lisbon earthquake of 1755]] :: Voltaire turned the Lisbon quake into a novel about why the innocent suffer :: event
+- [[Eratosthenes]] :: He sized the whole Earth in stadia, as Plato sized his island :: person
+- [[Linear A]] :: Minoan tablets from Crete carry a script that still no one can read :: thing
+- [[Rosetta Stone]] :: One decree in three scripts gave Champollion the key to hieroglyphs :: thing
+- [[Pompeii]] :: Ash buried Pompeii in 79 AD; bodies left cavities that became plaster casts :: place
+???
+Could the Minoan eruption of Thera have destroyed a real Atlantis?
+Why did Plato's Egyptian priests date the war nine thousand years before Solon?
+Did any ancient Egyptian text ever mention the island of Atlantis?
+&&&
+[[Minoan eruption]] :: A blast that might have turned a disaster into legend
+[[Akrotiri (Santorini)]] :: A Bronze Age town preserved under volcanic ash, with painted walls
+[[Knossos]] :: The palace that Arthur Evans reconstructed, partly in concrete
+[[Spyridon Marinatos]] :: The archaeologist who tied Plato's island to a volcano in 1939
+[[Ignatius Donnelly]] :: The Minnesota politician whose 1882 book made Atlantis a sunken continent
+[[Timaeus (dialogue)]] :: Plato's cosmology, and the source of the island's first telling
+[[Critias (dialogue)]] :: The unfinished dialogue that breaks off partway through the island's story
+[[Stadion (unit)]] :: A unit that varied by city, and changes Atlantis's size
+[[Orichalcum]] :: Named "mountain copper", a metal scholars still argue over
+[[Bimini Road]] :: Divers' road off the Bahamas, which geologists say is natural rock
+[[Tartessos]] :: A rich kingdom of southern Spain whose capital is still unlocated
+[[Pillars of Heracles]] :: Rocks that marked the edge of the known world for Greeks
+[[Volcanoes]] :: Mountains that can bury a city, and maybe a whole civilisation
+[[Hieroglyphs]] :: Sacred carvings the Greeks could not read, cracked in 1822

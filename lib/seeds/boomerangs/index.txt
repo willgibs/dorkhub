@@ -1,0 +1,69 @@
+# Boomerangs :: thing
+> Most boomerangs were built to hit or hunt, and only a few were made to fly back to the thrower.
+!!!
+Name source :: Dharug, the language of Sydney
+Returning designs :: a small minority
+Egyptian depiction :: a tomb painting, about 1350 BC
++++
+[[Tomb of Nebamun]] :: work
+[[Fowling]] :: technique
+[[Club (weapon)]] :: thing
+[[Airfoil]] :: concept
+[[Propeller]] :: thing
+[[Gyroscopic precession]] :: mechanism
+[[Gyroscope]] :: thing
+[[Woomera (spear-thrower)]] :: thing
+[[Atlatl]] :: thing
+[[Sling (weapon)]] :: thing
+---
+Picture a boomerang and most people see a flat wooden stick spinning across a field and curling back toward the thrower's feet. That picture describes only one family of designs. Most boomerangs were never meant to come back: they were thrown at birds, game or enemies, and they dropped where they landed.
+
+## Sticks built to hit
+
+Throwing sticks that do not return were made in ancient Egypt and in parts of Africa as well as in Australia. The [[Tomb of Nebamun]], a painted tomb at Thebes from about 1350 BC, shows a hunter in a papyrus marsh hurling a curved stick into a flock of birds, a scene of [[fowling]] that has survived for over three thousand years. Australian makers produced heavier [[club (weapon)|clubs]] and straight throwing sticks for close fighting and hunting, and these were built to strike rather than to curve.
+
+## The one built to return
+
+The returning kind is a specialised tool, most closely associated with Australia. Each arm is an [[airfoil|Airfoil]], cut like an aircraft wing with a flatter face and a curved one, and the two arms are joined so the whole piece spins as a unit. Makers carved them by hand and adjusted the arms by throwing and trimming until the flight curved back.
+
+::: steps
+Throw :: a flick of the wrist sends it spinning forward through the air
+Spin :: each arm turns like a [[propeller|Propeller]] blade and works as a wing
+Lift :: the arm moving faster through the air gets more lift
+Tilt :: the spinning plane tips sideways through [[gyroscopic precession|Gyroscopic precession]]
+Return :: the curved path brings it round toward the thrower
+:::
+
+A return is never guaranteed. Wind, a thrower's grip and the angle of release all change the path, so a throw can end short, wide or in the grass. The spin also gives the boomerang the steadiness of a [[gyroscope|Gyroscope]], which is why experienced throwers can watch the flight and step forward to catch it on the way back.
+
+A well-thrown returning boomerang can circle back and land near the thrower, which is why it is the design most people picture. The return is also the hardest part to learn, because it can arrive at head height or dip toward the grass, and a beginner must read the spin and the wind before stepping into its path. Experienced throwers practise in open ground, where a missed catch costs nothing.
+
+## Throwing aids and a word from Sydney
+
+Other peoples gave a throw more leverage rather than more curve. The [[woomera (spear-thrower)|woomera]] of Australia and the [[atlatl]] of the Americas both extend the thrower's arm, so a spear leaves the hand faster, and a [[sling (weapon)|sling]] does something similar with a loop of cord. Each is a way of making a short arm throw further, while the boomerang takes a different route and asks the air to bring the stick back.
+
+^ A woomera has a peg at one end that seats in a notch at the spear's butt, turning the thrower's arm into a longer lever.
+
+The English word comes from Dharug, the language of the Sydney region. Today competitive throwers compete for distance, accuracy and trick catches, and most competition models are cut from plywood or moulded from plastic rather than carved from wood. The airfoil shape has changed less than the materials, so a modern throw still rides the same physics.
+===
+- [[Hieroglyphs]] :: Tutankhamun's tomb held boomerangs, and its walls are covered in hieroglyphs :: thing
+- [[Bullroarer]] :: A spun wooden blade that roars through the air, used in ceremony :: thing
+- [[Samara (fruit)]] :: Maple seeds spin down like a boomerang's arms, a trick plants invented first :: thing
+- [[Helicopter]] :: Rotor blades are spinning wings, the boomerang's idea at a different scale :: thing
+- [[Ultimate (sport)]] :: A team sport played with a flying disc, the boomerang's distant cousin :: event
+- [[Spinning top]] :: A toy that stays upright by the same spin-and-tilt physics :: thing
+???
+Why do most boomerangs fall instead of coming back?
+How does a boomerang's arm make it curve through the air?
+Did ancient Egyptians hunt birds with throwing sticks?
+&&&
+[[Tomb of Nebamun]] :: A marsh hunt painted about 3,400 years ago, teeming with birds.
+[[Fowling]] :: An old hunting craft that predates shotguns by millennia.
+[[Club (weapon)]] :: A heavy stick made to strike, not to fly.
+[[Airfoil]] :: The wing shape that gives a thin wooden arm its lift.
+[[Propeller]] :: Spins like a boomerang but drives air rather than riding it.
+[[Gyroscopic precession]] :: Why a spinning arm tilts sideways instead of simply falling.
+[[Gyroscope]] :: A spinning wheel that resists being pushed off its axis.
+[[Woomera (spear-thrower)]] :: A hooked stick that lengthens a thrower's arm.
+[[Atlatl]] :: The spear-thrower of the Americas, a parallel to the woomera.
+[[Sling (weapon)]] :: A loop of cord that flings stones with surprising force.

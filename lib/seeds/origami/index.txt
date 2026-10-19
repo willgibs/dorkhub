@@ -1,0 +1,80 @@
+# Origami :: technique
+> Fold one flat sheet with no cuts or glue, and a spacecraft's solar panel can open in a single pull.
+!!!
+Folding manual :: Senbazuru Orikata, 1797
+Spacecraft use :: Space Flyer Unit solar array, 1995
+Nanoscale use :: folded DNA shapes, 2006
++++
+[[Paper crane]] :: thing
+[[Senbazuru Orikata]] :: work
+[[Washi]] :: thing
+[[Sadako Sasaki]] :: person
+[[Children's Peace Monument]] :: place
+[[Miura fold]] :: mechanism
+[[Deployable structure]] :: concept
+[[Kirigami]] :: technique
+[[Akira Yoshizawa]] :: person
+[[Crease pattern]] :: concept
+[[Maekawa's theorem]] :: concept
+[[DNA]] :: thing
+
+---
+
+Take a square of paper, fold it with no scissors and no glue, and it can become a crane with a head, two wings and a tail. The Japanese word for the craft, origami, joins oru, to fold, with kami, paper, which becomes gami in the compound. Folders often choose [[washi|Washi]], a handmade Japanese paper whose long fibres hold a crease. Every fold decides where the paper will bend, and a few creases can turn a flat square into a three-dimensional animal.
+^ Kami, the word for paper, is written with a different character from kami, the word for a god or spirit.
+
+## From ritual paper to the thousand cranes
+
+Paper reached Japan from China, and folded paper there grew up around ceremony, wrapping gifts and marking offerings. The [[paper cranes|Paper crane]] became the craft's emblem because they stood for long life, and a legend holds that folding a thousand of them grants a wish. In 1797 a Japanese book called [[Senbazuru Orikata]] published instructions for a chain of a thousand cranes, the senbazuru that gives it its name.
+
+[[Sadako Sasaki]] was two when the atomic bomb fell on Hiroshima in 1945, and in 1955 she was diagnosed with leukemia, folding cranes in hospital in the hope of recovery. She died that year at twelve, and her classmates folded more cranes in her memory. The [[Children's Peace Monument]] in Hiroshima's Peace Memorial Park, unveiled in 1958, shows her holding a golden crane aloft.
+
+## A fold that opened a satellite
+
+Koryo Miura, a Japanese space scientist, devised the [[Miura fold]] for the solar arrays of spacecraft. The Space Flyer Unit, a Japanese satellite launched in 1995, carried an array folded this way and unfolded it in orbit. Engineers call structures that pack small and then open on command [[deployable|Deployable structure]], and the Miura fold is a standard example.
+::: steps
+Crease :: a flat sheet is marked with a grid of mountain and valley creases
+Collapse :: the grid folds flat, each parallelogram stacking onto the next
+Pull :: one pull on the sheet opens the zigzag back to full size
+:::
+
+[[Kirigami]], the cut-and-fold cousin of origami, makes a different trade. Traditional origami allows no cuts, but slits let a folded sheet stretch in one direction while the folds keep it compact. The price is strength, because every cut is a place where the sheet can tear.
+
+## Rules for where the paper bends
+
+Most complex models begin as a [[crease pattern|Crease pattern]], a map of their folds, each marked as a mountain or a valley. Only some patterns fold flat, and at every vertex that does, the mountain and valley folds differ by exactly two. That rule is [[Maekawa's theorem]], named after the Japanese origami researcher Jun Maekawa, and it can be checked before anything is folded.
+
+[[Akira Yoshizawa]] popularised wet folding, which shapes damp paper into soft curves that dry creases cannot hold. He also worked out, with the American folder Samuel Randlett, a diagram system that is still used to publish models. Diagrams let a model travel from one folder to another without a demonstration.
+
+## Folding DNA
+
+The craft reached the molecular scale in 2006, when Paul Rothemund at Caltech published a way to fold [[DNA]] into flat shapes such as a smiley face and a star. He began with one DNA strand, and short pieces called staples pinned it into a planned form. The method came to be called DNA origami, and it showed that a designed sequence can dictate a shape.
+^ The paper was a virus's genome, from a virus that infects bacteria, not a sheet of cellulose.
+
+===
+
+- [[Huzita-Hatori axioms]] :: Seven basic folds that trisect angles, which compass and straightedge cannot :: concept
+- [[Earwig]] :: Hind wings that tuck under short covers in a fold pattern echoing origami :: creature
+- [[Protein folding]] :: A chain of amino acids that folds itself into a working molecular machine :: mechanism
+- [[Rigid origami]] :: Panels that fold without bending, the idea behind the Miura fold :: concept
+- [[Wet folding]] :: Damp paper shaped into soft, sculpted curves that crisp creases cannot make :: technique
+- [[Noshi]] :: Folded paper on Japanese gifts, a stand-in for dried abalone :: thing
+
+???
+Why did the paper crane become origami's best-known model?
+How does the Miura fold open a whole solar array in one pull?
+Can origami trisect an angle that compass and straightedge cannot?
+
+&&&
+[[Paper crane]] :: One square becomes a bird that carries a legend of wishes.
+[[Washi]] :: Long, tough fibres give handmade Japanese paper its unusual strength.
+[[Senbazuru Orikata]] :: A 1797 book that teaches a chain of a thousand cranes.
+[[Sadako Sasaki]] :: A girl's paper cranes became a symbol for peace worldwide.
+[[Children's Peace Monument]] :: Sadako's statue raises a golden crane in Hiroshima's peace park.
+[[Miura fold]] :: Zigzagging parallelograms that fold flat and reopen in one motion.
+[[Deployable structure]] :: Engineers pack structures small, then let them open on command.
+[[Kirigami]] :: Cuts let folded paper stretch, at the cost of weak points.
+[[Akira Yoshizawa]] :: A master whose diagram system still lets strangers fold his models.
+[[Crease pattern]] :: Crease maps look like scribbles until the sheet folds exactly flat.
+[[Maekawa's theorem]] :: A counting rule that decides whether a fold can lie flat.
+[[DNA]] :: A double helix that can be folded into a smiley face.

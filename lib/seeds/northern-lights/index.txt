@@ -1,0 +1,75 @@
+# Northern lights :: phenomenon
+> The green and the red over the Arctic are the same oxygen, struck by particles from the Sun and glowing at two heights.
+!!!
+Where seen :: high latitudes, around the magnetic poles
+Green line :: 557.7 nm, the aurora's usual colour
+Solar wind speed :: about 400 km per second
++++
+[[Solar wind]] :: phenomenon
+[[Magnets]] :: concept
+[[Magnetosphere]] :: thing
+[[Coronal mass ejection]] :: phenomenon
+[[Ionosphere]] :: thing
+[[Auroral oval]] :: phenomenon
+[[Geomagnetic storm]] :: phenomenon
+[[Carrington Event]] :: event
+[[Kristian Birkeland]] :: person
+[[Terrella]] :: thing
+[[Solar cycle]] :: phenomenon
+[[Io (moon)]] :: place
+---
+On a clear night in the far north, a faint arc can brighten into a curtain that ripples from horizon to horizon, green through most of its body and dim red along the top. Watchers in Tromsø, Norway, have seen these displays slide, fold and flare within minutes. None of the light is reflected sunlight. It is the glow of ordinary air, struck by particles from the [[solar wind|Solar wind]] and lit high in the upper atmosphere.
+
+## From the Sun to the sky
+
+The particles begin at the Sun, whose outer atmosphere streams outward as the solar wind, a thin plasma of electrons and protons that reaches Earth at a few hundred kilometres per second. [[Earth's magnetic field|Magnets]], generated in the liquid iron of the planet's core, deflects most of that stream and stretches the night side into a long tail. Some particles still slip in along the field lines and are steered toward the poles.
+
+A [[coronal mass ejection|Coronal mass ejection]] is a bubble of magnetised plasma that the Sun can fling outward during an eruption. When one reaches Earth, it squeezes the [[magnetosphere|Magnetosphere]] on the sunward side and shakes the whole structure. That disturbance drives far more particles into the polar regions, and the auroras brighten and spread.
+
+^ Sunlight crosses the gap to Earth in about eight minutes, but the slower clouds behind a storm can take a day or more.
+
+## Two colours at two heights
+
+The colours come from oxygen. An electron that strikes an oxygen atom in the [[ionosphere|Ionosphere]] can leave it excited, and the atom must eventually release that energy as light. The green comes from a transition that releases its energy quickly, so it glows almost where the electrons arrive, low in the curtain. The red comes from a slower transition that needs thin air, where an excited atom can wait a long time before it emits. Lower down, collisions with other molecules knock the energy away first, so the red rarely escapes and green dominates.
+
+::: compare Green oxygen | Red oxygen
+Height :: about 100 to 300 km | above about 300 km
+Wavelength :: 557.7 nm | 630.0 nm
+Mean wait before light :: under a second | about two minutes
+:::
+
+Oxygen is not the whole palette. Nitrogen molecules, struck hard enough to lose an electron, emit blue and violet light, which is why the lower edges of many curtains look bluish or purple. The lowest fringe can also glow pinkish red from nitrogen itself. Because each emission has its own wavelength, a spectrograph can separate the blend back into its gases.
+
+^ Faint auroras look grey to the naked eye, because at low light the cells that see colour barely respond.
+
+## Storms, history and other worlds
+
+Most of the time the aurora sits in a ring, the [[auroral oval|Auroral oval]], circling each magnetic pole at high latitude. A [[geomagnetic storm|Geomagnetic storm]] widens that ring and pushes it toward the equator, so lights can appear far south of their usual range. A well-documented example is the [[Carrington Event]] of September 1859, when auroras were reported at low latitudes and telegraph lines surged with current, and some operators received shocks.
+
+The electrical explanation came from the Norwegian physicist [[Kristian Birkeland]], who argued around 1900 that electrons streaming from the Sun were guided along Earth's field lines to make the glow. To test this, he built a [[terrella|Terrella]], a magnetised sphere whose name means little earth, and fired electrons at it in a vacuum chamber. The light gathered in rings around its poles, and the currents he proposed, now called Birkeland currents, remain part of the modern picture.
+
+The aurora's strength follows the Sun's own clock. Sunspot counts rise and fall over roughly eleven years, and strong auroras cluster near each peak of the [[solar cycle|Solar cycle]]. Jupiter's auroras are partly fed by the volcanic gas of its moon [[Io|Io (moon)]], which the planet's magnetic field carries through its magnetosphere.
+===
+- [[Antarctica]] :: the southern lights, the same process at the other pole :: place
+- [[Fireworks]] :: light from excited atoms, the same principle lit with metal salts and fire :: thing
+- [[Magnetotactic bacteria]] :: microbes that steer by Earth's magnetic field, using chains of tiny magnetic crystals :: creature
+- [[Neon sign]] :: electrons striking gas atoms, the aurora's trick, sealed inside a glass tube :: thing
+- [[Van Allen radiation belt]] :: belts of trapped particles in the same magnetic field that shapes the aurora :: thing
+- [[Light pollution]] :: the orange haze that hides faint auroras from city dwellers :: phenomenon
+???
+Why do auroras look red at the top and green below?
+Could a severe solar storm disrupt power grids on Earth today?
+How do scientists forecast when the northern lights will be strong?
+&&&
+[[Solar wind]] :: A constant breeze of Sun-born plasma, blowing past Earth without pause
+[[Magnets]] :: The invisible shield, powered by molten iron churning in Earth's core
+[[Magnetosphere]] :: Earth's magnetic bubble bends the solar wind into a long tail
+[[Coronal mass ejection]] :: A solar bubble that can take days to reach Earth
+[[Ionosphere]] :: The electrified layer of air where the aurora's light is made
+[[Auroral oval]] :: A glowing ring around each pole that swells during storms
+[[Geomagnetic storm]] :: A solar shove that can drag lights toward the equator
+[[Carrington Event]] :: The 1859 storm that let telegraphs run with their batteries off
+[[Kristian Birkeland]] :: The Norwegian who guessed the aurora was electrical, then tested it
+[[Terrella]] :: A magnetised ball that makes a tiny aurora in a vacuum
+[[Solar cycle]] :: The eleven-year tide of sunspots that sets the aurora's strength
+[[Io (moon)]] :: A volcanic moon whose gas helps paint Jupiter's lights

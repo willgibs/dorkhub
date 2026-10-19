@@ -1,0 +1,77 @@
+# Terracotta Army :: work
+> Life-size soldiers stand in battle formation near China's first emperor, and each was once painted in bright colours.
+!!!
+Made :: Before 210 BCE
+Figures :: About 8,000 soldiers
+Material :: Fired clay, with bronze weapons
++++
+[[Qin Shi Huang]] :: person
+[[Mausoleum of the First Qin Emperor]] :: place
+[[Sima Qian]] :: person
+[[Records of the Grand Historian]] :: work
+[[Mercury (element)]] :: thing
+[[Cinnabar]] :: thing
+[[Crossbow]] :: thing
+[[Dagger-axe]] :: thing
+[[Lacquer]] :: thing
+[[Interchangeable parts]] :: technique
+[[Lamellar armour]] :: thing
+---
+Stand at the edge of the first pit and the army faces you: rows of soldiers in columns, each about 1.8 metres tall, with hair in topknots and faces that differ in age and features. They were buried near the tomb of [[Qin Shi Huang]], a ruler who wanted his afterlife guarded by a copy of his own army. An estimated 8,000 soldiers stand in the pits, together with horses and chariots. In 1974, farmers digging a well near Xi'an struck the first pit, and excavation has continued ever since.
+
+## How the army was made
+
+The figures were not sculpted one at a time from scratch. Workshops pressed heads, torsos, arms and legs in moulds, joined them with wet clay, and then added ears, hair, collars and other details by hand. The repeated parts have a family resemblance to what later factories called [[interchangeable parts|Interchangeable parts]], yet the faces were worked individually, which is why the rows read as people rather than a single copy. Each figure was fired in a kiln and then painted over a base of [[lacquer|Lacquer]], a resin tapped from lacquer trees that held the pigment to the clay.
+
+^ The figures mirror a real army, the force that conquered six rival states before the emperor's death.
+
+The paint was far more fragile than the clay beneath it. Reds, greens and blues covered the armour and clothing, and the figures were brilliant before they were buried. Once the figures were exposed to air, the paint began to lift, and conservators have worked for decades to stabilise what remains. Most of the bare clay that visitors see today is what is left after the colour went.
+
+## A fire, a collapse and a written record
+
+The pits were roofed with timber, and the roofs burned. When they fell in, the beams and earth crushed many figures into fragments, which is why archaeologists have spent decades reassembling them from many pieces. Historians usually connect the fire to rebels who overthrew the dynasty, although the exact sequence of events is still debated.
+
+::: timeline
+246 BCE :: Work on his tomb starts as he becomes king of Qin.
+221 BCE :: He unifies China and proclaims himself emperor.
+210 BCE :: He dies on tour and is buried in the mausoleum.
+c. 206 BCE :: Qin falls, and fire brings the pits' timber roofs down.
+1979 :: A museum opens over the first pit to visitors.
+1987 :: UNESCO lists the mausoleum as a World Heritage Site.
+:::
+
+The main written account of the tomb comes from [[Sima Qian]], who wrote in the [[Records of the Grand Historian]] more than a century after the burial. He says that more than 700,000 labourers and convicts worked on the [[mausoleum|Mausoleum of the First Qin Emperor]], and that the tomb held rivers and seas of [[mercury|Mercury (element)]], with a model of the heavens above and the land below. He also says that crossbows were rigged to shoot any intruder who came near. Mercury is usually mined from [[cinnabar|Cinnabar]], a red ore, and soil samples from the mound have tested high in mercury, which some read as support for his description.
+
+^ The tomb chamber has never been opened, so the claims about rivers of mercury cannot yet be checked.
+
+## Real weapons and standard marks
+
+The weapons are real, not replicas. Bronze spears, [[dagger-axes|Dagger-axe]], swords and arrowheads, along with [[crossbow|Crossbow]] triggers, have been recovered from the pits. Some blades still hold a sharp edge, and many of the weapons carry marks naming the workshop and the officials who checked them. Historians read these marks as a quality-control system that let the state trace a faulty part back to the people who made it.
+
+Armour marks rank. Lower-ranking figures wear unarmoured tunics, while others wear [[lamellar armour|Lamellar armour]], small plates laced into a coat that bends with the wearer. Officers and generals wear more elaborate dress than the ranks beneath them.
+
+===
+- [[Pompeii]] :: Found in 1599 by workers digging a tunnel to divert a river :: place
+- [[Mona Lisa]] :: Once far more colourful, before varnish and age dimmed it :: work
+- [[Mercury poisoning]] :: The emperor chasing immortality may have died swallowing mercury pills :: phenomenon
+- [[Oracle bones]] :: China's earliest known writing was carved on cracked bones and shells :: thing
+- [[Dujiangyan]] :: A third-century BCE river system still waters farmland in Sichuan today :: work
+- [[Egyptian blue]] :: A blue made in ancient Egypt survives on painted walls for millennia :: thing
+
+???
+Why does the Terracotta Army's original paint flake away after excavation?
+Has the chamber of Qin Shi Huang's tomb ever been opened?
+Can the mercury levels in Qin Shi Huang's tomb be measured without digging?
+
+&&&
+[[Qin Shi Huang]] :: Unified China, then spent his last years chasing immortality.
+[[Mausoleum of the First Qin Emperor]] :: A sealed tomb, guarded by clay soldiers, whose chamber stays unopened.
+[[Sima Qian]] :: A historian whose account of mercury rivers still awaits proof.
+[[Records of the Grand Historian]] :: A history that describes a tomb no archaeologist has entered.
+[[Mercury (element)]] :: Liquid metal that, in legend, flowed through an emperor's tomb.
+[[Cinnabar]] :: A red ore that yields liquid silver when heated.
+[[Crossbow]] :: A bow that fired itself at intruders, if historians are right.
+[[Dagger-axe]] :: Stabbing and hooking, from one blade on a long pole.
+[[Lacquer]] :: Sap that held paint on clay soldiers until air undid it.
+[[Interchangeable parts]] :: Identical parts, assembled into individuals, long before factories.
+[[Lamellar armour]] :: Small plates laced into a coat that bends with the wearer.

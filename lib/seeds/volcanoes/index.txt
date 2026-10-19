@@ -1,0 +1,71 @@
+# Volcanoes :: phenomenon
+> Some eruptions are heard across an ocean, and their air pressure can circle the planet more than once.
+!!!
+Where it happens :: plate edges and hotspots
+Lava temperature :: about 700 to 1,200 °C
+Krakatoa's toll :: about 36,000 people
++++
+[[1883 eruption of Krakatoa]] :: event
+[[Caldera]] :: phenomenon
+[[Pumice]] :: thing
+[[Magma]] :: concept
+[[Diamonds]] :: thing
+[[Pyroclastic flow]] :: phenomenon
+[[Plinian eruption]] :: phenomenon
+[[Mount Vesuvius]] :: place
+[[Pompeii]] :: place
+[[Lightning]] :: phenomenon
+[[Lahar]] :: phenomenon
+---
+On the morning of 27 August 1883, the island of [[1883 eruption of Krakatoa|Krakatoa]] in the Sunda Strait, between Java and Sumatra, exploded with a sound that was heard 4,800 kilometres away. The blast threw ash and rock high into the sky, and much of the island then collapsed into the sea. It was one of the loudest sounds in recorded history, and its ash turned sunsets red around the world for months.
+
+## Sound, sea and a flooded crater
+
+Barometers at observatories around the world recorded the pressure wave seven times as it circled the globe. Most of the roughly 36,000 deaths came from the tsunamis that the explosions and collapse sent into coastal towns on Java and Sumatra. Afterwards the sea flooded the hollow left by the collapse, forming a [[Caldera]] that remains. A new cone, Anak Krakatau, rose from the same waters in 1927, and it has erupted repeatedly since.
+^ Floating [[Pumice|pumice]] from the blast crossed the Indian Ocean and washed up on the African coast.
+
+## What drives the blast
+
+[[Magma]] is rock that has melted deep underground, and it rises because it is less dense than the rock around it. Most magma, though, rises from shallow chambers, and it is the gas in those chambers that makes an eruption violent. Some kimberlite eruptions carry [[diamonds|Diamonds]] up from more than 150 kilometres down, and their pipes are where many diamond mines are dug.
+::: steps
+Rise :: Buoyant magma climbs through cracks toward shallower depths.
+Bubbles :: Dissolved gas leaves the melt as pressure falls, and each bubble swells.
+Jam :: Thick magma traps the gas, so pressure builds beneath a plug.
+Blast :: The plug gives way, and the mixture bursts upward as ash and gas.
+:::
+
+How violent an eruption becomes depends on how easily its gas escapes. Runny basaltic magma lets gas out quietly and builds fountains and lava flows, while sticky, silica-rich magma can sustain a towering column that spreads ash for kilometres, a style called a [[Plinian eruption]], named after the Roman writer Pliny the Younger. Volcanologists often judge a volcano's danger by which of these styles it is most likely to produce.
+
+## Buried in AD 79
+
+In AD 79 [[Mount Vesuvius]] erupted above the Bay of Naples and buried [[Pompeii]] under a thick layer of ash. Pliny the Younger watched from across the bay and later wrote about the eruption in letters to the historian Tacitus. The ash fell for hours before the worst arrived: [[pyroclastic flows|Pyroclastic flow]], dense clouds of hot gas and rock, raced down the slopes and reached the towns on the coast, killing many who had stayed behind.
+^ Pliny the Younger was about seventeen, and his letters remain the main eyewitness account of the eruption.
+
+## Lightning and mudflows
+
+Ash plumes make their own [[Lightning]]. Particles of ash colliding and rubbing inside the rising column build up electric charge, and the cloud can flash like a thunderstorm. Scientists call this volcanic lightning, and it is most common in the ash clouds of explosive eruptions rather than in lava flows.
+
+The threat that outlasts the eruption is the [[Lahar|lahar]], a flood of volcanic mud and water that can run down river valleys long after the ash has stopped falling. Lahars have killed many people far from the summit, including in the 1985 eruption of Nevado del Ruiz in Colombia, where the mudflows destroyed the town of Armero. The town sat many kilometres downstream, in the valley the mudflows followed.
+===
+- [[Atlantis]] :: Plato's lost island may be a memory of Thera's eruption, say some scholars. :: mystery
+- [[Surtsey]] :: An island born in 1963 that scientists watched fill with life. :: place
+- [[Herculaneum]] :: A buried town where wooden furniture survived, charred by the heat. :: place
+- [[Mount Pelée]] :: A prisoner survived the 1902 blast inside a thick-walled jail cell. :: place
+- [[1815 eruption of Mount Tambora]] :: A 1815 blast turned 1816 into a year without summer across Europe. :: event
+- [[Tristan da Cunha]] :: An island village was evacuated in 1961 when its own volcano erupted. :: place
+???
+How far can a volcano's sound travel through the atmosphere?
+Why did the 1883 Krakatoa tsunamis kill so many people?
+Can a single volcanic eruption cool Earth's climate for a year?
+&&&
+[[1883 eruption of Krakatoa]] :: A pressure wave that instruments recorded as it circled the planet.
+[[Caldera]] :: A collapsed summit, flooded by the sea at Krakatoa.
+[[Pumice]] :: Stone light enough to float across an ocean, and it did.
+[[Magma]] :: Liquid rock that carries its own fizz, sometimes until it blasts.
+[[Diamonds]] :: Stones carried up from more than 150 kilometres down, by eruptions.
+[[Pyroclastic flow]] :: Hot gas and rock that moves faster than anyone can run.
+[[Plinian eruption]] :: A column of ash that can rise into the stratosphere.
+[[Mount Vesuvius]] :: Its AD 79 blast preserved towns in their final moments.
+[[Pompeii]] :: A Roman town where plaster casts record people caught by ash.
+[[Lightning]] :: Electric flashes born from ash particles rubbing in a cloud.
+[[Lahar]] :: A mudflow that can outlive the eruption that began it.

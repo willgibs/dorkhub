@@ -1,0 +1,69 @@
+# Venus flytraps :: creature
+> Two touches within twenty seconds spring a trap shut, and five start a slow, patient digestion.
+!!!
+Native range :: Coastal North and South Carolina
+Habitat :: Wet, sandy, nutrient-poor soil
+Trigger hairs :: three on each lobe
++++
+[[Carnivorous plant]] :: concept
+[[Action potential]] :: mechanism
+[[Ion channel]] :: mechanism
+[[Turgor pressure]] :: mechanism
+[[Mechanoreceptor]] :: mechanism
+[[Thigmonasty]] :: mechanism
+[[Anthocyanin]] :: mechanism
+[[Carolina bay]] :: place
+[[Longleaf pine]] :: creature
+[[Charles Darwin]] :: person
+[[Wilmington, North Carolina]] :: place
+[[Magnets]] :: phenomenon
+---
+On a wet, open savanna near the Carolina coast, a fly walks across the small green trap of a [[carnivorous plant|Carnivorous plant]]. The trap's two halves are hinged down the middle and fringed with stiff teeth, and their rims hold beads of sweet nectar. Three short hairs stand on the inner face of each half, and the plant reads them the way a sentry reads a tripwire. When one of those hairs bends, the trap starts counting, and the next few seconds decide whether it snaps shut.
+^ The genus Dionaea has a single species, so this plant is the whole genus.
+
+## A leaf built as a trap
+
+The trap is a modified leaf. Its flat, winged stalk, or petiole, carries a blade split into two lobes joined along a midrib that works as a hinge. The open lobes bow outward in a curved state that stays put until something flips it. Stiff marginal teeth on each lobe interlock when the lobes meet, forming a cage that lets very small prey escape. In strong sunlight the inner surface turns deep red from [[anthocyanin pigment|Anthocyanin]], and in shade it stays green.
+
+Each trigger hair is a [[mechanoreceptor|Mechanoreceptor]], a sensory structure that turns physical bending into an electrical signal. Bending a hair deforms the cells at its base, which opens [[ion channels|Ion channel]] in their membranes and sends a charge across the lobe. One touch produces only a weak signal that fades within about twenty seconds, so a single raindrop or grain of sand does not close the trap. A second touch before that signal fades pushes the total past a threshold, and the trap fires a full [[action potential|Action potential]], the same all-or-nothing spike a nerve uses, only far slower. Since moving charge makes a magnetic field, the firing trap gives off a faint [[magnetic field|Magnets]], and sensitive instruments have measured it.
+
+## Snapping shut and counting to five
+
+The snap is a change in shape more than a flex of muscle. [[Turgor pressure]], the water pressure inside cells, shifts along the midrib in a fraction of a second, and each lobe flips from convex to concave, sweeping its teeth across the other to seal the prey inside. Botanists class this touch-driven movement as [[thigmonasty|Thigmonasty]], a response that does not depend on which direction the stimulus came from. It is among the fastest plant movements known.
+
+Once the trap is sealed, glands on its inner surface release a digestive fluid of enzymes that break down the soft tissue of the prey over several days. The hard exoskeleton of an insect resists those enzymes, and when digestion finishes the lobes reopen and leave the husk behind. Digestion is not automatic, though: two touches close the trap, but digestion starts only after five, a count that separates a living animal from a grain of grit.
+
+::: myth
+Myth :: a flytrap survives on the insects it catches
+Actually :: photosynthesis feeds the plant, and prey supplies mainly the nitrogen and phosphorus its soil lacks
+:::
+
+## Bogs, fire and Darwin's greenhouse
+
+The plant's native range is small, a patch of wet, sandy, acidic coastal plain within roughly a hundred miles of [[Wilmington, North Carolina]]. Inside that patch it grows in open [[longleaf pine savannas|Longleaf pine]] and in the shallow, oval wetlands called [[Carolina bays|Carolina bay]]. Regular fire keeps taller plants from shading the ground, where competition would otherwise crowd out the trap.
+
+[[Charles Darwin]] studied the plant for years, much of it in greenhouses at Down House in Kent, England. In 1875 he published Insectivorous Plants, reporting experiments that showed the trap absorbs what it digests. He grew the plant thousands of miles from the bogs where it lives.
+===
+- [[Lightning]] :: Electrical signals, from a plant's touch counter to the strike that splits trees :: phenomenon
+- [[Hydrostatic skeleton]] :: Turgor pressure's animal cousin: water under pressure standing in for bone :: mechanism
+- [[Sundew]] :: Its sticky cousin catches prey with glue droplets rather than a snap :: creature
+- [[Nepenthes]] :: Tropical pitchers that drown their prey in slippery, digestive fluid :: creature
+- [[Mimosa pudica]] :: The sensitive plant folds its leaflets within seconds of a touch :: creature
+- [[Sphagnum]] :: The moss that acidifies bogs and leaves their soil nutrient-starved :: creature
+???
+How fast does a Venus flytrap snap shut, and why so fast?
+Why does a Venus flytrap ignore a single touch?
+Can a Venus flytrap survive without eating any insects?
+&&&
+[[Carnivorous plant]] :: Plants that eat animals to get the nutrients their soil lacks.
+[[Action potential]] :: The all-or-nothing spike that runs through a human nerve.
+[[Ion channel]] :: Tiny protein gates in membranes that open to let charge flow.
+[[Turgor pressure]] :: Water pressure inside cells, the force behind the lobes' snap.
+[[Mechanoreceptor]] :: A sensor that turns a bent hair into an electrical signal.
+[[Thigmonasty]] :: Plant movement driven by touch, not by light or gravity.
+[[Anthocyanin]] :: The pigment that turns a trap's inside deep red in sun.
+[[Carolina bay]] :: Oval wetlands whose origin is still debated.
+[[Longleaf pine]] :: A pine whose savannas depend on regular fire.
+[[Charles Darwin]] :: The naturalist who showed the flytrap absorbs what it digests.
+[[Wilmington, North Carolina]] :: The city that anchors the flytrap's small native range.
+[[Magnets]] :: A firing trap radiates a magnetic field, faint but measurable.

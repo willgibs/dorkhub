@@ -1,0 +1,72 @@
+# Pompeii :: place
+> A Roman town vanished under a volcano's ash, and its streets lay preserved for nearly two thousand years.
+!!!
+Location :: Campania, southern Italy, near Naples
+Buried :: AD 79, by Mount Vesuvius
+Excavation :: begun 1748, still ongoing
++++
+[[Volcanoes]] :: phenomenon
+[[Terracotta Army]] :: work
+[[Pliny the Younger]] :: person
+[[Pyroclastic flow]] :: phenomenon
+[[Pumice (rock)]] :: thing
+[[Giuseppe Fiorelli]] :: person
+[[Plaster casting (archaeology)]] :: technique
+[[Pompeian styles (wall painting)]] :: concept
+[[Villa of the Mysteries]] :: place
+[[Thermopolium]] :: thing
+[[Herculaneum (ancient town)]] :: place
+[[Pompeii amphitheatre riot (AD 59)]] :: event
+---
+Stone ruts still score the paving of Pompeii's main streets, worn by carts that once rolled past its shops. Walk the streets and the colour survives too: red and yellow walls, mosaic floors and bakery ovens still in place. Perhaps 11,000 people lived here on the plain below Vesuvius, near the Bay of Naples, when the mountain buried it.
+
+## How the mountain buried the town
+
+The mountain was [[Vesuvius|Volcanoes]], barely more than a kilometre high, and modern estimates put its column of ash and pumice at up to 33 km. [[Pliny the Younger]] watched the cloud climb from across the bay, some 29 km away, and in letters written decades later likened it to a pine tree, a tall trunk spreading into branches at the top. [[Pumice|Pumice (rock)]], a rock so frothy that it floats, fell on the town eight kilometres away and heaped up in its streets for hours. Then came the [[pyroclastic surges|Pyroclastic flow]], fast clouds of hot gas and rock that rolled down the slopes and reached the town, killing many of those who had stayed. The surges also buried the smaller seaside town of [[Herculaneum|Herculaneum (ancient town)]] under deeper, hotter deposits.
+^ Vesuvius was not seen as dangerous: its fertile slopes were farmed and planted with vines.
+
+Textbooks date the eruption to 24 August AD 79, a date taken from Pliny's letters, but that date may be months off. A graffito found in Pompeii gives 17 October, and scholars still argue over which date the evidence supports.
+::: timeline
+AD 62 :: Earthquake badly damages the town; repairs are still under way
+AD 79 :: Vesuvius buries the town under ash and pumice
+1599 :: Domenico Fontana uncovers ruins while digging a canal
+1748 :: Excavation begins under Charles of Bourbon, king of Naples
+1863 :: Giuseppe Fiorelli begins making plaster casts of the dead
+:::
+
+## Hollows in the ash
+
+Pompeii came back to light the way many buried places do, by accident, while someone dug for something else. In 1974 farmers digging a well for water near Xi'an struck the [[Terracotta Army]], a buried army of clay that had waited more than two thousand years.
+
+The most haunting results at Pompeii are the casts of the dead. Bodies decayed inside the hardened ash, leaving hollows that kept each person's shape. Pouring liquid plaster into those cavities, a method known as [[plaster casting|Plaster casting (archaeology)]], produced figures frozen in the postures of their last moments. The technique is credited to [[Giuseppe Fiorelli]], who recognised the hollows as human shapes.
+
+## What the ash kept
+
+The ash kept the everyday better than the grand. Painted notices still ask passers-by to vote for local candidates, and the walls are scrawled with insults and love notes. A [[thermopolium|Thermopolium]], a Roman fast-food counter, had jars sunk into its stone top to hold food and drink, and such counters lined the busy streets. The walls show the [[four Pompeian styles|Pompeian styles (wall painting)]] of Roman painting: the earliest imitate marble blocks, while later ones paint windows onto imaginary architecture. And one room in the [[Villa of the Mysteries]] holds a long painted frieze of an initiation rite, whose meaning is still argued over.
+
+Pompeii could also be violent. Tacitus records a brawl at a gladiator show in the amphitheatre in AD 59, between Pompeians and rivals from nearby Nuceria, which became a [[riot|Pompeii amphitheatre riot (AD 59)]] and cost the town its games for ten years.
+^ The amphitheatre, built around 70 BC, was about 150 years old when Vesuvius erupted.
+===
+- [[Pliny the Elder]] :: Naturalist who sailed toward the eruption to rescue people, then died at Stabiae :: person
+- [[Dionysian mysteries]] :: Wine-god initiation rites, painted on a villa wall, still spark fierce debate :: concept
+- [[Herculaneum papyri]] :: Carbonised scrolls that X-ray scanning and machine learning are beginning to read :: thing
+- [[Roman concrete]] :: Volcanic ash from near Naples let Roman concrete harden underwater :: technique
+- [[Vulgar Latin]] :: Pompeii's wall scribbles show how ordinary people really spoke Latin :: concept
+- [[Tephrochronology]] :: Dating history by counting layers of volcanic ash, one eruption at a time :: technique
+???
+How did Pompeii's painted walls survive nearly two thousand years of ash?
+Could Mount Vesuvius erupt again, and how would Naples be affected?
+Why do so many ancient sites surface during ordinary farm or building work?
+&&&
+[[Volcanoes]] :: The mountain that buried Pompeii still looms over Naples today.
+[[Terracotta Army]] :: Farmers digging a well found more than 8,000 life-sized clay soldiers.
+[[Pliny the Younger]] :: His letters gave volcanologists the word "Plinian" for towering eruptions.
+[[Pyroclastic flow]] :: Hot enough to kill instantly, and too fast to outrun.
+[[Pumice (rock)]] :: This rock floats, which lets eruptions send rafts drifting across oceans.
+[[Giuseppe Fiorelli]] :: His plaster method turned empty ash hollows into the dead's shapes.
+[[Plaster casting (archaeology)]] :: Liquid plaster poured into a hollow keeps a person's last pose.
+[[Pompeian styles (wall painting)]] :: Walls painted first as marble, later as windows onto imaginary architecture.
+[[Villa of the Mysteries]] :: A painted room whose initiation ritual still hides its meaning.
+[[Thermopolium]] :: Roman fast-food counters, with food jars sunk into their stone tops.
+[[Herculaneum (ancient town)]] :: Its wooden furniture and bread survived, carbonised by the heat.
+[[Pompeii amphitheatre riot (AD 59)]] :: A gladiator-show brawl that banned games at Pompeii for ten years.

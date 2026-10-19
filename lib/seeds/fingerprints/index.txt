@@ -1,0 +1,71 @@
+# Fingerprints :: thing
+> Set before birth, your fingerprint leaves a trace on almost everything you touch, yet its certainty is less settled than it looks.
+!!!
+Ridges form :: weeks 10 to 17 of gestation
+Loop share :: about 60 to 65% of prints
+Pattern classes :: Galton's book, 1892
++++
+[[DNA]] :: thing
+[[Dermatoglyphics]] :: concept
+[[Koala]] :: creature
+[[Latent print]] :: thing
+[[Minutiae]] :: concept
+[[Henry classification]] :: technique
+[[Juan Vucetich]] :: person
+[[Francis Galton]] :: person
+[[Locard's exchange principle]] :: concept
+[[Madrid train bombings]] :: event
+[[Sweat gland]] :: thing
+---
+Touch a clean sheet of glass and lift your finger, and the glass keeps a pattern that is often said to be yours alone. The pattern is made of raised lines of skin that flow across the pad in arches, loops and whorls. The same ridges give your fingers their grip, helping them hold a slippery object without sliding off. The design is set before birth and stays largely unchanged for life, unless deep scarring alters it.
+
+## A pattern built in the womb
+
+Friction ridges start forming on the fingertips while a fetus is still in the womb. Genes influence the broad pattern types, but the exact design depends on physical conditions there, such as how the skin grows under pressure. Identical twins share the same [[DNA]] yet do not have the same fingerprints. The difference is thought to lie in how the skin grows while it is still forming, a process that DNA alone cannot specify.
+
+The ridges do more than print. Sweat from the [[Sweat gland|sweat glands]] reaches the surface through pores set along the ridges, and the residue of sweat and oil is what a print leaves behind. Examiners compare [[Minutiae|minutiae]], the points where a ridge ends or forks, rather than the broad pattern alone. The study of these skin patterns is called [[Dermatoglyphics|dermatoglyphics]], and it has been used to look for links with some medical conditions.
+
+Friction ridges are not unique to people. [[Koala|Koalas]] have ridged fingertips so much like ours that their prints could confuse investigators at a crime scene. The animals spend much of their lives in eucalyptus trees, where a firm grip matters, and the ridges are thought to help.
+^ Koalas and humans last shared a common ancestor more than 100 million years ago.
+
+## From handprints to the courtroom
+
+Before fingerprints, police identified repeat offenders by measuring their bodies with calipers, a method that was slow and prone to error. Prints were quicker to take, but they only helped once impressions could be filed, and that meant a classification. [[Juan Vucetich]] built one in Argentina, [[Francis Galton]] gave the subject its scientific footing, and the [[Henry classification]], devised by Edward Henry, later served as the working standard across much of the English-speaking world.
+::: timeline
+1858 :: Herschel in Bengal starts taking handprints on contracts.
+1880 :: Henry Faulds writes to Nature proposing fingerprints for identifying criminals.
+1892 :: Galton's book Finger Prints sets out the broad pattern types.
+1892 :: Vucetich ties a bloody print to the children's killer, their mother.
+1901 :: Scotland Yard sets up a fingerprint branch using the Henry classification.
+:::
+
+Crime scenes rarely offer a neat print. The [[Latent print|latent print]], the faint impression left by sweat and oil, is usually partial, smudged or distorted, and recovering it may take powders, chemicals or light. The idea behind collecting them is [[Locard's exchange principle]], which holds that a person who enters a place always leaves something behind and takes something away.
+
+## How sure can a match be?
+
+A match is a judgement by a trained examiner, not a measurement. Examiners look at ridge flow, minutiae and the spacing between them, and they decide whether two impressions agree. In 2004 the FBI linked a print from the [[Madrid train bombings]] to Brandon Mayfield, an Oregon lawyer, who was held for weeks until Spanish investigators matched the print to another man.
+
+The belief that no two prints are alike is an assumption that has not been proven. In 2009 a report from the US National Academy of Sciences said that the field had not rigorously measured how often examiners err. The debate is about how certain a match can be, not whether prints are useful at all.
+===
+- [[Meissner corpuscle]] :: Nerve endings packed beneath fingertip ridges that sense vibration and light touch. :: thing
+- [[Bertillonage]] :: Before prints, police identified criminals by measuring their bones with calipers. :: technique
+- [[Palmistry]] :: Palm lines, unlike ridges, have been read for fortunes for centuries. :: concept
+- [[Ninhydrin]] :: A colourless chemical that turns old fingerprints purple by reacting with amino acids. :: thing
+- [[Gecko adhesion]] :: Gecko feet cling to glass with hair-like structures that inspired adhesives. :: mechanism
+- [[Turing pattern]] :: Alan Turing's model of chemicals that could paint stripes and spots on skin. :: concept
+???
+Can a koala's fingerprint be told apart from a human's?
+Why do identical twins' fingerprints differ when their DNA is the same?
+How do investigators make a latent print visible on a smooth surface?
+&&&
+[[DNA]] :: Identical twins share it, yet their fingerprints still differ.
+[[Dermatoglyphics]] :: A field that once hoped skin ridges could reveal medical clues.
+[[Koala]] :: Its fingertips could fool a crime scene investigator.
+[[Latent print]] :: A fingerprint nobody can see until someone makes it visible.
+[[Minutiae]] :: Tiny breaks and forks in ridges, counted and compared by examiners.
+[[Henry classification]] :: A filing code that let clerks search large collections of prints.
+[[Juan Vucetich]] :: A police official whose print evidence exposed a mother's false accusation.
+[[Francis Galton]] :: Charles Darwin's cousin, who treated fingerprints as a statistical puzzle.
+[[Locard's exchange principle]] :: Every contact leaves a trace, even one nobody meant to leave.
+[[Madrid train bombings]] :: A print from the attack pointed investigators to the wrong man.
+[[Sweat gland]] :: Pores on the ridges release sweat that helps leave prints behind.

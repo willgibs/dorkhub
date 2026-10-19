@@ -1,0 +1,69 @@
+# Enigma machine :: thing
+> Pressing a key could light any letter but the one pressed, and codebreakers used that rule against it.
+!!!
+Inventor :: Arthur Scherbius, 1918
+Rotors in use :: three, chosen from five
+Key settings :: about 159 quintillion
++++
+[[Arthur Scherbius]] :: person
+[[Alan Turing]] :: person
+[[Marian Rejewski]] :: person
+[[Bletchley Park]] :: place
+[[Bombe]] :: thing
+[[Rotor machine]] :: thing
+[[Permutation group]] :: concept
+[[Known-plaintext attack]] :: concept
+[[Colossus computer]] :: thing
+[[Lorenz cipher]] :: thing
+[[Cryptanalysis of the Enigma]] :: technique
+[[Polish Cipher Bureau]] :: thing
+---
+The Enigma was a [[Rotor machine|rotor machine]] that looked like a typewriter: an operator pressed a key, and a lamp lit under a different letter on a board above. Inside, three wired wheels called rotors sat on a common spindle, and each keypress turned one of them, so the same key gave a different letter every time. [[Arthur Scherbius]] patented it in 1918, and the German armed forces relied on it from the late 1920s until the war's end, convinced it could not be broken.
+^ The navy's version added a fourth rotor in 1942, and the Allies called its traffic Shark.
+
+## A machine that could not hide a letter
+
+Each keypress sends an electric current through the plugboard and the rotors, bounces it off a reflector, and sends it back through the same wiring in reverse. Because the path is its own reverse, the same settings both encrypt and decrypt, and the reflector pairs letters, so no letter can come back as itself. Try it yourself on any working simulator: press a key and watch the lamps, which will never light the letter you pressed. That single rule is the flaw that codebreakers later used against the machine.
+
+::: steps
+Keypress :: the key closes a circuit and the right-hand rotor steps first
+Plugboard :: current passes through up to ten cable pairs, swapping letters
+Rotors :: three rotors wire the letter through, each to a different contact
+Reflector :: a fixed wiring returns the current on another route, paired with another letter
+Return :: the current retraces the rotors and plugboard in reverse
+Lamp :: the lit letter becomes the ciphertext, and the same settings reverse it
+:::
+
+## Cribs, bombes and a Polish head start
+
+In 1932 [[Marian Rejewski]] of the [[Polish Cipher Bureau]] used [[permutation group|permutation group theory]] to reconstruct the wiring of the rotors, working from intercepted messages and documents supplied by French intelligence. The Polish team built a machine of their own, the bomba, to test rotor settings quickly. When the Germans added rotors and plugs, the Polish method stopped working, and in July 1939 the Poles shared their work with Britain and France.
+
+The [[Bombe]] that [[Alan Turing]] helped design at [[Bletchley Park]] grew out of the bomba, and it tested rotor settings far faster than any team working by hand. Its real power came from [[cribs|Known-plaintext attack]], guessed words that a message probably contained, such as the opening of a weather report or a routine closing phrase. Turing's team lined a suspected word against the ciphertext, and the rule that no letter encrypts to itself ruled out most positions at once. The methods of [[Cryptanalysis of the Enigma|breaking Enigma]] leaned on operator habits, such as repeated message keys and predictable openings.
+
+## Secret for decades
+
+Bletchley's work stayed secret for decades, and German commanders kept trusting the machine for the rest of the war. The same codebreakers also worked on the [[Lorenz cipher]], a teleprinter cipher, and built [[Colossus computer|Colossus]] to help break it. Those projects were classified until the 1970s, when the story of Bletchley first reached the public. The belief that Enigma could not be broken was never tested in public, and the machine's reputation outlived its security.
+===
+- [[Hieroglyphs]] :: Known words cracked a script nobody had read for centuries. :: thing
+- [[Rubik’s Cube]] :: Permutations again: 43 quintillion cube positions, reached by the same group theory. :: thing
+- [[One-time pad]] :: The unbreakable cipher, and its catch: a key as long as every message. :: concept
+- [[Diffie–Hellman key exchange]] :: Public keys that let strangers agree on a secret across an open line. :: concept
+- [[Morse code]] :: Dots and dashes that sent the first telegraph message in 1844. :: technique
+- [[Steganography]] :: Hiding a message inside an ordinary picture, not just scrambling it. :: technique
+???
+How did a Polish team read Enigma before Bletchley Park did?
+Why could no letter ever encrypt to itself on an Enigma?
+Could a modern computer break an Enigma message in seconds?
+&&&
+[[Arthur Scherbius]] :: A 1918 patent for a machine that sold first to businesses.
+[[Alan Turing]] :: The mathematician who helped design the machine that tested settings.
+[[Marian Rejewski]] :: The Polish mathematician who rebuilt Enigma's wiring using permutation theory.
+[[Bletchley Park]] :: A country house where wartime codebreakers worked in secrecy.
+[[Bombe]] :: A machine that ran through rotor settings by electrical logic.
+[[Rotor machine]] :: Cipher devices whose scrambling changes with every keystroke.
+[[Permutation group]] :: Shuffle algebra that broke a cipher and also explains cube puzzles.
+[[Known-plaintext attack]] :: Breaking a cipher by guessing a word the message probably contains.
+[[Colossus computer]] :: Built for a different German cipher, and kept secret for decades.
+[[Lorenz cipher]] :: A teleprinter cipher, cracked by deduction from its own intercepted traffic.
+[[Cryptanalysis of the Enigma]] :: How mathematics, machines and mistakes turned an unbreakable-seeming cipher readable.
+[[Polish Cipher Bureau]] :: A team in Warsaw that cracked Enigma years before Britain did.
