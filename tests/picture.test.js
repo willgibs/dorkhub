@@ -90,3 +90,24 @@ test('the image itself is proxied at a standard width and cached for good', asyn
   const html = wiki([['/thumb/', { not: 'an image' }]]);
   assert.equal((await handlePicture(req('f=6%2F6a%2FA.jpg&w=500'), html.deps)).status, 404, 'anything but an image is refused');
 });
+
+/* Time travel's lead picture, a PNG scan, is 2.26 MB at 960 px and 649 KB at 500 */
+test('a thumbnail over the cap steps down a standard width, once', async () => {
+  const fake = (/** @type {Record<string, number>} */ sizes) => {
+    const asked = /** @type {string[]} */ ([]);
+    const get = async (/** @type {any} */ url) => { const u = String(url); asked.push(u); const k = Object.keys(sizes).find(x => u.includes(x)); return k ? new Response(new Uint8Array(sizes[k]), { status: 200, headers: { 'content-type': 'image/png', 'content-length': String(sizes[k]) } }) : new Response('nope', { status: 404 }); };
+    return { asked, deps: { env: {}, fetch: /** @type {any} */ (get) } };
+  };
+  const big = 2_260_560, small = 648_901;
+  const a = fake({ '/960px-': big, '/500px-': small });
+  const r = await handlePicture(req('f=6%2F64%2FScan.png&w=960'), a.deps);
+  assert.equal(r.status, 200); assert.equal((await r.arrayBuffer()).byteLength, small, 'the 500 px picture instead');
+  assert.match(r.headers.get('cache-control') || '', /immutable/);
+  assert.deepEqual(a.asked.map(u => u.split('/').pop()), ['960px-Scan.png', '500px-Scan.png']);
+  assert.equal((await handlePicture(req('f=6%2F64%2FScan.png&w=1280'), fake({ '/1280px-': big, '/960px-': small }).deps)).status, 200, 'a photograph at 1280 steps down to 960');
+  const c = fake({ '/960px-': big, '/500px-': big });
+  assert.equal((await handlePicture(req('f=6%2F64%2FScan.png&w=960'), c.deps)).status, 404, 'still over the cap: no picture, as before');
+  assert.equal(c.asked.length, 2, 'one step down, never more');
+  const d = fake({ '/500px-': big });
+  assert.equal((await handlePicture(req('f=6%2F64%2FScan.png&w=500'), d.deps)).status, 404); assert.equal(d.asked.length, 1, 'nothing below 500');
+});
