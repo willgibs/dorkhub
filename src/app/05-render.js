@@ -449,6 +449,17 @@ function dropPic(node) {
   node.pic = null; save(); PICFRESH.delete(node.id); PICREADY.delete(node.id);
   const fig = secFor(node.id) && $('figure.pic', secFor(node.id)); if (fig) fig.remove();
 }
+/* A photo that fails to load never prints its alt text over the page (Will, 2026-10-19): a card's photo steps aside for
+   what is drawn under it, and a page's lead picture that fails on a later visit is dropped, like one that failed to
+   arrive the first time (the alt text is transparent meanwhile, so it never shows even for a moment). An image's error
+   doesn't bubble, so one listener catches them all on the way down. */
+document.addEventListener('error', e => {
+  const img = e.target; if (!(img instanceof HTMLImageElement)) return;
+  if (img.closest('.wc')) { img.classList.add('gone'); return; }
+  const box = img.closest('.pic-box'); if (!box) return;
+  const node = pageOf(box.closest('.chamber')?.dataset.pid);
+  if (node && node.pic) dropPic(node); else box.closest('figure')?.remove();
+}, true);
 
 /* The status line tells the truth about a wait, and only while there is one: an orb for the kind of
    wait, then what is happening. The orb stays put when the wait moves on; only its motion changes. */

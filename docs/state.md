@@ -24,6 +24,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 ## Open
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
 ## Blocked on Will
+- **willgibs/dorkhub#28**: a failed photo shows an aurora, never its alt text; his look at the preview, then merge.
 - **willgibs/dorkhub#24, sharing** (its own session): his look, and his call on letting link-preview bots read a
   page's title and deck while search engines stay out.
 - Whether to rewrite the 11 earlier pages in one pass too. Later: a ruler of time under timelines, the link card as a sheet on phones.

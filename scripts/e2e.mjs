@@ -593,6 +593,33 @@ async function outliers(mobile) {
   await ctx.close();
 }
 
+/* A photo that fails never prints its alt text over the page (Will, 2026-10-19): the Northern lights card steps back
+   to the aurora drawn under its photo, with no credit for a photo it doesn't show, and a page's lead picture that fails
+   on a later visit is dropped, as one that failed the first time is. */
+async function failedPhotos() {
+  const ctx = await browser.newContext({ viewport: { width: 1360, height: 900 } });
+  const page = await ctx.newPage(); page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
+  let pictures = true;
+  await page.route('**/api/picture?t=*', r => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ src: '/api/picture?f=a%2Fab%2FTest.jpg&w=500', w: 500, h: 300, alt: 'A test picture', desc: '', credit: 'E2E', license: 'CC0', file: 'https://commons.wikimedia.org/wiki/File:Test.jpg' }) }));
+  await page.route('**/api/picture?f=*', r => (pictures && !/Aurora/.test(r.request().url()) ? r.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300"><rect width="500" height="300" fill="#4a7"/></svg>' }) : r.fulfill({ status: 404, body: '' })));
+  await step('a failed photo: the card shows its aurora, never the alt text', async () => {
+    await page.goto(base); await page.waitForSelector('#seedIn');
+    await page.locator('.wc[data-card="northern-lights"]').scrollIntoViewIfNeeded();
+    await page.waitForSelector('.nl-img.gone', { state: 'attached', timeout: 8000 });
+    const c = await page.evaluate(() => { const card = document.querySelector('.wc[data-card="northern-lights"]'); const img = card.querySelector('.nl-img'); return { img: getComputedStyle(img).visibility, alt: getComputedStyle(img).color, credit: getComputedStyle(card.querySelector('.wc-cr')).visibility, art: getComputedStyle(card.querySelector('.wc-art')).backgroundImage, title: card.querySelector('.wc-t')?.textContent || '' }; });
+    if (c.img !== 'hidden' || c.alt !== 'rgba(0, 0, 0, 0)' || c.credit !== 'hidden' || !/radial-gradient/.test(c.art) || c.title !== 'Northern lights') throw new Error(`the card: ${JSON.stringify(c)}`);
+    await page.locator('.wc[data-card="northern-lights"]').screenshot({ path: `${shots}/desktop-11-photo-failed.png` });
+  });
+  await step('a lead picture that fails on a later visit is dropped', async () => {
+    const done = () => page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
+    await page.fill('#seedIn', 'Moss on lunar soil'); await page.press('#seedIn', 'Enter'); await done();
+    await page.waitForSelector('.pic-box.shown', { timeout: 10000 });
+    pictures = false; await page.reload(); await done();
+    await page.waitForFunction(() => !document.querySelector('figure.pic'), null, { timeout: 8000 });
+  });
+  await ctx.close();
+}
+
 try {
   await step('reduced motion: the beam holds still and stays lit', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
@@ -607,6 +634,7 @@ try {
   await run(await ctx.newPage(), { mobile: true });
   await movingIn();
   await outliers(false); await outliers(true);
+  await failedPhotos();
 } catch (e) { const pages = browser.contexts().flatMap(c => c.pages()); await pages.at(-1)?.screenshot({ path: `${shots}/failure.png` }).catch(() => {}); }
 await browser.close();
 server.kill();
