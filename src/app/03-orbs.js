@@ -1,7 +1,7 @@
 /* ================= thinking orbs: one loop for every orb on screen =================
    A real wait gets an orb (src/vendor/orbs.js), its motion chosen by what is happening:
    connecting while a page's links are chosen, composing while words are written, searching
-   while something is looked up, shaping for a sketch, solving for a quiz. They are drawn in the
+   while something is looked up, solving for a quiz. They are drawn in the
    page's quiet ink, only while they are on screen, and hold one still frame for reduced motion. */
 const ORB_PX = 20;
 const orbHTML = state => `<canvas class="orb" data-orb="${state}" width="${ORB_PX * 2}" height="${ORB_PX * 2}" aria-hidden="true"></canvas>`;

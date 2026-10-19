@@ -179,25 +179,28 @@ function paint(p, streamOnly) {
   const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && p.status === 'done' && p.id === CUR) announce(`${shownTitle(p, A)}: page ready.`); }
   const acc = accentFor(p, A); if (document.documentElement.dataset.accent !== acc) document.documentElement.dataset.accent = acc;
   paintHead(p, sec, A, live); paintBody(p, sec, A, live); paintEnd(p, sec, A, live);
-  /* the note that pages can be wrong sits once at the bottom (.colfoot); a page written ahead of time says how it was
-     made, and what it was checked against */
+  /* the note that pages can be wrong sits once at the bottom (.colfoot); a placeholder says what it is, and what it was
+     checked against */
   setHTML($('.fineprint', sec), live || !p.seeded ? '' : provenanceHTML(p, A));
   if (!streamOnly) {
     paintTools(p, sec); paintDoubt(p, sec);
     if (p.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !CUR) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
-/* A page written ahead of time says so in one quiet line; one that keeps sources (today, a placeholder) lists them under it.
-   Only a page written ahead of time can carry sources: a live writer is never asked for any, so none can be made up. */
+/* A page written ahead of time is like any other page (one bar for every page, Will, 2026-10-19: the same writer, in one
+   pass), so it says nothing about when it was written: reading it feels the same as reading one written for you just now.
+   That it was ready, and free, is said once where it matters, beside your free pages (nowHTML in 15-keys.js). A
+   placeholder does say what it is, and lists the sources its few claims were checked against. Only a page written ahead
+   of time can carry sources: a live writer is never asked for any, so none can be made up. */
 function provenanceHTML(p, A) {
-  /* one bar for every page (Will, 2026-10-19): a page written ahead of time comes from the same writer, in one pass */
-  const said = p.seeded === 'placeholder' ? 'A placeholder until this page is written. Its few claims were checked against sources.' : 'Written ahead of time.';
-  const line = `<span class="pv-l">${ic('check')}<span>${said}</span></span>`; const src = A.sources || [];
+  const src = A.sources || []; const said = p.seeded === 'placeholder' ? 'A placeholder until this page is written. Its few claims were checked against sources.' : '';
+  if (!said && !src.length) return '';
+  const line = said ? `<span class="pv-l">${ic('check')}<span>${said}</span></span>` : '';
   if (!src.length) return `<p class="pv">${line}</p>`;
   return `<details class="pv"><summary>${line}<span class="pv-n">${src.length} source${src.length === 1 ? '' : 's'}</span></summary><ol class="pv-list">${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label || s.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0])}</a></li>`).join('')}</ol></details>`;
 }
 /* the page you came here from, by following one of its links, its cards or its questions; nothing when you started here */
-const FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'sketch', 'connect']);
+const FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'connect']);
 function fromOf(p) {
   const t = curTrail(); if (!t) return null;
   for (let i = t.steps.length - 1; i >= 0; i--) { const [pid, , from, via] = t.steps[i]; if (pid !== p.id) continue; const f = from && from !== p.id && FROM_VIA.has(via) ? pageOf(from) : null; return f && f.title ? f : null; }
@@ -212,7 +215,7 @@ function paintHead(p, sec, A, live) {
   const from = fromOf(p);
   setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}${from ? `<a class="from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><span>From</span><b>${esc(clip(from.title, 44))}</b></a>` : ''}`);
   const main = []; const head0 = live && !A.blocks.length;
-  main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
+  main.push({ k: 'title', tag: 'h1', cls: `a-title${titleSize(title)}`, html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
   const seedDeck = live && p.hint && p.hint.gloss ? p.hint.gloss : '';
   const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length || A.keyFacts.length);
@@ -220,10 +223,28 @@ function paintHead(p, sec, A, live) {
   else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
   /* the line of key facts under the deck, shown once its three are in (or the plan has begun), so it never reflows */
   const factsIn = A.keyFacts.length >= 3 || (A.keyFacts.length >= 2 && (!live || A.blocks.length > 0 || Object.keys(A.gloss).length > 0));
-  if (factsIn) main.push({ k: 'keyfacts', tag: 'dl', cls: `keyfacts n${A.keyFacts.length}`, html: A.keyFacts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(capFirst(plain(f.value)))}</dd></div>`).join('') });
+  if (factsIn) main.push({ k: 'keyfacts', tag: 'dl', cls: 'keyfacts', html: A.keyFacts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(capFirst(plain(f.value)))}</dd></div>`).join('') });
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
+  const kf = $('.keyfacts', head); if (kf) { fitFacts(kf); watchHead(head); }
 }
+/* The head is designed for whatever the writer sends, not for the lengths a prompt asks for (Will, 2026-10-19: rules
+   in a prompt are fickle across models; the design has to hold the outliers). A title is set by its length, so a long
+   one (a question, say) takes two or three lines at a smaller size rather than four or five large. */
+const titleSize = t => { const n = [...t].length; return n > 90 ? ' t-xl' : n > 44 ? ' t-l' : n > 24 ? ' t-m' : ''; };
+/* The key facts sit side by side when every value fits on one line, and as rows of label and value when one doesn't,
+   which hold any length. They are measured side by side before the frame is painted, and again when the column
+   changes width or the fonts arrive. */
+function fitFacts(dl) {
+  const w = dl.clientWidth; const sig = `${dl._h}|${w}`; if (!w || dl._fit === sig) return; dl._fit = sig;
+  dl.dataset.fit = 'across'; if (dl.scrollWidth > w + 1) dl.dataset.fit = 'down';
+}
+function watchHead(head) {
+  if (head._ro || typeof ResizeObserver !== 'function') return;
+  head._ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w === head._w) return; head._w = w; requestAnimationFrame(() => { const kf = $('.keyfacts', head); if (kf) fitFacts(kf); }); });
+  head._ro.observe(head);
+}
+document.fonts?.ready.then(() => $$('.keyfacts').forEach(kf => { kf._fit = ''; fitFacts(kf); }));
 
 /* ================= the soft frontier: the newest words resolve in, then settle into plain text =================
    While a block is being written, each new stretch of text is wrapped in a span that fades in from the
@@ -455,11 +476,9 @@ function paintBody(node, sec, A, live) {
     else if (b.t === 'li') { const last = want[want.length - 1]; if (last && last.type === 'ul') { last.items.push(inline(b.s, node)); last.tip = tip; } else want.push({ k: 'u' + i, type: 'ul', items: [inline(b.s, node)], tip }); }
     else {
       pi++; want.push({ k: 'p' + i, type: 'p', i, pi, html: inline(b.s, node), tip, lead: first, side: side.get(i) || [] }); first = false;
-      if (pi === 1 && node.figure) want.push({ k: 'fig', type: 'fig' });
     }
   });
   panelsAt(A.blocks.length);
-  if (pi < 1 && node.figure) want.push({ k: 'fig', type: 'fig' });
   const existing = new Map(); for (const el of body.children) if (el.dataset.k) existing.set(el.dataset.k, el);
   let prev = null; const anim = !reducedMotion();
   for (const w of want) {
@@ -470,7 +489,6 @@ function paintBody(node, sec, A, live) {
       else if (w.type === 'ul') el = document.createElement('ul');
       else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="mcol"></div><div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div>`; }
       else if (w.type === 'panel') { el = document.createElement('section'); el.className = 'panel' + (anim ? ' enter' : ''); }
-      else if (w.type === 'fig') { el = document.createElement('div'); if (anim) el.className = 'enter'; }
       else { el = document.createElement('p'); el.className = 'status-line'; el.setAttribute('role', 'status'); }
       el.dataset.k = w.k;
     }
@@ -490,7 +508,6 @@ function paintBody(node, sec, A, live) {
       const pb = pic && w.pi === 1 && $('.pic-box.loading', el); if (pb && !pb._f) picField(pb);
     }
     else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);
-    else if (w.type === 'fig') setHTML(el, figureHTML(node));
     else setStatus(el, w.text, w.orb);
     place(body, el, prev); prev = el;
   }

@@ -37,7 +37,7 @@ quality, because time to first word matters as much as quality.
   prompt holding only the path context and the task. This also enables prompt caching.
 - **Page v3:** v2 plus a short skeleton example of the format.
 - **Small tasks:** today's plain "reply with only JSON" text versus structured output
-  (AI SDK `Output` with `jsonSchema`) for doubt, around, sketch and quiz.
+  (AI SDK `Output` with `jsonSchema`) for doubt, around and quiz.
 
 ## Scenarios
 
@@ -51,7 +51,7 @@ quality, because time to first word matters as much as quality.
 7. Contested topic: the Baghdad Battery (accuracy and hedging).
 8. Kid lens: black holes.
 
-Plus each small task (peek, unfold, doubt, around, sketch, quiz, thread, recap) on a
+Plus each small task (peek, unfold, doubt, around, quiz, thread, recap) on a
 couple of the pages above. Run every cell at least twice.
 
 ## Scoring

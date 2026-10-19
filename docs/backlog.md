@@ -172,7 +172,7 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
 - **Live pages.** Re-read at least 5 live pages once credits exist, to confirm what the
   Haiku stand-ins showed. Replace the stand-ins in `lib/recorded.js` with live pages
   (`scripts/recorded.mjs`; the raw text is in the reader's localStorage).
-- **Secondary UI.** Sketch, quiz, recap, thread and expand only ever showed mock output.
+- **Secondary UI.** Quiz, recap, thread and expand only ever showed mock output.
   Record real outputs for them, then judge their layouts.
 - **Phone.** Check paragraph spacing on touch now that ¶ appears only on tap.
 - **Flow and weight.** Look at latency (first word, J to next page) once live timings

@@ -4,10 +4,10 @@ function updateProg() {
   const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
   pr.style.width = `${(v * 100).toFixed(1)}%`;
 }
-/* the page's title in the top bar, once the title itself has gone under it */
+/* the page's title in the top bar, once the title itself has gone under it, in its kind's colour */
 function syncTopTitle() {
   const h1 = VIEW === 'page' && $('.a-title'); const on = !!h1 && h1.getBoundingClientRect().bottom < TOP_H() + 4;
-  if (on) { const p = curPage(); const t = $('#topT'); const want = h1.textContent; if (t.dataset.t !== want) { t.dataset.t = want; $('.top-tt', t).textContent = want; } const k = kindOf((p && p.kind) || (ACC && ACC.kind) || ''); const kd = $('.kind', t); if (kd.dataset.kind !== k) { if (k) kd.dataset.kind = k; else delete kd.dataset.kind; } }
+  if (on) { const p = curPage(); const t = $('#topT'); const want = h1.textContent; if (t.dataset.t !== want) { t.dataset.t = want; $('.top-tt', t).textContent = want; } const k = kindOf((p && p.kind) || (ACC && ACC.kind) || ''); if ((t.dataset.kind || '') !== k) { if (k) t.dataset.kind = k; else delete t.dataset.kind; } }
   document.body.classList.toggle('titled', on);
 }
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
@@ -71,7 +71,7 @@ function showCard(a) {
   const wn = worldNote(target); const kind = (g && g.kind) || a.dataset.kind || '';
   hc = { a, i: c.i, target, label: a.textContent, text: c.text };
   hcard.innerHTML = `<p class="hc-meta">${kind ? `<span class="kind"${kattr(kind)}>${esc(kind)}</span>` : '<span></span>'}<span>${busy ? 'Being written' : wn.read ? 'Read ↺' : ''}</span></p>
-<p class="hc-title">${esc(target)}</p><p class="hc-hook">${hook ? esc(capFirst(plain(hook))) : isLive(p) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
+<p class="hc-title${[...target].length > 28 ? ' long' : ''}">${esc(target)}</p><p class="hc-hook">${hook ? esc(capFirst(plain(hook))) : isLive(p) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
 ${wn.line ? `<p class="hc-else">${wn.line}</p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'} ↵</button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!wn.read ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;

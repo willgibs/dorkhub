@@ -40,7 +40,7 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   from Wikipedia, proxied through our own origin; no model involved).
 - **The page format, v3.1** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
   `src/shared/article.js`): `# Title :: kind`, `> deck`, `!!!` three key facts (`Label :: value`, shown under
-  the deck once all three are in), `+++` link plan
+  the deck once all three are in, side by side or down the column by what fits: `fitFacts` in `05-render.js`), `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
   (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
@@ -262,7 +262,8 @@ which pages were cached.
 
 | What | Where |
 | --- | --- |
-| Parser, including every prefix of every recorded page, hand-written v2 edge cases (`tests/fixtures.js`) and mock pages (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
+| Parser, including every prefix of every recorded page, hand-written v2 edge cases (`tests/fixtures.js`), mock pages and the outlier page (nothing shown while streaming may change or vanish) | `tests/article.test.js` |
+| The outliers: a page with what a writer can send that a prompt asks it not to (a 149-character question for a title, names of 58 and 63 letters in one word, a 150-character heading, wide panel cells, long hooks, an unknown kind). The parser keeps every name whole; the browser walk opens it on desktop and phone and checks nothing runs past its box, the page never scrolls sideways, a link card holds a 58-letter name, and Around this keeps names whole and its map's labels inside the map and apart | `tests/outliers.js`, `tests/article.test.js`, `scripts/e2e.mjs` |
 | Fonts, CSP, cache and crawler headers, topic addresses and their rewrites, the page's size budget | `tests/page.test.js` |
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy, captions (the article's own, else an English description, never a bare name) | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |

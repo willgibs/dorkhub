@@ -169,7 +169,7 @@ fab.addEventListener('click', e => {
 document.addEventListener('click', e => { if (fab.dataset.open === 'true' && !fab.contains(e.target)) setFab(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && fab.dataset.open === 'true') setFab(false, true); });
 
-/* ================= the theme switch: the front page's top bar, and the phone menu ================= */
+/* ================= the theme switch: the top bar on every page, and the phone menu ================= */
 function renderThemeBtn() {
   const b = $('#themeBtn'); if (!b) return; const t = themeNow();
   b.innerHTML = ic(THEMES[t][0]); b.dataset.tip = THEMES[t][1]; b.setAttribute('aria-label', `${THEMES[t][1]}. Change it`);

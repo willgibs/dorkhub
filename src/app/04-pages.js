@@ -64,7 +64,7 @@ function rememberScroll() { try { history.replaceState({ ...(history.state || {}
 /**
  * The one way to move: open a page on `target` (a topic, a question, a phrase you selected), from
  * the page you are on. It joins your trail; whatever you read becomes part of your world.
- * via: start | link | card | question | ask | select | search | world | connect | around | sketch | peek | index | trail
+ * via: start | link | card | question | ask | select | search | world | connect | around | peek | index | trail
  */
 function openTopic(target, { via = 'link', src = null, plate = null, hint = null, lens = null, ctx = '', q = null, bridge = null } = {}) {
   const title = cleanTitle(target); if (!title && !bridge) return;
