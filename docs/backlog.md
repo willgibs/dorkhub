@@ -82,7 +82,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
   card's drawing carried into its page, the picture as a captioned plate, the link card in the margin, the title
   in the top bar, the small capitals, sources, and the thread (where you came from, the end drawn as threads out
   to the six ways on). A stays on `experience/article-a`. Details in `docs/decisions.md`.
-- **The front page's 33 pages** (on `content/the-32`, up for Will's look): written the way any page is, by
+- **The front page's 33 pages** (live since 2026-10-19, willgibs/dorkhub#25): written the way any page is, by
   the production writer in one pass, in small batches scored between, with the line of key facts on every page
   and the prompt fixed from what the first tries showed. Details in `docs/decisions.md`.
 - **Next: the writer, page by page** (Will, 2026-10-19: get any page right on the first try, quickly). Keep the

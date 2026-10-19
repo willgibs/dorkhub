@@ -11,21 +11,21 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     suggestion, and "Learn about …" stepping once through four topics to "anything" (Will's pick of two).
   - willgibs/dorkhub#23 (44de524) the article page (Will's pick of two): a 70-character measure, a card's drawing
     as its plate, the captioned picture, the link card in the margin, the title in the top bar, sources, the thread.
+  - willgibs/dorkhub#25 (4b1ad4a) the front page's 33 pages, each written once by the production writer, and a line
+    of key facts on every page (format v3.1); the prompt fixed from first tries (`node scripts/score.mjs`).
 - **One bar for every page** (Will, 2026-10-19): a page written ahead of time comes from the production writer
   in one pass, like any page; what a page gets wrong is fixed in the prompt, for every page, never in the page.
-  On `content/the-32`, up for his look: the front page's 33 pages written that way, and a line of key facts on
-  every page (format v3.1). Placeholders (`lib/placeholder.js`) remain for future front-page topics.
-- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages (Surprise me, doors).
+  Placeholders (`lib/placeholder.js`) remain for future front-page topics.
+- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages.
 - **Production today:** no gateway credits, so typed topics pause; front-page topics and earlier pages open free.
 
 ## Open
-- A brisk scroll passes some cards before their turn; they play when scrolled back to. Calm over
-  completeness for now; Will may want every card to get a turn (shorter turns when several wait).
+- Time travel's lead picture is over the picture proxy's 2 MB cap at 960 px, so it shows none: fall back to 500 px.
+- A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
 
 ## Blocked on Will
-- **content/the-32**: his look at the preview, then merge. And whether to rewrite the 11 earlier pages in one
-  pass too (they were written and fact-checked the old way). Later: a ruler of time under timelines, the
-  link card as a sheet on phones; Mona Lisa's and Fingerprints' pictures.
+- Whether to rewrite the 11 earlier pages in one pass too (written and fact-checked the old way). Later: a ruler
+  of time under timelines, the link card as a sheet on phones; Mona Lisa's and Fingerprints' pictures.
 - **willgibs/dorkhub#24, sharing** (from its own session): his look, and his call on letting link-preview
   bots read a page's title and deck while search engines stay out.
 - AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
