@@ -97,7 +97,7 @@ in `docs/decisions.md`). In order, each through a preview and Will's look:
 - Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
   write per page in flight, graph keyboard navigation, re-recording the three mock pages that
   still say "your path".
-- **PR K, pages people can share** (up for Will's look, `experience/sharing`): a link to a page unfurls as that
+- **PR K, pages people can share** (up for Will's look, willgibs/dorkhub#24): a link to a page unfurls as that
   page (its title, its deck, and a picture in the house style: its card's drawing, else its Wikipedia lead picture,
   else its words), an icon to share among a page's tools (the share sheet on a phone, else copied), a trail as a
   link (`/trail/a/b/c`, drawn as threads, walked page by page), and link previews let in by robots.txt while every
