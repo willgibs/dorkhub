@@ -25,7 +25,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Open
 - A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
-
 ## Blocked on Will
 - **willgibs/dorkhub#27**: his look at the preview, then merge and a production check.
 - **willgibs/dorkhub#24, sharing** (its own session): his look, and his call on letting link-preview bots read a
@@ -37,5 +36,4 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 1. The writer, batch by batch: first tries scored against the prompt, a rule only for a failure on two or more
    pages of different kinds, a regression set unlike the front page on every change.
 2. Runtime Cache across production deploys: confirm once credits land.
-3. Later, each on Will's go: a card swap from the runners-up, a durable store, one write per page in flight,
-   graph keyboard navigation, re-recording the three mock pages that say "your path".
+3. Later, each on Will's go: a card swap, a durable store, one write per page in flight, graph keyboard navigation.
