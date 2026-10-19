@@ -187,10 +187,11 @@ function paint(p, streamOnly) {
     if (p.status === 'done' && !live && !store.settings.tipped) setTimeout(() => { if (store.settings.tipped || !CUR) return; store.settings.tipped = true; save(); toast(matchMedia('(hover: hover)').matches ? 'Tip: hover any link for a one-line hook, or press / to ask anything.' : 'Tip: tap any link for a one-line hook, and tap again to open it.', 7000); }, 1400);
   }
 }
-/* A page written ahead of time was checked fact by fact; one that keeps its sources lists them, under one quiet line.
+/* A page written ahead of time says so in one quiet line; one that keeps sources (today, a placeholder) lists them under it.
    Only a page written ahead of time can carry sources: a live writer is never asked for any, so none can be made up. */
 function provenanceHTML(p, A) {
-  const said = p.seeded === 'placeholder' ? 'A placeholder until this page is written. Its few claims were checked against sources.' : 'Written ahead of time and checked fact by fact.';
+  /* one bar for every page (Will, 2026-10-19): a page written ahead of time comes from the same writer, in one pass */
+  const said = p.seeded === 'placeholder' ? 'A placeholder until this page is written. Its few claims were checked against sources.' : 'Written ahead of time.';
   const line = `<span class="pv-l">${ic('check')}<span>${said}</span></span>`; const src = A.sources || [];
   if (!src.length) return `<p class="pv">${line}</p>`;
   return `<details class="pv"><summary>${line}<span class="pv-n">${src.length} source${src.length === 1 ? '' : 's'}</span></summary><ol class="pv-list">${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label || s.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0])}</a></li>`).join('')}</ol></details>`;
@@ -214,9 +215,12 @@ function paintHead(p, sec, A, live) {
   main.push({ k: 'title', tag: 'h1', cls: 'a-title', html: esc(title) });
   /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
   const seedDeck = live && p.hint && p.hint.gloss ? p.hint.gloss : '';
-  const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length);
+  const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length || A.keyFacts.length);
   if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, p), ink: head0 });
   else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
+  /* the line of key facts under the deck, shown once its three are in (or the plan has begun), so it never reflows */
+  const factsIn = A.keyFacts.length >= 3 || (A.keyFacts.length >= 2 && (!live || A.blocks.length > 0 || Object.keys(A.gloss).length > 0));
+  if (factsIn) main.push({ k: 'keyfacts', tag: 'dl', cls: `keyfacts n${A.keyFacts.length}`, html: A.keyFacts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(capFirst(plain(f.value)))}</dd></div>`).join('') });
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
 }

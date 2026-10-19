@@ -7,12 +7,14 @@
 //                                                 from it, each with its source
 //   node scripts/seeds.mjs placeholder "<title>"  the placeholder a front-page topic shows until its page is written
 //   node scripts/seeds.mjs index                  rebuild lib/seeds/index.json from the files present
-// How a seed is made: a Claude Opus writer gets the brief (for any other topic, the prompt) and writes the page
-// in that format, saved as lib/seeds/<slug>/index.txt. A fact-check pass then checks every number, date, name
-// and attribution against sources, the front page's own claims included, and fixes or cuts anything shaky.
-// Agents that browse send a generic User-Agent and no personal data. Then: node scripts/seeds.mjs index, then
-// npm run verify. The written page takes its placeholder's place. Writing seeds spends real tokens: it waits
-// for Will's go.
+// How a seed is made: the way any page is (Will, 2026-10-19: one bar for every page, so a page that opens from the
+// front page is never better or worse than the next one a reader opens). The production writer, Claude Haiku 5.5,
+// gets the brief (for any other topic, the prompt) and writes the page in one pass, with no research and no
+// fact-check: while the gateway has no credits, a Claude Code subagent on Haiku stands in, given the brief verbatim
+// and no tools but the one that saves the page. Save it as lib/seeds/<slug>/index.txt, then
+// node scripts/seeds.mjs index, then npm run verify. The written page takes its placeholder's place. What a page
+// gets wrong is fixed in the prompt (lib/prompts.js), for every page, not by hand in one. Writing seeds spends
+// tokens: it waits for Will's go.
 import { writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,7 +42,7 @@ else if (cmd === 'brief') {
     for (const m of (card.art() + (card.more || '')).matchAll(/role="img" aria-label="([^"]+)"/g)) promises.push({ text: `Its card's drawing shows ${unesc(m[1]).replace(/^(A|An|The) /, w => w.toLowerCase())}.`, src: card.src });
   }
   const threads = THREADS.filter(x => x.a === t.t || x.b === t.t).map(x => ({ to: x.a === t.t ? x.b : x.a, label: x.l, src: x.src }));
-  process.stdout.write(`${pagePrompt(pageInput({ title: t.t, lens: 'encyclopedic' }))}\n${seedBrief({ promises, threads })}\n`);
+  process.stdout.write(`${pagePrompt(pageInput({ title: t.t, lens: 'encyclopedic' }))}\n${seedBrief({ promises, threads, kind: t.k })}\n`);
 } else if (cmd === 'placeholder') {
   const text = placeholderText(a || ''); if (!text) { console.error(`"${a}" is not one of the front page's topics`); process.exit(1); }
   process.stdout.write(text);

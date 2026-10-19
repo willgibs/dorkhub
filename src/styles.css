@@ -210,6 +210,19 @@ body.at-start .side,body.at-world .side{display:none!important}
 .a-title{margin-top:12px;font:700 clamp(36px,4.6vw,58px)/1.04 var(--f-ui);letter-spacing:-.026em;overflow-wrap:anywhere;max-width:20ch;text-wrap:balance}
 .deck{margin-top:14px;max-width:34em;font:400 clamp(18px,1.6vw,21px)/1.5 var(--f-read);color:var(--mute);text-wrap:pretty}
 .deck.seed{color:var(--faint)}
+/* the line of key facts on a page written ahead of time: three readings, the front page's small capitals over plain figures */
+.keyfacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:26px 0 0;max-width:var(--col);border-top:1px solid var(--line-2)}
+.keyfacts.n2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.keyfacts>div{min-width:0;padding:12px 18px 2px 0}
+.keyfacts>div+div{padding-left:18px;border-left:1px solid var(--line)}
+.keyfacts dt{font:600 11px/1.3 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.keyfacts dd{margin:6px 0 0;font:500 16px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink);text-wrap:balance}
+@media (max-width:560px){
+  .keyfacts,.keyfacts.n2{grid-template-columns:minmax(0,1fr);margin-top:22px}
+  .keyfacts>div,.keyfacts>div+div{display:grid;grid-template-columns:minmax(0,38%) minmax(0,1fr);gap:14px;align-items:baseline;padding:10px 0;border-left:0}
+  .keyfacts>div+div{border-top:1px solid var(--line)}
+  .keyfacts dd{margin:0;font-size:15px}
+}
 /* the head: what this is and the page's tools on one quiet row */
 .h-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
 .h-row .where{min-width:0}

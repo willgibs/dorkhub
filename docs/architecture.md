@@ -38,14 +38,15 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 - **Two functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub
   writes), and `api/picture.js` → `handlePicture()` in `lib/picture.js` (a page's lead picture
   from Wikipedia, proxied through our own origin; no model involved).
-- **The page format, v3** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
-  `src/shared/article.js`): `# Title :: kind`, `> deck`, `+++` link plan
+- **The page format, v3.1** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
+  `src/shared/article.js`): `# Title :: kind`, `> deck`, `!!!` three key facts (`Label :: value`, shown under
+  the deck once all three are in), `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
   (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
   their own, `&&&` a hook for every planned link, and, only on a page written ahead of time, `@@@` the sources it
   was checked against (`- Label :: https://…`; a live writer is never asked for them, and the page lists them only
-  for a seeded page). Kinds come before the body so links appear
+  for a seeded page: today only the placeholders carry any). Kinds come before the body so links appear
   in colour; hooks come last because only hover cards need them. The page's own kind counts
   once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
   six cards, de-duplicated and never the page itself.
