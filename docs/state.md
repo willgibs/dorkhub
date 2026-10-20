@@ -16,7 +16,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
     built for any length (titles by length, key facts side by side or down the column by what fits); no sketch; no
     "Written ahead of time." on the page; where it leads with an unnamed point; and every surface audited with an
     outlier page (`tests/outliers.js`, in the browser walk): long words break inside their boxes everywhere;
-    #28 (24d5a31) a photo that fails shows the aurora drawn under it, or is dropped, never its alt text.
+    #28 (24d5a31) a photo that fails shows the aurora drawn under it, or is dropped, never its alt text;
+    #29 (53658e0) a calmer reading page: 17 px on 580 px, the scale a step down, links quiet (ink, kind-coloured underline).
 - **Will, 2026-10-19:** design for what the writer sends (layouts hold the outliers; prompt rules are fickle), and
   one bar for every page (a page written ahead of time is the production writer's one pass; fix the prompt, not pages).
 - **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages. **Production today:** no
