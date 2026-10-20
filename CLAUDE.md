@@ -42,7 +42,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 
 ## Will's standing product calls (the why is in docs/vision.md)
 - One point of focus at a time. Readability first: light, minimal, high information density. Colour carries meaning
-  (the eight kind colours, on links, page accents and Your world), never decoration, and never rainbow everywhere.
+  (the eight kind colours, on links' underlines, page accents and Your world), never decoration, and never rainbow
+  everywhere. A link reads as the line around it: any phrase can open a page, so the writer's links needn't shout.
 - Streaming order: nothing may ever appear above where the reader already is.
 - A clicked topic stays the page title (`titleIsLocked`). Links are specific and
   surprising, not umbrella subjects or a parade of people.

@@ -198,9 +198,9 @@ body.at-start .side,body.at-world .side{display:none!important}
 .chamber{background:var(--bg);color:var(--ink);transition:background-color .6s ease}
 .chamber:last-child{min-height:calc(100dvh - var(--top-h))}
 /* one column, centred in the room it has, whatever the sidebar does: everything a page has lives in it. Its
-   width is the reading measure: body text at 20 px sets about 70 characters to a line (at 18 px on 720 px it
-   was over 80, past where the eye tires finding the next line) */
-.article{--col:680px;max-width:calc(var(--col) + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:40px clamp(20px,4vw,56px) 72px}
+   width is the reading measure: body text at 17 px sets about 67 characters to a line on 580 px. At 20 px on 680 px
+   the eye travelled too far across each line for the few words it carried, and reading tired it (Will, 2026-10-19) */
+.article{--col:580px;max-width:calc(var(--col) + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:40px clamp(20px,4vw,56px) 72px}
 .h-row,.h-main,.a-doubt,.a-end,.fineprint{max-width:var(--col)}
 /* what the page is about, set as the front page's cards set it: its kind in small capitals, in its colour (the word
    carries the colour, so it needs no dot beside it: Will, 2026-10-19) */
@@ -216,17 +216,17 @@ body.at-start .side,body.at-world .side{display:none!important}
 .kind.plain{color:var(--mute)}
 /* the title, by its length (titleSize in 05-render.js): a word or two set large, a phrase smaller, a question smaller
    still, so a head never runs to four lines of display type */
-.a-title{margin-top:14px;font:700 clamp(36px,4.6vw,58px)/1.04 var(--f-ui);letter-spacing:-.026em;overflow-wrap:anywhere;max-width:20ch;text-wrap:balance}
-.a-title.t-m{font-size:clamp(31px,3.6vw,45px);line-height:1.08;letter-spacing:-.022em;max-width:24ch}
-.a-title.t-l{font-size:clamp(27px,2.8vw,35px);line-height:1.14;letter-spacing:-.018em;max-width:30ch}
-.a-title.t-xl{font-size:clamp(24px,2.3vw,29px);line-height:1.2;letter-spacing:-.014em;max-width:36ch}
-.deck{margin-top:16px;max-width:34em;font:400 clamp(18px,1.6vw,21px)/1.5 var(--f-read);color:var(--mute);text-wrap:pretty}
+.a-title{margin-top:14px;font:700 clamp(34px,4vw,50px)/1.05 var(--f-ui);letter-spacing:-.026em;overflow-wrap:anywhere;max-width:20ch;text-wrap:balance}
+.a-title.t-m{font-size:clamp(29px,3.1vw,39px);line-height:1.1;letter-spacing:-.022em;max-width:24ch}
+.a-title.t-l{font-size:clamp(25px,2.4vw,31px);line-height:1.16;letter-spacing:-.018em;max-width:30ch}
+.a-title.t-xl{font-size:clamp(22px,2vw,26px);line-height:1.22;letter-spacing:-.014em;max-width:36ch}
+.deck{margin-top:14px;max-width:34em;font:400 clamp(17px,1.35vw,19px)/1.5 var(--f-read);color:var(--mute);text-wrap:pretty}
 .deck.seed{color:var(--faint)}
 /* the key facts under the deck, the front page's small capitals over plain figures: side by side when every value fits
    on a line of its own, and down the column as label and value when one doesn't, which holds any length (fitFacts) */
-.keyfacts{margin:30px 0 0;max-width:var(--col);border-top:1px solid var(--line-2)}
+.keyfacts{margin:26px 0 0;max-width:var(--col);border-top:1px solid var(--line-2)}
 .keyfacts dt{font:600 11px/1.3 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.keyfacts dd{margin:0;font:500 16px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink)}
+.keyfacts dd{margin:0;font:500 15px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink)}
 .keyfacts:not([data-fit="down"]){display:flex}
 .keyfacts:not([data-fit="down"])>div{flex:1 1 0;min-width:max-content;padding:13px 20px 2px 0}
 .keyfacts:not([data-fit="down"])>div+div{padding-left:20px;border-left:1px solid var(--line)}
@@ -262,8 +262,8 @@ body.at-start .side,body.at-world .side{display:none!important}
 @media (hover:none){ .mi kbd,.mi.keys-mi{display:none} }
 
 /* ================= reading ================= */
-.body{margin-top:40px;font:400 20px/1.6 var(--f-read);font-optical-sizing:auto;font-feature-settings:"kern","liga"}
-.body>h2{max-width:30ch;margin:1.9em 0 .55em;font:700 clamp(23px,2.2vw,27px)/1.2 var(--f-ui);letter-spacing:-.018em;text-wrap:balance}
+.body{margin-top:36px;font:400 17px/1.7 var(--f-read);font-optical-sizing:auto;font-feature-settings:"kern","liga"}
+.body>h2{max-width:30ch;margin:2em 0 .6em;font:700 clamp(21px,1.7vw,23px)/1.25 var(--f-ui);letter-spacing:-.018em;text-wrap:balance}
 .body>ul{margin:0 0 1em;padding-left:1.1em}
 /* a paragraph, then what belongs to it: its expansions, then its aside, a facts panel or the page's
    picture. The writer puts an aside straight after its paragraph, so it always arrives at the bottom of
@@ -280,15 +280,18 @@ body.at-start .side,body.at-world .side{display:none!important}
 @media (pointer:coarse){.ptool{left:auto;right:-2px;top:-26px;pointer-events:none}.pb.tapped .ptool{opacity:1;pointer-events:auto}}
 .mcol{order:2;display:grid;gap:22px;margin:-.2em 0 1.7em}
 .mcol:empty{display:none}
-.mnote{max-width:56ch;padding:2px 0 2px 16px;border-left:2px solid var(--acc-line);font:400 15.5px/1.6 var(--f-ui);color:var(--mute);text-wrap:pretty}
+.mnote{max-width:56ch;padding:2px 0 2px 16px;border-left:2px solid var(--acc-line);font:400 15px/1.6 var(--f-ui);color:var(--mute);text-wrap:pretty}
 .mnote.enter{animation:notein var(--d-slow) var(--ease-out) both}
 @keyframes notein{from{opacity:0;transform:translateX(8px);filter:blur(var(--blur-s))}}
 .mnote .ml{display:block;margin-bottom:2px;font:600 11px/1.3 var(--f-ui);color:var(--acc)}
 .mnote .hole{text-underline-offset:3px}
-.hole{color:var(--link);text-decoration:underline;text-decoration-color:var(--acc-line);text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer;transition:text-decoration-color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out);border-radius:2px}
-.hole:hover{text-decoration-color:var(--link);background:var(--mark)}
+/* A link reads as the words around it, with a thin underline in its kind's colour: any phrase on a page can open a
+   page of its own, so the writer's links are suggestions, not the only way on, and they needn't pull the eye from the
+   line being read (Will, 2026-10-19). Pointed at, a link takes its colour. */
+.hole{color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--kc,var(--acc)) 62%,transparent);text-decoration-thickness:1.5px;text-underline-offset:4px;cursor:pointer;transition:color var(--d-quick) var(--ease-out),text-decoration-color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out);border-radius:2px}
+.hole:hover{color:var(--kc,var(--link));text-decoration-color:var(--kc,var(--link));background:color-mix(in srgb,var(--kc,var(--acc)) 11%,transparent)}
 /* a link to a topic you've read carries a small dot of its colour */
-.hole.read::after{content:"";display:inline-block;width:4px;height:4px;margin:0 1px 0 3px;border-radius:50%;background:currentColor;vertical-align:.35em;opacity:.55}
+.hole.read::after{content:"";display:inline-block;width:4px;height:4px;margin:0 1px 0 3px;border-radius:50%;background:var(--kc,var(--acc));vertical-align:.35em;opacity:.7}
 /* the soft frontier: each new stretch of words resolves in from the moment it arrived */
 .ink{animation:ink .42s var(--ease-out) both}
 @keyframes ink{from{opacity:0;filter:blur(1px)}}
@@ -304,7 +307,7 @@ body.at-start .side,body.at-world .side{display:none!important}
 .wait{display:inline-flex;align-items:center;gap:9px;vertical-align:middle}
 .orb{display:block;flex:none;width:20px;height:20px}
 .px{display:grid}
-.xp{margin:-.35em 0 1.2em;padding:2px 0 4px 16px;border-left:2px solid var(--acc);font:400 17px/1.65 var(--f-read);color:var(--ink)}
+.xp{margin:-.35em 0 1.2em;padding:2px 0 4px 16px;border-left:2px solid var(--acc);font:400 16px/1.65 var(--f-read);color:var(--ink)}
 .xp.enter{animation:open var(--d-slow) var(--ease-out) both}
 @keyframes open{from{opacity:0;transform:translateY(calc(-1 * var(--dist-micro)));filter:blur(var(--blur-s))}}
 .xp-h{display:flex;align-items:center;gap:8px;margin-bottom:2px;font:600 12px/1.3 var(--f-ui);color:var(--acc)}
@@ -327,7 +330,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 /* ================= panels: information the writer chose to lay out, drawn quietly ================= */
 /* the frame every panel shares: its name in the level's colour with a hairline running on, like the level band; a rule closes it */
 .panel{margin:16px 0 40px;padding:0 0 18px;border-bottom:1px solid var(--line)}
-.pn-rows{margin:0;padding:0;list-style:none;font:400 15px/1.5 var(--f-ui)}
+.pn-rows{margin:0;padding:0;list-style:none;font:400 14.5px/1.5 var(--f-ui)}
 .pn-h{display:flex;align-items:center;gap:12px;margin:0 0 16px;font:600 11px/1.3 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
 .pn-h::after{content:"";flex:1;height:1px;background:var(--acc-line)}
 .pn-h span{position:relative;display:inline-block}
@@ -352,21 +355,21 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .panel[data-type="steps"] .pn-r:last-child{padding-bottom:0}
 .panel[data-type="steps"] .pn-r::before{content:counter(st);position:absolute;left:0;top:0;z-index:1;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 1.5px var(--acc);color:var(--acc);font:600 11.5px/1 var(--f-mono);font-variant-numeric:tabular-nums}
 .panel[data-type="steps"] .pn-r:not(:last-child)::after{content:"";position:absolute;left:11.25px;top:26px;bottom:2px;width:1.5px;border-radius:1px;background:var(--acc-line)}
-.panel[data-type="steps"] .pn-r b{font:600 15.5px/1.4 var(--f-ui)}
+.panel[data-type="steps"] .pn-r b{font:600 15px/1.4 var(--f-ui)}
 .panel[data-type="steps"] .pn-r span,.panel[data-type="theories"] .pn-r>span{color:var(--mute)}
 /* compare: a real table, its column heads underlined in the level's colour */
 .panel[data-type="compare"] .pn-rows{display:grid;grid-template-columns:minmax(84px,.7fr) repeat(var(--n,2),minmax(0,1fr))}
 .panel[data-type="compare"] .pn-r{display:contents}
 .panel[data-type="compare"] .pn-r>span{padding:9px 16px 9px 0;border-top:1px solid var(--line)}
 .panel[data-type="compare"] .pn-r.enter>span{animation:rise var(--d-vslow) var(--ease-out) both}
-.panel[data-type="compare"] .pn-hd>span{padding:0 16px 8px 0;border-top:0;border-bottom:2px solid var(--acc-line);font:700 15px/1.3 var(--f-ui)}
+.panel[data-type="compare"] .pn-hd>span{padding:0 16px 8px 0;border-top:0;border-bottom:2px solid var(--acc-line);font:700 14.5px/1.3 var(--f-ui)}
 .panel[data-type="compare"] .pn-hd+.pn-r>span{border-top:0}
 .panel[data-type="compare"] [role="rowheader"]{padding-top:11px;font:600 12.5px/1.4 var(--f-ui);color:var(--faint)}
 /* theories: each verdict sits beside the idea it judges; a rejected idea fades */
 .panel[data-type="theories"] .pn-rows{display:grid;gap:14px}
 .panel[data-type="theories"] .pn-r{display:grid;gap:2px}
 .pn-th{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}
-.pn-th b{font:600 15.5px/1.4 var(--f-ui)}
+.pn-th b{font:600 15px/1.4 var(--f-ui)}
 .pn-v{display:inline-flex;align-items:center;gap:6px;font:600 12px/1.4 var(--f-ui);font-style:normal;color:var(--mute);white-space:nowrap}
 .pn-v::before{content:"";width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor}
 .pn-v[data-v="accepted"],.pn-v[data-v="partly"]{color:var(--acc)}
@@ -378,7 +381,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 /* figures: the number large, its unit small beside it, each on its own short rule */
 .panel[data-type="figures"] .pn-rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:18px 28px}
 .panel[data-type="figures"] .pn-r{display:grid;align-content:start;gap:5px;padding-top:10px;border-top:2px solid var(--acc-line)}
-.pn-num{font:700 clamp(28px,3vw,34px)/1.05 var(--f-ui)!important;letter-spacing:-.02em;color:var(--ink)!important;font-variant-numeric:tabular-nums}
+.pn-num{font:700 clamp(26px,2.6vw,30px)/1.05 var(--f-ui)!important;letter-spacing:-.02em;color:var(--ink)!important;font-variant-numeric:tabular-nums}
 .pn-num small{margin-left:6px;font:600 .46em/1 var(--f-ui);letter-spacing:0;color:var(--mute)}
 .panel[data-type="figures"] dd{font-weight:400;font-size:13.5px;line-height:1.45;color:var(--mute)}
 .dg{display:inline-block}
@@ -388,26 +391,26 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .panel[data-type="myth"] .pn-rows{display:grid;gap:10px}
 .panel[data-type="myth"] .pn-r{display:grid;grid-template-columns:72px minmax(0,1fr);gap:0 14px;align-items:baseline}
 .panel[data-type="myth"] .pn-r b{font:600 12.5px var(--f-ui);color:var(--faint)}
-.panel[data-type="myth"] .is-myth span{font:400 16px/1.55 var(--f-read);color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2);text-decoration-thickness:1px}
+.panel[data-type="myth"] .is-myth span{font:400 15.5px/1.55 var(--f-read);color:var(--faint);text-decoration:line-through;text-decoration-color:var(--line-2);text-decoration-thickness:1px}
 .panel[data-type="myth"] .is-fact b{color:var(--acc)}
-.panel[data-type="myth"] .is-fact span{font:400 17px/1.6 var(--f-read);color:var(--ink)}
+.panel[data-type="myth"] .is-fact span{font:400 16px/1.6 var(--f-read);color:var(--ink)}
 /* formula: the equation set large in the reading face, then what each symbol stands for */
-.pn-eq{display:block;padding:4px 0 14px;font:italic 400 clamp(20px,2.2vw,24px)/1.4 var(--f-read);color:var(--ink);white-space:nowrap;overflow-x:auto}
+.pn-eq{display:block;padding:4px 0 14px;font:italic 400 clamp(19px,1.9vw,22px)/1.4 var(--f-read);color:var(--ink);white-space:nowrap;overflow-x:auto}
 .panel[data-type="formula"] .pn-r:not(.pn-eqr){display:grid;grid-template-columns:76px minmax(0,1fr);gap:0 14px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
 .pn-sym{font:italic 600 16px var(--f-read);color:var(--acc)}
 /* guess: the question, then the answer only when asked; its number rolls in like an odometer, once */
-.pn-q{font:600 17px/1.45 var(--f-ui)}
+.pn-q{font:600 16px/1.45 var(--f-ui)}
 .pn-reveal{margin-top:12px;padding:8px 14px;border:1px solid var(--line-2);border-radius:9px;background:transparent;color:var(--ink);font:600 14px var(--f-ui);cursor:pointer;transition:border-color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
 .pn-reveal:hover{border-color:var(--acc);background:var(--mark)}
 .pn-a{margin-top:12px}
 .pn-a:focus{outline:none}
-.pn-big{font:700 clamp(36px,4.2vw,46px)/1.1 var(--f-ui);letter-spacing:-.02em;color:var(--acc);font-variant-numeric:tabular-nums}
+.pn-big{font:700 clamp(32px,3.6vw,40px)/1.1 var(--f-ui);letter-spacing:-.02em;color:var(--acc);font-variant-numeric:tabular-nums}
 .pn-big small{margin-right:8px;font:600 .4em/1 var(--f-ui);letter-spacing:0;color:var(--mute)}
 .pn-big small.after{margin:0 0 0 8px}
 .odo{position:relative;display:inline-block;height:1.1em;overflow:hidden;vertical-align:bottom;color:transparent}
 .odo::before{content:"0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9" / "";position:absolute;left:0;top:0;width:100%;white-space:pre;line-height:1.1em;text-align:center;color:var(--acc);transform:translateY(calc(-1.1em * (10 + var(--d))));animation:reel 1s var(--ease-out) both;animation-delay:calc(var(--i) * 70ms)}
 @keyframes reel{from{transform:translateY(0)}}
-.pn-said{margin-top:6px;font:400 17px/1.55 var(--f-read);color:var(--ink)}
+.pn-said{margin-top:6px;font:400 16px/1.55 var(--f-read);color:var(--ink)}
 .pn-why{margin-top:6px;color:var(--mute)}
 @media (max-width:560px){
   .panel[data-type="compare"] .pn-rows{grid-template-columns:minmax(64px,.6fr) repeat(var(--n,2),minmax(0,1fr));font-size:14px}
@@ -452,7 +455,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .pic-box.reveal img{opacity:1;filter:blur(0);transition:opacity 650ms var(--ease-out),filter 650ms var(--ease-out)}
 .pic-box.reveal .pic-field{opacity:0;transition:opacity 650ms var(--ease-out) 120ms}
 /* what the picture shows, in its uploader's words, then who made it */
-.pic figcaption{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 10px;margin-top:9px;font:400 13.5px/1.45 var(--f-ui);color:var(--mute)}
+.pic figcaption{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 10px;margin-top:9px;font:400 13px/1.45 var(--f-ui);color:var(--mute)}
 .pic figcaption a{font-size:11.5px;color:var(--faint);text-decoration:none}
 .pic figcaption a:hover{text-decoration:underline}
 .mcol .pic{margin:6px 0 6px}
@@ -473,8 +476,8 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .cd-n{opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
 .card:hover .cd-n,.card:focus-visible .cd-n{opacity:1}
 .cd-read{display:inline-flex;align-items:center;gap:5px;font:600 10.5px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.cd-t{font:650 18px/1.25 var(--f-ui);letter-spacing:-.012em;text-wrap:balance}
-.cd-h{font:400 14.5px/1.5 var(--f-ui);color:var(--mute);text-wrap:pretty}
+.cd-t{font:650 16.5px/1.28 var(--f-ui);letter-spacing:-.012em;text-wrap:balance}
+.cd-h{font:400 14px/1.5 var(--f-ui);color:var(--mute);text-wrap:pretty}
 .cd-h .hole{color:inherit;text-decoration:none;pointer-events:none}
 .card.is-read .cd-t{color:var(--mute)}
 @media (max-width:560px){ .cards6{grid-template-columns:minmax(0,1fr)} }
@@ -524,16 +527,16 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .row{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:baseline;gap:1px 10px;width:100%;padding:10px 8px 10px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer;text-decoration:none;transition:background-color var(--d-quick) var(--ease-out),padding var(--d-fast) var(--ease-out)}
 .row:hover,.row:focus-visible{background:var(--panel);padding-left:8px}
 .rk{font:600 12.5px var(--f-mono);color:var(--acc);text-align:left;font-variant-numeric:tabular-nums}
-.rt{font:600 16px/1.35 var(--f-ui)}
-.rh{grid-column:2;font:400 14.5px/1.45 var(--f-ui);color:var(--mute)}
+.rt{font:600 15.5px/1.4 var(--f-ui)}
+.rh{grid-column:2;font:400 14px/1.45 var(--f-ui);color:var(--mute)}
 .statusnote{margin:26px 0 0;padding-left:16px;border-left:2px solid var(--acc)}
 .statusnote h2{font:700 17px var(--f-ui);margin-bottom:4px}
-.statusnote p{font:400 15.5px/1.6 var(--f-read);color:var(--mute)}
+.statusnote p{font:400 15px/1.6 var(--f-read);color:var(--mute)}
 .statusnote .btn{margin-top:12px}
 .ask{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:0 10px;max-width:720px;margin-top:2px;padding:4px 8px 4px 0;border-bottom:1px solid var(--line);transition:border-color var(--d-quick) var(--ease-out)}
 .ask:focus-within{border-bottom-color:var(--acc)}
 .ask .rk{color:var(--faint)}
-.ask input{min-width:0;padding:6px 0;border:0;background:transparent;font:600 16px/1.35 var(--f-ui);color:var(--ink);outline:none}
+.ask input{min-width:0;padding:6px 0;border:0;background:transparent;font:600 15.5px/1.4 var(--f-ui);color:var(--ink);outline:none}
 .ask input::placeholder{color:var(--faint);font-weight:500}
 .ask-go{padding:4px 8px;border:0;border-radius:6px;background:transparent;color:var(--faint);font:600 14px var(--f-ui);cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
 .ask:focus-within .ask-go{opacity:1}
@@ -765,9 +768,6 @@ body.at-start .omni-btn{display:none}
 }
 :root[data-theme="dark"] [data-kind="concept"]{--kc:#93B4FF}:root[data-theme="dark"] [data-kind="phenomenon"]{--kc:#5CD0D8}:root[data-theme="dark"] [data-kind="mechanism"]{--kc:#7FD483}:root[data-theme="dark"] [data-kind="place"]{--kc:#F5B94A}
 :root[data-theme="dark"] [data-kind="person"]{--kc:#FF9F6E}:root[data-theme="dark"] [data-kind="event"]{--kc:#FF8A9E}:root[data-theme="dark"] [data-kind="thing"]{--kc:#F08CF5}:root[data-theme="dark"] [data-kind="mystery"]{--kc:#B89CFF}
-.hole[data-kind]{color:var(--kc);text-decoration-color:color-mix(in srgb,var(--kc) 42%,transparent)}
-.hole[data-kind]:hover{background:color-mix(in srgb,var(--kc) 12%,transparent);text-decoration-color:var(--kc)}
-@keyframes bloom{from{color:var(--link);text-decoration-color:var(--acc-line)}}
 /* a kind, wherever it is named, is its word in its colour */
 .kind[data-kind],.hc-meta .kind[data-kind]{display:inline-flex;align-items:center;color:var(--kc)}
 .row[data-kind] .rk,.om-i[data-kind] .oi,.card[data-kind] .cd-n{color:var(--kc)}
@@ -886,9 +886,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
   .side{display:none!important}
   .top{gap:10px;padding:0 14px}
 }
-@media (max-width:900px){ .body{font-size:19px} }
 @media (max-width:560px){
-  .body{font-size:17px;line-height:1.65}
+  .body{line-height:1.65}
   .article{padding-top:28px}
 }
 @media (prefers-reduced-motion:reduce){
