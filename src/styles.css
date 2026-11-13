@@ -289,7 +289,7 @@ body.at-start .side,body.at-world .side{display:none!important}
    page of its own, so the writer's links are suggestions, not the only way on, and they needn't pull the eye from the
    line being read (Will, 2026-10-19). Pointed at, a link takes its colour. */
 .hole{color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--kc,var(--acc)) 62%,transparent);text-decoration-thickness:1.5px;text-underline-offset:4px;cursor:pointer;transition:color var(--d-quick) var(--ease-out),text-decoration-color var(--d-quick) var(--ease-out),background-color var(--d-quick) var(--ease-out);border-radius:2px}
-.hole:hover{color:var(--kc,var(--link));text-decoration-color:var(--kc,var(--link));background:color-mix(in srgb,var(--kc,var(--acc)) 11%,transparent)}
+.hole:hover,.hole.hc-on{color:var(--kc,var(--link));text-decoration-color:var(--kc,var(--link));background:color-mix(in srgb,var(--kc,var(--acc)) 11%,transparent)}
 /* a link to a topic you've read carries a small dot of its colour */
 .hole.read::after{content:"";display:inline-block;width:4px;height:4px;margin:0 1px 0 3px;border-radius:50%;background:var(--kc,var(--acc));vertical-align:.35em;opacity:.7}
 /* the soft frontier: each new stretch of words resolves in from the moment it arrived */
@@ -588,6 +588,15 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .hc-lens span+button{margin-left:-6px}
 .hc-lens button{padding:2px 6px;border:0;border-radius:5px;background:transparent;color:var(--link);font:500 12.5px var(--f-ui);cursor:pointer}
 .hc-lens button:hover{background:var(--mark)}
+/* on a phone the card docks to the bottom edge (docked() in 07-reading.js): the same card in one place, as wide as the
+   column, above the safe area; it rises in, follows a finger down and leaves the same way. Nothing on the page moves */
+.hcard.docked{--gut:clamp(20px,4vw,56px);position:fixed;top:auto;left:max(var(--gut),calc((100% - 580px) / 2));right:max(var(--gut),calc((100% - 580px) / 2));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-height:calc(100svh - var(--top-h) - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;animation-name:dockin;transition:transform var(--d-quick) var(--ease-out),opacity var(--d-quick) var(--ease-out)}
+.hcard.docked.dragging{transition:none}
+/* the Enter key's mark means nothing where there is no keyboard */
+.hcard.docked .hc-key{display:none}
+.hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));transition:transform var(--d-fast) var(--ease-out),opacity var(--d-fast) var(--ease-out)}
+@keyframes dockin{from{opacity:0;transform:translateY(var(--dist-medium))}}
+@media (prefers-reduced-motion:reduce){ .hcard.docked{animation-name:fade;transition:none} }
 .pmenu{position:absolute;z-index:46;display:grid;gap:1px;width:232px;padding:5px;border-radius:var(--r-3);background:var(--surface);box-shadow:var(--sh-3);animation:cardin var(--d-fast) var(--ease-out)}
 .pmenu p{padding:6px 10px 4px;font:600 12px var(--f-ui);color:var(--faint)}
 .pmenu button{display:grid;gap:0;padding:7px 10px;border:0;border-radius:7px;background:transparent;text-align:left;cursor:pointer;font:600 14px var(--f-ui);color:var(--ink)}
@@ -741,14 +750,18 @@ body.at-start .omni-btn{display:none}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .fab-ring{flood-color:#fff;flood-opacity:.12} :root:not([data-theme="light"]) .fab-sh,:root:not([data-theme="light"]) .fab-sh2{flood-opacity:.5} }
 :root[data-theme="dark"] .fab-ring{flood-color:#fff;flood-opacity:.12}
 :root[data-theme="dark"] .fab-sh,:root[data-theme="dark"] .fab-sh2{flood-opacity:.5}
-@media (prefers-reduced-motion:reduce){ .fab-blob,.fab-item,.fab-item .ic,.fab-sw>span{transition:none!important} .fab.nudge .fab-goo,.fab.nudge .fab-main{animation:none} }
+@media (prefers-reduced-motion:reduce){ body.hc-docked .fab{transform:none} .fab-blob,.fab-item,.fab-item .ic,.fab-sw>span{transition:none!important} .fab.nudge .fab-goo,.fab.nudge .fab-main{animation:none} }
 /* phones and narrow windows: the gooey button holds the learning tools (search, Your world, save,
    around this) while a page is open; the top bar keeps the wordmark and a plain menu for everything else */
 @media (max-width:900px){
   body:not(.at-start):not(.at-world) .fab{display:block}
+  /* while a link's card is docked at the bottom, the button steps aside: one thing leads at a time */
+  .fab{transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out)}
+  body.hc-docked .fab{opacity:0;visibility:hidden;transform:translateY(var(--dist-medium));transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out),visibility 0s linear var(--d-quick)}
   .top .omni-btn,.top #keyBtn,.top #voice,.top .world-btn,.top .side-btn,body:not(.at-start) .top .theme-btn{display:none!important}
   body:not(.at-start) .menu-btn{display:inline-flex}
   body:not(.at-start) .toasts{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  body.hc-docked:not(.at-start) .toasts{bottom:calc(var(--hc-h,0px) + 24px + env(safe-area-inset-bottom,0px))}
   /* the last line of the page scrolls clear of the button */
   body:not(.at-start) .colfoot{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }

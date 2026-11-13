@@ -25,6 +25,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   stylesheet's comments are stripped by pattern, the script's by esbuild, which keeps only licence
   notices (comments opening with `/*!`). Anything only one view needs, like the front page's cards,
   is a separate file fetched by that view.
+  Colours come from CSS custom properties, so a theme switch (the top bar's, or the device's) restyles the page by
+  itself; what is drawn on a canvas reads its colours once, so `rerenderTheme` (`16-router.js`) tells each of them:
+  Your world and the sidebar's map, the front page's two maps, the thinking orbs and a picture still arriving (the
+  magnet's filings listen for themselves). The browser's own bar (`theme-color`) follows the reader's pick too.
 - **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (580 px
   of content; body text at 17 px sets about 67 characters a line). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
   what belongs to it (`.mcol`): its asides (`^` notes), a facts panel the writer put after it,
@@ -35,7 +39,13 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   topic its size (`c` in `FRONT`), so the slot is kept from the first frame; the drawing and `/front.css` come with
   `/front.json`, fetched only for those topics; from the front page the view transition carries the card's drawing
   (`plate`) into it; its effects are the card's own. A link's card sits in the margin beside its line where there is
-  room (`placeCard` in `07-reading.js`), and once the title has scrolled away it waits in the top bar (`#topT`).
+  room (`placeCard` in `07-reading.js`). On a phone (the ≤900 px layout of the tools button, with no pointer that
+  hovers: `docked()`) a tap shows the same card as a sheet docked at the bottom edge, as wide as the column and above
+  the safe area; it is not modal (no scrim, nothing locked), its link stays marked (`hc-on`), the page moves up by the
+  least that keeps the link's line above it (`clearOfSheet`, one call to drop), a tap on another link swaps it in place,
+  a second tap on the same link opens the page, and it goes on a tap elsewhere, Escape, opening a page, a swipe down, or
+  56 px of reading on (`HC_READ_ON`); the tools button steps aside while it is up. Once the title has scrolled away it
+  waits in the top bar (`#topT`).
   The head says where you came from (`fromOf`: the trail's step into this page, by a link, card or question). The end
   draws its six ways on as threads out of the page (`fanBlock`/`drawFan` in `06-page-end.js`): an SVG of curves from
   this page's point to each way on's ring, measured from the layout once all six are there and redrawn only when they

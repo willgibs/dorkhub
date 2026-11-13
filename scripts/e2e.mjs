@@ -168,6 +168,19 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
+  /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
+  if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
+    await page.mouse.move(0, 0); await page.locator('#threadStage').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
+    const ink = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#threadStage canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 40) { n++; l += d[i] + d[i + 1] + d[i + 2]; } return n ? l / n / 3 : -1; });
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
+    const light = await ink(); if (light < 0) throw new Error('the map of threads is empty');
+    /* the switch steps Device, Light, Dark: on to Dark, then back to Device */
+    for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const dark = await ink();
+    for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const back = await ink();
+    if (Math.abs(dark - light) < 30 || Math.abs(back - light) > 6) throw new Error(`the map's ink: light ${light.toFixed(0)}, dark ${dark.toFixed(0)}, back ${back.toFixed(0)}`);
+  });
   await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
@@ -388,6 +401,45 @@ async function run(page, { mobile = false } = {}) {
       await page.keyboard.press('Escape');
     });
   }
+  /* a link's card: on a phone a sheet docked at the bottom, as wide as the column, that never covers its link, swaps to
+     another link in place and opens on a second tap; on a desktop the card it always was, beside the link */
+  await step(`${tag}: a link's card`, async () => {
+    const holes = page.locator('.a-body a.hole');
+    const bring = (/** @type {number} */ n, /** @type {number} */ y) => page.evaluate(([n, y]) => { const a = document.querySelectorAll('.a-body a.hole')[n]; window.scrollBy(0, a.getBoundingClientRect().top - y); }, [n, y]);
+    const card = () => page.evaluate(() => {
+      const h = /** @type {HTMLElement} */ (document.querySelector('#hcard')); const r = h.getBoundingClientRect(); const on = document.querySelector('a.hole.hc-on'); const lr = on ? [...on.getClientRects()].at(-1) : null;
+      const col = /** @type {Element} */ (document.querySelector('.a-body')).getBoundingClientRect();
+      return { shown: !h.hidden, docked: h.classList.contains('docked'), pos: getComputedStyle(h).position, left: r.left - col.left, right: col.right - r.right, edge: innerHeight - r.bottom, top: r.top, title: h.querySelector('.hc-title')?.textContent || '', on: on ? /** @type {HTMLElement} */ (on).dataset.t : '', linkBottom: lr ? lr.bottom : 0, fab: getComputedStyle(/** @type {Element} */ (document.querySelector('.fab'))).visibility };
+    });
+    if (!mobile) {
+      await bring(1, 300); await holes.nth(1).hover(); await page.waitForSelector('#hcard:not([hidden])', { timeout: 3000 });
+      const c = await card();
+      if (c.docked || c.pos !== 'absolute' || c.on || (await page.evaluate(() => document.body.classList.contains('hc-docked')))) throw new Error(`the desktop card: ${JSON.stringify(c)}`);
+      await page.mouse.move(4, 300); await page.waitForTimeout(700); return;
+    }
+    if ((await holes.count()) < 3) throw new Error('too few links to try the sheet on');
+    /* a link on the bottom line: the sheet docks, and the page moves just enough to keep the link above it */
+    const deep = Math.min(5, (await holes.count()) - 1); await bring(deep, 844 - 40); await page.waitForTimeout(200);
+    const t2 = await holes.nth(deep).getAttribute('data-t'); await holes.nth(deep).tap(); await page.waitForTimeout(700);
+    const a = await card();
+    if (!a.shown || !a.docked || a.pos !== 'fixed' || a.title !== t2 || a.on !== t2) throw new Error(`the sheet: ${JSON.stringify(a)}`);
+    if (Math.abs(a.left - a.right) > 1 || Math.abs(a.left) > 1 || a.edge < 8 || a.edge > 24) throw new Error(`the sheet's margins: ${JSON.stringify(a)}`);
+    if (a.linkBottom > a.top || a.fab !== 'hidden') throw new Error(`the sheet covers its link, or the tools button stayed: ${JSON.stringify(a)}`);
+    await page.screenshot({ path: `${shots}/${tag}-4c-link-sheet.png` });
+    /* another link swaps what it says, in place */
+    const t1 = await holes.nth(1).getAttribute('data-t'); await bring(1, 300); await page.waitForTimeout(200); await holes.nth(1).tap(); await page.waitForTimeout(300);
+    const b = await card(); if (!b.shown || b.title !== t1 || b.on !== t1) throw new Error(`the swap: ${JSON.stringify(b)}`);
+    /* a tap elsewhere puts it away, and the tools button comes back */
+    await page.touchscreen.tap(8, 400); await page.waitForTimeout(400);
+    const c = await card(); if (c.shown || c.on || c.fab !== 'visible') throw new Error(`a tap elsewhere: ${JSON.stringify(c)}`);
+    /* a second tap on the same link opens its page: one already written, so it costs nothing, then back */
+    const all = await holes.evaluateAll(as => as.map(x => x.getAttribute('data-t') || ''));
+    const k = all.findIndex(t => t && !fresh(t)); if (k < 0) return;
+    const was = await page.evaluate(() => location.pathname); await bring(k, 300); await page.waitForTimeout(200);
+    await holes.nth(k).tap(); await page.waitForTimeout(300); await holes.nth(k).tap();
+    await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, all[k], { timeout: 20000 });
+    await page.goBack(); await page.waitForFunction(u => location.pathname === u, was); await waitDone();
+  });
   await step(`${tag}: a link opens the next page at its own address`, async () => {
     const targets = await page.$$eval('.a-body a.hole', as => as.map(a => a.getAttribute('data-t') || ''));
     const target = targets.find(fresh);
@@ -465,6 +517,16 @@ async function run(page, { mobile = false } = {}) {
       await page.waitForSelector('.gv-tip.act [data-gv="open"]', { timeout: 5000 });
       await page.locator('.gv-tip.act [data-gv="open"]').click();
       await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, saved, { timeout: 10000 });
+    });
+    /* when Your world was last looked at outlives a reload, so what grew since then springs in next time */
+    await step(`${tag}: Your world remembers when you last looked`, async () => {
+      const seen = () => page.evaluate(() => { try { return JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').settings?.worldSeen || 0; } catch (e) { return 0; } });
+      await page.waitForFunction(() => { try { return !!JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').settings?.worldSeen; } catch (e) { return false; } }, null, { timeout: 3000 }).catch(() => {});
+      const was = await seen(); if (!was) throw new Error('Your world did not note the visit');
+      await page.reload(); await waitDone();
+      /* anything that saves after the reload writes the store back as the loader read it */
+      await page.keyboard.press('s'); await page.keyboard.press('s'); await page.waitForTimeout(800);
+      const now = await seen(); if (now !== was) throw new Error(`worldSeen was ${was}, ${now} after a reload`);
     });
     /* back on the front page, a reader's own world takes the last card's place */
     await step(`${tag}: the front page shows your world`, async () => {

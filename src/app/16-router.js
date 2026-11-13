@@ -9,17 +9,17 @@ import { PROVIDERS } from '../shared/models.js';
 import { addStep, pageId, parseRoute, routeOf } from '../shared/world.js';
 import { LENSES } from './01-data.js';
 import { $, $$, auth, esc, pagesLeft, save, store, toast, write } from './02-util.js';
-import { orbHTML } from './03-orbs.js';
+import { orbHTML, rethemeOrbs } from './03-orbs.js';
 import { ACTIVE, CUR, HERO, OPENED, PLATE, canVT, curPage, curTrail, ensurePage, go, openTopic, pageInput, pageOf, quiet, setCUR, trailPages } from './04-pages.js';
-import { backfillLinks, chamberHTML, fill, generate, paint, secFor, setACC } from './05-render.js';
+import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
 import { doubtPage, toggleSave } from './06-page-end.js';
-import { PF, closePMenu, hc, hcard, hideCard, hideSel, lastTouch, openPMenu, pm, pmenu, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
+import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, pmenu, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
 import { exportTrail, fileSlug, recapTrail, saveFile, sheet, trailSheet } from './08-sheets.js';
 import { renderVoice, setLens } from './09-start.js';
 import { IDXKIND, applySide, bridgeSheet, landSheet, listen, makeBridge, narrow, openIndexEntry, recall, renderIndex, renderIndexList, renderQuiz, renderSide, setIDXKIND, setIDXSORT, setSIDE, stopListening, toggleSide } from './10-tools.js';
 import { MINI, WORLD, leaveWorld, showWorld } from './11-world.js';
 import { closeMenu, omni, openOmni, openPage, renderWorldBtn, setFab, syncFab } from './12-chrome.js';
-import { mountPlate, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
+import { mountPlate, rethemeLanding, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
 import { forgetKey, keysSheet, renderKeyBtn, saveKey } from './15-keys.js';
 export let VIEW = '', FIRST = true, GUARD = new Map();
 export let BOOT;
@@ -104,8 +104,9 @@ function rewrite(p) {
   if ((p.wlens || p.req.lens) === lens) { generate(p, { fresh: true }); return; }
   openTopic(p.req.title, { via: 'link', lens, ctx: p.req.ctx, q: p.req.q, bridge: p.req.bridge });
 }
-const rerenderTheme = () => { if (WORLD) WORLD.retheme(); if (MINI) MINI.retheme(); };
-let wasNarrow;
+/* everything drawn on a canvas in the theme's colours draws again in the new ones */
+const rerenderTheme = () => { if (WORLD) WORLD.retheme(); if (MINI) MINI.retheme(); rethemeLanding(); rethemeOrbs(); rethemePics(); };
+let wasNarrow, sheetW = 0;
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
@@ -224,8 +225,8 @@ document.addEventListener('keydown', e => {
 });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', rerenderTheme);
 new MutationObserver(rerenderTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
-wasNarrow = narrow();
-addEventListener('resize', () => { clearTimeout(selT); setSelT(setTimeout(() => { hideSel(); hideCard(); closePMenu(); if (narrow() !== wasNarrow) { wasNarrow = narrow(); renderSide(); } }, 150)); });
+wasNarrow = narrow(); sheetW = innerWidth;
+addEventListener('resize', () => { clearTimeout(selT); setSelT(setTimeout(() => { hideSel(); if (!(keepsSheet() && innerWidth === sheetW)) hideCard(); sheetW = innerWidth; closePMenu(); if (narrow() !== wasNarrow) { wasNarrow = narrow(); renderSide(); } }, 150)); });
 $('#keyBtn').addEventListener('click', () => keysSheet());
 $('#worldBtn').addEventListener('click', () => go('/world'));
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';

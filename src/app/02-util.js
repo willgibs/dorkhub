@@ -96,7 +96,12 @@ export function errText(code) {
   }
 }
 /* the theme follows the device unless the reader picked one */
-export function applyTheme() { const t = store.settings.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; }
+export function applyTheme() {
+  const t = store.settings.theme; if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+  /* the browser's own bar takes the theme the reader picked, not only the device's */
+  $$('meta[name="theme-color"]').forEach(m => { const own = /dark/.test(m.getAttribute('media') || '') ? 'dark' : 'light'; m.setAttribute('content', THEME_BAR[t === 'light' || t === 'dark' ? t : own]); });
+}
+const THEME_BAR = { light: '#FCFCFB', dark: '#050506' };
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
@@ -108,6 +113,8 @@ store = (() => {
     if (s.tipped) base.settings.tipped = true;
     if (s.theme === 'light' || s.theme === 'dark') base.settings.theme = s.theme;
     if (LENSES[s.lens]) base.settings.lens = s.lens;
+    /* when Your world was last looked at, so what grew since springs in: a time, never one still to come */
+    if (Number.isFinite(s.worldSeen) && s.worldSeen > 0 && s.worldSeen <= Date.now()) base.settings.worldSeen = s.worldSeen;
   };
   try {
     const j = JSON.parse(localStorage.getItem(KEY) || 'null');

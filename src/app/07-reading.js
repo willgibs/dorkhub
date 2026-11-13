@@ -6,6 +6,7 @@ import { $, $$, esc, reducedMotion, relTime, store, write } from './02-util.js';
 import { ACTIVE, CUR, cleanTitle, curPage, full, isLive, openTopic, pageOf, rememberScroll } from './04-pages.js';
 import { ACC, secFor, worldIndex } from './05-render.js';
 import { peek, unfold } from './06-page-end.js';
+import { narrow } from './10-tools.js';
 import { VIEW } from './16-router.js';
 export function updateProg() {
   const pr = $('#prog'); const sec = CUR && secFor(CUR); if (!sec) { pr.style.width = '0'; return; }
@@ -71,11 +72,12 @@ export function showCard(a) {
   const F = full(p); const g = F.gloss[k]; const hook = hookOf(F, k) || (a.closest('.card') ? (a.querySelector('.cd-h')?.textContent || '') : '');
   const busy = [...ACTIVE.keys()].some(id => { const x = pageOf(id); return x && topicKey(x.req.title) === topicKey(target); });
   const wn = worldNote(target); const kind = (g && g.kind) || a.dataset.kind || '';
+  if (hc && hc.a !== a) hc.a.classList.remove('hc-on');
   hc = { a, i: c.i, target, label: a.textContent, text: c.text };
   hcard.innerHTML = `<p class="hc-meta">${kind ? `<span class="kind"${kattr(kind)}>${esc(kind)}</span>` : '<span></span>'}<span>${busy ? 'Being written' : wn.read ? 'Read ↺' : ''}</span></p>
 <p class="hc-title${[...target].length > 28 ? ' long' : ''}">${esc(target)}</p><p class="hc-hook">${hook ? esc(capFirst(plain(hook))) : isLive(p) ? 'The preview arrives when this page finishes writing.' : 'No preview yet. Peek to get a look.'}</p>
 ${wn.line ? `<p class="hc-else">${wn.line}</p>` : ''}
-<div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'} ↵</button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
+<div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'}<span class="hc-key" aria-hidden="true"> ↵</span></button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!wn.read ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;
   hcard.hidden = false; hcY = scrollY;
   placeCard(a);
@@ -84,6 +86,13 @@ ${!wn.read ? `<div class="hc-lens"><span>Or read it as</span>${Object.keys(LENS_
    never covers what you are reading; otherwise just below the link (or above it, near the bottom of the screen). */
 const HC_GAP = 32;
 function placeCard(a) {
+  const dock = docked(); hcard.classList.toggle('docked', dock); document.body.classList.toggle('hc-docked', dock);
+  if (dock) {
+    hcard.classList.remove('in-margin', 'going'); hcard.style.left = hcard.style.top = hcard.style.width = hcard.style.transform = ''; a.classList.add('hc-on');
+    document.body.style.setProperty('--hc-h', `${hcard.offsetHeight}px`);
+    clearOfSheet(a);
+    return;
+  }
   const r = a.getBoundingClientRect(); const body = a.closest('.article')?.querySelector('.a-body'); const cr = body && body.getBoundingClientRect();
   const free = cr && !a.closest('.a-end') ? innerWidth - cr.right - HC_GAP - 16 : 0; const room = free >= 240;
   hcard.classList.toggle('in-margin', room); hcard.style.width = room ? `${Math.min(310, Math.floor(free))}px` : '';
@@ -99,7 +108,51 @@ function placeCard(a) {
   hcard.style.left = `${x}px`; hcard.style.top = `${(below ? r.bottom + 8 : r.top - ch - 8) + scrollY}px`;
 }
 const TOP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--top-h')) || 56;
-export function hideCard() { clearTimeout(hcTimer); if (!hcard.hidden) { hcard.hidden = true; hc = null; } }
+export function hideCard() {
+  clearTimeout(hcTimer); if (!hcard.hidden) { hcard.hidden = true; if (hc) hc.a.classList.remove('hc-on'); hc = null; }
+  hcard.classList.remove('going'); hcard.style.transform = ''; document.body.classList.remove('hc-docked');
+}
+
+/* ---------- on a phone, the card is a sheet docked to the bottom edge ----------
+   A phone is the narrow layout the tools button and the menu use (≤900 px), with no pointer that hovers: there a card
+   floating by its link lands under the thumb and over the lines around it, somewhere new each time. Docked, it is the
+   same card in one place, and not modal: no scrim, nothing locked, the page readable and scrollable behind it. Its link
+   stays marked while it is up, a tap on another link swaps what it says, and a second tap on the same link (or Open)
+   opens the page. It goes on a tap elsewhere, Escape, opening a page, reading on, or a swipe down. */
+export const docked = () => narrow() && !matchMedia('(hover: hover)').matches;
+/* reading on: two lines or so of scrolling sends the sheet away, since what comes next is the text it covers; a
+   finger's wobble on a tap, or the page settling, moves far less */
+const HC_READ_ON = 56;
+let hcNudge = 0;
+/* the sheet never hides the phrase it belongs to: if it would, the page moves up by the least that keeps the link's
+   line in sight above it, and stays there when the sheet goes */
+function clearOfSheet(a) {
+  const rs = a.getClientRects(); const line = rs[rs.length - 1]; if (!line) return;
+  const top = innerHeight - parseFloat(getComputedStyle(hcard).bottom) - hcard.offsetHeight; const by = Math.ceil(line.bottom + 12 - top);
+  if (by <= 0) return;
+  hcY = scrollY + by; hcNudge = Date.now() + 700;
+  scrollBy({ top: by, behavior: reducedMotion() ? 'auto' : 'smooth' });
+}
+/* a swipe down on the sheet takes it away; a short one lets it settle back */
+let drag = null;
+function dragStart(e) { if (!hcard.classList.contains('docked') || e.touches.length !== 1) return; const y = e.touches[0].clientY, t = performance.now(); drag = { y0: y, dy: 0, y, t, v: 0 }; hcard.classList.add('dragging'); }
+function dragMove(e) {
+  if (!drag) return; e.preventDefault();
+  const y = e.touches[0].clientY, t = performance.now(); drag.v = (y - drag.y) / Math.max(1, t - drag.t); drag.y = y; drag.t = t;
+  drag.dy = Math.max(0, y - drag.y0); hcard.style.transform = drag.dy ? `translateY(${drag.dy}px)` : '';
+}
+function dragEnd() {
+  if (!drag) return; const d = drag; drag = null; hcard.classList.remove('dragging');
+  if (d.dy > 64 || (d.dy > 12 && d.v > .45)) dropSheet(); else hcard.style.transform = '';
+}
+function dropSheet() {
+  if (reducedMotion()) { hideCard(); return; }
+  hcard.style.transform = ''; hcard.classList.add('going');
+  const done = () => { clearTimeout(t); hcard.removeEventListener('transitionend', done); if (hcard.classList.contains('going')) hideCard(); };
+  const t = setTimeout(done, 400); hcard.addEventListener('transitionend', done);
+}
+/* the page's own resize (a phone's toolbar folding away as it scrolls) keeps the sheet; a new width does not */
+export const keepsSheet = () => !hcard.hidden && hcard.classList.contains('docked') && docked();
 
 /* ================= paragraph menu ================= */
 export let pmenu; export let pm = null;
@@ -144,10 +197,13 @@ export function setSelT(v) { return (selT = v); }
 export function init() {
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
 addEventListener('scroll', () => {
-  if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Math.abs(scrollY - hcY) > 90) hideCard(); }); }
+  if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Date.now() > hcNudge && Math.abs(scrollY - hcY) > (hcard.classList.contains('docked') ? HC_READ_ON : 90)) hideCard(); }); }
   clearTimeout(scrollT); scrollT = setTimeout(rememberScroll, 160);
 }, { passive: true });
 hcard = $('#hcard');
+hcard.addEventListener('touchstart', dragStart, { passive: true });
+hcard.addEventListener('touchmove', dragMove, { passive: false });
+hcard.addEventListener('touchend', dragEnd); hcard.addEventListener('touchcancel', dragEnd);
 addEventListener('pointerdown', e => { if (e.pointerType === 'touch') lastTouch = Date.now(); }, true);
 document.addEventListener('mouseover', e => {
   const a = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole,a.card'));

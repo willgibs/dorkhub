@@ -482,6 +482,8 @@ function watchBeam() {
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
 export function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+/* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves) */
+export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); }
 export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */

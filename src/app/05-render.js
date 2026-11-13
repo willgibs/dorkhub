@@ -412,8 +412,7 @@ function picField(box) {
   const cols = Math.max(1, Math.floor(w / PIC_PITCH)), rows = Math.max(1, Math.floor(h / PIC_PITCH));
   const ox = (w - (cols - 1) * PIC_PITCH) / 2, oy = (h - (rows - 1) * PIC_PITCH) / 2; const dots = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const x = ox + c * PIC_PITCH, y = oy + r * PIC_PITCH; dots.push({ x, y, c, r, k: .9 + Math.random() * .2, ph: Math.random() * 6000, d: Math.min(.65, .6 * (x / w + y / h) / 2 + Math.random() * .08), col: '' }); }
-  const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b;
-  const F = { box, cv, ctx: cv.getContext('2d'), k, w, h, cols, rows, dots, ink: `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`, t0: null, img: null };
+  const F = { box, cv, ctx: cv.getContext('2d'), k, w, h, cols, rows, dots, ink: picInk(box), t0: null, img: null };
   box._f = F; PICS.add(F); drawPic(F, reducedMotion() ? 0 : performance.now()); if (!reducedMotion()) wakePics();
   const pid = box.closest('.chamber')?.dataset.pid; if (pid && PICREADY.has(pid)) revealPic(null, PICREADY.get(pid), box);
 }
@@ -436,6 +435,9 @@ function picLoop(now) {
   if (PICS.size) PIC_RAF = requestAnimationFrame(picLoop);
 }
 function wakePics() { if (!PIC_RAF && PICS.size) PIC_RAF = requestAnimationFrame(picLoop); }
+function picInk(box) { const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b; return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; }
+/* the theme changed: a picture still arriving takes the new ink for its dots */
+export function rethemePics() { for (const F of PICS) { F.ink = picInk(F.box); if (reducedMotion()) drawPic(F, 0); } }
 /* the picture has arrived: its colours go to the dots, which grow into a mosaic, then the photo takes over */
 function revealPic(node, img, box0) {
   if (node) PICREADY.set(node.id, img); /* kept, in case its slot is drawn after it arrives */
