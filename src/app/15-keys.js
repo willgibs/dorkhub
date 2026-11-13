@@ -75,9 +75,9 @@ export function forgetKey() { auth.byok = null; saveAuth(); renderKeyBtn(); shee
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 document.addEventListener('change', e => {
-  if (e.target.name !== 'kprov') return; const k = auth.byok;
-  $('#keyForm').innerHTML = keyFormHTML(e.target.value, k && k.provider === e.target.value ? k.model : '');
-  $(`#keyForm input[value="${e.target.value}"]`)?.focus();
+  if (/** @type {HTMLInputElement} */ (e.target).name !== 'kprov') return; const k = auth.byok;
+  $('#keyForm').innerHTML = keyFormHTML(/** @type {HTMLInputElement} */ (e.target).value, k && k.provider === /** @type {HTMLInputElement} */ (e.target).value ? k.model : '');
+  $(`#keyForm input[value="${/** @type {HTMLInputElement} */ (e.target).value}"]`)?.focus();
 });
-document.addEventListener('submit', e => { if (e.target.id === 'keyForm') { e.preventDefault(); const b = $('[data-act="key-save"]'); if (b) saveKey(b); } });
+document.addEventListener('submit', e => { if (/** @type {HTMLElement} */ (e.target).id === 'keyForm') { e.preventDefault(); const b = $('[data-act="key-save"]'); if (b) saveKey(b); } });
 }

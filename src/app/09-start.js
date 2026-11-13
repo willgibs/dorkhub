@@ -28,10 +28,10 @@ export function setLens(lens) {
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 document.addEventListener('change', e => {
-  if (e.target.name !== 'lens' || !LENSES[e.target.value]) return;
-  const cv = e.target.closest('.cvoice'); /* found before the menu is redrawn under it */
-  const inSheet = !!e.target.closest('#sheet');
-  setLens(e.target.value); if (cv) cv.open = false; if (inSheet) sheet.close();
+  if (/** @type {HTMLInputElement} */ (e.target).name !== 'lens' || !LENSES[/** @type {HTMLInputElement} */ (e.target).value]) return;
+  const cv = /** @type {HTMLDetailsElement} */ (/** @type {HTMLElement} */ (e.target).closest('.cvoice')); /* found before the menu is redrawn under it */
+  const inSheet = !!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('#sheet'));
+  setLens(/** @type {HTMLInputElement} */ (e.target).value); if (cv) cv.open = false; if (inSheet) sheet.close();
   toast(`${LENSES[store.settings.lens][0]} voice for new pages.`);
 });
 document.addEventListener('click', e => { $$('details.voice[open]').forEach(v => { if (!v.contains(e.target)) v.open = false; }); });

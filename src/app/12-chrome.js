@@ -48,7 +48,7 @@ function metTopics() {
 }
 export const openPage = (p, via) => { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via }); p.last = Date.now(); save(); } go(routeOf(p.req)); };
 function omniItems(q) {
-  const out = []; const cur = curPage(); const qq = q.trim(); const ql = qq.toLowerCase(); const W = worldIndex();
+  /** @type {Record<string, any>[]} */ const out = []; const cur = curPage(); const qq = q.trim(); const ql = qq.toLowerCase(); const W = worldIndex();
   if (qq) {
     out.push({ sec: 'Open', icon: '↵', title: `A page on <q>${esc(qq)}</q>`, hook: isQuestion(qq) ? 'Answered on its own page' : '', run: () => openTopic(qq, { via: 'search' }) });
     [...W.read.values()].filter(p => p.id !== CUR && p.title.toLowerCase().includes(ql)).sort((a, b) => b.last - a.last).slice(0, 5)
@@ -198,8 +198,8 @@ fab = document.createElement('div');
  document.body.appendChild(fab);
 fab.addEventListener('click', e => {
   if (e.target === fab) { setFab(false); return; } /* the scrim */
-  if (e.target.closest('.fab-main')) { setFab(fab.dataset.open !== 'true'); return; }
-  const it = e.target.closest('[data-fab]'); if (!it || it.disabled) return; setFab(false); const a = it.dataset.fab;
+  if (/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.fab-main'))) { setFab(fab.dataset.open !== 'true'); return; }
+  const it = /** @type {HTMLButtonElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fab]')); if (!it || it.disabled) return; setFab(false); const a = it.dataset.fab;
   if (a === 'ask') openOmni();
   else if (a === 'world') go('/world');
   else if (a === 'save') toggleSave(curPage());

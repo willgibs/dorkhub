@@ -228,7 +228,7 @@ function readoutFx(card) {
     const left = Math.min(Math.max(8, x - r.left + 14), r.width - w - 8), top = y - r.top + 18 + h > r.height - 8 ? y - r.top - h - 12 : y - r.top + 18;
     out.style.transform = `translate(${Math.round(left)}px,${Math.round(top)}px)`;
   };
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(document.elementsFromPoint(e.clientX, e.clientY).find(el => el.dataset && el.dataset.read && card.contains(el)) || null, e.clientX, e.clientY); });
+  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(/** @type {HTMLElement[]} */ (document.elementsFromPoint(e.clientX, e.clientY)).find(el => el.dataset && el.dataset.read && card.contains(el)) || null, e.clientX, e.clientY); });
   card.addEventListener('pointerleave', () => show(null, 0, 0));
 }
 /* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded shut; on its turn it
@@ -487,7 +487,7 @@ export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(
 export function init() {
 DOORS = [...FRONT, ...EARLIER];
 LIVE = new Set(['flytrap', 'enigma']);
-document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
+document.addEventListener('input', e => { if (/** @type {HTMLElement} */ (e.target).id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
-document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
+document.addEventListener('keydown', e => { if (/** @type {HTMLElement} */ (e.target).id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
 }

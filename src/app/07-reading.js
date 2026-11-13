@@ -29,7 +29,7 @@ let scrollQ = false, scrollT = 0;
 export const PF = { busy: false, view: 0, times: [], got: new Map() };
 function prefetch(req) {
   const id = pageId(req); if (PF.got.has(id) || (store.pages[id] && store.pages[id].text)) return;
-  if (navigator.connection && navigator.connection.saveData) return;
+  if (/** @type {any} */ (navigator).connection && /** @type {any} */ (navigator).connection.saveData) return;
   const now = Date.now(); PF.times = PF.times.filter(t => now - t < 6e4);
   if (PF.busy || PF.view >= 12 || PF.times.length >= 30) return;
   PF.busy = true; PF.view++; PF.times.push(now); PF.got.set(id, null);
@@ -126,7 +126,7 @@ export function hideSel() { digSel.hidden = true; selInfo = null; }
 function checkSel() {
   const sel = getSelection(); if (!sel || sel.isCollapsed || !CUR) return hideSel();
   const txt = sel.toString().replace(/\s+/g, ' ').trim();
-  const a = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
+  const a = sel.anchorNode && /** @type {HTMLElement} */ (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
   const body = a && a.closest('.a-body');
   if (txt.length < 3 || txt.length > 90 || !body) return hideSel();
   const r = sel.getRangeAt(0).getBoundingClientRect(); if (!r.width) return hideSel();
@@ -150,18 +150,18 @@ addEventListener('scroll', () => {
 hcard = $('#hcard');
 addEventListener('pointerdown', e => { if (e.pointerType === 'touch') lastTouch = Date.now(); }, true);
 document.addEventListener('mouseover', e => {
-  const a = e.target.closest && e.target.closest('a.hole,a.card');
+  const a = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole,a.card'));
   if (a) pfIntent(a);
   if (a && a.matches('a.hole') && matchMedia('(hover: hover)').matches) { clearTimeout(hideTimer); clearTimeout(hcTimer); if (!hc || hc.a !== a) hcTimer = setTimeout(() => showCard(a), 240); }
-  else if (e.target.closest && e.target.closest('#hcard')) clearTimeout(hideTimer);
+  else if (/** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('#hcard'))) clearTimeout(hideTimer);
 });
 document.addEventListener('mouseout', e => {
   if (!matchMedia('(hover: hover)').matches || Date.now() - lastTouch < 900) return;
-  const a = e.target.closest && e.target.closest('a.hole,#hcard'); if (!a) return;
+  const a = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole,#hcard')); if (!a) return;
   /* a card in the margin is further from its link, so it waits a little longer for the pointer to reach it */
   clearTimeout(hcTimer); hideTimer = setTimeout(hideCard, hcard.classList.contains('in-margin') ? 520 : 240);
 });
-document.addEventListener('focusin', e => { const a = e.target.closest && e.target.closest('a.hole,a.card'); if (a) pfIntent(a); if (a && a.matches('a.hole') && e.target.matches(':focus-visible')) showCard(a); });
+document.addEventListener('focusin', e => { const a = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole,a.card')); if (a) pfIntent(a); if (a && a.matches('a.hole') && /** @type {HTMLElement} */ (e.target).matches(':focus-visible')) showCard(a); });
 hcard.addEventListener('click', e => {
   const b = e.target.closest('[data-hc]'); if (!b || !hc) return; const c = hc; hideCard();
   if (b.dataset.hc === 'open') openTopic(c.target, { via: 'link', src: c.a });

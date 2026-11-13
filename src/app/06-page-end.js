@@ -13,6 +13,7 @@ import { syncFab } from './12-chrome.js';
 import { DOORS, doorHTML } from './13-landing.js';
 import { tipAttrs } from './14-map-tips.js';
 import { BOOT } from './16-router.js';
+/** @param {{ mark: string, title: string, hook?: string, cls?: string, attrs?: string, markTip?: string, href?: string }} o */
 function rowHTML({ mark, title, hook, cls = '', attrs = '', markTip = '', href = '' }) {
   const tag = href ? 'a' : 'button';
   return `<${tag} class="row${cls}"${href ? ` href="${esc(href)}"` : ' type="button"'} ${attrs}><span class="rk"${markTip ? ` data-tip="${esc(markTip)}"` : ' aria-hidden="true"'}>${mark}</span><span class="rt">${title}</span>${hook ? `<span class="rh">${hook}</span>` : ''}</${tag}>`;
@@ -159,7 +160,7 @@ export function paintDoubt(p, sec) {
   const body = $('.a-body', sec);
   for (const d of p.doubts) {
     const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT); let t;
-    while ((t = walker.nextNode())) {
+    while ((t = /** @type {Text} */ (walker.nextNode()))) {
       if (t.parentElement.closest('mark,.mnote,.xp')) continue;
       const i = t.data.indexOf(d.quote); if (i < 0) continue;
       const r = document.createRange(); r.setStart(t, i); r.setEnd(t, i + d.quote.length);

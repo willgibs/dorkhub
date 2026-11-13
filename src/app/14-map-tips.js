@@ -21,7 +21,7 @@ TIPEL = document.createElement('div');
  TIPEL.setAttribute('role', 'tooltip');
  document.body.appendChild(TIPEL);
 document.addEventListener('mouseover', e => {
-  const el = e.target.closest && e.target.closest('[data-tip]');
+  const el = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-tip]'));
   if (el === tipFor) return;
   clearTimeout(tipT);
   if (!el) { if (tipFor) hideTip(); return; }
@@ -29,7 +29,7 @@ document.addEventListener('mouseover', e => {
   const warm = TIPEL.classList.contains('on');
   tipT = setTimeout(() => showTip(el), warm ? 40 : 360);
 });
-document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el && e.target.matches(':focus-visible')) showTip(el); else hideTip(); });
+document.addEventListener('focusin', e => { const el = /** @type {HTMLElement} */ (e.target).closest && /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-tip]')); if (el && /** @type {HTMLElement} */ (e.target).matches(':focus-visible')) showTip(el); else hideTip(); });
 document.addEventListener('focusout', hideTip);
 document.addEventListener('pointerdown', hideTip, true);
 addEventListener('scroll', hideTip, { passive: true, capture: true });

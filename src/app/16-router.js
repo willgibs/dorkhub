@@ -113,45 +113,45 @@ BOOT = Date.now();
 addEventListener('popstate', () => { if (canVT() && VIEW === 'page') { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
-  const hole = e.target.closest('a.hole');
+  const hole = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole'));
   if (hole) {
     if (!plainClick(e)) return; e.preventDefault();
     if (Date.now() - lastTouch < 700 && (!hc || hc.a !== hole)) { showCard(hole); return; }
     hideCard(); openTopic(hole.dataset.t, { via: 'link', src: hole }); return;
   }
-  if (!e.target.closest('#hcard') && !hcard.hidden) hideCard();
+  if (!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('#hcard')) && !hcard.hidden) hideCard();
   if (Date.now() - lastTouch < 700) tapPara(e.target);
-  const pt = e.target.closest('.ptool'); if (pt) { if (pm && pm.btn === pt) closePMenu(); else openPMenu(pt); return; }
-  if (!e.target.closest('#pmenu')) closePMenu();
-  const card = e.target.closest('a.card[data-t]'); if (card) { if (!plainClick(e)) return; e.preventDefault(); openTopic(card.dataset.t, { via: 'card', src: $('.cd-t', card) }); return; }
-  const q = e.target.closest('[data-q]'); if (q) { if (!plainClick(e)) return; e.preventDefault(); openTopic(q.dataset.q, { via: 'question', q: true, src: $('.rt', q) }); return; }
-  const gt = e.target.closest('[data-goto]'); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
-  const ld = e.target.closest('[data-land]'); if (ld) { if (!plainClick(e)) return; e.preventDefault(); const p = curPage(); const o = p && p.land && p.land[+ld.dataset.land]; if (o) { sheet.close(); openTopic(o.name, { via: 'around', hint: { gloss: o.relation, kind: o.kind } }); } return; }
-  const qz = e.target.closest('[data-qz]'); if (qz) { const t = curTrail(); const R = t && t.recall; if (R && R.picked == null) { R.picked = +qz.dataset.qz; if (R.picked === R.qs[R.i].answer) R.score++; save(); renderQuiz(); } return; }
-  if (!e.target.closest('.more')) $$('details.more[open]').forEach(d => { d.open = false; });
-  const tab = e.target.closest('[data-tab]'); if (tab) { setSIDE(tab.dataset.tab); renderSide(); return; }
-  const ixs = e.target.closest('[data-ixsort]'); if (ixs) { setIDXSORT(ixs.dataset.ixsort); renderIndex(); return; }
-  const ixk = e.target.closest('[data-ixkind]'); if (ixk) { setIDXKIND(IDXKIND === ixk.dataset.ixkind ? '' : ixk.dataset.ixkind); renderIndexList(); return; }
-  const ix = e.target.closest('[data-ix]'); if (ix) { openIndexEntry(ix.dataset.ix); return; }
-  const tr = e.target.closest('[data-trail]'); if (tr) { const t = store.trails.find(x => x.id === tr.dataset.trail); if (t) trailSheet(t); return; }
-  const br = e.target.closest('[data-bridge]'); if (br) { makeBridge(br.dataset.bridge); return; }
-  const gs = e.target.closest('[data-guess]');
+  const pt = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.ptool')); if (pt) { if (pm && pm.btn === pt) closePMenu(); else openPMenu(pt); return; }
+  if (!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('#pmenu'))) closePMenu();
+  const card = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.card[data-t]')); if (card) { if (!plainClick(e)) return; e.preventDefault(); openTopic(card.dataset.t, { via: 'card', src: $('.cd-t', card) }); return; }
+  const q = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-q]')); if (q) { if (!plainClick(e)) return; e.preventDefault(); openTopic(q.dataset.q, { via: 'question', q: true, src: $('.rt', q) }); return; }
+  const gt = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-goto]')); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
+  const ld = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-land]')); if (ld) { if (!plainClick(e)) return; e.preventDefault(); const p = curPage(); const o = p && p.land && p.land[+ld.dataset.land]; if (o) { sheet.close(); openTopic(o.name, { via: 'around', hint: { gloss: o.relation, kind: o.kind } }); } return; }
+  const qz = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-qz]')); if (qz) { const t = curTrail(); const R = t && t.recall; if (R && R.picked == null) { R.picked = +qz.dataset.qz; if (R.picked === R.qs[R.i].answer) R.score++; save(); renderQuiz(); } return; }
+  if (!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.more'))) $$('details.more[open]').forEach(d => { d.open = false; });
+  const tab = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-tab]')); if (tab) { setSIDE(tab.dataset.tab); renderSide(); return; }
+  const ixs = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-ixsort]')); if (ixs) { setIDXSORT(ixs.dataset.ixsort); renderIndex(); return; }
+  const ixk = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-ixkind]')); if (ixk) { setIDXKIND(IDXKIND === ixk.dataset.ixkind ? '' : ixk.dataset.ixkind); renderIndexList(); return; }
+  const ix = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-ix]')); if (ix) { openIndexEntry(ix.dataset.ix); return; }
+  const tr = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-trail]')); if (tr) { const t = store.trails.find(x => x.id === tr.dataset.trail); if (t) trailSheet(t); return; }
+  const br = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-bridge]')); if (br) { makeBridge(br.dataset.bridge); return; }
+  const gs = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-guess]'));
   if (gs) { const p = curPage(); if (p) { p.reveals = { ...p.reveals, [gs.dataset.guess]: true }; save(); paint(p, true); const sec = secFor(p.id); const ans = sec && $(`.panel [data-k="a"] .pn-a`, sec); if (ans) { ans.tabIndex = -1; ans.focus({ preventScroll: true }); } } return; }
-  const fold = e.target.closest('[data-fold]'); if (fold) { const p = curPage(); if (p && p.unfolds) { delete p.unfolds[fold.dataset.fold]; save(); paint(p); } return; }
-  const pc = e.target.closest('[data-peek-close]'); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) { x.open = false; save(); paint(p); } return; }
-  const pd = e.target.closest('[data-peek-dig]'); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
-  const wy = e.target.closest('a[data-way]'); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
-  const seed = e.target.closest('[data-seed]'); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
+  const fold = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fold]')); if (fold) { const p = curPage(); if (p && p.unfolds) { delete p.unfolds[fold.dataset.fold]; save(); paint(p); } return; }
+  const pc = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-close]')); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) { x.open = false; save(); paint(p); } return; }
+  const pd = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-dig]')); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
+  const wy = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[data-way]')); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
+  const seed = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-seed]')); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
   /* any other address of ours opens here, without a reload */
-  const a = e.target.closest('a[href^="/"]');
+  const a = /** @type {HTMLAnchorElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[href^="/"]'));
   if (a && plainClick(e) && !a.hasAttribute('download') && !a.target && parseRoute(new URL(a.href).pathname).view !== 'none') {
     const u = new URL(a.href); const r = parseRoute(u.pathname, u.search); e.preventDefault(); if (sheet.open) sheet.close();
     if (r.view === 'page') { const pid = pageId({ ...r.input, lens: LENSES[r.input.lens] ? r.input.lens : 'encyclopedic' }); const p = pageOf(pid); if (p && p.status !== 'empty') { openPage(p, 'link'); return; } openTopic(r.input.title, { via: 'link', lens: r.input.lens, ctx: r.input.ctx, q: r.input.q, bridge: r.input.bridge }); return; }
     go(u.pathname + u.search); return;
   }
-  const act = e.target.closest('[data-act]'); if (!act) return;
+  const act = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-act]')); if (!act) return;
   const x = act.dataset.act; if (act.tagName === 'A') e.preventDefault();
-  const md = act.closest('details.more'); if (md) md.open = false;
+  const md = /** @type {HTMLDetailsElement} */ (act.closest('details.more')); if (md) md.open = false;
   const p = curPage();
   if (x === 'surprise') surprise();
   else if (x === 'shuffle') shufflePresets();
@@ -185,20 +185,20 @@ $('#helpX').addEventListener('click', () => $('#help').close());
 $('#notesBtn').addEventListener('click', () => recapTrail(false));
 $('#exportBtn').addEventListener('click', exportTrail);
 document.addEventListener('submit', e => {
-  if (e.target.id === 'seedForm') {
+  if (/** @type {HTMLElement} */ (e.target).id === 'seedForm') {
     e.preventDefault(); const v = $('#seedIn').value.trim();
     if (!v) { $('#seedErr').textContent = 'Type anything: a topic, a question, a name.'; $('#seedIn').focus(); return; }
     $('#seedBox')?.classList.add('go'); openTopic(v, { via: 'start', src: canVT() ? seedMirror(v) : null });
-  } else if (e.target.classList.contains('ask')) {
-    e.preventDefault(); const inp = $('input', e.target); const v = inp.value.trim(); if (!v) { inp.focus(); return; }
+  } else if (/** @type {HTMLElement} */ (e.target).classList.contains('ask')) {
+    e.preventDefault(); const inp = $('input', /** @type {HTMLElement} */ (e.target)); const v = inp.value.trim(); if (!v) { inp.focus(); return; }
     openTopic(v, { via: 'ask' });
   }
 });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (!pmenu.hidden) closePMenu(true); closeMenu(true); $$('details.voice[open]').forEach(d => { d.open = false; }); if (WORLD && (WORLD.focused || WORLD.replaying)) { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); } return; }
-  const tag = (e.target.tagName || '').toLowerCase();
+  const tag = (/** @type {HTMLElement} */ (e.target).tagName || '').toLowerCase();
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (VIEW === 'home') $('#seedIn')?.focus(); else openOmni(); return; }
-  if (['input', 'textarea', 'select'].includes(tag) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (['input', 'textarea', 'select'].includes(tag) || /** @type {HTMLElement} */ (e.target).isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
   if (omni.open || sheet.open || $('#help').open || !pmenu.hidden) return;
   if (e.key === '?') { e.preventDefault(); $('#help').showModal(); return; }
   const k = e.key.toLowerCase();
