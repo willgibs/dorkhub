@@ -3,7 +3,7 @@ import { KINDS, clip, keyOf, panelLines, plain, timeOf } from '../shared/article
 import { addStep, routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { KIND_LABEL, kattr, kindOf } from './01-data.js';
-import { $, $$, errText, esc, kindHex, reducedMotion, relTime, save, store, toast, writeError, writeJSON } from './02-util.js';
+import { $, $$, errText, esc, reducedMotion, relTime, save, store, toast, writeError, writeJSON } from './02-util.js';
 import { waitHTML } from './03-orbs.js';
 import { CUR, cleanTitle, ctxInput, curPage, curTrail, go, openTopic, pageOf, parsed, shownTitle, trailPages } from './04-pages.js';
 import { buildIndex, secFor, worldIndex } from './05-render.js';
@@ -152,7 +152,7 @@ function landLabels(pts, taken, Wd) {
   return out;
 }
 function landHTML(p) {
-  const Wd = 600, Ht = 470, cx = Wd / 2, cy = Ht / 2; const glow = kindHex(p.kind);
+  const Wd = 600, Ht = 470, cx = Wd / 2, cy = Ht / 2;
   const by = {}; p.land.forEach((o, i) => { (by[o.bearing] = by[o.bearing] || []).push({ o, i }); });
   let svg = `<rect width="${Wd}" height="${Ht}" rx="14" style="fill:var(--sunken)"/>`; const taken = [];
   [1, 2, 3].forEach(d => { svg += `<circle cx="${cx}" cy="${cy}" r="${34 + d * 50}" fill="none" stroke="currentColor" stroke-opacity=".16" stroke-dasharray="2 5"/>`; });
@@ -161,7 +161,7 @@ function landHTML(p) {
   Object.entries(by).forEach(([b, arr]) => arr.forEach((x, j) => { const spread = (j - (arr.length - 1) / 2) * 24; const a = (BEARINGS[b] + spread) * Math.PI / 180; const r = 34 + x.o.distance * 50; pts.push({ ...x, x: cx + Math.cos(a) * r, y: cy + Math.sin(a) * r }); }));
   pts.forEach(q => { const r = 14 - q.o.distance * 2; taken.push({ x0: q.x - r - 2, y0: q.y - r - 2, x1: q.x + r + 2, y1: q.y + r + 2 }); svg += `<line x1="${cx}" y1="${cy}" x2="${q.x.toFixed(1)}" y2="${q.y.toFixed(1)}" stroke="currentColor" stroke-opacity=".2"/>`; });
   const centre = clip(p.title, 30); taken.push({ x0: cx - 28, y0: cy - 28, x1: cx + 28, y1: cy + 28 }, { x0: cx - centre.length * 4.2, y0: cy + 30, x1: cx + centre.length * 4.2, y1: cy + 48 });
-  svg += `<circle cx="${cx}" cy="${cy}" r="26" fill="${glow}"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Inter, system-ui, sans-serif" font-weight="800" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(centre)}</text>`;
+  svg += `<circle cx="${cx}" cy="${cy}" r="26"${kattr(p.kind) || ' data-kind="concept"'} style="fill:var(--kc)"/><text x="${cx}" y="${cy + 44}" text-anchor="middle" font-size="14" font-family="Inter, system-ui, sans-serif" font-weight="800" fill="currentColor" style="stroke:var(--sunken)" stroke-width="5" paint-order="stroke">${esc(centre)}</text>`;
   const labels = landLabels(pts, taken, Wd);
   pts.forEach(q => {
     const r = 14 - q.o.distance * 2; const l = labels.get(q);

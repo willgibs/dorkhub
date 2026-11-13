@@ -25,6 +25,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   stylesheet's comments are stripped by pattern, the script's by esbuild, which keeps only licence
   notices (comments opening with `/*!`). Anything only one view needs, like the front page's cards,
   is a separate file fetched by that view.
+  Colours come from CSS custom properties, so a theme switch (the top bar's, or the device's) restyles the page by
+  itself; what is drawn on a canvas reads its colours once, so `rerenderTheme` (`16-router.js`) tells each of them:
+  Your world and the sidebar's map, the front page's two maps, the thinking orbs and a picture still arriving (the
+  magnet's filings listen for themselves). The browser's own bar (`theme-color`) follows the reader's pick too.
 - **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (580 px
   of content; body text at 17 px sets about 67 characters a line). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
   what belongs to it (`.mcol`): its asides (`^` notes), a facts panel the writer put after it,

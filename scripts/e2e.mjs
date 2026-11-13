@@ -168,6 +168,19 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
+  /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
+  if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
+    await page.mouse.move(0, 0); await page.locator('#threadStage').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
+    const ink = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#threadStage canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 40) { n++; l += d[i] + d[i + 1] + d[i + 2]; } return n ? l / n / 3 : -1; });
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
+    const light = await ink(); if (light < 0) throw new Error('the map of threads is empty');
+    /* the switch steps Device, Light, Dark: on to Dark, then back to Device */
+    for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const dark = await ink();
+    for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const back = await ink();
+    if (Math.abs(dark - light) < 30 || Math.abs(back - light) > 6) throw new Error(`the map's ink: light ${light.toFixed(0)}, dark ${dark.toFixed(0)}, back ${back.toFixed(0)}`);
+  });
   await step(`${tag}: a page written ahead of time opens at its own address, free`, async () => {
     await page.fill('#seedIn', 'Tardigrades'); await page.press('#seedIn', 'Enter'); await waitDone();
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));

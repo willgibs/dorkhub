@@ -30,6 +30,11 @@ function wakeOrbs() {
   if (reducedMotion()) { $$('canvas.orb').forEach(c => drawOrb(c, 0.6)); return; }
   ORB_RAF = requestAnimationFrame(orbLoop);
 }
+/* the theme changed: the orbs take its ink at once, mid-wait included (a still orb is drawn again) */
+export function rethemeOrbs() {
+  if (!$('canvas.orb')) return; ORB_INK = orbInk();
+  if (!ORB_RAF) $$('canvas.orb').forEach(c => drawOrb(c, 0.6));
+}
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
