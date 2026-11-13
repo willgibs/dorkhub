@@ -35,7 +35,8 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     hover: -1, sel: -1, drag: null, focusSet: null, focusKey: '', replay: null,
     /** @type {Set<string>} */ hidden: new Set(),   // kind groups switched off
     born: new Map(),   // node index -> when it appeared (growth moments)
-    colors: null, labelOrder: [], userMoved: false, widths: new Map(), lastCenter: '', lastSave: 0,
+    colors: null, labelOrder: [], userMoved: false, widths: new Map(), lastCenter: '',
+    dirty: false,   // positions moved since they were last kept
     seenAt: 0, dashLive: false, /** @type {{ at: number, fromA: boolean }[] | null} */ tD: null, /** @type {number[] | null} */ nD: null,
     pointers: new Map(), pinch: null,
     pos: positions || store.pos,
@@ -48,6 +49,8 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
   /* the latest of what may be several changes since the last call: a map mounted just before a quick scroll
      gets "hidden" and "shown" together */
   const io = typeof IntersectionObserver === 'function' ? new IntersectionObserver(es => { S.visible = es[es.length - 1].isIntersecting; if (S.visible) wake(S); }) : null; if (io) io.observe(cv);
+  /* a tab closed mid-settle keeps where things had got to */
+  const onHide = () => keepPositions(S, true); addEventListener('pagehide', onHide);
   resize(S);
   return {
     el: cv, setData: (next, o) => setData(S, next, o), frameView: (center, instant) => frameView(S, center, instant), setFocus: (key, fly) => setFocus(S, key, fly), flyTo: (v, instant) => flyTo(S, v, instant),
@@ -57,10 +60,10 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     setHidden(set) { S.hidden = set; S.hover = -1; wake(S); },
     find(q) { const s = q.trim().toLowerCase(); if (!s) return -1; const i = S.g.nodes.findIndex(n => n.title.toLowerCase().startsWith(s)); return i >= 0 ? i : S.g.nodes.findIndex(n => n.title.toLowerCase().includes(s)); },
     select(i) { S.sel = i; S.hover = -1; if (i >= 0) { const n = S.g.nodes[i]; flyTo(S, { x: n.x, y: n.y, k: Math.max(S.cam.k, 1.4) }); setTimeout(() => { if (S.sel === i) showTip(S, i, true); }, reducedMotion() ? 0 : 680); } else hideTip(S); wake(S); },
-    sleep() { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; },
+    sleep() { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; keepPositions(S); },
     /* a map held back (the front page's, waiting its turn among the cards) traces in when asked */
     play() { S.held = false; wake(S); },
-    destroy() { S.alive = false; if (S.raf) cancelAnimationFrame(S.raf); if (ro) ro.disconnect(); if (io) io.disconnect(); keepPositions(S); cv.remove(); tip.remove(); },
+    destroy() { S.alive = false; if (S.raf) cancelAnimationFrame(S.raf); if (ro) ro.disconnect(); if (io) io.disconnect(); removeEventListener('pagehide', onHide); keepPositions(S); cv.remove(); tip.remove(); },
   };
 }
 const getPos = (S, k) => (S.pos instanceof Map ? S.pos.get(k) : S.pos[k]);
@@ -70,13 +73,13 @@ function setData(S, next, { center = '', grow = [], fit = true } = {}) {
   const old = new Map(S.g.nodes.map(n => [n.key, n]));
   /** @type {Record<string, [number, number]>} */ const seeds = {};
   for (const n of next.nodes) { const o = old.get(n.key); const p = o ? [o.x, o.y] : getPos(S, n.key); if (p) seeds[n.key] = p; }
-  const fresh = next.nodes.filter(n => !seeds[n.key]).length;
+  const fresh = next.nodes.filter(n => !seeds[n.key]).length; if (fresh) S.dirty = true;
   S.sim = createSim(next, { pos: seeds, alpha: !next.nodes.length ? 0 : fresh === next.nodes.length ? 1 : fresh || grow.length ? .32 : 0 });
   const g = S.g = next; const adj = S.adj = g.nodes.map(() => []); for (const e of g.edges) { adj[e.a].push(e.b); adj[e.b].push(e.a); }
   S.hover = -1; S.sel = -1; if (S.focusKey) setFocus(S, S.focusKey, false);
   /* a first layout settles off screen, so the world opens already shaped */
   if (fresh > g.nodes.length / 2) { tick(S.sim, S.still ? 320 : 100); if (S.still && !S.mini) { spreadIslands(S); S.sim.alpha = 0; } }
-  if (reducedMotion()) { let n = 0; while (isHot(S.sim) && n++ < 600) tick(S.sim); }
+  if (reducedMotion()) { let n = 0; while (isHot(S.sim) && n++ < 600) { tick(S.sim); S.dirty = true; } }
   const now = performance.now(); S.born.clear(); S.tD = S.nD = null;
   if (!reducedMotion()) grow.forEach((k, j) => {
     const i = g.nodes.findIndex(n => n.key === k); if (i < 0) return; S.born.set(i, now + j * 110);
@@ -103,8 +106,9 @@ function spreadIslands(S) {
 export function wake(S) { if (!S.raf && S.alive) S.raf = requestAnimationFrame(now => frame(S, now)); }
 function frame(S, now) {
   S.raf = 0; if (!S.alive) return; let busy = false; const { sim } = S;
-  if (sim && isHot(sim) && S.visible && !document.hidden) { tick(sim, 1); busy = true; }
-  else if (sim && !isHot(sim) && !S.drag && now - S.lastSave > 1500) { S.lastSave = now; keepPositions(S); }
+  if (sim && isHot(sim) && S.visible && !document.hidden) { tick(sim, 1); busy = true; S.dirty = true; }
+  /* kept once, as the layout comes to rest (a settle, a drag let go), not on every frame after it */
+  else if (sim && !isHot(sim) && !S.drag) keepPositions(S);
   if (moveCamera(S, now)) busy = true;
   for (const [i, t0] of S.born) if (now - t0 > 1100) S.born.delete(i);
   if (S.replay) { stepReplay(S, now); busy = true; }
@@ -114,8 +118,9 @@ function frame(S, now) {
   if (S.born.size || S.dashLive || (S.seenAt > 0 && now - S.seenAt < SPREAD + TRACE + 240)) busy = true;
   if (busy && S.visible && !document.hidden) wake(S);
 }
-function keepPositions(S) {
-  if (!S.g.nodes.length) return;
+/* where each topic sits, kept only when it moved since it was last kept; now: write the store at once (the page is going) */
+function keepPositions(S, now = false) {
+  if (!S.dirty || !S.g.nodes.length) return; S.dirty = false;
   for (const n of S.g.nodes) setPos(S, n.key, [Math.round(n.x * 10) / 10, Math.round(n.y * 10) / 10]);
-  if (!(S.pos instanceof Map)) save();
+  if (!(S.pos instanceof Map)) save(now);
 }
