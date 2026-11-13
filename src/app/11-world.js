@@ -26,15 +26,15 @@ export let MINI = null; export const MINI_POS = new Map();
 export function sleepMini() { if (MINI) MINI.sleep(); }
 export function renderMini(grow = []) {
   const pane = $('#worldPane'); if (!pane) return;
-  if (!pane.dataset.built) { pane.innerHTML = `<div class="mini"><div class="mini-stage" id="miniStage"></div><p class="mini-stats" id="miniStats"></p><a class="mini-open" href="/world" data-world="1">Open Your world ${ic('right')}</a></div>`; pane.dataset.built = '1'; MINI = null; }
+  if (!pane.dataset.built) { pane.innerHTML = `<div class="mini"><div class="mini-stage" id="miniStage"></div><div class="mini-stats" id="miniStats"></div><a class="mini-open" href="/world" data-world="1">Open Your world ${ic('right')}</a></div>`; pane.dataset.built = '1'; MINI = null; }
   const p = curPage(); const full = worldGraph();
   const center = p && (p.status === 'done' || p.status === 'partial') ? nodeKeyOf(p) : '';
   const start = center || (full.nodes.find(n => n.read) || {}).key || '';
   const local = start ? localGraph(full, start, 48, 12) : { nodes: [], edges: [] };
   if (!MINI) MINI = makeGraph($('#miniStage'), { mini: true, positions: MINI_POS, label: g => worldLabel(g, 'Your world around this page') });
   MINI.setData(local, { center, grow });
-  const n = worldCount(); $('#sideStats').textContent = n ? `${n} topic${n === 1 ? '' : 's'} in your world` : 'Your world starts with this page';
-  $('#miniStats').innerHTML = n ? `<b>${n}</b> read · <b>${oneClickAway()}</b> one click away` : 'Every page you finish joins your world.';
+  const n = worldCount(); $('#sideStats').textContent = n ? 'Your world near this page' : 'Your world starts with this page';
+  $('#miniStats').innerHTML = n ? `<dl class="readings"><div><dt>Read</dt><dd>${n}</dd></div><div><dt>One click away</dt><dd>${oneClickAway()}</dd></div></dl>` : '<p class="side-none">Every page you finish joins your world.</p>';
 }
 /* a page finished: it springs into the map beside it, if that map is open; otherwise only the count moves */
 export function worldGrew(p) {
@@ -46,7 +46,8 @@ export function worldGrew(p) {
 export let WORLD = null, WHIDE = new Set();
 function worldPageHTML() {
   const full = worldGraph(); const read = full.nodes.filter(n => n.read);
-  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d)).join('')}</div></div></section>`;
+  /* nothing read yet: a label and one plain sentence, then ways in */
+  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><h1 class="lbl">Your world</h1><p>Every page you read lands here as a point, joined to the pages it leads to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d)).join('')}</div></div></section>`;
   const saved = Object.values(store.pages).filter(p => p.saved && (p.status === 'done' || p.status === 'partial')).sort((a, b) => b.saved - a.saved);
   const kinds = {}; for (const n of read) { const k = kindOf(n.kind) || 'concept'; kinds[k] = (kinds[k] || 0) + 1; }
   const kindList = Object.keys(KIND_LABEL).filter(k => kinds[k]);
@@ -54,8 +55,11 @@ function worldPageHTML() {
   const trails = store.trails.filter(t => trailPages(t).length);
   const longest = trails.reduce((m, t) => Math.max(m, trailPages(t).length), 0);
   const since = Math.min(...read.map(n => n.first || Date.now()));
+  const s = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+  /* the head's counts are what the instrument reads out: each its number in the dot face, its name a label */
+  const count = (n, name) => `<span class="wp-n"><b class="dotnum">${n}</b> <span class="lbl">${name}</span></span>`;
   return `<section class="wpage">
-  <header class="wp-head"><h1>Your world</h1><p class="wp-sum"><span><b>${read.length}</b> topic${read.length === 1 ? '' : 's'} read</span><span><b>${oneClickAway()}</b> one click away</span><span><b>${saved.length}</b> saved</span></p></header>
+  <header class="wp-head"><h1>Your world</h1><p class="wp-sum">${count(read.length, read.length === 1 ? 'topic read' : 'topics read')}${count(oneClickAway(), 'one click away')}${count(saved.length, 'saved')}</p></header>
   <div class="wp-stage" id="wpStage" role="group" aria-label="A map of the ${read.length} topics you have read and the topics they link to. The lists below hold the same topics.">
     <div class="wp-bar">
       <label class="wp-find"><span class="sr">Find a topic in your world</span>${ic('search')}<input id="wpFind" type="search" placeholder="Find a topic" autocomplete="off"></label>
@@ -65,10 +69,10 @@ function worldPageHTML() {
     <p class="wp-hint">${matchMedia('(hover: hover)').matches ? 'Drag to move, scroll to zoom, click a topic to open it. Shift-click to focus.' : 'Drag to move, pinch to zoom, tap a topic for more.'}</p>
   </div>
   <div class="wp-grid">
-    <section class="wp-card"><h2>What you read</h2><div class="wp-bars" role="img" aria-label="${kindList.map(k => `${kinds[k]} ${KIND_LABEL[k].toLowerCase()}`).join(', ')}">${kindList.map(k => `<i data-kind="${k}" style="flex:${kinds[k]}"></i>`).join('')}</div><ul class="wp-legend">${kindList.map(k => `<li data-kind="${k}"><i></i>${KIND_LABEL[k]}<b>${kinds[k]}</b></li>`).join('')}</ul></section>
-    <section class="wp-card"><h2>So far</h2><dl class="wp-facts">${most && most.deg ? `<div><dt>Most connected</dt><dd><a href="${esc(routeOf(pageOf(most.pid)?.req || { title: most.title }))}" data-goto="${esc(most.pid)}">${esc(most.title)}</a>, linked to ${most.deg} topic${most.deg === 1 ? '' : 's'}</dd></div>` : ''}<div><dt>Longest trail</dt><dd>${longest} topic${longest === 1 ? '' : 's'} in one sitting</dd></div><div><dt>Since</dt><dd>${esc(new Date(since).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }))}</dd></div></dl></section>
-    <section class="wp-card"><h2>Saved</h2>${saved.length ? `<ul class="wp-list">${saved.slice(0, 12).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)}><i></i><b>${esc(p.title)}</b><span>${esc(relTime(p.saved))}</span></a></li>`).join('')}</ul>` : `<p class="wp-none">Press the star on any page to keep it here.</p>`}</section>
-    <section class="wp-card"><h2>Trails</h2><ul class="wp-list">${trails.slice(0, 8).map(t => { const ps = trailPages(t); return `<li><button type="button" data-replay="${esc(t.id)}"${tipAttrs('Replay this trail')}><i class="pl">${ic('play')}</i><b>${esc(clip(ps[0].title, 26))} → ${esc(clip(ps[ps.length - 1].title, 26))}</b><span>${ps.length} topic${ps.length === 1 ? '' : 's'}, ${esc(relTime(t.steps[t.steps.length - 1][1]))}</span></button></li>`; }).join('')}</ul></section>
+    <section class="wp-sec wp-kindsread"><h2 class="lbl">What you read</h2><div class="wp-bars" role="img" aria-label="${kindList.map(k => `${kinds[k]} ${KIND_LABEL[k].toLowerCase()}`).join(', ')}">${kindList.map(k => `<i data-kind="${k}" style="flex:${kinds[k]}"></i>`).join('')}</div><dl class="readings wp-legend">${kindList.map(k => `<div data-kind="${k}"><dt>${KIND_LABEL[k]}</dt><dd>${kinds[k]}</dd></div>`).join('')}</dl></section>
+    <section class="wp-sec"><h2 class="lbl">So far</h2><dl class="readings wp-facts">${most && most.deg ? `<div><dt>Most connected</dt><dd><a href="${esc(routeOf(pageOf(most.pid)?.req || { title: most.title }))}" data-goto="${esc(most.pid)}">${esc(most.title)}</a><span class="wp-sub">linked to ${s(most.deg, 'topic')}</span></dd></div>` : ''}<div><dt>Longest trail</dt><dd>${s(longest, 'topic')}<span class="wp-sub">in one sitting</span></dd></div><div><dt>Since</dt><dd>${esc(new Date(since).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }))}</dd></div></dl></section>
+    <section class="wp-sec wp-saved"><h2 class="lbl">Saved</h2>${saved.length ? `<ul class="wp-list">${saved.slice(0, 12).map(p => `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)}><span class="wp-meta"><span class="lbl">${esc(p.kind || 'page')}</span><span class="lbl">${esc(relTime(p.saved))}</span></span><b>${esc(p.title)}</b></a></li>`).join('')}</ul>` : `<p class="wp-none">Press the star on any page to keep it here.</p>`}</section>
+    <section class="wp-sec wp-trails"><h2 class="lbl">Trails</h2>${trails.length ? `<ul class="wp-list">${trails.slice(0, 8).map(t => { const ps = trailPages(t); return `<li><button type="button" data-replay="${esc(t.id)}"${tipAttrs('Replay this trail')}><span class="wp-meta"><span class="lbl">${s(ps.length, 'topic')}</span><span class="lbl">${esc(relTime(t.steps[t.steps.length - 1][1]))}</span><i class="pl">${ic('play')}</i></span><b>${esc(clip(ps[0].title, 60))}${ps.length > 1 ? ` <span class="wp-to">→</span> ${esc(clip(ps[ps.length - 1].title, 60))}` : ''}</b></button></li>`; }).join('')}</ul>` : `<p class="wp-none">Each sitting you read becomes a trail here, ready to replay across the map.</p>`}</section>
   </div>
 </section>`;
 }

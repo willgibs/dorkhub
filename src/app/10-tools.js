@@ -36,7 +36,7 @@ export function toggleSide(open) {
 export function renderIndex() {
   const pane = $('#indexPane');
   if (!pane.dataset.built) {
-    pane.innerHTML = `<div class="ix-tools"><label class="sr" for="ixq">Filter the index</label><input id="ixq" type="search" placeholder="Filter everything you’ve met" autocomplete="off"><div class="ix-sort" role="group" aria-label="Sort the index"><button type="button" data-ixsort="az">A–Z</button><button type="button" data-ixsort="echo">Most mentioned</button></div><div class="ix-kinds" id="ixKinds" role="group" aria-label="Filter by kind"></div></div><div class="ix-list" id="ixList"></div>`;
+    pane.innerHTML = `<div class="ix-tools"><label class="sr" for="ixq">Filter the index</label><input id="ixq" type="search" placeholder="Filter everything you’ve met" autocomplete="off"><div class="ix-sort" role="group" aria-label="Sort the index"><button class="lbl" type="button" data-ixsort="az">A–Z</button><button class="lbl" type="button" data-ixsort="echo">Most mentioned</button></div><div class="ix-kinds" id="ixKinds" role="group" aria-label="Filter by kind"></div></div><div class="ix-list" id="ixList"></div>`;
     pane.dataset.built = '1';
     $('#ixq').addEventListener('input', e => { IDXQ = e.target.value.trim().toLowerCase(); renderIndexList(); });
   }
@@ -48,16 +48,16 @@ export function renderIndexList() {
   $('#sideStats').textContent = `${all.length} things you’ve met, ${read} read`;
   const kinds = [...new Set(all.map(e => kindOf(e.kind)).filter(Boolean))].sort((a, b) => Object.keys(KIND_LABEL).indexOf(a) - Object.keys(KIND_LABEL).indexOf(b));
   if (IDXKIND && !kinds.includes(IDXKIND)) IDXKIND = '';
-  const kx = $('#ixKinds'); if (kx) kx.innerHTML = kinds.length > 1 ? kinds.map(k => `<button type="button" data-ixkind="${k}" data-kind="${k}" aria-pressed="${IDXKIND === k}"><i></i>${KIND_LABEL[k]}</button>`).join('') : '';
+  const kx = $('#ixKinds'); if (kx) kx.innerHTML = kinds.length > 1 ? kinds.map(k => `<button class="lbl" type="button" data-ixkind="${k}" data-kind="${k}" aria-pressed="${IDXKIND === k}">${KIND_LABEL[k]}</button>`).join('') : '';
   const list = all.filter(e => (!IDXKIND || kindOf(e.kind) === IDXKIND) && (!IDXQ || e.name.toLowerCase().includes(IDXQ) || (e.gloss || '').toLowerCase().includes(IDXQ)));
   if (IDXSORT === 'echo') list.sort((a, b) => b.mentions.size - a.mentions.size || a.name.localeCompare(b.name));
   else list.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
   let h = '', letter = '';
   for (const e of list.slice(0, 600)) {
-    if (IDXSORT === 'az') { const L = (e.name.replace(/^(the|a|an)\s+/i, '')[0] || '#').toUpperCase(); const LL = /[A-Z]/.test(L) ? L : '#'; if (LL !== letter) { letter = LL; h += `<h3>${LL}</h3>`; } }
-    h += `<button class="ix${e.page ? ' is-read' : ''}" type="button" data-ix="${esc(e.key)}"${kattr(e.kind)}><span class="ix-n"><i class="kdot" aria-hidden="true"></i>${esc(e.name)}${e.page ? '<i>read</i>' : ''}</span>${e.gloss ? `<span class="ix-g">${esc(e.gloss)}</span>` : ''}<span class="ix-m">${e.kind ? esc(e.kind) + ', ' : ''}${e.mentions.size ? `on ${e.mentions.size} of your page${e.mentions.size === 1 ? '' : 's'}` : 'a page you read'}</span></button>`;
+    if (IDXSORT === 'az') { const L = (e.name.replace(/^(the|a|an)\s+/i, '')[0] || '#').toUpperCase(); const LL = /[A-Z]/.test(L) ? L : '#'; if (LL !== letter) { letter = LL; h += `<h3 class="lbl">${LL}</h3>`; } }
+    h += `<button class="ix${e.page ? ' is-read' : ''}" type="button" data-ix="${esc(e.key)}"${kattr(e.kind)}><span class="ix-top">${e.kind ? `<span class="lbl ix-k">${esc(e.kind)}</span>` : ''}${e.page ? '<span class="lbl">read</span>' : ''}<span class="lbl ix-m">${e.mentions.size ? `on ${e.mentions.size} of your page${e.mentions.size === 1 ? '' : 's'}` : 'a page you read'}</span></span><span class="ix-n">${esc(e.name)}</span>${e.gloss ? `<span class="ix-g">${esc(e.gloss)}</span>` : ''}</button>`;
   }
-  $('#ixList').innerHTML = h || `<p class="ix-empty">${IDXQ ? `Nothing you’ve met matches “${esc(IDXQ)}”.` : 'The index fills in as pages finish writing.'}</p>`;
+  $('#ixList').innerHTML = h || `<p class="side-none">${IDXQ ? `Nothing you’ve met matches “${esc(IDXQ)}”.` : 'The index fills in as pages finish writing.'}</p>`;
 }
 export function openIndexEntry(key) {
   const e = buildIndex().find(x => x.key === key); if (!e) return;
@@ -71,8 +71,8 @@ function renderTrails() {
   $('#sideStats').textContent = `${ts.length} trail${ts.length === 1 ? '' : 's'}`;
   $('#trailsPane').innerHTML = ts.length ? `<ol class="trails">${ts.map((t, i) => {
     const ps = trailPages(t); const last = t.steps[t.steps.length - 1][1];
-    return `<li><button type="button" data-trail="${esc(t.id)}"><span class="tr-h"><b>${i === 0 ? 'This trail' : esc(relTime(last))}</b><em>${ps.length} topic${ps.length === 1 ? '' : 's'}</em></span><span class="tr-path">${ps.slice(0, 5).map(p => `<i${kattr(p.kind || (p.hint && p.hint.kind))}></i>${esc(clip(p.title, 28))}`).join('<span aria-hidden="true">→</span>')}${ps.length > 5 ? '<span aria-hidden="true">…</span>' : ''}</span></button></li>`;
-  }).join('')}</ol>` : `<p class="ix-empty">Your trails gather here: each sitting, page by page.</p>`;
+    return `<li><button type="button" data-trail="${esc(t.id)}"><span class="tr-h"><span class="lbl">${i === 0 ? 'This trail' : esc(relTime(last))}</span><span class="lbl">${ps.length} topic${ps.length === 1 ? '' : 's'}</span></span><span class="tr-path">${ps.slice(0, 5).map((p, j) => `<span class="tr-s">${j ? '<span class="tr-a" aria-hidden="true">→</span>' : ''}<i${kattr(p.kind || (p.hint && p.hint.kind))}></i>${esc(p.title)}</span>`).join(' ')}${ps.length > 5 ? `<span class="tr-a">and ${ps.length - 5} more</span>` : ''}</span></button></li>`;
+  }).join('')}</ol>` : `<p class="side-none">Each sitting you read becomes a trail here, page by page.</p>`;
 }
 
 /* ---------- deep time: every dated moment you've read, on one line ---------- */
@@ -90,9 +90,9 @@ function renderTime() {
   let h = '';
   ev.forEach((e, i) => {
     if (i > 0) { const d = e.y - ev[i - 1].y; if (d >= 400) h += `<li class="gap" aria-hidden="true"><span>${gapLabel(d)} pass</span></li>`; }
-    h += `<li><a href="${esc(routeOf(e.p.req))}" data-goto="${esc(e.p.id)}"${kattr(e.p.kind)}><b>${esc(e.when)}</b><span>${esc(plain(e.s))}</span><em>${esc(clip(e.p.title, 36))}</em></a></li>`;
+    h += `<li><a href="${esc(routeOf(e.p.req))}" data-goto="${esc(e.p.id)}"${kattr(e.p.kind)}><b>${esc(e.when)}</b><span>${esc(plain(e.s))}</span><em class="lbl">${esc(clip(e.p.title, 40))}</em></a></li>`;
   });
-  $('#timePane').innerHTML = ev.length ? `<ol class="dtime">${h}</ol>` : `<p class="ix-empty">No dated moments yet. Pages with a real chronology add their timelines here, and they all merge into one line through time.</p>`;
+  $('#timePane').innerHTML = ev.length ? `<ol class="dtime">${h}</ol>` : `<p class="side-none">No dated moments yet. Pages with a timeline add theirs here, on one line through time.</p>`;
 }
 
 /* ================= connect this page to any topic you've read ================= */

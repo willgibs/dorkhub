@@ -156,13 +156,18 @@ body.at-start .prog{display:none}
 body.at-start .shell,body.at-world .shell{grid-template-columns:minmax(0,1fr)}
 body.at-start .side,body.at-world .side{display:none!important}
 .side{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--top-h));height:calc(100dvh - var(--top-h) - env(safe-area-inset-top,0px));display:flex;flex-direction:column;border-right:1px solid var(--line);background:var(--base);view-transition-name:sidebar}
-.side-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:12px 14px 8px}
-.side-head p{flex-basis:100%;font-size:12.5px;color:var(--faint)}
-.stabs{display:flex;gap:14px}
-.stabs button{padding:4px 0;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mute);font:600 13.5px var(--f-ui);cursor:pointer}
-.stabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc)}
+/* the sidebar's head: its four tabs are labels on one hairline, the open one in ink with an ink rule under it */
+.side-head{display:grid;gap:10px;padding:12px 12px 6px}
+.stabs{display:flex;gap:16px;border-bottom:1px solid var(--line)}
+.stabs button{margin-bottom:-1px;padding:6px 0 8px;border:0;border-bottom:1px solid transparent;background:transparent;color:var(--faint);font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;cursor:pointer;transition:color var(--d-quick) var(--ease-out),border-color var(--d-quick) var(--ease-out)}
+.stabs button:hover{color:var(--ink)}
+.stabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.side-head p{min-height:14px}
 .side-pane{flex:1;min-height:0;overflow:auto}
 .side-foot{display:flex;align-items:center;gap:2px;padding:10px 12px 12px;border-top:1px solid var(--line)}
+/* an empty tab: one plain sentence */
+.side-none{padding:10px 12px;font:400 13.5px/1.5 var(--f-ui);color:var(--mute);text-wrap:pretty}
+.mini .side-none{padding:0}
 /* closed, the sidebar takes no room at all; its toggle lives in the top bar. Its contents keep their
    width while it slides, and drop out of the tab order once it has gone */
 .side>*{min-width:288px}
@@ -171,39 +176,46 @@ body.at-start .side,body.at-world .side{display:none!important}
   body.side-closed{--side-w:0px}
   body.side-closed .side{visibility:hidden;border-right-width:0;transition:visibility 0s linear var(--d-medium),border-right-width 0s linear var(--d-medium)}
 }
-.ix-tools{position:sticky;top:0;z-index:1;display:grid;gap:8px;padding:8px 12px 10px;background:var(--base)}
-.ix-tools input{width:100%;padding:7px 11px;border:1px solid var(--line-2);border-radius:8px;background:transparent;font:14px var(--f-ui)}
-.ix-sort{display:flex;gap:12px}
-.ix-sort button{padding:2px 0;border:0;background:transparent;color:var(--mute);font:600 12.5px var(--f-ui);cursor:pointer}
-.ix-sort button[aria-pressed="true"]{color:var(--ink);text-decoration:underline;text-decoration-color:var(--acc);text-underline-offset:4px}
-.ix-list{padding:0 6px 12px}
-.ix-list h3{margin:14px 8px 2px;font:600 12px var(--f-mono);color:var(--faint);font-variant-numeric:tabular-nums}
-.ix{display:grid;gap:1px;width:100%;padding:6px 8px;border:0;border-radius:7px;background:transparent;text-align:left;cursor:pointer;color:var(--ink)}
-.ix:hover,.ix:focus-visible{background:var(--panel)}
+/* the index: a filter on a hairline, sorts and kinds as labels, then rows on hairlines under each letter */
+.ix-tools{position:sticky;top:0;z-index:1;display:grid;gap:10px;padding:4px 12px 10px;background:var(--base)}
+.ix-tools input{width:100%;padding:7px 0;border:0;border-bottom:1px solid var(--line-2);border-radius:0;background:transparent;font:500 14px var(--f-ui);outline:none;transition:border-color var(--d-quick) var(--ease-out)}
+.ix-tools input:focus{border-bottom-color:var(--ink)}
+.ix-tools input::placeholder{color:var(--faint)}
+.ix-sort{display:flex;gap:14px}
+.ix-sort button{padding:2px 0;border:0;background:transparent;color:var(--faint);cursor:pointer}
+.ix-sort button:hover,.ix-sort button[aria-pressed="true"]{color:var(--ink)}
+.ix-sort button[aria-pressed="true"]{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.ix-list{padding:0 12px 12px}
+.ix-list h3{display:flex;align-items:center;gap:10px;margin:16px 0 0;padding-bottom:6px;border-bottom:1px solid var(--line-2)}
+.ix-list h3:first-child{margin-top:6px}
+.ix{display:grid;gap:3px;width:100%;padding:9px 0 10px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;cursor:pointer;color:var(--ink);transition:background-color var(--d-quick) var(--ease-out)}
+.ix:hover,.ix:focus-visible{background:linear-gradient(90deg,var(--panel),transparent)}
+.ix-top{display:flex;align-items:baseline;gap:8px}
+.ix-m{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:500}
 .ix-n{font:600 14px/1.3 var(--f-ui)}
-.ix-n i{margin-left:6px;font:600 11px var(--f-ui);font-style:normal;color:var(--acc)}
 .ix-g{font:400 13px/1.4 var(--f-ui);color:var(--mute)}
-.ix-m{font-size:11.5px;color:var(--faint)}
-.ix-empty{padding:14px;font-size:13.5px;color:var(--mute)}
+/* deep time: every dated moment on one hairline, each a point in its page's kind */
 .dtime{list-style:none;margin:0;padding:8px 12px 14px 22px;position:relative}
 .dtime::before{content:"";position:absolute;left:22px;top:14px;bottom:14px;width:1px;background:var(--line-2)}
 .dtime li{position:relative}
-.dtime a{display:grid;gap:1px;padding:6px 8px 6px 16px;border-radius:7px;color:var(--ink);text-decoration:none}
-.dtime a:hover{background:var(--panel)}
-.dtime a::before{content:"";position:absolute;left:-4px;top:12px;width:9px;height:9px;border-radius:50%;background:var(--kc,var(--acc));box-shadow:0 0 0 3px var(--base)}
+.dtime a{display:grid;gap:2px;padding:7px 8px 7px 16px;color:var(--ink);text-decoration:none;transition:background-color var(--d-quick) var(--ease-out)}
+.dtime a:hover{background:linear-gradient(90deg,var(--panel),transparent)}
+.dtime a::before{content:"";position:absolute;left:-3.5px;top:13px;width:8px;height:8px;border-radius:50%;background:var(--kc,var(--faint));box-shadow:0 0 0 3px var(--base)}
 .dtime b{font:600 13px var(--f-mono);font-variant-numeric:tabular-nums}
 .dtime span{font:400 13.5px/1.4 var(--f-ui)}
-.dtime em{font:400 11.5px var(--f-ui);font-style:normal;color:var(--faint)}
-.dtime .gap{padding:4px 0 4px 16px;font:400 12px var(--f-ui);color:var(--faint)}
-/* trails, newest first: each sitting as a line of the topics it passed through */
-.trails{list-style:none;margin:0;padding:6px 6px 12px;display:grid;gap:2px}
-.trails button{display:grid;gap:4px;width:100%;padding:9px 8px;border:0;border-radius:9px;background:transparent;color:var(--ink);text-align:left;cursor:pointer}
-.trails button:hover{background:var(--panel)}
-.tr-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font:600 13.5px var(--f-ui)}
-.tr-h em{font:500 12px var(--f-ui);font-style:normal;color:var(--faint)}
-.tr-path{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font:400 12.5px/1.4 var(--f-ui);color:var(--mute)}
-.tr-path i{display:inline-block;width:6px;height:6px;margin-right:4px;border-radius:50%;background:var(--kc,var(--line-2))}
-.tr-path>span{color:var(--faint)}
+.dtime em{font-style:normal}
+.dtime a[data-kind] em{color:var(--kc)}
+.dtime .gap{padding:4px 0 4px 16px;font:400 12px var(--f-ui);font-style:italic;color:var(--faint)}
+/* trails, newest first: each sitting a row on a hairline, a label line over the topics it passed through */
+.trails{list-style:none;margin:0;padding:0 12px 12px;display:grid}
+.trails button{display:grid;gap:6px;width:100%;padding:10px 0 11px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer;transition:background-color var(--d-quick) var(--ease-out)}
+.trails button:hover{background:linear-gradient(90deg,var(--panel),transparent)}
+.tr-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.trails li:first-child .tr-h .lbl:first-child{color:var(--ink)}
+.tr-path{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font:500 13px/1.45 var(--f-ui);color:var(--ink)}
+.tr-s{display:inline-flex;align-items:baseline;gap:5px;min-width:0;overflow-wrap:anywhere}
+.tr-s i{flex:none;display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--kc,var(--line-2));transform:translateY(-1px)}
+.tr-a{margin-right:1px;color:var(--faint);font-weight:400}
 /* ================= front page ================= */
 .status{display:flex;align-items:flex-start;gap:9px;margin-top:24px;max-width:40em;font-size:13px;color:var(--faint)}
 .status .btn{margin-top:10px}
@@ -801,14 +813,13 @@ body.at-start .omni-btn{display:none}
 .row[data-kind] .rk,.om-i[data-kind] .oi,.card[data-kind] .cd-n{color:var(--kc)}
 .row[data-kind]:hover{background:color-mix(in srgb,var(--kc) 7%,var(--panel))}
 .kdot{display:none}
-/* the dot hangs beside the name's first line, so a name too long for the sidebar wraps under itself, not under the dot */
-.ix[data-kind] .ix-n{position:relative;padding-left:14px}
-.ix[data-kind] .kdot{position:absolute;left:0;top:.48em;display:block;width:7px;height:7px;border-radius:50%;background:var(--kc)}
-.ix-kinds{display:flex;flex-wrap:wrap;gap:4px}
-.ix-kinds button{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border:1px solid var(--line);border-radius:999px;background:transparent;color:var(--mute);font:600 12px var(--f-ui);cursor:pointer}
-.ix-kinds button i{width:7px;height:7px;border-radius:50%;background:var(--kc)}
-.ix-kinds button[aria-pressed="true"]{border-color:var(--kc);color:var(--kc);background:color-mix(in srgb,var(--kc) 9%,transparent)}
-
+/* the index's kinds: each its word in its colour; choosing one quiets the rest */
+.ix-kinds{display:flex;flex-wrap:wrap;gap:4px 12px}
+.ix-kinds button{padding:2px 0;border:0;background:transparent;color:var(--kc);cursor:pointer;transition:opacity var(--d-quick) var(--ease-out)}
+.ix-kinds:has([aria-pressed="true"]) button:not([aria-pressed="true"]){opacity:.4}
+.ix-kinds button:hover{opacity:1!important}
+.ix-kinds button[aria-pressed="true"]{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.ix[data-kind] .ix-k{color:var(--kc)}
 /* ================= tooltips and icons ================= */
 .tip{position:fixed;left:0;top:0;z-index:95;max-width:280px;padding:6px 9px;border-radius:var(--r-1);background:var(--ink);color:var(--base);font:500 12.5px/1.4 var(--f-ui);pointer-events:none;opacity:0;transform:scale(var(--scale-s));transform-origin:50% 100%;box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
 .tip.on{opacity:1;transform:none;transition:opacity var(--d-quick) ease-out,transform var(--d-quick) ease-out}
@@ -975,63 +986,79 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .gt-l b{color:var(--mute);font-weight:600}
 .gt-a{display:flex;gap:6px;margin-top:10px}
 .gt-a .btn{padding:6px 11px;font-size:13px}
-/* the full page */
+/* the full page: the map, and around it the same instrument's readouts. Labels, readings and hairlines, no boxes */
 .wpage{max-width:1240px;margin:0 auto;padding:28px clamp(16px,3vw,40px) calc(56px + env(safe-area-inset-bottom,0px))}
-.wp-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 24px;margin-bottom:16px}
+.wp-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 32px;margin-bottom:18px}
 .wp-head h1{font:700 clamp(28px,3.4vw,40px)/1.05 var(--f-ui);letter-spacing:-.025em}
-.wp-sum{display:flex;flex-wrap:wrap;gap:4px 18px;font:500 14px var(--f-ui);color:var(--mute)}
-.wp-sum b{font:700 15px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
-/* the stage: deep paper with a little light in the middle, the showpiece in the dark */
+/* the counts the instrument reads out: a label over a number in the dot face, each on its own hairline */
+.wp-sum{display:flex;flex-wrap:wrap;gap:0}
+.wp-n{display:flex;flex-direction:column-reverse;gap:7px;min-width:96px;padding:0 0 0 16px;border-left:1px solid var(--line-2)}
+.wp-n+.wp-n{margin-left:24px}
+.wp-n .dotnum{font-size:34px;line-height:.86;color:var(--ink)}
+.wp-n .lbl{white-space:nowrap}
+/* the stage: deep paper, a flat instrument panel */
 .wp-stage{position:relative;height:min(68vh,680px);min-height:380px;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 .wp-bar{position:absolute;left:12px;right:12px;top:12px;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;pointer-events:none}
 .wp-bar>*{pointer-events:auto}
-.wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:var(--sh-1);color:var(--faint)}
+/* the map's own controls sit on it flat: the stage's colour, a hairline, no shadow and no glow */
+.wp-find,.wp-kinds,.wp-acts{border-radius:var(--r-pill);background:color-mix(in srgb,var(--stage) 86%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px var(--line-2)}
+.wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;color:var(--faint)}
 .wp-find .ic{width:16px;height:16px}
 .wp-find input{width:min(200px,38vw);border:0;background:transparent;font:500 14px var(--f-ui);color:var(--ink);outline:none}
-.wp-kinds{display:inline-flex;gap:2px;height:36px;padding:0 6px;align-items:center;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:var(--sh-1)}
+.wp-kinds{display:inline-flex;gap:2px;height:36px;padding:0 6px;align-items:center}
 .wp-kinds button{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
-.wp-kinds i{width:10px;height:10px;border-radius:50%;background:var(--kc);box-shadow:0 0 8px color-mix(in srgb,var(--kc) 60%,transparent);transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
-.wp-kinds button[aria-pressed="false"] i{opacity:.22;box-shadow:none;transform:scale(.8)}
+.wp-kinds i{width:9px;height:9px;border-radius:50%;background:var(--kc);transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
+.wp-kinds button[aria-pressed="false"] i{opacity:1;background:transparent;box-shadow:inset 0 0 0 1.25px color-mix(in srgb,var(--kc) 55%,transparent);transform:scale(.85)}
 .wp-kinds button:hover{background:var(--panel)}
-.wp-acts{display:inline-flex;gap:2px;margin-left:auto;padding:2px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 88%,transparent);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:var(--sh-1)}
+.wp-acts{display:inline-flex;gap:2px;margin-left:auto;padding:2px}
 .wp-acts .tool.ib{width:32px;height:32px;border-radius:50%}
-.wp-acts .tool[aria-pressed="true"]{color:var(--acc)}
+.wp-acts .tool[aria-pressed="true"]{color:var(--ink);background:var(--panel)}
 .wp-hint{position:absolute;left:0;right:0;bottom:12px;z-index:1;text-align:center;font:500 12px var(--f-ui);color:var(--faint);pointer-events:none}
-.wp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
-.wp-card{min-width:0;padding:16px 18px 18px;border-radius:var(--r-3);background:var(--surface);box-shadow:var(--sh-1)}
-.wp-card h2{margin-bottom:12px;font:700 14px/1.2 var(--f-ui);color:var(--mute)}
-.wp-bars{display:flex;gap:3px;height:10px}
-.wp-bars i{min-width:4px;border-radius:3px;background:var(--kc)}
-.wp-legend{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:4px;font:500 13.5px var(--f-ui)}
-.wp-legend li{display:flex;align-items:center;gap:8px;color:var(--mute)}
-.wp-legend i{width:8px;height:8px;border-radius:50%;background:var(--kc)}
-.wp-legend b{margin-left:auto;font:600 13px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
-.wp-facts{margin:0;display:grid;gap:10px}
-.wp-facts dt{font:500 12px var(--f-ui);color:var(--faint)}
-.wp-facts dd{margin:1px 0 0;font:600 14.5px/1.4 var(--f-ui)}
-.wp-facts a{color:var(--ink);text-decoration-color:var(--line-2);text-underline-offset:3px}
-.wp-list{list-style:none;margin:0;padding:0;display:grid}
-.wp-list a,.wp-list button{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:0 9px;width:100%;padding:7px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;text-decoration:none;cursor:pointer;font:600 14px/1.35 var(--f-ui)}
-.wp-list li:last-child a,.wp-list li:last-child button{border-bottom:0}
-.wp-list a:hover,.wp-list button:hover{background:var(--panel)}
-.wp-list i{width:8px;height:8px;border-radius:50%;background:var(--kc,var(--acc))}
-.wp-list i.pl{display:grid;place-items:center;width:20px;height:20px;background:var(--panel);color:var(--mute)}
+/* below the map: four readouts, each a label on a rule, then readings or rows on hairlines */
+.wp-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:36px 32px;margin-top:36px}
+.wp-sec{min-width:0}
+.wp-sec>h2{display:flex;align-items:center;gap:12px;margin:0 0 12px}
+.wp-sec>h2::after{content:"";flex:1;height:1px;background:var(--line)}
+/* what you read, by kind: one flat bar in the kinds' colours, square-ended and hairline-thin, like the map's lines */
+.wp-bars{display:flex;gap:2px;height:4px;margin:4px 0 14px}
+.wp-bars i{min-width:3px;background:var(--kc)}
+.wp-legend>div[data-kind] dt{color:var(--kc)}
+.wp-legend dd,.wp-facts dd{font-weight:500}
+.wp-legend>div{padding:7px 0 6px}
+.wp-legend dd{text-align:right}
+.wp-legend{grid-template-columns:minmax(0,1fr) auto}
+.wp-facts a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-2);text-decoration-thickness:1px;text-underline-offset:3px}
+.wp-facts a:hover{text-decoration-color:currentColor}
+.wp-sub{display:block;margin-top:1px;font:400 13px/1.4 var(--f-ui);color:var(--mute)}
+/* saved and trails: rows on hairlines, the kind a word in its colour over a name kept whole */
+.wp-list{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--line-2)}
+.wp-list a,.wp-list button{display:grid;gap:5px;width:100%;padding:11px 0 12px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;text-decoration:none;cursor:pointer;font:600 14.5px/1.35 var(--f-ui);transition:background-color var(--d-quick) var(--ease-out)}
+.wp-list a:hover,.wp-list button:hover,.wp-list a:focus-visible,.wp-list button:focus-visible{background:linear-gradient(90deg,var(--panel),transparent)}
+.wp-meta{display:flex;align-items:center;gap:10px}
+.wp-meta .lbl+.lbl{margin-left:auto}
+.wp-list a[data-kind] .wp-meta .lbl:first-child{color:var(--kc)}
+.wp-list b{font-weight:600;overflow-wrap:anywhere}
+.wp-to{color:var(--faint);font-weight:400}
+.wp-list i.pl{display:grid;place-items:center;width:16px;height:16px;margin-left:-2px;color:var(--faint);transition:color var(--d-quick) var(--ease-out)}
 .wp-list i.pl .ic{width:11px;height:11px}
-.wp-list b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wp-list span{grid-column:2;font:400 12.5px var(--f-ui);color:var(--faint)}
-.wp-none{font:400 14px/1.5 var(--f-ui);color:var(--faint)}
-.wpage.empty{display:grid;place-items:center;min-height:calc(100svh - var(--top-h) - 80px)}
-.wp-empty{max-width:34em;text-align:center}
-.wp-glyph{display:inline-grid;place-items:center;width:64px;height:64px;margin-bottom:18px;border-radius:50%;background:var(--panel);color:var(--acc)}
-.wp-glyph .ic{width:30px;height:30px}
-.wp-empty h1{font:700 clamp(26px,3vw,34px)/1.15 var(--f-ui);letter-spacing:-.02em;text-wrap:balance}
-.wp-empty p{margin-top:10px;font:400 16.5px/1.55 var(--f-ui);color:var(--mute)}
-.wp-doors{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px}
+.wp-list button:hover i.pl{color:var(--ink)}
+.wp-none{padding-top:11px;border-top:1px solid var(--line-2);font:400 14px/1.5 var(--f-ui);color:var(--mute);text-wrap:pretty}
+/* nothing read yet: a label and one plain sentence, then ways in */
+.wpage.empty{display:grid;align-items:center;min-height:calc(100svh - var(--top-h) - 80px)}
+.wp-empty{max-width:560px;margin:0 auto;padding-top:14px;border-top:1px solid var(--line-2)}
+.wp-empty p{margin-top:12px;font:500 clamp(20px,2.2vw,24px)/1.35 var(--f-ui);letter-spacing:-.012em;color:var(--ink);text-wrap:pretty}
+.wp-doors{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
 @media (max-width:1100px){ .wp-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:560px){
   .wpage{padding-top:18px}
+  .wp-head{gap:16px}
+  .wp-sum{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .wp-n{min-width:0;padding-left:10px}
+  .wp-n+.wp-n{margin-left:10px}
+  .wp-n .dotnum{font-size:28px}
+  .wp-n .lbl{white-space:normal}
   .wp-stage{height:64svh;min-height:360px;border-radius:var(--r-3)}
-  .wp-grid{grid-template-columns:minmax(0,1fr)}
+  .wp-grid{grid-template-columns:minmax(0,1fr);gap:32px;margin-top:28px}
   /* one row on a phone: find and the four tools; the kind filters wait for a wider screen */
   .wp-bar{left:8px;right:8px;top:8px;flex-wrap:nowrap}
   .wp-kinds{display:none}
@@ -1040,13 +1067,14 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
   .wp-hint{display:none}
 }
 /* the small map beside a page */
-.mini{display:grid;gap:8px;padding:2px 12px 14px}
+.mini{display:grid;gap:12px;padding:2px 12px 14px}
 .mini-stage{position:relative;height:260px;border-radius:var(--r-2);background:var(--stage);box-shadow:inset 0 0 0 1px var(--line);overflow:hidden}
 :root[data-theme="dark"] .mini-stage{background:#08090B}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .mini-stage{background:#08090B} }
 .mini .gv-tip{width:calc(100% - 16px);font-size:12.5px}
-.mini-stats{font:500 12.5px var(--f-ui);color:var(--faint)}
-.mini-stats b{font:600 12.5px var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.mini-stats .readings{grid-template-columns:minmax(0,1fr) auto}
+.mini-stats .readings>div{padding:8px 0 7px}
+.mini-stats dd{font-size:14px;text-align:right}
 .mini-open{display:inline-flex;align-items:center;gap:4px;justify-self:start;font:600 13px var(--f-ui);color:var(--ink);text-decoration:none}
 .mini-open .ic{width:14px;height:14px;transition:transform var(--d-fast) var(--ease-out)}
 .mini-open:hover .ic{transform:translateX(2px)}

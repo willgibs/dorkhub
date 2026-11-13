@@ -509,7 +509,7 @@ async function run(page, { mobile = false } = {}) {
     await step(`${tag}: Your world`, async () => {
       const saved = await page.evaluate(() => document.querySelector('.a-title')?.textContent || '');
       await page.keyboard.press('g'); await page.waitForSelector('#wpStage canvas');
-      const w = await page.evaluate(() => ({ url: location.pathname, sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent), label: document.querySelector('#wpStage')?.getAttribute('aria-label') || '' }));
+      const w = await page.evaluate(() => ({ url: location.pathname, sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-saved .wp-list b')].map(b => b.textContent), label: document.querySelector('#wpStage')?.getAttribute('aria-label') || '' }));
       if (w.url !== '/world' || !/topics read/.test(w.sum) || !w.saved.includes(saved) || !/topics you have read/.test(w.label)) throw new Error(`your world: ${JSON.stringify(w)}`);
       await page.waitForTimeout(1200); await page.screenshot({ path: `${shots}/${tag}-7-world.png` });
       /* finding a topic flies to it, and its card opens it */
@@ -624,7 +624,7 @@ async function movingIn() {
     await page.waitForSelector('.a-end .card');
     if (writes) throw new Error('a page you had read was written again');
     await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas');
-    const w = await page.evaluate(() => ({ sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent) }));
+    const w = await page.evaluate(() => ({ sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-saved .wp-list b')].map(b => b.textContent) }));
     if (!/2 topics read/.test(w.sum) || !w.saved.includes('Old topic two')) throw new Error(`moved in: ${JSON.stringify(w)}`);
   });
   await ctx.close();
