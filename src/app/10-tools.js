@@ -1,14 +1,26 @@
 /* ================= the sidebar: Your world beside the page, your index, your trails, deep time ================= */
-let SIDE = 'world', IDXQ = '', IDXSORT = 'az', IDXKIND = '';
-const narrow = () => matchMedia('(max-width: 900px)').matches;
-const sideClosed = () => store.settings.side !== 'open' || narrow();
+import { KINDS, clip, keyOf, panelLines, plain, timeOf } from '../shared/article.js';
+import { addStep, routeOf, topicKey } from '../shared/world.js';
+import { nodeKeyOf } from '../shared/graph.js';
+import { KIND_LABEL, kattr, kindOf } from './01-data.js';
+import { $, $$, errText, esc, kindHex, reducedMotion, relTime, save, store, toast, writeError, writeJSON } from './02-util.js';
+import { waitHTML } from './03-orbs.js';
+import { CUR, cleanTitle, ctxInput, curPage, curTrail, go, openTopic, pageOf, parsed, shownTitle, trailPages } from './04-pages.js';
+import { buildIndex, secFor, worldIndex } from './05-render.js';
+import { paintTools } from './06-page-end.js';
+import { openSheet, setSheetCtl, sheet, sheetCtl } from './08-sheets.js';
+import { renderMini, sleepMini } from './11-world.js';
+import { VIEW } from './16-router.js';
+export let SIDE = 'world', IDXQ = '', IDXSORT = 'az', IDXKIND = '';
+export const narrow = () => matchMedia('(max-width: 900px)').matches;
+export const sideClosed = () => store.settings.side !== 'open' || narrow();
 /* the sidebar opens and closes from its toggle in the top bar (or M); closed, it takes no room at all */
-function applySide() {
+export function applySide() {
   const open = store.settings.side === 'open'; document.body.classList.toggle('side-closed', !open);
   const b = $('#sideBtn'); if (!b) return; const label = open ? 'Close the sidebar' : 'Open the sidebar';
   b.setAttribute('aria-expanded', String(open)); b.dataset.tip = label; b.setAttribute('aria-label', label);
 }
-function renderSide() {
+export function renderSide() {
   if (VIEW !== 'page') return;
   if (sideClosed()) { sleepMini(); return; }
   $$('[data-tab]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === SIDE)));
@@ -16,12 +28,12 @@ function renderSide() {
   if (SIDE !== 'world') sleepMini();
   if (SIDE === 'world') renderMini(); else if (SIDE === 'index') renderIndex(); else if (SIDE === 'trails') renderTrails(); else renderTime();
 }
-function toggleSide(open) {
+export function toggleSide(open) {
   store.settings.side = (open ?? store.settings.side !== 'open') ? 'open' : 'rail'; save(); applySide(); renderSide();
 }
 
 /* ---------- index: everything you've met ---------- */
-function renderIndex() {
+export function renderIndex() {
   const pane = $('#indexPane');
   if (!pane.dataset.built) {
     pane.innerHTML = `<div class="ix-tools"><label class="sr" for="ixq">Filter the index</label><input id="ixq" type="search" placeholder="Filter everything you’ve met" autocomplete="off"><div class="ix-sort" role="group" aria-label="Sort the index"><button type="button" data-ixsort="az">A–Z</button><button type="button" data-ixsort="echo">Most mentioned</button></div><div class="ix-kinds" id="ixKinds" role="group" aria-label="Filter by kind"></div></div><div class="ix-list" id="ixList"></div>`;
@@ -31,7 +43,7 @@ function renderIndex() {
   $$('[data-ixsort]', pane).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ixsort === IDXSORT)));
   renderIndexList();
 }
-function renderIndexList() {
+export function renderIndexList() {
   const all = buildIndex(); const read = all.filter(e => e.page).length;
   $('#sideStats').textContent = `${all.length} things you’ve met, ${read} read`;
   const kinds = [...new Set(all.map(e => kindOf(e.kind)).filter(Boolean))].sort((a, b) => Object.keys(KIND_LABEL).indexOf(a) - Object.keys(KIND_LABEL).indexOf(b));
@@ -47,7 +59,7 @@ function renderIndexList() {
   }
   $('#ixList').innerHTML = h || `<p class="ix-empty">${IDXQ ? `Nothing you’ve met matches “${esc(IDXQ)}”.` : 'The index fills in as pages finish writing.'}</p>`;
 }
-function openIndexEntry(key) {
+export function openIndexEntry(key) {
   const e = buildIndex().find(x => x.key === key); if (!e) return;
   if (e.page) { if (e.page.id !== CUR) { addStep(store.trails, e.page.id, { from: CUR || null, via: 'index' }); save(); go(routeOf(e.page.req)); } return; }
   openTopic(e.name, { via: 'index' });
@@ -84,7 +96,7 @@ function renderTime() {
 }
 
 /* ================= connect this page to any topic you've read ================= */
-function bridgeSheet(p = curPage()) {
+export function bridgeSheet(p = curPage()) {
   if (!p || p.status !== 'done') return;
   const others = [...worldIndex().read.values()].filter(o => o.id !== p.id && !o.req.bridge && nodeKeyOf(o) !== nodeKeyOf(p)).sort((a, b) => b.last - a.last);
   if (!others.length) { toast('Read another page first, then connect them.'); return; }
@@ -93,19 +105,18 @@ function bridgeSheet(p = curPage()) {
 <ul class="bridge-list" id="bridgeList">${others.slice(0, 200).map(o => `<li><button type="button" data-bridge="${esc(o.id)}" data-name="${esc(o.title.toLowerCase())}"${kattr(o.kind)}><span class="bl-d"></span><b>${esc(o.title)}</b><span>${esc(relTime(o.last))}</span></button></li>`).join('')}</ul>`);
   setTimeout(() => { if (matchMedia('(hover: hover)').matches) $('#bq')?.focus(); }, 60);
 }
-document.addEventListener('input', e => { if (e.target.id !== 'bq') return; const q = e.target.value.trim().toLowerCase(); $$('#bridgeList li').forEach(li => { li.hidden = !!q && !li.firstElementChild.dataset.name.includes(q); }); });
-function makeBridge(otherId) {
+export function makeBridge(otherId) {
   const a = curPage(), b = pageOf(otherId); if (!a || !b) return;
   sheet.close(); openTopic(`${a.title} and ${b.title}`, { via: 'connect', bridge: [a.title, b.title] });
 }
 
 /* ================= around this: the lay of the land ================= */
 const BEARINGS = { mechanism: -90, science: -30, elsewhere: 30, culture: 90, people: 150, history: 210 };
-async function landSheet(p = curPage()) {
+export async function landSheet(p = curPage()) {
   if (!p || p.status !== 'done') return;
   if (p.land) { openSheet('Around this page', landHTML(p)); return; }
   openSheet('Around this page', `<p class="digging">${waitHTML('searching', `Mapping what surrounds ${p.title}`)}</p>`);
-  const ctl = sheetCtl = new AbortController();
+  const ctl = setSheetCtl(new AbortController());
   try {
     /* the answer is written for the page, so it is the same for everyone; what this reader has already read is hidden here */
     const out = await writeJSON('around', ctxInput(p), { signal: ctl.signal });
@@ -163,11 +174,11 @@ function landHTML(p) {
 }
 
 /* ================= listen: free narration with the browser's own voice ================= */
-const TTS = typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance === 'function';
-const SPEAK = { id: null };
+export let TTS;
+export const SPEAK = { id: null };
 function repaintTools() { const p = curPage(); const sec = p && secFor(p.id); if (sec) paintTools(p, sec); }
-function stopListening() { if (!TTS || !SPEAK.id) return; SPEAK.id = null; try { speechSynthesis.cancel(); } catch (e) { } $$('.speaking').forEach(e => e.classList.remove('speaking')); repaintTools(); }
-function listen(p = curPage()) {
+export function stopListening() { if (!TTS || !SPEAK.id) return; SPEAK.id = null; try { speechSynthesis.cancel(); } catch (e) { } $$('.speaking').forEach(e => e.classList.remove('speaking')); repaintTools(); }
+export function listen(p = curPage()) {
   if (!TTS || !p) return; if (SPEAK.id === p.id) { stopListening(); return; } stopListening();
   const sec = secFor(p.id); if (!sec || p.status !== 'done') return;
   const A = parsed(p); const parts = [{ text: `${shownTitle(p, A)}. ${plain(A.deck)}`, sel: '.a-title' }];
@@ -186,12 +197,12 @@ function listen(p = curPage()) {
   next();
 }
 /* ================= what stuck? a quiz on the trail you're on ================= */
-async function recall(fresh) {
+export async function recall(fresh) {
   const t = curTrail(); const done = trailPages(t).filter(p => p.text && p.status === 'done');
   if (done.length < 2) { toast('Read at least two pages, then see what stuck.'); return; }
   if (t.recall && !fresh && t.recall.i < t.recall.qs.length) { renderQuiz(); return; }
   openSheet('What stuck?', `<p class="digging">${waitHTML('solving', 'Writing questions from your trail')}</p>`);
-  const ctl = sheetCtl = new AbortController();
+  const ctl = setSheetCtl(new AbortController());
   const pages = done.slice(-8).map(p => { const A = parsed(p); return { title: p.title, text: [A.deck, ...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 4).map(b => b.s)].map(plain).join('\n').slice(0, 900) }; });
   try {
     const out = await writeJSON('quiz', { pages }, { signal: ctl.signal });
@@ -204,7 +215,7 @@ async function recall(fresh) {
     t.recall = { qs, i: 0, score: 0, picked: null, at: Date.now() }; save(); if (sheet.open && sheetCtl === ctl) renderQuiz();
   } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
 }
-function renderQuiz() {
+export function renderQuiz() {
   const t = curTrail(); const R = t && t.recall; if (!R) return;
   if (R.i >= R.qs.length) {
     t.recallLast = { score: R.score, of: R.qs.length, at: Date.now() }; save();
@@ -217,4 +228,15 @@ function renderQuiz() {
 <div class="qz-o">${q.options.map((o, j) => `<button type="button" data-qz="${j}"${done ? ' disabled' : ''} class="${done ? (j === q.answer ? 'right' : j === R.picked ? 'wrong' : '') : ''}">${esc(o)}</button>`).join('')}</div>
 ${done ? `<p class="qz-why"><b>${R.picked === q.answer ? 'Yes.' : 'Not quite.'}</b> ${esc(q.why)}</p>` : ''}`,
     done ? `<button class="btn glow" type="button" data-act="qz-next">${last ? 'See your score' : 'Next question'}</button>${src && R.picked !== q.answer ? `<a class="btn ghost" href="${esc(routeOf(src.req))}" data-goto="${esc(src.id)}">Revisit ${esc(clip(q.from, 30))}</a>` : ''}` : '');
+}
+
+/* written from other modules */
+export function setIDXKIND(v) { return (IDXKIND = v); }
+export function setIDXSORT(v) { return (IDXSORT = v); }
+export function setSIDE(v) { return (SIDE = v); }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+document.addEventListener('input', e => { if (e.target.id !== 'bq') return; const q = e.target.value.trim().toLowerCase(); $$('#bridgeList li').forEach(li => { li.hidden = !!q && !li.firstElementChild.dataset.name.includes(q); }); });
+TTS = typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance === 'function';
 }

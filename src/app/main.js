@@ -1,0 +1,28 @@
+/* The page's entry. No module does anything when it loads; each one's init() runs here, in this order. */
+import { init as initUtil } from './02-util.js';
+import { init as initOrbs } from './03-orbs.js';
+import { init as initRender } from './05-render.js';
+import { init as initReading } from './07-reading.js';
+import { init as initSheets } from './08-sheets.js';
+import { init as initStart } from './09-start.js';
+import { init as initTools } from './10-tools.js';
+import { init as initWorld } from './11-world.js';
+import { init as initChrome } from './12-chrome.js';
+import { init as initLanding } from './13-landing.js';
+import { init as initMapTips } from './14-map-tips.js';
+import { init as initKeys } from './15-keys.js';
+import { init as initRouter } from './16-router.js';
+
+initUtil();
+initOrbs();
+initRender();
+initReading();
+initSheets();
+initStart();
+initTools();
+initWorld();
+initChrome();
+initLanding();
+initMapTips();
+initKeys();
+initRouter();

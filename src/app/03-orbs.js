@@ -3,10 +3,12 @@
    connecting while a page's links are chosen, composing while words are written, searching
    while something is looked up, solving for a quiz. They are drawn in the
    page's quiet ink, only while they are on screen, and hold one still frame for reduced motion. */
+import { ORBS } from '../vendor/orbs.js';
+import { $, $$, esc, isDark, reducedMotion } from './02-util.js';
 const ORB_PX = 20;
-const orbHTML = state => `<canvas class="orb" data-orb="${state}" width="${ORB_PX * 2}" height="${ORB_PX * 2}" aria-hidden="true"></canvas>`;
+export const orbHTML = state => `<canvas class="orb" data-orb="${state}" width="${ORB_PX * 2}" height="${ORB_PX * 2}" aria-hidden="true"></canvas>`;
 /* a wait in plain words, with its orb in front */
-const waitHTML = (state, text) => `<span class="wait">${orbHTML(state)}<span>${esc(text)}</span></span>`;
+export const waitHTML = (state, text) => `<span class="wait">${orbHTML(state)}<span>${esc(text)}</span></span>`;
 let ORB_RAF = 0, ORB_INK = null;
 function orbInk() {
   const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(document.body).getPropertyValue('--mute').trim());
@@ -28,4 +30,8 @@ function wakeOrbs() {
   if (reducedMotion()) { $$('canvas.orb').forEach(c => drawOrb(c, 0.6)); return; }
   ORB_RAF = requestAnimationFrame(orbLoop);
 }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
 new MutationObserver(wakeOrbs).observe(document.body, { childList: true, subtree: true });
+}

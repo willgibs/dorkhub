@@ -5,20 +5,28 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 ## Shape
 
 - **The page.** `scripts/build.mjs` turns `src/` into one `public/index.html`: the head
-  and CSS, then the body, then one inline script. That script is the shared modules plus
-  the app modules in a single IIFE. A CSP meta tag pins that script by its SHA-256. There
-  is no framework and no bundler; Vercel's CDN serves the page.
-  Third-party code is ported into `src/vendor` with its licence notice. The build inlines its
-  JS between the shared and app modules (`export` stripped) and its CSS after
+  and CSS, then the body, then one inline script. That script is `src/app/main.js` and everything
+  it imports (the app modules, `src/shared`, `src/vendor`), bundled by esbuild into one classic
+  script in a scope of its own. A CSP meta tag pins that script by its SHA-256. There is no
+  framework; Vercel's CDN serves the page.
+  **The modules** (`src/app/*.js`) are ES modules that import each other by name, in circles where
+  they need to, so the order they load in is the bundler's business. That is safe because loading a
+  module does nothing: its top level only declares functions and values that need nothing else to
+  exist, and whatever it does when the page starts is in its `init()`, which `main.js` runs in a
+  fixed order. `tests/page.test.js` fails the build if a module does anything on load. A binding
+  another module assigns has a setter beside it (`setCUR`, `setSIDE`), since an import can't be
+  assigned. What only the build knows (the trial size, the front page's topics) comes from the
+  virtual module `dorkhub:build`. `tsconfig.app.json` type-checks the page.
+  Third-party code is ported into `src/vendor` with its licence notice; its CSS follows
   `src/styles.css`, and `/licenses.txt` lists it.
   The orbs port is tested against the library's own golden vectors (`tests/orbs.test.js`).
-  The page has a size budget (`tests/page.test.js`, 372 KB raw). The page ships without its
-  comments: the stylesheet's are stripped by pattern, the script's by TypeScript's own comment
-  ranges (`lean()` in the build), so nothing inside a string, template or regex is touched and
-  licence notices stay. Anything only one view needs, like the front page's cards, is a separate
-  file fetched by that view.
-- **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (680 px
-  of content; body text at 20 px sets about 70 characters a line). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
+  The page has a size budget (`tests/page.test.js`). The page ships without its comments or spare
+  whitespace (names stay as written, so an error in production reads like the source): the
+  stylesheet's comments are stripped by pattern, the script's by esbuild, which keeps only licence
+  notices (comments opening with `/*!`). Anything only one view needs, like the front page's cards,
+  is a separate file fetched by that view.
+- **The reading page** (`src/app/05-render.js`): one column, centred in the room it has (580 px
+  of content; body text at 17 px sets about 67 characters a line). Each paragraph is a block (`.pb`): the paragraph, its expansions and peeks, then
   what belongs to it (`.mcol`): its asides (`^` notes), a facts panel the writer put after it,
   and, after the first paragraph, the lead picture: a plate across the column (a tall or square picture on a mat),
   captioned with what it shows (`desc` from `api/picture`) and its credit. An aside is written straight after its

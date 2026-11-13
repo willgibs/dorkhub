@@ -38,4 +38,4 @@ const ICON_PATHS = {
   check: '<path d="m5.5 12.5 4 4 9-9"/>',
   theme: '<circle cx="12" cy="12" r="8"/><path class="f" d="M12 4a8 8 0 0 1 0 16z"/>',
 };
-const ic = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;
+export const ic = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name] || ''}</svg>`;

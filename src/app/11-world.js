@@ -6,11 +6,24 @@
    (src/shared/graph.js) that runs only while something is moving, then stops: no idle motion. Links
    trace in the first time a map is seen. The same view draws the small map beside a page, the full
    page at /world and the map on the front page. */
+import { clip, plain } from '../shared/article.js';
+import { addStep, routeOf } from '../shared/world.js';
+import { boundsOf, buildGraph, createSim, fitView, isHot, localGraph, nodeKeyOf, tick } from '../shared/graph.js';
+import { KIND_HEX, KIND_LABEL, kattr, kindOf } from './01-data.js';
+import { $, esc, isDark, reducedMotion, relTime, save, store, toast } from './02-util.js';
+import { ic } from './03-icons.js';
+import { CUR, curPage, go, openTopic, pageOf, trailPages, worldCount } from './04-pages.js';
+import { worldIndex } from './05-render.js';
+import { saveFile } from './08-sheets.js';
+import { SIDE, sideClosed } from './10-tools.js';
+import { DOORS, doorHTML } from './13-landing.js';
+import { tipAttrs } from './14-map-tips.js';
+import { VIEW } from './16-router.js';
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easePop = t => { const c1 = 1.70158 * 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const clamp01 = v => Math.max(0, Math.min(1, v));
 const easeInOut = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const TAU = Math.PI * 2;
+let TAU;
 
 /**
  * A graph view on a host element. mini: the small map beside a page (no wheel zoom, no tools).
@@ -21,7 +34,7 @@ const TAU = Math.PI * 2;
  * hold: its first trace waits for play() (the front page's map takes its turn among the cards).
  * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
  */
-function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
+export function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
@@ -432,14 +445,14 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
 }
 
 /* ================= the graph data: your world, now ================= */
-function worldGraph() { return buildGraph(store.pages, store.trails, { current: CUR, maxRead: 500, maxUnread: 300 }); }
+export function worldGraph() { return buildGraph(store.pages, store.trails, { current: CUR, maxRead: 500, maxUnread: 300 }); }
 /* how many topics are one click away: everything your pages link to that you haven't read */
-function oneClickAway() { const W = worldIndex(); let n = 0; for (const k of W.back.keys()) if (!W.read.has(k)) n++; return n; }
+export function oneClickAway() { const W = worldIndex(); let n = 0; for (const k of W.back.keys()) if (!W.read.has(k)) n++; return n; }
 
 /* ================= the small map beside a page ================= */
-let MINI = null; const MINI_POS = new Map();
-function sleepMini() { if (MINI) MINI.sleep(); }
-function renderMini(grow = []) {
+export let MINI = null; export const MINI_POS = new Map();
+export function sleepMini() { if (MINI) MINI.sleep(); }
+export function renderMini(grow = []) {
   const pane = $('#worldPane'); if (!pane) return;
   if (!pane.dataset.built) { pane.innerHTML = `<div class="mini"><div class="mini-stage" id="miniStage"></div><p class="mini-stats" id="miniStats"></p><a class="mini-open" href="/world" data-world="1">Open Your world ${ic('right')}</a></div>`; pane.dataset.built = '1'; MINI = null; }
   const p = curPage(); const full = worldGraph();
@@ -452,13 +465,13 @@ function renderMini(grow = []) {
   $('#miniStats').innerHTML = n ? `<b>${n}</b> read · <b>${oneClickAway()}</b> one click away` : 'Every page you finish joins your world.';
 }
 /* a page finished: it springs into the map beside it, if that map is open; otherwise only the count moves */
-function worldGrew(p) {
+export function worldGrew(p) {
   if (VIEW !== 'page' || sideClosed() || SIDE !== 'world' || !MINI) return;
   renderMini([nodeKeyOf(p)]);
 }
 
 /* ================= the full page: /world ================= */
-let WORLD = null, WHIDE = new Set();
+export let WORLD = null, WHIDE = new Set();
 function worldPageHTML() {
   const full = worldGraph(); const read = full.nodes.filter(n => n.read);
   if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d, false)).join('')}</div></div></section>`;
@@ -487,7 +500,7 @@ function worldPageHTML() {
   </div>
 </section>`;
 }
-function showWorld() {
+export function showWorld() {
   const seen = store.settings.worldSeen || 0;
   $('#view').innerHTML = worldPageHTML(); document.title = 'Your world: dorkhub';
   const stage = $('#wpStage'); if (!stage) { WORLD = null; return; }
@@ -500,6 +513,11 @@ function showWorld() {
   const t = new URLSearchParams(location.search).get('trail'); const tr = t && store.trails.find(x => x.id === t);
   if (tr) setTimeout(() => { if (WORLD) WORLD.startReplay(tr.steps.map(s => s[0])); }, reducedMotion() ? 0 : 500);
 }
+export function leaveWorld() { if (WORLD) { WORLD.destroy(); WORLD = null; } }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+TAU = Math.PI * 2;
 document.addEventListener('click', e => {
   if (!WORLD) return;
   const k = e.target.closest('[data-wkind]');
@@ -519,4 +537,4 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter') { e.preventDefault(); const i = WORLD.find(e.target.value); if (i >= 0) WORLD.select(i); else toast('That topic isn’t in your world yet.'); }
   else if (e.key === 'Escape') { e.target.value = ''; WORLD.select(-1); }
 });
-function leaveWorld() { if (WORLD) { WORLD.destroy(); WORLD = null; } }
+}

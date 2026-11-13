@@ -4,14 +4,30 @@
    list in FRONT and the cards in /front.json). Each opens a page written ahead of time, or its placeholder
    until it is. Surprise me, and the doors a paused or used-up page offers, open only those, and the pages
    written before them (EARLIER): free and instant. */
-const DOORS = [...FRONT, ...EARLIER];
+import { EARLIER, FRONT } from 'dorkhub:build';
+import { capFirst, clip } from '../shared/article.js';
+import { asksQuestion, routeOf, topicKey } from '../shared/world.js';
+import { localGraph, nodeKeyOf } from '../shared/graph.js';
+import { enigma } from '../shared/enigma.js';
+import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
+import { LENSES, kattr, kindOf } from './01-data.js';
+import { $, $$, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
+import { ic } from './03-icons.js';
+import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
+import { worldIndex } from './05-render.js';
+import { renderVoice, trialLine } from './09-start.js';
+import { MINI_POS, makeGraph, oneClickAway, worldGraph } from './11-world.js';
+import { tipAttrs } from './14-map-tips.js';
+import { modelName, renderKeyBtn } from './15-keys.js';
+import { VIEW } from './16-router.js';
+export let DOORS;
 /* Surprise me opens a page that isn't on screen: written ahead of time, so it's free and instant */
-function surprise() {
+export function surprise() {
   const shown = new Set($$('.door[data-seed]').map(b => b.dataset.seed));
   const pool = DOORS.filter(d => !shown.has(d.t));
   openTopic((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t, { via: 'start' });
 }
-const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
+export const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
 /* the page you were last on leads the suggestions, with a mark of its own: it reopens where you left off, and
    shuffling leaves it be */
 const contHTML = p => `<a class="door door-cont" href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind)} data-tip="Continue where you left off"><span class="dc-mark" aria-hidden="true">${ic('play')}</span><span class="sr">Continue </span><span class="dc-t">${esc(clip(p.title, 34))}</span></a>`;
@@ -21,7 +37,7 @@ const dayN = () => Math.floor((Date.now() - new Date().getTimezoneOffset() * 6e4
    Continue already offers */
 function suggestions(n = 4, not = '') { const a = FRONT.filter(d => topicKey(d.t) !== topicKey(not)); let s = dayN(); for (let i = a.length - 1; i > 0; i--) { s = (s * 9301 + 49297) % 233280; const j = Math.floor(s / 233280 * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a.slice(0, n); }
 /* the presets re-roll as a set: the shown ones step back quickly, the new ones rise in a beat apart, and none repeats */
-function shufflePresets() {
+export function shufflePresets() {
   const list = $('#presetList'); if (!list || list.dataset.busy) return;
   const shown = new Set($$('.door', list).map(b => b.dataset.seed)); const cont = (pageOf($('.door-cont')?.dataset.goto) || {}).title || '';
   const pool = FRONT.filter(d => !shown.has(d.t) && topicKey(d.t) !== topicKey(cont)).sort(() => Math.random() - .5).slice(0, shown.size || 4);
@@ -45,7 +61,7 @@ function loadFront() {
 }
 const slugOfCard = t => topicKey(t).replace(/[^a-z0-9]+/g, '-');
 /* a card tells its story once a visit, on its turn (see stage); without motion every card shows finished */
-const PLAYED = new Set(); const LIVE = new Set(['flytrap', 'enigma']);
+const PLAYED = new Set(); let LIVE;
 const motionOK = () => !reducedMotion() && typeof IntersectionObserver === 'function';
 function wayHTML(c) {
   const href = routeOf({ title: c.t, lens: 'encyclopedic', q: asksQuestion(c.t), ctx: '', bridge: null });
@@ -68,13 +84,13 @@ function plateCardHTML(c, play) {
   return `<div class="wc wc-plate wc-${c.size}${c.night ? ' wc-night' : ''}${LIVE.has(c.fx) ? ' wc-live' : ''}${play ? ' armed' : ' seen'}" data-card="${slugOfCard(c.t)}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''}${c.beat ? ` data-beat="${c.beat}"` : ''}><div class="wc-art">${c.art}</div>${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}</div>`;
 }
 /* the plate's place in the head: the card at its own shape, on a mat as wide as the column */
-function plateSlotHTML(p) {
+export function plateSlotHTML(p) {
   const f = cardFor(p); if (!f) return '';
   const c = FRONTD && FRONTD.cards.find(x => x.t === f.t);
   return `<div class="a-plate pl-${f.c}${f.n ? ' night' : ''}" data-plate="${esc(f.t)}">${c ? plateCardHTML(c, false) : `<div class="wc wc-plate wc-${f.c}${f.n ? ' wc-night' : ''}" aria-hidden="true"></div>`}</div>`;
 }
-function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
-function mountPlate(p) {
+export function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
+export function mountPlate(p) {
   const slot = $('.a-plate'); if (!slot || slot.dataset.mounted) return; slot.dataset.mounted = '1';
   const wire = el => {
     if (el.dataset.fx === 'flytrap') flytrapFx(el); else if (el.dataset.fx === 'enigma') enigmaFx(el); else if (el.dataset.fx === 'origami') origamiFx(el); else if (el.dataset.fx === 'magnets') magnetsFx(el);
@@ -380,9 +396,9 @@ function enigmaDemo(card) {
   let i = 0; const t = setInterval(() => { if (i >= 6 || input.value.length !== i) { enigmaStop(card); delete input.dataset.demo; return; } input.dataset.demo = '1'; enigmaPress(card, 'WETTER'[i++]); input.dataset.demo = ''; }, 300);
   EN_DEMO.set(card, t); FX_STOP.push(() => enigmaStop(card));
 }
-const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
+export const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
 /* the key pill: free pages left, or the model a reader's own key writes with */
-const seedKeyHTML = () => auth.byok ? `${ic('key')}<b>${esc(modelName(auth.byok.model).replace(/^Claude /, ''))}</b>` : `${ic('key')}<b>${pagesLeft()}</b>`;
+export const seedKeyHTML = () => auth.byok ? `${ic('key')}<b>${esc(modelName(auth.byok.model).replace(/^Claude /, ''))}</b>` : `${ic('key')}<b>${pagesLeft()}</b>`;
 /* send doubles as Surprise me: a dice while the box is empty, an arrow once there is something to read about */
 function syncSend() {
   const b = $('#seedGo'), i = $('#seedIn'); if (!b || !i) return;
@@ -394,7 +410,7 @@ function syncSend() {
 }
 function growSeed() { const i = $('#seedIn'); if (!i) return; i.style.height = 'auto'; i.style.height = `${Math.min(i.scrollHeight, 168)}px`; }
 /* what you typed becomes the page title: a copy of it takes the title's place in the page transition */
-function seedMirror(v) {
+export function seedMirror(v) {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return null;
   const m = document.createElement('span'); m.className = 'cmirror'; m.textContent = v.replace(/\s+/g, ' ');
   box.appendChild(m); i.style.color = 'transparent'; return m;
@@ -427,7 +443,7 @@ function livingWord() {
   });
 }
 function stopLiving() { LW_T.forEach(clearTimeout); LW_T = []; }
-function viewStart() {
+export function viewStart() {
   /* Continue reopens the last page you read */
   const last = pageOf(store.current); const cont = last && (last.status === 'done' || last.status === 'partial') ? last : [...worldIndex().read.values()].sort((a, b) => b.last - a.last)[0];
   const doors = suggestions(cont ? 3 : 4, cont ? cont.title : '');
@@ -464,8 +480,14 @@ function watchBeam() {
   BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+export function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+DOORS = [...FRONT, ...EARLIER];
+LIVE = new Set(['flytrap', 'enigma']);
 document.addEventListener('input', e => { if (e.target.id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (e.target.id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
+}

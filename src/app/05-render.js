@@ -1,9 +1,23 @@
 /* ================= what you've read: one index over your world, rebuilt only when it changes ================= */
-let WV = 0;                       // bumps whenever a page finishes, is saved or leaves
+import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, splitLink, yearOf } from '../shared/article.js';
+import { routeOf, topicKey } from '../shared/world.js';
+import { nodeKeyOf } from '../shared/graph.js';
+import { LENS_PHRASE, kattr, kindOf } from './01-data.js';
+import { $, $$, announce, errText, esc, reducedMotion, save, store, toast, write } from './02-util.js';
+import { ic } from './03-icons.js';
+import { orbHTML, waitHTML } from './03-orbs.js';
+import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
+import { paintDoubt, paintEnd, paintTools } from './06-page-end.js';
+import { renderSide } from './10-tools.js';
+import { worldGrew } from './11-world.js';
+import { renderWorldBtn, syncFab } from './12-chrome.js';
+import { plateSlotHTML } from './13-landing.js';
+import { GUARD, VIEW, guardHTML } from './16-router.js';
+export let WV = 0;                       // bumps whenever a page finishes, is saved or leaves
 let WIDX = null;
-const touchWorld = () => { WV++; };
+export const touchWorld = () => { WV++; };
 /* read topics by key (the page you'd open for each), and which of your pages link to each topic */
-function worldIndex() {
+export function worldIndex() {
   if (WIDX && WIDX.v === WV) return WIDX;
   const read = new Map(), back = new Map();
   for (const p of Object.values(store.pages)) {
@@ -14,7 +28,7 @@ function worldIndex() {
   return (WIDX = { v: WV, read, back });
 }
 /* pages read before Dorkhub kept their links get them in the background, a few at a time */
-function backfillLinks() {
+export function backfillLinks() {
   const todo = Object.values(store.pages).filter(p => !p.links && p.text && (p.status === 'done' || p.status === 'partial'));
   if (!todo.length) return;
   const idle = window.requestIdleCallback || (f => setTimeout(() => f({ timeRemaining: () => 8 }), 60));
@@ -30,7 +44,7 @@ function linksOf(p) {
   A._links = out; return out;
 }
 /* everything you've met: the pages you've read and every topic they mention (the Index) */
-function buildIndex() {
+export function buildIndex() {
   const idx = new Map();
   const touch = (k, name) => { let e = idx.get(k); if (!e) { e = { key: k, name, gloss: '', kind: '', mentions: new Set(), page: null }; idx.set(k, e); } return e; };
   const read = Object.values(store.pages).filter(p => p.text && (p.status === 'done' || p.status === 'partial'));
@@ -46,7 +60,7 @@ function buildIndex() {
   return [...idx.values()];
 }
 const plural = k => ({ person: 'people', phenomenon: 'phenomena', mystery: 'mysteries', creature: 'creatures' }[k] || k + 's');
-const fmt = h => h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+export const fmt = h => h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
 /* a link is a real address, so a middle click or ⌘-click opens it in a new tab; one to a topic you've read carries a quiet mark */
 function holeHTML(disp, target, p) {
   const k = keyOf(target); if (!k || (p && (keyOf(p.req.title) === k || keyOf(p.title) === k))) return fmt(esc(disp));
@@ -54,7 +68,7 @@ function holeHTML(disp, target, p) {
   const read = worldIndex().read.has(topicKey(target));
   return `<a class="hole${read ? ' read' : ''}" href="${esc(routeOf({ title: target, lens: store.settings.lens }))}" data-t="${esc(target)}"${kattr(kind)}>${fmt(esc(disp))}</a>`;
 }
-function inline(s, p) {
+export function inline(s, p) {
   let out = '', last = 0; const re = /\[\[([^\]\n]+?)\]\]/g; let m;
   while ((m = re.exec(s))) { out += fmt(esc(s.slice(last, m.index))); const [d, t] = splitLink(m[1]); out += holeHTML(d, t, p); last = re.lastIndex; }
   return out + fmt(esc(s.slice(last)));
@@ -88,13 +102,13 @@ function revealLoop(now) {
 }
 
 /* ================= writing a page ================= */
-const secFor = id => { const s = $('.chamber'); return s && s.dataset.pid === id ? s : null; };
+export const secFor = id => { const s = $('.chamber'); return s && s.dataset.pid === id ? s : null; };
 /* text that arrived whole (written ahead of time, or already written for someone) still reveals the way a live page does */
-function fill(p, text, seeded) {
+export function fill(p, text, seeded) {
   p.text = text; p.status = 'done'; p.seeded = seeded || false; p.error = null; p.errorCode = null; finalize(p); save();
   reveal(p, 0); paint(p); if (!REV.has(p.id)) pageDone(p);
 }
-async function generate(p, { fresh = false } = {}) {
+export async function generate(p, { fresh = false } = {}) {
   if (ACTIVE.has(p.id)) return;
   p.status = 'digging'; p.text = ''; p.error = null; p.errorCode = null; p.doubts = null; p.peeks = []; p.unfolds = {}; p.reveals = null;
   reveal(p, 0); paint(p);
@@ -128,9 +142,9 @@ function pageDone(p) {
 }
 
 /* ================= keyed rendering: elements are created once, then only updated ================= */
-function setHTML(el, h) { if (el._h !== h) { el.innerHTML = h; el._h = h; } }
-function place(parent, el, prev) { const want = prev ? prev.nextSibling : parent.firstChild; if (want !== el) parent.insertBefore(el, want); }
-function patch(container, items, animate = true) {
+export function setHTML(el, h) { if (el._h !== h) { el.innerHTML = h; el._h = h; } }
+export function place(parent, el, prev) { const want = prev ? prev.nextSibling : parent.firstChild; if (want !== el) parent.insertBefore(el, want); }
+export function patch(container, items, animate = true) {
   const existing = new Map(); for (const el of container.children) if (el.dataset.k) existing.set(el.dataset.k, el);
   let prev = null;
   for (const it of items) {
@@ -145,7 +159,7 @@ function patch(container, items, animate = true) {
   existing.forEach(el => el.remove());
 }
 const UF_LABEL = { simpler: 'In plainer words', deeper: 'One level deeper', example: 'For example', counter: 'The counterpoint' };
-function chamberHTML(p) {
+export function chamberHTML(p) {
   return `<section class="chamber" data-pid="${esc(p.id)}" aria-label="${esc(p.title)}">
   <article class="article">
     <header class="a-head">${plateSlotHTML(p)}<div class="h-row"><p class="where"></p><div class="tools" role="toolbar" aria-label="Page tools"></div></div><div class="h-main"></div></header>
@@ -159,14 +173,14 @@ function chamberHTML(p) {
 /* The page's colour is its kind. A new page opens in the colour of the link you followed and takes its
    own kind from its title line, which arrives before a single word of the page shows; from then on the
    colour holds for the visit, so it never changes while you read. */
-let ACC = null;
+export let ACC = null;
 function accentFor(p, A) {
   if (!ACC || ACC.id !== p.id) ACC = { id: p.id, kind: (p.status === 'done' && p.kind) || (p.hint && p.hint.kind) || p.kind || '', settled: p.status === 'done' };
   if (!ACC.settled && A.kind && !A.blocks.length) { ACC.kind = A.kind; ACC.settled = true; }
   if (A.blocks.length) ACC.settled = true;
   return kindOf(ACC.kind) || 'concept';
 }
-function paint(p, streamOnly) {
+export function paint(p, streamOnly) {
   const sec = secFor(p.id); if (!sec) return;
   const A = parsed(p); const live = isLive(p);
   /* a page arrived at from outside waits for the reader's word (guard in 16-router.js) */
@@ -200,8 +214,8 @@ function provenanceHTML(p, A) {
   return `<details class="pv"><summary>${line}<span class="pv-n">${src.length} source${src.length === 1 ? '' : 's'}</span></summary><ol class="pv-list">${src.map(s => `<li><a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.label || s.url.replace(/^https:\/\/(www\.)?/, '').split('/')[0])}</a></li>`).join('')}</ol></details>`;
 }
 /* the page you came here from, by following one of its links, its cards or its questions; nothing when you started here */
-const FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'connect']);
-function fromOf(p) {
+let FROM_VIA;
+export function fromOf(p) {
   const t = curTrail(); if (!t) return null;
   for (let i = t.steps.length - 1; i >= 0; i--) { const [pid, , from, via] = t.steps[i]; if (pid !== p.id) continue; const f = from && from !== p.id && FROM_VIA.has(via) ? pageOf(from) : null; return f && f.title ? f : null; }
   return null;
@@ -244,7 +258,6 @@ function watchHead(head) {
   head._ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w === head._w) return; head._w = w; requestAnimationFrame(() => { const kf = $('.keyfacts', head); if (kf) fitFacts(kf); }); });
   head._ro.observe(head);
 }
-document.fonts?.ready.then(() => $$('.keyfacts').forEach(kf => { kf._fit = ''; fitFacts(kf); }));
 
 /* ================= the soft frontier: the newest words resolve in, then settle into plain text =================
    While a block is being written, each new stretch of text is wrapped in a span that fades in from the
@@ -449,17 +462,6 @@ function dropPic(node) {
   node.pic = null; save(); PICFRESH.delete(node.id); PICREADY.delete(node.id);
   const fig = secFor(node.id) && $('figure.pic', secFor(node.id)); if (fig) fig.remove();
 }
-/* A photo that fails to load never prints its alt text over the page (Will, 2026-10-19): a card's photo steps aside for
-   what is drawn under it, and a page's lead picture that fails on a later visit is dropped, like one that failed to
-   arrive the first time (the alt text is transparent meanwhile, so it never shows even for a moment). An image's error
-   doesn't bubble, so one listener catches them all on the way down. */
-document.addEventListener('error', e => {
-  const img = e.target; if (!(img instanceof HTMLImageElement)) return;
-  if (img.closest('.wc')) { img.classList.add('gone'); return; }
-  const box = img.closest('.pic-box'); if (!box) return;
-  const node = pageOf(box.closest('.chamber')?.dataset.pid);
-  if (node && node.pic) dropPic(node); else box.closest('figure')?.remove();
-}, true);
 
 /* The status line tells the truth about a wait, and only while there is one: an orb for the kind of
    wait, then what is happening. The orb stays put when the wait moves on; only its motion changes. */
@@ -523,4 +525,24 @@ function paintBody(node, sec, A, live) {
     place(body, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());
+}
+
+/* written from other modules */
+export function setACC(v) { return (ACC = v); }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'connect']);
+document.fonts?.ready.then(() => $$('.keyfacts').forEach(kf => { kf._fit = ''; fitFacts(kf); }));
+/* A photo that fails to load never prints its alt text over the page (Will, 2026-10-19): a card's photo steps aside for
+   what is drawn under it, and a page's lead picture that fails on a later visit is dropped, like one that failed to
+   arrive the first time (the alt text is transparent meanwhile, so it never shows even for a moment). An image's error
+   doesn't bubble, so one listener catches them all on the way down. */
+document.addEventListener('error', e => {
+  const img = e.target; if (!(img instanceof HTMLImageElement)) return;
+  if (img.closest('.wc')) { img.classList.add('gone'); return; }
+  const box = img.closest('.pic-box'); if (!box) return;
+  const node = pageOf(box.closest('.chamber')?.dataset.pid);
+  if (node && node.pic) dropPic(node); else box.closest('figure')?.remove();
+}, true);
 }

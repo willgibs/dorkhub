@@ -1,5 +1,6 @@
 /* ================= tooltips: fast, styled, keyboard-friendly ================= */
-const TIPEL = document.createElement('div'); TIPEL.className = 'tip'; TIPEL.setAttribute('role', 'tooltip'); document.body.appendChild(TIPEL);
+import { esc } from './02-util.js';
+let TIPEL;
 let tipT = 0, tipFor = null;
 function showTip(el) {
   const t = el.dataset.tip; if (!t || !el.isConnected) return;
@@ -11,6 +12,14 @@ function showTip(el) {
   TIPEL.style.left = `${x}px`; TIPEL.style.top = `${y}px`;
 }
 function hideTip() { clearTimeout(tipT); TIPEL.classList.remove('on'); tipFor = null; }
+export const tipAttrs = (label, key) => ` data-tip="${esc(label)}" aria-label="${esc(label)}"${key ? ` data-key="${esc(key)}" aria-keyshortcuts="${esc(key)}"` : ''}`;
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+TIPEL = document.createElement('div');
+ TIPEL.className = 'tip';
+ TIPEL.setAttribute('role', 'tooltip');
+ document.body.appendChild(TIPEL);
 document.addEventListener('mouseover', e => {
   const el = e.target.closest && e.target.closest('[data-tip]');
   if (el === tipFor) return;
@@ -24,4 +33,4 @@ document.addEventListener('focusin', e => { const el = e.target.closest && e.tar
 document.addEventListener('focusout', hideTip);
 document.addEventListener('pointerdown', hideTip, true);
 addEventListener('scroll', hideTip, { passive: true, capture: true });
-const tipAttrs = (label, key) => ` data-tip="${esc(label)}" aria-label="${esc(label)}"${key ? ` data-key="${esc(key)}" aria-keyshortcuts="${esc(key)}"` : ''}`;
+}
