@@ -4,10 +4,10 @@
 import { mkdirSync, writeFileSync, appendFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { composePage, pageInput } from '../../lib/prompts.js';
-import { referenceNotes } from '../../lib/grounding.js';
+import { factSource, referenceNotes } from '../../lib/grounding.js';
 import { checksOf, compliance, scorePage } from './score.js';
 import { factParts, factPrompt, pairPrompt, plainPage, readFacts, readPair, tallyFacts } from './judge.js';
-import { dollars, SOURCE_TOKENS } from './plan.js';
+import { dollars } from './plan.js';
 import { hashOf, rng } from './stats.js';
 import { summarize } from './summary.js';
 import { reportHtml, reviewHtml } from './report.js';
@@ -29,7 +29,7 @@ export function spendGate({ yesSpend, budget }, plan) {
 /**
  * @typedef {{ text: string, usage: { input: number, output: number } }} JudgeAnswer
  * @typedef {{ pair: (c: { prompt: string, left: string, right: string, leftScore: number, rightScore: number }) => Promise<JudgeAnswer>,
- *   facts: (c: { prompt: string, parts: ReturnType<typeof factParts>, source: { title: string, url: string, text: string } }) => Promise<JudgeAnswer> }} Judge
+ *   facts: (c: { prompt: string, parts: ReturnType<typeof factParts>, source: import('./judge.js').FactSource }) => Promise<JudgeAnswer> }} Judge
  */
 
 /**
@@ -40,7 +40,7 @@ export function spendGate({ yesSpend, budget }, plan) {
 export async function runJob({ plan, outDir, runId, live, writerModel, judge, fetch, prices = {}, budget = null, seed = 7, log = () => {} }) {
   mkdirSync(outDir, { recursive: true });
   const { arms, topics, runs } = plan;
-  /** @type {any[]} */ const pages = []; /** @type {any[]} */ const pairs = [];
+  /** @type {any[]} */ const pages = []; /** @type {any[]} */ const pairs = []; /** @type {any[]} */ const autos = [];
   const tokens = { writer: { input: 0, output: 0 }, judge: { input: 0, output: 0 } };
   let spent = 0; /** @type {string | null} */ let stopped = null;
   /* dollars only when every model in the job has a price, so a partial sum never passes for the cost */
@@ -61,7 +61,7 @@ export async function runJob({ plan, outDir, runId, live, writerModel, judge, fe
   const sources = new Map();
   /** @param {import('./plan.js').Topic} t */
   const sourceOf = async t => {
-    if (!sources.has(t.id)) sources.set(t.id, t.source ? await referenceNotes(t.source, { fetch, intro: false, maxTokens: SOURCE_TOKENS, timeoutMs: 5000 }) : null);
+    if (!sources.has(t.id)) sources.set(t.id, t.source ? await factSource(t.source, { fetch, maxTokens: plan.sourceTokens, timeoutMs: 5000 }) : null);
     return sources.get(t.id);
   };
   const pagesFile = join(outDir, 'pages.jsonl'); const judgeFile = join(outDir, 'judgements.jsonl');
@@ -70,6 +70,7 @@ export async function runJob({ plan, outDir, runId, live, writerModel, judge, fe
   outer: for (let run = 1; run <= runs; run++) for (const topic of topics) {
     const input = pageInput(topic.input);
     /** @type {Map<string, any>} */ const here = new Map();
+    const source = await sourceOf(topic);
     for (const arm of arms) {
       const call = plan.calls.find(c => c.type === 'writer' && c.arm.id === arm.id && c.topic.id === topic.id && c.run === run);
       const notes = composePage(input, arm.variant).ground ? await referenceNotes(String(topic.input.title), { fetch }) : null;
@@ -83,13 +84,13 @@ export async function runJob({ plan, outDir, runId, live, writerModel, judge, fe
       const score = scorePage(r.text, { input });
       const checks = checksOf(score);
       const rec = { arm: arm.id, variant: arm.variant, model: arm.model, topic: topic.id, run, file, ms: r.ms, usage: r.usage, finish: r.finish, error: r.error,
-        notes: notes ? { title: notes.title, url: notes.url, tokens: notes.tokens } : null, score, compliance: compliance(score),
+        /* isLead: the notes were exactly the source's LEAD, so "beyond the notes" means what it says for this page */
+        notes: notes ? { title: notes.title, url: notes.url, tokens: notes.tokens, isLead: source ? notes.text === source.lead : null } : null, score, compliance: compliance(score),
         failed: Object.entries(checks).filter(([, ok]) => !ok).map(([k]) => k), facts: /** @type {any} */ (null), text: r.text };
       here.set(arm.id, rec);
       log(`write  ${topic.id} run ${run} ${arm.id}: ${r.text.length} chars, first ${Math.round(r.ms.first ?? -1)} ms, ${r.usage.output} out tokens${r.error ? `, ERROR ${r.error}` : ''}`);
     }
-    /* fact check: each page against the topic's source */
-    const source = await sourceOf(topic);
+    /* fact check: each page against the topic's source, LEAD and REST labelled apart */
     for (const rec of here.values()) {
       if (!source || !rec.text) continue;
       const parts = factParts(rec.text);
@@ -119,31 +120,43 @@ export async function runJob({ plan, outDir, runId, live, writerModel, judge, fe
       pairs.push(rec);
       appendFileSync(judgeFile, JSON.stringify({ type: 'pair', ...rec, raw: v ? undefined : ans.text }) + '\n');
     }
+    /* pairs compared on the automatic checks alone: the page passing more of them wins, no judge call */
+    for (const [a, b] of plan.autoPairs) {
+      const A = here.get(a.id), B = here.get(b.id); if (!A || !B) continue;
+      const d = A.compliance - B.compliance;
+      const rec = { topic: topic.id, run, a: a.id, b: b.id, winner: Math.abs(d) < 1e-9 ? 'tie' : d > 0 ? a.id : b.id };
+      autos.push(rec);
+      appendFileSync(judgeFile, JSON.stringify({ type: 'auto', ...rec }) + '\n');
+    }
     pages.push(...here.values());
     if (live && budget != null && spent >= budget) { stopped = `budget: $${spent.toFixed(4)} spent of $${budget.toFixed(2)}`; break outer; }
   }
 
   for (const p of pages) { const { text, ...rest } = p; appendFileSync(pagesFile, JSON.stringify(rest) + '\n'); }
-  const summary = summarize({ runId, mode: live ? 'live' : 'dry', arms: arms.map(a => a.id), pages, pairs: pairs.filter(p => p.winner !== 'invalid'), tokens,
-    usd: priced ? spent : null, stopped, planned: { calls: plan.calls.length, usd: plan.total.usd } });
+  const summary = summarize({ runId, mode: live ? 'live' : 'dry', arms: arms.map(a => a.id), pages, pairs: pairs.filter(p => p.winner !== 'invalid'), auto: autos, tokens,
+    usd: priced ? spent : null, stopped, planned: { calls: plan.calls.length, usd: plan.total.usd }, preset: plan.preset, presetNote: plan.note });
   writeFileSync(join(outDir, 'summary.json'), JSON.stringify(summary, null, 2));
   writeFileSync(join(outDir, 'report.html'), reportHtml(summary));
-  /* the owner's blind review: run 1, every topic, every pair of arms, sides drawn afresh */
-  const review = buildReview(runId, pages.filter(p => p.run === 1), arms.map(a => a.id), seed);
+  /* the owner's blind review: run 1, every topic, the pairs the judge compares, sides drawn afresh */
+  const judged = /** @type {[string, string][]} */ ([...new Set(plan.calls.flatMap(c => (c.type === 'pair' ? [`${c.a.id}\n${c.b.id}`] : [])))].map(s => s.split('\n')));
+  const review = buildReview(runId, pages.filter(p => p.run === 1), arms.map(a => a.id), seed, judged.length ? judged : null);
   writeFileSync(join(outDir, 'review-key.json'), JSON.stringify(review.key, null, 2));
   writeFileSync(join(outDir, 'review.html'), reviewHtml(runId, review.pairs));
   if (stopped) log(`STOPPED: ${stopped}`);
   return { summary, pages, pairs, stopped, spent, tokens };
 }
 
-/** @param {string} runId @param {any[]} pages @param {string[]} arms @param {number} seed */
-export function buildReview(runId, pages, arms, seed) {
+/* `which`: the pairs of arm ids to review; null for every pair. */
+/** @param {string} runId @param {any[]} pages @param {string[]} arms @param {number} seed @param {[string, string][] | null} [which] */
+export function buildReview(runId, pages, arms, seed, which = null) {
   /** @type {{ id: string, topic: string, left: string, right: string }[]} */ const pairs = [];
   /** @type {Record<string, { topic: string, left: string, right: string }>} */ const key = {};
   const r = rng(seed * 31 + 5);
   const topics = [...new Set(pages.map(p => p.topic))];
-  for (const t of topics) for (let i = 0; i < arms.length; i++) for (let j = i + 1; j < arms.length; j++) {
-    const A = pages.find(p => p.topic === t && p.arm === arms[i]), B = pages.find(p => p.topic === t && p.arm === arms[j]);
+  /** @type {[string, string][]} */ const all = [];
+  for (let i = 0; i < arms.length; i++) for (let j = i + 1; j < arms.length; j++) all.push([arms[i], arms[j]]);
+  for (const t of topics) for (const [x, y] of which || all) {
+    const A = pages.find(p => p.topic === t && p.arm === x), B = pages.find(p => p.topic === t && p.arm === y);
     if (!A || !B) continue;
     const [L, R] = r() < 0.5 ? [A, B] : [B, A];
     const id = `p${String(pairs.length + 1).padStart(3, '0')}`;

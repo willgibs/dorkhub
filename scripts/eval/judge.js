@@ -65,14 +65,19 @@ export function readPair(text) {
 }
 
 /* ---------- (b) fact check against a source ---------- */
-/** @param {{ topic: string, parts: ReturnType<typeof factParts>, source: { title: string, url: string, text: string } }} c */
-export const factPrompt = ({ topic, parts, source }) => `You are fact-checking a page from a generative encyclopedia, written for the topic "${topic}", against a source text.
+/* The source comes in two labelled parts. LEAD is exactly what the grounded writer was handed as notes
+   (lib/grounding.js factSource), REST is the article after it. Each verdict says where its evidence was found,
+   so a claim settled by REST alone is one no writer could have copied from its notes. */
+/** @typedef {{ title: string, url: string, lead: string, rest: string }} FactSource */
+/** @param {{ topic: string, parts: ReturnType<typeof factParts>, source: FactSource }} c */
+export const factPrompt = ({ topic, parts, source }) => `You are fact-checking a page from a generative encyclopedia, written for the topic "${topic}", against a source text in two parts, LEAD and REST.
 
 From each of the three parts below, separately, list every checkable claim: a number, a date, a name, or an attribution (who did, found, said or made what). Copy each claim in a few words close to the page's own. Then mark each one against the SOURCE only:
 - "supported": the source states it, or states something that clearly implies it (rounding is fine)
 - "contradicted": the source states something incompatible with it
 - "absent": the source does not settle it either way
 Use only the source, not your own knowledge, and never mark a claim contradicted because the source is silent.
+For every claim, say where the evidence that settled it is: "lead" if the LEAD settles it, otherwise "rest" if only the REST does, and null when it is absent.
 
 BODY:
 ${parts.body}
@@ -84,14 +89,18 @@ HOOKS:
 ${parts.hooks || '(none)'}
 
 SOURCE ("${source.title}", ${source.url}):
-${source.text}
+LEAD:
+${source.lead}
+
+REST:
+${source.rest || '(none)'}
 
 Reply with only a JSON object:
-{"body": [{"claim": string, "type": "number" | "date" | "name" | "attribution", "verdict": "supported" | "contradicted" | "absent", "note": "for a contradiction, what the source says"}], "keyFacts": [...the same shape], "hooks": [...the same shape]}`;
+{"body": [{"claim": string, "type": "number" | "date" | "name" | "attribution", "verdict": "supported" | "contradicted" | "absent", "where": "lead" | "rest" | null, "note": "for a contradiction, what the source says"}], "keyFacts": [...the same shape], "hooks": [...the same shape]}`;
 
 export const PARTS = /** @type {const} */ (['body', 'keyFacts', 'hooks']);
 const VERDICTS = ['supported', 'contradicted', 'absent'];
-/** @typedef {{ claim: string, type: string, verdict: 'supported' | 'contradicted' | 'absent', note: string }} Claim */
+/** @typedef {{ claim: string, type: string, verdict: 'supported' | 'contradicted' | 'absent', where: 'lead' | 'rest' | null, note: string }} Claim */
 /** @param {string} text @returns {Record<'body' | 'keyFacts' | 'hooks', Claim[]> | null} */
 export function readFacts(text) {
   const v = looseJSON(text); if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
@@ -99,25 +108,39 @@ export function readFacts(text) {
   for (const p of PARTS) {
     const list = Array.isArray(v[p]) ? v[p] : [];
     out[p] = list.filter((/** @type {any} */ c) => c && typeof c.claim === 'string' && VERDICTS.includes(String(c.verdict).toLowerCase()))
-      .map((/** @type {any} */ c) => ({ claim: c.claim, type: String(c.type || ''), verdict: String(c.verdict).toLowerCase(), note: typeof c.note === 'string' ? c.note : '' }));
+      .map((/** @type {any} */ c) => {
+        const verdict = String(c.verdict).toLowerCase(); const w = String(c.where ?? '').toLowerCase();
+        /* an absent claim has no evidence anywhere; a settled one without a readable "where" counts in every total but never as beyond the notes */
+        return { claim: c.claim, type: String(c.type || ''), verdict, where: verdict === 'absent' ? null : w === 'lead' || w === 'rest' ? w : null, note: typeof c.note === 'string' ? c.note : '' };
+      });
   }
   return out;
 }
 
-/** @param {Record<'body' | 'keyFacts' | 'hooks', Claim[]> | null} f */
+/* Three numbers per part (body, key facts, hooks) and for the page as a whole:
+   - contradictedRate: contradicted claims over every claim checked.
+   - beyondRate: contradicted over claims settled by REST only. This is the headline for comparing arms,
+     because it is the one grounding cannot game: a grounded writer that restates its notes earns
+     "supported, lead" verdicts that pad the plain rate, while claims settled only by REST are ones its
+     notes never gave it, the same ground every other arm writes on.
+   - absentShare: claims the source cannot settle either way (unverifiable, not wrong). */
+/** @typedef {{ n: number, contradicted: number, absent: number, settledRest: number, contradictedRest: number, contradictedRate: number | null, beyondRate: number | null, absentShare: number | null }} FactTally */
+/** @param {Claim[]} cs @returns {FactTally} */
+function tallyOf(cs) {
+  const n = cs.length, contradicted = cs.filter(c => c.verdict === 'contradicted').length, absent = cs.filter(c => c.verdict === 'absent').length;
+  const rest = cs.filter(c => c.verdict !== 'absent' && c.where === 'rest'); const contradictedRest = rest.filter(c => c.verdict === 'contradicted').length;
+  return { n, contradicted, absent, settledRest: rest.length, contradictedRest, contradictedRate: n ? contradicted / n : null, beyondRate: rest.length ? contradictedRest / rest.length : null, absentShare: n ? absent / n : null };
+}
+/** @param {Record<'body' | 'keyFacts' | 'hooks', Claim[]> | null} f @returns {{ all: FactTally, body: FactTally, keyFacts: FactTally, hooks: FactTally }} */
 export function tallyFacts(f) {
-  /** @type {Record<string, { supported: number, contradicted: number, absent: number }>} */ const by = {};
-  for (const p of PARTS) { by[p] = { supported: 0, contradicted: 0, absent: 0 }; for (const c of f?.[p] || []) by[p][c.verdict]++; }
-  const total = PARTS.reduce((a, p) => a + by[p].supported + by[p].contradicted + by[p].absent, 0);
-  const contradicted = PARTS.reduce((a, p) => a + by[p].contradicted, 0);
-  const supported = PARTS.reduce((a, p) => a + by[p].supported, 0);
-  return { by, total, contradicted, supported, supportedShare: total ? supported / total : null };
+  return { all: tallyOf(PARTS.flatMap(p => f?.[p] || [])), body: tallyOf(f?.body || []), keyFacts: tallyOf(f?.keyFacts || []), hooks: tallyOf(f?.hooks || []) };
 }
 
 /* ---------- the fake judge: deterministic, free, for dry runs and tests ----------
    Pairwise: the page that passes more of the automatic checks wins, a tie is broken by a hash of both
-   texts. Fact check: every number in a part is a claim, supported when the source holds the same number,
-   absent otherwise. It exercises the plumbing; it measures nothing. */
+   texts. Fact check: every number in a part is a claim, supported when the source holds the same number
+   (where: the lead if the lead holds it, else the rest), absent otherwise. It exercises the plumbing; it
+   measures nothing. */
 export const fakeJudge = {
   /** @param {{ left: string, right: string, leftScore: number, rightScore: number }} c */
   pair: async c => {
@@ -125,12 +148,12 @@ export const fakeJudge = {
     const winner = Math.abs(d) > 1e-9 ? (d > 0 ? 'A' : 'B') : ['A', 'B', 'tie'][hashOf(c.left + c.right) % 3];
     return { text: JSON.stringify({ winner, scores: null, why: 'fake judge: the page passing more automatic checks wins' }), usage: { input: 0, output: 0 } };
   },
-  /** @param {{ parts: ReturnType<typeof factParts>, source: { text: string } }} c */
+  /** @param {{ parts: ReturnType<typeof factParts>, source: FactSource }} c */
   facts: async c => {
     const nums = (/** @type {string} */ s) => [...new Set(s.match(/\d[\d,.]*\d|\d/g) || [])];
-    const src = c.source.text;
+    const { lead, rest } = c.source;
     /** @type {any} */ const out = {};
-    for (const p of PARTS) out[p] = nums(c.parts[p]).map(n => ({ claim: n, type: 'number', verdict: src.includes(n) ? 'supported' : 'absent', note: '' }));
+    for (const p of PARTS) out[p] = nums(c.parts[p]).map(n => { const where = lead.includes(n) ? 'lead' : rest.includes(n) ? 'rest' : null; return { claim: n, type: 'number', verdict: where ? 'supported' : 'absent', where, note: '' }; });
     return { text: JSON.stringify(out), usage: { input: 0, output: 0 } };
   },
 };

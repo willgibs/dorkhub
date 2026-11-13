@@ -11,6 +11,24 @@ export const DEFAULT_MODELS = ['anthropic/claude-haiku-5.5'];
 export const DEFAULT_JUDGE = 'anthropic/claude-opus-5.5';
 export const DEFAULT_RUNS = 2;
 
+/* Presets: `first` is the default, a small first look to put in front of Will; `full` is every pair and every
+   fact check over the whole topic set, twice. Pairs and fact checks name variants, matched within one model.
+   `auto` pairs are compared on the automatic checks only, with no judge call (base and split are the same words). */
+export const PRESETS = {
+  first: {
+    variants: ['base', 'split', 'grounded', 'hooks-tight'],
+    /* one per kind in KIND_SHAPE: of each pair in topics.json, the one whose numbers are easiest to get wrong */
+    topics: ['benfords-law', 'sonoluminescence', 'escapement', 'lost-wax-casting', 'wow-signal', 'prince-ruperts-drop',
+      'darvaza', 'halifax-explosion', 'carboniferous', 'ramanujan', 'greenland-shark', 'bayeux-tapestry'],
+    runs: 1,
+    pairs: /** @type {[string, string][]} */ ([['split', 'grounded'], ['split', 'hooks-tight']]),
+    auto: /** @type {[string, string][]} */ ([['base', 'split']]),
+    facts: ['split', 'grounded', 'hooks-tight'],
+    note: 'A FIRST LOOK, NOT A VERDICT: 12 topics at one run each cannot separate writers that differ by a few points. Read it for large gaps and broken pages; decide with the full preset.',
+  },
+  full: { variants: null, topics: null, runs: 2, pairs: /** @type {'all'} */ ('all'), auto: /** @type {[string, string][]} */ ([]), facts: /** @type {'all'} */ ('all'), note: '' },
+};
+
 /* about four characters a token in English; every token figure here is an estimate, marked "~" */
 export const CHARS_PER_TOKEN = 4;
 /** @param {string} s */
@@ -18,7 +36,7 @@ export const tokensOf = s => Math.ceil(String(s || '').length / CHARS_PER_TOKEN)
 /* a page's length, from the real writer output the mock replays (lib/recorded.js): no guess */
 export const PAGE_OUT = Math.round(RECORDED.reduce((a, r) => a + tokensOf(r.text), 0) / RECORDED.length);
 export const NOTES_TOKENS = 500;    // the grounded variant's notes, at most (lib/grounding.js)
-export const SOURCE_TOKENS = 3000;  // a fact check's source: the article, clipped
+export const SOURCE_TOKENS = 6000;  // a fact check's source: lead and rest of the article, clipped (--source-tokens)
 export const PAIR_OUT = 300;
 export const FACT_OUT = 1500;
 
@@ -61,38 +79,52 @@ export const dollars = (prices, model, tin, tout) => (prices[model] ? (tin * pri
  * @typedef {WriterCall | PairCall | FactCall} Call
  */
 
+
+/* Which pairs of arms a spec names: 'all', or [variant, variant] pairs matched within one model. */
+/** @param {Arm[]} arms @param {'all' | [string, string][]} spec @returns {[Arm, Arm][]} */
+export function pairsOf(arms, spec) {
+  /** @type {[Arm, Arm][]} */ const out = [];
+  if (spec === 'all') { for (let i = 0; i < arms.length; i++) for (let j = i + 1; j < arms.length; j++) out.push([arms[i], arms[j]]); return out; }
+  for (const [x, y] of spec) for (const a of arms) for (const b of arms) if (a.variant === x && b.variant === y && a.model === b.model) out.push([a, b]);
+  return out;
+}
+
 /**
- * Every call a job makes, with estimated tokens, and the totals.
- * @param {{ arms: Arm[], topics: Topic[], runs: number, judge: string, prices?: Prices, pairwise?: boolean, factcheck?: boolean }} o
+ * Every call a job makes, with estimated tokens, and the totals (writers and judges apart).
+ * @param {{ arms: Arm[], topics: Topic[], runs: number, judge: string, prices?: Prices, pairwise?: boolean, factcheck?: boolean,
+ *   pairs?: 'all' | [string, string][], auto?: [string, string][], facts?: 'all' | string[], sourceTokens?: number, preset?: string, note?: string }} o
  */
-export function planJob({ arms, topics, runs, judge, prices = {}, pairwise = true, factcheck = true }) {
+export function planJob({ arms, topics, runs, judge, prices = {}, pairwise = true, factcheck = true, pairs = 'all', auto = [], facts = 'all', sourceTokens = SOURCE_TOKENS, preset = '', note = '' }) {
   /** @type {Call[]} */ const calls = [];
   const pairFixed = tokensOf(pairPrompt({ topic: '', left: '', right: '' }));
-  const factFixed = tokensOf(factPrompt({ topic: '', parts: { title: '', deck: '', body: '', keyFacts: '', hooks: '' }, source: { title: '', url: '', text: '' } }));
+  const factFixed = tokensOf(factPrompt({ topic: '', parts: { title: '', deck: '', body: '', keyFacts: '', hooks: '' }, source: { title: '', url: '', lead: '', rest: '' } }));
+  const judged = pairwise ? pairsOf(arms, pairs) : [];
+  const autoPairs = pairsOf(arms, auto);
+  const checked = factcheck ? arms.filter(a => facts === 'all' || facts.includes(a.variant)) : [];
   for (let run = 1; run <= runs; run++) for (const topic of topics) {
     const input = pageInput(topic.input);
     for (const arm of arms) {
       const c = composePage(input, arm.variant);
       calls.push({ type: 'writer', arm, topic, run, model: arm.model, in: tokensOf(`${c.system || ''}\n\n${c.prompt}`) + (c.ground ? NOTES_TOKENS : 0), out: Math.min(PAGE_OUT, c.maxTokens), maxOut: c.maxTokens });
     }
-    if (pairwise) for (let i = 0; i < arms.length; i++) for (let j = i + 1; j < arms.length; j++) {
-      calls.push({ type: 'pair', a: arms[i], b: arms[j], topic, run, model: judge, in: pairFixed + tokensOf(topic.input.title) + 2 * Math.round(PAGE_OUT * 0.85), out: PAIR_OUT, maxOut: 800 });
-    }
-    if (factcheck) for (const arm of arms) calls.push({ type: 'facts', arm, topic, run, model: judge, in: factFixed + tokensOf(topic.input.title) + PAGE_OUT + SOURCE_TOKENS, out: FACT_OUT, maxOut: 3000 });
+    for (const [a, b] of judged) calls.push({ type: 'pair', a, b, topic, run, model: judge, in: pairFixed + tokensOf(topic.input.title) + 2 * Math.round(PAGE_OUT * 0.85), out: PAIR_OUT, maxOut: 800 });
+    for (const arm of checked) calls.push({ type: 'facts', arm, topic, run, model: judge, in: factFixed + tokensOf(topic.input.title) + PAGE_OUT + sourceTokens, out: FACT_OUT, maxOut: 3000 });
   }
-  /** @type {Map<string, { label: string, model: string, n: number, in: number, out: number, usd: number | null }>} */ const groups = new Map();
+  /** @type {Map<string, { label: string, model: string, n: number, in: number, out: number, usd: number | null, judge: boolean }>} */ const groups = new Map();
   for (const c of calls) {
     const label = c.type === 'writer' ? `writer ${c.arm.id}` : c.type === 'pair' ? 'judge: blind pairwise' : 'judge: fact check';
-    const g = groups.get(label) || { label, model: c.model, n: 0, in: 0, out: 0, usd: 0 };
+    const g = groups.get(label) || { label, model: c.model, n: 0, in: 0, out: 0, usd: 0, judge: c.type !== 'writer' };
     g.n++; g.in += c.in; g.out += c.out;
     const d = dollars(prices, c.model, c.in, c.out); g.usd = g.usd == null || d == null ? null : g.usd + d;
     groups.set(label, g);
   }
   const G = [...groups.values()];
-  const total = { n: calls.length, in: G.reduce((a, g) => a + g.in, 0), out: G.reduce((a, g) => a + g.out, 0), usd: G.every(g => g.usd != null) ? G.reduce((a, g) => a + /** @type {number} */ (g.usd), 0) : null };
+  /** @param {typeof G} gs */
+  const sum = gs => ({ n: gs.reduce((a, g) => a + g.n, 0), in: gs.reduce((a, g) => a + g.in, 0), out: gs.reduce((a, g) => a + g.out, 0), usd: gs.every(g => g.usd != null) ? gs.reduce((a, g) => a + /** @type {number} */ (g.usd), 0) : null });
+  const total = sum(G), writers = sum(G.filter(g => !g.judge)), judges = sum(G.filter(g => g.judge));
   /* the worst case: every call writes to its output limit, for the spend gate */
   const ceiling = calls.every(c => prices[c.model]) ? calls.reduce((a, c) => a + /** @type {number} */ (dollars(prices, c.model, c.in, c.maxOut)), 0) : null;
-  return { arms, topics, runs, judge, calls, groups: G, total, ceiling };
+  return { arms, topics, runs, judge, calls, autoPairs, groups: G, total, writers, judges, ceiling, sourceTokens, preset, note };
 }
 
 /** @param {number} n */
@@ -111,10 +143,14 @@ export function planText(P, { list = true } = {}) {
     }
     L.push('');
   }
-  L.push(`Job: ${P.arms.length} arms x ${P.topics.length} topics x ${P.runs} runs. Judge: ${P.judge}.`);
+  L.push(`Job${P.preset ? ` (preset ${P.preset})` : ''}: ${P.arms.length} arms x ${P.topics.length} topics x ${P.runs} run${P.runs === 1 ? '' : 's'}. Judge: ${P.judge}. Fact-check source: ~${fmt(P.sourceTokens)} tokens.`);
+  if (P.autoPairs.length) L.push(`Compared on automatic checks only, no judge call: ${P.autoPairs.map(([a, b]) => `${a.id} vs ${b.id}`).join('; ')}.`);
+  if (P.note) L.push(P.note);
   L.push(`${'calls'.padEnd(52)}${'model'.padEnd(30)}${'n'.padStart(6)}${'in/call'.padStart(10)}${'out/call'.padStart(10)}${'in total'.padStart(12)}${'out total'.padStart(12)}  dollars`);
+  /** @param {string} label @param {{ n: number, in: number, out: number, usd: number | null }} t */
+  const line = (label, t) => `${label.padEnd(82)}${String(t.n).padStart(6)}${''.padStart(20)}${('~' + fmt(t.in)).padStart(12)}${('~' + fmt(t.out)).padStart(12)}  ${usd(t.usd)}`;
   for (const g of P.groups) L.push(`${g.label.padEnd(52)}${g.model.padEnd(30)}${String(g.n).padStart(6)}${('~' + fmt(g.in / g.n)).padStart(10)}${('~' + fmt(g.out / g.n)).padStart(10)}${('~' + fmt(g.in)).padStart(12)}${('~' + fmt(g.out)).padStart(12)}  ${usd(g.usd)}`);
-  L.push(`${'total'.padEnd(82)}${String(P.total.n).padStart(6)}${''.padStart(20)}${('~' + fmt(P.total.in)).padStart(12)}${('~' + fmt(P.total.out)).padStart(12)}  ${usd(P.total.usd)}`);
+  L.push(line('writers', P.writers), line(`judges (${P.judge})`, P.judges), line('total', P.total));
   L.push(`Worst case (every call to its output limit): ${usd(P.ceiling)}. Output estimates exclude any reasoning tokens a model adds.`);
   return L.join('\n');
 }

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { articleUrl, clipText, referenceNotes } from '../lib/grounding.js';
+import { articleUrl, clipText, factSource, referenceNotes } from '../lib/grounding.js';
 
 const LEAD = 'The Lewis gun is a First World War-era light machine gun. Designed privately in the United States, it was developed and mass-produced in the United Kingdom. It was widely used by British and British Empire troops during the war.';
 /** @param {any} body @param {{ status?: number, delay?: number, calls?: string[] }} [o] @returns {typeof fetch} */
@@ -55,6 +55,24 @@ test('no notes, never an error: failure, timeout, disambiguation, missing, a que
   const t1 = Date.now();
   await none('Lewis gun', { fetch: /** @type {any} */ (() => new Promise(r => setTimeout(() => r({ ok: true, json: async () => page({}) }), 400))), timeoutMs: 30 });
   assert.ok(Date.now() - t1 < 300);
+});
+
+test("a fact check's source: the lead exactly as a grounded writer gets it, then the rest, labelled apart", async () => {
+  const REST = Array.from({ length: 400 }, (_, i) => `Later fact ${i} about the gun.`).join(' ');
+  const get = /** @type {any} */ (async (/** @type {string} */ url) => {
+    const intro = new URL(url).searchParams.get('exintro') === '1';
+    return { ok: true, json: async () => page({ extract: intro ? LEAD : `${LEAD}\n\n\n== History ==\n${REST}` }) };
+  });
+  const s = await factSource('Lewis gun', { fetch: get });
+  const notes = await referenceNotes('Lewis gun', { fetch: get });
+  assert.ok(s && notes);
+  assert.equal(s.lead, notes.text, 'LEAD is exactly the notes');
+  assert.ok(s.rest.startsWith('Later fact 0 about the gun.')); assert.ok(!s.rest.includes('History'));
+  assert.ok(s.lead.length + s.rest.length <= 6000 * 4);
+  const small = await factSource('Lewis gun', { fetch: get, maxTokens: 300 });
+  assert.ok(small && small.rest.length + small.lead.length <= 1200 && small.tokens <= 300);
+  assert.equal(await factSource('Why is it?', { fetch: get }), null);
+  assert.equal(await factSource('Lewis gun', { fetch: fakeFetch(page({}), { status: 500 }) }), null);
 });
 
 test('article addresses keep their punctuation readable', () => {

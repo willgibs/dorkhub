@@ -7,8 +7,10 @@
 //                                                   spends money: only with Will's go on the printed plan
 //   node scripts/eval.mjs picks <run dir> <picks.json>   read Will's blind picks (exported from review.html) back in
 //
-// Options: --arms base,split[@model]   variants (default: all), crossed with --models (default: today's free writer)
-//          --models a,b   --topics id,id | file.json   --runs n (default 2)   --judge model
+// Options: --preset first | full   first (the default): 4 arms, 12 topics, 1 run, a few judged pairs; full: everything, twice
+//          --arms base,split[@model]   variants, crossed with --models (default: today's free writer); judges every pair
+//          --models a,b   --topics id,id | file.json   --runs n   --judge model (any id; a cheaper judge is fine)
+//          --source-tokens n   a fact check's source, lead and rest (default 6000)
 //          --prices file.json ({"model": {"in": usd/M, "out": usd/M}})   --price model=in/out (repeatable)
 //          --no-pairwise  --no-factcheck  --brief (plan: totals only)  --out dir (default .eval/<run id>)
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -16,7 +18,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PAGE_VARIANTS } from '../lib/prompts.js';
 import { mockModel } from '../lib/mock.js';
-import { DEFAULT_JUDGE, DEFAULT_MODELS, DEFAULT_RUNS, armsOf, loadTopics, planJob, planText, readPrices, usd } from './eval/plan.js';
+import { DEFAULT_JUDGE, DEFAULT_MODELS, DEFAULT_RUNS, PRESETS, SOURCE_TOKENS, armsOf, loadTopics, planJob, planText, readPrices, usd } from './eval/plan.js';
 import { fakeJudge } from './eval/judge.js';
 import { askJudge } from './eval/writer.js';
 import { readPicks, runJob, spendGate } from './eval/run.js';
@@ -41,15 +43,23 @@ export function parseArgs(argv) {
 /** @param {string | undefined} s */
 const list = s => (s ? String(s).split(',').map(x => x.trim()).filter(Boolean) : undefined);
 
+/* A preset sets arms, topics, runs and what is judged; --arms, --topics and --runs override it, and naming
+   your own --arms judges every pair of them and fact-checks all of them. */
 /** @param {Record<string, any>} o */
 export function jobOf(o) {
+  const name = o.preset || 'first';
+  const preset = PRESETS[/** @type {keyof typeof PRESETS} */ (name)]; if (!preset) throw new Error(`unknown preset "${name}" (known: ${Object.keys(PRESETS).join(', ')})`);
   let topics = o.topics && /\.json$/.test(o.topics) ? loadTopics(o.topics) : loadTopics();
-  const only = o.topics && !/\.json$/.test(o.topics) ? list(o.topics) : null;
+  const only = o.topics && !/\.json$/.test(o.topics) ? list(o.topics) : o.topics ? null : preset.topics;
   if (only) { const miss = only.filter(id => !topics.some(t => t.id === id)); if (miss.length) throw new Error(`unknown topics: ${miss.join(', ')}`); topics = topics.filter(t => only.includes(t.id)); }
-  const arms = armsOf(list(o.arms) || Object.keys(PAGE_VARIANTS), list(o.models) || DEFAULT_MODELS);
-  const runs = o.runs ? Number(o.runs) : DEFAULT_RUNS; if (!(runs >= 1 && Number.isInteger(runs))) throw new Error('--runs wants a whole number');
+  const ownArms = list(o.arms);
+  const arms = armsOf(ownArms || preset.variants || Object.keys(PAGE_VARIANTS), list(o.models) || DEFAULT_MODELS);
+  const runs = o.runs ? Number(o.runs) : preset.runs ?? DEFAULT_RUNS; if (!(runs >= 1 && Number.isInteger(runs))) throw new Error('--runs wants a whole number');
+  const sourceTokens = o['source-tokens'] ? Number(o['source-tokens']) : SOURCE_TOKENS; if (!(sourceTokens >= 500)) throw new Error('--source-tokens wants a number of at least 500');
   const prices = readPrices({ file: o.prices, flags: o.price });
-  const plan = planJob({ arms, topics, runs, judge: o.judge || DEFAULT_JUDGE, prices, pairwise: !o['no-pairwise'], factcheck: !o['no-factcheck'] });
+  const plan = planJob({ arms, topics, runs, judge: o.judge || DEFAULT_JUDGE, prices, pairwise: !o['no-pairwise'], factcheck: !o['no-factcheck'],
+    pairs: ownArms ? 'all' : preset.pairs, auto: ownArms ? [] : preset.auto, facts: ownArms ? 'all' : preset.facts, sourceTokens, preset: name,
+    note: o.topics || o.runs || ownArms ? '' : preset.note });
   return { plan, prices };
 }
 
@@ -57,7 +67,9 @@ export function jobOf(o) {
 /** @type {typeof fetch} */
 export const dryFetch = /** @type {any} */ (async (/** @type {string} */ url) => {
   const title = new URL(url).searchParams.get('titles') || 'the topic';
-  const extract = `${title} is described here by a stand-in source, written for a dry run of the eval so that nothing is fetched. It mentions about 3 mm, the year 1932 and a span of 3,000 years, so a fact check has numbers to find. A second sentence adds that the source is not real, and a third that every judgement made against it is fake.`;
+  const lead = `${title} is described here by a stand-in source, written for a dry run of the eval so that nothing is fetched. It mentions about 3 mm and the year 1932, so a fact check has numbers to find. A second sentence adds that the source is not real, and a third that every judgement made against it is fake.`;
+  const rest = 'Further down, the stand-in article mentions a span of 3,000 years, sixteen topics and 0 real words, so some claims are settled only beyond the lead.';
+  const extract = new URL(url).searchParams.get('exintro') === '1' ? lead : `${lead}\n\n\n== More ==\n${rest}`;
   return { ok: true, status: 200, json: async () => ({ query: { pages: [{ title, extract }] } }) };
 });
 
@@ -101,8 +113,9 @@ export async function main(argv, { log = console.log } = {}) {
     const owner = readPicks(key, JSON.parse(readFileSync(file, 'utf8')));
     const prev = JSON.parse(readFileSync(join(dir, 'summary.json'), 'utf8'));
     const pages = existsSync(join(dir, 'pages.jsonl')) ? readFileSync(join(dir, 'pages.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)) : [];
-    const pairs = readFileSync(join(dir, 'judgements.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(j => j.type === 'pair' && j.winner !== 'invalid');
-    const S = { ...summarize({ runId: prev.runId, mode: prev.mode, arms: prev.arms, pages, pairs, tokens: prev.tokens, usd: prev.usd, stopped: prev.stopped, planned: prev.planned, owner }), createdAt: prev.createdAt };
+    const J = readFileSync(join(dir, 'judgements.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l));
+    const pairs = J.filter(j => j.type === 'pair' && j.winner !== 'invalid'), auto = J.filter(j => j.type === 'auto');
+    const S = { ...summarize({ runId: prev.runId, mode: prev.mode, arms: prev.arms, pages, pairs, auto, tokens: prev.tokens, usd: prev.usd, stopped: prev.stopped, planned: prev.planned, owner, preset: prev.preset, presetNote: prev.presetNote }), createdAt: prev.createdAt };
     writeFileSync(join(dir, 'summary.json'), JSON.stringify(S, null, 2));
     writeFileSync(join(dir, 'report.html'), reportHtml(S));
     log(`Read ${owner.length} picks into ${join(dir, 'summary.json')} and report.html.`);

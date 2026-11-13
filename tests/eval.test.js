@@ -10,8 +10,8 @@ import { FRONT, EARLIER } from '../lib/front.js';
 import { KIND_SHAPE, pageInput } from '../lib/prompts.js';
 import { checksOf, compliance, isUmbrella, scorePage } from '../scripts/eval/score.js';
 import { bootstrap, signTest } from '../scripts/eval/stats.js';
-import { factParts, fakeJudge, plainPage, readFacts, readPair, tallyFacts } from '../scripts/eval/judge.js';
-import { armsOf, loadTopics, planJob, readPrices } from '../scripts/eval/plan.js';
+import { factParts, factPrompt, fakeJudge, plainPage, readFacts, readPair, tallyFacts } from '../scripts/eval/judge.js';
+import { PRESETS, armsOf, loadTopics, planJob, planText, readPrices } from '../scripts/eval/plan.js';
 import { buildReview, readPicks, runJob, spendGate } from '../scripts/eval/run.js';
 import { winRates } from '../scripts/eval/summary.js';
 import { dryFetch, main } from '../scripts/eval.mjs';
@@ -107,14 +107,31 @@ test('statistics: bootstrap intervals are seeded and sensible, the sign test is 
   assert.deepEqual({ n: w[0].n, aWins: w[0].aWins, bWins: w[0].bWins, ties: w[0].ties, verdict: w[0].verdict }, { n: 3, aWins: 2, bWins: 0, ties: 1, verdict: 'not significant' });
 });
 
-test('judges: answers are read tolerantly, and claims tallied by part', () => {
+test('judges: answers are read tolerantly, and claims tallied by part and by where their evidence was', async () => {
   assert.deepEqual(readPair('Sure! ```json\n{"winner": "b", "why": "more specific"}\n```'), { winner: 'B', scores: null, why: 'more specific' });
   assert.equal(readPair('{"winner": "Tie"}')?.winner, 'tie');
   assert.equal(readPair('{"winner": "C"}'), null); assert.equal(readPair('no json'), null);
-  const f = readFacts(JSON.stringify({ body: [{ claim: 'built 1911', verdict: 'Supported' }, { claim: 'x', verdict: 'maybe' }], keyFacts: [{ claim: '13 kg', verdict: 'contradicted', note: '12.7 kg' }], hooks: 'oops' }));
-  assert.ok(f); assert.equal(f.body.length, 1); assert.equal(f.hooks.length, 0);
+  const f = readFacts(JSON.stringify({
+    body: [{ claim: 'built 1911', verdict: 'Supported', where: 'lead' }, { claim: 'x', verdict: 'maybe' }, { claim: 'fired 550 rounds a minute', verdict: 'supported', where: 'REST' },
+      { claim: 'BSA made 145,000', verdict: 'contradicted', where: 'rest', note: 'about 145,000 by BSA and Savage' }, { claim: 'nicknamed the Belgian rattlesnake', verdict: 'absent', where: 'rest' }],
+    keyFacts: [{ claim: '13 kg', verdict: 'contradicted', where: 'lead', note: '12.7 kg' }, { claim: 'weighs 28 lb', verdict: 'supported' }],
+    hooks: 'oops',
+  }));
+  assert.ok(f); assert.equal(f.body.length, 4); assert.equal(f.hooks.length, 0);
+  assert.deepEqual(f.body.map(c => c.where), ['lead', 'rest', 'rest', null], 'an absent claim has no evidence anywhere');
+  assert.equal(f.keyFacts[1].where, null, 'a settled claim without a readable "where" is never beyond the notes');
   const t = tallyFacts(f);
-  assert.equal(t.total, 2); assert.equal(t.contradicted, 1); assert.equal(t.by.keyFacts.contradicted, 1); assert.equal(t.supportedShare, 0.5);
+  assert.deepEqual({ n: t.all.n, c: t.all.contradicted, a: t.all.absent, sr: t.all.settledRest, cr: t.all.contradictedRest }, { n: 6, c: 2, a: 1, sr: 2, cr: 1 });
+  assert.equal(t.all.contradictedRate, 2 / 6); assert.equal(t.all.beyondRate, 1 / 2); assert.equal(t.all.absentShare, 1 / 6);
+  assert.equal(t.body.beyondRate, 1 / 2); assert.equal(t.keyFacts.contradictedRate, 1 / 2);
+  assert.equal(t.keyFacts.beyondRate, null, 'nothing in the key facts was settled beyond the lead');
+  assert.equal(t.hooks.contradictedRate, null); assert.equal(tallyFacts(null).all.n, 0);
+  /* restating the notes can't move the headline: lead-settled claims stay out of it */
+  const padded = readFacts(JSON.stringify({ body: [...Array(20)].map((_, i) => ({ claim: `lead fact ${i}`, verdict: 'supported', where: 'lead' })).concat([{ claim: 'invented', verdict: 'contradicted', where: 'rest' }]) }));
+  assert.equal(tallyFacts(padded).all.beyondRate, 1); assert.ok(/** @type {number} */ (tallyFacts(padded).all.contradictedRate) < 0.05);
+  const fake = readFacts((await fakeJudge.facts({ parts: { title: '', deck: '', body: 'In 1932 it was 3 mm, and 3,000 years later 77.', keyFacts: '', hooks: '' }, source: { title: 't', url: 'u', lead: 'In 1932, 3 mm.', rest: 'Then 3,000 years.' } })).text);
+  assert.deepEqual(fake?.body.map(c => [c.claim, c.verdict, c.where]), [['1932', 'supported', 'lead'], ['3', 'supported', 'lead'], ['3,000', 'supported', 'rest'], ['77', 'absent', null]]);
+  assert.match(factPrompt({ topic: 'T', parts: factParts(PAGE), source: { title: 'S', url: 'u', lead: 'LEAD TEXT', rest: 'REST TEXT' } }), /LEAD:\nLEAD TEXT\n\nREST:\nREST TEXT/);
   const parts = factParts(PAGE);
   assert.match(parts.keyFacts, /Calibre: \.303 British/); assert.match(parts.hooks, /Albert Ball: a pilot who loved it/); assert.doesNotMatch(parts.body, /\[\[/);
   const plain = plainPage(PAGE);
@@ -170,6 +187,51 @@ test('a live run refuses to start without --yes-spend, a budget, known prices an
 /** @param {(dir: string) => Promise<void>} fn */
 const inTemp = async fn => { const d = mkdtempSync(join(tmpdir(), 'dh-eval-')); try { await fn(d); } finally { rmSync(d, { recursive: true, force: true }); } };
 const mockWriter = (/** @type {any} */ _arm, /** @type {any} */ input) => mockModel({ task: 'page', input, pace: 'fast' });
+/* every claim carries where its evidence was, and absent ones none */
+const PARTS_OK = (/** @type {any} */ f) => ['body', 'keyFacts', 'hooks'].every(p => f[p].every((/** @type {any} */ c) => (c.verdict === 'absent' ? c.where === null : ['lead', 'rest'].includes(c.where))));
+
+test('presets: "first" is the default and a small first look; "full" is everything; the judge can be any model', async () => {
+  const out = /** @type {string[]} */ ([]);
+  assert.equal(await main(['plan', '--brief'], { log: s => out.push(s) }), 0);
+  const first = out.join('\n');
+  assert.match(first, /preset first\): 4 arms x 12 topics x 1 run\./);
+  assert.match(first, /A FIRST LOOK, NOT A VERDICT/);
+  assert.match(first, /automatic checks only, no judge call: base@\S+ vs split@/);
+  assert.match(first, /^writers\s+48\s/m); assert.match(first, /^judges \(anthropic\/claude-opus-5\.5\)\s+60\s/m); assert.match(first, /^total\s+108\s/m);
+  const T = loadTopics(); const ids = PRESETS.first.topics;
+  assert.deepEqual([...new Set(ids.map(id => T.find(t => t.id === id)?.kind))].sort(), Object.keys(KIND_SHAPE).sort(), 'one topic per kind');
+  const arms = armsOf(PRESETS.first.variants, ['m/x']);
+  const P = planJob({ arms, topics: T.filter(t => ids.includes(t.id)), runs: 1, judge: 'cheap/judge', pairs: PRESETS.first.pairs, auto: PRESETS.first.auto, facts: PRESETS.first.facts });
+  const pairs = P.calls.filter(c => c.type === 'pair').map(c => /** @type {any} */ (c)).map(c => `${c.a.variant}|${c.b.variant}`);
+  assert.deepEqual([...new Set(pairs)], ['split|grounded', 'split|hooks-tight']);
+  assert.deepEqual([...new Set(P.calls.filter(c => c.type === 'facts').map(c => /** @type {any} */ (c).arm.variant))], ['split', 'grounded', 'hooks-tight']);
+  assert.ok(P.calls.filter(c => c.type !== 'writer').every(c => c.model === 'cheap/judge'));
+  assert.match(planText(P, { list: false }), /^judges \(cheap\/judge\)/m);
+  const full = /** @type {string[]} */ ([]);
+  await main(['plan', '--brief', '--preset', 'full', '--judge', 'cheap/judge'], { log: s => full.push(s) });
+  assert.match(full.join('\n'), /4 arms x 29 topics x 2 runs/); assert.match(full.join('\n'), /^total\s+812\s/m); assert.match(full.join('\n'), /^judges \(cheap\/judge\)\s+580\s/m);
+  await assert.rejects(main(['plan', '--preset', 'huge']), /unknown preset/);
+  const small = /** @type {string[]} */ ([]);
+  await main(['plan', '--brief', '--source-tokens', '1000'], { log: s => small.push(s) });
+  assert.match(small.join('\n'), /Fact-check source: ~1,000 tokens/);
+});
+
+test('the first preset runs dry end to end: auto-only base vs split, judged pairs, and the first-look warning', () => inTemp(async dir => {
+  const T = loadTopics().filter(t => ['benfords-law', 'escapement'].includes(t.id));
+  const arms = armsOf(PRESETS.first.variants, ['m/x']);
+  const plan = planJob({ arms, topics: T, runs: 1, judge: 'j/y', pairs: PRESETS.first.pairs, auto: PRESETS.first.auto, facts: PRESETS.first.facts, preset: 'first', note: PRESETS.first.note });
+  const r = await runJob({ plan, outDir: dir, runId: 'test-first', live: false, writerModel: mockWriter, judge: fakeJudge, fetch: dryFetch });
+  assert.equal(r.pages.length, 8); assert.equal(r.pairs.length, 4);
+  assert.equal(r.pages.filter(p => p.facts).length, 6, 'base is not fact-checked');
+  const S = r.summary;
+  assert.deepEqual(S.auto.map((/** @type {any} */ w) => [w.a, w.b, w.n]), [['base@m/x', 'split@m/x', 2]]);
+  assert.deepEqual(S.pairwise.map((/** @type {any} */ w) => [w.a, w.b].sort().join(' vs ')).sort(), ['grounded@m/x vs split@m/x', 'hooks-tight@m/x vs split@m/x']);
+  assert.match(S.presetNote, /FIRST LOOK, NOT A VERDICT/);
+  const report = readFileSync(join(dir, 'report.html'), 'utf8');
+  assert.match(report, /FIRST LOOK, NOT A VERDICT/); assert.match(report, /Automatic checks only/); assert.match(report, /beyond the notes/);
+  const key = JSON.parse(readFileSync(join(dir, 'review-key.json'), 'utf8'));
+  assert.equal(Object.keys(key.pairs).length, 4, 'Will reviews the judged pairs, not every pair');
+}));
 
 test('a dry run goes end to end on the mock writer and a fake judge, and writes everything', () => inTemp(async dir => {
   const topics = loadTopics().filter(t => ['axolotl', 'why-cats-purr'].includes(t.id));
@@ -182,14 +244,20 @@ test('a dry run goes end to end on the mock writer and a fake judge, and writes 
   assert.equal(readdirSync(join(dir, 'pages', 'axolotl', 'run1')).length, 2);
   const p = JSON.parse(readFileSync(join(dir, 'pages.jsonl'), 'utf8').split('\n')[0]);
   assert.ok(p.ms.first != null && p.ms.firstBody != null && p.ms.total >= p.ms.firstBody && p.ms.firstBody >= p.ms.first);
-  assert.ok(p.usage.output > 0 && p.score.usable && p.facts.total > 0);
+  assert.ok(p.usage.output > 0 && p.score.usable && p.facts.all.n > 0);
+  assert.ok(r.pages.some(x => x.facts?.all.settledRest > 0), 'some claims are settled beyond the lead');
   const grounded = r.pages.find(x => x.variant === 'grounded' && x.topic === 'axolotl');
   assert.equal(grounded.notes.url, 'https://en.wikipedia.org/wiki/Axolotls');
+  assert.equal(typeof grounded.notes.isLead, 'boolean');
+  const facts = readFileSync(join(dir, 'judgements.jsonl'), 'utf8').split('\n').filter(Boolean).map(l => JSON.parse(l)).filter(j => j.type === 'facts');
+  assert.ok(facts.every(j => PARTS_OK(j.parsed)));
   assert.equal(r.pages.find(x => x.variant === 'grounded' && x.topic === 'why-cats-purr').notes, null, 'a question gets no notes');
   const S = JSON.parse(readFileSync(join(dir, 'summary.json'), 'utf8'));
   assert.match(S.note, /DRY RUN/); assert.equal(S.pairwise.length, 1);
   assert.ok(S.pairwise.every((/** @type {any} */ w) => w.verdict === 'not significant'));
   assert.ok(S.perArm['base@m/x'].compliance.mean > 0);
+  assert.equal(S.measures[0].key, 'beyondRate_all', 'the headline accuracy number comes first');
+  for (const k of ['beyondRate', 'contradictedRate', 'absentShare']) for (const part of ['all', 'body', 'keyFacts', 'hooks']) assert.ok(`${k}_${part}` in S.perArm['grounded@m/x'], `${k}_${part}`);
   const report = readFileSync(join(dir, 'report.html'), 'utf8');
   assert.match(report, /not significant/); assert.doesNotMatch(report, /<script/);
   /* the review page is blind: no arm or variant names anywhere in it */

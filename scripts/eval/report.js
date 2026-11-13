@@ -19,7 +19,7 @@ th:first-child,td:first-child{text-align:left}th{font-weight:600}.wrap{overflow-
 /** @param {{ mean: number | null, lo: number | null, hi: number | null, n: number }} c @param {string} key */
 function ci(c, key) {
   if (!c || c.mean == null) return '<span class="mute">n/a</span>';
-  const pct = /Share|compliance|usable/.test(key); const ms = /^(first|firstBody|total)$/.test(key);
+  const pct = /Share|Rate|compliance|usable/.test(key); const ms = /^(first|firstBody|total)$/.test(key);
   const f = (/** @type {number} */ x) => pct ? `${(x * 100).toFixed(0)}%` : ms || Math.abs(x) >= 100 ? Math.round(x).toLocaleString('en-US') : x.toFixed(2);
   return `${f(c.mean)} <span class="mute">[${f(/** @type {number} */ (c.lo))}, ${f(/** @type {number} */ (c.hi))}]</span>`;
 }
@@ -39,12 +39,13 @@ export function reportHtml(S) {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Writer eval report</title><style>${STYLE}</style></head><body><main>
 <h1>Writer eval: ${esc(S.runId)}</h1>
 <p class="mute">${esc(S.mode)} run · ${esc(S.createdAt)} · ${arms.length} arms · ${S.perArm[arms[0]]?.pages ?? 0} pages an arm · writer tokens ${S.tokens.writer.input.toLocaleString('en-US')} in, ${S.tokens.writer.output.toLocaleString('en-US')} out · judge tokens ${S.tokens.judge.input.toLocaleString('en-US')} in, ${S.tokens.judge.output.toLocaleString('en-US')} out · ${S.usd == null ? 'price unknown' : `$${S.usd.toFixed(2)} spent`} (plan: ${S.planned.calls} calls, ${S.planned.usd == null ? 'price unknown' : `$${S.planned.usd.toFixed(2)}`})</p>
-${S.note ? `<div class="warn">${esc(S.note)}</div>` : ''}${S.stopped ? `<div class="warn">Stopped early: ${esc(S.stopped)}</div>` : ''}
+${S.note ? `<div class="warn">${esc(S.note)}</div>` : ''}${S.presetNote ? `<div class="warn">${esc(S.presetNote)}</div>` : ''}${S.stopped ? `<div class="warn">Stopped early: ${esc(S.stopped)}</div>` : ''}
 <h2>Per arm: means with 95% bootstrap intervals</h2>
-<p class="mute">Accuracy first: an arm that contradicts its sources more often than the control cannot win, however engaging.</p>
+<p class="mute">Accuracy first: an arm that contradicts its sources more often than the control cannot win, however engaging. The headline is "beyond the notes": contradicted claims among those the source settles only after its lead. The grounded writer was handed that lead, so restating it would flatter any rate that counts it.</p>
 <div class="wrap"><table><tr><th>measure</th>${arms.map(a => `<th>${esc(a)}</th>`).join('')}</tr>
 ${rows}</table></div>
 ${winTable(S.pairwise, 'Blind pairwise: which page a curious reader would rather keep reading (judge)')}
+${winTable(S.auto || [], 'Automatic checks only: the page passing more format checks wins (no judge)')}
 ${S.owner ? winTable(S.owner, "Will's blind picks") : '<p class="mute">Will\'s blind picks: not read in yet (review.html, then <code>node scripts/eval.mjs picks</code>).</p>'}
 <h2>Format checks failed, by arm</h2><div class="wrap"><table><tr><th>arm</th><th style="text-align:left">check (pages failing)</th></tr>${fails}</table></div>
 </main></body></html>`;
