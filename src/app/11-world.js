@@ -5,7 +5,7 @@ import { clip } from '../shared/article.js';
 import { routeOf } from '../shared/world.js';
 import { buildGraph, localGraph, nodeKeyOf } from '../shared/graph.js';
 import { KIND_LABEL, kattr, kindOf } from './01-data.js';
-import { $, esc, reducedMotion, relTime, save, store, toast } from './02-util.js';
+import { $, esc, reducedMotion, relTime, save, store, toast, tokenMs } from './02-util.js';
 import { ic } from './03-icons.js';
 import { CUR, curPage, pageOf, trailPages, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
@@ -88,7 +88,8 @@ export function showWorld() {
   WORLD.setData(full, { grow: grown });
   store.settings.worldSeen = Date.now(); save();
   const t = new URLSearchParams(location.search).get('trail'); const tr = t && store.trails.find(x => x.id === t);
-  if (tr) setTimeout(() => { if (WORLD) WORLD.startReplay(tr.steps.map(s => s[0])); }, reducedMotion() ? 0 : 500);
+  /* the trail replays once the view has arrived */
+  if (tr) setTimeout(() => { if (WORLD) WORLD.startReplay(tr.steps.map(s => s[0])); }, reducedMotion() ? 0 : tokenMs('--d-slow'));
 }
 export function leaveWorld() { if (WORLD) { WORLD.destroy(); WORLD = null; } }
 

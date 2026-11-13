@@ -3,7 +3,7 @@ import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, splitLink,
 import { routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { LENS_PHRASE, kattr, kindOf } from './01-data.js';
-import { $, $$, announce, errText, esc, leave, reducedMotion, save, store, toast, write } from './02-util.js';
+import { $, $$, afterMotion, announce, errText, esc, leave, reducedMotion, save, store, toast, write } from './02-util.js';
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
@@ -454,7 +454,7 @@ function drawPic(F, now) {
     ctx.globalAlpha = .34 * v; ctx.fillStyle = `rgb(${F.ink})`; ctx.beginPath(); ctx.arc(d.x, d.y, .75 * v + .05, 0, 2 * Math.PI); ctx.fill();
   }
   ctx.globalAlpha = 1;
-  if (rev >= 1 && !F.handed) { F.handed = true; F.box.classList.add('reveal'); setTimeout(() => finishPic(F), 800); }
+  if (rev >= 1 && !F.handed) { F.handed = true; F.box.classList.add('reveal'); afterMotion(F.box, () => finishPic(F)); }
 }
 let PIC_RAF = 0;
 function picLoop(now) {

@@ -29,6 +29,11 @@ export function afterMotion(el, fn) {
   if (!runs.length) { fn(); return; }
   Promise.allSettled(runs.map(a => a.finished)).then(() => fn());
 }
+/** a motion token's duration in ms, read from the stylesheet, for a wait that has no element to watch */
+export function tokenMs(name) {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); const n = parseFloat(v);
+  return Number.isFinite(n) ? (v.endsWith('ms') ? n : n * 1000) : 0;
+}
 const LEAVING = new Map();
 /** el leaves: `cls` runs its exit, then `done` puts it away. Under reduced motion it goes at once.
     @param {HTMLElement} el @param {() => void} done */

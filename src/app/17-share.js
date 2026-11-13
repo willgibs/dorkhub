@@ -12,6 +12,7 @@ import { $, $$, esc, reducedMotion, save, store, toast } from './02-util.js';
 import { ic } from './03-icons.js';
 import { CUR, curPage, curTrail, go, pageOf, setCUR, trailPages } from './04-pages.js';
 import { chamberHTML, setHTML, worldIndex } from './05-render.js';
+import { settleFan } from './06-page-end.js';
 import { updateProg } from './07-reading.js';
 import { renderWorldBtn } from './12-chrome.js';
 import { DOORS } from './13-landing.js';
@@ -49,7 +50,7 @@ export function showTrail(steps) {
   setHTML($('.a-end'), `<div class="eblock"><div class="fan tr"><svg class="fan-svg" aria-hidden="true"></svg><div class="fan-out">${st.map((x, i) => `<a class="card fan-door${x.read ? ' is-read' : ''}" href="${esc(routeOf(x.s))}" data-walk="${i}"${kattr(x.kind)}><i class="fan-dot"></i><span class="cd-top">${x.kind ? `<span class="kind"${kattr(x.kind)}>${esc(capFirst(x.kind))}</span>` : '<span></span>'}${x.read ? '<span class="cd-read">Read</span>' : ''}</span><span class="cd-t">${esc(x.title)}</span>${x.hook ? `<span class="cd-h">${esc(x.hook)}</span>` : ''}</a>`).join('')}</div></div></div>`);
   const el = $('#view .eblock'); requestAnimationFrame(() => drawTrail(el));
   if (typeof ResizeObserver === 'function') new ResizeObserver(() => drawTrail(el)).observe(el);
-  if (reducedMotion()) el.classList.add('fan-drawn', 'fan-settled'); else requestAnimationFrame(() => { el.classList.add('fan-drawn'); setTimeout(() => el.classList.add('fan-settled'), 1600); });
+  if (reducedMotion()) el.classList.add('fan-drawn', 'fan-settled'); else requestAnimationFrame(() => { el.classList.add('fan-drawn'); settleFan(el); });
   window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); renderWorldBtn();
   if (!FIRST) $('.a-title').focus({ preventScroll: true });
 }

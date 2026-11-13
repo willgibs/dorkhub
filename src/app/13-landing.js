@@ -11,7 +11,7 @@ import { localGraph, nodeKeyOf } from '../shared/graph.js';
 import { enigma } from '../shared/enigma.js';
 import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
 import { LENSES, kattr, kindOf } from './01-data.js';
-import { $, $$, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
+import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
 import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
@@ -45,7 +45,7 @@ export function shufflePresets() {
   const swap = () => { list.innerHTML = pool.map(doorHTML).join(''); $$('.door', list).forEach((b, i) => b.style.setProperty('--i', String(i))); list.classList.remove('out'); list.classList.add('in'); };
   if (reducedMotion()) { swap(); return; }
   list.dataset.busy = '1'; list.classList.remove('in'); list.classList.add('out');
-  setTimeout(() => { swap(); setTimeout(() => { delete list.dataset.busy; }, 600); }, 160);
+  afterMotion(list, () => { swap(); afterMotion(list, () => { delete list.dataset.busy; }); });
 }
 
 /* ================= ways in: the cards, the map of threads, and a reader's world =================
