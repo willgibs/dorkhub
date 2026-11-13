@@ -474,7 +474,7 @@ export function worldGrew(p) {
 export let WORLD = null, WHIDE = new Set();
 function worldPageHTML() {
   const full = worldGraph(); const read = full.nodes.filter(n => n.read);
-  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d, false)).join('')}</div></div></section>`;
+  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d)).join('')}</div></div></section>`;
   const saved = Object.values(store.pages).filter(p => p.saved && (p.status === 'done' || p.status === 'partial')).sort((a, b) => b.saved - a.saved);
   const kinds = {}; for (const n of read) { const k = kindOf(n.kind) || 'concept'; kinds[k] = (kinds[k] || 0) + 1; }
   const kindList = Object.keys(KIND_LABEL).filter(k => kinds[k]);

@@ -82,7 +82,7 @@ function freeDoors(p) {
   return [...DOORS.slice(at), ...DOORS.slice(0, at)].filter(d => topicKey(d.t) !== topicKey(p.title)).slice(0, 3);
 }
 function statusNote(p) {
-  const code = p.errorCode; const doors = `<div class="sn-doors">${freeDoors(p).map(d => doorHTML(d, false)).join('')}</div>`;
+  const code = p.errorCode; const doors = `<div class="sn-doors">${freeDoors(p).map(d => doorHTML(d)).join('')}</div>`;
   /* nothing new can be written for free right now, but the pages written ahead of time still open */
   if (p.status === 'error' && code === 'trial_paused') return `<div class="statusnote paused"><h2>Free pages are paused right now</h2><p>Nothing was taken from your free pages. Try again in a while, use your own key, or open one of these: they were written ahead of time, so they’re free and instant.</p>${doors}<div class="sn-a"><button class="btn ghost" type="button" data-act="retry">Try again</button><button class="btn ghost" type="button" data-act="keys">Use your own key</button></div></div>`;
   if (p.status === 'error' && code === 'trial_over') return `<div class="statusnote paywall"><h2>You’ve read your free pages</h2><p>Keep going with your own API key from Anthropic or Vercel AI Gateway. Pages then cost from about a tenth of a cent each, billed to you by the provider, and every tool keeps working. Dorkhub Pro, with no keys at all, is on its way. Pages written ahead of time stay free:</p>${doors}<div class="sn-a"><button class="btn glow" type="button" data-act="keys">Add a key</button></div></div>`;
