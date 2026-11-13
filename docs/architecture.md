@@ -191,8 +191,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   Between the two groups of cards, a still map of every planned topic and its threads: the
   topic pointed at shows beside the map (`makeGraph`'s `panel`), and each of its threads is
   tagged at its middle with its label. A reader's world takes the last card's place, at its
-  size, as their map edge to edge. Surprise me, and the doors a paused or used-up page offers,
-  draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
+  size, as their map edge to edge. Surprise me, and the ways on a page offers when it can't be
+  read (not written yet, paused, out of free pages, failed: a state is a page, `stateOf` in
+  `06-page-end.js`), draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
   free and instant.
 - **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
   placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a

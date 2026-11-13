@@ -92,6 +92,7 @@ export function errText(code) {
     case 'refused': return 'The writer declined this page. Try a different link.';
     case 'offline': return 'You seem to be offline. Reconnect, then try again.';
     case 'bad_output': return 'That came back garbled. Try again.';
+    case 'upstream_error': return 'The writer didn’t answer this time. Give it a moment, then try again.';
     default: return 'The connection dropped partway through. Try again.';
   }
 }
