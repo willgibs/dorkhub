@@ -108,6 +108,8 @@ store = (() => {
     if (s.tipped) base.settings.tipped = true;
     if (s.theme === 'light' || s.theme === 'dark') base.settings.theme = s.theme;
     if (LENSES[s.lens]) base.settings.lens = s.lens;
+    /* when Your world was last looked at, so what grew since springs in: a time, never one still to come */
+    if (Number.isFinite(s.worldSeen) && s.worldSeen > 0 && s.worldSeen <= Date.now()) base.settings.worldSeen = s.worldSeen;
   };
   try {
     const j = JSON.parse(localStorage.getItem(KEY) || 'null');

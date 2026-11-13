@@ -466,6 +466,15 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('.gv-tip.act [data-gv="open"]').click();
       await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, saved, { timeout: 10000 });
     });
+    /* when Your world was last looked at outlives a reload, so what grew since then springs in next time */
+    await step(`${tag}: Your world remembers when you last looked`, async () => {
+      const seen = () => page.evaluate(() => { try { return JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').settings?.worldSeen || 0; } catch (e) { return 0; } });
+      const was = await seen(); if (!was) throw new Error('Your world did not note the visit');
+      await page.reload(); await waitDone();
+      /* anything that saves after the reload writes the store back as the loader read it */
+      await page.keyboard.press('s'); await page.keyboard.press('s'); await page.waitForTimeout(800);
+      const now = await seen(); if (now !== was) throw new Error(`worldSeen was ${was}, ${now} after a reload`);
+    });
     /* back on the front page, a reader's own world takes the last card's place */
     await step(`${tag}: the front page shows your world`, async () => {
       await page.goto(base); await page.waitForSelector('.wc-world #worldStage canvas');
