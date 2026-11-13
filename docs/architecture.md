@@ -99,7 +99,16 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   the map's life), its state in one object per map (several live at once), worked on by parts: the
   camera and its flights (`11-graph-camera.js`), the painting (`11-graph-paint.js`), the pointer
   (`11-graph-input.js`), the card (`11-graph-card.js`), Replay (`11-graph-replay.js`) and the picture
-  to keep (`11-graph-picture.js`, its own frame and radius at print size).
+  to keep (`11-graph-picture.js`, its own frame and radius at print size). By keyboard
+  (`11-graph-keys.js`) each map is one tab stop (`role="application"`, labelled with its counts):
+  focused, its corner brackets strengthen instead of a focus ring; arrows move a selection by direction
+  among the topics drawn (`keyStep` in `src/shared/graph.js`: the nearest in a quarter-turn cone, no
+  wrapping; first the current page's topic, else the most connected), which wears the reticle in its
+  kind's colour, shows the card pointing would and is announced through `#srLive`; Enter opens it,
+  Escape lets it go and then leaves; on /world + - 0 zoom and fit, and the camera follows only a
+  selection about to leave the view. While a map has focus only those keys are its own (it stops them
+  reaching the page's handler); the pointer takes the card back by pointing. Positions are kept when
+  they move (a settle, a drag let go) and on sleep, destroy and pagehide, never on a timer.
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
   The hero (`viewStart`): the heading, whose last word steps once through four of `FRONT`'s topics
   in their kinds' colours to "anything" (`livingWord`, the first arrival of a visit only, never
@@ -297,7 +306,7 @@ which pages were cached.
 | Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
 | The front page by hand: topics, threads and cards each with a source, drawings labelled and inert (a canvas hidden from assistive tech), no line of prose on a card, an entrance length for each, ids unique across cards, a phone version of each wide drawing, short readings, drawings true to their subjects, the cards' styles in their own sheet with the computed rules, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
-| Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics) | `tests/graph.test.js` |
+| Your world: what is drawn and its caps, the neighbourhood map, a layout that settles (and quickly, at 800 topics), where an arrow key moves a map's selection | `tests/graph.test.js` |
 | Caps, bursts, expiry, IPv6, both counter stores (Redis via a fake Upstash) | `tests/trial.test.js` |
 | The endpoint end to end with the mock writer: free repeats, private rewrites, prefetch, cache namespaces | `tests/write.test.js` |
 | A Chromium walkthrough on desktop and phone: the front page's cards (they peek above the fold, show only their kind and title, never play two at once after a fling nor play one it only passed, each play on its turn and finish, and the flytrap, the Enigma's keys and tally, the black hole's reading, the filings and the fold answer), its suggestions and its map, addresses, cards, back and forward, every tool, Save, Your world, the sidebar, the guard, the trial, keys, and a browser moving in | `scripts/e2e.mjs` |

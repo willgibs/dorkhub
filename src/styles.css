@@ -933,6 +933,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 /* ================= Your world: the graph of everything you've read ================= */
 .gv-canvas{position:absolute;inset:0;display:block;touch-action:none;cursor:grab}
 .gv-canvas:active{cursor:grabbing}
+/* focused, a map says so in its own drawing (its corner brackets strengthen), not with a ring round the canvas */
+.gv-canvas:focus{outline:none}
 /* the card beside a topic: what it is, when you read it, what it connects to */
 .gv-tip{position:absolute;z-index:3;width:min(280px,calc(100% - 16px));padding:10px 13px 12px 16px;border-radius:var(--r-1);background:var(--surface);box-shadow:0 0 0 1px var(--line-2),0 18px 40px -22px rgba(0,0,0,.55);font:13.5px/1.45 var(--f-ui);color:var(--ink);pointer-events:none;overflow:hidden}
 .gv-tip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--acc))}

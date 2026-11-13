@@ -11,7 +11,7 @@ import { CUR, curPage, pageOf, trailPages, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { saveFile } from './08-sheets.js';
 import { SIDE, sideClosed } from './10-tools.js';
-import { makeGraph } from './11-graph.js';
+import { makeGraph, worldLabel } from './11-graph.js';
 import { DOORS, doorHTML } from './13-landing.js';
 import { tipAttrs } from './14-map-tips.js';
 import { VIEW } from './16-router.js';
@@ -31,7 +31,7 @@ export function renderMini(grow = []) {
   const center = p && (p.status === 'done' || p.status === 'partial') ? nodeKeyOf(p) : '';
   const start = center || (full.nodes.find(n => n.read) || {}).key || '';
   const local = start ? localGraph(full, start, 48, 12) : { nodes: [], edges: [] };
-  if (!MINI) MINI = makeGraph($('#miniStage'), { mini: true, positions: MINI_POS });
+  if (!MINI) MINI = makeGraph($('#miniStage'), { mini: true, positions: MINI_POS, label: g => worldLabel(g, 'Your world around this page') });
   MINI.setData(local, { center, grow });
   const n = worldCount(); $('#sideStats').textContent = n ? `${n} topic${n === 1 ? '' : 's'} in your world` : 'Your world starts with this page';
   $('#miniStats').innerHTML = n ? `<b>${n}</b> read · <b>${oneClickAway()}</b> one click away` : 'Every page you finish joins your world.';
@@ -56,7 +56,7 @@ function worldPageHTML() {
   const since = Math.min(...read.map(n => n.first || Date.now()));
   return `<section class="wpage">
   <header class="wp-head"><h1>Your world</h1><p class="wp-sum"><span><b>${read.length}</b> topic${read.length === 1 ? '' : 's'} read</span><span><b>${oneClickAway()}</b> one click away</span><span><b>${saved.length}</b> saved</span></p></header>
-  <div class="wp-stage" id="wpStage" role="img" aria-label="A map of the ${read.length} topics you have read and the topics they link to. The lists below hold the same topics.">
+  <div class="wp-stage" id="wpStage" role="group" aria-label="A map of the ${read.length} topics you have read and the topics they link to. The lists below hold the same topics.">
     <div class="wp-bar">
       <label class="wp-find"><span class="sr">Find a topic in your world</span>${ic('search')}<input id="wpFind" type="search" placeholder="Find a topic" autocomplete="off"></label>
       <div class="wp-kinds" role="group" aria-label="Show kinds">${kindList.map(k => `<button type="button" data-wkind="${k}" data-kind="${k}" aria-pressed="${!WHIDE.has(k)}"${tipAttrs(`${KIND_LABEL[k]}: ${kinds[k]}`)}><i></i></button>`).join('')}</div>

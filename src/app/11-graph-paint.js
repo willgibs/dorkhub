@@ -30,8 +30,9 @@ function planTrace(S, P) {
   S.nD = P.map(([x, y]) => Math.hypot(x - cw / 2, y - ch / 2) / far * SPREAD);
   S.tD = S.g.edges.map(e => ({ at: Math.min(S.nD[e.a], S.nD[e.b]), fromA: S.nD[e.a] <= S.nD[e.b] }));
 }
-/* a faint grid that moves with the map, crosses where its lines meet, and brackets at the corners */
-export function grid(S, c, W, H, k, ox, oy, hair, u) {
+/* a faint grid that moves with the map, crosses where its lines meet, and brackets at the corners: longer
+   and at full strength while the map has the keyboard, the way an instrument says it is live */
+export function grid(S, c, W, H, k, ox, oy, hair, u, live = false) {
   const { dark, ink } = S.colors; let sp = 64 * k; while (sp < 40 * u) sp *= 2; while (sp > 150 * u) sp /= 2;
   const x0 = ((ox % sp) + sp) % sp, y0 = ((oy % sp) + sp) % sp;
   c.strokeStyle = ink; c.lineWidth = hair; c.globalAlpha = dark ? .05 : .06; c.beginPath();
@@ -39,7 +40,7 @@ export function grid(S, c, W, H, k, ox, oy, hair, u) {
   for (let y = y0; y < H; y += sp) { c.moveTo(0, y); c.lineTo(W, y); }
   c.stroke(); c.globalAlpha = dark ? .2 : .22; c.beginPath(); const a = 2.5 * u;
   for (let x = x0; x < W; x += sp) for (let y = y0; y < H; y += sp) { c.moveTo(x - a, y); c.lineTo(x + a, y); c.moveTo(x, y - a); c.lineTo(x, y + a); }
-  c.stroke(); const m = 9 * u, l = 12 * u; c.globalAlpha = dark ? .38 : .34; c.lineWidth = u; c.beginPath();
+  c.stroke(); const m = 9 * u, l = (live ? 18 : 12) * u; c.globalAlpha = live ? 1 : dark ? .38 : .34; c.lineWidth = (live ? 1.5 : 1) * u; c.beginPath();
   for (const [x, y, sx, sy] of [[m, m, 1, 1], [W - m, m, -1, 1], [m, H - m, 1, -1], [W - m, H - m, -1, -1]]) { c.moveTo(x, y + sy * l); c.lineTo(x, y); c.lineTo(x + sx * l, y); }
   c.stroke();
 }
@@ -66,15 +67,15 @@ export function tag(S, c, text, w, fs, cx, cy, r, dirs, placed, u, fa, strong, W
 export const spaced = c => { if ('letterSpacing' in c) /** @type {any} */ (c).letterSpacing = '0.07em'; };
 export const unspaced = c => { if ('letterSpacing' in c) /** @type {any} */ (c).letterSpacing = '0px'; };
 export function draw(S, now) {
-  const { ctx, cw, ch, DPR, g, cam, adj, born, replay, hover, sel, focusSet, focusKey, mini, still, widths, labelOrder } = S;
+  const { ctx, cw, ch, DPR, g, cam, adj, born, replay, hover, sel, kb, focusSet, focusKey, mini, still, widths, labelOrder } = S;
   if (!cw) return; const { dark, ink, stage, kinds } = S.colors;
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.clearRect(0, 0, cw, ch);
   const N = g.nodes; const k = cam.k, ox = cw / 2 - cam.x * k, oy = ch / 2 - cam.y * k;
   const P = N.map(n => [n.x * k + ox, n.y * k + oy]);
-  grid(S, ctx, cw, ch, k, ox, oy, 1 / DPR, 1);
+  grid(S, ctx, cw, ch, k, ox, oy, 1 / DPR, 1, S.keyFocus);
   if (!S.seenAt) { if (!S.visible || !N.length || S.held) return; S.seenAt = reducedMotion() ? -1e9 : now; if (S.seenAt > 0) planTrace(S, P); }
   const since = now - S.seenAt; const tD = S.tD, nD = S.nD;
-  const hi = hover >= 0 ? hover : sel; const nb = hi >= 0 ? new Set([hi, ...adj[hi]]) : null;
+  const hi = hover >= 0 ? hover : sel >= 0 ? sel : kb; const nb = hi >= 0 ? new Set([hi, ...adj[hi]]) : null;
   const trailSet = replay ? replay.lit : null;
   const dimOf = i => (focusSet && !focusSet.has(i) ? .1 : 1) * (nb && !nb.has(i) ? .15 : 1) * (trailSet && !trailSet.has(i) ? .3 : 1);
   const bornA = i => { const t0 = born.get(i); return t0 == null ? 1 : clamp01((now - t0) / 500); };
@@ -125,6 +126,8 @@ export function draw(S, now) {
     } else { ctx.globalAlpha = al; ctx.fillStyle = stage; disc(ctx, x, y, r); ctx.globalAlpha = al * (dark ? .85 : .75); ring(ctx, x, y, r); }
     if (n.cur || (replay && replay.at === i && !seg)) { ctx.globalAlpha = .9 * al; ctx.strokeStyle = ink; reticle(ctx, x, y, r + 6, 1); }
     if (i === sel) { ctx.globalAlpha = .9; ctx.strokeStyle = hex; ctx.lineWidth = 1.5; ring(ctx, x, y, r + 8.5); }
+    /* the keyboard's selection wears the sight too, in its kind's colour, outside where-you-are's */
+    if (i === kb) { ctx.globalAlpha = 1; ctx.strokeStyle = hex; ctx.lineWidth = 1.5; reticle(ctx, x, y, r + (n.cur ? 13 : 6), 1); }
     /* a newcomer pings once, like a radar return */
     const t0 = born.get(i); if (t0 != null && now > t0) { const t = clamp01((now - t0) / 900); ctx.globalAlpha = (1 - t) * .8; ctx.strokeStyle = hex; ctx.lineWidth = 1; ring(ctx, x, y, r + 3 + easeOut(t) * 24); }
   }
@@ -137,7 +140,7 @@ export function draw(S, now) {
   const fs = mini || cw < 520 ? 10 : 10.5;
   ctx.font = `600 ${fs}px Inter, system-ui, sans-serif`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; spaced(ctx);
   const placed = []; const order = []; const fi = focusKey ? N.findIndex(n => n.key === focusKey) : -1;
-  for (const i of [hi, sel, fi, ...N.map((n, i) => (n.cur ? i : -1)), ...(nb ? [...nb] : []), ...(replay ? [replay.at] : [])]) if (i >= 0 && !order.includes(i)) order.push(i);
+  for (const i of [hi, sel, kb, fi, ...N.map((n, i) => (n.cur ? i : -1)), ...(nb ? [...nb] : []), ...(replay ? [replay.at] : [])]) if (i >= 0 && !order.includes(i)) order.push(i);
   /* names still in view claim their space before the faded ones */
   for (const i of labelOrder) if (!order.includes(i) && dimOf(i) > .5) order.push(i);
   for (const i of labelOrder) if (!order.includes(i)) order.push(i);
@@ -158,7 +161,7 @@ export function draw(S, now) {
   };
   let drawn = 0;
   for (const i of order) {
-    const n = N[i]; if (!isShown(S, i)) continue; const special = i === hi || i === sel || i === fi || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
+    const n = N[i]; if (!isShown(S, i)) continue; const special = i === hi || i === sel || i === kb || i === fi || n.cur || (nb && nb.has(i)) || (replay && replay.at === i);
     if (threadsDue && !special) threadTags();
     let fa = special ? 1 : n.read ? (still ? .9 : mini ? (n.deg >= 2 ? .85 : 0) : Math.max(readFade, n.deg >= (small ? 12 : 6) ? .9 : 0)) : loneFade * .8;
     fa *= (special ? 1 : dimOf(i)) * bornA(i) * tickIn(i); if (fa < .05) continue;

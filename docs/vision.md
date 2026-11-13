@@ -180,7 +180,8 @@ quiz and a recap of the trail you're on; "how did I get here?" (your trail); the
 its toggle sits before the wordmark); ask anything (/). The top bar's actions share one shape,
 and Your world has one entry point there, its count beside it, set as part of its icon; the theme
 switch is there on every page.
-Keyboard first: 1–6, S, G, T, F, L, C, P, D, Q, R, I, A, M, N, ?. On a phone the top bar
+Keyboard first: 1–6, S, G, T, F, L, C, P, D, Q, R, I, A, M, N, ?; every map is one tab stop, its arrows
+moving from topic to topic. On a phone the top bar
 keeps a plain menu (keys, voice, theme, export, shortcuts, a new topic) and one gooey
 button holds the learning tools (search, Your world, save, around this).
 
@@ -189,6 +190,8 @@ button holds the learning tools (search, Your world, save, around this).
 capitals, colour only for what a topic is. The whole map, with find, kind filters, focus (everything within
 two links), Replay (a trail walked again across the map), and a picture of it to keep;
 then what you read by kind, your most connected topic, your saved pages and your trails.
+Every map works from the keyboard in the same language: focused, its corner brackets strengthen; arrows
+move a sight from topic to topic, showing its card and saying its name; Enter opens it.
 Only where the map is already visible does it grow as you read; while you read, only the
 count beside Your world moves.
 

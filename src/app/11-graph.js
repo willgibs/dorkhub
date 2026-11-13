@@ -8,9 +8,10 @@
    (11-graph-picture.js). This file holds the data, the loop and the map's life. */
 import { boundsOf, createSim, isHot, tick } from '../shared/graph.js';
 import { reducedMotion, save, store } from './02-util.js';
-import { frameView, flyTo, moveCamera, resize, setFocus } from './11-graph-camera.js';
+import { frameView, flyTo, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
 import { hideTip, listenCard, showTip } from './11-graph-card.js';
 import { listenPointer } from './11-graph-input.js';
+import { clearKey, listenKeys } from './11-graph-keys.js';
 import { SPREAD, TRACE, draw, themeColors } from './11-graph-paint.js';
 import { picture } from './11-graph-picture.js';
 import { startReplay, stepReplay, stopReplay } from './11-graph-replay.js';
@@ -22,17 +23,19 @@ import { startReplay, stepReplay, stopReplay } from './11-graph-replay.js';
  * describe and open replace the card's status line and what opening a topic does; panel, given, takes the
  * card's place entirely (the front page's map shows a pointed-at topic beside the map, not over it).
  * hold: its first trace waits for play() (the front page's map takes its turn among the cards).
- * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
+ * label names the map and its counts for a screen reader (the canvas is its one tab stop); speak, what a
+ * keyboard move to a topic announces.
+ * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void, label?: (g: { nodes: any[], edges: any[] }) => string, speak?: (n: any) => string }} [o]
  */
-export function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
+export function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null, label = g => worldLabel(g), speak = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const S = {
-    host, cv, tip, ctx: cv.getContext('2d'), mini, still, describe, open, panel,
+    host, cv, tip, ctx: cv.getContext('2d'), mini, still, describe, open, panel, label, speak,
     cw: 0, ch: 0, DPR: 1, raf: 0, visible: typeof IntersectionObserver !== 'function', alive: true, held: hold,
     /** @type {{ nodes: any[], edges: any[] }} */ g: { nodes: [], edges: [] }, sim: null, adj: [],
     cam: { x: 0, y: 0, k: 1 }, camTo: null,
-    hover: -1, sel: -1, drag: null, focusSet: null, focusKey: '', replay: null,
+    hover: -1, sel: -1, kb: -1, keyFocus: false, drag: null, focusSet: null, focusKey: '', replay: null,
     /** @type {Set<string>} */ hidden: new Set(),   // kind groups switched off
     born: new Map(),   // node index -> when it appeared (growth moments)
     colors: null, labelOrder: [], userMoved: false, widths: new Map(), lastCenter: '',
@@ -42,7 +45,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     pos: positions || store.pos,
   };
   themeColors(S);
-  listenPointer(S); listenCard(S);
+  listenPointer(S); listenCard(S); listenKeys(S);
   /* ---------- life ---------- */
   const onResize = () => resize(S);
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(onResize) : null; if (ro) ro.observe(host); else addEventListener('resize', onResize);
@@ -57,7 +60,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     picture: o => picture(S, o), startReplay: pids => startReplay(S, pids), stopReplay: () => stopReplay(S), wake: () => wake(S), hideTip: () => hideTip(S),
     get graph() { return S.g; }, get focused() { return S.focusKey; }, get replaying() { return !!S.replay && !S.replay.done; },
     retheme() { themeColors(S); wake(S); },
-    setHidden(set) { S.hidden = set; S.hover = -1; wake(S); },
+    setHidden(set) { S.hidden = set; S.hover = -1; if (S.kb >= 0 && S.hidden.has(kg(S.g.nodes[S.kb]))) clearKey(S); wake(S); },
     find(q) { const s = q.trim().toLowerCase(); if (!s) return -1; const i = S.g.nodes.findIndex(n => n.title.toLowerCase().startsWith(s)); return i >= 0 ? i : S.g.nodes.findIndex(n => n.title.toLowerCase().includes(s)); },
     select(i) { S.sel = i; S.hover = -1; if (i >= 0) { const n = S.g.nodes[i]; flyTo(S, { x: n.x, y: n.y, k: Math.max(S.cam.k, 1.4) }); setTimeout(() => { if (S.sel === i) showTip(S, i, true); }, reducedMotion() ? 0 : 680); } else hideTip(S); wake(S); },
     sleep() { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; keepPositions(S); },
@@ -65,6 +68,11 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     play() { S.held = false; wake(S); },
     destroy() { S.alive = false; if (S.raf) cancelAnimationFrame(S.raf); if (ro) ro.disconnect(); if (io) io.disconnect(); removeEventListener('pagehide', onHide); keepPositions(S); cv.remove(); tip.remove(); },
   };
+}
+/* what a map of your world says it is: its counts, and how to move on it */
+export function worldLabel(g, name = 'Your world') {
+  const read = g.nodes.filter(n => n.read).length, more = g.nodes.length - read;
+  return `${name}: ${read} topic${read === 1 ? '' : 's'} read, ${more} one click away. Arrow keys move between topics, Enter opens one.`;
 }
 const getPos = (S, k) => (S.pos instanceof Map ? S.pos.get(k) : S.pos[k]);
 const setPos = (S, k, v) => { if (S.pos instanceof Map) S.pos.set(k, v); else S.pos[k] = v; };
@@ -76,7 +84,7 @@ function setData(S, next, { center = '', grow = [], fit = true } = {}) {
   const fresh = next.nodes.filter(n => !seeds[n.key]).length; if (fresh) S.dirty = true;
   S.sim = createSim(next, { pos: seeds, alpha: !next.nodes.length ? 0 : fresh === next.nodes.length ? 1 : fresh || grow.length ? .32 : 0 });
   const g = S.g = next; const adj = S.adj = g.nodes.map(() => []); for (const e of g.edges) { adj[e.a].push(e.b); adj[e.b].push(e.a); }
-  S.hover = -1; S.sel = -1; if (S.focusKey) setFocus(S, S.focusKey, false);
+  S.hover = -1; S.sel = -1; S.kb = -1; S.cv.setAttribute('aria-label', S.label(g)); if (S.focusKey) setFocus(S, S.focusKey, false);
   /* a first layout settles off screen, so the world opens already shaped */
   if (fresh > g.nodes.length / 2) { tick(S.sim, S.still ? 320 : 100); if (S.still && !S.mini) { spreadIslands(S); S.sim.alpha = 0; } }
   if (reducedMotion()) { let n = 0; while (isHot(S.sim) && n++ < 600) { tick(S.sim); S.dirty = true; } }

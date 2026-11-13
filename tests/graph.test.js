@@ -1,7 +1,7 @@
 // Your world as data and physics: what is drawn, within caps, and a layout that settles.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { buildGraph, createSim, fitView, isHot, localGraph, nodeKeyOf, tick } from '../src/shared/graph.js';
+import { buildGraph, createSim, fitView, isHot, keyStep, localGraph, nodeKeyOf, tick } from '../src/shared/graph.js';
 import { pageId, topicKey } from '../src/shared/world.js';
 
 /** A read page with links: [title, kind][]. @param {string} title @param {[string, string][]} links @param {number} last */
@@ -127,4 +127,25 @@ test('a move remembers the way you went, in the small map too', () => {
   assert.equal(g.nodes[/** @type {number} */ (e.from)].key, 'pompeii', 'from Pompeii to Volcanoes');
   const local = localGraph(g, 'volcanoes', 10); const le = local.edges.find(x => x.move);
   assert.equal(local.nodes[/** @type {number} */ (le?.from)].key, 'pompeii');
+});
+
+test('arrow keys move a map’s selection by direction, and nothing wraps', () => {
+  /*        0 (top)
+     3   1 (centre)   2         4 is off to the lower right, 5 is hidden */
+  const nodes = [{ deg: 1 }, { deg: 4 }, { deg: 2 }, { deg: 1 }, { deg: 3 }, { deg: 9 }];
+  /** @type {[number, number][]} */ const P = [[100, 0], [100, 100], [220, 100], [0, 100], [160, 180], [100, 300]];
+  const drawn = (/** @type {number} */ i) => i !== 5;
+  assert.equal(keyStep(nodes, P, -1, 'ArrowRight', drawn), 1, 'nothing selected: the most connected that is drawn');
+  assert.equal(keyStep(nodes, P, -1, 'ArrowRight'), 5, 'and it may be any topic drawn');
+  assert.equal(keyStep(nodes.map((n, i) => ({ ...n, cur: i === 3 })), P, -1, 'Home', drawn), 3, 'the current page first');
+  assert.equal(keyStep(nodes.map((n, i) => ({ ...n, cur: i === 5 })), P, 2, 'Home', drawn), 1, 'unless it is not drawn');
+  assert.equal(keyStep(nodes, P, 1, 'ArrowUp', drawn), 0);
+  assert.equal(keyStep(nodes, P, 1, 'ArrowLeft', drawn), 3);
+  assert.equal(keyStep(nodes, P, 1, 'ArrowRight', drawn), 2, 'straight ahead beats nearer but off to the side');
+  assert.equal(keyStep(nodes, P, 1, 'ArrowDown', drawn), 4, 'within the cone');
+  assert.equal(keyStep(nodes, P, 1, 'ArrowDown'), 4, 'the nearer of two');
+  assert.equal(keyStep(nodes, P, 4, 'ArrowDown', drawn), 4, 'nothing further that way: it stays');
+  assert.equal(keyStep(nodes, P, 0, 'ArrowUp', drawn), 0, 'no wrapping');
+  assert.equal(keyStep(nodes, P, 1, 'Enter', drawn), 1, 'other keys do not move it');
+  assert.equal(keyStep([], [], -1, 'ArrowUp'), -1, 'an empty map has nothing to select');
 });
