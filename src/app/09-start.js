@@ -1,7 +1,7 @@
 /* ================= the trial line: what reading costs right now ================= */
 import { TRIAL_PAGES } from 'dorkhub:build';
 import { LENSES } from './01-data.js';
-import { $, $$, auth, pagesLeft, save, store, toast } from './02-util.js';
+import { $, $$, auth, pagesLeft, save, shut, store, toast } from './02-util.js';
 import { curPage } from './04-pages.js';
 import { secFor } from './05-render.js';
 import { paintTools } from './06-page-end.js';
@@ -31,8 +31,8 @@ document.addEventListener('change', e => {
   if (/** @type {HTMLInputElement} */ (e.target).name !== 'lens' || !LENSES[/** @type {HTMLInputElement} */ (e.target).value]) return;
   const cv = /** @type {HTMLDetailsElement} */ (/** @type {HTMLElement} */ (e.target).closest('.cvoice')); /* found before the menu is redrawn under it */
   const inSheet = !!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('#sheet'));
-  setLens(/** @type {HTMLInputElement} */ (e.target).value); if (cv) cv.open = false; if (inSheet) sheet.close();
+  setLens(/** @type {HTMLInputElement} */ (e.target).value); if (cv) shut(cv); if (inSheet) sheet.close();
   toast(`${LENSES[store.settings.lens][0]} voice for new pages.`);
 });
-document.addEventListener('click', e => { $$('details.voice[open]').forEach(v => { if (!v.contains(e.target)) v.open = false; }); });
+document.addEventListener('click', e => { $$('details.voice[open]').forEach(v => { if (!v.contains(e.target)) shut(/** @type {HTMLDetailsElement} */ (v)); }); });
 }

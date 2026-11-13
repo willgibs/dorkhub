@@ -17,7 +17,36 @@ export function relTime(ts) { const m = (Date.now() - ts) / 6e4; if (m < 1) retu
 export const isDark = () => { const t = document.documentElement.dataset.theme; if (t) return t === 'dark'; return matchMedia('(prefers-color-scheme: dark)').matches; };
 export const kindHex = k => (isDark() ? KIND_HEX.dark : KIND_HEX.light)[kindOf(k) || 'concept'];
 export function announce(msg) { const el = $('#srLive'); if (!el) return; el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 60); }
-export function toast(msg, ms = 3200) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 360); }, ms); }
+export function toast(msg, ms = 3200) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; $('#toasts').appendChild(t); setTimeout(() => { t.classList.add('out'); afterMotion(t, () => t.remove()); }, ms); }
+
+/* ================= motion: what opens, closes =================
+   The stylesheet is the one source of every duration: script waits for an element's own animations and transitions to
+   end, never for a number of its own. A raised surface leaves the way it came (its leaving class runs the move, and takes
+   no clicks); one that opens again while it leaves stays; a route change ends every leave at once (settle). */
+/** runs fn once el's animations and transitions (its own and its children's, finite ones) have ended; at once if none */
+export function afterMotion(el, fn) {
+  const runs = el.getAnimations({ subtree: true }).filter(a => a.playState === 'running' && Number.isFinite(Number(a.effect?.getComputedTiming().endTime)));
+  if (!runs.length) { fn(); return; }
+  Promise.allSettled(runs.map(a => a.finished)).then(() => fn());
+}
+const LEAVING = new Map();
+/** el leaves: `cls` runs its exit, then `done` puts it away. Under reduced motion it goes at once.
+    @param {HTMLElement} el @param {() => void} done */
+export function leave(el, done, cls = 'leaving') {
+  if (LEAVING.has(el)) return;
+  if (reducedMotion()) { done(); return; }
+  const finish = () => { if (LEAVING.get(el)?.finish !== finish) return; LEAVING.delete(el); el.classList.remove(cls); done(); };
+  LEAVING.set(el, { finish, cls }); el.classList.add(cls);
+  afterMotion(el, finish);
+}
+/** el opens again while it leaves: it stays, and its way in runs again */
+export function stay(el) { const l = LEAVING.get(el); if (!l) return; LEAVING.delete(el); el.classList.remove(l.cls); }
+export const isLeaving = el => LEAVING.has(el);
+/** a popover (a <details>: the voice, More) closes the way it opened
+    @param {HTMLDetailsElement} d */
+export function shut(d) { if (d.open) leave(d, () => { d.open = false; }); }
+/** every leave (or only el's) ends now: a route change leaves no ghost over the new view */
+export function settle(el) { for (const [e, l] of [...LEAVING]) if (!el || e === el) l.finish(); }
 
 /* ================= storage: your world, kept in this browser =================
    Pages by id (pageId: topic, voice, question, sense, pair), the trails you took between them, where

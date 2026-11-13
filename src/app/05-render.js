@@ -3,7 +3,7 @@ import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, splitLink,
 import { routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { LENS_PHRASE, kattr, kindOf } from './01-data.js';
-import { $, $$, announce, errText, esc, reducedMotion, save, store, toast, write } from './02-util.js';
+import { $, $$, announce, errText, esc, leave, reducedMotion, save, store, toast, write } from './02-util.js';
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
@@ -186,10 +186,14 @@ export function paint(p, streamOnly) {
   /* a page arrived at from outside waits for the reader's word (guard in 16-router.js) */
   if (GUARD.has(p.id)) {
     sec._guard = true; const acc = accentFor(p, A); document.documentElement.dataset.accent = acc;
-    paintHead(p, sec, A, true); setHTML($('.a-body', sec), guardHTML(p)); setHTML($('.a-end', sec), ''); setHTML($('.tools', sec), '');
+    const waits = GUARD.get(p.id) === 'checking' ? [] : liftWaits(sec); const body = $('.a-body', sec); const was = body._h;
+    paintHead(p, sec, A, true); setHTML(body, guardHTML(p)); setHTML($('.a-end', sec), ''); setHTML($('.tools', sec), '');
+    if (waits.length) { if (body._h !== was && body.firstElementChild) body.firstElementChild.classList.add('enter'); body.append(...waits); letGo(waits); }
     return;
   }
   if (sec._guard) { sec._guard = false; for (const s of ['.a-body', '.a-end', '.tools']) { const el = $(s, sec); el.innerHTML = ''; el._h = null; } }
+  /* a page that has stopped waiting (it failed, or was paused) lets its wait go before its state arrives */
+  if (!live) letGo(liftWaits(sec));
   const art = $('.article', sec); if (art.getAttribute('aria-busy') !== String(live)) { art.setAttribute('aria-busy', String(live)); if (!live && p.status === 'done' && p.id === CUR) announce(`${shownTitle(p, A)}: page ready.`); }
   const acc = accentFor(p, A); if (document.documentElement.dataset.accent !== acc) document.documentElement.dataset.accent = acc;
   paintHead(p, sec, A, live); paintBody(p, sec, A, live); paintEnd(p, sec, A, live);
@@ -220,6 +224,21 @@ export function fromOf(p) {
   for (let i = t.steps.length - 1; i >= 0; i--) { const [pid, , from, via] = t.steps[i]; if (pid !== p.id) continue; const f = from && from !== p.id && FROM_VIA.has(via) ? pageOf(from) : null; return f && f.title ? f : null; }
   return null;
 }
+/* A state arrives as text does: the wait leaves where it stood, lifted out of the flow before anything else moves, while
+   the state's sentence and readings enter; nothing snaps. A guard takes the lifted lines out while it replaces the body,
+   then puts them back and lets them go. */
+function liftWaits(sec) {
+  const waits = $$('.a-body > .status-line:not(.lifted)', sec);
+  for (const el of waits) {
+    if (reducedMotion() || !el.offsetParent) { el.remove(); continue; }
+    const r0 = el.getBoundingClientRect();
+    Object.assign(el.style, { position: 'absolute', top: '0px', left: '0px', width: `${r0.width}px`, margin: '0' });
+    const r1 = el.getBoundingClientRect(); el.style.top = `${r0.top - r1.top}px`; el.style.left = `${r0.left - r1.left}px`;
+    delete el.dataset.k; el.removeAttribute('role'); el.setAttribute('aria-hidden', 'true'); el.classList.add('lifted');
+  }
+  return waits.filter(el => el.classList.contains('lifted'));
+}
+const letGo = waits => waits.forEach(el => leave(el, () => el.remove()));
 /* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
    there, from the link you clicked) and the deck. */
 function paintHead(p, sec, A, live) {

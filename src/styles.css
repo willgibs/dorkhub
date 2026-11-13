@@ -338,6 +338,9 @@ body.at-start .side,body.at-world .side{display:none!important}
 @keyframes ink{from{opacity:0;filter:blur(1px)}}
 /* a truthful status, only while there is a real wait */
 .status-line{margin:2px 0 26px;font:500 14px var(--f-ui);color:var(--faint)}
+/* a wait that has ended fades where it stood, out of the flow, as the state's text arrives (liftWaits in 05-render.js) */
+.status-line.leaving{animation:fadeout var(--d-quick) var(--ease-out) both;pointer-events:none}
+@keyframes fadeout{to{opacity:0}}
 .shim{position:relative;display:inline-block}
 .shim::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 2s linear infinite}
 @keyframes shim{to{background-position:0 0}}
@@ -596,7 +599,7 @@ details.pv summary:hover .pv-n{color:var(--ink)}
    Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,
    in ink, beside the kind when the kind is known; the title; a sentence where the deck goes; readings where the key
    facts go), then the one thing to do, then ways on, set as the end's cards. No rule, no box, no colour of its own. */
-.st-l{color:var(--ink)}
+.st-l{color:var(--ink);animation:fade var(--d-vslow) var(--ease-out) both}
 .h-main .st-r{margin-top:26px;max-width:var(--col)}
 .st-a{display:flex;flex-wrap:wrap;gap:8px}
 .st-ways{margin-top:52px}
@@ -621,6 +624,11 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .hcard.in-margin{animation-name:cardin-x}
 .hcard.in-margin::before{content:"";position:absolute;right:100%;top:var(--ly,20px);width:32px;height:1px;background:linear-gradient(90deg,transparent,var(--line-2))}
 @keyframes cardin-x{from{opacity:0;transform:translateX(calc(-1 * var(--dist-base))) scale(var(--scale-s))}}
+/* what opens, closes: the card and the paragraph menu leave the way they came, quicker, and take no clicks while they go */
+.hcard.leaving,.pmenu.leaving{animation:cardout var(--d-quick) var(--ease-out) both;pointer-events:none}
+.hcard.in-margin.leaving{animation-name:cardout-x}
+@keyframes cardout{to{opacity:0;transform:translateY(var(--dist-micro)) scale(var(--scale-s))}}
+@keyframes cardout-x{to{opacity:0;transform:translateX(calc(-1 * var(--dist-base))) scale(var(--scale-s))}}
 .hc-meta{display:flex;align-items:center;gap:8px}
 .hc-meta .kind{margin-right:auto;font:inherit;color:var(--acc)}
 .hc-title{margin-top:6px!important;font:700 19px/1.2 var(--f-ui);letter-spacing:-.015em;text-wrap:balance}
@@ -641,7 +649,7 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .hcard.docked.dragging{transition:none}
 /* the Enter key's mark means nothing where there is no keyboard */
 .hcard.docked .hc-key{display:none}
-.hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));transition:transform var(--d-fast) var(--ease-out),opacity var(--d-fast) var(--ease-out)}
+.hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));pointer-events:none}
 @keyframes dockin{from{opacity:0;transform:translateY(var(--dist-medium))}}
 @media (prefers-reduced-motion:reduce){ .hcard.docked{animation-name:fade;transition:none} }
 .pmenu{position:absolute;z-index:46;display:grid;gap:1px;width:232px;animation:cardin var(--d-fast) var(--ease-out)}
@@ -887,6 +895,9 @@ body.at-start .omni-btn{display:none}
 .cvoice{position:relative}
 .cvoice .pop{left:0;right:auto;text-align:left;animation:popin var(--d-fast) var(--ease-out) both;transform-origin:top left}
 @keyframes popin{from{opacity:0;transform:scale(var(--scale-m))}}
+/* a popover (the voice, More) shrinks back the way it grew, and takes no clicks while it goes */
+details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
+@keyframes popout{to{opacity:0;transform:scale(var(--scale-m))}}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
 .cchip .ic{width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
