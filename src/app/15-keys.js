@@ -1,9 +1,8 @@
 /* ================= keys: free pages, your own key, and (soon) Pro =================
    No accounts for reading. The free pages are counted on the server; a reader's own key is
    kept in this browser only and sent with each request. */
-import { TRIAL_PAGES } from 'dorkhub:build';
 import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
-import { $, auth, errText, esc, pagesLeft, reducedMotion, saveAuth, toast, write } from './02-util.js';
+import { $, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, saveAuth, toast, write } from './02-util.js';
 import { curPage } from './04-pages.js';
 import { generate } from './05-render.js';
 import { KEY_FIX } from './06-page-end.js';
@@ -33,8 +32,7 @@ function nowHTML() {
   /* what the sheet reports of itself is read as readings, the page's key facts' form: whose key, what a page costs, what's left */
   const reading = (name, value) => `<div><dt>${name}</dt><dd>${value}</dd></div>`;
   if (k) { const P = PROVIDERS[k.provider]; const m = findModel(k.model); return `<div class="ks-now" data-state="key"><dl class="readings">${reading('Writing with', `Your ${esc(P.name)} key`)}${reading('Pages', `<b>${esc(m.name)}</b>, about ${cents(pageCost(m))} each`)}${reading('Billed by', esc(k.provider === 'gateway' ? 'Vercel' : P.name))}</dl><p>Quick tools like peeks and quizzes use ${esc(modelName(P.quick))}.</p></div>`; }
-  const n = pagesLeft(); const dots = `<span class="ks-dots" aria-hidden="true">${Array.from({ length: TRIAL_PAGES }, (_, i) => `<i${i < n ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  const left = reading('Free pages left', `<b>${n}</b> of ${TRIAL_PAGES}${dots}`);
+  const n = pagesLeft(); const left = reading('Free pages left', leftHTML());
   if (n > 0) return `<div class="ks-now"><dl class="readings">${left}</dl><p>This month, on this device, no account needed. Pages already written, like the front page’s, open instantly and are always free. Quick tools like peeks and quizzes have their own, larger allowance.</p></div>`;
   return `<div class="ks-now" data-state="out"><dl class="readings">${left}</dl><p>You’ve read your free pages. Add your own API key below to keep going. Dorkhub Pro, with no keys at all, is on its way.</p></div>`;
 }

@@ -12,7 +12,8 @@ import { worldIndex } from './05-render.js';
 import { saveFile } from './08-sheets.js';
 import { SIDE, sideClosed } from './10-tools.js';
 import { makeGraph, worldLabel } from './11-graph.js';
-import { DOORS, doorHTML } from './13-landing.js';
+import { waysOf } from './06-page-end.js';
+import { DOORS } from './13-landing.js';
 import { tipAttrs } from './14-map-tips.js';
 import { VIEW } from './16-router.js';
 
@@ -46,8 +47,8 @@ export function worldGrew(p) {
 export let WORLD = null, WHIDE = new Set();
 function worldPageHTML() {
   const full = worldGraph(); const read = full.nodes.filter(n => n.read);
-  /* nothing read yet: a label and one plain sentence, then ways in */
-  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><h1 class="lbl">Your world</h1><p>Every page you read lands here as a point, joined to the pages it leads to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d)).join('')}</div></div></section>`;
+  /* nothing read yet: a state is a page. Its name where a kind goes, the title, one plain sentence, then ways in */
+  if (!read.length) return `<section class="wpage empty"><p class="where"><span class="lbl st-l">Nothing read yet</span></p><h1 class="a-title">Your world</h1><p class="deck">Every page you read lands here as a point, joined to the pages it leads to. Start anywhere.</p>${waysOf(DOORS.slice(0, 3))}</section>`;
   const saved = Object.values(store.pages).filter(p => p.saved && (p.status === 'done' || p.status === 'partial')).sort((a, b) => b.saved - a.saved);
   const kinds = {}; for (const n of read) { const k = kindOf(n.kind) || 'concept'; kinds[k] = (kinds[k] || 0) + 1; }
   const kindList = Object.keys(KIND_LABEL).filter(k => kinds[k]);
