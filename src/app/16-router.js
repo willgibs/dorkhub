@@ -6,14 +6,13 @@
    /trail/<a>/<b>…  a trail someone shared (17-share.js)
    #/w/<id>/<id>    an address from before Dorkhub had clean links: sent on to its page */
 import { clip, plain } from '../shared/article.js';
-import { PROVIDERS } from '../shared/models.js';
 import { addStep, pageId, parseRoute, routeOf } from '../shared/world.js';
 import { LENSES } from './01-data.js';
-import { $, $$, auth, esc, pagesLeft, save, store, toast, write } from './02-util.js';
+import { $, $$, esc, save, store, toast, write } from './02-util.js';
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
 import { ACTIVE, CUR, HERO, OPENED, PLATE, canVT, curPage, curTrail, ensurePage, go, openTopic, pageInput, pageOf, quiet, setCUR, trailPages } from './04-pages.js';
 import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
-import { doubtPage, toggleSave } from './06-page-end.js';
+import { doubtPage, stateBodyHTML, stateOf, toggleSave } from './06-page-end.js';
 import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, pmenu, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
 import { exportTrail, fileSlug, recapTrail, saveFile, sheet, trailSheet } from './08-sheets.js';
 import { renderVoice, setLens } from './09-start.js';
@@ -90,8 +89,9 @@ async function guard(p, why) {
 export function guardHTML(p) {
   const why = GUARD.get(p.id);
   if (why === 'checking') return `<p class="status-line" role="status"><span class="wait">${orbHTML('searching')}<span class="shim" data-text="Looking for this page">Looking for this page</span></span></p>`;
-  const cost = auth.byok ? `It will be written with your ${esc(PROVIDERS[auth.byok.provider].name)} key.` : pagesLeft() > 0 ? `Writing it uses one of your ${pagesLeft()} free pages.` : 'You’ve read your free pages. Add your own key to write it.';
-  return `<div class="guard"><p class="g-l">${why === 'cleared' ? 'This page was cleared from your browser to make room.' : 'This page hasn’t been written yet.'}</p><p class="g-f">${cost}</p><div class="sn-a">${!auth.byok && pagesLeft() <= 0 ? '<button class="btn glow" type="button" data-act="keys">Add a key</button>' : `<button class="btn glow" type="button" data-act="write-page">${why === 'cleared' ? 'Write it again' : 'Write this page'}</button>`}<a class="btn ghost" href="/">Start somewhere else</a></div></div>`;
+  /* the rest of the page (its state's name, the sentence and readings) is in the head: a state is a page (stateOf) */
+  const st = stateOf(p);
+  return st ? `<div class="state guard" data-state="${esc(st.code)}">${stateBodyHTML(p, st)}</div>` : '';
 }
 function writeGuarded() {
   const p = curPage(); if (!p) return; GUARD.delete(p.id); delete p.guarded;

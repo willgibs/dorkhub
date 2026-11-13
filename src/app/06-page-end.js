@@ -2,7 +2,8 @@
 import { capFirst, cardsOf, clip, keyOf, panelLines, plain } from '../shared/article.js';
 import { routeOf, topicKey } from '../shared/world.js';
 import { LENSES, kattr, kindOf } from './01-data.js';
-import { $, $$, errText, esc, reducedMotion, relTime, save, store, toast, write, writeJSON } from './02-util.js';
+import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
+import { $, $$, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, relTime, save, store, toast, write, writeJSON } from './02-util.js';
 import { ic } from './03-icons.js';
 import { waitHTML } from './03-orbs.js';
 import { REV, ctxInput, curPage, pageOf, parsed } from './04-pages.js';
@@ -10,9 +11,9 @@ import { ACC, fromOf, inline, paint, patch, place, secFor, setHTML, touchWorld, 
 import { watchEnd } from './07-reading.js';
 import { SPEAK, TTS } from './10-tools.js';
 import { syncFab } from './12-chrome.js';
-import { DOORS, doorHTML } from './13-landing.js';
+import { DOORS } from './13-landing.js';
 import { tipAttrs } from './14-map-tips.js';
-import { BOOT } from './16-router.js';
+import { BOOT, GUARD } from './16-router.js';
 /** @param {{ mark: string, title: string, hook?: string, cls?: string, attrs?: string, markTip?: string, href?: string }} o */
 function rowHTML({ mark, title, hook, cls = '', attrs = '', markTip = '', href = '' }) {
   const tag = href ? 'a' : 'button';
@@ -82,13 +83,65 @@ function freeDoors(p) {
   const at = [...String(p.id)].reduce((a, c) => a + c.charCodeAt(0), 0) % DOORS.length;
   return [...DOORS.slice(at), ...DOORS.slice(0, at)].filter(d => topicKey(d.t) !== topicKey(p.title)).slice(0, 3);
 }
-function statusNote(p) {
-  const code = p.errorCode; const doors = `<div class="sn-doors">${freeDoors(p).map(d => doorHTML(d)).join('')}</div>`;
+/* ================= a state is a page (docs/vision.md, the kit) =================
+   When a page can't simply be read (not written yet, paused, out of free pages, failed) it keeps a page's anatomy
+   rather than turning into a notice: the state named in small capitals where a kind is named, the title the reader
+   asked for, one sentence of what is true where the deck goes, readings of what the app already knows (free pages,
+   what writing costs, the key it would use), one thing to do in ink, and ways on: pages written ahead of time, set
+   as a page's end sets its cards, which open free whatever the state. The head's half is drawn by paintHead
+   (05-render.js); stateBodyHTML is the rest. Nothing here guesses: a reset date isn't known, so none is shown. */
+const cents = x => (x < 0.01 ? `${(x * 100).toFixed(1).replace(/\.0$/, '')}¢` : `${Math.round(x * 100)}¢`);
+const STATE_LABEL = { trial_paused: 'Paused', trial_over: 'Out of free pages', rate_limited: 'Busy', bad_key: 'Key turned down', key_limit: 'Key at its limit', model_unavailable: 'Model unavailable', refused: 'Declined', offline: 'Offline', too_large: 'Too long to write' };
+const leftOf = () => ({ html: leftHTML() });
+/* what a page costs with the reader's own key, or from what it can cost with one */
+/** a reading’s row: its name, then its value, as plain text or as markup the app made itself @typedef {[string, string | { html: string }]} Reading */
+/** @returns {Reading[]} */
+function keyReadings() {
+  const k = auth.byok; const m = k && findModel(k.model); if (!k || !m) return [];
+  return [['Writing with', `Your ${PROVIDERS[k.provider].name} key`], ['A page costs', `About ${cents(pageCost(m))} on ${m.name}`]];
+}
+const cheapest = () => Math.min(...Object.keys(PROVIDERS).flatMap(id => modelsFor(id).map(pageCost)));
+/** The state a page is in when it can't simply be read, or null when it can (or is still being looked for).
+ * @returns {{ code: string, label: string, deck: string, readings: Reading[], acts: { act?: string, href?: string, label: string, ink?: boolean }[] } | null} */
+export function stateOf(p) {
+  const g = GUARD.get(p.id);
+  if (g === 'checking') return null;
+  if (g) {
+    const cleared = g === 'cleared'; const out = !auth.byok && pagesLeft() <= 0;
+    const deck = cleared ? 'This page was cleared from your browser to make room. It can be written again.'
+      : out ? 'No one has asked for this page yet, and you’ve read your free pages. With your own key, it’s written now, as you watch.'
+        : 'No one has asked for this page yet. Say the word and it’s written now, as you watch.';
+    /** @type {Reading[]} */ const readings = auth.byok ? keyReadings() : out ? [['Free pages left', leftOf()], ['With a key', `From about ${cents(cheapest())} a page`]] : [['Writing it uses', 'One free page'], ['Free pages left', leftOf()]];
+    const acts = [out ? { act: 'keys', label: 'Add a key', ink: true } : { act: 'write-page', label: cleared ? 'Write it again' : 'Write this page', ink: true }, { href: '/', label: 'Start somewhere else' }];
+    return { code: cleared ? 'cleared' : 'unwritten', label: cleared ? 'Cleared' : 'Not written yet', deck, readings, acts };
+  }
+  if (p.status !== 'error' && p.status !== 'offline') return null;
+  const code = p.errorCode || (p.status === 'offline' ? 'offline' : 'upstream_error');
+  /** @type {Reading[]} */ const trial = auth.byok ? keyReadings() : [['Free pages left', leftOf()]];
   /* nothing new can be written for free right now, but the pages written ahead of time still open */
-  if (p.status === 'error' && code === 'trial_paused') return `<div class="statusnote paused"><h2>Free pages are paused right now</h2><p>Nothing was taken from your free pages. Try again in a while, use your own key, or open one of these: they were written ahead of time, so they’re free and instant.</p>${doors}<div class="sn-a"><button class="btn ghost" type="button" data-act="retry">Try again</button><button class="btn ghost" type="button" data-act="keys">Use your own key</button></div></div>`;
-  if (p.status === 'error' && code === 'trial_over') return `<div class="statusnote paywall"><h2>You’ve read your free pages</h2><p>Keep going with your own API key from Anthropic or Vercel AI Gateway. Pages then cost from about a tenth of a cent each, billed to you by the provider, and every tool keeps working. Dorkhub Pro, with no keys at all, is on its way. Pages written ahead of time stay free:</p>${doors}<div class="sn-a"><button class="btn glow" type="button" data-act="keys">Add a key</button></div></div>`;
-  if (p.status === 'error' || p.status === 'offline') return `<div class="statusnote"><h2>That page didn’t come through</h2><p>${esc(p.error || errText())}</p><div class="sn-a">${KEY_FIX.includes(code) ? '<button class="btn glow" type="button" data-act="keys">Open Keys</button>' : ''}<button class="btn${KEY_FIX.includes(code) ? ' ghost' : ' glow'}" type="button" data-act="retry">Try again</button></div></div>`;
-  if (p.status === 'partial') return `<div class="statusnote"><h2>This page stopped partway</h2><p>${esc(p.error || 'It was left unfinished.')}</p><button class="btn glow" type="button" data-act="retry">Finish it</button></div>`;
+  if (code === 'trial_paused') return { code, label: 'Paused', deck: 'Free pages are paused for a while, so nothing new can be written for free right now. Nothing was taken from yours, and pages already written still open.', readings: trial, acts: [{ act: 'retry', label: 'Try again', ink: true }, { act: 'keys', label: 'Use your own key' }] };
+  if (code === 'trial_over') return { code, label: 'Out of free pages', deck: 'You’ve read this device’s free pages. Your own key keeps every page and tool going, billed by its provider; Dorkhub Pro, with no keys at all, is on its way.', readings: [['Free pages left', leftOf()], ['With a key', `From about ${cents(cheapest())} a page`]], acts: [{ act: 'keys', label: 'Add a key', ink: true }] };
+  const key = KEY_FIX.includes(code);
+  return { code, label: STATE_LABEL[code] || 'Didn’t come through', deck: p.error || errText(code), readings: key ? keyReadings() : trial, acts: key ? [{ act: 'keys', label: 'Open Keys', ink: true }, { act: 'retry', label: 'Try again' }] : [{ act: 'retry', label: 'Try again', ink: true }] };
+}
+export const actsHTML = acts => `<div class="st-a">${acts.map(a => a.href ? `<a class="btn${a.ink ? ' glow' : ' ghost'}" href="${esc(a.href)}">${esc(a.label)}</a>` : `<button class="btn${a.ink ? ' glow' : ' ghost'}" type="button" data-act="${a.act}">${esc(a.label)}</button>`).join('')}</div>`;
+/* out of free quick tools, a tool that answered with that says so in its own place, with the way past it beside it */
+export const toolsOver = (text, status = 'error') => (status === 'error' && text === errText('tools_over') ? actsHTML([{ act: 'keys', label: 'Add a key' }]) : '');
+/* the ways on: the end's cards (kind, title, hook), each opening a page written ahead of time, free and at once */
+/** @param {{ t: string, k?: string, h?: string }[]} doors */
+export function waysOf(doors) {
+  const ways = doors.map(d => `<a class="way" href="${esc(routeOf({ title: d.t }))}" data-way="${esc(d.t)}" data-fk="${esc(d.k || '')}" data-h="${esc(d.h || '')}"${kattr(d.k)}><span class="cd-top">${kindOf(d.k) ? `<span class="kind"${kattr(d.k)}>${esc(capFirst(d.k))}</span>` : '<span></span>'}</span><span class="cd-t">${esc(d.t)}</span>${d.h ? `<span class="cd-h">${esc(d.h)}</span>` : ''}</a>`);
+  return ways.length ? `<section class="st-ways"><h2 class="eh">Free to read now</h2><div class="st-list">${ways.join('')}</div></section>` : '';
+}
+/** what follows a state's head: the one thing to do, then the ways on @param {any} p @param {NonNullable<ReturnType<typeof stateOf>>} st */
+export const stateBodyHTML = (p, st) => `${actsHTML(st.acts)}${waysOf(freeDoors(p))}`;
+/* the readings' rows, set as a page's key facts are when they run down the column */
+/** a value is plain text, or markup the app made itself (the free pages' count and dots) @param {Reading[]} rows */
+export const readingsHTML = rows => rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${typeof v === 'string' ? esc(v) : v.html}</dd></div>`).join('');
+function statusNote(p) {
+  const st = stateOf(p); if (st) return `<div class="state" data-state="${esc(st.code)}">${stateBodyHTML(p, st)}</div>`;
+  /* a page cut off partway keeps what it has, and says so where its text stops, as one of the end's sections */
+  if (p.status === 'partial') return `<div class="state st-part" data-state="partial"><h2 class="eh">Stopped partway</h2><p class="st-say">${esc(!p.errorCode || p.errorCode === 'upstream_error' ? 'The writer stopped before the end. Writing it again starts from the top.' : p.error)}</p>${actsHTML([{ act: 'retry', label: 'Write it again', ink: true }])}</div>`;
   return '';
 }
 export function paintEnd(p, sec, A, live) {
@@ -154,7 +207,7 @@ export function paintDoubt(p, sec) {
   const el = $('.a-doubt', sec); if (!el) return;
   if (!p.doubts) { setHTML(el, ''); return; }
   if (p.doubts === 'loading') { setHTML(el, `<div class="doubt enter"><h2>Skeptic mode</h2><p class="digging">${waitHTML('searching', 'Reading this page with a raised eyebrow')}</p></div>`); return; }
-  if (typeof p.doubts === 'string') { setHTML(el, `<div class="doubt"><h2>Skeptic mode</h2><p>${esc(p.doubts)}</p></div>`); return; }
+  if (typeof p.doubts === 'string') { setHTML(el, `<div class="doubt"><h2>Skeptic mode</h2><p>${esc(p.doubts)}</p>${toolsOver(p.doubts)}</div>`); return; }
   const label = { solid: 'Solid', check: 'Check', shaky: 'Shaky' };
   const h = `<div class="doubt"><h2>Skeptic mode</h2><p>The claims on this page most worth verifying before you repeat them, highlighted in the text above.</p><ol>${p.doubts.map(d => `<li><span class="r ${d.rating}">${label[d.rating]}</span><q>${esc(d.quote)}</q><p>${esc(d.note)}</p></li>`).join('')}</ol></div>`;
   if (el._h === h && $('mark.dq', sec)) return; setHTML(el, h);

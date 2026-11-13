@@ -7,7 +7,7 @@ import { $, $$, announce, errText, esc, reducedMotion, save, store, toast, write
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
-import { paintDoubt, paintEnd, paintTools } from './06-page-end.js';
+import { paintDoubt, paintEnd, paintTools, readingsHTML, stateOf, toolsOver } from './06-page-end.js';
 import { renderSide } from './10-tools.js';
 import { worldGrew } from './11-world.js';
 import { renderWorldBtn, syncFab } from './12-chrome.js';
@@ -223,21 +223,30 @@ export function fromOf(p) {
 /* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
    there, from the link you clicked) and the deck. */
 function paintHead(p, sec, A, live) {
-  const head = $('.a-head', sec); const title = shownTitle(p, A);
+  /* a page that can't simply be read names its state beside its kind, and says what is true where the deck goes; its
+     title is what the reader asked for, whole (a page's own title, shortened to keep, is the writer's to give) */
+  const st = stateOf(p);
+  const head = $('.a-head', sec); const title = st && !A.title ? capFirst(p.req.title) : shownTitle(p, A);
   const kind = A.kind || (ACC && ACC.id === p.id && ACC.kind) || p.kind || '';
   const lens = p.req.lens !== 'encyclopedic' && LENS_PHRASE[p.req.lens] ? LENS_PHRASE[p.req.lens] : '';
   const from = fromOf(p);
-  setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}${from ? `<a class="from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><span>From</span><b>${esc(clip(from.title, 44))}</b></a>` : ''}`);
+  setHTML($('.where', head), `${kind ? `<span class="kind"${kattr(kind)}>${esc(capFirst(kind))}</span>` : ''}${st ? `<span class="lbl st-l">${esc(st.label)}</span>` : ''}${p.req.bridge ? '<span class="kind plain">A connecting page</span>' : ''}${lens ? `<span class="kind lens">${esc(lens)}</span>` : ''}${from ? `<a class="from" href="${esc(routeOf(from.req))}" data-goto="${esc(from.id)}"${kattr(from.kind)}><span>From</span><b>${esc(clip(from.title, 44))}</b></a>` : ''}`);
   const main = []; const head0 = live && !A.blocks.length;
   main.push({ k: 'title', tag: 'h1', cls: `a-title${titleSize(title)}`, html: esc(title) });
-  /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
-  const seedDeck = live && p.hint && p.hint.gloss ? p.hint.gloss : '';
-  const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length || A.keyFacts.length);
-  if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, p), ink: head0 });
-  else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
-  /* the line of key facts under the deck, shown once its three are in (or the plan has begun), so it never reflows */
-  const factsIn = A.keyFacts.length >= 3 || (A.keyFacts.length >= 2 && (!live || A.blocks.length > 0 || Object.keys(A.gloss).length > 0));
-  if (factsIn) main.push({ k: 'keyfacts', tag: 'dl', cls: 'keyfacts', html: A.keyFacts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(capFirst(plain(f.value)))}</dd></div>`).join('') });
+  /* a state's own sentence and readings stand where the deck and the key facts go */
+  if (st) {
+    main.push({ k: 'st-deck', tag: 'p', cls: 'deck st-deck', html: esc(st.deck) });
+    if (st.readings.length) main.push({ k: 'st-r', tag: 'dl', cls: 'readings st-r', html: readingsHTML(st.readings) });
+  } else {
+    /* the link's hook stands in for the deck until the real deck has caught up with it, so it never shrinks and regrows */
+    const seedDeck = live && p.hint && p.hint.gloss ? p.hint.gloss : '';
+    const deckDone = !!(A.bridge || A.wait || A.blocks.length || Object.keys(A.gloss).length || A.keyFacts.length);
+    if (A.deck && !(seedDeck && plain(A.deck).length < seedDeck.length && !deckDone)) main.push({ k: 'deck', tag: 'p', cls: 'deck', html: inline(A.deck, p), ink: head0 });
+    else if (seedDeck) main.push({ k: 'deck', tag: 'p', cls: 'deck seed', html: esc(capFirst(seedDeck)) });
+    /* the line of key facts under the deck, shown once its three are in (or the plan has begun), so it never reflows */
+    const factsIn = A.keyFacts.length >= 3 || (A.keyFacts.length >= 2 && (!live || A.blocks.length > 0 || Object.keys(A.gloss).length > 0));
+    if (factsIn) main.push({ k: 'keyfacts', tag: 'dl', cls: 'keyfacts', html: A.keyFacts.map(f => `<div><dt>${esc(f.label)}</dt><dd>${esc(capFirst(plain(f.value)))}</dd></div>`).join('') });
+  }
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
   const kf = $('.keyfacts', head); if (kf) { fitFacts(kf); watchHead(head); }
@@ -361,9 +370,9 @@ function noteItem(n, p, j) {
 function extrasItems(node, i) {
   const items = [];
   const u = node.unfolds && node.unfolds[i];
-  if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">${waitHTML('composing', 'Expanding')}</span>`}</div>` });
+  if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">${waitHTML('composing', 'Expanding')}</span>`}</div>${toolsOver(u.text, u.status)}` });
   (node.peeks || []).filter(p => p.after === i && p.open !== false).forEach(p => {
-    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">${waitHTML('searching', 'Taking a look')}</span>`}</div>${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
+    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">${waitHTML('searching', 'Taking a look')}</span>`}</div>${toolsOver(p.text, p.status)}${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
   });
   return items;
 }

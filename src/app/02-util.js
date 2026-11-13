@@ -49,6 +49,9 @@ const AUTH = 'dorkhub:auth:v1';
 export let auth;
 export function saveAuth() { try { localStorage.setItem(AUTH, JSON.stringify(auth)); } catch (e) { /* private mode: keys last for this visit */ } }
 export const pagesLeft = () => (auth.trial ? auth.trial.pages : TRIAL_PAGES);
+/** the free pages left, as a reading's value: the count, then a dot a page, lit while it is unspent. The keys sheet
+    and every state show it, so it is made in one place @returns {string} */
+export const leftHTML = () => { const n = pagesLeft(); return `<b>${n > 0 ? n : 'None'}</b> of ${TRIAL_PAGES}<span class="dots" aria-hidden="true">${Array.from({ length: TRIAL_PAGES }, (_, i) => `<i${i < n ? ' class="on"' : ''}></i>`).join('')}</span>`; };
 export const writeError = (code, text = '') => Object.assign(new Error(code), { code, text });
 function noteTrial(res) {
   const m = /pages=(\d+);\s*extras=(\d+)/.exec(res.headers.get('x-dh-trial') || ''); if (!m) return;
@@ -92,6 +95,7 @@ export function errText(code) {
     case 'refused': return 'The writer declined this page. Try a different link.';
     case 'offline': return 'You seem to be offline. Reconnect, then try again.';
     case 'bad_output': return 'That came back garbled. Try again.';
+    case 'upstream_error': return 'The writer didn’t answer this time. Give it a moment, then try again.';
     default: return 'The connection dropped partway through. Try again.';
   }
 }

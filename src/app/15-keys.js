@@ -1,9 +1,8 @@
 /* ================= keys: free pages, your own key, and (soon) Pro =================
    No accounts for reading. The free pages are counted on the server; a reader's own key is
    kept in this browser only and sent with each request. */
-import { TRIAL_PAGES } from 'dorkhub:build';
 import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
-import { $, auth, errText, esc, pagesLeft, reducedMotion, saveAuth, toast, write } from './02-util.js';
+import { $, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, saveAuth, toast, write } from './02-util.js';
 import { curPage } from './04-pages.js';
 import { generate } from './05-render.js';
 import { KEY_FIX } from './06-page-end.js';
@@ -30,14 +29,16 @@ export function renderKeyBtn() {
 }
 function nowHTML() {
   const k = auth.byok;
-  if (k) { const P = PROVIDERS[k.provider]; const m = findModel(k.model); return `<div class="ks-now" data-state="key"><p class="ks-h">Writing with your ${esc(P.name)} key</p><p>Pages use <b>${esc(m.name)}</b>, about ${cents(pageCost(m))} each, billed to you by ${esc(k.provider === 'gateway' ? 'Vercel' : P.name)}. Quick tools like peeks and quizzes use ${esc(modelName(P.quick))}.</p></div>`; }
-  const n = pagesLeft(); const dots = `<span class="ks-dots" aria-hidden="true">${Array.from({ length: TRIAL_PAGES }, (_, i) => `<i${i < n ? ' class="on"' : ''}></i>`).join('')}</span>`;
-  if (n > 0) return `<div class="ks-now"><p class="ks-h"><b>${n}</b> of ${TRIAL_PAGES} free pages left${dots}</p><p>This month, on this device, no account needed. Pages already written, like the front page’s, open instantly and are always free. Quick tools like peeks and quizzes have their own, larger allowance.</p></div>`;
-  return `<div class="ks-now" data-state="out"><p class="ks-h">You’ve read your free pages${dots}</p><p>Add your own API key below to keep going. Dorkhub Pro, with no keys at all, is on its way.</p></div>`;
+  /* what the sheet reports of itself is read as readings, the page's key facts' form: whose key, what a page costs, what's left */
+  const reading = (name, value) => `<div><dt>${name}</dt><dd>${value}</dd></div>`;
+  if (k) { const P = PROVIDERS[k.provider]; const m = findModel(k.model); return `<div class="ks-now" data-state="key"><dl class="readings">${reading('Writing with', `Your ${esc(P.name)} key`)}${reading('Pages', `<b>${esc(m.name)}</b>, about ${cents(pageCost(m))} each`)}${reading('Billed by', esc(k.provider === 'gateway' ? 'Vercel' : P.name))}</dl><p>Quick tools like peeks and quizzes use ${esc(modelName(P.quick))}.</p></div>`; }
+  const n = pagesLeft(); const left = reading('Free pages left', leftHTML());
+  if (n > 0) return `<div class="ks-now"><dl class="readings">${left}</dl><p>This month, on this device, no account needed. Pages already written, like the front page’s, open instantly and are always free. Quick tools like peeks and quizzes have their own, larger allowance.</p></div>`;
+  return `<div class="ks-now" data-state="out"><dl class="readings">${left}</dl><p>You’ve read your free pages. Add your own API key below to keep going. Dorkhub Pro, with no keys at all, is on its way.</p></div>`;
 }
 function keyFormHTML(prov, model) {
   const P = PROVIDERS[prov]; const models = modelsFor(prov); const pick = models.find(m => m.id === model) || models[0]; const saved = auth.byok && auth.byok.provider === prov;
-  return `<fieldset><legend>Use your own key</legend>
+  return `<fieldset><legend class="lbl">Use your own key</legend>
 <div class="seg" role="radiogroup" aria-label="Provider">${Object.entries(PROVIDERS).filter(([, p]) => p.enabled).map(([id, p]) => `<label><input type="radio" name="kprov" value="${id}"${id === prov ? ' checked' : ''}><span>${esc(p.name)}</span></label>`).join('')}</div>
 <div class="ks-models" role="radiogroup" aria-label="Model for pages">${models.map(m => `<label class="ks-m"><input type="radio" name="kmodel" value="${m.id}"${m === pick ? ' checked' : ''}><b>${esc(m.name)}</b><em>~${cents(pageCost(m))} a page</em><span>${esc(m.blurb)}</span></label>`).join('')}</div>
 <label class="field" for="keyIn">${esc(P.name)} API key<input id="keyIn" type="password" placeholder="${saved ? 'Saved. Paste a new key to replace it' : esc(P.keyHint)}" spellcheck="false" autocomplete="off" autocapitalize="off"></label>
@@ -47,7 +48,7 @@ function keyFormHTML(prov, model) {
 export function keysSheet() {
   const k = auth.byok; const prov = k ? k.provider : 'anthropic';
   openSheet('Keys', `<div class="keysheet">${nowHTML()}<form id="keyForm" autocomplete="off">${keyFormHTML(prov, k ? k.model : '')}</form>
-<div class="ks-pro"><p class="ks-h">Dorkhub Pro <span class="soon">soon</span></p><p>No keys and no setup: a monthly allowance of pages, paid for directly.</p></div></div>`,
+<div class="ks-pro"><p class="lbl">Dorkhub Pro<span class="soon lbl">soon</span></p><p>No keys and no setup: a monthly allowance of pages, paid for directly.</p></div></div>`,
     `<button class="btn glow" type="button" data-act="key-save">${k ? 'Save' : 'Check and save key'}</button>${k ? '<button class="btn ghost" type="button" data-act="key-forget">Remove my key</button>' : ''}`);
   if (!k) setTimeout(() => { if (matchMedia('(hover: hover)').matches) $('#keyIn')?.focus(); }, 60);
 }

@@ -259,13 +259,13 @@ async function run(page, { mobile = false } = {}) {
   await step(`${tag}: a paused page offers pages written ahead of time`, async () => {
     await page.route('**/api/write', async r => { const b = r.request().postDataJSON(); if (b && b.task === 'page' && /moths/.test(JSON.stringify(b.input))) await r.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ error: 'trial_paused' }) }); else await r.continue(); });
     await page.fill('#seedIn', 'Why do moths fly toward lights?'); await page.press('#seedIn', 'Enter');
-    await page.waitForSelector('.statusnote.paused .door', { timeout: 20000 });
-    const st = await page.evaluate(() => { const a = document.querySelector('.article'); return { doors: a.querySelectorAll('.statusnote .door').length, ask: !!a.querySelector('.ask'), cards: !!a.querySelector('.card'), tools: a.querySelectorAll('.tools [data-act]').length, first: /** @type {HTMLElement} */ (a.querySelector('.a-end > div'))?.dataset.k }; });
-    if (st.doors !== 3 || st.ask || st.cards || st.tools || st.first !== 'status') throw new Error(`paused page: ${JSON.stringify(st)}`);
+    await page.waitForSelector('.state[data-state="trial_paused"] .way', { timeout: 20000 });
+    const st = await page.evaluate(() => { const a = document.querySelector('.article'); return { doors: a.querySelectorAll('.state .way').length, label: a.querySelector('.where .st-l')?.textContent, ask: !!a.querySelector('.ask'), cards: !!a.querySelector('.card'), tools: a.querySelectorAll('.tools [data-act]').length, first: /** @type {HTMLElement} */ (a.querySelector('.a-end > div'))?.dataset.k }; });
+    if (st.doors !== 3 || st.label !== 'Paused' || st.ask || st.cards || st.tools || st.first !== 'status') throw new Error(`paused page: ${JSON.stringify(st)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a paused page spent a free page: ${await left()}`);
     await page.screenshot({ path: `${shots}/${tag}-2-paused.png` });
-    const door = await page.locator('.statusnote .door').first().getAttribute('data-seed');
-    await page.locator('.statusnote .door').first().click();
+    const door = await page.locator('.state .way').first().getAttribute('data-way');
+    await page.locator('.state .way').first().click();
     await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, door, { timeout: 20000 }); await waitDone();
     if ((await left()) !== String(PAGES)) throw new Error(`the pre-written page spent a free page: ${await left()}`);
     await page.unroute('**/api/write');
@@ -509,7 +509,7 @@ async function run(page, { mobile = false } = {}) {
     await step(`${tag}: Your world`, async () => {
       const saved = await page.evaluate(() => document.querySelector('.a-title')?.textContent || '');
       await page.keyboard.press('g'); await page.waitForSelector('#wpStage canvas');
-      const w = await page.evaluate(() => ({ url: location.pathname, sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent), label: document.querySelector('#wpStage')?.getAttribute('aria-label') || '' }));
+      const w = await page.evaluate(() => ({ url: location.pathname, sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-saved .wp-list b')].map(b => b.textContent), label: document.querySelector('#wpStage')?.getAttribute('aria-label') || '' }));
       if (w.url !== '/world' || !/topics read/.test(w.sum) || !w.saved.includes(saved) || !/topics you have read/.test(w.label)) throw new Error(`your world: ${JSON.stringify(w)}`);
       await page.waitForTimeout(1200); await page.screenshot({ path: `${shots}/${tag}-7-world.png` });
       /* finding a topic flies to it, and its card opens it */
@@ -580,19 +580,19 @@ async function run(page, { mobile = false } = {}) {
     }
   });
   await step(`${tag}: the trial runs out`, async () => {
-    for (let i = 1; i <= PAGES && !(await page.locator('.statusnote.paywall').count()); i++) {
+    for (let i = 1; i <= PAGES && !(await page.locator('.state[data-state="trial_over"]').count()); i++) {
       const title = `Mock ${tag} topic ${i}`;
       await page.locator('.ask input').last().fill(title); await page.locator('.ask input').last().press('Enter');
-      await page.waitForFunction(t => document.querySelector('.statusnote.paywall') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .card') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
+      await page.waitForFunction(t => document.querySelector('.state[data-state="trial_over"]') || (document.querySelector('.a-title')?.textContent === t && document.querySelector('.a-end .card') && document.querySelector('.article')?.getAttribute('aria-busy') === 'false'), title, { timeout: 20000 });
     }
-    await page.waitForSelector('.statusnote.paywall', { timeout: 20000 });
+    await page.waitForSelector('.state[data-state="trial_over"]', { timeout: 20000 });
     if ((await left()) !== '0') throw new Error(`free pages ${await left()}`);
-    if ((await page.locator('.statusnote.paywall .door').count()) !== 3) throw new Error('the paywall offers no free pages');
-    await page.locator('.statusnote.paywall').scrollIntoViewIfNeeded();
+    if ((await page.locator('.state[data-state="trial_over"] .way').count()) !== 3) throw new Error('the paywall offers no free pages');
+    await page.locator('.state[data-state="trial_over"]').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `${shots}/${tag}-9-paywall.png` });
   });
   await step(`${tag}: a bad key is turned down`, async () => {
-    await page.locator('.statusnote.paywall [data-act="keys"]').click();
+    await page.locator('.state[data-state="trial_over"] [data-act="keys"]').click();
     await page.waitForSelector('#keyForm'); await page.waitForTimeout(450);
     await page.fill('#keyIn', 'sk-ant-bad-0000000000'); await page.locator('[data-act="key-save"]').click();
     await page.waitForFunction(() => /turned that key down/.test(document.querySelector('#keyMsg')?.textContent || ''), null, { timeout: 15000 });
@@ -624,7 +624,7 @@ async function movingIn() {
     await page.waitForSelector('.a-end .card');
     if (writes) throw new Error('a page you had read was written again');
     await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas');
-    const w = await page.evaluate(() => ({ sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-card:nth-child(3) .wp-list b')].map(b => b.textContent) }));
+    const w = await page.evaluate(() => ({ sum: document.querySelector('.wp-sum')?.textContent || '', saved: [...document.querySelectorAll('.wp-saved .wp-list b')].map(b => b.textContent) }));
     if (!/2 topics read/.test(w.sum) || !w.saved.includes('Old topic two')) throw new Error(`moved in: ${JSON.stringify(w)}`);
   });
   await ctx.close();
