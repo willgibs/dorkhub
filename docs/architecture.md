@@ -179,6 +179,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
    - A reader's key headers (`x-dh-provider`, `x-dh-model`, `x-dh-key`) go to that provider
      directly, or through their own gateway key. Quick tools use the provider's fast model.
    - Without a key, writing goes to `gateway(DH_TRIAL_MODEL)` over OIDC.
+   - Every writer is told how long to think before its first word (`writerSettings`): Claude's 5.5 models think
+     unless told otherwise, and what they think counts against the output limit, so Haiku is told not to, Sonnet
+     only between tool calls (a page makes none), and Opus, which cannot stop, as little as it can, with room
+     beyond the task's limit. `tests/thinking.test.js` reads the settings off the requests the SDK sends.
    - The mock writer only answers on a dev machine or a preview deployment. It replays
      recorded real output from `lib/recorded.js` when it has some for the request, at a
      writer's pace (`DH_MOCK_PACE=quick` for the browser test), and writes a synthetic
