@@ -528,6 +528,31 @@ async function run(page, { mobile = false } = {}) {
       await page.keyboard.press('s'); await page.keyboard.press('s'); await page.waitForTimeout(800);
       const now = await seen(); if (now !== was) throw new Error(`worldSeen was ${was}, ${now} after a reload`);
     });
+    /* Your world by keyboard: the map is one tab stop; an arrow selects a topic, shows its card and says it; Enter
+       opens it; Escape lets the selection go, a second leaves the map, and Tab moves on */
+    await step(`${tag}: Your world by keyboard`, async () => {
+      const onMap = () => page.evaluate(() => !!document.activeElement?.classList.contains('gv-canvas'));
+      const said = () => page.evaluate(() => document.querySelector('#srLive')?.textContent || '');
+      await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(600);
+      await page.focus('#wpFind'); for (let i = 0; i < 24 && !(await onMap()); i++) await page.keyboard.press('Tab');
+      const map = await page.evaluate(() => ({ role: document.activeElement?.getAttribute('role'), label: document.activeElement?.getAttribute('aria-label') || '' }));
+      if (!(await onMap()) || map.role !== 'application' || !/topics? read/.test(map.label)) throw new Error(`the map takes focus: ${JSON.stringify(map)}`);
+      await page.keyboard.press('ArrowRight');
+      await page.waitForFunction(() => /^.+, .+, (read|not read yet), \d+ links?$/.test(document.querySelector('#srLive')?.textContent || ''), null, { timeout: 3000 });
+      if (await page.locator('#wpStage .gv-tip').isHidden()) throw new Error('an arrow showed no card');
+      /* walk to a topic already read, so opening it spends nothing */
+      for (const k of ['Home', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp']) { if (/, read, /.test(await said())) break; await page.keyboard.press(k); await page.waitForTimeout(150); }
+      const heard = await said(); if (!/, read, /.test(heard)) throw new Error(`no read topic by keyboard: ${heard}`);
+      const title = heard.split(', ')[0];
+      await page.keyboard.press('Enter');
+      await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, title, { timeout: 10000 });
+      await page.goBack(); await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(400);
+      await page.focus('#wpStage canvas'); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(150);
+      await page.keyboard.press('Escape');
+      if (!(await page.locator('#wpStage .gv-tip').isHidden()) || !(await onMap())) throw new Error('the first Escape lets the selection go and keeps the map');
+      await page.keyboard.press('Escape'); await page.keyboard.press('Tab');
+      if (await onMap()) throw new Error('Escape then Tab did not leave the map');
+    });
     /* back on the front page, a reader's own world takes the last card's place */
     await step(`${tag}: the front page shows your world`, async () => {
       await page.goto(base); await page.waitForSelector('.wc-world #worldStage canvas');

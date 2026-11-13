@@ -16,7 +16,7 @@ import { ic } from './03-icons.js';
 import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { renderVoice, trialLine } from './09-start.js';
-import { makeGraph } from './11-graph.js';
+import { makeGraph, worldLabel } from './11-graph.js';
 import { MINI_POS, oneClickAway, worldGraph } from './11-world.js';
 import { tipAttrs } from './14-map-tips.js';
 import { modelName, renderKeyBtn } from './15-keys.js';
@@ -125,7 +125,7 @@ function renderFront() {
 /* the map of threads: every planned topic, and why each one leads to the next */
 function renderThreads() {
   const el = $('#threads'); if (!el) return;
-  el.innerHTML = `<div class="th-side"><h2 class="th-h">Pull a thread</h2><div class="th-body" aria-live="polite"><p class="th-p">Every topic here is tied to others. Point at one to see why.</p><p class="th-stats"><b>${FRONT.length}</b> topics · <b>${FRONTD.threads.length}</b> threads</p></div></div><div class="th-stage" id="threadStage" role="img" aria-label="A map of the topics and the threads between them"></div>`;
+  el.innerHTML = `<div class="th-side"><h2 class="th-h">Pull a thread</h2><div class="th-body"><p class="th-p">Every topic here is tied to others. Point at one to see why.</p><p class="th-stats"><b>${FRONT.length}</b> topics · <b>${FRONTD.threads.length}</b> threads</p></div></div><div class="th-stage" id="threadStage"></div>`;
   /* the topic you point at, and every thread it has, beside the map (it stays until you point at another) */
   const body = $('.th-body', el);
   const panel = n => {
@@ -140,7 +140,11 @@ function renderThreads() {
   if (THREADMAP) THREADMAP.destroy();
   /* the map traces in on its turn among the cards, once a visit */
   const hold = motionOK() && !PLAYED.has('threads'); el.classList.toggle('armed', hold); el.dataset.beat = '1300';
-  THREADMAP = makeGraph($('#threadStage'), { still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }) });
+  THREADMAP = makeGraph($('#threadStage'), {
+    still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }),
+    label: g => `A map of the front page's ${g.nodes.length} topics and the ${g.edges.length} threads between them. Arrow keys move between topics, Enter opens one.`,
+    speak: n => `${n.title}, ${n.kind}, ${n.deg} thread${n.deg === 1 ? '' : 's'}`,
+  });
   THREADMAP.setData({ nodes, edges });
 }
 /* a reader's world, in the last slot: the neighbourhood of the last page read, edge to edge, and how far it reaches */
@@ -152,7 +156,7 @@ function mountWorldCard() {
   const host = $('#worldStage'); if (!host) return; if (WORLDCARD) WORLDCARD.destroy();
   const full = worldGraph(); const last = pageOf(store.current);
   const start = last && (last.status === 'done' || last.status === 'partial') ? nodeKeyOf(last) : (full.nodes.find(n => n.read) || {}).key || '';
-  WORLDCARD = makeGraph(host, { mini: true, still: true, positions: MINI_POS });
+  WORLDCARD = makeGraph(host, { mini: true, still: true, positions: MINI_POS, label: g => worldLabel(g, 'Your world around your last page') });
   WORLDCARD.setData(start ? localGraph(full, start, 24, 6) : { nodes: [], edges: [] }, { center: start });
 }
 /* ---------- one card at a time ----------

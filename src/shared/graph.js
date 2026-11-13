@@ -260,3 +260,36 @@ export function fitView(nodes, w, h, { pad = 48, max = 2.2, min = .2 } = {}) {
   const k = Math.max(min, Math.min(max, (w - pad * 2) / bw, (h - pad * 2) / bh));
   return { x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2, k };
 }
+
+/* ---------- moving by keyboard ---------- */
+/** @type {Record<string, [number, number]>} */
+const ARROWS = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+/**
+ * Where a key moves a map's selection, in screen space, among the topics drawn. An arrow goes to the
+ * nearest topic in a quarter-turn cone toward it (45 degrees either side), a topic straight ahead
+ * counted nearer than one off to the side; with nothing that way the selection stays (no wrapping).
+ * With nothing selected, any arrow and Home pick the current page's topic if it is drawn, else the most
+ * connected (the first of equals).
+ * @param {{ cur?: boolean, deg: number }[]} nodes @param {[number, number][]} P each topic on screen
+ * @param {number} from the selected topic, or -1 @param {string} key a KeyboardEvent key
+ * @param {(i: number) => boolean} [drawn] whether a topic is drawn (kind filters, Focus)
+ * @returns {number} the topic to select, -1 when none is drawn
+ */
+export function keyStep(nodes, P, from, key, drawn = () => true) {
+  const ok = (/** @type {number} */ i) => i >= 0 && i < nodes.length && drawn(i);
+  if (key === 'Home' || !ok(from)) {
+    let best = -1;
+    for (let i = 0; i < nodes.length; i++) if (ok(i) && nodes[i].cur) return i;
+    for (let i = 0; i < nodes.length; i++) if (ok(i) && (best < 0 || nodes[i].deg > nodes[best].deg)) best = i;
+    return best;
+  }
+  const d = ARROWS[key]; if (!d) return from;
+  const [x0, y0] = P[from]; let best = from, score = Infinity;
+  for (let i = 0; i < nodes.length; i++) {
+    if (i === from || !ok(i)) continue;
+    const dx = P[i][0] - x0, dy = P[i][1] - y0, ahead = dx * d[0] + dy * d[1], aside = Math.abs(dx * d[1] - dy * d[0]);
+    if (ahead <= 0 || aside > ahead) continue;
+    const s = Math.hypot(dx, dy) + aside; if (s < score) { score = s; best = i; }
+  }
+  return best;
+}
