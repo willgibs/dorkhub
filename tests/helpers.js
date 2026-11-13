@@ -14,12 +14,13 @@ export function memoryStore() {
 export const KEY = { 'x-dh-provider': 'anthropic', 'x-dh-model': 'anthropic/claude-sonnet-5.5', 'x-dh-key': 'sk-ant-test-000000000000' };
 
 /** A client with its own cookie jar, talking to handleWrite in-process. */
-export function client({ env = {}, store = memoryStore(), counters = undefined, ip = '203.0.113.7', textCache = true } = {}) {
+/** @param {{ env?: Record<string, string>, store?: ReturnType<typeof memoryStore>, counters?: any, ip?: string, textCache?: boolean, durable?: any }} [o] */
+export function client({ env = {}, store = memoryStore(), counters = undefined, ip = '203.0.113.7', textCache = true, durable = undefined } = {}) {
   let cookie = '';
-  const logs = [];
+  /** @type {any[]} */ const logs = [];
   /* the endpoint tests run without the real pre-written pages, so any title is written (by the mock),
      except the front page's topics, which open their placeholders (lib/placeholder.js) */
-  const deps = { env: { DH_MOCK: '1', DH_MOCK_FAST: '1', VERCEL_ENV: 'development', ...env }, store, counters: counters ?? cacheCounters(store), textCache, log: (/** @type {any} */ l) => logs.push(l), seeds: new URL('./no-seeds/', import.meta.url) };
+  const deps = { env: { DH_MOCK: '1', DH_MOCK_FAST: '1', VERCEL_ENV: 'development', ...env }, store, counters: counters ?? cacheCounters(store), textCache, durable, log: (/** @type {any} */ l) => logs.push(l), seeds: new URL('./no-seeds/', import.meta.url) };
   return {
     store, logs, counters: deps.counters,
     /** @param {unknown} body @param {Record<string, string>} [headers] @param {{ method?: string, raw?: string, signal?: AbortSignal, ip?: string, fresh?: boolean }} [o] */
