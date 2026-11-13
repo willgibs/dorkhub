@@ -50,7 +50,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   draws its six ways on as threads out of the page (`fanBlock`/`drawFan` in `06-page-end.js`): an SVG of curves from
   this page's point to each way on's ring, measured from the layout once all six are there and redrawn only when they
   change or the column resizes; drawn in once per visit when first in view; one stem on a phone. The sidebar is closed by
-  default and then takes no room; its toggle (`#sideBtn`, or M) sits before the wordmark. The top
+  default and then takes no room; its toggle (`#sideBtn`, or M) sits before the wordmark, and keeps its place unseen
+  where there is no sidebar, so the wordmark stands at one x on every page. The top
   bar's actions share one shape: search, Your world with its count, keys with the free pages
   left (both counts set alike, digits popping in as they change), voice.
 - **Three functions.** `api/write.js` → `handleWrite()` in `lib/write.js` (every word Dorkhub

@@ -69,10 +69,10 @@ function omniItems(q) {
 function renderOmni() {
   const items = omniItems(omniIn.value); OM = { items, i: 0 }; let h = '', sec = '';
   items.forEach((it, i) => {
-    if (it.sec !== sec) { sec = it.sec; h += `<p class="om-sec">${esc(sec)}</p>`; }
-    h += `<button class="om-i" type="button" role="option" id="om${i}" data-om="${i}" aria-selected="${i === 0}"${kattr(it.k)}><span class="oi">${it.icon}</span><span class="ot">${it.title}</span>${it.tag ? `<span class="od">${esc(String(it.tag))}</span>` : '<span></span>'}${it.hook ? `<span class="oh">${it.hook}</span>` : ''}</button>`;
+    if (it.sec !== sec) { sec = it.sec; h += `<p class="om-sec lbl">${esc(sec)}</p>`; }
+    h += `<button class="om-i" type="button" role="option" id="om${i}" data-om="${i}" aria-selected="${i === 0}"${kattr(it.k)}><span class="oi">${it.icon}</span><span class="ot">${it.title}</span>${it.tag ? `<span class="od lbl">${esc(String(it.tag))}</span>` : '<span></span>'}${it.hook ? `<span class="oh">${it.hook}</span>` : ''}</button>`;
   });
-  omniList.innerHTML = h || `<p class="om-sec">Type anything: a question, a topic, a half-remembered fact.</p>`;
+  omniList.innerHTML = h || `<p class="om-none">Type anything: a question, a topic, a half-remembered fact.</p>`;
   if (items.length) omniIn.setAttribute('aria-activedescendant', 'om0'); else omniIn.removeAttribute('aria-activedescendant');
 }
 function moveOmni(dir) {
