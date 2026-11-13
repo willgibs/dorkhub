@@ -140,6 +140,8 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
   - Durations and curves come from the tokens in `src/styles.css`. Ambient tempos (the shimmer, the living word, a
     picture's reveal, the theme's wash, a reel, the threads' drawing) keep their own time, each named once. Script never
     keeps its own copy of a duration: it waits for the motion to end, or reads the token.
+  - A recipe (the menu button's morph, the counter's digits) keeps its own choreography, with its values named once
+    beside it.
   - Reduced motion turns all of it off.
 
 ## Anatomy of a page (the generative UI)

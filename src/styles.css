@@ -781,7 +781,7 @@ body.at-start .omni-btn{display:none}
 /* ================= the tools button on a phone: a liquid split into four droplets =================
    transitions.dev's Pro "Gooey plus menu", fitted to the corner. The anchor reserves the open fan's
    footprint but lets clicks through; the goo layer carries the surface and its one shadow. */
-.fab{--fab-open:var(--d-medium);--fab-close:var(--d-fast);--fab-open-ease:var(--ease-pop);--fab-close-ease:var(--ease-out);display:none;position:fixed;right:max(4px,env(safe-area-inset-right,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px));z-index:36;width:160px;height:160px;pointer-events:none}
+.fab{--fab-open:var(--d-medium);--fab-close:var(--d-fast);--fab-open-ease:cubic-bezier(.34,1.56,.64,1);--fab-close-ease:var(--ease-out);--fab-ic-close:120ms;--fab-ic-open:180ms;--fab-ic-ease:ease;--fab-nudge:700ms;display:none;position:fixed;right:max(4px,env(safe-area-inset-right,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px));z-index:36;width:160px;height:160px;pointer-events:none}
 /* open, the page steps back behind a light scrim, and a tap on it only closes the tools */
 .fab::before{content:"";position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 70%,transparent);opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--fab-close) var(--ease-out),visibility 0s linear var(--fab-close)}
 .fab[data-open="true"]::before{opacity:1;visibility:visible;pointer-events:auto;transition:opacity var(--fab-open) var(--ease-out),visibility 0s}
@@ -795,8 +795,8 @@ body.at-start .omni-btn{display:none}
 .fab-main{left:108px;top:108px;width:48px;height:48px}
 .fab-item{left:110px;top:110px;width:44px;height:44px;pointer-events:none}
 .fab[data-open="true"] .fab-item{pointer-events:auto;transform:translate(var(--fx,0px),var(--fy,0px));transition:transform var(--fab-open) var(--fab-open-ease);transition-delay:calc(var(--i,0) * var(--d-stagger))}
-.fab-item .ic{width:19px;height:19px;opacity:0;filter:blur(var(--blur-s));transition:opacity var(--d-micro) var(--ease-out),filter var(--d-micro) var(--ease-out)}
-.fab[data-open="true"] .fab-item .ic{opacity:1;filter:blur(0);transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out);transition-delay:calc(var(--i,0) * var(--d-stagger) + var(--d-micro))}
+.fab-item .ic{width:19px;height:19px;opacity:0;filter:blur(var(--blur-s));transition:opacity var(--fab-ic-close) var(--fab-ic-ease),filter var(--fab-ic-close) var(--fab-ic-ease)}
+.fab[data-open="true"] .fab-item .ic{opacity:1;filter:blur(0);transition:opacity var(--fab-ic-open) var(--fab-ic-ease),filter var(--fab-ic-open) var(--fab-ic-ease);transition-delay:calc(var(--i,0) * var(--d-stagger) + var(--fab-ic-close))}
 .fab-main:focus-visible,.fab-item:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .fab-item.on{color:var(--acc)}
 .fab-item.on .ic{fill:currentColor}
@@ -808,7 +808,7 @@ body.at-start .omni-btn{display:none}
 .fab-sw[data-state="a"] [data-icon="b"],.fab-sw[data-state="b"] [data-icon="a"]{opacity:0;filter:blur(var(--blur-s));transform:scale(.25)}
 /* closing dips the whole liquid into the returning droplets, then it settles */
 @keyframes fab-dip{0%{transform:translateY(0)}30%{transform:translateY(5px)}100%{transform:translateY(0)}}
-.fab.nudge .fab-goo,.fab.nudge .fab-main{animation-name:fab-dip;animation-duration:var(--d-vslow);animation-timing-function:var(--ease-out);animation-fill-mode:both}
+.fab.nudge .fab-goo,.fab.nudge .fab-main{animation-name:fab-dip;animation-duration:var(--fab-nudge);animation-timing-function:var(--ease-out);animation-fill-mode:both}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .fab-ring{flood-color:#fff;flood-opacity:.12} :root:not([data-theme="light"]) .fab-sh,:root:not([data-theme="light"]) .fab-sh2{flood-opacity:.5} }
 :root[data-theme="dark"] .fab-ring{flood-color:#fff;flood-opacity:.12}
 :root[data-theme="dark"] .fab-sh,:root[data-theme="dark"] .fab-sh2{flood-opacity:.5}
@@ -1130,11 +1130,11 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 @media (hover:none){ .mn-i.kb{display:none} }
 
 /* ================= the count of your world: changed digits pop in (transitions.dev's Number pop-in) ================= */
-.t-digit-group{display:inline-flex;align-items:baseline}
+.t-digit-group{--digit-ease:cubic-bezier(.34,1.45,.64,1);--digit-stagger:70ms;display:inline-flex;align-items:baseline}
 .t-digit{display:inline-block}
-.t-digit-group.is-animating .t-digit{animation:t-digit-pop-in var(--d-vslow) var(--ease-pop) both}
-.t-digit-group.is-animating .t-digit[data-stagger="1"]{animation-delay:var(--d-stagger)}
-.t-digit-group.is-animating .t-digit[data-stagger="2"]{animation-delay:calc(var(--d-stagger) * 2)}
+.t-digit-group.is-animating .t-digit{animation:t-digit-pop-in var(--d-vslow) var(--digit-ease) both}
+.t-digit-group.is-animating .t-digit[data-stagger="1"]{animation-delay:var(--digit-stagger)}
+.t-digit-group.is-animating .t-digit[data-stagger="2"]{animation-delay:calc(var(--digit-stagger) * 2)}
 .t-digit-group.is-animating .t-digit[data-same]{animation:none}
 @keyframes t-digit-pop-in{0%{transform:translateY(var(--dist-base));opacity:0;filter:blur(var(--blur-s))}100%{transform:translateY(0);opacity:1;filter:blur(0)}}
 @media (prefers-reduced-motion:reduce){ .t-digit-group .t-digit{animation:none!important} }

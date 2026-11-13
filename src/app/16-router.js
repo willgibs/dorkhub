@@ -58,9 +58,13 @@ function showPage(input) {
   setView('page'); setCUR(id); store.current = id; setACC(null); PF.view = 0;
   $('#view').innerHTML = `<div class="column" id="column">${chamberHTML(p)}</div><p class="colfoot">Written by AI for this topic. It can make mistakes, so check anything you plan to repeat.</p>`;
   document.title = `${p.title}: dorkhub`;
-  if (HERO) { const t = $('.a-title'); if (t) t.style.viewTransitionName = 'hero'; }
-  if (PLATE) { const w = $('.a-plate .wc'); if (w) w.style.viewTransitionName = 'plate'; }
   paint(p); mountPlate(p); renderSide(); syncFab(); renderWorldBtn();
+  /* what you clicked travels as one thing: the title is named once paint has made it (before, there was none yet, so the
+     clicked words faded where they were while the title rose on its own), and arrives whole, without rising as well;
+     the card arrives as the plate, box and drawing together (naming only the drawing left the box to fade in with the
+     page, a second picture under the travelling one) */
+  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); t.style.viewTransitionName = 'hero'; } }
+  if (PLATE) { const w = $('.a-plate'); if (w) w.style.viewTransitionName = 'plate'; }
   window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); syncTopTitle();
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */
