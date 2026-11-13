@@ -1,0 +1,71 @@
+{
+  "note": "Captured 2026-11-13 from TASKS.page.prompt before writer variants existed. Production must not move: never regenerate this file to make a test pass.",
+  "PROMPT_VERSION": "2026-10-19-v3.1",
+  "cases": {
+    "topic": {
+      "raw": {
+        "title": "Tardigrades"
+      },
+      "length": 8128,
+      "sha256": "f87291fba2db853260ac30e44f207d5fc1c60ac4db682bcd5a034684a7009702"
+    },
+    "question": {
+      "raw": {
+        "title": "Why is ice slippery?"
+      },
+      "length": 8040,
+      "sha256": "4e7ad3ec301f762216b8d2fd9b0232b518465edd73008b6faff502ff197e57e6"
+    },
+    "bridge": {
+      "raw": {
+        "title": "Radiocarbon dating and Tulip mania",
+        "bridge": [
+          "Radiocarbon dating",
+          "Tulip mania"
+        ]
+      },
+      "length": 8210,
+      "sha256": "68687abc8026a039355dad22b60a3f24e7407c76578c631d591f1d5e721b7b36"
+    },
+    "ctx": {
+      "raw": {
+        "title": "Mercury",
+        "ctx": "Planets of the solar system"
+      },
+      "length": 8311,
+      "sha256": "cb58d44cf918b7543776642f796f9f235e480cc626dffd1e98744f901fcc6ce2"
+    },
+    "story": {
+      "raw": {
+        "title": "Lewis gun",
+        "lens": "story"
+      },
+      "length": 8100,
+      "sha256": "2be3c6d3f74ea4caf6b44923a3e2b69bc08be5ae413fe0c84939e0c4ed6776d4"
+    },
+    "nerd": {
+      "raw": {
+        "title": "Grid cells",
+        "lens": "nerd"
+      },
+      "length": 8107,
+      "sha256": "dfd3e1a343c34920a1ef6a2004ff72b16003c38926fb1bb4b18e0529ddc24049"
+    },
+    "kid": {
+      "raw": {
+        "title": "Black holes",
+        "lens": "kid"
+      },
+      "length": 8111,
+      "sha256": "c2f6d2d1e042c0db7a407cb669ca18e0551d5b256fd49e3a13d0a28f2173618b"
+    },
+    "skeptic": {
+      "raw": {
+        "title": "Baghdad Battery",
+        "lens": "skeptic"
+      },
+      "length": 8133,
+      "sha256": "82ecce48f7700bc1650b5cbb901d2de334e1ebfe30fa0082e34f63d761027087"
+    }
+  }
+}

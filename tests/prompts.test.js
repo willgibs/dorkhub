@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { BadInput, FORMAT, TASKS, pageInput, pagePrompt } from '../lib/prompts.js';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { BadInput, FORMAT, LENS_VOICE, PAGE_VARIANT, PAGE_VARIANTS, PROMPT_VERSION, TASKS, composePage, pageInput, pagePrompt } from '../lib/prompts.js';
 import { PANELS } from '../src/shared/article.js';
 
 const page = (/** @type {Record<string, unknown>} */ o) => pagePrompt(pageInput({ title: 'Tardigrades', ...o }));
@@ -96,4 +98,59 @@ test('small tasks name only the page, so the same request reads the same for eve
   assert.match(around, /Name 10 neighboring topics/); assert.doesNotMatch(around, /Hippocampus|already read/);
   assert.equal(TASKS.quiz.cacheable, false);
   assert.equal(TASKS.check.byokOnly, true);
+});
+
+/* ---------- page writer variants ---------- */
+test('production does not move: TASKS.page.prompt returns exactly what it returned before variants existed', () => {
+  /* captured before the variants were added; never regenerate it to make this pass */
+  const pin = JSON.parse(readFileSync(new URL('./prompts-pin.json', import.meta.url), 'utf8'));
+  assert.equal(PROMPT_VERSION, pin.PROMPT_VERSION, 'the answer cache and the recorded pages key on PROMPT_VERSION');
+  assert.equal(PAGE_VARIANT, 'base');
+  for (const [name, c] of Object.entries(pin.cases)) {
+    const p = TASKS.page.prompt(TASKS.page.input(c.raw));
+    assert.equal(p.length, c.length, name);
+    assert.equal(createHash('sha256').update(p).digest('hex'), c.sha256, name);
+    assert.equal(composePage(TASKS.page.input(c.raw), 'base').prompt, p, `${name}: base is production`);
+  }
+});
+
+test('split sends the same words, the fixed part as instructions', () => {
+  for (const raw of [{ title: 'Tardigrades' }, { title: 'Why is ice slippery?' }, { title: 'Mercury', ctx: 'Planets', lens: 'kid' }, { title: 'A and B', bridge: ['A', 'B'] }]) {
+    const p = pageInput(raw); const base = composePage(p, 'base'); const s = composePage(p, 'split');
+    assert.equal(base.system, null);
+    assert.equal(`${s.system}\n\n${s.prompt}`, base.prompt);
+    assert.ok(s.system?.endsWith(FORMAT)); assert.ok(!s.prompt.includes('Output format'));
+    assert.equal(s.maxTokens, TASKS.page.maxTokens);
+  }
+  assert.equal(composePage(pageInput({ title: 'X' }), 'split').system, composePage(pageInput({ title: 'Y', lens: 'nerd' }), 'split').system, 'the instructions are identical page to page, so they can be cached');
+});
+
+test('grounded adds reference notes only when they are supplied, with the rules for using them', () => {
+  const p = pageInput({ title: 'Lewis gun' });
+  const notes = { title: 'Lewis gun', url: 'https://en.wikipedia.org/wiki/Lewis_gun', text: 'The Lewis gun is a First World War-era light machine gun.' };
+  const bare = composePage(p, 'grounded'); assert.equal(bare.ground, true);
+  assert.equal(bare.prompt, composePage(p, 'split').prompt, 'no notes, no block');
+  const g = composePage(p, 'grounded', { notes });
+  assert.equal(g.system, composePage(p, 'split').system);
+  assert.match(g.prompt, /^Reference notes, from the opening of Wikipedia's article "Lewis gun" \(https:\/\/en\.wikipedia\.org\/wiki\/Lewis_gun\):\n"""\nThe Lewis gun is/);
+  assert.match(g.prompt, /never their wording/); assert.match(g.prompt, /Prefer them for numbers, dates and names/);
+  assert.match(g.prompt, /a floor, not the page/); assert.match(g.prompt, /leave that point out rather than repeat it/);
+  assert.ok(g.prompt.endsWith(`Voice: ${LENS_VOICE.encyclopedic}`), 'the request still comes last');
+  assert.equal(composePage(p, 'split', { notes }).prompt, composePage(p, 'split').prompt, 'only a grounded variant reads notes');
+});
+
+test('hooks-tight changes only the hover-hook line, and every variant keeps format v3.1', () => {
+  const p = pageInput({ title: 'Tardigrades' }); const t = composePage(p, 'hooks-tight'); const s = composePage(p, 'split');
+  assert.equal(t.prompt, s.prompt);
+  assert.match(t.system || '', /without a number, date or superlative, unless it is a textbook fact/);
+  assert.doesNotMatch(t.system || '', /what makes it fascinating, under 12 words/);
+  const sLines = new Set((s.system || '').split('\n'));
+  assert.equal((t.system || '').split('\n').filter(l => !sLines.has(l)).length, 1, 'one line differs');
+  for (const id of Object.keys(PAGE_VARIANTS)) {
+    const c = composePage(p, id); const all = `${c.system || ''}\n${c.prompt}`;
+    for (const m of ['!!!', '+++', '---', '===', '???', '&&&']) assert.ok(all.includes(`\n${m}\n`), `${id} keeps ${m}`);
+    for (const k of PANELS) assert.match(all, new RegExp(`^::: ${k}\\b`, 'm'), `${id} keeps the ${k} panel`);
+    assert.match(all, /^# Title :: kind$/m);
+  }
+  assert.throws(() => composePage(p, 'nope'), /unknown page variant/);
 });
