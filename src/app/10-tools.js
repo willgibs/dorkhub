@@ -140,6 +140,7 @@ function landLabels(pts, taken, Wd) {
     const r = 14 - q.o.distance * 2; const right = q.x >= Wd / 2;
     const sides = { out: right ? ['start', q.x + r + 7, q.y + 4.5] : ['end', q.x - r - 7, q.y + 4.5], back: right ? ['end', q.x - r - 7, q.y + 4.5] : ['start', q.x + r + 7, q.y + 4.5], under: ['middle', q.x, q.y + r + 15], over: ['middle', q.x, q.y - r - 8] };
     const tries = Math.abs(q.x - Wd / 2) < 5 ? [sides.under, sides.over, sides.out, sides.back] : [sides.out, sides.under, sides.over, sides.back];
+    /** @param {any[]} p */
     const fit = ([anchor, x]) => Math.min(26, Math.floor((anchor === 'end' ? x + 20 : anchor === 'start' ? Wd + 20 - x : 2 * Math.min(x + 20, Wd + 20 - x)) / LAND_EM));
     let got = null;
     for (let n = 26; n >= 6 && !got; n -= 4) for (const t of tries) {
@@ -237,6 +238,6 @@ export function setSIDE(v) { return (SIDE = v); }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
-document.addEventListener('input', e => { if (e.target.id !== 'bq') return; const q = e.target.value.trim().toLowerCase(); $$('#bridgeList li').forEach(li => { li.hidden = !!q && !li.firstElementChild.dataset.name.includes(q); }); });
+document.addEventListener('input', e => { if (/** @type {HTMLElement} */ (e.target).id !== 'bq') return; const q = /** @type {HTMLInputElement} */ (e.target).value.trim().toLowerCase(); $$('#bridgeList li').forEach(li => { li.hidden = !!q && !li.firstElementChild.dataset.name.includes(q); }); });
 TTS = typeof window.speechSynthesis !== 'undefined' && typeof window.SpeechSynthesisUtterance === 'function';
 }

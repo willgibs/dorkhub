@@ -74,7 +74,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
   /* ---------- data ---------- */
   function setData(next, { center = '', grow = [], fit = true } = {}) {
     const old = new Map(g.nodes.map(n => [n.key, n]));
-    const seeds = {};
+    /** @type {Record<string, [number, number]>} */ const seeds = {};
     for (const n of next.nodes) { const o = old.get(n.key); const p = o ? [o.x, o.y] : getPos(n.key); if (p) seeds[n.key] = p; }
     const fresh = next.nodes.filter(n => !seeds[n.key]).length;
     sim = createSim(next, { pos: seeds, alpha: !next.nodes.length ? 0 : fresh === next.nodes.length ? 1 : fresh || grow.length ? .32 : 0 });
@@ -372,7 +372,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     tip.style.left = `${Math.max(8, Math.min(cw - tw - 8, left))}px`; tip.style.top = `${Math.max(8, top)}px`;
   }
   function hideTip() { tip.hidden = true; }
-  tip.addEventListener('click', e => { const b = e.target.closest('[data-gv]'); if (!b || sel < 0) return; const n = g.nodes[sel]; if (b.dataset.gv === 'open') openNode(n); else { setFocus(n.key); hideTip(); } });
+  tip.addEventListener('click', e => { const b = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-gv]')); if (!b || sel < 0) return; const n = g.nodes[sel]; if (b.dataset.gv === 'open') openNode(n); else { setFocus(n.key); hideTip(); } });
   function openNode(n) {
     hideTip(); if (open) { open(n); return; }
     if (n.read && n.pid) { const p = pageOf(n.pid); if (p) { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via: 'world' }); p.last = Date.now(); save(); } go(routeOf(p.req)); return; } }
@@ -406,7 +406,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     x.fillStyle = base; x.fillRect(0, 0, Wd, Ht);
     const v = fitView(g.nodes, Wd, Ht - 240, { pad: 150, max: 2.4, min: .05 }); const k = v.k, ox = Wd / 2 - v.x * k, oy = (Ht - 240) / 2 - v.y * k + 50;
     grid(x, Wd, Ht, k, ox, oy, 1, u);
-    const P = g.nodes.map(n => [n.x * k + ox, n.y * k + oy]); const R = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * u * 1.25;
+    /** @type {[number, number][]} */ const P = g.nodes.map(n => [n.x * k + ox, n.y * k + oy]); const R = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * u * 1.25;
     x.lineCap = 'round';
     for (const e of g.edges) { x.globalAlpha = e.unread ? .17 : e.move ? .55 : .3; x.strokeStyle = ink; x.lineWidth = (e.move ? 1.1 : .85) * u; x.beginPath(); x.moveTo(...P[e.a]); x.lineTo(...P[e.b]); x.stroke(); }
     g.nodes.forEach((n, i) => {
@@ -520,9 +520,9 @@ export function init() {
 TAU = Math.PI * 2;
 document.addEventListener('click', e => {
   if (!WORLD) return;
-  const k = e.target.closest('[data-wkind]');
+  const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-wkind]'));
   if (k) { const kind = k.dataset.wkind; if (WHIDE.has(kind)) WHIDE.delete(kind); else WHIDE.add(kind); k.setAttribute('aria-pressed', String(!WHIDE.has(kind))); WORLD.setHidden(WHIDE); return; }
-  const a = e.target.closest('[data-wact]'); if (a) {
+  const a = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-wact]')); if (a) {
     const w = a.dataset.wact;
     if (w === 'fit') { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); }
     else if (w === 'focus') { const p = pageOf(store.current); const key = WORLD.focused ? '' : p ? nodeKeyOf(p) : ''; WORLD.setFocus(key); if (!key) WORLD.frameView(); a.setAttribute('aria-pressed', String(!!key)); }
@@ -530,11 +530,11 @@ document.addEventListener('click', e => {
     else if (w === 'image') { const n = worldCount(); WORLD.picture({ title: 'My world', sub: `${n} topic${n === 1 ? '' : 's'} read on Dorkhub · ${new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}` }).then(b => { if (b) saveFile('my-dorkhub-world.png', b); }); }
     return;
   }
-  const r = e.target.closest('[data-replay]'); if (r) { const t = store.trails.find(x => x.id === r.dataset.replay); if (t) { $('#wpStage')?.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); WORLD.startReplay(t.steps.map(s => s[0])); } }
+  const r = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-replay]')); if (r) { const t = store.trails.find(x => x.id === r.dataset.replay); if (t) { $('#wpStage')?.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); WORLD.startReplay(t.steps.map(s => s[0])); } }
 });
 document.addEventListener('keydown', e => {
-  if (e.target.id !== 'wpFind' || !WORLD) return;
-  if (e.key === 'Enter') { e.preventDefault(); const i = WORLD.find(e.target.value); if (i >= 0) WORLD.select(i); else toast('That topic isn’t in your world yet.'); }
-  else if (e.key === 'Escape') { e.target.value = ''; WORLD.select(-1); }
+  if (/** @type {HTMLElement} */ (e.target).id !== 'wpFind' || !WORLD) return;
+  if (e.key === 'Enter') { e.preventDefault(); const i = WORLD.find(/** @type {HTMLInputElement} */ (e.target).value); if (i >= 0) WORLD.select(i); else toast('That topic isn’t in your world yet.'); }
+  else if (e.key === 'Escape') { /** @type {HTMLInputElement} */ (e.target).value = ''; WORLD.select(-1); }
 });
 }

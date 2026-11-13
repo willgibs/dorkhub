@@ -6,7 +6,9 @@ import { migrateHoles, textsToDrop } from '../shared/world.js';
 import { KIND_HEX, LENSES, kindOf } from './01-data.js';
 import { CUR } from './04-pages.js';
 import { renderKeyBtn } from './15-keys.js';
+/** @param {string} s @param {any} [r] */
 export const $ = (s, r = document) => r.querySelector(s);
+/** @param {string} s @param {any} [r] */
 export const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -55,6 +57,7 @@ function noteTrial(res) {
 /* Resolves { text, truncated, seeded, none }: none means a cachedOnly ask found nothing written yet, and
    seeded is true for a page written ahead of time ('placeholder' for one of the front page's topics not
    written yet). Rejects with { code, text } where text is whatever arrived first. */
+/** @param {string} task @param {any} input @param {{ signal?: AbortSignal, onText?: (o: { text: string }) => void, fresh?: boolean, cachedOnly?: boolean, key?: any }} [opts] */
 export async function write(task, input, { signal, onText, fresh = false, cachedOnly = false, key = auth.byok } = {}) {
   const headers = { 'content-type': 'application/json' };
   if (key) { headers['x-dh-provider'] = key.provider; headers['x-dh-model'] = key.model; headers['x-dh-key'] = key.key; }

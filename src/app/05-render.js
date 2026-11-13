@@ -31,7 +31,7 @@ export function worldIndex() {
 export function backfillLinks() {
   const todo = Object.values(store.pages).filter(p => !p.links && p.text && (p.status === 'done' || p.status === 'partial'));
   if (!todo.length) return;
-  const idle = window.requestIdleCallback || (f => setTimeout(() => f({ timeRemaining: () => 8 }), 60));
+  const idle = window.requestIdleCallback || (f => setTimeout(() => f(/** @type {IdleDeadline} */ ({ timeRemaining: () => 8 })), 60));
   const run = d => { while (todo.length && d.timeRemaining() > 2) { const p = todo.shift(); p.links = linksFrom(parseArticle(p.text, false), p); } touchWorld(); if (todo.length) idle(run); else { save(); renderSide(); } };
   idle(run);
 }
@@ -276,8 +276,9 @@ function inkHTML(el, html, tip) {
   else if (len > s.len && (!s.marks.length || s.marks[s.marks.length - 1][1] !== beat)) { s.marks.push([s.len, beat]); s.last = now; }
   s.len = len; s.marks = s.marks.filter(([, b]) => now - b < INK_MS);
   if (!s.marks.length) return;
+  /** @type {[Text, number][]} */
   const texts = []; const walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t, pos = 0;
-  while ((t = walk.nextNode())) { texts.push([t, pos]); pos += t.data.length; }
+  while ((t = /** @type {Text} */ (walk.nextNode()))) { texts.push([t, pos]); pos += t.data.length; }
   for (let r = s.marks.length - 1; r >= 0; r--) {
     const [from0, born] = s.marks[r]; const to0 = r + 1 < s.marks.length ? s.marks[r + 1][0] : len;
     for (let x = texts.length - 1; x >= 0; x--) {
@@ -471,7 +472,9 @@ function setStatus(el, text, orb) {
   const c = $('canvas.orb', el); if (c) { c.dataset.orb = orb; c.nextElementSibling.outerHTML = shim; } else el.innerHTML = `<span class="wait">${orbHTML(orb)}${shim}</span>`;
 }
 function paintBody(node, sec, A, live) {
-  const body = $('.a-body', sec); const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
+  const body = $('.a-body', sec);
+  /** @type {Record<string, any>[]} */
+  const want = []; let pi = 0, first = true; const lastIdx = A.blocks.length - 1;
   const writing = live && !A.bodyDone;
   picFor(node, A);
   /* known from an earlier visit: it's there from the start; found during this one: only while the first paragraph is still being written */
@@ -542,7 +545,7 @@ document.addEventListener('error', e => {
   const img = e.target; if (!(img instanceof HTMLImageElement)) return;
   if (img.closest('.wc')) { img.classList.add('gone'); return; }
   const box = img.closest('.pic-box'); if (!box) return;
-  const node = pageOf(box.closest('.chamber')?.dataset.pid);
+  const node = pageOf(/** @type {HTMLElement} */ (box.closest('.chamber'))?.dataset.pid);
   if (node && node.pic) dropPic(node); else box.closest('figure')?.remove();
 }, true);
 }
