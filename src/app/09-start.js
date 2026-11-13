@@ -15,7 +15,7 @@ export function trialLine() {
 }
 /* ================= voice menu: in the top bar while reading, in the composer on the front page ================= */
 export function renderVoice() {
-  const fieldset = `<fieldset><legend>Voice</legend>${Object.entries(LENSES).map(([k, [n, d]]) => `<label><input type="radio" name="lens" value="${k}"${store.settings.lens === k ? ' checked' : ''}><b>${n}</b><span>${d}</span></label>`).join('')}</fieldset>`;
+  const fieldset = `<fieldset><legend class="lbl">Voice</legend>${Object.entries(LENSES).map(([k, [n, d]]) => `<label><input type="radio" name="lens" value="${k}"${store.settings.lens === k ? ' checked' : ''}><b>${n}</b><span>${d}</span></label>`).join('')}</fieldset>`;
   $('#voicePop').innerHTML = `${fieldset}<p class="fine">Applies to new pages. Press R to rewrite the one you are reading.</p>`;
   $$('.voice-pop').forEach(el => { el.innerHTML = `${fieldset}<p class="fine">The pages you open from here are written in this voice.</p>`; });
 }
