@@ -34,9 +34,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      # Two of the front page's checks watch animations against the clock and can miss on a busy
-      # machine, so the walk gets one more try before it counts as a failure.
-      - run: npm run e2e || npm run e2e
+      # The walk gets one more try before it counts as a failure, and says so when it needed it: a
+      # second try that passes is a flaky check to find, not a pass to forget.
+      - run: npm run e2e || (echo "::warning title=The walk needed a second try::Its first run failed; read this job's log for the step." && npm run e2e)
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

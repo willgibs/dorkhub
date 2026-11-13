@@ -72,7 +72,9 @@ async function run(page, { mobile = false } = {}) {
     if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
     await page.fill('#seedIn', '');
     const before = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
-    await page.locator('[data-act="shuffle"]').click(); await page.waitForTimeout(800);
+    await page.locator('[data-act="shuffle"]').click();
+    /* the new set, whenever it lands: the swap runs on the page's timers, and a busy machine keeps its own time */
+    await page.waitForFunction(was => { const now = [...document.querySelectorAll('.door[data-seed]')].map(d => /** @type {HTMLElement} */ (d).dataset.seed); return now.length === 4 && !now.some(t => was.includes(t)); }, before, { timeout: 15000 }).catch(() => {});
     const after = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     if (after.length !== 4 || after.some(t => before.includes(t))) throw new Error(`shuffle: ${JSON.stringify({ before, after })}`);
   });
@@ -93,16 +95,26 @@ async function run(page, { mobile = false } = {}) {
     if (!mobile) {
       await page.evaluate(() => { const r = /** @type {HTMLElement} */ (document.querySelector('#ways .wc-hero')).getBoundingClientRect(); window.scrollTo(0, window.scrollY + r.top - (innerHeight - r.height * .5)); });
       await page.waitForTimeout(900);
+      await page.waitForFunction(() => !document.querySelector('#ways .playing'), null, { timeout: 15000 });
       const seenBefore = await page.$$eval('#ways .seen', cs => cs.map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
-      for (let i = 0; i < 14; i++) { await page.mouse.wheel(0, 150); await page.waitForTimeout(12); }
+      /* The fling is made in the page, not from here: a screenful every frame, and never slower than 3 px a
+         millisecond by the page's own clock. So no card it passes is on screen for two frames running, and it is a
+         fling by the stage's measure (1.4 px/ms) however slowly this machine runs. Wheel events sent from here
+         arrived as slowly as the machine was busy, and then the stage, rightly, saw a reader scrolling. */
+      await page.evaluate(() => new Promise(done => {
+        let left = 2100, t = performance.now();
+        const go = () => { const now = performance.now(), d = Math.min(left, Math.max(innerHeight, Math.ceil((now - t) * 3))); t = now; scrollBy(0, d); left -= d; if (left > 0) requestAnimationFrame(go); else done(null); };
+        requestAnimationFrame(go);
+      }));
       let most = 0, played = 0; const t0 = Date.now();
       while (Date.now() - t0 < 5000) { const n = await page.evaluate(() => [document.querySelectorAll('#ways .playing').length, document.querySelectorAll('#ways .seen').length]); most = Math.max(most, n[0]); played = n[1]; await page.waitForTimeout(70); }
       const passed = await page.$$eval('#ways .seen', cs => cs.filter(c => { const r = c.getBoundingClientRect(); return r.bottom <= 0 || r.top >= innerHeight; }).map(c => c.id || /** @type {HTMLElement} */ (c).dataset.card));
       if (most > 1 || !played || passed.some(k => !seenBefore.includes(k))) throw new Error(`the stage played ${most} at once (${played} seen; played though only flung past: ${passed})`);
     }
     /* every card tells its story on its turn, and ends finished: bring each to the middle of the screen and wait for it */
-    for (const c of await page.locator('#ways .wc').all()) { await c.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForFunction(el => el.classList.contains('seen') && !el.classList.contains('playing'), await c.elementHandle(), { timeout: 8000 }); }
+    for (const c of await page.locator('#ways .wc').all()) { await c.evaluate(el => el.scrollIntoView({ block: 'center' })); await page.waitForFunction(el => el.classList.contains('seen') && !el.classList.contains('playing'), await c.elementHandle(), { timeout: 20000 }); }
     await page.waitForTimeout(2200);
+    await page.waitForFunction(() => ![...document.querySelectorAll('#ways .wc .dr')].some(d => d.getClientRects().length && parseFloat(getComputedStyle(d).strokeDashoffset) > .01), null, { timeout: 15000 }).catch(() => {});
     const done = await page.evaluate(() => { const cards = [...document.querySelectorAll('#ways .wc')]; const draws = [...document.querySelectorAll('#ways .wc .dr')].filter(d => d.getClientRects().length); return { unseen: cards.filter(c => !c.classList.contains('seen')).map(c => c.dataset.card), unfinished: draws.filter(d => parseFloat(getComputedStyle(d).strokeDashoffset) > .01).length, draws: draws.length }; });
     if (done.unseen.length || done.unfinished || !done.draws) throw new Error(`entrances: ${JSON.stringify(done)}`);
     /* the cube's count rolls in on reels drawn for the eye; a screen reader still hears the number, once and whole */
