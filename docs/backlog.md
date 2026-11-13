@@ -9,10 +9,14 @@ keep `docs/state.md` current._
 Live: the engine wave (willgibs/dorkhub#30, #32, #33, #34), the walk's checks (#35), `makeGraph` split (#36), the
 writer's thinking settings (#38), the eval's subscription route (#41), and Wave 2 (#37 the link card as a sheet on
 phones, #40 Your world by keyboard, #39 sharing). In order from here:
-1. **The cohesion wave** (Will: 6 or 7 of 10; "one seamless app under a cohesive, rooted visual identity"). On
-   `design/cohesion`, preview only until his look: the kit (a label, a reading, the dot face for numbers), then
-   states as pages, Your world's surroundings as readings, the chrome and raised surfaces as one family; then a
-   consistency pass, the moves between views, and one preview with a before-and-after page.
+1. **The cohesion wave** (Will: 6 or 7 of 10; "one seamless app under a cohesive, rooted visual identity").
+   **(Will)** willgibs/dorkhub#42 is up for his look, with seven calls that are his to overrule: the kit (a label,
+   a reading, the dot face for numbers), states as pages, Your world's surroundings as readings, the chrome and
+   raised surfaces as one family, and a pass over the three. Next on top of it, on `design/motion`: the moves
+   between views (one clock for a view change, what opens closes, a state arrives as text does), as its own
+   pull request. To bring to him, not built: dotted numerals beyond Your world (the figures panel, the trial
+   count), more presence for the top bar, the footer's wordmark elsewhere, and the tool sheets (quiz, recap,
+   around this) in the kit.
 2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
    `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
    gateway too (cents); its judges run on the subscription (`--judge-via claude`).
