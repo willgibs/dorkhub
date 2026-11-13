@@ -1,12 +1,24 @@
 // The library: one contract for every layer that keeps text, and the endpoint reading and keeping through it.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { cacheLayer, memoryLayer } from '../lib/library.js';
+import { cacheLayer, memoryLayer, redisLayer, stamped, unstamped } from '../lib/library.js';
 import { client, memoryStore, pageBody } from './helpers.js';
 
+/* Upstash's REST pipeline, as far as the library uses it: one GET or SET at a time, a bearer token. */
+function fakeRedis() {
+  /** @type {Map<string, string>} */ const m = new Map(); /** @type {any[]} */ const calls = [];
+  /** @type {any} */ const fetchFn = async (/** @type {string} */ url, /** @type {any} */ init) => {
+    calls.push({ url, auth: init.headers.authorization });
+    const [[cmd, key, value]] = JSON.parse(init.body);
+    const result = cmd === 'SET' ? (m.set(key, value), 'OK') : cmd === 'GET' ? (m.get(key) ?? null) : null;
+    return new Response(JSON.stringify([{ result }]), { status: 200 });
+  };
+  return { m, calls, fetchFn };
+}
 const layers = {
   'runtime cache': () => cacheLayer(memoryStore()),
   'durable (memory)': () => memoryLayer(),
+  'durable (redis)': () => redisLayer({ url: 'https://redis.test', token: 't' }, fakeRedis().fetchFn),
 };
 const meta = { task: 'page', model: 'anthropic/claude-haiku-5.5' };
 
@@ -49,8 +61,10 @@ test('with a durable layer, a finished page is kept in both, and a cache miss is
   assert.equal(first.status, 200);
   await new Promise(r => setTimeout(r, 10));
   assert.equal(durable.m.size, 1); const [key] = durable.m.keys();
-  assert.match(key, /^text-development:/, 'the same key as the cache, namespace and all');
-  assert.ok(a.store.m.has(key), 'in the cache too');
+  assert.match(key, /^text-development:page:/, "the page's own key, in this deployment's namespace");
+  assert.equal([...a.store.m.keys()].filter(k => /^text-development:/.test(k)).length, 1, 'in the cache too, under the cache key');
+  assert.equal(unstamped(/** @type {any} */ (durable.m.get(key)).text, 'nope'), null, 'stamped with the prompt version it was written under');
+  assert.ok(/** @type {any} */ (durable.m.get(key)).text.startsWith('dh1 '));
   assert.deepEqual(/** @type {any} */ (durable.m.get(key)).meta, { task: 'page', model: 'anthropic/claude-haiku-5.5' });
   /* another instance: an empty cache, the same durable layer */
   const b = client({ durable, ip: '198.51.100.4' });
@@ -59,7 +73,7 @@ test('with a durable layer, a finished page is kept in both, and a cache miss is
   assert.equal(hit.headers.get('x-dh-trial'), null, 'free, like any repeat');
   assert.deepEqual(b.logs.at(-1), { evt: 'write', task: 'page', model: 'anthropic/claude-haiku-5.5', byok: null, cached: true, durable: true });
   await new Promise(r => setTimeout(r, 10));
-  assert.equal(b.store.m.has(key), true, 'the cache is refilled');
+  assert.equal([...b.store.m.keys()].filter(k => /^text-development:/.test(k)).length, 1, 'the cache is refilled');
   assert.equal((await b.call({ ...pageBody('Umami'), cachedOnly: true })).headers.get('x-dh-cache'), 'hit', 'a prefetch reads it too');
   assert.equal(b.logs.at(-1).durable, undefined, 'now from the cache');
 });
@@ -107,4 +121,38 @@ test('a durable layer that fails is logged and never in the way; without a cache
   assert.equal(durable.m.size, 1);
   const again = await client({ durable, textCache: false }).call(pageBody('Umami'));
   assert.equal(again.headers.get('x-dh-cache'), 'hit');
+});
+
+/* A durable page is kept under the page's own key with its prompt version beside it, so a new prompt
+   neither serves the old page nor leaves it lying there: the page it writes takes the old one's place. */
+test('a new prompt version does not serve an older durable page, and replaces it in place', async () => {
+  const durable = memoryLayer();
+  const old = client({ durable, promptVersion: 'v-old' });
+  const first = await old.call(pageBody('Umami')); assert.equal(first.status, 200);
+  await new Promise(r => setTimeout(r, 10));
+  assert.equal(durable.m.size, 1); const [key] = durable.m.keys();
+  assert.equal(unstamped(/** @type {any} */ (durable.m.get(key)).text, 'v-old'), first.text);
+  const next = client({ durable, promptVersion: 'v-new', ip: '198.51.100.9' });
+  assert.equal((await next.call({ ...pageBody('Umami'), cachedOnly: true })).status, 204, 'the old page is not served');
+  const second = await next.call(pageBody('Umami')); assert.equal(second.status, 200); assert.equal(second.headers.get('x-dh-cache'), null);
+  await new Promise(r => setTimeout(r, 10));
+  assert.equal(durable.m.size, 1, 'one page per topic, whatever the prompt');
+  assert.equal(unstamped(/** @type {any} */ (durable.m.get(key)).text, 'v-new'), second.text);
+  assert.equal(unstamped(/** @type {any} */ (durable.m.get(key)).text, 'v-old'), null);
+});
+
+test('the stamp: only a page written under the same version comes back, and anything else is a miss', () => {
+  assert.equal(unstamped(stamped('2026-10-19-v3.1', '# A :: thing\nbody'), '2026-10-19-v3.1'), '# A :: thing\nbody');
+  assert.equal(unstamped(stamped('a', 'x'), 'b'), null);
+  for (const v of [null, '', 'no stamp', 'dh1 a', 'dh1 a\n']) assert.equal(unstamped(v, 'a'), null);
+});
+
+test('redis: one authorised call per read or write, and a failure is an error', async () => {
+  const r = fakeRedis(); const l = redisLayer({ url: 'https://redis.test', token: 'secret' }, r.fetchFn);
+  await l.set('k', 'page', { task: 'page', model: 'm' }); assert.equal(await l.get('k'), 'page');
+  assert.deepEqual(r.calls, [{ url: 'https://redis.test/pipeline', auth: 'Bearer secret' }, { url: 'https://redis.test/pipeline', auth: 'Bearer secret' }]);
+  /** @type {any} */ const down = async () => new Response('no', { status: 500 });
+  await assert.rejects(redisLayer({ url: 'https://redis.test', token: 't' }, down).get('k'), /redis 500/);
+  /** @type {any} */ const refused = async () => new Response(JSON.stringify([{ error: 'WRONGPASS' }]), { status: 200 });
+  await assert.rejects(redisLayer({ url: 'https://redis.test', token: 't' }, refused).set('k', 'v', { task: 'page', model: 'm' }), /WRONGPASS/);
 });
