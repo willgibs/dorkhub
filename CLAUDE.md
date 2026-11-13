@@ -20,6 +20,8 @@ Gateway (OIDC, no secrets) · Vercel Runtime Cache · npm.
 `npm run dev` (mock writer, :3000) · `npm run verify` (build + tsc + tests: THE green gate,
 run before calling anything done) · `npm run e2e` (full reader flow in Chromium; run
 `npx playwright install chromium` once). Pushing `main` deploys production immediately.
+CI runs verify and e2e on every pull request. `node scripts/eval.mjs plan` prices a writer eval (never run
+`--live` without Will's go); `node scripts/prove.mjs <url>` checks a deployment (free unless `--spend --yes`).
 
 ## Map
 - `src/app/*.js`: the page, as ES modules; `main.js` runs each module's `init()` in order; `16-router.js` routes clean
@@ -28,7 +30,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
   `world.js`: page identity, addresses, trails, the move-in from rabbit holes; `graph.js`: Your world's
   data and physics.
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
-- `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
+- `lib/write.js` protocol · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
+  per page in flight · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
 - `lib/front.js`: the front page, by hand: its topics (`FRONT`), the cards with their drawings, the
   threads between topics, each with its source, and `DOORS` (those topics, then the pages written

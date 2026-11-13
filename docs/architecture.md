@@ -161,8 +161,13 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   other change. `node scripts/seeds.mjs brief "<title>"` gives a writer the page's own prompt
   plus what the front page says about the topic (hooks and drawings) and its threads, each
   with its source, to keep and to link.
-- **State on the server.** Trial counters live in Redis or Runtime Cache. Cached answers
-  live in Runtime Cache for 14 days, best effort: it is regional and can be evicted.
+- **State on the server.** Trial counters live in Redis or Runtime Cache. Written pages and
+  answers are kept by **the library** (`lib/library.js`), three layers read in order: pages
+  written ahead of time (`lib/seeds`), the Runtime Cache (14 days, best effort: it is regional
+  and can be evicted), and an optional durable layer for finished pages (Redis, only when
+  `DH_LIBRARY=redis`; connecting Redis for the counters alone keeps nothing). A durable page
+  lives under the page's own key with its prompt version stamped beside the text: a page from an
+  older prompt is not served, and the page the new prompt writes takes its place.
 
 ## Lifecycle of a write (`lib/write.js`)
 
@@ -183,25 +188,34 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
    connecting page or a name chosen inside another page. `x-dh-cache: seed`. A front-page
    topic not written yet gets its placeholder the same way, with `x-dh-cache: placeholder`
    (logged as `{ seed: true, placeholder: true }`).
-5. **Answered before** (not `fresh`). Cacheable tasks look up
+5. **Answered before** (not `fresh`), through the library. Cacheable tasks look up
    `<ns>:sha256([PROMPT_VERSION, model, task, pageId or prompt])`, where `<ns>` is `text` in
    production and `text-preview` or `text-local` elsewhere (`textNs`), so preview and mock
    answers never reach production. The model is in the key, so a weaker model never fills a
    stronger one's page. `x-dh-cache: hit`.
    Seeds and hits come before the trial: they are free and instant even when the trial is
-   over or paused, and they set no cookie and no trial header.
+   over or paused, and they set no cookie and no trial header. A miss in the cache falls to
+   the durable layer when there is one (`<ns>:page:sha256([model, pageId])`); a hit there
+   refills the cache.
 6. **Prefetch stops here.** `cachedOnly` (pages only) answers 204 with `no-store` when
    there is nothing to serve. It never writes, reserves or sets a cookie.
-7. **Trial** (no key). Find the device cookie (`dh_id`, HttpOnly, `Path=/api`) and check
+7. **Being written right now** (`lib/flight.js`, same instance only). The first request to
+   miss claims the write; another asking for the same answer meanwhile takes a seat on it and
+   reads along: everything written so far, then the rest, and the same trailer. A joiner
+   spends nothing. The writer stops only when the last reader has gone. A write that ends
+   before its first word was never joinable, and a `fresh` rewrite never joins or is joined.
+8. **Trial** (no key). Find the device cookie (`dh_id`, HttpOnly, `Path=/api`) and check
    what's left at device, network and IPv6 /48 scope. If an allowance is empty, return 402
    with `trial_over` or `tools_over`.
-8. **Reserve** one unit at every scope atomically, and roll back if any scope goes over.
-9. **Write** with `streamText` and wait for the first word. If none comes, refund the
+9. **Reserve** one unit at every scope atomically, and roll back if any scope goes over.
+10. **Write** with `streamText` and wait for the first word. If none comes, refund the
    unit, unless the reader hung up after the writer started, and return the error status.
-10. **Stream** plain text. A mid-stream failure or cut-off appends one trailer:
-   `\u0000` + JSON. Only clean stops that pass `task.usable()` are cached, and never a
+11. **Stream** plain text. A mid-stream failure or cut-off appends one trailer:
+   `\u0000` + JSON. Only clean stops that pass `task.usable()` are kept, and never a
    `fresh` answer. Every write logs one line (task, model, tokens, ms, end, cached), never
-   content, IPs, cookies or keys.
+   content, IPs, cookies or keys. `trial_paused` says `why` in the log (`off`, `counters`,
+   `gateway_auth`, `no_credit`); a deferred job that fails (a cache write, a refund, a usage
+   report) logs `{ evt: 'deferred', what, error }`.
 
 ## Error codes (`STATUS` in `lib/ai.js`; reader-facing text is `errText()` in `src/app/02-util.js`)
 
