@@ -4,6 +4,27 @@ _Ordered by priority. **(Will)** means it needs his decision or action first: as
 assume. Move finished items into `docs/decisions.md` (when a real decision was made) and
 keep `docs/state.md` current._
 
+## Now: the engine (2026-11-13; the calls are in `docs/decisions.md`)
+
+Built on branches, each green in CI, none a reader would notice: CI itself (willgibs/dorkhub#30), the server
+engine and `scripts/prove.mjs` (#31), the page as real modules, type-checked (#32), the writer as variants with
+its eval (#33). In order from here:
+1. Merge the four, then walk production (`node scripts/prove.mjs https://dorkhub.com`, and by eye).
+2. **(Will)** Credits. A page is about a tenth of a cent, so $5 covers the eval's first look (about $3.70 judged
+   by Opus 5.5, $1.90 by Sonnet 5.5) and well over a thousand live pages. Then
+   `node scripts/prove.mjs https://dorkhub.com --spend --yes` is section 1 below in one run.
+3. **(Will)** The eval's first look: read `scripts/eval/topics.json` (a proposal: swap any topic), read the `lean`
+   prompt in `lib/prompts.js`, say go. Then his own blind picks in `review.html`.
+4. **(Will)** Connect Upstash Redis (free; his click in the Vercel Marketplace), which makes the trial's counts
+   exact. `DH_LIBRARY=redis` then keeps every finished page for good: his call, with the one question it raises
+   (when the prompt improves, rewrite the library's pages eagerly, or as they are next opened?).
+5. Wire the eval's winner into `lib/write.js` (`composePage`, a grounding step if it wins), bump `PROMPT_VERSION`.
+6. What a reader sees, each by preview: sharing (#24) on the new foundation; the link card as a sheet on phones;
+   Your world by keyboard (with `makeGraph` split); three fixes found in the survey (what grew since you last
+   looked is lost on reload; the front page's maps keep stale colours after a theme switch; Your world saves the
+   whole store every 1.5 s while it draws).
+7. Make the browser walk's two clock-timed front-page checks deterministic (the shuffle, one card at a time).
+
 ## 0. Blocked on Will (check each one's status before planning around it)
 
 - **AI Gateway credits.** The free tier can't call Claude Haiku 5.5, so free pages show
@@ -141,8 +162,8 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
   - When he picks: write and fully check each new door, update `DOORS` and `CHAINS` (each
     chain starts at a door), and rebuild the index. The 12 written stay until replaced.
 - **Layer 2 (pages one click off the doors) is on hold.** Our advice: stop at the doors
-  for now and let credits start at the second page. A live Haiku page should cost about
-  a cent (estimate; measure in §1), while each pre-written page needs a full fact-check
+  for now and let credits start at the second page. A live Haiku page costs about
+  a tenth of a cent at the gateway's list prices (2026-11-13; measure in §1), while each pre-written page needs a full fact-check
   (about 250–300k Claude tokens each for the doors), and all 240 would need redoing if
   the door list or the format changed. Revisit once real costs are known.
 - **Accuracy** (Will: factual errors in a knowledge tool are "very, very bad"). Plan sent
@@ -185,9 +206,11 @@ against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs
 - Privacy-preserving page-view analytics. This would need a change to the footer's "nothing
   you read is tracked."
 
-## 3. The model eval (after section 2; Will gives the go and approves the cost)
+## 3. The model eval (Will gives the go and approves the cost)
 
-See `docs/eval-plan.md`.
+Built and proven on the mock (2026-11-13): `docs/eval-plan.md`, `node scripts/eval.mjs plan`. Nothing has been
+run. Other models (Sonnet 5.5 as the writer, OpenAI, Gemini) are a `--models` flag on the same harness, after the
+first look says which prompt to carry forward.
 
 ## 4. Pro (after Will sets pricing)
 
@@ -198,10 +221,10 @@ See `docs/eval-plan.md`.
 
 ## 5. Engineering hygiene
 
-- **Real Redis.** Verify `redisCounters` against real Upstash once it's connected; it's
-  only been tested against a fake.
-- **Prompt caching** for the static instructions once page v2 (instructions + prompt) is
-  adopted; measure the saving.
+- **Real Redis.** Verify `redisCounters` and the library's `redisLayer` against real Upstash once it's
+  connected; both have only been tested against a fake.
+- **Prompt caching** for the static instructions: the `split` variant sends them as the system message;
+  measure the saving in the eval, and check the provider's minimum cacheable length first.
 - **Structured outputs** for the JSON tools (part of the eval).
 - **`DH_SALT`.** Optional; without it the project ID is the salt.
 - **Trial size on the page.** `TRIAL_PAGES` is baked into the page at build time from

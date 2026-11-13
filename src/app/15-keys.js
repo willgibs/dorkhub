@@ -1,15 +1,25 @@
 /* ================= keys: free pages, your own key, and (soon) Pro =================
    No accounts for reading. The free pages are counted on the server; a reader's own key is
    kept in this browser only and sent with each request. */
+import { TRIAL_PAGES } from 'dorkhub:build';
+import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
+import { $, auth, errText, esc, pagesLeft, reducedMotion, saveAuth, toast, write } from './02-util.js';
+import { curPage } from './04-pages.js';
+import { generate } from './05-render.js';
+import { KEY_FIX } from './06-page-end.js';
+import { openSheet, sheet } from './08-sheets.js';
+import { trialLine } from './09-start.js';
+import { setDigits } from './12-chrome.js';
+import { seedKeyHTML } from './13-landing.js';
 const cents = x => (x < 0.01 ? `${(x * 100).toFixed(1).replace(/\.0$/, '')}¢` : `${Math.round(x * 100)}¢`);
-const modelName = id => (findModel(id) || { name: id }).name;
+export const modelName = id => (findModel(id) || { name: id }).name;
 function keyLabel() {
   const k = auth.byok; const n = pagesLeft();
   return k ? `Writing with your ${PROVIDERS[k.provider].name} key: ${modelName(k.model)}` : n > 0 ? `${n} free page${n === 1 ? '' : 's'} left. Bring your own key any time` : 'Free pages used. Add your own key';
 }
 /* the free pages left, set like Your world's count: a page spent pops its digit in */
 let KCOUNT = -1;
-function renderKeyBtn() {
+export function renderKeyBtn() {
   const k = auth.byok; const n = pagesLeft(); const label = keyLabel(); const state = k ? 'key' : n > 0 ? 'trial' : 'out';
   /* the top bar's key while reading, and the composer's key pill on the landing */
   for (const b of [$('#keyBtn'), $('#seedKey')]) { if (!b) continue; b.dataset.state = state; b.dataset.tip = label; b.setAttribute('aria-label', `Keys. ${label}`); }
@@ -34,20 +44,14 @@ function keyFormHTML(prov, model) {
 <p class="fine" id="keyMsg" aria-live="polite">Get one at ${esc(P.keyWhere)}. Your key stays in this browser: it travels with each request to write a page and is never stored or logged on Dorkhub’s servers.</p>
 </fieldset>`;
 }
-function keysSheet() {
+export function keysSheet() {
   const k = auth.byok; const prov = k ? k.provider : 'anthropic';
   openSheet('Keys', `<div class="keysheet">${nowHTML()}<form id="keyForm" autocomplete="off">${keyFormHTML(prov, k ? k.model : '')}</form>
 <div class="ks-pro"><p class="ks-h">Dorkhub Pro <span class="soon">soon</span></p><p>No keys and no setup: a monthly allowance of pages, paid for directly.</p></div></div>`,
     `<button class="btn glow" type="button" data-act="key-save">${k ? 'Save' : 'Check and save key'}</button>${k ? '<button class="btn ghost" type="button" data-act="key-forget">Remove my key</button>' : ''}`);
   if (!k) setTimeout(() => { if (matchMedia('(hover: hover)').matches) $('#keyIn')?.focus(); }, 60);
 }
-document.addEventListener('change', e => {
-  if (e.target.name !== 'kprov') return; const k = auth.byok;
-  $('#keyForm').innerHTML = keyFormHTML(e.target.value, k && k.provider === e.target.value ? k.model : '');
-  $(`#keyForm input[value="${e.target.value}"]`)?.focus();
-});
-document.addEventListener('submit', e => { if (e.target.id === 'keyForm') { e.preventDefault(); const b = $('[data-act="key-save"]'); if (b) saveKey(b); } });
-async function saveKey(btn) {
+export async function saveKey(btn) {
   const form = $('#keyForm'); if (!form || btn.disabled) return;
   const provider = $('input[name="kprov"]:checked', form)?.value; const model = $('input[name="kmodel"]:checked', form)?.value;
   const P = PROVIDERS[provider]; const msg = $('#keyMsg'); if (!P || !model) return;
@@ -66,4 +70,14 @@ async function saveKey(btn) {
     msg.textContent = e.code === 'bad_key' ? `${P.name} turned that key down. Check it and try again.` : e.code === 'model_unavailable' ? `That key can’t use ${modelName(model)}. Pick another model.` : e.code === 'key_limit' ? 'That key works, but it’s out of credit or rate-limited right now.' : errText(e.code);
   }
 }
-function forgetKey() { auth.byok = null; saveAuth(); renderKeyBtn(); sheet.close(); toast('Key removed from this browser.'); }
+export function forgetKey() { auth.byok = null; saveAuth(); renderKeyBtn(); sheet.close(); toast('Key removed from this browser.'); }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+document.addEventListener('change', e => {
+  if (/** @type {HTMLInputElement} */ (e.target).name !== 'kprov') return; const k = auth.byok;
+  $('#keyForm').innerHTML = keyFormHTML(/** @type {HTMLInputElement} */ (e.target).value, k && k.provider === /** @type {HTMLInputElement} */ (e.target).value ? k.model : '');
+  $(`#keyForm input[value="${/** @type {HTMLInputElement} */ (e.target).value}"]`)?.focus();
+});
+document.addEventListener('submit', e => { if (/** @type {HTMLElement} */ (e.target).id === 'keyForm') { e.preventDefault(); const b = $('[data-act="key-save"]'); if (b) saveKey(b); } });
+}

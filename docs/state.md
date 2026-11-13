@@ -2,37 +2,33 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-10-19)
-- **Live on dorkhub.com**, each merged after Will's look at its preview and checked on production:
-  - willgibs/dorkhub#13 pages for their topic; #14 the world reader; #16 instrument maps; #18 a calmer page;
-    #17, #19, #20 the front page by hand (`lib/front.js`): 13 cards leading into 33 topics; #21 numbers read whole;
-    #22 (94798de) the hero, "Learn about …" stepping to "anything".
-  - willgibs/dorkhub#23 (44de524) the article page: a 70-character measure, a card's drawing as its plate, the
-    captioned picture, the link card in the margin, the title in the top bar, the thread.
-  - willgibs/dorkhub#25 (4b1ad4a) the front page's 33 pages, each written once by the production writer, and key
-    facts on every page (format v3.1); #26 (c950086) a lead picture over the proxy's cap steps down a width.
-  - willgibs/dorkhub#27 (4719276) Will's ten review notes: a calmer hero (48 px heading; black holes · Atlantis · time
-    travel · DNA; cards peek ~116 px); the theme switch on every page; a kind is its coloured word, no dot; the head
-    built for any length (titles by length, key facts side by side or down the column by what fits); no sketch; no
-    "Written ahead of time." on the page; where it leads with an unnamed point; and every surface audited with an
-    outlier page (`tests/outliers.js`, in the browser walk): long words break inside their boxes everywhere;
-    #28 (24d5a31) a photo that fails shows the aurora drawn under it, or is dropped, never its alt text;
-    #29 (53658e0) a calmer reading page: 17 px on 580 px, the scale a step down, links quiet (ink, kind-coloured underline).
-- **Will, 2026-10-19:** design for what the writer sends (layouts hold the outliers; prompt rules are fickle), and
-  one bar for every page (a page written ahead of time is the production writer's one pass; fix the prompt, not pages).
-- **One door list**, `DOORS` in `lib/front.js`: the 33 topics, then the 11 earlier pages. **Production today:** no
-  gateway credits, so typed topics pause; front-page topics and earlier pages open free.
+## Now (2026-11-13)
+- **Live on dorkhub.com:** unchanged since 2026-10-20 (#29). No gateway credits, so typed topics pause; the 44
+  pages written ahead of time open free. `node scripts/prove.mjs https://dorkhub.com` passes its 9 free checks.
+- **Will, 2026-11-13:** engine first. Fable 5.2 orchestrates itself and Opus/Sonnet builders; he is product
+  visionary and art director. Build without paid credits; build the eval, then ask; test grounding in the eval;
+  the writer is open to a full refactor; build toward a durable library; elegant prompts over rule lists.
+- **Built, green in CI, not merged** (none a reader would notice):
+  - willgibs/dorkhub#30 CI: verify and the browser walk on every pull request and on `main`.
+  - #31 the server engine: the library (seeds, cache, durable Redis behind `DH_LIBRARY=redis`), one write per
+    page in flight, failures visible in logs, `scripts/prove.mjs`. 145 tests.
+  - #32 the page as real ES modules, bundled by esbuild, type-checked. Identical to `main` at 113 checkpoints of
+    a scripted journey; 44 KB lighter. A test fails if a module does anything on load.
+  - #33 the writer as variants (`base` pinned for production, `split`, `lean`, `grounded`, `hooks-tight`) and
+    the eval harness (`node scripts/eval.mjs plan`); nothing run, nothing spent. 134 tests.
+- **Costs** (gateway list prices, 2026-11-13): a page is about $0.0011; the eval's first look about $3.70 judged
+  by Opus 5.5 or $1.90 by Sonnet 5.5.
 
 ## Open
-- A brisk scroll passes some cards before their turn; they play when scrolled back to (calm over completeness).
+- The browser walk fails on a busy Mac at two clock-timed front-page checks (CI retries once). Use CI's run.
+- The three reader-visible fixes and the page's structural splits wait for Wave 2 (`docs/backlog.md`, Now 6).
+
 ## Blocked on Will
-- **willgibs/dorkhub#24, sharing** (its own session): his look, and his call on letting link-preview bots read a
-  page's title and deck while search engines stay out.
-- Whether to rewrite the 11 earlier pages in one pass too. Later: a ruler of time under timelines, the link card as a sheet on phones.
-- AI Gateway credits; connecting Redis (his click); old resources, repo visibility, Pro pricing (§0).
+- Merging #30 to #33 from the orchestrating session archives it (his auto-archive setting): his word, or his merge.
+- Credits (about $5), then his go on the eval's first look; the topic set and the `lean` prompt are his to read.
+- Connecting Upstash Redis (his click), and whether to switch the library on.
+- Still open from October: #24 sharing (his look); the 11 earlier pages; old resources; repo visibility; Pro pricing.
 
 ## Next
-1. The writer, batch by batch: first tries scored against the prompt, a rule only for a failure on two or more
-   pages of different kinds, a regression set unlike the front page on every change.
-2. Runtime Cache across production deploys: confirm once credits land.
-3. Later, each on Will's go: a card swap, a durable store, one write per page in flight, graph keyboard navigation.
+1. Merge, then walk production. 2. Credits, then `prove.mjs --spend --yes`. 3. The eval's first look and Will's
+blind picks. 4. Wire the winner into `lib/write.js`. 5. Wave 2 by preview: sharing, phone link card, Your world.

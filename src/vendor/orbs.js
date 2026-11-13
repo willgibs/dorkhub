@@ -1,4 +1,4 @@
-/* ================= thinking orbs: dotted spheres that think while Dorkhub writes =================
+/*! ================= thinking orbs: dotted spheres that think while Dorkhub writes =================
    Ported from thinking-orbs by Jakub Antalik, https://libraries.dev/orbs
    MIT License, Copyright (c) 2026 Jakub Antalik. Full notice in /licenses.txt.
    Changes for Dorkhub: the geometry for five states (connecting, composing, searching, solving,

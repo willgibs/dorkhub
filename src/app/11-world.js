@@ -6,11 +6,24 @@
    (src/shared/graph.js) that runs only while something is moving, then stops: no idle motion. Links
    trace in the first time a map is seen. The same view draws the small map beside a page, the full
    page at /world and the map on the front page. */
+import { clip, plain } from '../shared/article.js';
+import { addStep, routeOf } from '../shared/world.js';
+import { boundsOf, buildGraph, createSim, fitView, isHot, localGraph, nodeKeyOf, tick } from '../shared/graph.js';
+import { KIND_HEX, KIND_LABEL, kattr, kindOf } from './01-data.js';
+import { $, esc, isDark, reducedMotion, relTime, save, store, toast } from './02-util.js';
+import { ic } from './03-icons.js';
+import { CUR, curPage, go, openTopic, pageOf, trailPages, worldCount } from './04-pages.js';
+import { worldIndex } from './05-render.js';
+import { saveFile } from './08-sheets.js';
+import { SIDE, sideClosed } from './10-tools.js';
+import { DOORS, doorHTML } from './13-landing.js';
+import { tipAttrs } from './14-map-tips.js';
+import { VIEW } from './16-router.js';
 const easeOut = t => 1 - Math.pow(1 - t, 3);
 const easePop = t => { const c1 = 1.70158 * 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const clamp01 = v => Math.max(0, Math.min(1, v));
 const easeInOut = t => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-const TAU = Math.PI * 2;
+let TAU;
 
 /**
  * A graph view on a host element. mini: the small map beside a page (no wheel zoom, no tools).
@@ -21,7 +34,7 @@ const TAU = Math.PI * 2;
  * hold: its first trace waits for play() (the front page's map takes its turn among the cards).
  * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void }} [o]
  */
-function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
+export function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
   const tip = document.createElement('div'); tip.className = 'gv-tip'; tip.hidden = true; host.appendChild(tip);
   const ctx = cv.getContext('2d');
@@ -61,7 +74,7 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
   /* ---------- data ---------- */
   function setData(next, { center = '', grow = [], fit = true } = {}) {
     const old = new Map(g.nodes.map(n => [n.key, n]));
-    const seeds = {};
+    /** @type {Record<string, [number, number]>} */ const seeds = {};
     for (const n of next.nodes) { const o = old.get(n.key); const p = o ? [o.x, o.y] : getPos(n.key); if (p) seeds[n.key] = p; }
     const fresh = next.nodes.filter(n => !seeds[n.key]).length;
     sim = createSim(next, { pos: seeds, alpha: !next.nodes.length ? 0 : fresh === next.nodes.length ? 1 : fresh || grow.length ? .32 : 0 });
@@ -359,7 +372,7 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
     tip.style.left = `${Math.max(8, Math.min(cw - tw - 8, left))}px`; tip.style.top = `${Math.max(8, top)}px`;
   }
   function hideTip() { tip.hidden = true; }
-  tip.addEventListener('click', e => { const b = e.target.closest('[data-gv]'); if (!b || sel < 0) return; const n = g.nodes[sel]; if (b.dataset.gv === 'open') openNode(n); else { setFocus(n.key); hideTip(); } });
+  tip.addEventListener('click', e => { const b = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-gv]')); if (!b || sel < 0) return; const n = g.nodes[sel]; if (b.dataset.gv === 'open') openNode(n); else { setFocus(n.key); hideTip(); } });
   function openNode(n) {
     hideTip(); if (open) { open(n); return; }
     if (n.read && n.pid) { const p = pageOf(n.pid); if (p) { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via: 'world' }); p.last = Date.now(); save(); } go(routeOf(p.req)); return; } }
@@ -393,7 +406,7 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
     x.fillStyle = base; x.fillRect(0, 0, Wd, Ht);
     const v = fitView(g.nodes, Wd, Ht - 240, { pad: 150, max: 2.4, min: .05 }); const k = v.k, ox = Wd / 2 - v.x * k, oy = (Ht - 240) / 2 - v.y * k + 50;
     grid(x, Wd, Ht, k, ox, oy, 1, u);
-    const P = g.nodes.map(n => [n.x * k + ox, n.y * k + oy]); const R = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * u * 1.25;
+    /** @type {[number, number][]} */ const P = g.nodes.map(n => [n.x * k + ox, n.y * k + oy]); const R = n => (n.read ? 2.6 + 1.05 * Math.sqrt(Math.min(n.deg, 30)) : 2.4) * u * 1.25;
     x.lineCap = 'round';
     for (const e of g.edges) { x.globalAlpha = e.unread ? .17 : e.move ? .55 : .3; x.strokeStyle = ink; x.lineWidth = (e.move ? 1.1 : .85) * u; x.beginPath(); x.moveTo(...P[e.a]); x.lineTo(...P[e.b]); x.stroke(); }
     g.nodes.forEach((n, i) => {
@@ -432,14 +445,14 @@ function makeGraph(host, { mini = false, still = false, hold = false, positions 
 }
 
 /* ================= the graph data: your world, now ================= */
-function worldGraph() { return buildGraph(store.pages, store.trails, { current: CUR, maxRead: 500, maxUnread: 300 }); }
+export function worldGraph() { return buildGraph(store.pages, store.trails, { current: CUR, maxRead: 500, maxUnread: 300 }); }
 /* how many topics are one click away: everything your pages link to that you haven't read */
-function oneClickAway() { const W = worldIndex(); let n = 0; for (const k of W.back.keys()) if (!W.read.has(k)) n++; return n; }
+export function oneClickAway() { const W = worldIndex(); let n = 0; for (const k of W.back.keys()) if (!W.read.has(k)) n++; return n; }
 
 /* ================= the small map beside a page ================= */
-let MINI = null; const MINI_POS = new Map();
-function sleepMini() { if (MINI) MINI.sleep(); }
-function renderMini(grow = []) {
+export let MINI = null; export const MINI_POS = new Map();
+export function sleepMini() { if (MINI) MINI.sleep(); }
+export function renderMini(grow = []) {
   const pane = $('#worldPane'); if (!pane) return;
   if (!pane.dataset.built) { pane.innerHTML = `<div class="mini"><div class="mini-stage" id="miniStage"></div><p class="mini-stats" id="miniStats"></p><a class="mini-open" href="/world" data-world="1">Open Your world ${ic('right')}</a></div>`; pane.dataset.built = '1'; MINI = null; }
   const p = curPage(); const full = worldGraph();
@@ -452,16 +465,16 @@ function renderMini(grow = []) {
   $('#miniStats').innerHTML = n ? `<b>${n}</b> read · <b>${oneClickAway()}</b> one click away` : 'Every page you finish joins your world.';
 }
 /* a page finished: it springs into the map beside it, if that map is open; otherwise only the count moves */
-function worldGrew(p) {
+export function worldGrew(p) {
   if (VIEW !== 'page' || sideClosed() || SIDE !== 'world' || !MINI) return;
   renderMini([nodeKeyOf(p)]);
 }
 
 /* ================= the full page: /world ================= */
-let WORLD = null, WHIDE = new Set();
+export let WORLD = null, WHIDE = new Set();
 function worldPageHTML() {
   const full = worldGraph(); const read = full.nodes.filter(n => n.read);
-  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d, false)).join('')}</div></div></section>`;
+  if (!read.length) return `<section class="wpage empty"><div class="wp-empty"><span class="wp-glyph">${ic('world')}</span><h1>Your world starts with your first page</h1><p>Every page you read becomes a point of light here, joined to everything it links to. Start anywhere.</p><div class="wp-doors">${DOORS.slice(0, 4).map(d => doorHTML(d)).join('')}</div></div></section>`;
   const saved = Object.values(store.pages).filter(p => p.saved && (p.status === 'done' || p.status === 'partial')).sort((a, b) => b.saved - a.saved);
   const kinds = {}; for (const n of read) { const k = kindOf(n.kind) || 'concept'; kinds[k] = (kinds[k] || 0) + 1; }
   const kindList = Object.keys(KIND_LABEL).filter(k => kinds[k]);
@@ -487,7 +500,7 @@ function worldPageHTML() {
   </div>
 </section>`;
 }
-function showWorld() {
+export function showWorld() {
   const seen = store.settings.worldSeen || 0;
   $('#view').innerHTML = worldPageHTML(); document.title = 'Your world: dorkhub';
   const stage = $('#wpStage'); if (!stage) { WORLD = null; return; }
@@ -500,11 +513,16 @@ function showWorld() {
   const t = new URLSearchParams(location.search).get('trail'); const tr = t && store.trails.find(x => x.id === t);
   if (tr) setTimeout(() => { if (WORLD) WORLD.startReplay(tr.steps.map(s => s[0])); }, reducedMotion() ? 0 : 500);
 }
+export function leaveWorld() { if (WORLD) { WORLD.destroy(); WORLD = null; } }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+TAU = Math.PI * 2;
 document.addEventListener('click', e => {
   if (!WORLD) return;
-  const k = e.target.closest('[data-wkind]');
+  const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-wkind]'));
   if (k) { const kind = k.dataset.wkind; if (WHIDE.has(kind)) WHIDE.delete(kind); else WHIDE.add(kind); k.setAttribute('aria-pressed', String(!WHIDE.has(kind))); WORLD.setHidden(WHIDE); return; }
-  const a = e.target.closest('[data-wact]'); if (a) {
+  const a = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-wact]')); if (a) {
     const w = a.dataset.wact;
     if (w === 'fit') { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); }
     else if (w === 'focus') { const p = pageOf(store.current); const key = WORLD.focused ? '' : p ? nodeKeyOf(p) : ''; WORLD.setFocus(key); if (!key) WORLD.frameView(); a.setAttribute('aria-pressed', String(!!key)); }
@@ -512,11 +530,11 @@ document.addEventListener('click', e => {
     else if (w === 'image') { const n = worldCount(); WORLD.picture({ title: 'My world', sub: `${n} topic${n === 1 ? '' : 's'} read on Dorkhub · ${new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}` }).then(b => { if (b) saveFile('my-dorkhub-world.png', b); }); }
     return;
   }
-  const r = e.target.closest('[data-replay]'); if (r) { const t = store.trails.find(x => x.id === r.dataset.replay); if (t) { $('#wpStage')?.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); WORLD.startReplay(t.steps.map(s => s[0])); } }
+  const r = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-replay]')); if (r) { const t = store.trails.find(x => x.id === r.dataset.replay); if (t) { $('#wpStage')?.scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' }); WORLD.startReplay(t.steps.map(s => s[0])); } }
 });
 document.addEventListener('keydown', e => {
-  if (e.target.id !== 'wpFind' || !WORLD) return;
-  if (e.key === 'Enter') { e.preventDefault(); const i = WORLD.find(e.target.value); if (i >= 0) WORLD.select(i); else toast('That topic isn’t in your world yet.'); }
-  else if (e.key === 'Escape') { e.target.value = ''; WORLD.select(-1); }
+  if (/** @type {HTMLElement} */ (e.target).id !== 'wpFind' || !WORLD) return;
+  if (e.key === 'Enter') { e.preventDefault(); const i = WORLD.find(/** @type {HTMLInputElement} */ (e.target).value); if (i >= 0) WORLD.select(i); else toast('That topic isn’t in your world yet.'); }
+  else if (e.key === 'Escape') { /** @type {HTMLInputElement} */ (e.target).value = ''; WORLD.select(-1); }
 });
-function leaveWorld() { if (WORLD) { WORLD.destroy(); WORLD = null; } }
+}

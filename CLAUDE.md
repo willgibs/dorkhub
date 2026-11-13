@@ -12,7 +12,7 @@ Then, as needed: `docs/architecture.md` before touching `lib/`, `api/` or the bu
 `docs/eval-plan.md` for the model eval; `docs/decisions.md` for why things are the way they are.
 
 ## Stack
-One static page (plain JS modules concatenated by `scripts/build.mjs`, no framework) +
+One static page (plain JS modules bundled by esbuild in `scripts/build.mjs`, no framework) +
 one Vercel Function (`api/write.js`, Node 24, ESM, JSDoc-typed JS) · AI SDK 7 · Vercel AI
 Gateway (OIDC, no secrets) · Vercel Runtime Cache · npm.
 
@@ -20,15 +20,18 @@ Gateway (OIDC, no secrets) · Vercel Runtime Cache · npm.
 `npm run dev` (mock writer, :3000) · `npm run verify` (build + tsc + tests: THE green gate,
 run before calling anything done) · `npm run e2e` (full reader flow in Chromium; run
 `npx playwright install chromium` once). Pushing `main` deploys production immediately.
+CI runs verify and e2e on every pull request. `node scripts/eval.mjs plan` prices a writer eval (never run
+`--live` without Will's go); `node scripts/prove.mjs <url>` checks a deployment (free unless `--spend --yes`).
 
 ## Map
-- `src/app/NN-*.js`: the page, one IIFE in filename order; `16-router.js` boots it and routes clean
+- `src/app/*.js`: the page, as ES modules; `main.js` runs each module's `init()` in order; `16-router.js` routes clean
   addresses (`/black-holes`, `/world`, `/connect/a/b`); `11-world.js` draws Your world.
-- `src/shared/`: used by page and server, inlined by the build (imports between them are stripped).
+- `src/shared/`: used by page and server, imported by both.
   `world.js`: page identity, addresses, trails, the move-in from rabbit holes; `graph.js`: Your world's
   data and physics.
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
-- `lib/write.js` protocol · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
+- `lib/write.js` protocol · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
+  per page in flight · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
 - `lib/front.js`: the front page, by hand: its topics (`FRONT`), the cards with their drawings, the
   threads between topics, each with its source, and `DOORS` (those topics, then the pages written
@@ -66,6 +69,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
   the landing footer promises nothing is tracked.
 - The mock writer must never answer in production (`lib/ai.js` guards it; a test checks).
 - The page runs under a hash-based CSP: no inline event handlers, no external scripts.
+- A page module does nothing when it loads: top-level code only declares; what runs at start goes in its
+  `init()` (a test enforces it). That is what lets the modules import each other freely.
 
 ## Working with Will
 Show, don't describe. For anything a reader would notice, push a branch and send Will the

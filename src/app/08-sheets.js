@@ -1,10 +1,15 @@
-const sheet = $('#sheet');
+import { capFirst, cardsOf, clip, keyOf, panelLines, parseArticle, plain } from '../shared/article.js';
+import { routeOf, topicKey } from '../shared/world.js';
+import { kattr } from './01-data.js';
+import { $, errText, esc, relTime, save, toast, write } from './02-util.js';
+import { waitHTML } from './03-orbs.js';
+import { curTrail, pageOf, parsed, trailPages } from './04-pages.js';
+import { fmt } from './05-render.js';
+
+export let sheet;
 /* Opening a sheet replaces whatever was in it, so anything still being written for the old one stops. */
-function openSheet(title, bodyHTML, footHTML = '') { if (sheetCtl) { sheetCtl.abort(); sheetCtl = null; } $('#sheetTitle').textContent = title; $('#sheetBody').innerHTML = bodyHTML; $('#sheetFoot').innerHTML = footHTML; $('#sheetFoot').hidden = !footHTML; if (!sheet.open) sheet.showModal(); }
-let sheetCtl = null;
-/* The close event is queued, so it can arrive after the sheet was already reopened for something new. */
-sheet.addEventListener('close', () => { if (sheet.open) return; if (sheetCtl) sheetCtl.abort(); sheetCtl = null; });
-$('#sheetX').addEventListener('click', () => sheet.close());
+export function openSheet(title, bodyHTML, footHTML = '') { if (sheetCtl) { sheetCtl.abort(); sheetCtl = null; } $('#sheetTitle').textContent = title; $('#sheetBody').innerHTML = bodyHTML; $('#sheetFoot').innerHTML = footHTML; $('#sheetFoot').hidden = !footHTML; if (!sheet.open) sheet.showModal(); }
+export let sheetCtl = null;
 
 /* ================= your trail: how you got here, step by step ================= */
 const VIA = { start: 'where you started', link: 'a link on', card: 'kept exploring from', question: 'a question on', ask: 'asked on', select: 'selected on', search: 'searched for', world: 'from Your world', connect: 'connecting', around: 'around', sketch: 'a sketch of' /* trails from before sketches were dropped */, peek: 'a peek on', index: 'from your index', trail: 'from your trail' };
@@ -17,7 +22,7 @@ function trailHTML(t) {
   const steps = t.steps.filter(s => pageOf(s[0]));
   return `<p class="tr-sum">${steps.length} step${steps.length === 1 ? '' : 's'}, from ${esc(relTime(steps[0][1]))}.</p><ol class="trail-list">${steps.map((s, i) => { const p = pageOf(s[0]); return `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}><span class="tl-n">${i + 1}</span><b>${esc(p.title)}</b><span>${viaLine(s)}</span></a></li>`; }).join('')}</ol>`;
 }
-function trailSheet(t = curTrail()) {
+export function trailSheet(t = curTrail()) {
   if (!t || !t.steps.length) { toast('Your trail starts with your first page.'); return; }
   openSheet('How you got here', trailHTML(t), `<a class="btn glow" href="/world?trail=${esc(t.id)}" data-world-replay="${esc(t.id)}">See it in Your world</a><button class="btn ghost" type="button" data-act="recap">Recap this trail</button>`);
 }
@@ -39,7 +44,7 @@ function mdToHTML(md) {
 /* the sheet is already called Recap, so the recap's own title leads without saying it again */
 const notesHTML = md => mdToHTML(md.replace(/^#\s+Recap:\s*(\S)/m, (_, c) => `# ${c.toUpperCase()}`));
 function notesFoot() { return `<button class="btn glow" type="button" data-act="save-notes">Download recap (.md)</button><button class="btn ghost" type="button" data-act="copy-notes">Copy</button><button class="btn ghost" type="button" data-act="renotes">Write it again</button>`; }
-async function recapTrail(fresh) {
+export async function recapTrail(fresh) {
   const t = curTrail(); if (!t) { toast('Read at least two pages first. A recap needs a trail.'); return; }
   if (t.notes && !fresh) { openSheet('Recap', notesHTML(t.notes), notesFoot()); return; }
   const done = trailPages(t).filter(p => p.text && p.status === 'done');
@@ -69,15 +74,26 @@ function trailMarkdown(t = curTrail()) {
   }
   return out.join('\n');
 }
-const fileSlug = s => keyOf(s).replace(/\s+/g, '-').slice(0, 40) || 'dorkhub';
-function saveFile(name, data, type = 'text/markdown;charset=utf-8') {
+export const fileSlug = s => keyOf(s).replace(/\s+/g, '-').slice(0, 40) || 'dorkhub';
+export function saveFile(name, data, type = 'text/markdown;charset=utf-8') {
   const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data], { type }));
   const a = document.createElement('a'); a.href = url; a.download = name; a.hidden = true;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
   toast('Saved to your downloads.');
 }
-function exportTrail() {
+export function exportTrail() {
   const t = curTrail(); const first = t && trailPages(t)[0];
   if (!first) { toast('Read a page first, then export your trail.'); return; }
   saveFile(`${fileSlug(first.title)}-trail.md`, trailMarkdown(t));
+}
+
+/* written from other modules */
+export function setSheetCtl(v) { return (sheetCtl = v); }
+
+/* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
+export function init() {
+sheet = $('#sheet');
+/* The close event is queued, so it can arrive after the sheet was already reopened for something new. */
+sheet.addEventListener('close', () => { if (sheet.open) return; if (sheetCtl) sheetCtl.abort(); sheetCtl = null; });
+$('#sheetX').addEventListener('click', () => sheet.close());
 }

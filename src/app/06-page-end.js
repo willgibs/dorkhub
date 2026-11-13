@@ -1,4 +1,19 @@
 /* ================= the end of a page: where to go next, then your own question ================= */
+import { capFirst, cardsOf, clip, keyOf, panelLines, plain } from '../shared/article.js';
+import { routeOf, topicKey } from '../shared/world.js';
+import { LENSES, kattr, kindOf } from './01-data.js';
+import { $, $$, errText, esc, reducedMotion, relTime, save, store, toast, write, writeJSON } from './02-util.js';
+import { ic } from './03-icons.js';
+import { waitHTML } from './03-orbs.js';
+import { REV, ctxInput, curPage, pageOf, parsed } from './04-pages.js';
+import { ACC, fromOf, inline, paint, patch, place, secFor, setHTML, touchWorld, worldIndex } from './05-render.js';
+import { watchEnd } from './07-reading.js';
+import { SPEAK, TTS } from './10-tools.js';
+import { syncFab } from './12-chrome.js';
+import { DOORS, doorHTML } from './13-landing.js';
+import { tipAttrs } from './14-map-tips.js';
+import { BOOT } from './16-router.js';
+/** @param {{ mark: string, title: string, hook?: string, cls?: string, attrs?: string, markTip?: string, href?: string }} o */
 function rowHTML({ mark, title, hook, cls = '', attrs = '', markTip = '', href = '' }) {
   const tag = href ? 'a' : 'button';
   return `<${tag} class="row${cls}"${href ? ` href="${esc(href)}"` : ' type="button"'} ${attrs}><span class="rk"${markTip ? ` data-tip="${esc(markTip)}"` : ' aria-hidden="true"'}>${mark}</span><span class="rt">${title}</span>${hook ? `<span class="rh">${hook}</span>` : ''}</${tag}>`;
@@ -61,14 +76,14 @@ function alsoOn(target, p) {
   const pages = ids.map(pageOf).filter(Boolean).sort((a, b) => (b.last || 0) - (a.last || 0)); if (!pages.length) return '';
   return `Also on ${esc(clip(pages[0].title, 32))}${pages.length > 1 ? ` and ${pages.length - 1} more of your pages` : ''}`;
 }
-const KEY_FIX = ['bad_key', 'key_limit', 'model_unavailable'];
+export const KEY_FIX = ['bad_key', 'key_limit', 'model_unavailable'];
 /* three pages written ahead of time, the same three for a page every time it is painted */
 function freeDoors(p) {
   const at = [...String(p.id)].reduce((a, c) => a + c.charCodeAt(0), 0) % DOORS.length;
   return [...DOORS.slice(at), ...DOORS.slice(0, at)].filter(d => topicKey(d.t) !== topicKey(p.title)).slice(0, 3);
 }
 function statusNote(p) {
-  const code = p.errorCode; const doors = `<div class="sn-doors">${freeDoors(p).map(d => doorHTML(d, false)).join('')}</div>`;
+  const code = p.errorCode; const doors = `<div class="sn-doors">${freeDoors(p).map(d => doorHTML(d)).join('')}</div>`;
   /* nothing new can be written for free right now, but the pages written ahead of time still open */
   if (p.status === 'error' && code === 'trial_paused') return `<div class="statusnote paused"><h2>Free pages are paused right now</h2><p>Nothing was taken from your free pages. Try again in a while, use your own key, or open one of these: they were written ahead of time, so they’re free and instant.</p>${doors}<div class="sn-a"><button class="btn ghost" type="button" data-act="retry">Try again</button><button class="btn ghost" type="button" data-act="keys">Use your own key</button></div></div>`;
   if (p.status === 'error' && code === 'trial_over') return `<div class="statusnote paywall"><h2>You’ve read your free pages</h2><p>Keep going with your own API key from Anthropic or Vercel AI Gateway. Pages then cost from about a tenth of a cent each, billed to you by the provider, and every tool keeps working. Dorkhub Pro, with no keys at all, is on its way. Pages written ahead of time stay free:</p>${doors}<div class="sn-a"><button class="btn glow" type="button" data-act="keys">Add a key</button></div></div>`;
@@ -76,7 +91,7 @@ function statusNote(p) {
   if (p.status === 'partial') return `<div class="statusnote"><h2>This page stopped partway</h2><p>${esc(p.error || 'It was left unfinished.')}</p><button class="btn glow" type="button" data-act="retry">Finish it</button></div>`;
   return '';
 }
-function paintEnd(p, sec, A, live) {
+export function paintEnd(p, sec, A, live) {
   const end = $('.a-end', sec); const blocks = [];
   /* a page that didn't come through says so first, right where its text stops, and asks nothing of the reader */
   const failed = p.status === 'error' || p.status === 'offline';
@@ -102,7 +117,7 @@ function paintEnd(p, sec, A, live) {
   watchEnd(p, end);
 }
 /* the tools: Save first, then the ones that open something beside the page, then the rest in a menu */
-function paintTools(p, sec) {
+export function paintTools(p, sec) {
   const t = []; const ready = p.status === 'done' && !REV.has(p.id);
   const b = (act, icon, label, key, on = true, extra = '', cls = '') => `<button class="tool ib${cls}" type="button" data-act="${act}"${tipAttrs(label, key)}${on ? '' : ' disabled'}${extra}>${ic(icon)}</button>`;
   const mi = (act, label, key, on = true, cls = '') => `<button class="mi${cls}" type="button" data-act="${act}"${on ? '' : ' disabled'}>${label}${key ? ` <kbd>${key}</kbd>` : ''}</button>`;
@@ -127,14 +142,14 @@ function paintTools(p, sec) {
   setHTML(tools, t.join(''));
 }
 /* Save: one star. Saved pages keep their text in this browser and gather in Your world. */
-function toggleSave(p) {
+export function toggleSave(p) {
   if (!p || p.status === 'empty') return;
   p.saved = p.saved ? 0 : Date.now(); save(); touchWorld();
   const sec = secFor(p.id); if (sec) paintTools(p, sec);
   const btn = sec && $('.tool.save', sec); if (btn && p.saved && !reducedMotion()) { btn.classList.remove('is-popping'); void btn.offsetWidth; btn.classList.add('is-popping'); }
   syncFab(); toast(p.saved ? 'Saved to Your world.' : 'Removed from saved.');
 }
-function paintDoubt(p, sec) {
+export function paintDoubt(p, sec) {
   const el = $('.a-doubt', sec); if (!el) return;
   if (!p.doubts) { setHTML(el, ''); return; }
   if (p.doubts === 'loading') { setHTML(el, `<div class="doubt enter"><h2>Skeptic mode</h2><p class="digging">${waitHTML('searching', 'Reading this page with a raised eyebrow')}</p></div>`); return; }
@@ -145,7 +160,7 @@ function paintDoubt(p, sec) {
   const body = $('.a-body', sec);
   for (const d of p.doubts) {
     const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT); let t;
-    while ((t = walker.nextNode())) {
+    while ((t = /** @type {Text} */ (walker.nextNode()))) {
       if (t.parentElement.closest('mark,.mnote,.xp')) continue;
       const i = t.data.indexOf(d.quote); if (i < 0) continue;
       const r = document.createRange(); r.setStart(t, i); r.setEnd(t, i + d.quote.length);
@@ -153,7 +168,7 @@ function paintDoubt(p, sec) {
     }
   }
 }
-async function doubtPage(p = curPage()) {
+export async function doubtPage(p = curPage()) {
   if (!p || p.status !== 'done' || p.doubts === 'loading') return;
   p.doubts = 'loading'; paint(p); const sec = secFor(p.id); if (sec) $('.a-doubt', sec).scrollIntoView({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
   const A = parsed(p); const txt = [A.deck, ...panelLines(A), ...A.blocks.map(b => b.s)].map(plain).join('\n');
@@ -175,7 +190,7 @@ async function streamSmall(p, holder, task, input) {
   } catch (e) { holder.text = errText(e?.code); holder.status = 'error'; }
   save(); paint(p);
 }
-function peek(p, target, label, i) {
+export function peek(p, target, label, i) {
   if (!p) return;
   p.peeks = p.peeks || []; const key = keyOf(target);
   const ex = p.peeks.find(x => x.key === key);
@@ -184,7 +199,7 @@ function peek(p, target, label, i) {
   const pk = { key, target, label, after: i, text: '', status: 'digging', open: true }; p.peeks.push(pk); paint(p);
   streamSmall(p, pk, 'peek', { ...ctxInput(p), passage: clip(blockText(p, i), 600), target });
 }
-function unfold(p, i, mode) {
+export function unfold(p, i, mode) {
   if (!p) return;
   p.unfolds = p.unfolds || {}; p.unfolds[i] = { mode, text: '', status: 'digging' };
   const sec = secFor(p.id); const old = sec && $(`.pb[data-i="${i}"] .px [data-k="u"]`, sec); if (old) old.remove();

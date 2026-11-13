@@ -4,7 +4,7 @@
 
 ## How it works
 
-- **One static page.** `public/index.html` is built from `src/` (plain JavaScript, no framework, no bundler) and served from Vercel's CDN. Rabbit holes live in the reader's browser.
+- **One static page.** `public/index.html` is built from `src/` (plain JavaScript modules bundled into one inline script, no framework) and served from Vercel's CDN. Rabbit holes live in the reader's browser.
 - **Two functions.** `POST /api/write` (`api/write.js` → `lib/write.js`) writes every word. The page names a task (`page`, `peek`, `sketch`…) and sends structured context: titles, the path, a passage. The server owns every prompt (`lib/prompts.js`), chooses the writer (`lib/ai.js`) and streams plain text back. `GET /api/picture` (`lib/picture.js`) finds a page's lead picture on Wikipedia and serves it through our own origin; no model is involved.
 - **Pages written ahead of time.** The landing's doors, and the pages one click off them, can be pre-written in `lib/seeds` and are then served free (`lib/seeds.js`).
 - **Shared code.** `src/shared/article.js` (the page-format parser) and `src/shared/models.js` (the model catalog) run on both sides. The build inlines them into the page.
@@ -55,7 +55,7 @@ lib/trial.js         the free allowance: device, network and /48 caps; reserve a
 lib/counters.js      where counts live: Upstash Redis (atomic) or Runtime Cache
 lib/mock.js          the mock writer: replays recorded pages, or writes stand-ins
 lib/recorded.js      real writer output for the exact prompts (scripts/recorded.mjs adds more)
-src/app/NN-*.js      the page, in filename order (16-router boots it)
+src/app/*.js         the page, as modules (main.js starts it; 16-router routes)
 src/shared/          parser + model catalog, shared with the server
 src/static/          404 page, favicon, robots.txt
 scripts/             build, dev server, browser test
