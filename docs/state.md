@@ -20,14 +20,12 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **Motion is being built on a stacked branch** (`design/motion`, cut from `design/cohesion`): a view changes on
   one clock, what opens closes, a state arrives as text does, durations from the tokens. Its law goes into
   `docs/vision.md`; it is reviewed by filmstrips and gets its own pull request on top of #42.
-- **Sentry:** the uptime monitor that fetched the page every minute is disabled (not deleted); its pings stopped
-  at 17:35 ET on 2026-11-13.
+- **Sentry:** the uptime monitor that fetched the page every minute is disabled, not deleted (2026-11-13).
 - **The writer** has still never run live: #38 is unproven until a live write. The judged eval has not run.
 
 ## Open
 - CI's second try for the walk warns when used; drop it after a clean week.
-- Worktrees under `.claude/worktrees/`: `cohesion` (integration; keep until #42 merges) and the motion
-  builder's. `sharing-afdbe3` is from an older session and was left alone.
+- Worktrees: `.claude/worktrees/cohesion` (keep until #42 merges) and the motion builder's; `sharing-afdbe3` is older.
 
 ## Blocked on Will
 - His look at #42's preview, and the seven calls in it.
