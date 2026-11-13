@@ -27,6 +27,13 @@ its eval (#33). In order from here:
 
 ## 0. Blocked on Will (check each one's status before planning around it)
 
+- **The old Sentry uptime monitor** (found 2026-11-13; two minutes, and worth doing first). The first Dorkhub's
+  launch set a Sentry uptime check on `https://dorkhub.com/` (Sentry org `dorkhub`, on its own account, one check a
+  minute). It still runs, and it asks for the page uncompressed: 1,440 whole pages a day, about half a gigabyte,
+  which is nearly all of Dorkhub's Fast Data Transfer (16.7 GB in 30 days, 81% of the Vercel account's). No charge
+  on Hobby, only waste. Delete the monitor, or the Sentry project with it. Will's Chrome isn't signed in to that
+  org, so it is his to do, or to sign in and say go. You'll know it's gone when Vercel's Logs → CDN Requests stop
+  showing a `GET /` from `SentryUptimeBot` at the top of every minute. The why is in `docs/decisions.md`.
 - **AI Gateway credits.** The free tier can't call Claude Haiku 5.5, so free pages show
   "paused". You'll know it's fixed when a live write logs `{"evt":"write",…,"end":"ok"}`
   rather than `trial_paused`.
@@ -39,12 +46,13 @@ its eval (#33). In order from here:
 - **Old resources to retire:**
   - Revoke the `dorkhub-imports` gateway key.
   - Delete the 21 old git tags (they keep the old codebase public).
-  - Retire the old Supabase and Sentry projects.
+  - Retire the old Supabase and Sentry projects (the Sentry uptime monitor first: see above).
   - Remove the GitHub OAuth app, the fine-grained token and the `CRON_SECRET` Actions
     secret.
   - Revoke the Gemini key.
   - Remove the old sitemap in Search Console.
-  - Remove the Mac backup agent.
+  - Remove the Mac backup agent (`com.dorkhub.backup`: still loaded, it runs on Sundays at 09:00 and fails, its
+    script gone since the rebuild).
 - **Repo visibility.** It's public today, so the prompts are readable. On Hobby, making it
   private may block deploys of commits authored by an agent.
 - **Pro pricing.**
