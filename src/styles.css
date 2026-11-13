@@ -592,6 +592,8 @@ details.pv summary:hover .pv-n{color:var(--ink)}
    column, above the safe area; it rises in, follows a finger down and leaves the same way. Nothing on the page moves */
 .hcard.docked{--gut:clamp(20px,4vw,56px);position:fixed;top:auto;left:max(var(--gut),calc((100% - 580px) / 2));right:max(var(--gut),calc((100% - 580px) / 2));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:auto;max-height:calc(100svh - var(--top-h) - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain;animation-name:dockin;transition:transform var(--d-quick) var(--ease-out),opacity var(--d-quick) var(--ease-out)}
 .hcard.docked.dragging{transition:none}
+/* the Enter key's mark means nothing where there is no keyboard */
+.hcard.docked .hc-key{display:none}
 .hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));transition:transform var(--d-fast) var(--ease-out),opacity var(--d-fast) var(--ease-out)}
 @keyframes dockin{from{opacity:0;transform:translateY(var(--dist-medium))}}
 @media (prefers-reduced-motion:reduce){ .hcard.docked{animation-name:fade;transition:none} }
