@@ -111,6 +111,8 @@ test('the subscription route is a live run only, and still wants the spend gate'
   /** @type {string[]} */ const said = [];
   await assert.rejects(main(['run', '--dry', '--via', 'claude'], { log: s => said.push(s) }), /goes with --live/);
   await assert.rejects(main(['run', '--live', '--via', 'carrier-pigeon'], { log: s => said.push(s) }), /gateway or claude/);
+  await assert.rejects(main(['run', '--dry', '--judge-via', 'claude'], { log: s => said.push(s) }), /goes with --live/);
+  await assert.rejects(main(['run', '--live', '--judge-via', 'owl'], { log: s => said.push(s) }), /--judge-via wants gateway or claude/);
   assert.equal(await main(['run', '--live', '--via', 'claude'], { log: s => said.push(s) }), 2);
   assert.match(said.join('\n'), /Refusing to start/);
 });
