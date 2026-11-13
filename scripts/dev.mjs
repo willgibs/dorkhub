@@ -32,9 +32,13 @@ const { handleWrite } = await import('../lib/write.js');
 const { handlePicture } = await import('../lib/picture.js');
 const TYPES = { '.html': 'text/html; charset=utf-8', '.svg': 'image/svg+xml', '.txt': 'text/plain; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.woff2': 'font/woff2' };
 const port = Number(process.env.PORT) || 3000;
-/* The page's own addresses, as vercel.json rewrites them: a single word without a dot (a topic, or
-   /world), and /connect/a/b. Everything else is a file, the API, or the 404 page. */
-const appPath = (/** @type {string} */ p) => /^\/(?!api$|fonts$)[^/.]+$/.test(p) || /^\/connect\/[^/.]+\/[^/.]+$/.test(p);
+/* The page's own addresses, read from vercel.json's rewrites to "/" (a topic, /world, /connect/a/b),
+   so the two never drift. A source is a path pattern: ":name" is one segment, "(…)" a regex group.
+   Everything else is a file, the API, or the 404 page. */
+const rewrites = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8')).rewrites
+  .filter((/** @type {{ destination: string }} */ r) => r.destination === '/')
+  .map((/** @type {{ source: string }} */ r) => new RegExp(`^${r.source.replace(/:\w+/g, '[^/]+')}$`));
+const appPath = (/** @type {string} */ p) => rewrites.some((/** @type {RegExp} */ re) => re.test(p));
 
 createServer(async (req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || `localhost:${port}`}`);
