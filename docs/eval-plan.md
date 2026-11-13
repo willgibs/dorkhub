@@ -20,6 +20,12 @@ pinned byte for byte by `tests/prompts.test.js`); switching it is a `PROMPT_VERS
   from the notes, never their wording; the notes are a floor, not the page; a doubtful point is left out.
 - **hooks-tight**: split, with hover hooks that carry no number, date or superlative unless textbook.
   Hover hooks were the most error-prone part of a page.
+- **lean**: the same page asked for in half the words (about 690 against 1,450) and a sixth of the
+  rule words (8 against 48). Will, 2026-11-13: an elegant prompt with the right context lets a capable
+  writer use its discretion, where one that rules on every edge case gets its rules lost and leaves no
+  creativity for the article. It says who the page is for and what a great one does, shows the shape
+  once, and leaves the rest to judgement. The page's design and the parser already hold the outliers.
+  This arm is the test of that idea: does it win the blind pairs without losing format or facts?
 
 A fifth variant is a few lines in `PAGE_VARIANTS`. Models: `--models`; only `vetted` models ship.
 ## The topic set
@@ -29,12 +35,23 @@ A fifth variant is a few lines in `PAGE_VARIANTS`. Models: `--models`; only `vet
 ambiguous name read in context (Java, from Coffee), with eleven marked where numbers are easy to get wrong.
 Each names the Wikipedia article its fact check reads.
 
-**Presets.** `first` (the default, ~108 calls) is a first look to approve first: the four arms on
+**Presets.** `first` (the default, ~144 calls) is a first look to approve first: the five arms on
 today's writer, 12 topics (one per kind, the one with the riskier numbers), one run; base vs split by
-automatic checks only (same words, no judge call), blind pairs split vs grounded and split vs
-hooks-tight, fact checks on split, grounded and hooks-tight. It is a first look, not a verdict, and the
-report says so. `full` (~812 calls) is every pair and every fact check over all 29 topics, twice.
+automatic checks only (same words, no judge call), blind pairs split vs lean, split vs grounded and
+split vs hooks-tight, fact checks on all but base. It is a first look, not a verdict, and the report
+says so. `full` (~1,160 calls) is every pair and every fact check over all 29 topics, twice.
 `--judge` takes any model, so a cheaper judge can be priced against the default.
+
+**What it costs** (the AI Gateway's public model list, 2026-11-13: Haiku 5.5 $0.10 in / $0.50 out per
+million tokens, Sonnet 5.5 $2 / $10, Opus 5.5 $4 / $20; check again on the day):
+
+| Preset | Writers (Haiku 5.5) | Judged by Opus 5.5 | Judged by Sonnet 5.5 |
+|---|---|---|---|
+| `first` | ~115k in, ~92k out: $0.06 | ~481k in, ~83k out: $3.60 | $1.80 |
+| `full` | ~557k in, ~445k out: $0.28 | ~3.9M in, ~609k out: $28 | $14 |
+
+A page on today's writer costs about a tenth of a cent ($0.0011: 2,500 tokens in, 1,700 out), so the
+judging is nearly all of an eval's cost.
 
 ## What is measured
 

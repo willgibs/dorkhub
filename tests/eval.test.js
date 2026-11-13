@@ -194,22 +194,22 @@ test('presets: "first" is the default and a small first look; "full" is everythi
   const out = /** @type {string[]} */ ([]);
   assert.equal(await main(['plan', '--brief'], { log: s => out.push(s) }), 0);
   const first = out.join('\n');
-  assert.match(first, /preset first\): 4 arms x 12 topics x 1 run\./);
+  assert.match(first, /preset first\): 5 arms x 12 topics x 1 run\./);
   assert.match(first, /A FIRST LOOK, NOT A VERDICT/);
   assert.match(first, /automatic checks only, no judge call: base@\S+ vs split@/);
-  assert.match(first, /^writers\s+48\s/m); assert.match(first, /^judges \(anthropic\/claude-opus-5\.5\)\s+60\s/m); assert.match(first, /^total\s+108\s/m);
+  assert.match(first, /^writers\s+60\s/m); assert.match(first, /^judges \(anthropic\/claude-opus-5\.5\)\s+84\s/m); assert.match(first, /^total\s+144\s/m);
   const T = loadTopics(); const ids = PRESETS.first.topics;
   assert.deepEqual([...new Set(ids.map(id => T.find(t => t.id === id)?.kind))].sort(), Object.keys(KIND_SHAPE).sort(), 'one topic per kind');
   const arms = armsOf(PRESETS.first.variants, ['m/x']);
   const P = planJob({ arms, topics: T.filter(t => ids.includes(t.id)), runs: 1, judge: 'cheap/judge', pairs: PRESETS.first.pairs, auto: PRESETS.first.auto, facts: PRESETS.first.facts });
   const pairs = P.calls.filter(c => c.type === 'pair').map(c => /** @type {any} */ (c)).map(c => `${c.a.variant}|${c.b.variant}`);
-  assert.deepEqual([...new Set(pairs)], ['split|grounded', 'split|hooks-tight']);
-  assert.deepEqual([...new Set(P.calls.filter(c => c.type === 'facts').map(c => /** @type {any} */ (c).arm.variant))], ['split', 'grounded', 'hooks-tight']);
+  assert.deepEqual([...new Set(pairs)], ['split|lean', 'split|grounded', 'split|hooks-tight']);
+  assert.deepEqual([...new Set(P.calls.filter(c => c.type === 'facts').map(c => /** @type {any} */ (c).arm.variant))], ['split', 'lean', 'grounded', 'hooks-tight']);
   assert.ok(P.calls.filter(c => c.type !== 'writer').every(c => c.model === 'cheap/judge'));
   assert.match(planText(P, { list: false }), /^judges \(cheap\/judge\)/m);
   const full = /** @type {string[]} */ ([]);
   await main(['plan', '--brief', '--preset', 'full', '--judge', 'cheap/judge'], { log: s => full.push(s) });
-  assert.match(full.join('\n'), /4 arms x 29 topics x 2 runs/); assert.match(full.join('\n'), /^total\s+812\s/m); assert.match(full.join('\n'), /^judges \(cheap\/judge\)\s+580\s/m);
+  assert.match(full.join('\n'), /5 arms x 29 topics x 2 runs/); assert.match(full.join('\n'), /^total\s+1160\s/m); assert.match(full.join('\n'), /^judges \(cheap\/judge\)\s+870\s/m);
   await assert.rejects(main(['plan', '--preset', 'huge']), /unknown preset/);
   const small = /** @type {string[]} */ ([]);
   await main(['plan', '--brief', '--source-tokens', '1000'], { log: s => small.push(s) });
@@ -221,16 +221,16 @@ test('the first preset runs dry end to end: auto-only base vs split, judged pair
   const arms = armsOf(PRESETS.first.variants, ['m/x']);
   const plan = planJob({ arms, topics: T, runs: 1, judge: 'j/y', pairs: PRESETS.first.pairs, auto: PRESETS.first.auto, facts: PRESETS.first.facts, preset: 'first', note: PRESETS.first.note });
   const r = await runJob({ plan, outDir: dir, runId: 'test-first', live: false, writerModel: mockWriter, judge: fakeJudge, fetch: dryFetch });
-  assert.equal(r.pages.length, 8); assert.equal(r.pairs.length, 4);
-  assert.equal(r.pages.filter(p => p.facts).length, 6, 'base is not fact-checked');
+  assert.equal(r.pages.length, 10); assert.equal(r.pairs.length, 6);
+  assert.equal(r.pages.filter(p => p.facts).length, 8, 'base is not fact-checked');
   const S = r.summary;
   assert.deepEqual(S.auto.map((/** @type {any} */ w) => [w.a, w.b, w.n]), [['base@m/x', 'split@m/x', 2]]);
-  assert.deepEqual(S.pairwise.map((/** @type {any} */ w) => [w.a, w.b].sort().join(' vs ')).sort(), ['grounded@m/x vs split@m/x', 'hooks-tight@m/x vs split@m/x']);
+  assert.deepEqual(S.pairwise.map((/** @type {any} */ w) => [w.a, w.b].sort().join(' vs ')).sort(), ['grounded@m/x vs split@m/x', 'hooks-tight@m/x vs split@m/x', 'lean@m/x vs split@m/x']);
   assert.match(S.presetNote, /FIRST LOOK, NOT A VERDICT/);
   const report = readFileSync(join(dir, 'report.html'), 'utf8');
   assert.match(report, /FIRST LOOK, NOT A VERDICT/); assert.match(report, /Automatic checks only/); assert.match(report, /beyond the notes/);
   const key = JSON.parse(readFileSync(join(dir, 'review-key.json'), 'utf8'));
-  assert.equal(Object.keys(key.pairs).length, 4, 'Will reviews the judged pairs, not every pair');
+  assert.equal(Object.keys(key.pairs).length, 6, 'Will reviews the judged pairs, not every pair');
 }));
 
 test('a dry run goes end to end on the mock writer and a fake judge, and writes everything', () => inTemp(async dir => {

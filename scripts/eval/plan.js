@@ -16,14 +16,14 @@ export const DEFAULT_RUNS = 2;
    `auto` pairs are compared on the automatic checks only, with no judge call (base and split are the same words). */
 export const PRESETS = {
   first: {
-    variants: ['base', 'split', 'grounded', 'hooks-tight'],
+    variants: ['base', 'split', 'lean', 'grounded', 'hooks-tight'],
     /* one per kind in KIND_SHAPE: of each pair in topics.json, the one whose numbers are easiest to get wrong */
     topics: ['benfords-law', 'sonoluminescence', 'escapement', 'lost-wax-casting', 'wow-signal', 'prince-ruperts-drop',
       'darvaza', 'halifax-explosion', 'carboniferous', 'ramanujan', 'greenland-shark', 'bayeux-tapestry'],
     runs: 1,
-    pairs: /** @type {[string, string][]} */ ([['split', 'grounded'], ['split', 'hooks-tight']]),
+    pairs: /** @type {[string, string][]} */ ([['split', 'lean'], ['split', 'grounded'], ['split', 'hooks-tight']]),
     auto: /** @type {[string, string][]} */ ([['base', 'split']]),
-    facts: ['split', 'grounded', 'hooks-tight'],
+    facts: ['split', 'lean', 'grounded', 'hooks-tight'],
     note: 'A FIRST LOOK, NOT A VERDICT: 12 topics at one run each cannot separate writers that differ by a few points. Read it for large gaps and broken pages; decide with the full preset.',
   },
   full: { variants: null, topics: null, runs: 2, pairs: /** @type {'all'} */ ('all'), auto: /** @type {[string, string][]} */ ([]), facts: /** @type {'all'} */ ('all'), note: '' },

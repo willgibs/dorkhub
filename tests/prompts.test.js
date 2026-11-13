@@ -154,3 +154,16 @@ test('hooks-tight changes only the hover-hook line, and every variant keeps form
   }
   assert.throws(() => composePage(p, 'nope'), /unknown page variant/);
 });
+
+/* Will, 2026-11-13: an elegant prompt, the right context and the writer's own judgement, against one that
+   rules on every edge case. The lean variant must stay lean, or it stops being the experiment. */
+test('lean asks for the same page in about half the words and far fewer rules', () => {
+  const p = pageInput({ title: 'Tardigrades' });
+  const text = (/** @type {string} */ id) => { const c = composePage(p, id); return `${c.system || ''}\n${c.prompt}`; };
+  const words = (/** @type {string} */ s) => s.split(/\s+/).length;
+  const rules = (/** @type {string} */ s) => (s.match(/\b(never|always|exactly|must|only|at most|at least|under \d+)\b/gi) || []).length;
+  const base = text('base'), lean = text('lean');
+  assert.ok(words(lean) < words(base) * .55, `${words(lean)} of ${words(base)} words`);
+  assert.ok(rules(lean) <= rules(base) / 4, `${rules(lean)} of ${rules(base)} rule words`);
+  assert.equal(composePage(p, 'lean').prompt, composePage(p, 'split').prompt, 'the request itself is the same');
+});
