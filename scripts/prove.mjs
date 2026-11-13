@@ -59,13 +59,21 @@ export async function prove(baseUrl, options = {}) {
     await check(`static: GET ${path} is 200`, async () => { const res = await get(path); const n = (await res.arrayBuffer()).byteLength; need(res.status === 200, `status ${res.status}`); need(n > 0, 'empty'); return `${n} bytes`; });
   }
   await check('static: an unknown file (/nope.txt) is 404', async () => { const res = await get(`/nope-${rand()}.txt`); await res.arrayBuffer(); need(res.status === 404, `status ${res.status}`); });
-  await check('static: /robots.txt allows only /', async () => {
+  /* crawlers get the front page alone; link previews (one group, naming them) may read a page, never the API */
+  await check('static: /robots.txt allows crawlers only /, and link previews everything but /api/', async () => {
     const res = await get('/robots.txt'); const text = await res.text();
     need(res.status === 200, `status ${res.status}`);
-    const rules = text.split('\n').map(l => l.trim()).filter(l => /^(allow|disallow):/i.test(l)).map(l => l.replace(/\s+/g, ' ').toLowerCase());
-    need(rules.includes('allow: /$') && rules.includes('disallow: /'), `rules were: ${rules.join(' | ') || 'none'}`);
-    need(rules.filter(l => l.startsWith('allow:')).length === 1, `more than / is allowed: ${rules.join(' | ')}`);
-    return rules.join(', ');
+    const groups = text.split(/\n\s*\n/).map(g => g.split('\n').map(l => l.trim().replace(/\s+/g, ' ')).filter(l => /^(user-agent|allow|disallow):/i.test(l)).map(l => l.toLowerCase())).filter(g => g.length);
+    const agents = (/** @type {string[]} */ g) => g.filter(l => l.startsWith('user-agent:')).map(l => l.slice(11).trim());
+    const rules = (/** @type {string[]} */ g) => g.filter(l => !l.startsWith('user-agent:'));
+    const all = groups.filter(g => agents(g).includes('*'));
+    need(all.length === 1 && agents(all[0]).length === 1 && rules(all[0]).join(' | ') === 'allow: /$ | disallow: /', `User-agent: * was: ${all.map(g => g.join(' | ')).join(' / ') || 'none'}`);
+    const PREVIEWS = ['slackbot', 'twitterbot', 'facebookexternalhit', 'facebot', 'discordbot', 'linkedinbot', 'telegrambot', 'whatsapp'];
+    for (const g of groups.filter(x => x !== all[0])) {
+      need(agents(g).every(a => PREVIEWS.includes(a)), `a group names more than link previews: ${agents(g).join(', ')}`);
+      need(rules(g).join(' | ') === 'disallow: /api/ | allow: /', `link previews' rules were: ${rules(g).join(' | ')}`);
+    }
+    return groups.map(g => `${agents(g).join(', ')}: ${rules(g).join(', ')}`).join('; ');
   });
   await check('seed: a page written ahead of time (Black holes) is free and instant', async () => {
     const t0 = Date.now();

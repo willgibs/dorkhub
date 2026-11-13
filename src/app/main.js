@@ -12,6 +12,7 @@ import { init as initLanding } from './13-landing.js';
 import { init as initMapTips } from './14-map-tips.js';
 import { init as initKeys } from './15-keys.js';
 import { init as initRouter } from './16-router.js';
+import { init as initShare } from './17-share.js';
 
 initUtil();
 initOrbs();
@@ -26,3 +27,4 @@ initLanding();
 initMapTips();
 initKeys();
 initRouter();
+initShare();

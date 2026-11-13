@@ -174,9 +174,12 @@ The delight is the snappy, clean stream: the page being written around you.
 Around it: hover/tap a link for its hook (and whether you've read it, or which of your
 pages also lead there; on a phone its card docks at the bottom edge, in one place, with the link kept marked and in
 sight above it, and a second tap opens the page), then peek without leaving; expand any paragraph (plainer, deeper,
-an example, the counterpoint); save it with the star; around this (a
+an example, the counterpoint); save it with the star; share it (the phone's share sheet, else
+the clean address copied; a link to it unfurls as the page, with its title, deck and a picture,
+and sends nothing anywhere); around this (a
 radial map of neighbours); connect it to any topic you've read; skeptic mode; listen; a
-quiz and a recap of the trail you're on; "how did I get here?" (your trail); the sidebar
+quiz and a recap of the trail you're on; "how did I get here?" (your trail, which travels as a
+link: `/trail/a/b/c` opens drawn as threads, each page free if written, otherwise asked for); the sidebar
 (Your world beside the page, your index, your trails, deep time; closed, it takes no room, and
 its toggle sits before the wordmark); ask anything (/). The top bar's actions share one shape,
 and Your world has one entry point there, its count beside it, set as part of its icon; the theme
@@ -206,7 +209,7 @@ page allowance, no keys. Pricing is Will's call.
 ## Not built yet (each needs Will's go)
 
 - **Pro**: auth, Stripe, a credits ledger.
-- **Sharing**: the prototype had a Hub, a shared feed of published rabbit holes that
-  others could follow. It was left out of launch. See `docs/prototype/`.
+- **A shared feed**: a page or a trail can be shared as a link, but the prototype's Hub, a
+  feed of published rabbit holes that others could follow, was left out of launch. See `docs/prototype/`.
 - **More writers**: OpenAI and Gemini keys are wired in but switched off until the model
   eval (`docs/eval-plan.md`) clears them.

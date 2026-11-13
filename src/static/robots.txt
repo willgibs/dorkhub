@@ -3,3 +3,17 @@
 User-agent: *
 Allow: /$
 Disallow: /
+
+# Link previews. When someone shares a link to a page, these read its head for its title, its line
+# and its picture. They fetch one page when it is shared, crawl nothing, and index nothing (every
+# topic page says noindex). Nothing they fetch can write a page: writing is a POST, after a click.
+User-agent: Slackbot
+User-agent: Twitterbot
+User-agent: facebookexternalhit
+User-agent: Facebot
+User-agent: Discordbot
+User-agent: LinkedInBot
+User-agent: TelegramBot
+User-agent: WhatsApp
+Disallow: /api/
+Allow: /
