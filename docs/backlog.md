@@ -4,33 +4,30 @@ _Ordered by priority. **(Will)** means it needs his decision or action first: as
 assume. Move finished items into `docs/decisions.md` (when a real decision was made) and
 keep `docs/state.md` current._
 
-## Now: the engine, then Wave 2 (2026-11-13; the calls are in `docs/decisions.md`)
+## Now: one app (2026-11-13; the calls are in `docs/decisions.md`)
 
-Live, none of it a reader would notice: CI (willgibs/dorkhub#30), the server engine and `scripts/prove.mjs` (#34),
-the page as real modules (#32), the writer as variants with its eval (#33), the walk's clock-timed checks made
-deterministic (#35), `makeGraph` split into parts and its saves fixed (#36). In order from here:
-1. **(Will)** His look at Wave 2's previews, each its own pull request: the link card as a sheet on phones with
-   two fixes (#37), Your world by keyboard (#40), sharing rebuilt on today's foundation (#39, replacing #24, with
-   his two calls: the robots exception and the line on the pictures). Merge one at a time; the others rebase.
-2. Merge on green: the writer's thinking settings (#38) and the eval's subscription route (#41).
-3. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
+Live: the engine wave (willgibs/dorkhub#30, #32, #33, #34), the walk's checks (#35), `makeGraph` split (#36), the
+writer's thinking settings (#38), the eval's subscription route (#41), and Wave 2 (#37 the link card as a sheet on
+phones, #40 Your world by keyboard, #39 sharing). In order from here:
+1. **The cohesion wave** (Will: 6 or 7 of 10; "one seamless app under a cohesive, rooted visual identity"). On
+   `design/cohesion`, preview only until his look: the kit (a label, a reading, the dot face for numbers), then
+   states as pages, Your world's surroundings as readings, the chrome and raised surfaces as one family; then a
+   consistency pass, the moves between views, and one preview with a before-and-after page.
+2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
    `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
    gateway too (cents); its judges run on the subscription (`--judge-via claude`).
-4. The eval's first look, then Will's blind picks in `review.html`. Topics are in `scripts/eval/topics.json` (a
+3. The eval's first look, then Will's blind picks in `review.html`. Topics are in `scripts/eval/topics.json` (a
    proposal: swap any). Early signals, unjudged, are in `docs/eval-plan.md`.
-5. Wire the winner into `lib/write.js` (`composePage`; `split` is the early favourite), bump `PROMPT_VERSION`.
-6. **(Will)** Connect Upstash Redis (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
-7. Drop CI's second try for the walk after a week with no "needed a second try" warning.
+4. Wire the winner into `lib/write.js` (`composePage`; `split` is the early favourite), bump `PROMPT_VERSION`.
+5. **(Will)** Connect Upstash Redis (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
+6. Drop CI's second try for the walk after a week with no "needed a second try" warning.
 
 ## 0. Blocked on Will (check each one's status before planning around it)
 
-- **The old Sentry uptime monitor** (found 2026-11-13; two minutes, and worth doing first). The first Dorkhub's
-  launch set a Sentry uptime check on `https://dorkhub.com/` (Sentry org `dorkhub`, on its own account, one check a
-  minute). It still runs, and it asks for the page uncompressed: 1,440 whole pages a day, about half a gigabyte,
-  which is nearly all of Dorkhub's Fast Data Transfer (16.7 GB in 30 days, 81% of the Vercel account's). No charge
-  on Hobby, only waste. Delete the monitor, or the Sentry project with it. Will's Chrome isn't signed in to that
-  org, so it is his to do, or to sign in and say go. You'll know it's gone when Vercel's Logs → CDN Requests stop
-  showing a `GET /` from `SentryUptimeBot` at the top of every minute. The why is in `docs/decisions.md`.
+- **The old Sentry uptime monitor: disabled 2026-11-13** (Will asked; done in his Chrome). The first Dorkhub's
+  launch had set a check on `https://dorkhub.com/` every minute, and it fetched the page uncompressed: nearly all
+  of Dorkhub's Fast Data Transfer (16.7 GB in 30 days). Disabled, not deleted ("Uptime check for dorkhub.com" in
+  Sentry's Monitors, org `dorkhub`); the pings stopped at 17:35 ET. Deleting it goes with retiring the project.
 - **AI Gateway credits.** The free tier can't call Claude Haiku 5.5, so free pages show
   "paused". You'll know it's fixed when a live write logs `{"evt":"write",…,"end":"ok"}`
   rather than `trial_paused`.
