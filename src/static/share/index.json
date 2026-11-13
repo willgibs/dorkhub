@@ -11,12 +11,13 @@
    "credit": "Richard Christopher Carrington · Public domain"
   },
   "tardigrades": {
-   "file": "tardigrades.png",
-   "from": "type",
+   "file": "tardigrades.jpg",
+   "from": "picture",
    "title": "Tardigrades",
    "kind": "creature",
    "line": "Animals that survive freezing, boiling and the vacuum of space.",
-   "alt": "Tardigrades: Animals that survive freezing, boiling and the vacuum of space."
+   "alt": "Tardigrades: Animals that survive freezing, boiling and the vacuum of space. The picture: SEM image of Milnesium tardigradum in active state. doi:10.1371/journal.pone.0045682.g001",
+   "credit": "Schokraie E · CC BY 2.5"
   },
   "whale-falls": {
    "file": "whale-falls.jpg",

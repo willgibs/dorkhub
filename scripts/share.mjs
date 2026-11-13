@@ -70,6 +70,14 @@ body.sharing>:not(.share-frame){display:none!important}
 `;
 
 /* ---------- what to make ---------- */
+/* Wikimedia, slowly: one request at a time, at least 2 s apart (Commons rate-limits quick loops). A refusal (429) or a
+   failed lookup stops the run where it is, keeping the pictures made so far: run it again later, never in a loop. */
+let last = 0, refused = 0;
+/** @type {typeof fetch} */
+const paced = async (url, init) => {
+  const wait = last + 2000 - Date.now(); if (wait > 0) await new Promise(r => setTimeout(r, wait));
+  try { const r = await fetch(url, init); if (r.status === 429) refused++; return r; } finally { last = Date.now(); }
+};
 const known = await knownPages(); const have = images();
 const cards = new Map(CARDS.map(c => [topicKey(c.t), c]));
 const due = known.filter(p => {
@@ -89,7 +97,7 @@ const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 }, d
 await ctx.route('**/*', async route => {
   const u = new URL(route.request().url());
   if (u.origin !== base) return route.abort();
-  if (u.pathname === '/api/picture') { const r = await handlePicture(new Request(u, { headers: { 'sec-fetch-site': 'same-origin' } })); return route.fulfill({ status: r.status, headers: Object.fromEntries(r.headers), body: Buffer.from(await r.arrayBuffer()) }); }
+  if (u.pathname === '/api/picture') { const r = await handlePicture(new Request(u, { headers: { 'sec-fetch-site': 'same-origin' } }), { fetch: paced }); return route.fulfill({ status: r.status, headers: Object.fromEntries(r.headers), body: Buffer.from(await r.arrayBuffer()) }); }
   if (u.pathname.startsWith('/api/')) return route.fulfill({ status: 204, body: '' });
   const f = join(pub, u.pathname === '/' ? 'index.html' : decodeURIComponent(u.pathname));
   if (!f.startsWith(pub) || !existsSync(f) || !extname(f)) return route.fulfill({ status: 404, body: '' });
@@ -125,7 +133,9 @@ for (const p of due) {
     }, { slug: p.word, kind: p.kind, title: p.title, line: p.line, css: ART[/** @type {keyof typeof ART} */ (p.word)] ?? '' });
     if (p.word === 'magnets') await page.waitForTimeout(600);
   } else {
-    const pic = NO_PICTURE.has(p.key) || p.nopic ? null : await lookup(fetch, p.own);
+    const trouble = { failed: false };
+    const pic = NO_PICTURE.has(p.key) || p.nopic ? null : await lookup(paced, p.own, trouble);
+    if (trouble.failed || refused) { console.log(`${p.title}: Wikimedia ${refused ? 'refused (429)' : 'failed'}, so the run stops here; the pictures above are made`); break; }
     if (pic) { from = 'picture'; file = `${p.word}.jpg`; credit = [pic.credit || 'Wikimedia Commons', pic.license].filter(Boolean).join(' · '); alt = `${p.title}: ${p.line} The picture: ${pic.desc || pic.alt}`; }
     /* a picture whose original is under 960 px wide comes whole (the page shows it at 500), so it stays sharp here */
     const big = pic ? (/&w=500$/.test(pic.src) ? `${pic.src}&o=1` : pic.src) : '';
@@ -143,6 +153,7 @@ for (const p of due) {
          big for the proxy, say: the page drops it too) leaves the words alone */
       return new Promise(done => { setTimeout(() => done(false), 15000); img.onload = () => done(true); img.onerror = () => { img.onerror = () => done(false); img.src = small; }; img.src = src; });
     }, { kind: p.kind || 'concept', title: p.title, line: p.line, src: big, small: pic ? pic.src : '', credit, from });
+    if (pic && !shown && refused) { console.log(`${p.title}: Wikimedia refused its picture (429), so the run stops here`); break; }
     if (pic && !shown) { console.log(`${p.title}: its picture didn't load, so the words stand alone`); due.splice(due.indexOf(p) + 1, 0, { ...p, nopic: true }); continue; }
   }
   const n = await shoot(file); drop(have.pages[p.word], file);
