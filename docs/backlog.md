@@ -6,10 +6,10 @@ keep `docs/state.md` current._
 
 ## Now: the engine (2026-11-13; the calls are in `docs/decisions.md`)
 
-Built on branches, each green in CI, none a reader would notice: CI itself (willgibs/dorkhub#30), the server
-engine and `scripts/prove.mjs` (#31), the page as real modules, type-checked (#32), the writer as variants with
+Live, none of it a reader would notice: CI itself (willgibs/dorkhub#30), the server
+engine and `scripts/prove.mjs` (#34, which replaced #31), the page as real modules, type-checked (#32), the writer as variants with
 its eval (#33). In order from here:
-1. Merge the four, then walk production (`node scripts/prove.mjs https://dorkhub.com`, and by eye).
+1. Merged and checked on production, 2026-11-13 (details in `docs/decisions.md`).
 2. **(Will)** Credits. A page is about a tenth of a cent, so $5 covers the eval's first look (about $3.70 judged
    by Opus 5.5, $1.90 by Sonnet 5.5) and well over a thousand live pages. Then
    `node scripts/prove.mjs https://dorkhub.com --spend --yes` is section 1 below in one run.
