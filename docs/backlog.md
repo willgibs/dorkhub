@@ -4,26 +4,23 @@ _Ordered by priority. **(Will)** means it needs his decision or action first: as
 assume. Move finished items into `docs/decisions.md` (when a real decision was made) and
 keep `docs/state.md` current._
 
-## Now: the engine (2026-11-13; the calls are in `docs/decisions.md`)
+## Now: the engine, then Wave 2 (2026-11-13; the calls are in `docs/decisions.md`)
 
-Live, none of it a reader would notice: CI itself (willgibs/dorkhub#30), the server
-engine and `scripts/prove.mjs` (#34, which replaced #31), the page as real modules, type-checked (#32), the writer as variants with
-its eval (#33). In order from here:
-1. Merged and checked on production, 2026-11-13 (details in `docs/decisions.md`).
-2. **(Will)** Credits. A page is about a tenth of a cent, so $5 covers the eval's first look (about $3.70 judged
-   by Opus 5.5, $1.90 by Sonnet 5.5) and well over a thousand live pages. Then
-   `node scripts/prove.mjs https://dorkhub.com --spend --yes` is section 1 below in one run.
-3. **(Will)** The eval's first look: read `scripts/eval/topics.json` (a proposal: swap any topic), read the `lean`
-   prompt in `lib/prompts.js`, say go. Then his own blind picks in `review.html`.
-4. **(Will)** Connect Upstash Redis (free; his click in the Vercel Marketplace), which makes the trial's counts
-   exact. `DH_LIBRARY=redis` then keeps every finished page for good: his call, with the one question it raises
-   (when the prompt improves, rewrite the library's pages eagerly, or as they are next opened?).
-5. Wire the eval's winner into `lib/write.js` (`composePage`, a grounding step if it wins), bump `PROMPT_VERSION`.
-6. What a reader sees, each by preview: sharing (#24) on the new foundation; the link card as a sheet on phones;
-   Your world by keyboard (with `makeGraph` split); three fixes found in the survey (what grew since you last
-   looked is lost on reload; the front page's maps keep stale colours after a theme switch; Your world saves the
-   whole store every 1.5 s while it draws).
-7. Make the browser walk's two clock-timed front-page checks deterministic (the shuffle, one card at a time).
+Live, none of it a reader would notice: CI (willgibs/dorkhub#30), the server engine and `scripts/prove.mjs` (#34),
+the page as real modules (#32), the writer as variants with its eval (#33), the walk's clock-timed checks made
+deterministic (#35), `makeGraph` split into parts and its saves fixed (#36). In order from here:
+1. **(Will)** His look at Wave 2's previews, each its own pull request: the link card as a sheet on phones with
+   two fixes (#37), Your world by keyboard (#40), sharing rebuilt on today's foundation (#39, replacing #24, with
+   his two calls: the robots exception and the line on the pictures). Merge one at a time; the others rebase.
+2. Merge on green: the writer's thinking settings (#38) and the eval's subscription route (#41).
+3. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
+   `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
+   gateway too (cents); its judges run on the subscription (`--judge-via claude`).
+4. The eval's first look, then Will's blind picks in `review.html`. Topics are in `scripts/eval/topics.json` (a
+   proposal: swap any). Early signals, unjudged, are in `docs/eval-plan.md`.
+5. Wire the winner into `lib/write.js` (`composePage`; `split` is the early favourite), bump `PROMPT_VERSION`.
+6. **(Will)** Connect Upstash Redis (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
+7. Drop CI's second try for the walk after a week with no "needed a second try" warning.
 
 ## 0. Blocked on Will (check each one's status before planning around it)
 
