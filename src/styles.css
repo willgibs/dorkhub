@@ -51,6 +51,21 @@
 /* derived from the accent */
 :root{--bg:color-mix(in srgb,var(--acc) 2%,var(--base));--link:var(--acc);--glow:var(--acc);--on-glow:var(--on-acc);--mark:color-mix(in srgb,var(--acc) 13%,transparent);--acc-line:color-mix(in srgb,var(--acc) 38%,transparent)}
 
+/* ================= the kit: what every surface is made of (docs/vision.md, Identity) =================
+   A label is small capitals, one size and weight wherever it stands: a kind, a section's name, a reading's name, a
+   state. A reading is a name and a value on a hairline, as a page's key facts are: whatever the app reports of
+   itself (a count, a cost, a state). New surfaces use these; older ones move onto them as they are touched. */
+:root{--lbl:600 11px/1.3 var(--f-ui);--lbl-track:.08em}
+.lbl{font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
+.lbl[data-kind]{color:var(--kc)}
+.readings{display:grid;grid-template-columns:fit-content(36%) minmax(0,1fr);column-gap:28px;margin:0;border-top:1px solid var(--line-2)}
+.readings>div{display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:baseline;padding:11px 0 10px}
+.readings>div+div{border-top:1px solid var(--line)}
+.readings dt{font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
+.readings dd{margin:0;font:500 15px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink);overflow-wrap:anywhere;text-wrap:pretty}
+/* a number the instrument reads out, at display size only: the dot face is the machine's hand */
+.dotnum{font-family:var(--f-dot);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:0}
+
 /* ================= base ================= */
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}

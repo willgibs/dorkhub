@@ -111,6 +111,21 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
   when something changes (a new topic springs in, a trail replays), then rests. Dark mode
   is the showpiece; light mode gets the same care.
 
+- **The kit** (2026-11-13, the cohesion wave; up for Will's look): every surface is made of the same few things,
+  so the whole app reads as one instrument.
+  - Paper and ink, and one raised surface. A hairline before a box, a rule before a shadow.
+  - A **label** in small capitals, one size everywhere: a kind, a section's name, a reading's name, a state.
+  - A **reading**: a name and a value on a hairline, as a page's key facts are, for whatever the app reports of
+    itself (a count, a cost, a state).
+  - Colour is a topic's kind and nothing else.
+  - Brackets and a faint grid where the app is an instrument: a map, a plate.
+  - Dots where the machine is at work (the wordmark, a wait, a picture arriving) and for the numbers it reads
+    out, at display size only.
+  - Three controls: a bare icon; a pill, ink for the one thing to do and a hairline for the rest; a chip for a
+    topic.
+  - **A state is a page.** Not written yet, paused, out of free pages, failed: each keeps a page's anatomy (a
+    label, the title, a deck, readings, ways on) instead of turning into a notice.
+
 ## Anatomy of a page (the generative UI)
 
 Written in one streamed pass, top to bottom, in the format defined in `lib/prompts.js`
