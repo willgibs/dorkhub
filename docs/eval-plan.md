@@ -93,6 +93,34 @@ labelled "not significant" when p ≥ 0.05. Two runs a topic show how much one w
 4. Output in `.eval/<run id>/` (git-ignored): each page's text, `pages.jsonl` (timings, tokens, scores,
    fact tallies), `judgements.jsonl`, `summary.json`, `report.html`, `review.html`, `review-key.json`.
 
+## Running it without gateway credits (2026-11-13)
+
+Will: test on the Claude subscription rather than paid credits. `scripts/eval/claude-cli.js` is a model for the AI
+SDK that makes one headless `claude -p` call per answer (no tools, no project, no settings, never an API key), so
+the harness runs unchanged:
+
+- `--via claude`: writers and judges on the subscription.
+- `--judge-via claude`: only the judges, the writers on the gateway. The judges are nearly all of a run's cost
+  (about $3.60 of the first look's $3.70), so this needs only cents of credit.
+- A model id may end in an effort, `anthropic/claude-haiku-5.5:low`, and needs its own `--price`.
+
+**What it cannot do:** turn a writer's thinking off. Claude Haiku 5.5 thinks unless a request says not to, and the
+CLI (2.1.304 to 2.1.321) has no working switch. Production's writer is now told not to think (`writerSettings` in
+`lib/ai.js`), so writers under test belong on the gateway; use `--via claude` only for a writer that is meant to
+think.
+
+**What the first runs showed** (17 pages and a dozen probes on the subscription, none judged, so read them as
+signals):
+- On the page prompt Haiku 5.5 thought 11,000 to 17,000 tokens at the API's default effort (52 to 76 s before the
+  first word) and 0 to 9,000 at low. A page's limit is 3,000 tokens, thinking included.
+- At low effort it sometimes skips thinking, and how often depends on the prompt: `lean` and `grounded` skipped it
+  on 2 of 3 topics, `base` and `hooks-tight` on at most 1 of 3.
+- `base` (everything in one user message) wrote its title line without the `#` on 10 pages of 10, so none parsed;
+  `split` (the same instructions as the system message) kept it on 3 of 3. One route, one model: check it on the
+  gateway before believing it, but it argues for `split` as the form production sends.
+- Every variant missed some finer rules (a deck under 25 words, every planned link used, no one-sentence
+  paragraphs), and pages ran to about 2,000 tokens, above the 1,536 the plan assumes.
+
 ## How results decide the writer
 
 1. **Accuracy gate.** An arm whose beyond-the-notes contradicted rate is worse than the control's

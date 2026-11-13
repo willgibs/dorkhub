@@ -5,6 +5,12 @@
 //   node scripts/eval.mjs run --dry [options]       the whole pipeline on the mock writer and a fake judge; spends nothing
 //   node scripts/eval.mjs run --live --yes-spend --budget <dollars> --prices <file> [options]
 //                                                   spends money: only with Will's go on the printed plan
+//   node scripts/eval.mjs run --live --via claude --yes-spend --budget <dollars> --price <model>=<in>/<out> ...
+//                                                   the same run on the Claude subscription the local `claude` CLI is
+//                                                   signed in to: no dollars; the budget, at list prices, bounds the tokens
+//   ... --judge-via claude                          only the judges on the subscription, the writers on the gateway:
+//                                                   the judges are nearly all of a run's cost, and the CLI cannot turn a
+//                                                   writer's thinking off, which production's writer needs
 //   node scripts/eval.mjs picks <run dir> <picks.json>   read Will's blind picks (exported from review.html) back in
 //
 // Options: --preset first | full   first (the default): 4 arms, 12 topics, 1 run, a few judged pairs; full: everything, twice
@@ -21,6 +27,7 @@ import { mockModel } from '../lib/mock.js';
 import { DEFAULT_JUDGE, DEFAULT_MODELS, DEFAULT_RUNS, PRESETS, SOURCE_TOKENS, armsOf, loadTopics, planJob, planText, readPrices, usd } from './eval/plan.js';
 import { fakeJudge } from './eval/judge.js';
 import { askJudge } from './eval/writer.js';
+import { claudeCli } from './eval/claude-cli.js';
 import { readPicks, runJob, spendGate } from './eval/run.js';
 import { summarize } from './eval/summary.js';
 import { reportHtml } from './eval/report.js';
@@ -89,6 +96,9 @@ export async function main(argv, { log = console.log } = {}) {
     const { plan, prices } = jobOf(o);
     log(planText(plan, { list: false }));
     const live = !!o.live;
+    const via = o.via || 'gateway'; if (via !== 'gateway' && via !== 'claude') throw new Error('--via wants gateway or claude');
+    const judgeVia = o['judge-via'] || via; if (judgeVia !== 'gateway' && judgeVia !== 'claude') throw new Error('--judge-via wants gateway or claude');
+    if ((via === 'claude' || judgeVia === 'claude') && !live) throw new Error('--via claude goes with --live: a dry run calls no model');
     if (live) {
       const budget = o.budget === undefined ? null : Number(o.budget);
       const why = spendGate({ yesSpend: !!o['yes-spend'], budget }, plan);
@@ -98,11 +108,13 @@ export async function main(argv, { log = console.log } = {}) {
     const outDir = o.out || join(repo, '.eval', runId);
     const { summary, stopped } = await runJob({
       plan, outDir, runId, live, prices, budget: live ? Number(o.budget) : null, log,
-      writerModel: live ? arm => arm.model : (_arm, input) => mockModel({ task: 'page', input, pace: 'fast' }),
-      judge: live ? liveJudge(plan.judge) : fakeJudge,
+      writerModel: live ? (via === 'claude' ? arm => claudeCli(arm.model) : arm => arm.model) : (_arm, input) => mockModel({ task: 'page', input, pace: 'fast' }),
+      judge: live ? liveJudge(judgeVia === 'claude' ? claudeCli(plan.judge) : plan.judge) : fakeJudge,
       fetch: live ? globalThis.fetch : dryFetch,
     });
     log(`\n${summary.note ? summary.note + '\n' : ''}Wrote ${outDir}: pages/, pages.jsonl, judgements.jsonl, summary.json, report.html, review.html (review-key.json maps review pairs to arms: don't open it before reviewing).`);
+    if (via === 'claude') log('Run on the Claude subscription through the local CLI: no dollars were spent; the figure below is what the same tokens cost at list prices.');
+    else if (judgeVia === 'claude') log('Judged on the Claude subscription through the local CLI: only the writers spent dollars; the figure below prices every token at list.');
     log(`Tokens: writer ${summary.tokens.writer.input} in, ${summary.tokens.writer.output} out; judge ${summary.tokens.judge.input} in, ${summary.tokens.judge.output} out; ${usd(summary.usd)}.`);
     if (stopped) log(`Stopped early: ${stopped}`);
     return 0;
@@ -121,11 +133,11 @@ export async function main(argv, { log = console.log } = {}) {
     log(`Read ${owner.length} picks into ${join(dir, 'summary.json')} and report.html.`);
     return 0;
   }
-  log('usage: node scripts/eval.mjs plan | run --dry | run --live --yes-spend --budget <dollars> | picks <run dir> <picks.json>  (see the top of scripts/eval.mjs)');
+  log('usage: node scripts/eval.mjs plan | run --dry | run --live [--via claude] --yes-spend --budget <dollars> | picks <run dir> <picks.json>  (see the top of scripts/eval.mjs)');
   return cmd ? 1 : 0;
 }
 
-/** @param {string} model @returns {import('./eval/run.js').Judge} */
+/** @param {import('ai').LanguageModel} model @returns {import('./eval/run.js').Judge} */
 const liveJudge = model => ({
   pair: c => askJudge({ model, prompt: c.prompt, maxTokens: 800 }),
   facts: c => askJudge({ model, prompt: c.prompt, maxTokens: 3000 }),
