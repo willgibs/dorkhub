@@ -479,7 +479,6 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
   .a-plate>div{width:min(100%,calc(460px * var(--par,1.05)))!important;height:auto!important;aspect-ratio:var(--par,1.05)!important}
   .a-plate.pl-hero{--par:1.2}.a-plate.pl-tall{--par:.76}.a-plate.pl-sq{--par:1.04}.a-plate.pl-wide{--par:1.5}.a-plate.pl-big{--par:1.05}
 }
-::view-transition-group(plate){animation-duration:var(--d-vslow);animation-timing-function:var(--ease-out)}
 
 /* ================= the lead picture: a plate across the column, named and credited ================= */
 .pic{margin:0}
@@ -739,9 +738,10 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 ::view-transition-new(root){animation:vt-in var(--d-slow) var(--ease-out) both}
 @keyframes vt-out{to{opacity:0;transform:translateY(calc(-1 * var(--dist-base)))}}
 @keyframes vt-in{from{opacity:0;transform:translateY(var(--dist-medium));filter:blur(var(--blur-m))}}
-::view-transition-group(hero){animation-duration:var(--d-vslow);animation-timing-function:var(--ease-out)}
+/* one clock: whatever travels with the reader (the title they clicked, a card's drawing, the top bar, the sidebar) lands
+   with the page, on its duration and curve */
+::view-transition-group(*){animation-duration:var(--d-slow);animation-timing-function:var(--ease-out)}
 ::view-transition-old(hero),::view-transition-new(hero){height:100%;width:auto;object-fit:contain;object-position:left top}
-::view-transition-group(topbar),::view-transition-group(sidebar){animation-duration:var(--d-medium)}
 
 
 /* ================= search or ask anything ================= */

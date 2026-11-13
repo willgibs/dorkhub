@@ -198,7 +198,8 @@ export function init() {
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
 addEventListener('scroll', () => {
   if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Date.now() > hcNudge && Math.abs(scrollY - hcY) > (hcard.classList.contains('docked') ? HC_READ_ON : 90)) hideCard(); }); }
-  clearTimeout(scrollT); scrollT = setTimeout(rememberScroll, 160);
+  /* noted for this address only: a move in between (a click, back) must not hand this page's place to the next one */
+  clearTimeout(scrollT); const at = location.href; scrollT = setTimeout(() => { if (location.href === at) rememberScroll(); }, 160);
 }, { passive: true });
 hcard = $('#hcard');
 hcard.addEventListener('touchstart', dragStart, { passive: true });

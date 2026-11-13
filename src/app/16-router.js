@@ -114,7 +114,8 @@ let wasNarrow, sheetW = 0;
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 BOOT = Date.now();
-addEventListener('popstate', () => { if (canVT() && VIEW === 'page') { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
+/* back and forward make the same move as a click, from every view, unless the browser has already animated it (a swipe) */
+addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
   const hole = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole'));
