@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { chooseWriter, mockAllowed } from '../lib/ai.js';
+import { chooseWriter, classify, mockAllowed, pauseCause, trialModel } from '../lib/ai.js';
 import { redisCounters } from '../lib/counters.js';
 import { TASKS } from '../lib/prompts.js';
 import { handleWrite, textNs } from '../lib/write.js';
@@ -216,4 +216,43 @@ test('the mock writer can never answer in production', async () => {
   assert.equal(mockAllowed({ DH_MOCK: '1', VERCEL_ENV: 'preview' }, request), true);
   assert.equal(mockAllowed({ DH_MOCK: '1' }, new Request('http://192.168.1.20:3000/api/write')), true, 'a phone on the same LAN');
   assert.equal(mockAllowed({ DH_MOCK: '1' }, new Request('http://203.0.113.5/api/write')), false);
+});
+
+test('a paused trial says why in the log, never on the wire', async () => {
+  const off = client({ env: { DH_TRIAL_OFF: '1' } });
+  const r = await off.call(pageBody('Umami'));
+  assert.equal(r.status, 503); assert.deepEqual(r.json(), { error: 'trial_paused' });
+  assert.deepEqual(off.logs.at(-1), { evt: 'write', task: 'page', model: 'anthropic/claude-haiku-5.5', byok: null, end: 'trial_paused', why: 'off' });
+  const broken = { name: 'broken', get: async (/** @type {string[]} */ k) => k.map(() => 0), incr: async () => { throw new Error('redis 500'); }, decr: async () => {} };
+  const c = client({ counters: broken });
+  const err = console.error; console.error = () => {};
+  try { assert.equal((await c.call(pageBody('Umami'))).status, 503); } finally { console.error = err; }
+  assert.equal(c.logs.at(-1).why, 'counters');
+  assert.equal(pauseCause({ statusCode: 401 }), 'gateway_auth');
+  assert.equal(pauseCause({ message: 'Invalid API key' }), 'gateway_auth');
+  assert.equal(pauseCause({ statusCode: 402 }), 'no_credit');
+  assert.equal(pauseCause({ message: 'Insufficient credits on this account' }), 'no_credit');
+  assert.equal(pauseCause({ statusCode: 429 }), null);
+  assert.equal(classify({ statusCode: 401 }, false), 'trial_paused'); assert.equal(classify({ statusCode: 402 }, true), 'key_limit');
+});
+
+test('work after the answer that fails is logged by what it was, never with content', async () => {
+  const store = memoryStore();
+  const failing = { m: store.m, get: store.get, set: async (/** @type {string} */ k, /** @type {unknown} */ v) => { if (/^text/.test(k)) throw new Error('cache full'); return store.set(k, v); } };
+  const c = client({ store: failing });
+  assert.equal((await c.call(pageBody('Umami'))).status, 200);
+  await new Promise(r => setTimeout(r, 20));
+  assert.deepEqual(c.logs.find(l => l.evt === 'deferred'), { evt: 'deferred', what: 'cache-write', error: 'Error: cache full' });
+  assert.equal(JSON.stringify(c.logs).includes('mami'), false);
+});
+
+test('a trial model that is not vetted is logged once and the default is used', () => {
+  /** @type {any[]} */ const lines = []; const warn = (/** @type {any} */ l) => lines.push(l);
+  assert.equal(trialModel({}, warn), 'anthropic/claude-haiku-5.5');
+  assert.equal(trialModel({ DH_TRIAL_MODEL: 'anthropic/claude-sonnet-5.5' }, warn), 'anthropic/claude-sonnet-5.5');
+  assert.equal(trialModel({ DH_TRIAL_MODEL: 'openai/gpt-6-luna' }, warn), 'anthropic/claude-haiku-5.5', 'not offered until vetted');
+  assert.equal(trialModel({ DH_TRIAL_MODEL: 'openai/gpt-6-luna' }, warn), 'anthropic/claude-haiku-5.5');
+  assert.equal(trialModel({ DH_TRIAL_MODEL: 'nobody/nothing' }, warn), 'anthropic/claude-haiku-5.5');
+  assert.equal(lines.length, 2, 'once per value');
+  assert.deepEqual(lines[0], { evt: 'config', what: 'DH_TRIAL_MODEL', problem: 'not a vetted model', using: 'anthropic/claude-haiku-5.5' });
 });

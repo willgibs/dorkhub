@@ -127,6 +127,22 @@ test('the brief for a front-page topic carries its prompt, its card\'s claims an
   for (const th of THREADS.filter(x => x.a === 'Black holes' || x.b === 'Black holes')) assert.ok(out.includes(`- [[${th.a === 'Black holes' ? th.b : th.a}]]: ${th.l} (${th.src})`), th.l);
 });
 
+test('an unreadable index or page is tried again next time, and logged once without its name', async () => {
+  const tmp = mkdtempSync(join(tmpdir(), 'dh-seeds-retry-')); const dir = pathToFileURL(tmp + '/');
+  /** @type {string[]} */ const lines = []; const err = console.error; console.error = (/** @type {string} */ l) => { lines.push(l); };
+  try {
+    assert.equal(await seedText(page({}), dir), null, 'no index yet');
+    assert.equal(await seedText(page({}), dir), null);
+    writeFileSync(join(tmp, 'index.json'), JSON.stringify({ pages: { [topicKey('The Great Emu War')]: { title: 'The Great Emu War', file: 'emu.txt' } } }));
+    assert.equal(await seedText(page({}), dir), null, 'the index now, but not the page');
+    assert.equal(await seedText(page({}), dir), null);
+    writeFileSync(join(tmp, 'emu.txt'), '# The Great Emu War :: event\n> Written.\n');
+    assert.match(await seedText(page({}), dir) || '', /Written/, 'both read once they are there');
+  } finally { console.error = err; }
+  assert.deepEqual(lines.map(l => JSON.parse(l)), [{ evt: 'seeds', what: 'index', error: 'ENOENT' }, { evt: 'seeds', what: 'page', error: 'ENOENT' }]);
+  assert.equal(lines.join(' ').toLowerCase().includes('emu'), false);
+});
+
 test('a written page takes its placeholder\'s place, and the endpoint says which it served', async () => {
   const tmp = mkdtempSync(join(tmpdir(), 'dh-seeds-')); mkdirSync(join(tmp, 'black-holes'));
   writeFileSync(join(tmp, 'black-holes', 'index.txt'), '# Black holes :: phenomenon\n> A written page.\n---\nWritten.\n');
