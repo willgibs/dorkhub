@@ -172,7 +172,8 @@ so nothing recurring may charm on page 10 and annoy by page 500. Taste through r
 The delight is the snappy, clean stream: the page being written around you.
 
 Around it: hover/tap a link for its hook (and whether you've read it, or which of your
-pages also lead there), then peek without leaving; expand any paragraph (plainer, deeper,
+pages also lead there; on a phone its card docks at the bottom edge, in one place, with the link kept marked and in
+sight above it, and a second tap opens the page), then peek without leaving; expand any paragraph (plainer, deeper,
 an example, the counterpoint); save it with the star; around this (a
 radial map of neighbours); connect it to any topic you've read; skeptic mode; listen; a
 quiz and a recap of the trail you're on; "how did I get here?" (your trail); the sidebar

@@ -39,7 +39,13 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   topic its size (`c` in `FRONT`), so the slot is kept from the first frame; the drawing and `/front.css` come with
   `/front.json`, fetched only for those topics; from the front page the view transition carries the card's drawing
   (`plate`) into it; its effects are the card's own. A link's card sits in the margin beside its line where there is
-  room (`placeCard` in `07-reading.js`), and once the title has scrolled away it waits in the top bar (`#topT`).
+  room (`placeCard` in `07-reading.js`). On a phone (the ≤900 px layout of the tools button, with no pointer that
+  hovers: `docked()`) a tap shows the same card as a sheet docked at the bottom edge, as wide as the column and above
+  the safe area; it is not modal (no scrim, nothing locked), its link stays marked (`hc-on`), the page moves up by the
+  least that keeps the link's line above it (`clearOfSheet`, one call to drop), a tap on another link swaps it in place,
+  a second tap on the same link opens the page, and it goes on a tap elsewhere, Escape, opening a page, a swipe down, or
+  56 px of reading on (`HC_READ_ON`); the tools button steps aside while it is up. Once the title has scrolled away it
+  waits in the top bar (`#topT`).
   The head says where you came from (`fromOf`: the trail's step into this page, by a link, card or question). The end
   draws its six ways on as threads out of the page (`fanBlock`/`drawFan` in `06-page-end.js`): an SVG of curves from
   this page's point to each way on's ring, measured from the layout once all six are there and redrawn only when they

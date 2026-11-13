@@ -401,6 +401,45 @@ async function run(page, { mobile = false } = {}) {
       await page.keyboard.press('Escape');
     });
   }
+  /* a link's card: on a phone a sheet docked at the bottom, as wide as the column, that never covers its link, swaps to
+     another link in place and opens on a second tap; on a desktop the card it always was, beside the link */
+  await step(`${tag}: a link's card`, async () => {
+    const holes = page.locator('.a-body a.hole');
+    const bring = (/** @type {number} */ n, /** @type {number} */ y) => page.evaluate(([n, y]) => { const a = document.querySelectorAll('.a-body a.hole')[n]; window.scrollBy(0, a.getBoundingClientRect().top - y); }, [n, y]);
+    const card = () => page.evaluate(() => {
+      const h = /** @type {HTMLElement} */ (document.querySelector('#hcard')); const r = h.getBoundingClientRect(); const on = document.querySelector('a.hole.hc-on'); const lr = on ? [...on.getClientRects()].at(-1) : null;
+      const col = /** @type {Element} */ (document.querySelector('.a-body')).getBoundingClientRect();
+      return { shown: !h.hidden, docked: h.classList.contains('docked'), pos: getComputedStyle(h).position, left: r.left - col.left, right: col.right - r.right, edge: innerHeight - r.bottom, top: r.top, title: h.querySelector('.hc-title')?.textContent || '', on: on ? /** @type {HTMLElement} */ (on).dataset.t : '', linkBottom: lr ? lr.bottom : 0, fab: getComputedStyle(/** @type {Element} */ (document.querySelector('.fab'))).visibility };
+    });
+    if (!mobile) {
+      await bring(1, 300); await holes.nth(1).hover(); await page.waitForSelector('#hcard:not([hidden])', { timeout: 3000 });
+      const c = await card();
+      if (c.docked || c.pos !== 'absolute' || c.on || (await page.evaluate(() => document.body.classList.contains('hc-docked')))) throw new Error(`the desktop card: ${JSON.stringify(c)}`);
+      await page.mouse.move(4, 300); await page.waitForTimeout(700); return;
+    }
+    if ((await holes.count()) < 3) throw new Error('too few links to try the sheet on');
+    /* a link on the bottom line: the sheet docks, and the page moves just enough to keep the link above it */
+    const deep = Math.min(5, (await holes.count()) - 1); await bring(deep, 844 - 40); await page.waitForTimeout(200);
+    const t2 = await holes.nth(deep).getAttribute('data-t'); await holes.nth(deep).tap(); await page.waitForTimeout(700);
+    const a = await card();
+    if (!a.shown || !a.docked || a.pos !== 'fixed' || a.title !== t2 || a.on !== t2) throw new Error(`the sheet: ${JSON.stringify(a)}`);
+    if (Math.abs(a.left - a.right) > 1 || Math.abs(a.left) > 1 || a.edge < 8 || a.edge > 24) throw new Error(`the sheet's margins: ${JSON.stringify(a)}`);
+    if (a.linkBottom > a.top || a.fab !== 'hidden') throw new Error(`the sheet covers its link, or the tools button stayed: ${JSON.stringify(a)}`);
+    await page.screenshot({ path: `${shots}/${tag}-4c-link-sheet.png` });
+    /* another link swaps what it says, in place */
+    const t1 = await holes.nth(1).getAttribute('data-t'); await bring(1, 300); await page.waitForTimeout(200); await holes.nth(1).tap(); await page.waitForTimeout(300);
+    const b = await card(); if (!b.shown || b.title !== t1 || b.on !== t1) throw new Error(`the swap: ${JSON.stringify(b)}`);
+    /* a tap elsewhere puts it away, and the tools button comes back */
+    await page.touchscreen.tap(8, 400); await page.waitForTimeout(400);
+    const c = await card(); if (c.shown || c.on || c.fab !== 'visible') throw new Error(`a tap elsewhere: ${JSON.stringify(c)}`);
+    /* a second tap on the same link opens its page: one already written, so it costs nothing, then back */
+    const all = await holes.evaluateAll(as => as.map(x => x.getAttribute('data-t') || ''));
+    const k = all.findIndex(t => t && !fresh(t)); if (k < 0) return;
+    const was = await page.evaluate(() => location.pathname); await bring(k, 300); await page.waitForTimeout(200);
+    await holes.nth(k).tap(); await page.waitForTimeout(300); await holes.nth(k).tap();
+    await page.waitForFunction(t => document.querySelector('.a-title')?.textContent === t, all[k], { timeout: 20000 });
+    await page.goBack(); await page.waitForFunction(u => location.pathname === u, was); await waitDone();
+  });
   await step(`${tag}: a link opens the next page at its own address`, async () => {
     const targets = await page.$$eval('.a-body a.hole', as => as.map(a => a.getAttribute('data-t') || ''));
     const target = targets.find(fresh);
@@ -482,6 +521,7 @@ async function run(page, { mobile = false } = {}) {
     /* when Your world was last looked at outlives a reload, so what grew since then springs in next time */
     await step(`${tag}: Your world remembers when you last looked`, async () => {
       const seen = () => page.evaluate(() => { try { return JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').settings?.worldSeen || 0; } catch (e) { return 0; } });
+      await page.waitForFunction(() => { try { return !!JSON.parse(localStorage.getItem('dorkhub:world:v1') || '{}').settings?.worldSeen; } catch (e) { return false; } }, null, { timeout: 3000 }).catch(() => {});
       const was = await seen(); if (!was) throw new Error('Your world did not note the visit');
       await page.reload(); await waitDone();
       /* anything that saves after the reload writes the store back as the loader read it */
