@@ -95,8 +95,9 @@ test('saved places stay put, and a new topic starts beside its neighbour', () =>
 
 test('a big world stays quick: 500 read and 300 unread topics settle in a few hundred milliseconds', () => {
   const g = world(500); assert.ok(g.nodes.length >= 790, `${g.nodes.length} nodes`);
-  const sim = createSim(g); const t0 = performance.now(); tick(sim, 300); const ms = performance.now() - t0;
-  assert.ok(ms < 2500, `300 ticks took ${ms.toFixed(0)} ms`);
+  /* the processor's time, not the clock's: on a busy machine the clock counts everyone else's work too */
+  const sim = createSim(g); const c0 = process.cpuUsage(); tick(sim, 300); const c = process.cpuUsage(c0); const ms = (c.user + c.system) / 1000;
+  assert.ok(ms < 2500, `300 ticks took ${ms.toFixed(0)} ms of processor time`);
   assert.ok(g.nodes.every(n => Number.isFinite(n.x)));
 });
 

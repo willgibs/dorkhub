@@ -83,18 +83,23 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   `/connect/<a>/<b>` a connecting page. Names the site uses get a trailing hyphen. `vercel.json`
   rewrites single dot-free paths and `/connect/a/b` to the page (files and the API come first)
   with `X-Robots-Tag: noindex`; `robots.txt` allows only `/`; `scripts/dev.mjs` mirrors it.
-- **Your world** (`src/shared/graph.js`, drawn by `src/app/11-world.js`): `buildGraph` makes
+- **Your world** (`src/shared/graph.js`, drawn by `src/app/11-graph*.js`, its pages in `src/app/11-world.js`): `buildGraph` makes
   one node per topic read (any voice), the moves between them from the trails, and up to 8
   unread invitations per page plus any topic two pages lead to, capped at 500 read and 300
   unread. A small force simulation (springs, Barnes-Hut repulsion, centring) runs only while
   something moves; positions persist. The sidebar shows `localGraph`, the neighbourhood of
-  the page on screen. It is drawn like an instrument (`draw()`): a faint grid that moves with the
+  the page on screen. It is drawn like an instrument (`draw()`, `11-graph-paint.js`): a faint grid that moves with the
   map, corner brackets, a read topic as a solid dot in its kind's colour with a ring, an
   invitation as a hollow circle, names in small capitals off a short leader line (placed where
   they fit, faded ones last), hairline links that trace in once when the map is first seen, the
   reader's moves stronger with a chevron the way they went (`from` on the edge), a running dash
   on a pointed-at topic's links, a radar ping for a newcomer and a marker that drives Replay. A `still` view (the front page) never pans, zooms or drags, so a finger
   scrolls the page over it; a tap shows a topic's card and a second opens it.
+  Every map is one `makeGraph` (`11-graph.js`: the data, the loop that runs only while something moves,
+  the map's life), its state in one object per map (several live at once), worked on by parts: the
+  camera and its flights (`11-graph-camera.js`), the painting (`11-graph-paint.js`), the pointer
+  (`11-graph-input.js`), the card (`11-graph-card.js`), Replay (`11-graph-replay.js`) and the picture
+  to keep (`11-graph-picture.js`, its own frame and radius at print size).
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
   The hero (`viewStart`): the heading, whose last word steps once through four of `FRONT`'s topics
   in their kinds' colours to "anything" (`livingWord`, the first arrival of a visit only, never
