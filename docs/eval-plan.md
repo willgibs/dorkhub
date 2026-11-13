@@ -1,90 +1,106 @@
-# Model eval plan (deferred)
+# Writer eval plan
 
-_Will deferred this until the generative UI and the overall experience settle, so the eval
-isn't rerun after every format change. Don't start it without his go, and confirm the
-cost with him first (estimate below)._
+_Nothing here runs against a model without Will's go on a printed plan and its cost. Everything below is
+built and proven on the mock writer and a fake judge (`npm run verify`, `node scripts/eval.mjs run --dry`)._
 
 ## Why
 
-It decides three things: which model writes the free pages (today Claude Haiku 5.5, the
-tier the prototype's default "Fast" writer used), which models readers may pick with their
-own keys (today Claude only), and which prompt works best for each model. Will's framing:
-"This is as much a challenge of prompt engineering as it is code architecture," so
-compare prompt variants per model, not one prompt across models.
+To find the most engaging page writer that stays factual. A writer is an **arm**: a prompt variant
+(`PAGE_VARIANTS` in `lib/prompts.js`) on a model. Every arm writes format v3.1 exactly, so the parser and
+the page never change with the writer. Production writes with `PAGE_VARIANT` (`base`, today's prompt,
+pinned byte for byte by `tests/prompts.test.js`); switching it is a `PROMPT_VERSION` bump.
 
-## Candidates (AI Gateway ids; USD per million tokens, in / out, as of 2026-10)
+## The arms
 
-| Model | In | Out |
-| --- | --- | --- |
-| anthropic/claude-haiku-5.5 | 0.10 | 0.50 |
-| anthropic/claude-sonnet-5.5 | 2 | 10 |
-| openai/gpt-6-luna | 0.10 | 0.50 |
-| openai/gpt-6.1-sol | 2 | 10 |
-| google/gemini-3.8-flash | 0.75 | 3.75 |
-| google/gemini-3.5-flash-lite | 0.30 | 2.50 |
-| google/gemini-4-argon | 2 | 10 |
-| deepseek/deepseek-v4.1-flash | 0.30 | 1.20 |
-| moonshotai/kimi-k2.6 (optional) | 0.95 | 4 |
+- **base**: today's prompt as one message. The control.
+- **split**: the same words; `PAGE_INTRO` and `FORMAT` as instructions, the request as the prompt, so a
+  provider can cache the instructions.
+- **grounded**: split, plus the lead of the topic's Wikipedia article as reference notes
+  (`lib/grounding.js`, about 500 tokens, 800 ms timeout, none for questions or ambiguous titles): facts
+  from the notes, never their wording; the notes are a floor, not the page; a doubtful point is left out.
+- **hooks-tight**: split, with hover hooks that carry no number, date or superlative unless textbook.
+  Hover hooks were the most error-prone part of a page.
+- **lean**: the same page asked for in half the words (about 690 against 1,450) and a sixth of the
+  rule words (8 against 48). Will, 2026-11-13: an elegant prompt with the right context lets a capable
+  writer use its discretion, where one that rules on every edge case gets its rules lost and leaves no
+  creativity for the article. It says who the page is for and what a great one does, shows the shape
+  once, and leaves the rest to judgement. The page's design and the parser already hold the outliers.
+  This arm is the test of that idea: does it win the blind pairs without losing format or facts?
 
-Re-check prices and each model's reasoning options in the live catalog
-(`https://ai-gateway.vercel.sh/v1/models`). Set the lowest reasoning effort that keeps
-quality, because time to first word matters as much as quality.
+A fifth variant is a few lines in `PAGE_VARIANTS`. Models: `--models`; only `vetted` models ship.
+## The topic set
 
-## Prompt variants
+`scripts/eval/topics.json`, **a proposal for Will to edit**: 29 topics unlike the front page (none from
+`FRONT` or `EARLIER`), two per kind, three questions, a connecting pair (Guano and Gunpowder), an
+ambiguous name read in context (Java, from Coffee), with eleven marked where numbers are easy to get wrong.
+Each names the Wikipedia article its fact check reads.
 
-- **Page v1:** today's single user message (`pagePrompt` in `lib/prompts.js`).
-- **Page v2:** split into instructions (role, `FORMAT`, linking and accuracy rules) and a
-  prompt holding only the path context and the task. This also enables prompt caching.
-- **Page v3:** v2 plus a short skeleton example of the format.
-- **Small tasks:** today's plain "reply with only JSON" text versus structured output
-  (AI SDK `Output` with `jsonSchema`) for doubt, around and quiz.
+**Presets.** `first` (the default, ~144 calls) is a first look to approve first: the five arms on
+today's writer, 12 topics (one per kind, the one with the riskier numbers), one run; base vs split by
+automatic checks only (same words, no judge call), blind pairs split vs lean, split vs grounded and
+split vs hooks-tight, fact checks on all but base. It is a first look, not a verdict, and the report
+says so. `full` (~1,160 calls) is every pair and every fact check over all 29 topics, twice.
+`--judge` takes any model, so a cheaper judge can be priced against the default.
 
-## Scenarios
+**What it costs** (the AI Gateway's public model list, 2026-11-13: Haiku 5.5 $0.10 in / $0.50 out per
+million tokens, Sonnet 5.5 $2 / $10, Opus 5.5 $4 / $20; check again on the day):
 
-1. First topic: "Tardigrades".
-2. First question: "Why is ice slippery?"
-3. Clicked link at level 1: The Great Emu War → "Lewis gun". This tests the title lock;
-   the prototype once titled a "First World War" click as "The Lewis Gun".
-4. Continue reading at level 2: Voynich manuscript → Radiocarbon dating → Bomb pulse.
-5. Deep page at level 5: … → Grid cells.
-6. Connecting page: Tulip mania ↔ Endosymbiosis.
-7. Contested topic: the Baghdad Battery (accuracy and hedging).
-8. Kid lens: black holes.
+| Preset | Writers (Haiku 5.5) | Judged by Opus 5.5 | Judged by Sonnet 5.5 |
+|---|---|---|---|
+| `first` | ~115k in, ~92k out: $0.06 | ~481k in, ~83k out: $3.60 | $1.80 |
+| `full` | ~557k in, ~445k out: $0.28 | ~3.9M in, ~609k out: $28 | $14 |
 
-Plus each small task (peek, unfold, doubt, around, quiz, thread, recap) on a
-couple of the pages above. Run every cell at least twice.
+A page on today's writer costs about a tenth of a cent ($0.0011: 2,500 tokens in, 1,700 out), so the
+judging is nearly all of an eval's cost.
 
-## Scoring
+## What is measured
 
-**Automatic** checks, using `parseArticle` from `src/shared/article.js`:
-- **Order and title:** blocks arrive in the right order, and the title lock holds.
-- **Opening:** deck, bridge and drift are present, with 3–5 facts.
-- **Link plan:** 10–16 entries, and every planned topic is linked in the body.
-- **Body:** 450–600 words in 3–4 sections, with 2–3 margin notes.
-- **Ending:** 5 branches covering deeper, sideways and wild, a next page, and 3 questions.
-- **Link quality:**
-  - people make up at most 25% of links
-  - no umbrella topics (a whole war, country, century or science)
-  - no markdown leaking into the text
-- **Speed and cost:** time to first word, total time, tokens and cost.
+**Accuracy, first and as a gate.** A judge model extracts every checkable claim (numbers, dates, names,
+attributions) from the body, the key facts and the hooks separately, and marks each supported,
+contradicted or absent against the topic's Wikipedia article, given in two labelled parts: LEAD (exactly
+the notes the grounded writer gets) and REST (the article after it; about 6,000 tokens in all,
+`--source-tokens`). Each verdict says where its evidence was: lead, rest, or none. Per arm and per part:
+- **contradicted, beyond the notes** (the headline): contradicted claims among those settled by REST
+  only. The grounded arm restates its notes and earns "supported, lead" for it, which would flatter any
+  rate counting the lead; claims settled beyond it are ones every arm wrote from its own knowledge.
+- contradicted, of all checked claims; and the share absent (unverifiable, not wrong).
 
-**Judges**, two from different families: anthropic/claude-opus-5.5 and openai/gpt-6.1-sol.
-Each scores 1–10 on pull, specificity, links, connection to the path, accuracy, prose and
-overall. Judges see the scenario's path, not the model's name.
+**Engagement.** A blind pairwise judge: the same topic from two arms, sides random, arm names hidden;
+which page a curious reader would rather keep reading, on specificity, surprise, clarity and whether
+the links make them want to click. Then Will's own blind picks on `review.html`, read back with
+`node scripts/eval.mjs picks <run dir> <picks.json>`. Will's picks outrank the judge's.
 
-## Harness
+**Format** (`scripts/eval/score.js`, automatic): usable page; body length; one-sentence paragraphs;
+three key facts, labels 1 to 3 words, values under 7, no superlatives; deck under 25 words; 10 to 14
+planned links, all used; people at most a quarter of links; umbrella links (a heuristic: lexicon plus
+patterns); stock curiosities; exactly six cards and three questions; hook and card-hook lengths; hooks
+with numbers; panels; margin notes; a locked title kept.
 
-The simplest route is a local script (`scripts/eval.mjs`) that calls AI Gateway with
-Will's `AI_GATEWAY_API_KEY` from `.env.local`, builds prompts from `lib/prompts.js`, and
-writes JSONL plus a summary table to `.eval/` (git-ignored). Then publish the results to
-Will in a readable form. Nothing eval-related ships to production.
+**Speed and cost**: time to the first character, to the first body character, and to the end; tokens.
+**Statistics**: per-arm means with 95% bootstrap intervals; pairwise win rates with an exact sign test,
+labelled "not significant" when p ≥ 0.05. Two runs a topic show how much one writer varies with itself.
 
-**Estimated cost:** about $9–10 for the full matrix with judges. Confirm with Will.
+## How a run is approved
 
-## After the eval
+1. `node scripts/eval.mjs plan [--preset first|full] [--judge …] --prices prices.json` prints every
+   call, estimated tokens per call, writer and judge totals apart, and dollars only for supplied prices
+   ("price unknown" otherwise; never hard-coded: check the AI Gateway catalog on the day).
+2. Will reads the plan and its cost, and says go.
+3. `node scripts/eval.mjs run --live --yes-spend --budget <dollars> --prices prices.json [same options]`.
+   It refuses without both flags, without a price for every model, or when the plan's estimate is over
+   the budget; while running it checks each call's worst case against the budget and stops cleanly,
+   keeping and summarizing what it has.
+4. Output in `.eval/<run id>/` (git-ignored): each page's text, `pages.jsonl` (timings, tokens, scores,
+   fact tallies), `judgements.jsonl`, `summary.json`, `report.html`, `review.html`, `review-key.json`.
 
-- Make prompt variants selectable per model in `lib/prompts.js`, keyed by writer id.
-- Mark the winners `vetted` in `src/shared/models.js` and enable their providers.
-- Change `DH_TRIAL_MODEL` if a different trial model wins.
-- Bump `PROMPT_VERSION`.
-- Record the decisions in `docs/decisions.md`.
+## How results decide the writer
+
+1. **Accuracy gate.** An arm whose beyond-the-notes contradicted rate is worse than the control's
+   (base, or split where base isn't fact-checked; intervals not overlapping in its favour), in all
+   claims or in key facts, is out, however engaging.
+2. Among arms that pass, the one Will picks more often in his blind review wins, then the judge's win
+   rate. A win marked "not significant" is not a win: run more topics or keep base.
+3. Format compliance and speed break ties; a slower time to the first body character needs a clear
+   win to justify it.
+4. The winner becomes `PAGE_VARIANT` (with a `PROMPT_VERSION` bump), the decision goes in
+   `docs/decisions.md`, and a winning model is marked `vetted` in `src/shared/models.js`.
