@@ -483,9 +483,9 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .eh::after{content:"";flex:1;height:1px;background:var(--line)}
 /* keep exploring: six ways on, named as the front page names its cards: the kind in small capitals, the title, the hook */
 .cards6{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
-.card{position:relative;display:grid;align-content:start;gap:6px;margin:0 -12px;padding:14px 12px 17px;border-radius:var(--r-2);color:var(--ink);text-decoration:none;transition:background-color var(--d-quick) var(--ease-out)}
-.card::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:1px;background:var(--line)}
-.card:hover,.card:focus-visible{background:color-mix(in srgb,var(--kc,var(--acc)) 6%,transparent)}
+.card,.way{position:relative;display:grid;align-content:start;gap:6px;margin:0 -12px;padding:14px 12px 17px;border-radius:var(--r-2);color:var(--ink);text-decoration:none;transition:background-color var(--d-quick) var(--ease-out)}
+.card::after,.way::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:1px;background:var(--line)}
+.card:hover,.card:focus-visible,.way:hover,.way:focus-visible{background:color-mix(in srgb,var(--kc,var(--acc)) 6%,transparent)}
 .cd-top{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:16px}
 .cd-top .kind{font:600 10.5px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase}
 .cd-n{opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
@@ -544,10 +544,6 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .rk{font:600 12.5px var(--f-mono);color:var(--acc);text-align:left;font-variant-numeric:tabular-nums}
 .rt{font:600 15.5px/1.4 var(--f-ui)}
 .rh{grid-column:2;font:400 14px/1.45 var(--f-ui);color:var(--mute)}
-.statusnote{margin:26px 0 0;padding-left:16px;border-left:2px solid var(--acc)}
-.statusnote h2{font:700 17px var(--f-ui);margin-bottom:4px}
-.statusnote p{font:400 15px/1.6 var(--f-read);color:var(--mute)}
-.statusnote .btn{margin-top:12px}
 .ask{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:0 10px;max-width:720px;margin-top:2px;padding:4px 8px 4px 0;border-bottom:1px solid var(--line);transition:border-color var(--d-quick) var(--ease-out)}
 .ask:focus-within{border-bottom-color:var(--acc)}
 .ask .rk{color:var(--faint)}
@@ -571,11 +567,22 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 /* the one note that pages can be wrong: once, at the bottom of the page */
 .colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
 .speaking{border-radius:8px;background:var(--mark);box-shadow:0 0 0 6px var(--mark)}
-/* a page arrived at from outside waits for the reader's word */
-.guard{margin:6px 0 0;padding:18px 0 0;border-top:1px solid var(--line);max-width:40em}
-.g-l{font:600 17px/1.4 var(--f-ui)}
-.g-f{margin-top:4px!important;font:400 15px/1.55 var(--f-ui);color:var(--mute)}
-.guard .sn-a{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+/* ================= a state is a page (stateOf in 06-page-end.js) =================
+   Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,
+   in ink, beside the kind when the kind is known; the title; a sentence where the deck goes; readings where the key
+   facts go), then the one thing to do, then ways on, set as the end's cards. No rule, no box, no colour of its own. */
+.st-l{color:var(--ink)}
+.h-main .st-r{margin-top:26px;max-width:var(--col)}
+.st-a{display:flex;flex-wrap:wrap;gap:8px}
+.st-ways{margin-top:52px}
+.st-list{display:grid}
+.a-body>.guard{margin-top:6px}
+/* a page cut off partway: one of its end's sections, where its text stops */
+.st-part{margin-top:40px}
+.st-say{max-width:34em;font:400 16px/1.6 var(--f-read);color:var(--mute);text-wrap:pretty}
+.st-part .st-a{margin-top:16px}
+/* a quick tool that is out of its free allowance, in the tool's own place */
+.doubt .st-a,.xp .st-a{margin:12px 0 4px}
 /* Save: a star that fills, with one small pop */
 .tool.save[aria-pressed="true"]{color:var(--acc)}
 .tool.save[aria-pressed="true"] .ic{fill:currentColor}
@@ -953,9 +960,6 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .keysheet #keyMsg{margin-top:8px;line-height:1.45}
 .ks-pro{margin-top:22px;padding-top:16px;border-top:1px solid var(--line);color:var(--mute)}
 .soon{margin-left:6px;padding:2px 8px;border:1px solid var(--line-2);border-radius:999px;font:600 11px var(--f-ui);color:var(--mute);vertical-align:2px}
-.statusnote .sn-a{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.statusnote .sn-doors{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.statusnote .sn-a .btn{margin-top:0}
 .status .linkish{font-size:inherit}
 
 /* ================= Your world: the graph of everything you've read ================= */
