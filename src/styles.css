@@ -148,9 +148,10 @@ body.scrolled .top{border-bottom-color:var(--line)}
 .sh-body .voice-pop label:has(input:checked){background:var(--panel)}
 /* Your world: its glyph and how many topics are in it; the count's digits pop in when it grows */
 body.at-world .world-btn{background:var(--panel);color:var(--ink)}
-/* the sidebar's toggle sits before the wordmark, on a page only */
-.side-btn{display:none;margin-left:-9px}
-body:not(.at-start):not(.at-world) .side-btn{display:inline-flex}
+/* the sidebar's toggle sits before the wordmark, its icon on the bar's edge. Where there is no sidebar (the front page,
+   Your world, a shared trail) it keeps its place unseen, so the wordmark stands at one x and baseline on every page */
+.side-btn{margin-left:-9px}
+body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibility:hidden}
 .menu-btn{display:none}
 /* once the page's title has scrolled away, it waits in the middle of the top bar, so you always know where you are;
    a click goes back to the top */
@@ -1096,4 +1097,4 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .fan.tr .fan-out::before{display:none}
 /* like Your world, a trail has no sidebar, nor the page's tools button on a phone */
 body.at-trail .shell{grid-template-columns:minmax(0,1fr)}
-body.at-trail :is(.side,.side-btn,.fab){display:none!important}
+body.at-trail :is(.side,.fab){display:none!important}
