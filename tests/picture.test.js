@@ -69,6 +69,22 @@ test('no picture when the image is not on Commons, too small, or unlicensed; mis
   }
 });
 
+test('Wikimedia failing is not "no picture": it is cached for minutes, a true miss for days', async () => {
+  const minutes = (/** @type {Response} */ r) => /s-maxage=(\d+)/.exec(r.headers.get('cache-control') || '')?.[1];
+  const down = wiki([['page/summary/', 503], ['search/page', 503]]);
+  const r = await handlePicture(req('t=Tulip%20mania'), down.deps);
+  assert.equal(r.status, 204); assert.equal(minutes(r), '300');
+  const thrown = { env: {}, fetch: /** @type {any} */ (async () => { throw new DOMException('timed out', 'TimeoutError'); }) };
+  assert.equal(minutes(await handlePicture(req('t=Tulip%20mania'), thrown)), '300', 'a timeout too');
+  const noLicence = wiki([['page/summary/', summary({})], ['commons.wikimedia.org/w/api.php', 502]]);
+  assert.equal(minutes(await handlePicture(req('t=Tulip%20mania'), noLicence.deps)), '300', 'a licence we could not read is not a missing licence');
+  const missing = wiki([['search/page', { pages: [] }]]);
+  assert.equal(minutes(await handlePicture(req('t=Tulip%20mania'), missing.deps)), '604800', 'nothing there: the long miss');
+  const image = wiki([['/thumb/', 503]]);
+  const img = await handlePicture(req('f=6%2F6a%2FA.jpg&w=500'), image.deps);
+  assert.equal(img.status, 404); assert.equal(minutes(img), '300');
+});
+
 test('plurals and questions are tried as titles, and a search only counts when it means the same thing', async () => {
   const plural = wiki([['page/summary/Whale_fall', summary({ title: 'Whale fall' })], ['commons.wikimedia.org/w/api.php', META]]);
   assert.equal((await handlePicture(req('t=Whale%20falls'), plural.deps)).status, 200);
