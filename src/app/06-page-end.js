@@ -125,6 +125,7 @@ export function paintTools(p, sec) {
   /* a page that didn't come through has nothing to save, hear or quiz */
   if (p.status === 'error' || p.status === 'offline') { setHTML($('.tools', sec), t.join('')); return; }
   t.push(b('save', 'star', p.saved ? 'Saved. Click to unsave' : 'Save this page', 'S', p.status !== 'empty', ` aria-pressed="${!!p.saved}"`, ' save'));
+  t.push(b('share', 'share', 'Share this page', '', p.status !== 'empty'));
   const connect = worldIndex().read.size > 1;
   t.push(b('land', 'around', 'Around this: the topics nearby', 'L', ready, '', ' tw'));
   if (connect) t.push(b('bridge', 'connect', 'Connect to another topic you’ve read', 'C', ready, '', ' tw'));

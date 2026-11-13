@@ -3,6 +3,7 @@
    /world           Your world
    /<topic>         a page (?v= another voice, ?in= the sense of a name chosen on a page, ?q=1)
    /connect/<a>/<b> a connecting page
+   /trail/<a>/<b>…  a trail someone shared (17-share.js)
    #/w/<id>/<id>    an address from before Dorkhub had clean links: sent on to its page */
 import { clip, plain } from '../shared/article.js';
 import { PROVIDERS } from '../shared/models.js';
@@ -21,13 +22,14 @@ import { MINI, WORLD, leaveWorld, showWorld } from './11-world.js';
 import { closeMenu, omni, openOmni, openPage, renderWorldBtn, setFab, syncFab } from './12-chrome.js';
 import { mountPlate, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
 import { forgetKey, keysSheet, renderKeyBtn, saveKey } from './15-keys.js';
+import { showTrail, walked } from './17-share.js';
 export let VIEW = '', FIRST = true, GUARD = new Map();
 export let BOOT;
 function setView(v) {
   if (VIEW === 'world' && v !== 'world') leaveWorld();
   if (VIEW === 'home' && v !== 'home') stopLanding();
   if (VIEW === 'page' && v !== 'page') stopPlate();
-  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.remove('titled');
+  VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.toggle('at-trail', v === 'trail'); document.body.classList.remove('titled');
 }
 function closeFloating() { hideSel(); hideCard(); closePMenu(); closeMenu(); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
 export function route() {
@@ -37,6 +39,7 @@ export function route() {
   else if (h === '#/' || h === '#') history.replaceState({ y: 0 }, '', '/');
   const r = parseRoute(location.pathname, location.search);
   if (r.view === 'page') showPage(r.input);
+  else if (r.view === 'trail') { setView('trail'); showTrail(r.steps); }
   else if (r.view === 'world') { setView('world'); setCUR(''); document.documentElement.dataset.accent = 'concept'; showWorld(); window.scrollTo(0, 0); renderWorldBtn(); updateProg(); }
   else { if (r.view === 'none') history.replaceState({ y: 0 }, '', '/'); showHome(); }
   FIRST = false;
@@ -79,7 +82,7 @@ async function recheck(p) {
    when the reader asks, so a shared link or a crawler never spends anything by itself. */
 async function guard(p, why) {
   GUARD.set(p.id, 'checking'); paint(p);
-  try { const r = await write('page', pageInput(p), { cachedOnly: true }); if (CUR !== p.id) return; if (!r.none && r.text) { GUARD.delete(p.id); delete p.guarded; addStep(store.trails, p.id, { from: null, via: 'start' }); OPENED.add(p.id); fill(p, r.text, r.seeded); return; } }
+  try { const r = await write('page', pageInput(p), { cachedOnly: true }); if (CUR !== p.id) return; if (!r.none && r.text) { GUARD.delete(p.id); delete p.guarded; addStep(store.trails, p.id, walked(p)); OPENED.add(p.id); fill(p, r.text, r.seeded); return; } }
   catch (e) { /* offer the button anyway */ }
   if (CUR !== p.id) return;
   GUARD.set(p.id, why); paint(p);
@@ -92,7 +95,7 @@ export function guardHTML(p) {
 }
 function writeGuarded() {
   const p = curPage(); if (!p) return; GUARD.delete(p.id); delete p.guarded;
-  if (!OPENED.has(p.id)) { addStep(store.trails, p.id, { from: null, via: 'start' }); OPENED.add(p.id); }
+  if (!OPENED.has(p.id)) { addStep(store.trails, p.id, walked(p)); OPENED.add(p.id); }
   p.last = Date.now(); generate(p);
 }
 
