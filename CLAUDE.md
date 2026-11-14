@@ -81,13 +81,17 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
 ## Working with Will
 Show, don't describe. For anything a reader would notice, push a branch and send Will the
 Vercel preview URL (previews need his Vercel login), with screenshots from `npm run e2e`.
-What is open also goes on the **review desk**, a private page he keeps open
-(https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp): each question for him (numbered) and each piece in progress,
-with its pictures before and after (or now and proposed) and a link to the place itself, so he never has to hunt.
-Nothing already live belongs there: when a change reaches dorkhub.com, take it off the desk in the same sitting,
-because the site is the record. `node .e2e/desk/build.mjs` rebuilds it from the two lists at its top and the
-pictures in `.e2e/desk/shots/` (both untracked); republish the same file to keep its address. Builders' briefs say
-where their before-and-after pictures go.
+Every ask goes on the **review desk**, a private page he keeps open
+(https://claude.ai/artifact/5H9tMoB19rZjCUkfkHKSLP), instead of into chat: each idea built for his judgment and each
+decision only he can make, numbered, with its pictures before and after (or now and proposed) and a link to the
+place itself. He answers each on the page: Approve, Revise (with a note) or Deny, saved in the page's store at
+`verdicts/<id>` (`{ verdict, note, rev, at }`). Read them with the ArtifactData tool at the start of every session
+and whenever he says he has answered. Approve: finish it (a reader-facing change still ships only after his look);
+Revise: rebuild from his note and bump the ask's `rev`; Deny: take it off. Anything that spends money or deletes
+something is confirmed with him in chat once, whatever the desk says. Nothing already live belongs there: when a
+change reaches dorkhub.com, take it off the desk in the same sitting, because the site is the record.
+`node .e2e/desk/build.mjs` rebuilds it from the lists at its top and the pictures in `.e2e/desk/shots/` (both
+untracked); republish the same file to keep its address. Builders' briefs say where their pictures go.
 Merge to `main` only when `npm run verify` and `npm run e2e` are green.
 Will has given agents merge and deploy rights (2026-10-14); anything a reader would notice
 still gets his look at a preview first. He replies in numbered lists: answer every item,
