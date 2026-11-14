@@ -144,7 +144,8 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
     beside it.
   - **A move runs both ways.** What travelled out travels home: Back returns a page's picture and title to the
     card or the link they came from. Readers go back and forth all the time; a move that only works going in
-    teaches them the way back is second-class (Will, 2026-11-13).
+    teaches them the way back is second-class (Will, 2026-11-13). Your world is no exception: a page's title lands on
+    its topic's name on the map and comes back from it, and a name opened on the map becomes the title.
   - Reduced motion turns all of it off.
 - **Lamps** (2026-11-13; up for Will's look). The dot face made physical: Dorkhub's mark is a board of round lamps
   on a regular grid. It answers three things Will asked for: a footer wordmark with its colour but "distinct from
