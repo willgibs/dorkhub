@@ -166,8 +166,9 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
     different?" instead of reading the number (Will).
   - **Position is a row of lamps**: how far down a page the reader is, how many free pages are left, how many
     questions are answered.
-  - **Brackets mark an instrument the reader works**: the map's stage, a plate, the composer. Four corners, no
-    glow; focus draws them in.
+  - **Brackets mark an instrument the reader works**: the map's stage, a plate. Four corners, no glow; focus draws
+    them in. The composer keeps its glow instead (Will, 2026-11-14: "I hate the caret replacing our cool glow in
+    the input"), rebuilt so it turns on the compositor alone and costs the main thread nothing.
   - **A board rests.** Lamps move once when something changes (arriving, answering the pointer, a write
     beginning) and then hold still. No loop runs while nothing is happening, so a board costs nothing at idle.
     Reduced motion shows the resting board.

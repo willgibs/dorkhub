@@ -61,23 +61,30 @@ async function run(page, { mobile = false } = {}) {
     if (off) throw new Error('the front page still describes rabbit holes');
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
-  /* the hero is one composer, and an instrument: brackets at its four corners, short and faint at rest and drawn out to
-     full strength while it has focus; a row of lamps, unlit at rest, awake while it listens, in a kind's colour only once
-     the kind of what is typed is known, all lit as a page is asked for; and nothing in it runs on a loop. Send is
-     Surprise me until there is something to read about, and the presets re-roll */
+  /* the hero is one composer, with a glow riding its edge: a cone of light turning over the eight colours, which loops
+     but moves only transform and opacity, so the main thread never draws it, and is brighter while the composer has
+     focus. A row of lamps, unlit at rest, awake while it listens, in a kind's colour only once the kind of what is typed
+     is known, all lit as a page is asked for. Nothing else in it runs on a loop. Send is Surprise me until there is
+     something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
-    const h = await page.evaluate(() => { const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')); return { h1: document.querySelector('h1')?.textContent, corners: box.querySelectorAll('.cbk i').length, lamps: box.querySelectorAll('.clamps i').length, loops: /** @type {HTMLElement} */ (box.parentElement).getAnimations({ subtree: true }).filter(a => !Number.isFinite(Number(a.effect?.getComputedTiming().endTime))).length, send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
+    const h = await page.evaluate(() => {
+      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), glow = /** @type {HTMLElement} */ (box.querySelector('.cglow'));
+      const loops = /** @type {HTMLElement} */ (box.parentElement).getAnimations({ subtree: true }).filter(a => !Number.isFinite(Number(a.effect?.getComputedTiming().endTime)));
+      /* what each of the glow's running animations changes: a CSS transition names its property, an animation its keyframes' */
+      const changes = glow.getAnimations({ subtree: true }).filter(a => a.playState === 'running').flatMap(a => /** @type {any} */ (a).transitionProperty ? [/** @type {any} */ (a).transitionProperty] : /** @type {KeyframeEffect} */ (a.effect).getKeyframes().flatMap(k => Object.keys(k).filter(p => !['offset', 'computedOffset', 'easing', 'composite'].includes(p))));
+      return { h1: document.querySelector('h1')?.textContent, lamps: box.querySelectorAll('.clamps i').length, glow: box.querySelectorAll('.cglow').length, loops: loops.length, loopsElsewhere: loops.filter(a => !(/** @type {KeyframeEffect} */ (a.effect).target?.closest('.cglow'))).length, changes: [...new Set(changes)], send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act };
+    });
     /* the heading as read aloud: its last word may still be stepping through topics, but it is heard whole */
     const named = await page.locator('h1').ariaSnapshot();
-    if (!named.includes('heading "Learn about anything"') || h.corners !== 4 || h.lamps !== 5 || h.loops || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
-    /* a corner's strength and how much of it is cut back, and how lit the lamps are, once they have stopped moving */
-    const look = async (/** @type {boolean} */ live) => {
-      await page.waitForFunction(on => getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cbk i'))).opacity === (on ? '1' : '0.36') && !document.querySelector('#seedBox')?.getAnimations({ subtree: true }).some(a => a.playState === 'running'), live, { timeout: 15000 }).catch(() => {});
-      return page.evaluate(() => { const c = getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cbk i'))); return { corner: c.opacity, cut: c.clipPath, lamps: [...document.querySelectorAll('#seedBox .clamps i')].map(l => +(+getComputedStyle(l).opacity).toFixed(2)) }; });
+    if (!named.includes('heading "Learn about anything"') || h.lamps !== 5 || h.glow !== 1 || h.loops < 1 || h.loopsElsewhere || !h.changes.length || h.changes.some(p => p !== 'transform' && p !== 'opacity') || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
+    /* how strong the glow's stroke is and how lit the lamps are, once nothing but the glow's turn is moving */
+    const look = async () => {
+      await page.waitForFunction(() => !document.querySelector('#seedBox')?.getAnimations({ subtree: true }).some(a => a.playState === 'running' && Number.isFinite(Number(a.effect?.getComputedTiming().endTime))), null, { timeout: 15000 }).catch(() => {});
+      return page.evaluate(() => ({ glow: +(+getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cg-edge'))).opacity).toFixed(3), lamps: [...document.querySelectorAll('#seedBox .clamps i')].map(l => +(+getComputedStyle(l).opacity).toFixed(2)) }));
     };
-    await page.focus('#seedIn'); const live = await look(true);
-    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); const rest = await look(false);
-    if (live.corner !== '1' || !/^inset\(0px\)$/.test(live.cut) || rest.corner !== '0.36' || !/6px/.test(rest.cut) || live.lamps.some(o => o < .4) || rest.lamps.some(o => o > .2)) throw new Error(`the composer's brackets and lamps: ${JSON.stringify({ live, rest })}`);
+    await page.focus('#seedIn'); const live = await look();
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); const rest = await look();
+    if (!(rest.glow > .3) || !(live.glow > rest.glow) || live.lamps.some(o => o < .4) || rest.lamps.some(o => o > .2)) throw new Error(`the composer's glow and lamps: ${JSON.stringify({ live, rest })}`);
     /* a topic of the front page's is known for what it is; a question nobody has asked is not */
     await page.fill('#seedIn', 'Black holes');
     const known = await page.evaluate(() => { const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')); const heard = box.querySelectorAll('.clamps i.hit').length; box.classList.add('go'); const sent = [...box.querySelectorAll('.clamps i')].every(l => getComputedStyle(l).opacity === '1'); box.classList.remove('go'); return { kind: box.dataset.kind || '', heard, sent }; });
@@ -959,17 +966,18 @@ try {
   await step('reduced motion: the composer and the footer\'s board are drawn at rest', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
     await still.goto(base); await still.waitForSelector('#footBoard canvas');
-    /* with the caret in it the composer's brackets are at full strength at once, nothing in it is moving, and the board,
-       far below and not yet seen, already stands lit, in ink, as it rests with nothing read */
+    /* with the caret in it the composer's glow stands still, lit at its resting strength (the stroke at .7 of its own
+       .7), turned part way round; nothing in the composer is moving; and the board, far below and not yet seen, already
+       stands lit, in ink, as it rests with nothing read */
     await still.focus('#seedIn'); await still.waitForTimeout(150);
     const b = await still.evaluate(() => {
-      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), k = getComputedStyle(/** @type {Element} */ (box.querySelector('.cbk i')));
+      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox'));
       const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')), d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let lit = 0, hue = 0;
       for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { lit++; if (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) hue++; }
-      return { corner: k.opacity, cut: k.clipPath, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, hue, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
+      return { glow: +(+getComputedStyle(/** @type {Element} */ (box.querySelector('.cg-edge'))).opacity).toFixed(3), turned: getComputedStyle(/** @type {Element} */ (box.querySelector('.cg-turn'))).transform, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, hue, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
     });
     await still.close();
-    if (b.corner !== '1' || b.cut !== 'inset(0px)' || b.moving || b.lit < 1000 || b.hue > 20 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
+    if (Math.abs(b.glow - .49) > .01 || b.turned === 'none' || b.moving || b.lit < 1000 || b.hue > 20 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
   });
   /* on a narrow phone with a voice chosen, the composer's lamps yield and the chip shrinks before send would leave the box */
   await step('a narrow phone: send stays inside the composer with a voice chosen', async () => {

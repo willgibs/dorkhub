@@ -507,12 +507,13 @@ function syncSend() {
   if (go) { b.dataset.key = '↵'; } else delete b.dataset.key;
 }
 function growSeed() { const i = $('#seedIn'); if (!i) return; i.style.height = 'auto'; i.style.height = `${Math.min(i.scrollHeight, 168)}px`; }
-/* ================= the composer is an instrument, not a glow =================
-   Its corners carry the brackets that mark the map's stage, faint at rest and drawn out when the field takes focus.
-   Its row of lamps says what the machine is doing: unlit at rest, awake while it listens, all lit as the page is
-   asked for (.cbox.go); the stylesheet does all three. Here, each key it hears flashes the next lamp along, and the
-   lamps take a kind's colour only once the kind of what is typed is known: a topic of the front page's, or one this
-   reader has read. Nothing runs while nothing happens. */
+/* ================= the composer: a glow on its edge, and a row of lamps =================
+   The glow (.cglow) is the stylesheet's: a cone of light turning over the eight colours, brighter while the field has
+   focus and brighter still as a page is asked for (.cbox.go). It moves only on the compositor, and pauses while the
+   composer is off screen (watchGlow). The row of lamps says what the machine is doing: unlit at rest, awake while it
+   listens, all lit as the page is asked for; the stylesheet does all three. Here, each key it hears flashes the next
+   lamp along, and the lamps take a kind's colour only once the kind of what is typed is known: a topic of the front
+   page's, or one this reader has read. */
 const LAMPS = 5;
 let SEED_KINDS = null;
 function heard() {
@@ -577,7 +578,7 @@ export function viewStart() {
         <button class="ckey" type="button" id="seedKey" data-act="keys">${seedKeyHTML()}</button>
         <button class="send" type="button" id="seedGo" data-mode="dice" data-act="surprise"${tipAttrs('Surprise me')}><span class="sw" data-icon="dice">${ic('dice')}</span><span class="sw" data-icon="go">${ic('send')}</span></button>
       </div>
-      <span class="cbk" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="cglow" aria-hidden="true"><i class="cg-in"><i class="cg-turn"><i class="cg-fix"></i></i></i><i class="cg-edge"><i class="cg-turn"><i class="cg-fix"></i></i><i class="cg-hl"></i></i><i class="cg-bloom"><i class="cg-blur"><i class="cg-bead"></i></i></i></span>
     </div>
     <p class="seed-err" id="seedErr" aria-live="polite"></p>
   </form>
@@ -617,12 +618,19 @@ function mountFoot() {
   key.addEventListener('focusin', e => { const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-kind]')); if (FOOT && k) FOOT.only(k.dataset.lk); });
   key.addEventListener('focusout', () => { if (FOOT) FOOT.only(''); });
 }
+/* the composer's glow turns only while someone can see it: off screen, its layers hold where they are */
+let GLOW_IO = null;
+function watchGlow() {
+  if (GLOW_IO) GLOW_IO.disconnect();
+  const g = $('#seedBox .cglow'); if (!g || typeof IntersectionObserver !== 'function') return;
+  GLOW_IO = new IntersectionObserver(([e]) => g.classList.toggle('off', !e.isIntersecting)); GLOW_IO.observe(g);
+}
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() { livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+export function startLanding() { watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
 /* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
    so does every board of lamps on screen */
 export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }
-export function stopLanding() { stopLiving(); stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
+export function stopLanding() { stopLiving(); if (GLOW_IO) { GLOW_IO.disconnect(); GLOW_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
