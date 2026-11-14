@@ -31,37 +31,56 @@ export function camera({ at, az, el, dist, k, ox, oy }) {
   };
 }
 
-/** How dark a face is under a light from L (unit vector, z up): 0 lit full on, up to `deep` turned well away (the light
-    wraps a little, as it does round paper, so faces turned away still differ). @param {number[][]} f the face's corners
-    @param {number[]} L */
-export function shade(f, L, deep = .5) {
+/** How dark a face of the paper is under a light from L (a unit vector, z up): 0 turned full to it, 1 turned well away.
+    The light wraps a little, as it does round paper, so faces turned away still differ. @param {number[][]} f the
+    face's corners @param {number[]} L */
+function tone(f, L) {
   const [a, b, c] = f, u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
   let n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]];
   const len = Math.hypot(n[0], n[1], n[2]) || 1; n = n.map(q => q / len); if (n[2] < 0) n = n.map(q => -q);
-  return deep * Math.min(1, Math.max(0, 1 - (n[0] * L[0] + n[1] * L[1] + n[2] * L[2] + .6) / 1.6));
+  return Math.min(1, Math.max(0, (.95 - (n[0] * L[0] + n[1] * L[1] + n[2] * L[2])) / .9));
 }
 
-/** The Origami card's sheet: its size, the angles it rests at, arrives from and opens to, its light, and a camera for
-    a wide card and for a phone's. */
-export const FOLD = { m: 20, n: 7, gam: Math.PI / 3, rest: 62 * Math.PI / 180, shut: 86 * Math.PI / 180, open: 38 * Math.PI / 180, light: [.7, -.45, .35], cams: { w: { W: 745, H: 350, az: -.62, el: .6, k: 40, oy: 196 }, n: { W: 360, H: 344, az: -.7, el: .66, k: 23, oy: 196 } } };
-/** The sheet folded to th, seen by one of FOLD's cameras: its faces from back to front (a path, which of the four ways
-    it faces, 0 to 3, and how dark it is), and the shadow it casts. @param {number} th @param {'w' | 'n'} v */
+/** The Origami card's sheet: its size (a phone's has fewer columns, so its faces stay as big), the angles it rests at,
+    arrives from and opens to, its light, and a camera for a wide card and for a phone's, each set so the open sheet
+    fills its card below the title. */
+export const FOLD = { m: 18, n: 6, gam: 66 * Math.PI / 180, rest: 44 * Math.PI / 180, shut: 87 * Math.PI / 180, open: 10 * Math.PI / 180, light: [-.3, -.55, .78], cams: { w: { W: 745, H: 350, m: 18, az: -.24, el: .86, dist: 40, k: 30.8, ox: 187.8, oy: 152 }, n: { W: 360, H: 344, m: 8, az: -.34, el: .95, dist: 34, k: 35.1, ox: 65.9, oy: 162.3 } } };
+/** The sheet folded to th, held by the middle of its left edge so that it opens to the right, as one of FOLD's cameras
+    sees it: where a corner (i, j) of it is, and where it lands in the picture. @param {number} th @param {'w' | 'n'} v */
+function foldAt(th, v) {
+  const F = FOLD, C = F.cams[v], p = miura(C.m, F.n, th, 1, 1, F.gam), mid = (p[0][1] + p[F.n][1]) / 2;
+  const cam = camera({ at: [0, 0, 0], az: C.az, el: C.el, dist: C.dist, k: C.k, ox: C.ox, oy: C.oy });
+  const at = (/** @type {number} */ i, /** @type {number} */ j) => { const q = p[i * (F.n + 1) + j]; return [q[0], q[1] - mid, q[2]]; };
+  return { m: C.m, n: F.n, at, cam, to: (/** @type {number[]} */ q) => cam.to(q).map(c => Math.round(c * 10) / 10) };
+}
+/** Where the sheet's free corner is, the near one at its right: the corner a reader pulls. @param {number} th
+    @param {'w' | 'n'} v */
+export const foldHand = (th, v) => { const s = foldAt(th, v); return s.to(s.at(s.m, 0)); };
+/** The sheet folded to th: its faces from back to front (a path, and which of the four ways it faces, 0 to 3); for each
+    of those four ways, how dark it is and the line its shading runs along, from the fold in its valley up to its ridge
+    (in the face's own box, 0 to 1); its ridges, its outline, the shadow it casts, and its free corner.
+    @param {number} th @param {'w' | 'n'} v */
 export function foldView(th, v) {
-  const F = FOLD, C = F.cams[v], p = miura(F.m, F.n, th, 1, 1, F.gam), at = (/** @type {number} */ i, /** @type {number} */ j) => p[i * (F.n + 1) + j];
-  const mid = [(at(F.m, 0)[0]) / 2, (at(0, F.n)[1] + at(1, F.n)[1]) / 4, 0];
-  const L = Math.hypot(...F.light), light = F.light.map(q => q / L);
-  const cam = camera({ at: mid, az: C.az, el: C.el, dist: 40, k: C.k, ox: C.W / 2, oy: C.oy });
-  const r = (/** @type {number} */ q) => Math.round(q * 10) / 10;
-  /** @type {{ d: string, o: number, s: number, z: number }[]} */ const faces = [];
-  for (let i = 0; i < F.m; i++) for (let j = 0; j < F.n; j++) {
-    const q = [at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)];
-    faces.push({ d: `M${q.map(c => cam.to(c).map(r).join(' ')).join('L')}Z`, o: (i % 2) * 2 + (j % 2), s: shade(q, light), z: q.reduce((t, c) => t + cam.depth(c), 0) });
+  const { m, n, at, cam, to } = foldAt(th, v), len = Math.hypot(...FOLD.light), light = FOLD.light.map(q => q / len);
+  /** @type {{ d: string, o: number, z: number }[]} */ const faces = []; /** @type {number[]} */ const tones = []; /** @type {number[][]} */ const runs = [];
+  for (let i = 0; i < m; i++) for (let j = 0; j < n; j++) {
+    const q = [at(i, j), at(i + 1, j), at(i + 1, j + 1), at(i, j + 1)], s = q.map(to), o = (i % 2) * 2 + (j % 2);
+    faces.push({ d: `M${s.map(c => c.join(' ')).join('L')}Z`, o, z: q.reduce((t, c) => t + cam.depth(c), 0) });
+    /* one face near the middle stands for all that lie its way: they are the same face, moved */
+    if (i >> 1 !== m >> 2 || j >> 1 !== n >> 2) continue;
+    tones[o] = tone(q, light);
+    const xs = s.map(c => c[0]), ys = s.map(c => c[1]), x0 = Math.min(...xs), y0 = Math.min(...ys), w = Math.max(...xs) - x0 || 1, h = Math.max(...ys) - y0 || 1;
+    const box = (/** @type {number[]} */ c) => [(c[0] - x0) / w, (c[1] - y0) / h], low = box(s[j % 2 ? 3 : 0]), high = box(s[j % 2 ? 0 : 3]), e = box(s[1]).map((c, k) => c - box(s[0])[k]);
+    /* square to the fold's own line, as that line lies in the face's box */
+    const nx = -e[1], ny = e[0], nn = Math.hypot(nx, ny) || 1, far = ((high[0] - low[0]) * nx + (high[1] - low[1]) * ny) / nn;
+    runs[o] = [low[0], low[1], low[0] + nx / nn * far, low[1] + ny / nn * far].map(c => Math.round(c * 1000) / 1000);
   }
   faces.sort((x, y) => x.z - y.z);
+  const rim = [...Array.from({ length: m + 1 }, (_, i) => at(i, 0)), ...Array.from({ length: n + 1 }, (_, j) => at(m, j)), ...Array.from({ length: m + 1 }, (_, i) => at(m - i, n)), ...Array.from({ length: n + 1 }, (_, j) => at(0, n - j))];
   /* the shadow: the sheet's outline cast down and away from the light onto the table under it */
-  const drop = (/** @type {number[]} */ c) => cam.to([c[0] - light[0] / light[2] * (c[2] + .35), c[1] - light[1] / light[2] * (c[2] + .35), -.35]).map(r).join(' ');
-  const rim = [...Array.from({ length: F.m + 1 }, (_, i) => at(i, 0)), ...Array.from({ length: F.n + 1 }, (_, j) => at(F.m, j)), ...Array.from({ length: F.m + 1 }, (_, i) => at(F.m - i, F.n)), ...Array.from({ length: F.n + 1 }, (_, j) => at(0, F.n - j))];
-  return { faces, shadow: `M${rim.map(drop).join('L')}Z` };
+  const drop = (/** @type {number[]} */ c) => to([c[0] - light[0] / light[2] * (c[2] + .1), c[1] - light[1] / light[2] * (c[2] + .1), -.1]).join(' ');
+  let ridge = ''; for (let j = 1; j < n; j += 2) ridge += `M${Array.from({ length: m + 1 }, (_, i) => to(at(i, j)).join(' ')).join('L')}`;
+  return { faces, tones, runs, ridge, rim: `M${rim.map(c => to(c).join(' ')).join('L')}Z`, shadow: `M${rim.map(drop).join('L')}Z`, hand: to(at(m, 0)) };
 }
 
 /** the convex hull of points in the picture (Andrew's monotone chain) @param {number[][]} pts @returns {number[][]} */

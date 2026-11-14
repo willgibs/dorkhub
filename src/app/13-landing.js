@@ -8,8 +8,8 @@ import { EARLIER, FRONT } from 'dorkhub:build';
 import { capFirst, clip } from '../shared/article.js';
 import { asksQuestion, routeOf, topicKey } from '../shared/world.js';
 import { localGraph, nodeKeyOf } from '../shared/graph.js';
-import { enigma } from '../shared/enigma.js';
-import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
+import { EN_WIRE, enigma, enigmaWay, wired } from '../shared/enigma.js';
+import { BAR, FOLD, TRAP, barField, filings, foldHand, foldView, trapView } from '../shared/plates.js';
 import { KIND_LABEL, LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
@@ -243,21 +243,24 @@ function readoutFx(card) {
   card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(/** @type {HTMLElement[]} */ (document.elementsFromPoint(e.clientX, e.clientY)).find(el => el.dataset && el.dataset.read && card.contains(el)) || null, e.clientX, e.clientY); });
   card.addEventListener('pointerleave', () => show(null, 0, 0));
 }
-/* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded shut; on its turn it
-   pulls open to rest; with a mouse, pointing across the card opens it toward the right and folds it toward the left,
-   and when the pointer leaves it settles back to rest */
+/* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded to a packet; on its
+   turn it pulls open to rest; after that the pointer, or a thumb dragged across the card, takes its free corner along
+   the way that corner goes, from packet to open sheet, and the whole sheet follows; let go, it settles back to rest */
 function origamiFx(card) {
-  const sheets = $$('.vz.mi', card); if (!sheets.length || card.dataset.wired) return; card.dataset.wired = '1';
+  if (card.dataset.wired) return;
+  const sheets = $$('.vz.mi', card).map(el => ({ el, v: /** @type {'w' | 'n'} */ (el.classList.contains('vz-n') ? 'n' : 'w'), way: null, faces: [], runs: $$('.mi-g', el), shadows: $$('.mi-shadow', el), ridge: $('.mi-ridge', el), hand: $('.mi-hand', el) }));
+  if (!sheets.length) return; card.dataset.wired = '1';
   /* the sheet's faces, laid here rather than shipped, since they move */
-  for (const el of sheets) { const g = $('.mi-sheet', el); g.innerHTML = '<path class="mi-f"/>'.repeat(Number(g.dataset.faces) || 0); }
-  let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null;
+  for (const s of sheets) { const g = $('.mi-sheet', s.el); g.innerHTML = '<path class="mi-f"/>'.repeat(Number(g.dataset.faces) || 0); s.faces = $$('.mi-f', g); }
+  let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null, drag = null, from = null, dragged = 0;
   const draw = () => {
-    for (const el of sheets) {
-      if (!el.getClientRects().length) continue;
-      const { faces, shadow } = foldView(th, el.classList.contains('vz-n') ? 'n' : 'w'), ps = $$('.mi-f', el);
-      faces.forEach((f, k) => { if (!ps[k]) return; ps[k].setAttribute('d', f.d); ps[k].setAttribute('class', `mi-f mi-o${f.o}`); });
-      $('.mi-shadow', el).setAttribute('d', shadow);
-      for (let o = 0; o < 4; o++) el.style.setProperty(`--s${o}`, (faces.find(f => f.o === o)?.s || 0).toFixed(3));
+    for (const s of sheets) {
+      if (!s.el.getClientRects().length) continue;
+      const { faces, tones, runs, ridge, shadow, hand } = foldView(th, s.v);
+      /* back to front: a path takes whichever face is next, and with it the way that face lies */
+      faces.forEach((f, k) => { const p = s.faces[k]; if (!p) return; p.setAttribute('d', f.d); if (p.dataset.o === String(f.o)) return; p.dataset.o = String(f.o); p.setAttribute('class', `mi-f mi-o${f.o}`); p.setAttribute('fill', `url(#mi-g${s.v}${f.o})`); });
+      s.runs.forEach((g, o) => { ['x1', 'y1', 'x2', 'y2'].forEach((a, n) => g.setAttribute(a, String(runs[o][n]))); s.el.style.setProperty(`--s${o}`, tones[o].toFixed(3)); });
+      s.shadows.forEach(p => p.setAttribute('d', shadow)); s.ridge.setAttribute('d', ridge); s.hand.setAttribute('cx', String(hand[0])); s.hand.setAttribute('cy', String(hand[1]));
     }
   };
   const loop = now => {
@@ -272,13 +275,38 @@ function origamiFx(card) {
   /* a sheet hidden at first (a phone's or a desk's) is laid when it shows */
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => draw()) : null; if (ro) ro.observe(card);
   FX_STOP.push(() => { if (ro) ro.disconnect(); });
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || reducedMotion()) return; const r = card.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left - r.width * .12) / (r.width * .76))); tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * f; go(); });
-  card.addEventListener('pointerleave', () => { if (tween) return; aim = FOLD.rest; go(); });
+  /* the corner goes to the point of its way nearest the pointer: its way, as the corner's place at some fifty openings */
+  const STEPS = 48;
+  const pull = e => {
+    const s = sheets.find(q => q.el.getClientRects().length), m = s && s.el.getScreenCTM(); if (!s || !m) return;
+    s.way = s.way || Array.from({ length: STEPS + 1 }, (_, i) => foldHand(FOLD.shut + (FOLD.open - FOLD.shut) * i / STEPS, s.v));
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); let at = 0, near = Infinity;
+    for (let i = 0; i < STEPS; i++) {
+      const [ax, ay] = s.way[i], dx = s.way[i + 1][0] - ax, dy = s.way[i + 1][1] - ay, t = Math.min(1, Math.max(0, ((q.x - ax) * dx + (q.y - ay) * dy) / (dx * dx + dy * dy || 1))), d = Math.hypot(q.x - ax - dx * t, q.y - ay - dy * t);
+      if (d < near) { near = d; at = (i + t) / STEPS; }
+    }
+    tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * at; go();
+  };
+  const rest = () => { if (tween) return; aim = FOLD.rest; go(); };
+  card.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { drag = e.pointerId; from = [e.clientX, e.clientY]; } });
+  card.addEventListener('pointermove', e => {
+    if (!card.classList.contains('seen') || reducedMotion() || (e.pointerType !== 'mouse' && e.pointerId !== drag)) return;
+    /* a thumb that only taps opens the page; one that travels pulls the sheet */
+    if (from && Math.hypot(e.clientX - from[0], e.clientY - from[1]) < 8) return;
+    if (from) { from = null; dragged = 1; }
+    pull(e);
+  });
+  card.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') rest(); });
+  for (const up of ['pointerup', 'pointercancel']) card.addEventListener(up, e => { if (e.pointerId !== drag) return; drag = from = null; rest(); });
+  /* letting go after a pull is not a tap on the card */
+  card.addEventListener('click', e => { if (!dragged) return; dragged = 0; e.preventDefault(); e.stopPropagation(); }, true);
+  card.addEventListener('pointerdown', () => { dragged = 0; }, true);
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });
 }
 /* Magnets: about 1,800 filings on a canvas, each turned along the field where it lies (src/shared/plates.js). Waiting
-   its turn they lie scattered; on its turn they swing into line, rippling out from the bar; with a mouse the pointer is
-   a pole they turn toward, and when it leaves they settle back. Drawn in the theme's ink, again when the theme changes */
+   its turn they lie scattered; on its turn they swing into line, rippling out from the bar; the pointer, or a thumb
+   dragged across the card, is a pole they turn toward, and when it leaves they settle back. Drawn in the theme's ink,
+   again when the theme changes */
 function magnetsFx(card) {
   const cv = $('.mg-cv', card); if (!cv || cv.dataset.wired) return; cv.dataset.wired = '1';
   const ctx = cv.getContext('2d'), F = filings(), rand = F.map((_, i) => ((i * 7919) % 360) / 360 * Math.PI);
@@ -308,8 +336,19 @@ function magnetsFx(card) {
   const waiting = card.classList.contains('armed') && !card.classList.contains('seen');
   F.forEach((_, i) => { ang[i] = waiting ? rand[i] : aim[i]; }); draw();
   FX_PLAY.set(card, () => { play = performance.now(); go(); });
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || play) return; const r = card.getBoundingClientRect(); pole = [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s, 2.6]; along(pole); go(); });
-  card.addEventListener('pointerleave', () => { if (!pole) return; pole = null; along(null); go(); });
+  /* the pointer is a pole, and so is a thumb once it has travelled across the card (one that only taps opens the page) */
+  let drag = null, from = null, dragged = 0;
+  const away = () => { if (!pole) return; pole = null; along(null); go(); };
+  card.addEventListener('pointerdown', e => { dragged = 0; if (e.pointerType !== 'mouse') { drag = e.pointerId; from = [e.clientX, e.clientY]; } }, true);
+  card.addEventListener('pointermove', e => {
+    if (!card.classList.contains('seen') || play || (e.pointerType !== 'mouse' && (e.pointerId !== drag || (from && Math.hypot(e.clientX - from[0], e.clientY - from[1]) < 8)))) return;
+    if (from) { from = null; dragged = 1; }
+    const r = card.getBoundingClientRect(); pole = [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s, 2.6]; along(pole); go();
+  });
+  card.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') away(); });
+  for (const up of ['pointerup', 'pointercancel']) card.addEventListener(up, e => { if (e.pointerId !== drag) return; drag = from = null; away(); });
+  /* letting go after a drag is not a tap on the card */
+  card.addEventListener('click', e => { if (!dragged) return; dragged = 0; e.preventDefault(); e.stopPropagation(); }, true);
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { size(); draw(); }) : null; if (ro) ro.observe(card);
   const mo = new MutationObserver(() => { size(); draw(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   const mq = matchMedia('(prefers-color-scheme: dark)'), re = () => { size(); draw(); }; mq.addEventListener('change', re);
@@ -365,48 +404,95 @@ function flytrapFx(card) {
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(rest); });
 }
 /* an Enigma you can type into or tap: rotors I, II, III and reflector B from AAA. Each letter steps the rotors (their
-   windows roll on), lights the lamp it becomes and joins the tape; the tally counts the letters that lit themselves,
-   which never happens. First seen, it types WETTER by itself, once */
+   windows roll on, and the wires under them move up with them), goes in through all three, round the reflector and out
+   by another way (the diagram draws it), lights the lamp it becomes and joins the tape; the tally counts the letters
+   that lit themselves, which never happens. A full tape rolls on, so the machine never stops taking letters. First
+   seen, it types WETTER by itself, once */
 const EN_DEMO = new WeakMap();
-const enigmaStop = card => { const t = EN_DEMO.get(card); if (t) { clearInterval(t); EN_DEMO.delete(card); } };
+const enigmaStop = card => { const t = EN_DEMO.get(card); if (t) { clearInterval(t); EN_DEMO.delete(card); card.classList.remove('demo'); } };
 function enigmaPress(card, c) {
-  const input = $('.en-in input', card); if (!input || input.value.length >= 16) return;
+  const input = $('.en-in input', card); if (!input) return;
   const k = $(`.en-keys [data-k="${c}"]`, card); if (k) { k.classList.add('down'); setTimeout(() => k.classList.remove('down'), 140); }
+  /* a full tape rolls on: its first letter leaves, and the rotors stay where they have got to */
+  if (input.value.length >= 16) { input.dataset.roll = '1'; input.value = input.value.slice(1); }
   input.value += c; input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 function enigmaFx(card) {
   const input = $('.en-in input', card); if (!input || input.dataset.wired) return; input.dataset.wired = '1';
-  const pl = $('.en-pl', card), cy = $('.en-cy', card), lamps = new Map($$('.en-lamps i', card).map(i => [i.dataset.l, i])), wheels = $$('.en-rw', card), at = [0, 0, 0];
+  const pl = $('.en-pl', card), cy = $('.en-cy', card), lamps = new Map($$('.en-lamps i', card).map(i => [i.dataset.l, i])), keys = new Map($$('.en-keys button', card).map(k => [k.dataset.k, k]));
+  const wheels = $$('.en-rw', card), meshes = $$('.en-mesh', card), ways = $$('.en-way', card), pins = $$('.en-pin', card), turn = $('linearGradient[gradientUnits]', card), at = [-1, -1, -1];
+  const { H, top, step, ukw, faces, entry } = EN_WIRE, Y = c => top + c * step;
+  /* where a message starts from (AAA, until a rotor is turned by hand), where the tape now starts, how many letters
+     have rolled off it (and how many of those lit themselves), and what it last held */
+  let home = 'AAA', start = home, gone = 0, same = 0, was = '';
   $('.en-tape', card).insertAdjacentHTML('beforeend', `<button class="en-x" type="button"${tipAttrs('Clear')}>${ic('x')}</button>`);
-  /* a rotor only turns forwards: past Z it rolls on to the ring's second A, then sits back on the first */
+  /* motion that plays again on every letter: off, then on again once the page has seen it off */
+  const again = [];
+  const replay = (el, cls) => { el.classList.remove(cls); again.push([el, cls]); };
+  /* a rotor turns: its window rolls on to its letter (past Z, on to the ring's second A, then it sits back on the
+     first), and its 26 wires, each from a contact on its right face to the one it is wired to on its left, are laid as
+     they now stand, a step higher than they were */
+  const sit = (w, i, snap) => { w.classList.toggle('snap', snap); w.style.setProperty('--i', String(i)); if (snap) { void w.offsetWidth; w.classList.remove('snap'); } };
   const roll = (w, i, to) => {
-    const strip = $('.en-strip', w), from = at[i]; at[i] = to; w.dataset.at = String.fromCharCode(65 + to); if (to === from) return;
-    if (to > from) { strip.style.setProperty('--i', String(to)); return; }
-    strip.style.setProperty('--i', '26'); setTimeout(() => { if (at[i] !== to) return; strip.classList.add('snap'); strip.style.setProperty('--i', String(to)); void strip.offsetWidth; strip.classList.remove('snap'); }, 260);
+    const from = at[i]; if (to === from) return; at[i] = to; w.dataset.at = String.fromCharCode(65 + to); w.setAttribute('aria-label', `Turn the ${['left', 'middle', 'right'][i]} rotor, now at ${w.dataset.at}`);
+    const span = faces[i][0] - faces[i][1]; let d = '';
+    for (let c = 0; c < 26; c++) { const y0 = Y(c), y1 = Y(wired(i, to, c)); d += `M${span} ${y0}C${span / 2} ${y0} ${span / 2} ${y1} 0 ${y1}`; }
+    meshes[i].setAttribute('d', d);
+    if (w.style.getPropertyValue('--i') === '26') sit(w, 0, true);
+    if (from < 0) { sit(w, to, true); return; }
+    if ((to - from + 26) % 26 === 1) replay(meshes[i], 'step');
+    if (to || from !== 25) { sit(w, to, false); return; }
+    sit(w, 26, false); w.addEventListener('transitionend', () => { if (!at[i] && w.style.getPropertyValue('--i') === '26') sit(w, 0, true); }, { once: true });
   };
   const show = () => {
     const plain = input.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 16); if (input.value !== plain) input.value = plain;
-    const { out, pos } = enigma(plain, 'AAA');
-    wheels.forEach((w, i) => roll(w, i, pos.charCodeAt(i) - 65));
-    for (const l of lamps.values()) l.classList.remove('on');
-    if (out) lamps.get(out[out.length - 1])?.classList.add('on');
+    if (input.dataset.roll) { delete input.dataset.roll; const first = enigma(was[0], start); if (first.out === was[0]) same++; start = first.pos; gone++; was = was.slice(1); }
+    /* anything but the last message a letter longer or shorter is a new message: the rotors go back to its start */
+    if (!plain || !(plain.startsWith(was) || was.startsWith(plain))) { start = home; gone = same = 0; }
+    was = plain;
+    const { out, pos } = enigma(plain, start), p = [...pos].map(ch => ch.charCodeAt(0) - 65), key = plain.slice(-1), lamp = out.slice(-1);
+    wheels.forEach((w, i) => roll(w, i, p[i]));
+    for (const [c, l] of lamps) l.classList.toggle('on', c === lamp);
+    for (const [c, k] of keys) k.classList.toggle('last', c === key);
+    if (key) {
+      /* the last letter's way: in at its contact, through the right, middle and left rotors, round the reflector, and
+         out through the three again to the lamp's contact */
+      const way = enigmaWay(key.charCodeAt(0) - 65, p), y = way.map(Y), deep = 5 + Math.abs(way[3] - way[4]) * .85;
+      let go = `M${entry} ${y[0]}`, back = `M${ukw} ${y[4]}`;
+      [2, 1, 0].forEach((r, n) => { const [a, b] = faces[r], m = (a + b) / 2; go += `H${a}C${m} ${y[n]} ${m} ${y[n + 1]} ${b} ${y[n + 1]}`; });
+      [0, 1, 2].forEach((r, n) => { const [a, b] = faces[r], m = (a + b) / 2; back += `H${b}C${m} ${y[4 + n]} ${m} ${y[5 + n]} ${a} ${y[5 + n]}`; });
+      [`${go}H${ukw}`, `M${ukw} ${y[3]}C${ukw - deep} ${y[3]} ${ukw - deep} ${y[4]} ${ukw} ${y[4]}`, `${back}H${entry}`].forEach((d, n) => { ways[n].setAttribute('d', d); replay(ways[n], 'run'); });
+      replay(pins[1], 'run');
+      turn.setAttribute('y1', String(y[3])); turn.setAttribute('y2', String(y[4]));
+      /* the two letters beside their contacts, kept clear of each other and of the edges */
+      const up = y[0] < y[7] ? 0 : 1, hi = Math.min(Math.max(y[up ? 7 : 0] + 3.2, 8.5), H - 12.5), lo = Math.min(H - .5, Math.max(y[up ? 0 : 7] + 3.2, hi + 10));
+      [[key, y[0], up ? lo : hi], [lamp, y[7], up ? hi : lo]].forEach(([ch, cy0, base], n) => { $('circle', pins[n]).setAttribute('cy', String(cy0)); const t = $('text', pins[n]); t.textContent = ch; t.setAttribute('y', String(base)); });
+    }
     pl.innerHTML = [...plain].map(c => `<i>${c}</i>`).join(''); cy.innerHTML = [...out].map(c => `<i>${c}</i>`).join('');
-    $('.en-n', card).textContent = String([...plain].filter((c, i) => c === out[i]).length); $('.en-of', card).textContent = String(plain.length);
+    $('.en-n', card).textContent = String(same + [...plain].filter((c, i) => c === out[i]).length); $('.en-of', card).textContent = String(gone + plain.length); $('.en-w', card).textContent = gone + plain.length === 1 ? 'letter lit itself' : 'letters lit themselves';
     card.classList.toggle('typed', !!plain);
+    if (again.length) { void card.offsetWidth; again.splice(0).forEach(([el, cls]) => el.classList.add(cls)); }
   };
   input.addEventListener('input', () => { if (!EN_DEMO.has(card) || input.dataset.demo !== '1') enigmaStop(card); show(); });
   card.addEventListener('click', e => {
     const k = e.target.closest('.en-keys button'); if (k) { enigmaStop(card); enigmaPress(card, k.dataset.k); return; }
-    if (e.target.closest('.en-x')) { enigmaStop(card); input.value = ''; show(); }
+    if (e.target.closest('.en-x')) { enigmaStop(card); input.value = ''; show(); return; }
+    /* a rotor turned by hand: what is on the tape now starts a step on, and comes out as other letters */
+    const i = wheels.indexOf(e.target.closest('.en-rw')); if (i < 0) return;
+    enigmaStop(card); home = start = [...start].map((ch, n) => (n === i ? String.fromCharCode(65 + (ch.charCodeAt(0) - 64) % 26) : ch)).join(''); gone = same = 0; show();
   });
-  /* with a key of the machine in focus, the keyboard types too */
-  card.addEventListener('keydown', e => { if (e.target === input || e.metaKey || e.ctrlKey || e.altKey || !e.target.closest('.en')) return; const c = e.key.toUpperCase(); if (/^[A-Z]$/.test(c)) { e.preventDefault(); enigmaStop(card); enigmaPress(card, c); } });
-  if (!motionOK()) { input.value = 'WETTER'; show(); }
+  /* with a key of the machine in focus the keyboard types too, and in the field once the tape is full */
+  card.addEventListener('keydown', e => {
+    const c = e.key.toUpperCase(); if (e.metaKey || e.ctrlKey || e.altKey || !/^[A-Z]$/.test(c) || !e.target.closest('.en') || (e.target === input && input.value.length < 16)) return;
+    e.preventDefault(); enigmaStop(card); enigmaPress(card, c);
+  });
+  if (!motionOK()) input.value = 'WETTER';
+  show();
 }
 function enigmaDemo(card) {
   const input = $('.en-in input', card); if (!input || input.value || EN_DEMO.has(card)) return;
   let i = 0; const t = setInterval(() => { if (i >= 6 || input.value.length !== i) { enigmaStop(card); delete input.dataset.demo; return; } input.dataset.demo = '1'; enigmaPress(card, 'WETTER'[i++]); input.dataset.demo = ''; }, 300);
-  EN_DEMO.set(card, t); FX_STOP.push(() => enigmaStop(card));
+  EN_DEMO.set(card, t); card.classList.add('demo'); FX_STOP.push(() => enigmaStop(card));
 }
 export const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
 /* the key pill: free pages left, or the model a reader's own key writes with */
