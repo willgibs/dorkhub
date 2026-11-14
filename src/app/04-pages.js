@@ -4,6 +4,7 @@ import { addStep, asksQuestion, pageId, routeOf, topicKey } from '../shared/worl
 import { nodeKeyOf } from '../shared/graph.js';
 import { LENSES } from './01-data.js';
 import { $$, reducedMotion, save, store } from './02-util.js';
+import { homeAt } from './13-landing.js';
 import { route } from './16-router.js';
 export let CUR = '';                    // the page on screen
 export const ACTIVE = new Map();        // pages being written: id -> AbortController
@@ -94,10 +95,12 @@ export const inView = el => { if (!el || !el.isConnected) return false; const r 
 /** @type {number | null} null: this entry was made without a count (before Dorkhub kept one) */
 export let STEP = null;
 export const setSTEP = v => (STEP = v);
-/* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate */
-export function go(url, { src = null, plate = null, replace = false } = {}) {
-  const m = prepMove();
-  const run = () => { if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : (STEP ?? 0) + 1 }, '', url); } route(); };
+/* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate. The entry left
+   keeps where on the front page the move began (what was typed, when it was the composer), so Back lands there
+   (13-landing.js homeEnd) */
+export function go(url, { src = null, plate = null, replace = false, seed = '' } = {}) {
+  const m = prepMove(); const at = seed ? { k: 'seed', t: seed } : src && homeAt(src);
+  const run = () => { if (location.pathname + location.search !== url) { rememberScroll(at ? { ...at, u: url } : null); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : (STEP ?? 0) + 1 }, '', url); } route(); };
   if (!canVT()) { startMove(m); run(); endMove(m); return; }
   if (src && inView(src)) { nameFor(m, src, 'hero'); m.hero = true; }
   if (plate && plate.isConnected) { nameFor(m, plate, 'plate'); m.plate = true; }
@@ -105,13 +108,14 @@ export function go(url, { src = null, plate = null, replace = false } = {}) {
 }
 /* a transition that is skipped (a hidden tab, a second click mid-flight) is fine: the page still changes */
 export const quiet = t => { for (const k of ['ready', 'updateCallbackDone', 'finished']) if (t && t[k]) t[k].catch(() => {}); return t; };
-export function rememberScroll() { try { history.replaceState({ ...(history.state || {}), y: scrollY }, ''); } catch (e) { /* fine */ } }
+/** @param {object | null} [at] where the move leaving this entry began (go) */
+export function rememberScroll(at) { try { const s = { ...(history.state || {}), y: scrollY }; if (at !== undefined) s.at = at; history.replaceState(s, ''); } catch (e) { /* fine */ } }
 /**
  * The one way to move: open a page on `target` (a topic, a question, a phrase you selected), from
  * the page you are on. It joins your trail; whatever you read becomes part of your world.
  * via: start | link | card | question | ask | select | search | world | connect | around | peek | index | trail
  */
-export function openTopic(target, { via = 'link', src = null, plate = null, hint = null, lens = null, ctx = '', q = null, bridge = null } = {}) {
+export function openTopic(target, { via = 'link', src = null, plate = null, hint = null, lens = null, ctx = '', q = null, bridge = null, seed = '' } = {}) {
   const title = cleanTitle(target); if (!title && !bridge) return;
   const from = via === 'start' ? null : CUR || null;
   const req = { title: bridge ? cleanTitle(target || `${bridge[0]} and ${bridge[1]}`) : title, lens: LENSES[lens] ? lens : store.settings.lens, q: !bridge && (q == null ? asksQuestion(title) : !!q), ctx: bridge ? '' : cleanTitle(ctx), bridge: bridge ? bridge.map(cleanTitle) : null };
@@ -119,7 +123,7 @@ export function openTopic(target, { via = 'link', src = null, plate = null, hint
   if (p.id === CUR) { endMove(PREP); return; }
   addStep(store.trails, p.id, { from, via });
   p.last = Date.now(); OPENED.add(p.id); save();
-  go(routeOf(req), { src, plate });
+  go(routeOf(req), { src, plate, seed });
 }
 /* pages opened in this visit by the reader's own hand: those are written without asking */
 export const OPENED = new Set();
