@@ -17,8 +17,8 @@ from here:
    redrawn if it stays performant; small controls with generous tap areas; the composer's beam must not cost
    frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer as an
    instrument; the footer's wordmark as a board of lamps; moves both ways, Your world included; five cards
-   redrawn; nothing running at rest; eight fixes from an independent review and a visual sweep. His one open
-   call in it: the footer's word in ink at rest (built) or every lamp a colour (`allKinds` on `lampBoard`).
+   redrawn; nothing running at rest; eight fixes from an independent review and a visual sweep. He chose ink
+   for the footer's word (14 Nov); every lamp a colour stays one option away (`allKinds` on `lampBoard`).
    Not built, his to ask for: Fireworks, Venus flytraps and Pompeii redrawn (stopped as they started, to leave
    tokens for his other agents: about 150k a card); Back landing in the composer; the front page's own maps
    joining the moves.

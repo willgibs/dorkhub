@@ -13,9 +13,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   wordmark as a board of lamps; moves that run both ways (the front page, links, Your world, Back and Forward);
   five cards redrawn (Enigma, Origami, Infinity, Atlantis; Magnets by thumb); nothing running at rest (an idle
   reading page made about 310 frames in 5 s, now none); eight fixes from an independent review and a sweep.
-- **His one open call in it:** the footer's word is ink at rest and a lamp takes colour for each page read
-  (built, the orchestrator's pick), or every lamp a colour (`allKinds` on `lampBoard`). He said he likes the
-  colour on the wordmark, so both are on the desk.
+- **The footer's word is ink at rest** (Will's call, 14 Nov): a lamp takes colour for each page read; every
+  lamp a colour stays one option away (`allKinds` on `lampBoard`).
 - **The desk holds only what is open** (Will): what he is being asked and what is in progress. A change that is
   live comes off it.
 - **Tokens are shared with Will's other agents.** No optional lanes: three more card redraws (Fireworks, Venus
