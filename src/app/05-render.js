@@ -447,7 +447,7 @@ function picField(box) {
   const ox = (w - (cols - 1) * PIC_PITCH) / 2, oy = (h - (rows - 1) * PIC_PITCH) / 2; const dots = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const x = ox + c * PIC_PITCH, y = oy + r * PIC_PITCH; dots.push({ x, y, c, r, k: .9 + Math.random() * .2, ph: Math.random() * 6000, d: Math.min(.65, .6 * (x / w + y / h) / 2 + Math.random() * .08), col: '' }); }
   const F = { box, cv, ctx: cv.getContext('2d'), k, w, h, cols, rows, dots, ink: picInk(box), t0: null, img: null };
-  box._f = F; PICS.add(F); drawPic(F, reducedMotion() ? 0 : performance.now()); if (!reducedMotion()) wakePics();
+  box._f = F; PICS.add(F); drawPic(F, reducedMotion() ? 0 : performance.now()); if (!reducedMotion()) { watchPic(F); wakePics(); }
   const pid = box.closest('.chamber')?.dataset.pid; if (pid && PICREADY.has(pid)) revealPic(null, PICREADY.get(pid), box);
 }
 function drawPic(F, now) {
@@ -462,13 +462,21 @@ function drawPic(F, now) {
   ctx.globalAlpha = 1;
   if (rev >= 1 && !F.handed) { F.handed = true; F.box.classList.add('reveal'); afterMotion(F.box, () => finishPic(F)); }
 }
-let PIC_RAF = 0;
+/* The loop runs only while a field is on screen: a picture waiting below the fold (or one scrolled past) asks
+   for no frames until it comes back, and the dots, kept on the clock, pick up exactly where they would have been. */
+let PIC_RAF = 0, PIC_IO = /** @type {IntersectionObserver | null} */ (null);
+const PICSEEN = new Set();
+function watchPic(F) {
+  if (typeof IntersectionObserver !== 'function') { PICSEEN.add(F); return; }
+  PIC_IO = PIC_IO || new IntersectionObserver(es => { for (const e of es) { const G = /** @type {any} */ (e.target)._f; if (!G) { PIC_IO?.unobserve(e.target); continue; } if (e.isIntersecting) PICSEEN.add(G); else PICSEEN.delete(G); } wakePics(); });
+  PIC_IO.observe(F.box);
+}
 function picLoop(now) {
   PIC_RAF = 0;
-  for (const F of PICS) { if (!F.box.isConnected) { PICS.delete(F); continue; } const r = F.box.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && !document.hidden) drawPic(F, now); }
-  if (PICS.size) PIC_RAF = requestAnimationFrame(picLoop);
+  for (const F of PICS) { if (!F.box.isConnected) { PICS.delete(F); PICSEEN.delete(F); PIC_IO?.unobserve(F.box); continue; } if (!PICSEEN.has(F)) continue; const r = F.box.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && !document.hidden) drawPic(F, now); }
+  wakePics();
 }
-function wakePics() { if (!PIC_RAF && PICS.size) PIC_RAF = requestAnimationFrame(picLoop); }
+function wakePics() { for (const F of PICS) if (!F.box.isConnected) { PICS.delete(F); PIC_IO?.unobserve(F.box); } for (const F of PICSEEN) if (!PICS.has(F)) PICSEEN.delete(F); if (!PIC_RAF && PICSEEN.size) PIC_RAF = requestAnimationFrame(picLoop); }
 function picInk(box) { const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b; return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; }
 /* the theme changed: a picture still arriving takes the new ink for its dots */
 export function rethemePics() { for (const F of PICS) { F.ink = picInk(F.box); if (reducedMotion()) drawPic(F, 0); } }
@@ -490,7 +498,7 @@ function revealPic(node, img, box0) {
   F.t0 = performance.now(); wakePics();
 }
 function finishPic(F) {
-  const box = F.box; PICS.delete(F); box._f = null; F.cv.remove(); box.classList.remove('loading', 'reveal'); box.classList.add('shown');
+  const box = F.box; PICS.delete(F); PICSEEN.delete(F); PIC_IO?.unobserve(box); box._f = null; F.cv.remove(); box.classList.remove('loading', 'reveal'); box.classList.add('shown');
   /* the slot now looks exactly like a plain picture; tell the renderer so it doesn't redraw it */
   const fig = box.closest('figure'); const node = pageOf(box.closest('.chamber')?.dataset.pid); if (fig && node && node.pic) fig._h = picItem(node.pic, false).html;
   if (node) { PICFRESH.delete(node.id); PICREADY.delete(node.id); }

@@ -794,6 +794,17 @@ async function failedPhotos() {
     if (c.img !== 'hidden' || c.alt !== 'rgba(0, 0, 0, 0)' || c.credit !== 'hidden' || !/radial-gradient/.test(c.art) || c.title !== 'Northern lights') throw new Error(`the card: ${JSON.stringify(c)}`);
     await page.locator('.wc[data-card="northern-lights"]').screenshot({ path: `${shots}/desktop-11-photo-failed.png` });
   });
+  /* a board rests: a picture waiting off screen asks for no frames, and still arrives once the reader reaches it */
+  await step('a picture waiting off screen rests, and arrives when reached', async () => {
+    await page.goto(`${base}/black-holes`, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
+    await page.waitForSelector('.pic-box.loading', { timeout: 8000 });
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(600);
+    const frames = await page.evaluate(() => new Promise(ok => { const w = /** @type {any} */ (window), raf = w.requestAnimationFrame; let n = 0; w.requestAnimationFrame = (/** @type {FrameRequestCallback} */ f) => { n++; return raf.call(w, f); }; setTimeout(() => { w.requestAnimationFrame = raf; ok({ n, off: (document.querySelector('.pic-box')?.getBoundingClientRect().bottom || 0) < 0 }); }, 1000); }));
+    if (!frames.off || frames.n > 2) throw new Error(`off screen, the picture asked for frames: ${JSON.stringify(frames)}`);
+    await page.evaluate(() => document.querySelector('.pic-box')?.scrollIntoView({ block: 'center' }));
+    await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
+  });
   await step('a lead picture that fails on a later visit is dropped', async () => {
     const done = () => page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
     await page.fill('#seedIn', 'Moss on lunar soil'); await page.press('#seedIn', 'Enter'); await done();
