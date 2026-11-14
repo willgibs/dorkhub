@@ -183,31 +183,44 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
-  /* the page ends on the wordmark set in lamps, across its width: lit in the eight kinds' colours once it is seen, then
-     still; its key names the eight kinds, and pointing at one hushes every other lamp; and the theme draws it again */
+  /* the page ends on the wordmark set in lamps, across its width: it lights across in the kinds' colours once it is
+     seen, then cools to ink, since nothing is read yet, and holds still; its key names the eight kinds, and pointing at
+     one lights that kind's lamps and hushes the rest; and the theme draws it again */
   await step(`${tag}: the footer's board of lamps`, async () => {
     const f = await page.evaluate(() => ({ label: document.querySelector('#footBoard[role="img"]')?.getAttribute('aria-label'), kinds: document.querySelectorAll('#footKey .lk[data-kind]').length, name: document.querySelector('#footKey .lbl')?.textContent, credits: !!document.querySelector('.land-foot .credit a[href="/licenses.txt"]') }));
     if (f.label !== 'dorkhub' || f.kinds !== 8 || f.name !== 'Eight kinds of topic' || !f.credits) throw new Error(`the footer: ${JSON.stringify(f)}`);
-    /* how many of the board's pixels are in colour (a lamp lit in a kind's), and how light they are */
-    const lit = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) { n++; l += d[i] + d[i + 1] + d[i + 2]; } return [n, n ? l / n / 3 : 0]; });
-    /* the board has come to rest when two looks at it, a moment apart, are the same */
-    const settled = async () => { let was = [-1, 0]; for (let i = 0; i < 40; i++) { const now = await lit(); if (now[0] === was[0] && now[1] === was[1]) return now; was = now; await page.waitForTimeout(350); } throw new Error('the board never came to rest'); };
+    /* how many of the board's solid pixels are in colour (a lamp lit in a kind's), how many are solid at all (a lit
+       lamp, ink or colour), and how light the solid ones are */
+    const lit = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, s = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { s++; l += d[i] + d[i + 1] + d[i + 2]; if (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; } return [n, s, s ? l / s / 3 : 0]; });
+    /* the board has come to rest when four looks at it over a second are the same (longer than the word holds its
+       colours before it cools) */
+    const settled = async () => { let was = '', same = 0; for (let i = 0; i < 60; i++) { const now = await lit(); if (String(now) === was) { if (++same === 3) return now; } else same = 0; was = String(now); await page.waitForTimeout(350); } throw new Error('the board never came to rest'); };
     if (!mobile) await page.mouse.move(0, 0);
     await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await page.waitForFunction(() => { const r = /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, null, { timeout: 5000 });
-    await page.waitForTimeout(600); const rest = await settled();
-    if (rest[0] < 1000) throw new Error(`the board is not lit: ${rest[0]} pixels in colour`);
+    /* arriving, the word is in colour */
+    const arriving = await page.waitForFunction(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; return n > 1000; }, null, { timeout: 5000, polling: 50 }).then(() => true, () => false);
+    if (!arriving) throw new Error('the word did not light in colour as it arrived');
+    /* settled, with nothing read, every lit lamp is ink: no pixel of it is a kind's colour */
+    const rest = await settled();
+    if (rest[1] < 1000 || rest[0] > 20) throw new Error(`the board at rest: ${rest[1]} pixels lit, ${rest[0]} of them in colour`);
     await page.locator('.land-foot').screenshot({ path: `${shots}/${tag}-1g-footer.png` });
     if (mobile) return;
+    /* nothing read: a kind called out lights the lamps that hold it, and hushes the rest */
     await page.hover('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const one = await settled();
     await page.mouse.move(0, 0); await page.waitForTimeout(400); const all = await settled();
-    if (one[0] > rest[0] * .4 || one[0] < 100 || all[0] !== rest[0]) throw new Error(`calling out a kind: ${JSON.stringify({ rest, one, all })}`);
+    if (one[0] < 100 || one[1] > rest[1] * .4 || all[0] !== rest[0] || all[1] !== rest[1]) throw new Error(`calling out a kind: ${JSON.stringify({ rest, one, all })}`);
+    /* by keyboard: a kind in the key takes focus, has a name, and calls out its lamps as pointing does; blur lets go */
+    await page.focus('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const kb = await settled();
+    const named = await page.evaluate(() => { const e = /** @type {HTMLElement} */ (document.activeElement); return `${e.tabIndex} ${e.getAttribute('aria-label')}`; });
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); await page.waitForTimeout(400); const free = await settled();
+    if (String(kb) !== String(one) || named !== '0 Ideas' || String(free) !== String(rest)) throw new Error(`the key by keyboard: ${JSON.stringify({ one, kb, named, rest, free })}`);
     const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
     for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
     await page.waitForTimeout(300); const dark = await lit();
     for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
     await page.waitForTimeout(300); const back = await lit();
-    if (Math.abs(dark[1] - rest[1]) < 30 || Math.abs(back[1] - rest[1]) > 6) throw new Error(`the board's colours: light ${rest[1].toFixed(0)}, dark ${dark[1].toFixed(0)}, back ${back[1].toFixed(0)}`);
+    if (Math.abs(dark[2] - rest[2]) < 30 || Math.abs(back[2] - rest[2]) > 6) throw new Error(`the board's ink: light ${rest[2].toFixed(0)}, dark ${dark[2].toFixed(0)}, back ${back[2].toFixed(0)}`);
   });
   /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
   if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
@@ -897,16 +910,16 @@ try {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
     await still.goto(base); await still.waitForSelector('#footBoard canvas');
     /* with the caret in it the composer's brackets are at full strength at once, nothing in it is moving, and the board,
-       far below and not yet seen, already stands lit */
+       far below and not yet seen, already stands lit, in ink, as it rests with nothing read */
     await still.focus('#seedIn'); await still.waitForTimeout(150);
     const b = await still.evaluate(() => {
       const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), k = getComputedStyle(/** @type {Element} */ (box.querySelector('.cbk i')));
-      const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')), d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let lit = 0;
-      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) lit++;
-      return { corner: k.opacity, cut: k.clipPath, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
+      const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')), d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let lit = 0, hue = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { lit++; if (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) hue++; }
+      return { corner: k.opacity, cut: k.clipPath, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, hue, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
     });
     await still.close();
-    if (b.corner !== '1' || b.cut !== 'inset(0px)' || b.moving || b.lit < 1000 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
+    if (b.corner !== '1' || b.cut !== 'inset(0px)' || b.moving || b.lit < 1000 || b.hue > 20 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
   });
   const desk = await browser.newPage({ viewport: { width: 1360, height: 900 } });
   await run(desk);

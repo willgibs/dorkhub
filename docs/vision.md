@@ -153,6 +153,10 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
   - A lamp is unlit (a faint dot), lit in ink, or lit in a kind's colour when what it reads out has a kind.
     Nothing else on a board has colour.
   - **The wordmark is set in lamps.** At display size each lamp is drawn, not typed.
+  - **The wordmark is ink, and takes colour only for what the reader has read**: one lamp for each page read, in
+    that page's kind. Otherwise colour passes through it and leaves: the word lights across in the eight colours
+    as it arrives and cools to ink, the pointer warms lamps to a kind's colour and they cool behind it, and a kind
+    named in the key lights its lamps (the reader's own, or before anything is read, the lamps that hold it).
   - **Our spectrum is the eight kinds as separate lamps, never a sweep.** Where many kinds show at once they are
     scattered, or stand in the order of the reader's own world: no bands, no blend from one hue into the next,
     no red-to-violet order. That is what keeps it ours and not a flag's.
