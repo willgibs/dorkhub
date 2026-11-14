@@ -9,14 +9,14 @@ keep `docs/state.md` current._
 Live: the engine wave (willgibs/dorkhub#30, #32, #33, #34), the walk's checks (#35), `makeGraph` split (#36), the
 writer's thinking settings (#38), the eval's subscription route (#41), and Wave 2 (#37 the link card as a sheet on
 phones, #40 Your world by keyboard, #39 sharing). In order from here:
-1. **The cohesion wave** (Will: 6 or 7 of 10; "one seamless app under a cohesive, rooted visual identity").
-   Live: willgibs/dorkhub#42, merged at his word (the kit, states as pages, Your world's surroundings as
-   readings, the chrome and raised surfaces as one family, a pass over the three). **(Will)** Up for his look:
-   willgibs/dorkhub#43, the moves between views (one clock for a view change, what opens closes, a state arrives
-   as text does). Not in it: the front cards' own drawings (`src/front.css`), the selection button, the timers on
-   Your world's tips. To bring to him, not built: dotted numerals beyond Your world (the figures panel, the trial
-   count), more presence for the top bar, the footer's wordmark elsewhere, and the tool sheets (quiz, recap,
-   around this) in the kit.
+1. **One seamless app** (Will: 6 or 7 of 10 before these; "under a cohesive, rooted visual identity"). Live at
+   his word: willgibs/dorkhub#42, the cohesion wave, and #43, motion on one clock. Next, in order:
+   a. **What the kit has not reached**, by preview: the tool sheets (quiz, recap, around this) and their
+      out-of-tools state, any surface that still sets its own label, box or shadow, and the motion left out of
+      #43 (the selection button, the timers on Your world's tips; the front cards' drawings keep their own).
+   b. **A read-only audit of the built page** for accessibility and speed, then the invisible fixes on green.
+   c. **(Will)** Which idea goes to a preview: dotted numerals in the figures panel and the trial count, more
+      presence for the top bar, the footer's wordmark elsewhere, the picture travelling back into its card on Back.
 2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
    `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
    gateway too (cents); its judges run on the subscription (`--judge-via claude`).
