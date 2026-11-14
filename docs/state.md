@@ -2,19 +2,17 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-14, early morning)
-- **Live on dorkhub.com:** everything through the trimmed CI (#47). **Merged but not yet deployed: the lamps
-  wave (#48)**, merged 14 Nov at Will's word after his look at a preview. Vercel refused its production
-  deployment ("Deployment rate limited, retry in 24 hours"): the account had reached Hobby's 100 deployments a
-  day, which counts every push of every project, skipped builds included. It goes live with the next push to
-  `main` after the limit clears (any new commit pushed to `main` deploys it). His answers of 13 Nov became the
-  **Lamps** rules in `docs/vision.md`. In the wave: the top bar (counts in the dot face, position as a row of
-  lamps, tap areas of 44 px); the composer's glow, rebuilt to cost nothing at rest (corner brackets were tried
-  in its place and dropped at his word); the footer's wordmark in lamps, ink at rest, a lamp coloured for each
-  page read (his call); moves both ways (cards, links, Your world); five cards redrawn; nothing running at
-  rest; eleven fixes from an independent review and a visual sweep.
+## Now (2026-11-14, morning)
+- **Live on dorkhub.com: the lamps wave (#48)**, deployed 14 Nov from `9d92326` once Vercel's daily limit
+  cleared. Production's page matches a local build of `main` byte for byte, and `scripts/prove.mjs` passes (9 ok,
+  0 fail; live writing skipped). His answers of 13 Nov are the **Lamps** rules in `docs/vision.md`. In the wave:
+  the top bar (counts in the dot face, position as a row of lamps, tap areas of 44 px); the composer's glow,
+  rebuilt to cost nothing at rest; the footer's wordmark in lamps, a lamp coloured for each page read; moves both
+  ways (cards, links, Your world); five cards redrawn; nothing running at rest; eleven review and sweep fixes.
 - **The review desk** (https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp) holds only what is open: what Will
-  is being asked and what is being built. It is empty now. A change that goes live comes off it.
+  is being asked and what is being built. Nothing is open now. It belongs to Will's other Claude account: a
+  session under this one reads it but cannot update it, so it still lists the lamps wave until that account
+  republishes it (`node .e2e/desk/build.mjs` already writes the empty desk) or Will gives this one edit access.
 - **Tokens are shared with Will's other agents** (his words, 13 Nov): no optional lanes. Not built, his to ask
   for: Fireworks, Venus flytraps and Pompeii redrawn; Back landing in the composer; the front page's own maps
   joining the moves.
@@ -34,6 +32,5 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - From October: the 11 earlier pages; old resources; repo visibility; Pro pricing. Also one HTML shell, not 46.
 
 ## Next
-Push `main` once Vercel's limit clears (Will says when); then check production: `curl -s https://dorkhub.com/ |
-shasum -a 256` against a local build, and `node scripts/prove.mjs https://dorkhub.com`; then clear the review desk.
-The orchestrator's working notes are in `.claude/orchestrator-handoff.md` (untracked, on Will's Mac). Then credits.
+Will's: gateway credit (then the live proof and the eval's first look), and deleting the merged remote branches.
+The orchestrator's working notes are in `.claude/orchestrator-handoff.md` (untracked, on Will's Mac).
