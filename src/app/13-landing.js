@@ -96,7 +96,7 @@ export function plateSlotHTML(p) {
 /* a move runs both ways: Back from a card's page lands on its card, its title on the card's title (16-router.js),
    once the front page's cards are made (startLanding makes them first, so this settles after) */
 export const frontShown = () => loadFront().then(() => {});
-export function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
+function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
 /* ---------- a move runs both ways from the front page's other ways in ----------
    A page opened from the composer, a suggestion, the map of threads (a name on it, or the panel beside it) or the world
    card keeps that on the entry it left (04-pages.js go), so Back lands its title there: in the composer, on what was
@@ -395,11 +395,11 @@ function odometer(el) {
 function flytrapFx(card) {
   const art = $('.wc-art', card), sv = $('.vz.ft', card); if (!art || !sv || art.dataset.wired) return; art.dataset.wired = '1';
   art.insertAdjacentHTML('beforeend', '<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><p class="sr" aria-live="polite"></p>');
-  let n = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0, v = trapView(phi, TRAP);
+  let n = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0, snapping = false, v = trapView(phi, TRAP);
   const ks = $$('.ft-k', sv), ats = $$('.ft-at', sv), hairs = $$('.ft-h', sv), live = $('p.sr', art);
   /* the trap at an opening: each lobe's shell, face, rim band, glands, cilia and hairs, and the line its colour follows */
   const draw = () => {
-    v = trapView(phi, TRAP);
+    v = trapView(phi, TRAP, snapping ? 0 : undefined);
     v.lobes.forEach((l, i) => {
       const g = $(`.ft-l${i}`, sv), gr = $(`#ft-g${i}`, sv); if (!g) return;
       for (const [c, d] of [['shell', l.shell], ['face', l.face], ['band', l.band], ['gl', l.glands], ['teeth', l.teeth], ['hsh', l.hairs.map(h => h.d).join('')]]) $(`.ft-${c}`, g).setAttribute('d', d);
@@ -411,9 +411,10 @@ function flytrapFx(card) {
   };
   /* close (or open) over ms, overshooting a little when it snaps */
   const move = (to, ms, snap) => {
-    if (raf) cancelAnimationFrame(raf); const from = phi, t0 = performance.now();
-    if (reducedMotion()) { phi = to; draw(); return; }
-    const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
+    if (raf) cancelAnimationFrame(raf); const from = phi, t0 = performance.now(); snapping = !!snap;
+    if (reducedMotion()) { phi = to; snapping = false; draw(); return; }
+    /* a snap overshoots past shut for a moment: that is not sealing, so the cilia stay crossed through it */
+    const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; if (t >= 1) snapping = false; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
     raf = requestAnimationFrame(step);
   };
   const say = (c, t) => { ks.forEach((k, i) => k.classList.toggle('lit', i < c)); ats.forEach(a => a.classList.toggle('lit', c >= Number(a.dataset.at))); live.textContent = t; };
@@ -660,10 +661,12 @@ function watchGlow() {
   GLOW_IO = new IntersectionObserver(([e]) => g.classList.toggle('off', !e.isIntersecting)); GLOW_IO.observe(g);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() {
-  /* back from a page asked for here, what was typed is in the composer again (homeEnd) */
+/** @param {boolean} [popped] shown by Back or Forward: only then does the composer get the reader's words back */
+export function startLanding(popped = false) {
+  /* back from a page asked for here, what was typed is in the composer again (homeEnd); a fresh visit to the same
+     entry (the wordmark, say) starts empty */
   AT = (history.state && history.state.at) || null; const i = $('#seedIn');
-  if (AT && AT.k === 'seed' && i) { i.value = AT.t; growSeed(); syncSend(); seedKind($('#seedBox'), i); }
+  if (popped && AT && AT.k === 'seed' && i) { i.value = AT.t; growSeed(); syncSend(); seedKind($('#seedBox'), i); }
   watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
 /* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
    so does every board of lamps on screen */

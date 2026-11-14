@@ -36,6 +36,8 @@ function closeFloating() { settle(); hideSel(true); hideCard(true); closePMenu(f
 /* an address the router puts right keeps its place in the visit: its count, or for an entry the browser made (an old
    #/ address typed or followed), one step on from where the reader was */
 const keepStep = () => { const s = history.state || {}; return { ...s, y: 0, n: s.n != null ? s.n : FIRST ? (STEP ?? 0) : (STEP ?? 0) + 1 }; };
+/* set while Back or Forward is being shown, so the composer gets the reader's words back only then */
+let POP = false;
 export function route() {
   closeFloating();
   const h = location.hash;
@@ -51,11 +53,11 @@ export function route() {
   }
   else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
   setSTEP(history.state && history.state.n != null ? history.state.n : null);
-  FIRST = false;
+  FIRST = false; POP = false;
 }
 function showHome() {
   setView('home'); setCUR(''); document.documentElement.dataset.accent = 'concept';
-  $('#view').innerHTML = viewStart(); startLanding(); document.title = 'dorkhub: learn about anything';
+  $('#view').innerHTML = viewStart(); startLanding(POP); document.title = 'dorkhub: learn about anything';
   window.scrollTo(0, 0); updateProg(); renderWorldBtn();
   /* back where you were, once the cards below the composer are made */
   const y = (history.state && history.state.y) || 0;
@@ -187,7 +189,7 @@ export function init() {
 BOOT = Date.now();
 /* back and forward make the same move as a click, from every view, the other way when it is Back, unless the browser has
    already animated it (a swipe) */
-addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) travel(); else route(); });
+addEventListener('popstate', e => { POP = true; if (canVT() && !e.hasUAVisualTransition) travel(); else route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
   /* a popover's own button closes it the way it opened, and opens it again if it is still leaving */

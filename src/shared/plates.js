@@ -99,12 +99,13 @@ export function hull(pts) {
     each other and the cilia, crossed like bars while it was only shut, turn outward. Returns, back lobe first, each
     lobe's face (which side shows, and a line across it for its colour to follow), shell, rim band, glands, cilia and
     hairs (each hair's path and tip), and the stalk: a flat, winged leaf that narrows to a neck at the trap.
-    @param {number} phi @param {{ W: number, H: number, k: number, ox: number, oy: number, az: number, el: number }} C */
-export function trapView(phi, C) {
+    seal (0 to 1) is how far it has sealed; by default it follows phi, but a snap that overshoots past 3° is not sealing.
+    @param {number} phi @param {{ W: number, H: number, k: number, ox: number, oy: number, az: number, el: number }} C @param {number} [seal] */
+export function trapView(phi, C, seal = Math.min(1, Math.max(0, 1 - phi * 60 / Math.PI))) {
   const cam = camera({ at: [0, 0, .35], az: C.az, el: C.el, dist: 30, k: C.k, ox: C.ox, oy: C.oy });
   /* to half a unit (at the card's size a unit is a pixel): smooth at twice the pixels, and the drawing much smaller */
   const r = (/** @type {number} */ q) => Math.round(q * 2) / 2, P = (/** @type {number[]} */ q) => cam.to(q).map(r).join(' ');
-  const seal = Math.min(1, Math.max(0, 1 - phi * 60 / Math.PI)), LH = 1.32, WL = 1.02, CUP = .3 * (1 - .5 * seal);
+  const LH = 1.32, WL = 1.02, CUP = .3 * (1 - .5 * seal);
   /** the rim's distance from the midrib along the lobe, u from −1 (the stalk's end) to 1 (the tip) */
   const rim = (/** @type {number} */ u) => Math.pow(Math.max(0, 1 - u * u), .62) * (1 - .12 * u);
   /** one lobe: s = 1 leans back (away from you), −1 toward you */
