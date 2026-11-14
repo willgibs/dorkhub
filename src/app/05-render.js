@@ -476,7 +476,9 @@ function picLoop(now) {
   for (const F of PICS) { if (!F.box.isConnected) { PICS.delete(F); PICSEEN.delete(F); PIC_IO?.unobserve(F.box); continue; } if (!PICSEEN.has(F)) continue; const r = F.box.getBoundingClientRect(); if (r.bottom > 0 && r.top < innerHeight && !document.hidden) drawPic(F, now); }
   wakePics();
 }
-function wakePics() { for (const F of PICS) if (!F.box.isConnected) { PICS.delete(F); PIC_IO?.unobserve(F.box); } for (const F of PICSEEN) if (!PICS.has(F)) PICSEEN.delete(F); if (!PIC_RAF && PICSEEN.size) PIC_RAF = requestAnimationFrame(picLoop); }
+/* a field whose page has gone is let go here, so the router calls this on every move: left with its picture still
+   arriving below the fold (or without motion, where nothing watches it), it would keep that whole page alive */
+export function wakePics() { for (const F of PICS) if (!F.box.isConnected) { PICS.delete(F); PIC_IO?.unobserve(F.box); } for (const F of PICSEEN) if (!PICS.has(F)) PICSEEN.delete(F); if (!PIC_RAF && PICSEEN.size) PIC_RAF = requestAnimationFrame(picLoop); }
 function picInk(box) { const m = /^#?([0-9a-f]{6})$/i.exec(getComputedStyle(box).getPropertyValue('--ink').trim()); const n = m ? parseInt(m[1], 16) : 0x18181b; return `${n >> 16 & 255},${n >> 8 & 255},${n & 255}`; }
 /* the theme changed: a picture still arriving takes the new ink for its dots */
 export function rethemePics() { for (const F of PICS) { F.ink = picInk(F.box); if (reducedMotion()) drawPic(F, 0); } }
