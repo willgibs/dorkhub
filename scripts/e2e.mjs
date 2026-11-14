@@ -70,6 +70,8 @@ async function run(page, { mobile = false } = {}) {
      is known, all lit as a page is asked for. Nothing else in it runs on a loop. Send is Surprise me until there is
      something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
+    /* the glow turns while someone is near the composer and rests after a while without them: wake it first */
+    await page.locator('#seedBox').dispatchEvent('pointerenter');
     const h = await page.evaluate(() => {
       const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), glow = /** @type {HTMLElement} */ (box.querySelector('.cglow'));
       const loops = /** @type {HTMLElement} */ (box.parentElement).getAnimations({ subtree: true }).filter(a => !Number.isFinite(Number(a.effect?.getComputedTiming().endTime)));

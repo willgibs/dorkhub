@@ -654,11 +654,18 @@ function mountFoot() {
   key.addEventListener('focusout', () => { if (FOOT) FOOT.only(''); });
 }
 /* the composer's glow turns only while someone can see it: off screen, its layers hold where they are */
-let GLOW_IO = null;
+let GLOW_IO = null, GLOW_T = 0;
+/* the glow turns while the composer is on screen and someone is near it: a few turns as the page arrives, again when
+   the pointer comes to it or the reader types, then it holds still where it is, still lit (a board rests: running on
+   at idle it kept the compositor busy, ~45% of a core in a software-rendered audit) */
+const GLOW_REST = 12000;
 function watchGlow() {
-  if (GLOW_IO) GLOW_IO.disconnect();
-  const g = $('#seedBox .cglow'); if (!g || typeof IntersectionObserver !== 'function') return;
+  if (GLOW_IO) GLOW_IO.disconnect(); clearTimeout(GLOW_T);
+  const g = $('#seedBox .cglow'), box = $('#seedBox'); if (!g || typeof IntersectionObserver !== 'function') return;
   GLOW_IO = new IntersectionObserver(([e]) => g.classList.toggle('off', !e.isIntersecting)); GLOW_IO.observe(g);
+  const wake = () => { g.classList.remove('rest'); clearTimeout(GLOW_T); GLOW_T = setTimeout(() => g.classList.add('rest'), GLOW_REST); };
+  if (box) for (const ev of ['pointerenter', 'input', 'focusin']) box.addEventListener(ev, wake);
+  wake();
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
 /** @param {boolean} [popped] shown by Back or Forward: only then does the composer get the reader's words back */
@@ -671,7 +678,7 @@ export function startLanding(popped = false) {
 /* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
    so does every board of lamps on screen */
 export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }
-export function stopLanding() { stopLiving(); if (GLOW_IO) { GLOW_IO.disconnect(); GLOW_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
+export function stopLanding() { stopLiving(); clearTimeout(GLOW_T); if (GLOW_IO) { GLOW_IO.disconnect(); GLOW_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {

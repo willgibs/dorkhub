@@ -972,7 +972,7 @@ body.at-start .omni-btn{display:none}
    looks again, starts the turn over on the compositor, which wakes the main thread every frame */
 @keyframes cg-turn{from{transform:rotate(0deg)}to{transform:rotate(1turn)}}
 @keyframes cg-on{from{opacity:0}to{opacity:1}}
-.cglow.off,.cglow.off i{animation-play-state:paused}
+.cglow:is(.off,.rest),.cglow:is(.off,.rest) i{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){ .cglow,.cglow i{animation:none} .cglow{--cg-s:.7!important} .cg-turn,.cg-hl,.cg-bead{transform:rotate(150deg)} .cg-fix{transform:rotate(-150deg)} }
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
@@ -1042,6 +1042,9 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 /* the footer: the fine print and the key to the eight colours, then the wordmark set in lamps across the page, as wide
    as the cards above it. The board takes its shape from its grid (03-lamps.js), and its canvas reaches a little past
    it, for a lamp at the edge that swells */
+/* until the cards arrive (front.json), their place holds a screen's height, so the footer waits below the fold instead
+   of showing under the composer and then jumping away (a layout shift of 0.057 on a phone) */
+#bentoA:empty{min-height:100vh}
 .land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:36px 28px 48px;border-top:1px solid var(--line)}
 .credit{max-width:62ch;font-size:12.5px;line-height:1.55;color:var(--faint)}
 .credit a{display:inline-block;margin:-6px 0;padding:6px 0;color:inherit}
