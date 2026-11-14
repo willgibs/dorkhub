@@ -213,6 +213,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
     asked for (`.cbox.go`), all three in the stylesheet. `heard()` flashes the next lamp along for each key and
     gives the box the kind of what is typed once it is known (a topic in `DOORS`, or a page the reader has read);
     the heading's stepping word lends the lamps its colour while nothing is typed.
+  - **A page's end** carries the mark small, through the mask, on `.colfoot`: faint ink until the page is
+    written, then the colour of its kind.
 - **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
   placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a
   real page's shape (an opening, sections, two notes, two panels, six cards, three questions),

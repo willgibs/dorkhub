@@ -599,6 +599,11 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pv-list a:hover{color:var(--ink);text-decoration:underline}
 /* the one note that pages can be wrong: once, at the bottom of the page */
 .colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* a page ends as the front page does, on the mark and the fine print: the wordmark in lamps (03-lamps.js hands it over
+   as a picture), small and still. It is unlit, in faint ink, until the page is written; then it is lit in the colour of
+   the page's kind */
+.colfoot::before{content:"";display:block;width:184px;aspect-ratio:var(--wordmark-ar);margin:20px 0 16px;background:var(--ink);opacity:.3;-webkit-mask:var(--wordmark) 0 0/100% 100% no-repeat;mask:var(--wordmark) 0 0/100% 100% no-repeat;transition:background-color var(--d-wash) var(--ease-in-out),opacity var(--d-wash) var(--ease-in-out)}
+.column:has(.article[aria-busy="false"] .a-end .card)+.colfoot::before{background:var(--acc);opacity:1}
 .speaking{border-radius:var(--r-2);background:var(--mark);box-shadow:0 0 0 6px var(--mark)}
 /* ================= a state is a page (stateOf in 06-page-end.js) =================
    Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,

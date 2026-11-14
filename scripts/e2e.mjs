@@ -227,6 +227,11 @@ async function run(page, { mobile = false } = {}) {
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
     if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || p.fine.trim() || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
+    /* the page ends on the mark, small, above the fine print: a picture of the lamps, lit once the page is written */
+    const foot = () => page.evaluate(() => { const c = getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before'); return { lit: c.opacity, picture: /^url\("data:image\/svg/.test(c.maskImage || c.webkitMaskImage || ''), wide: c.width }; });
+    await page.waitForFunction(() => getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before').opacity === '1', null, { timeout: 8000 }).catch(() => {});
+    const mark = await foot();
+    if (mark.lit !== '1' || !mark.picture || mark.wide !== '184px') throw new Error(`the mark at the page's foot: ${JSON.stringify(mark)}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* a card leads into one of the front page's topics: until its page is written it opens a placeholder, free
