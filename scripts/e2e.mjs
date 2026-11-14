@@ -488,8 +488,26 @@ async function run(page, { mobile = false } = {}) {
       const n = await page.locator('.trail-list li').count(); if (n < 3) throw new Error(`${n} steps on the trail`);
       await page.screenshot({ path: `${shots}/${tag}-5-trail.png` }); await page.keyboard.press('Escape');
     });
+    if (!mobile) {
+      /* More is a disclosure: Escape closes it with focus back on its button, and a sheet opened from it gives focus back there too */
+      const more = '.chamber .tools details.more > summary';
+      const onMore = () => page.evaluate(s => document.activeElement === document.querySelector(s), more);
+      await step(`${tag}: Escape closes More`, async () => {
+        await page.locator(more).focus(); await page.keyboard.press('Enter'); await page.waitForSelector('.chamber details.more[open] .more-pop');
+        await page.keyboard.press('Tab'); await page.keyboard.press('Escape');
+        await page.waitForFunction(s => !document.querySelector(s).parentElement.hasAttribute('open'), more, { timeout: 5000 });
+        if (!(await onMore())) throw new Error(`focus after Escape: ${await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 80))}`);
+      });
+      await step(`${tag}: a sheet opened from More gives focus back to its button`, async () => {
+        await page.locator(more).focus(); await page.keyboard.press('Enter'); await page.waitForSelector('.chamber details.more[open] .more-pop');
+        await page.locator('.chamber .more-pop [data-act="trail"]').focus(); await page.keyboard.press('Enter');
+        await page.waitForSelector('#sheet[open] .trail-list li', { timeout: 15000 }); await page.keyboard.press('Escape');
+        await page.waitForFunction(() => !(/** @type {HTMLDialogElement} */ (document.querySelector('#sheet')).open), null, { timeout: 5000 });
+        if (!(await onMore())) throw new Error(`focus after the sheet: ${await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 80))}`);
+      });
+    }
     await step(`${tag}: quiz`, async () => { await page.keyboard.press('q'); await page.waitForSelector('.qz-o button', { timeout: 15000 }); await page.keyboard.press('Escape'); });
-    await step(`${tag}: recap`, async () => { await page.keyboard.press('f'); await page.waitForSelector('#sheetBody h1', { timeout: 15000 }); await page.keyboard.press('Escape'); });
+    await step(`${tag}: recap`, async () => { await page.keyboard.press('f'); await page.waitForSelector('#sheetBody h3', { timeout: 15000 }); await page.keyboard.press('Escape'); });
     await step(`${tag}: save`, async () => {
       await page.waitForTimeout(400); await page.keyboard.press('s');
       await page.waitForFunction(() => document.querySelector('.tool.save')?.getAttribute('aria-pressed') === 'true');

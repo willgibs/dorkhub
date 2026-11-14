@@ -698,8 +698,8 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 .keys-note b{color:var(--ink)}
 .sh-body{overflow:auto;padding:6px 22px 20px;font:400 17px/1.7 var(--f-read)}
 .sh-body p{margin:0 0 .9em}
-.sh-body h1{font:700 26px/1.15 var(--f-ui);letter-spacing:-.02em;margin:0 0 12px}
-.sh-body h2{font:700 17px/1.2 var(--f-ui);margin:1.2em 0 .4em}
+.sh-body h3{font:700 26px/1.15 var(--f-ui);letter-spacing:-.02em;margin:0 0 12px}
+.sh-body h4{font:700 17px/1.2 var(--f-ui);margin:1.2em 0 .4em}
 .sh-body ul{margin:0 0 1em;padding-left:1.1em}
 .sh-foot{display:flex;flex-wrap:wrap;gap:8px;padding:12px 22px 18px;border-top:1px solid var(--line)}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font:14.5px var(--f-ui)}
