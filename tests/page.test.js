@@ -49,10 +49,13 @@ test('topic addresses serve the page, and nothing else is caught', () => {
    page's rethink (2026-10-18: a card's drawing carried into its page, the link card in the margin, sources, the end
    drawn as threads) costs about 17 KB raw, 4 KB compressed. Sharing (2026-11-13: the front page's link-preview tags,
    the share action, trail addresses and the trail view, drawn with the page end's own threads) about 6.3 KB raw,
-   1.9 KB gzipped, within the budget; the pictures a link shows are files of their own. */
+   1.9 KB gzipped, within the budget; the pictures a link shows are files of their own. The budget rose from 384 to
+   400 KB on 2026-11-14 for the last cards redrawn before launch (their behaviour runs in the page script): moving the
+   front cards' behaviour into a file of its own would need the CSP to admit a second script, not worth it for ~10 KB
+   raw (~3 KB gzipped). */
 test('the page stays within its size budget', () => {
   const html = read('public/index.html');
-  assert.ok(html.length < 384 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
+  assert.ok(html.length < 400 * 1024, `public/index.html is ${(html.length / 1024).toFixed(0)} KB`);
 });
 
 /* The page ships without its comments (src keeps them), but licence notices travel with the code. */
