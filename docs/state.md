@@ -9,7 +9,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - **The lamps wave waits on Will's look**: branch `design/lamps`, one pull request, each piece numbered on the
   review desk with pictures and films (https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp). His answers of 13 Nov
   became the **Lamps** rules in `docs/vision.md`. In it: the top bar (counts in the dot face, reading position
-  as a row of lamps, tap areas of 44 px); the composer as an instrument (the vendor beam is gone); the footer's
+  as a row of lamps, tap areas of 44 px); the composer's glow, rebuilt to cost nothing at rest; the footer's
   wordmark as a board of lamps; moves that run both ways (the front page, links, Your world, Back and Forward);
   five cards redrawn (Enigma, Origami, Infinity, Atlantis; Magnets by thumb); nothing running at rest (an idle
   reading page made about 310 frames in 5 s, now none); eight fixes from an independent review and a sweep.
@@ -25,6 +25,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 ## Open
 - CI's second try for the walk warns when used; drop it after a clean week.
 - A local walk failure means little while other projects load this Mac: check `uptime` first, then rerun.
+- The page is 382 of the 384 KB `tests/page.test.js` allows; the cards' code could load with `front.json`.
 - Left on purpose: Back from a page opened from the composer has nowhere to land; a picture whose image never
   answers keeps its dots moving while on screen; the cards' behaviour ships in every page's script.
 

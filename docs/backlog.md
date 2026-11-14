@@ -15,8 +15,8 @@ from here:
    the review desk. His answers to the desk's eight items (the dot face only where a count stands alone; more
    presence for the top bar; a wordmark that is ours and no flag's; moves that run both ways; any visual may be
    redrawn if it stays performant; small controls with generous tap areas; the composer's beam must not cost
-   frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer as an
-   instrument; the footer's wordmark as a board of lamps; moves both ways, Your world included; five cards
+   frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer's glow,
+   rebuilt; the footer's wordmark as a board of lamps; moves both ways, Your world included; five cards
    redrawn; nothing running at rest; eight fixes from an independent review and a visual sweep. He chose ink
    for the footer's word (14 Nov); every lamp a colour stays one option away (`allKinds` on `lampBoard`).
    Not built, his to ask for: Fireworks, Venus flytraps and Pompeii redrawn (stopped as they started, to leave
@@ -33,6 +33,8 @@ from here:
    20 MB), so that every address has its own link preview. A function that writes the head would cut stored
    output and build time; it changes how previews are served. Not started: a product trade.
 7. Drop CI's second try for the walk after a week with no "needed a second try" warning.
+8. **Room on the page.** It is 382 of the 384 KB that `tests/page.test.js` allows. Loading the front cards'
+   behaviour with `public/front.json` instead of in every page's script is the obvious first saving.
 
 ## 0. Blocked on Will (check each one's status before planning around it)
 
