@@ -14,7 +14,7 @@ import { KIND_LABEL, LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
 import { DEAL, lampBoard, rethemeLamps } from './03-lamps.js';
-import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
+import { CUR, curMove, inView, onMove, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { renderVoice, trialLine } from './09-start.js';
 import { makeGraph, worldLabel } from './11-graph.js';
@@ -97,6 +97,30 @@ export function plateSlotHTML(p) {
    once the front page's cards are made (startLanding makes them first, so this settles after) */
 export const frontShown = () => loadFront().then(() => {});
 export function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
+/* ---------- a move runs both ways from the front page's other ways in ----------
+   A page opened from the composer, a suggestion, the map of threads (a name on it, or the panel beside it) or the world
+   card keeps that on the entry it left (04-pages.js go), so Back lands its title there: in the composer, on what was
+   typed, which stays to change and send again; on the suggestion, or Continue once it has become that; on the topic's
+   name on its map, the panel showing it again. Forward makes the same move out. Any other page, its card (16-router.js). */
+const FROM = [['#seedBox', 'seed'], ['.door', 'door'], ['.th-body', 'panel'], ['#threads', 'threads'], ['.wc-world', 'world']];
+/** @param {HTMLElement} el */
+export const homeAt = el => { const f = el.isConnected && FROM.find(([s]) => el.closest(s)); return f ? { k: f[1] } : null; };
+let AT = null, THPANEL = null;
+/** @param {any} p the page coming home (land) or about to be left for @param {string} title @param {boolean} land */
+export function homeEnd(p, title, land) {
+  const u = p && routeOf(p.req), k = AT && AT.u === u ? AT.k : '', key = topicKey(title);
+  if (k === 'seed') {
+    const i = $('#seedIn'); if (!i || !inView(i) || topicKey(i.value) !== key) return null;
+    const m = seedMirror(i.value); onMove(curMove(), 'finish', () => { m.remove(); i.style.color = ''; }); return { hero: m };
+  }
+  if (k === 'door') { const d = $$('#view .door').find(b => b.getAttribute('href') === u || topicKey(b.dataset.seed || '') === key); return d ? { hero: $('.dc-t', d) || d } : null; }
+  if (k === 'world') return WORLDCARD ? { hero: WORLDCARD.lift(nodeKeyOf(p), { land }) } : null;
+  if (k && THREADMAP) {
+    const n = THREADMAP.graph.nodes.find(x => x.key === key); if (land && n && THPANEL) THPANEL(n);
+    return { hero: (k === 'panel' && $('#threads .th-body')?.dataset.at === key && $('#threads .th-t')) || THREADMAP.lift(key, { land }) };
+  }
+  return cardOf(title);
+}
 export function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
 export function mountPlate(p) {
   const slot = $('.a-plate'); if (!slot || slot.dataset.mounted) return; slot.dataset.mounted = '1';
@@ -140,7 +164,7 @@ function renderThreads() {
     const mine = FRONTD.threads.filter(t => t.a === n.title || t.b === n.title);
     const href = routeOf({ title: n.title, lens: 'encyclopedic', q: asksQuestion(n.title), ctx: '', bridge: null });
     body.innerHTML = `<p class="th-k"><span class="kind"${kattr(n.kind)}>${esc(capFirst(n.kind))}</span><span>${mine.length} thread${mine.length === 1 ? '' : 's'}</span></p><h3 class="th-t">${esc(n.title)}</h3><p class="th-p">${esc(n.hook)}</p><ul class="th-list">${mine.map(t => `<li><b>${esc(t.a === n.title ? t.b : t.a)}</b><span>${esc(t.l)}</span></li>`).join('')}</ul><a class="wc-go" href="${esc(href)}" data-way="${esc(n.title)}" data-fk="${esc(n.kind)}" data-h="${esc(n.hook)}">Open the page ${ic('right')}</a>`;
-  };
+  }; THPANEL = panel;
   const nodes = FRONT.map(f => ({ key: topicKey(f.t), pid: '', title: f.t, kind: f.k, read: true, saved: 0, first: 0, last: 0, hook: f.h, count: 0, deg: 0, cur: false, x: 0, y: 0, vx: 0, vy: 0, fx: null, fy: null }));
   const at = new Map(nodes.map((n, i) => [n.title, i])); const edges = [];
   for (const th of FRONTD.threads) { const a = at.get(th.a), b = at.get(th.b); if (a == null || b == null) continue; edges.push({ a, b, move: false, unread: false, len: 96, label: th.l }); nodes[a].deg++; nodes[b].deg++; }
@@ -148,7 +172,7 @@ function renderThreads() {
   /* the map traces in on its turn among the cards, once a visit */
   const hold = motionOK() && !PLAYED.has('threads'); el.classList.toggle('armed', hold); el.dataset.beat = '1300';
   THREADMAP = makeGraph($('#threadStage'), {
-    still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }),
+    still: true, hold, positions: THREAD_POS, panel, open: (n, src) => openTopic(n.title, { via: 'start', src, hint: { gloss: n.hook, kind: n.kind } }),
     label: g => `A map of the front page's ${g.nodes.length} topics and the ${g.edges.length} threads between them. Arrow keys move between topics, Enter opens one.`,
     speak: n => `${n.title}, ${n.kind}, ${n.deg} thread${n.deg === 1 ? '' : 's'}`,
   });
@@ -519,9 +543,9 @@ let SEED_KINDS = null;
 function heard() {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return;
   const l = $$('.clamps i', box)[i.value.length % LAMPS]; if (l) { l.classList.remove('hit'); void l.offsetWidth; l.classList.add('hit'); }
-  const key = topicKey(i.value), k = SEED_KINDS.get(key) || kindOf((worldIndex().read.get(key) || {}).kind);
-  if (k) box.dataset.kind = k; else delete box.dataset.kind;
+  seedKind(box, i);
 }
+function seedKind(box, i) { const key = topicKey(i.value), k = SEED_KINDS.get(key) || kindOf((worldIndex().read.get(key) || {}).kind); if (k) box.dataset.kind = k; else delete box.dataset.kind; }
 /* what you typed becomes the page title: a copy of it takes the title's place in the page transition */
 export function seedMirror(v) {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return null;
@@ -626,7 +650,11 @@ function watchGlow() {
   GLOW_IO = new IntersectionObserver(([e]) => g.classList.toggle('off', !e.isIntersecting)); GLOW_IO.observe(g);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() { watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+export function startLanding() {
+  /* back from a page asked for here, what was typed is in the composer again (homeEnd) */
+  AT = (history.state && history.state.at) || null; const i = $('#seedIn');
+  if (AT && AT.k === 'seed' && i) { i.value = AT.t; growSeed(); syncSend(); seedKind($('#seedBox'), i); }
+  watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
 /* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
    so does every board of lamps on screen */
 export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }

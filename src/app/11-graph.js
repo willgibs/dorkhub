@@ -26,7 +26,7 @@ import { startReplay, stepReplay, stopReplay } from './11-graph-replay.js';
  * hold: its first trace waits for play() (the front page's map takes its turn among the cards).
  * label names the map and its counts for a screen reader (the canvas is its one tab stop); speak, what a
  * keyboard move to a topic announces.
- * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any) => void, panel?: (n: any, actions: boolean) => void, label?: (g: { nodes: any[], edges: any[] }) => string, speak?: (n: any) => string }} [o]
+ * @param {HTMLElement} host @param {{ mini?: boolean, still?: boolean, hold?: boolean, positions?: Record<string, [number, number]> | Map<string, [number, number]>, describe?: (n: any) => string, open?: (n: any, src: HTMLElement | null) => void, panel?: (n: any, actions: boolean) => void, label?: (g: { nodes: any[], edges: any[] }) => string, speak?: (n: any) => string }} [o]
  */
 export function makeGraph(host, { mini = false, still = false, hold = false, positions = null, describe = null, open = null, panel = null, label = g => worldLabel(g), speak = null } = {}) {
   const cv = document.createElement('canvas'); cv.className = 'gv-canvas'; host.appendChild(cv);
