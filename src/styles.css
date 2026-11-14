@@ -623,8 +623,9 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pv-list{display:grid;gap:3px;margin:10px 0 0;padding:0 0 0 21px;list-style:decimal;font-variant-numeric:tabular-nums}
 .pv-list a{color:var(--mute);text-decoration:none}
 .pv-list a:hover{color:var(--ink);text-decoration:underline}
-/* the one note that pages can be wrong: once, at the bottom of the page */
-.colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* the one note that pages can be wrong: once, at the bottom of the page, on the reading column (.article's width and
+   padding), so the mark and the fine print read as the column's last line */
+.colfoot{max-width:calc(580px + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
 /* a page ends as the front page does, on the mark and the fine print: the wordmark in lamps (03-lamps.js hands it over
    as a picture), small and still. It is unlit, in faint ink, until the page is written; then it is lit in the colour of
    the page's kind */
