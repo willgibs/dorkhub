@@ -9,16 +9,19 @@ import { peek, unfold } from './06-page-end.js';
 import { narrow } from './10-tools.js';
 import { VIEW } from './16-router.js';
 /* How many lamps are lit, as last written: the row is written only when that number changes, so scrolling costs at most
-   one write a frame and a page at rest costs nothing. -1 is no position at all (the row is hidden). The lamps' pitch is
-   the stylesheet's, read once. */
-let LIT = -2, PITCH = 0;
+   one write a frame and a page at rest costs nothing. -1 is no position at all (the row is hidden). The row holds a whole
+   number of lamps (--n): as many as fit at the stylesheet's pitch, read once, which flexes a little so the last lamp is
+   never cut; that is written only when the row's width changes. */
+let LIT = -2, N = 0, PITCH = 0;
 export function updateProg() {
   const pr = $('#prog'); const sec = CUR && secFor(CUR); let lit = -1;
   if (sec) {
     if (pr.hidden) pr.hidden = false;
     const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
     PITCH = PITCH || parseFloat(getComputedStyle(pr).getPropertyValue('--pitch')) || 6;
-    lit = Math.round(v * Math.floor(pr.clientWidth / PITCH));
+    const n = Math.max(1, Math.round(pr.getBoundingClientRect().width / PITCH));
+    if (n !== N) { pr.style.setProperty('--n', String(n)); N = n; }
+    lit = Math.round(v * n);
   } else if (!pr.hidden) pr.hidden = true;
   if (lit === LIT) return;
   if (lit >= 0) pr.style.setProperty('--lit', String(lit));

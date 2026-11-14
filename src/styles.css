@@ -184,11 +184,12 @@ body.at-start .top-t,body.at-world .top-t{display:none}
   body.titled:not(.at-start):not(.at-world) .top:has(.logo:focus) .top-t{opacity:0;pointer-events:none}
 }
 /* Position is a row of lamps along the bar's lower edge: unlit lamps are faint, and they light in the page's kind colour
-   as far as the reader has read. Script writes how many are lit (--lit) only when that number changes, at most once a
+   as far as the reader has read. The row holds a whole number of lamps (--n, about one every --pitch), so none is cut at
+   its end. Script writes how many are lit (--lit) only when that number changes, at most once a
    frame while scrolling and never at rest. Where there is no position (the front page, Your world) the row is absent
    and the bar keeps its hairline. */
-.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/var(--pitch) 100% repeat-x}
-.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/var(--pitch) 100% repeat-x;clip-path:inset(0 calc(100% - var(--lit,0) * var(--pitch)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
+.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x}
+.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x;clip-path:inset(0 calc(100% - 100% * var(--lit,0) / var(--n,1)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
 body.at-start .prog,body.at-world .prog{display:none}
 @media (prefers-reduced-motion:reduce){ .prog::after{transition:none} }
 
