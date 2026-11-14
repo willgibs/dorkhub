@@ -115,28 +115,40 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .vz .mi-hand{fill:var(--mi-table);stroke:var(--ink);stroke-width:1.3}
 .wc[data-fx="origami"]{touch-action:pan-y}
 
-/* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines, its land stippled, its walls in
-   Plato's metals. On its turn it rises from the island outward, and the orichalcum catches the light once */
-.vz.at{--at-sea:color-mix(in srgb,var(--ink) 8%,var(--surface));--at-land:var(--surface);--at-cliff:color-mix(in srgb,var(--ink) 18%,var(--surface))}
+/* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines and darker than its land in either
+   theme, its land stippled, its banks and its three walls of metal taking the light from the upper left as round walls
+   do. Under it the city in section, to the same scale, with each ring's width in stadia. On its turn it rises from the
+   island outward, and the orichalcum catches the light once */
+.vz.at{--at-sea:color-mix(in srgb,var(--ink) 12%,var(--surface));--at-land:var(--surface);--at-cut:color-mix(in srgb,var(--ink) 24%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.at{--at-sea:#08090B;--at-land:color-mix(in srgb,var(--ink) 10%,var(--surface));--at-cut:color-mix(in srgb,var(--ink) 20%,var(--surface))}}
+:root[data-theme="dark"] .vz.at{--at-sea:#08090B;--at-land:color-mix(in srgb,var(--ink) 10%,var(--surface));--at-cut:color-mix(in srgb,var(--ink) 20%,var(--surface))}
 .vz .at-water{fill:var(--at-sea);stroke:none}
-.vz .at-wave{fill:none;stroke:var(--ink);stroke-opacity:.22;stroke-width:.55}
-.vz .at-top{fill:var(--at-land);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-cliff{fill:var(--at-cliff);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-stip{fill:none;stroke:var(--ink);stroke-opacity:.34;stroke-width:1.1;stroke-linecap:round}
-.vz .at-plain{stroke-opacity:.18}
-.vz .at-track{fill:none;stroke:var(--ink);stroke-opacity:.35;stroke-width:.7}
-.vz .at-canal{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-shore{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-wave{fill:none;stroke:var(--ink);stroke-opacity:.3;stroke-width:.55}
+.vz :is(.at-top,.at-bridge){fill:var(--at-land);stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-cliff{stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-gb stop{stop-color:color-mix(in srgb,var(--ink) 26%,var(--surface))}
+.vz .at-gb stop:nth-child(2){stop-color:color-mix(in srgb,var(--ink) 9%,var(--surface))}
+.vz .at-gb stop:last-child{stop-color:color-mix(in srgb,var(--ink) 38%,var(--surface))}
+.vz .at-stip{fill:none;stroke:var(--ink);stroke-opacity:.36;stroke-width:1.1;stroke-linecap:round}
+.vz .at-plain{stroke-opacity:.2}
+.vz :is(.at-track,.at-canal,.at-shore){fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-track{stroke-opacity:.36}
 .vz .at-wall{stroke:none}
-.vz .at-rim{fill:none;stroke-width:1.2}
-.vz .at-brass{fill:#A07A40}.vz .at-brass-l{stroke:#C99B57}
-.vz .at-tin{fill:#8C949E}.vz .at-tin-l{stroke:#B9C1CA}
-.vz .at-ori{fill:#B5492A}.vz .at-ori-l{stroke:#E8774E}
+.vz .at-brass{--m:#AC8440}.vz .at-tin{--m:#949CA6}.vz .at-ori{--m:#C24D2A}
+.vz .at-gm stop{stop-color:color-mix(in srgb,var(--m) 74%,#000)}
+.vz .at-gm stop:nth-child(2){stop-color:color-mix(in srgb,var(--m) 56%,#fff)}
+.vz .at-gm stop:last-child{stop-color:color-mix(in srgb,var(--m) 58%,#000)}
+.vz .at-rim{fill:none;stroke:color-mix(in srgb,var(--m) 72%,#fff);stroke-width:1.2}
 .vz .at-glint{fill:none;stroke:#FFE6CF;stroke-width:2.4;stroke-dasharray:.14 .86;opacity:0}
 .vz .at-temple{fill:var(--ink);fill-opacity:.85}
 .vz .at-temple-top{fill:var(--ink);fill-opacity:.55}
+.vz .at-rule{stroke:var(--line-2)}
+.vz .at-cut{fill:var(--at-cut);stroke:var(--ink);stroke-opacity:.55;stroke-width:.7;stroke-linejoin:round}
+.vz .at-level{fill:none;stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-sw{fill:none;stroke:var(--m);stroke-width:1.8}
+.vz .at-num{font-size:9.5px;letter-spacing:0;fill:var(--mute)}
 .vz .at-src{font-size:9.5px;letter-spacing:.06em}
-.vz .at-lv{transform-box:view-box;transform-origin:182px 190px}
+.vz .at-lv{transform-box:view-box;transform-origin:182px 170px}
 .wc.armed:not(.seen) .at-lv{opacity:0}
 .wc.armed:not(.seen) .at-l0{opacity:1}
 .wc.armed.seen .at-lv{animation:atrise .7s var(--ease-out) both}
