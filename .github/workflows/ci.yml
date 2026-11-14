@@ -1,10 +1,21 @@
-# The green gate, run by a machine: build + types + tests on every push and pull request, then the
-# reader's whole walk in Chromium. Nothing here deploys; Vercel does that from main.
+# The green gate, run by a machine: build + types + tests, then the reader's whole walk in Chromium.
+# Nothing here deploys; Vercel does that from main (and skips a push that changes nothing deployed:
+# scripts/skip-build.mjs).
+#
+# What runs when, so that nothing runs twice or for nothing:
+# - A pull request: both jobs, on the branch merged with main. This is the gate before a merge.
+# - A push to main: the tests always. The walk only for a direct push: a merged pull request was walked
+#   already, as that same merge, so its push to main does not walk again.
+# - Records alone (docs/, Markdown at the root): nothing. They change no behaviour.
+# - By hand, from the Actions tab: both jobs, on any branch.
 name: ci
 on:
   push:
     branches: [main]
+    paths-ignore: ['docs/**', '*.md']
   pull_request:
+    paths-ignore: ['docs/**', '*.md']
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
@@ -23,6 +34,7 @@ jobs:
       - run: npm ci
       - run: npm run verify
   e2e:
+    if: ${{ github.event_name != 'push' || !startsWith(github.event.head_commit.message, 'Merge pull request') }}
     # Pinned: the installed Playwright ships browsers for this release, not yet for the newest one.
     runs-on: ubuntu-24.04
     timeout-minutes: 20
@@ -33,6 +45,13 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      # Chromium is about 170 MB to fetch: keep it between runs, keyed by the Playwright that needs it.
+      - id: pw
+        run: echo "version=$(node -p "require('./node_modules/playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
       - run: npx playwright install --with-deps chromium
       # The walk gets one more try before it counts as a failure, and says so when it needed it: a
       # second try that passes is a flaky check to find, not a pass to forget.
