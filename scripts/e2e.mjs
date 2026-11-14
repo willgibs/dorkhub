@@ -242,6 +242,17 @@ async function run(page, { mobile = false } = {}) {
     await page.screenshot({ path: `${shots}/${tag}-1f-written.png` });
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
+  /* a move runs both ways: Back from a card's page is the front page again, scrolled where the reader left it, and
+     nothing that travelled home still carries a view-transition name */
+  await step(`${tag}: back from a card's page returns to the front page, where you were`, async () => {
+    const card = page.locator('.wc[data-card="black-holes"] .wc-t a'); await card.waitFor();
+    await page.evaluate(() => document.querySelector('.wc[data-card="black-holes"]')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(400);
+    const y = await page.evaluate(() => Math.round(scrollY));
+    await card.click(); await page.waitForFunction(() => location.pathname === '/black-holes'); await waitDone();
+    await page.goBack(); await page.waitForFunction(() => location.pathname === '/'); await page.waitForSelector('.wc[data-card="black-holes"]'); await page.waitForTimeout(900);
+    const p = await page.evaluate(() => ({ y: Math.round(scrollY), named: [...document.querySelectorAll('body *')].map(el => getComputedStyle(el).viewTransitionName).filter(n => n && !['none', 'topbar', 'sidebar'].includes(n)) }));
+    if (Math.abs(p.y - y) > 4 || p.named.length) throw new Error(`back on the front page: ${JSON.stringify({ was: y, ...p })}`);
+  });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
   await step(`${tag}: the dice opens a pre-written topic that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
