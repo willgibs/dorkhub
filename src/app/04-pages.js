@@ -55,12 +55,39 @@ export function linksFrom(A, p) {
 /* a page transition needs frames to run in; a page in a hidden tab just changes */
 export const canVT = () => typeof document.startViewTransition === 'function' && !reducedMotion() && document.visibilityState === 'visible';
 export let HERO = false, PLATE = false;
-export function clearHero() { HERO = PLATE = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); due('update'); due('finish'); }
-/* what a move leaves to do: on 'update', once the old view has been captured (the new one is being made); on 'finish',
-   once it has landed, or was skipped. A map's name in flight uses these (11-graph.js lift). */
-const DUE = { update: [], finish: [] };
-export const onMove = (when, fn) => { DUE[when].push(fn); };
-export function due(when) { for (const fn of DUE[when].splice(0)) { try { fn(); } catch (e) { /* the rest still run */ } } }
+/* A move names what travels and clears only what it named, so a move begun while another is still running (a second
+   Back mid-flight) keeps its own names. A move is prepared (the old view's names, before its transition starts), then
+   made (inside the transition's update: the new view's names; HERO and PLATE say what the move carries), then ends
+   (landed, or skipped). It also holds what is left to do on 'update', once the old view has been captured, and on
+   'finish', once it has ended: a map's name in flight uses these (11-graph.js lift). */
+/** @typedef {{ els: [HTMLElement, string][], update: (() => void)[], finish: (() => void)[], hero: boolean, plate: boolean }} Move */
+/** @type {Move | null} */ let PREP = null; /** @type {Move | null} */ let MOVE = null;
+/** the move being prepared @returns {Move} */
+export const prepMove = () => (PREP = PREP || { els: [], update: [], finish: [], hero: false, plate: false });
+/** the move being made, inside its update; outside one, the move being prepared */
+export const curMove = () => MOVE || prepMove();
+/** @param {Move} m */
+function startMove(m) { if (PREP === m) PREP = null; MOVE = m; HERO = m.hero; PLATE = m.plate; due(m, 'update'); }
+/* the move that named an element last owns it: an earlier move that ends later leaves it be */
+const OWNER = new WeakMap();
+/** @param {Move} m @param {HTMLElement} el @param {string} name */
+export function nameFor(m, el, name) { el.style.viewTransitionName = name; m.els.push([el, name]); OWNER.set(el, m); }
+/** @param {Move} m @param {'update' | 'finish'} when @param {() => void} fn */
+export const onMove = (m, when, fn) => { m[when].push(fn); };
+/** @param {Move} m @param {'update' | 'finish'} when */
+function due(m, when) { for (const fn of m[when].splice(0)) { try { fn(); } catch (e) { /* the rest still run */ } } }
+/** @param {Move | null} m */
+export function endMove(m) {
+  if (!m) return; if (PREP === m) PREP = null;
+  for (const [el, name] of m.els.splice(0)) if (OWNER.get(el) === m && el.style.viewTransitionName === name) { el.style.viewTransitionName = ''; OWNER.delete(el); }
+  due(m, 'update'); due(m, 'finish');
+  if (MOVE === m) { MOVE = null; HERO = PLATE = false; }
+}
+/** runs a prepared move as a view transition; run makes the new view @param {Move} m @param {() => any} run */
+export function startTransition(m, run) {
+  try { const t = document.startViewTransition(() => { startMove(m); return run(); }); quiet(t); t.finished.finally(() => endMove(m)).catch(() => {}); }
+  catch (e) { startMove(m); run(); endMove(m); }
+}
 /* what travels is one box the reader can see: a link broken over two lines is two boxes, and can't travel as one */
 export const inView = el => { if (!el || !el.isConnected) return false; const r = el.getClientRects(); if (r.length !== 1) return false; const b = r[0]; return b.width > 0 && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth; };
 /* where a view stands in this visit's history, so Back and Forward can tell themselves apart (16-router.js) */
@@ -69,11 +96,12 @@ export let STEP = null;
 export const setSTEP = v => (STEP = v);
 /* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate */
 export function go(url, { src = null, plate = null, replace = false } = {}) {
-  const run = () => { due('update'); if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : (STEP ?? 0) + 1 }, '', url); } route(); };
-  if (!canVT()) { run(); return; }
-  if (src && inView(src)) { src.style.viewTransitionName = 'hero'; HERO = true; }
-  if (plate && plate.isConnected) { plate.style.viewTransitionName = 'plate'; PLATE = true; }
-  try { const t = document.startViewTransition(run); quiet(t); t.finished.finally(clearHero).catch(() => {}); } catch (e) { clearHero(); run(); }
+  const m = prepMove();
+  const run = () => { if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : (STEP ?? 0) + 1 }, '', url); } route(); };
+  if (!canVT()) { startMove(m); run(); endMove(m); return; }
+  if (src && inView(src)) { nameFor(m, src, 'hero'); m.hero = true; }
+  if (plate && plate.isConnected) { nameFor(m, plate, 'plate'); m.plate = true; }
+  startTransition(m, run);
 }
 /* a transition that is skipped (a hidden tab, a second click mid-flight) is fine: the page still changes */
 export const quiet = t => { for (const k of ['ready', 'updateCallbackDone', 'finished']) if (t && t[k]) t[k].catch(() => {}); return t; };
@@ -88,7 +116,7 @@ export function openTopic(target, { via = 'link', src = null, plate = null, hint
   const from = via === 'start' ? null : CUR || null;
   const req = { title: bridge ? cleanTitle(target || `${bridge[0]} and ${bridge[1]}`) : title, lens: LENSES[lens] ? lens : store.settings.lens, q: !bridge && (q == null ? asksQuestion(title) : !!q), ctx: bridge ? '' : cleanTitle(ctx), bridge: bridge ? bridge.map(cleanTitle) : null };
   const p = ensurePage(req, hint || hintFor(pageOf(from), title));
-  if (p.id === CUR) { clearHero(); return; }
+  if (p.id === CUR) { endMove(PREP); return; }
   addStep(store.trails, p.id, { from, via });
   p.last = Date.now(); OPENED.add(p.id); save();
   go(routeOf(req), { src, plate });

@@ -10,7 +10,7 @@ import { addStep, pageId, parseRoute, routeOf, topicKey } from '../shared/world.
 import { LENSES } from './01-data.js';
 import { $, $$, esc, isLeaving, leave, save, settle, shut, stay, store, toast, tokenMs, write } from './02-util.js';
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
-import { ACTIVE, CUR, HERO, OPENED, PLATE, STEP, canVT, cleanTitle, clearHero, curPage, curTrail, due, ensurePage, go, inView, openTopic, pageInput, pageOf, quiet, setCUR, setSTEP, trailPages } from './04-pages.js';
+import { ACTIVE, CUR, HERO, OPENED, PLATE, STEP, canVT, cleanTitle, curMove, curPage, curTrail, ensurePage, go, inView, nameFor, openTopic, pageInput, pageOf, prepMove, setCUR, startTransition, setSTEP, trailPages } from './04-pages.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
 import { doubtPage, stateBodyHTML, stateOf, toggleSave } from './06-page-end.js';
@@ -47,7 +47,7 @@ export function route() {
   else if (r.view === 'world') {
     const from = curPage(); setView('world'); setCUR(''); document.documentElement.dataset.accent = 'concept'; showWorld(); window.scrollTo(0, 0); renderWorldBtn(); updateProg();
     /* the page's title, sent from the bar's Your world button, lands on its topic */
-    if (HERO) { const el = from && landing(from); if (el && inView(el)) el.style.viewTransitionName = 'hero'; }
+    if (HERO) { const el = from && landing(from); if (el && inView(el)) nameFor(curMove(), el, 'hero'); }
   }
   else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
   setSTEP(history.state && history.state.n != null ? history.state.n : null);
@@ -98,20 +98,20 @@ function travel() {
   const world = (VIEW === 'world' && r.view === 'page') || (VIEW === 'page' && r.view === 'world' && !!leaving);
   let out = !known ? null : back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(r.input.title) : null);
   if (world && known) { const to = VIEW === 'world' ? pageAt(r) : null; out = to ? { hero: WORLD && WORLD.lift(nodeKeyOf(to)) } : VIEW === 'page' ? ownEnd() : null; }
-  const named = [];
-  if (out) for (const n of ['hero', 'plate']) { const el = out[n]; if (el && inView(el) && (n === 'hero' || (back ? r.view === 'home' : VIEW === 'home'))) { el.style.viewTransitionName = n; named.push(n); } }
+  const m = prepMove(); const named = [];
+  if (out) for (const n of ['hero', 'plate']) { const el = out[n]; if (el && inView(el) && (n === 'hero' || (back ? r.view === 'home' : VIEW === 'home'))) { nameFor(m, el, n); named.push(n); } }
   const land = () => {
     const into = world ? (VIEW === 'page' ? ownEnd() : leaving ? { hero: landing(leaving) } : null) : back ? (leaving ? sourceOf(leaving.req.title) : null) : (VIEW === 'page' ? ownEnd() : null);
-    for (const n of named) { const el = into && into[n]; if (el && inView(el)) { el.style.viewTransitionName = n; if (n === 'hero') el.classList.remove('enter'); } }
+    for (const n of named) { const el = into && into[n]; if (el && inView(el)) { nameFor(m, el, n); if (n === 'hero') el.classList.remove('enter'); } }
   };
   const run = () => {
-    due('update'); route();
+    route();
     if (!named.length) return undefined;
     /* the front page's cards are made a moment after it is: wait for them, but never longer than the old view takes to leave */
     if (VIEW === 'home') return Promise.race([frontShown(), new Promise(ok => setTimeout(ok, tokenMs('--d-quick')))]).then(land);
     land(); return undefined;
   };
-  try { const t = document.startViewTransition(run); quiet(t); t.finished.finally(clearHero).catch(() => {}); } catch (e) { clearHero(); route(); }
+  startTransition(m, run);
 }
 const fromHere = () => { try { return !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) { return false; } };
 function showPage(input) {
@@ -127,8 +127,8 @@ function showPage(input) {
      clicked words faded where they were while the title rose on its own), and arrives whole, without rising as well;
      the card arrives as the plate, box and drawing together (naming only the drawing left the box to fade in with the
      page, a second picture under the travelling one) */
-  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); t.style.viewTransitionName = 'hero'; } }
-  if (PLATE) { const w = $('.a-plate'); if (w) w.style.viewTransitionName = 'plate'; }
+  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); nameFor(curMove(), t, 'hero'); } }
+  if (PLATE) { const w = $('.a-plate'); if (w) nameFor(curMove(), w, 'plate'); }
   window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); syncTopTitle();
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */

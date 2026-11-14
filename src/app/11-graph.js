@@ -8,7 +8,7 @@
    (11-graph-picture.js). This file holds the data, the loop and the map's life. */
 import { boundsOf, createSim, isHot, tick } from '../shared/graph.js';
 import { reducedMotion, save, store } from './02-util.js';
-import { onMove } from './04-pages.js';
+import { curMove, onMove, prepMove } from './04-pages.js';
 import { afterFlight, frameView, flyTo, isShown, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
 import { hideTip, listenCard, showTip } from './11-graph-card.js';
 import { listenPointer } from './11-graph-input.js';
@@ -104,8 +104,10 @@ export function lift(S, key, { land = false } = {}) {
   const stand = el === tipped ? null : el;
   /* the old view is captured once the move starts: what left it is done with (and a map that stays, beside a page,
      must not hold a second element of the same name); a landing name stays until the move has landed */
-  if (!land) onMove('update', () => { if (stand) stand.remove(); else if (tipped) { tipped.style.viewTransitionName = ''; S.tip.hidden = true; } });
-  onMove('finish', () => { if (stand) stand.remove(); if (S.lift && S.lift.key === key) S.lift = null; const m = S.g.nodes.find(x => x.key === key); if (land && m) m.fx = m.fy = null; wake(S); });
+  /* a leaving name belongs to the move being prepared; a landing one to the move being made */
+  const m = land ? curMove() : prepMove();
+  if (!land) onMove(m, 'update', () => { if (stand) stand.remove(); else if (tipped) { tipped.style.viewTransitionName = ''; S.tip.hidden = true; } });
+  onMove(m, 'finish', () => { if (stand) stand.remove(); if (S.lift && S.lift.key === key) S.lift = null; const m = S.g.nodes.find(x => x.key === key); if (land && m) m.fx = m.fy = null; wake(S); });
   return el;
 }
 /* what a map of your world says it is: its counts, and how to move on it */
