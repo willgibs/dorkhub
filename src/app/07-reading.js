@@ -9,15 +9,20 @@ import { peek, unfold } from './06-page-end.js';
 import { narrow } from './10-tools.js';
 import { VIEW } from './16-router.js';
 /* How many lamps are lit, as last written: the row is written only when that number changes, so scrolling costs at most
-   one write a frame and a page at rest costs nothing. -1 is no position at all (the row is hidden). The row holds a whole
-   number of lamps (--n): as many as fit at the stylesheet's pitch, read once, which flexes a little so the last lamp is
-   never cut; that is written only when the row's width changes. */
+   one write a frame and a page at rest costs nothing. -1 is no position at all: the row is hidden, as it is on a page
+   too short to scroll. The row holds a whole number of lamps (--n): as many as fit at the stylesheet's pitch, read once,
+   which flexes a little so the last lamp is never cut; that is written only when the row's width changes. */
 let LIT = -2, N = 0, PITCH = 0;
 export function updateProg() {
   const pr = $('#prog'); const sec = CUR && secFor(CUR); let lit = -1;
-  if (sec) {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  if (sec && max > 0) {
     if (pr.hidden) pr.hidden = false;
-    const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
+    /* The reading line travels from the top of the viewport to its bottom as the document scrolls from start to end, so
+       nothing is lit at the top, every lamp is lit at the end, and the row never goes back while the reader goes down.
+       Where it stands against the page's own section is how far the reader is. */
+    const y = Math.min(scrollY, max), line = y + (y >= max - 1 ? 1 : y / max) * innerHeight;
+    const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (line - (r.top + scrollY)) / Math.max(1, r.height)));
     PITCH = PITCH || parseFloat(getComputedStyle(pr).getPropertyValue('--pitch')) || 6;
     const n = Math.max(1, Math.round(pr.getBoundingClientRect().width / PITCH));
     if (n !== N) { pr.style.setProperty('--n', String(n)); N = n; }
