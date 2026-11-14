@@ -179,7 +179,12 @@ export function tapPara(t) {
 
 /* ================= selection → a new page, in the sense it had here ================= */
 let digSel; let selInfo = null;
-export function hideSel() { digSel.hidden = true; selInfo = null; }
+/* the selection's button is a raised surface: it arrives as one does and leaves the way it came (what opens, closes);
+   a move to another view clears it at once */
+export function hideSel(now = false) {
+  selInfo = null; if (digSel.hidden) return;
+  if (now) { settle(digSel); digSel.hidden = true; } else leave(digSel, () => { digSel.hidden = true; });
+}
 function checkSel() {
   const sel = getSelection(); if (!sel || sel.isCollapsed || !CUR) return hideSel();
   const txt = sel.toString().replace(/\s+/g, ' ').trim();
@@ -187,9 +192,11 @@ function checkSel() {
   const body = a && a.closest('.a-body');
   if (txt.length < 3 || txt.length > 90 || !body) return hideSel();
   const r = sel.getRangeAt(0).getBoundingClientRect(); if (!r.width) return hideSel();
-  selInfo = { txt };
+  selInfo = { txt }; stay(digSel);
   digSel.textContent = `Open a page on “${clip(txt, 32)}”`; digSel.hidden = false;
-  digSel.style.left = `${Math.min(innerWidth - 120, Math.max(120, r.left + r.width / 2)) + scrollX}px`;
+  /* centred over the selection, and whole on the screen however long the selection's longest word */
+  const w = digSel.offsetWidth;
+  digSel.style.left = `${Math.max(8, Math.min(innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + scrollX}px`;
   digSel.style.top = `${r.top + scrollY - 50}px`;
 }
 export let selT = 0;

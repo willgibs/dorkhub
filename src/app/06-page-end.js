@@ -128,8 +128,21 @@ export function stateOf(p) {
   return { code, label: STATE_LABEL[code] || 'Didn’t come through', deck: p.error || errText(code), readings: key ? keyReadings() : trial, acts: key ? [{ act: 'keys', label: 'Open Keys', ink: true }, { act: 'retry', label: 'Try again' }] : [{ act: 'retry', label: 'Try again', ink: true }] };
 }
 export const actsHTML = acts => `<div class="st-a">${acts.map(a => a.href ? `<a class="btn${a.ink ? ' glow' : ' ghost'}" href="${esc(a.href)}">${esc(a.label)}</a>` : `<button class="btn${a.ink ? ' glow' : ' ghost'}" type="button" data-act="${a.act}">${esc(a.label)}</button>`).join('')}</div>`;
-/* out of free quick tools, a tool that answered with that says so in its own place, with the way past it beside it */
-export const toolsOver = (text, status = 'error') => (status === 'error' && text === errText('tools_over') ? actsHTML([{ act: 'keys', label: 'Add a key' }]) : '');
+/* ================= a quick tool that didn't come through =================
+   Peek, expand, skeptic mode, around this, the quiz and the recap each say so in their own place, as a state does: the
+   state named in small capitals, one sentence of what is true, readings of what the app knows (in a sheet, which has the
+   room), and the way past it. A tool keeps only the sentence it was given, so its code is read back from that. */
+const TOOL_CODES = ['tools_over', 'trial_over', 'trial_paused', 'bad_key', 'key_limit', 'model_unavailable', 'rate_limited', 'too_large', 'refused', 'offline', 'bad_output', 'upstream_error', 'dropped'];
+/* the code behind a sentence a tool was given, or '' when it was an answer rather than a failure */
+export const codeOf = (/** @type {string} */ text) => TOOL_CODES.find(c => errText(c) === text) || '';
+/** @param {string} code @param {{ full?: boolean, retry?: string }} [o] full: with readings; retry: the act that asks again */
+export function toolStateHTML(code, { full = false, retry = '' } = {}) {
+  const over = code === 'tools_over' || code === 'trial_over', key = KEY_FIX.includes(code);
+  const label = code === 'tools_over' ? 'Out of free quick tools' : STATE_LABEL[code] || 'Didn’t come through';
+  /** @type {Reading[]} */ const readings = !full ? [] : code === 'tools_over' ? [['Free quick tools left', 'None'], ['Free pages left', leftOf()], ['With a key', `From about ${cents(cheapest())} a page`]] : key ? keyReadings() : [];
+  const acts = over ? [{ act: 'keys', label: 'Add a key', ink: true }] : key ? [{ act: 'keys', label: 'Open Keys', ink: true }] : retry ? [{ act: retry, label: 'Try again', ink: true }] : [];
+  return `<div class="tstate" data-state="${esc(code)}"><p class="lbl">${esc(label)}</p><p class="st-say">${esc(errText(code))}</p>${readings.length ? `<dl class="readings">${readingsHTML(readings)}</dl>` : ''}${acts.length ? actsHTML(acts) : ''}</div>`;
+}
 /* the ways on: the end's cards (kind, title, hook), each opening a page written ahead of time, free and at once */
 /** @param {{ t: string, k?: string, h?: string }[]} doors */
 export function waysOf(doors) {
@@ -209,10 +222,13 @@ export function toggleSave(p) {
 export function paintDoubt(p, sec) {
   const el = $('.a-doubt', sec); if (!el) return;
   if (!p.doubts) { setHTML(el, ''); return; }
-  if (p.doubts === 'loading') { setHTML(el, `<div class="doubt enter"><h2>Skeptic mode</h2><p class="digging">${waitHTML('searching', 'Reading this page with a raised eyebrow')}</p></div>`); return; }
-  if (typeof p.doubts === 'string') { setHTML(el, `<div class="doubt"><h2>Skeptic mode</h2><p>${esc(p.doubts)}</p>${toolsOver(p.doubts)}</div>`); return; }
+  /* skeptic mode is one of the page's sections, as the end's are: its name on a rule, then its readings, each claim
+     rated where a reading's name goes */
+  const head = `<h2 class="eh">Skeptic mode</h2>`;
+  if (p.doubts === 'loading') { setHTML(el, `<section class="doubt enter">${head}<p class="digging">${waitHTML('searching', 'Reading this page with a raised eyebrow')}</p></section>`); return; }
+  if (typeof p.doubts === 'string') { const code = codeOf(p.doubts); setHTML(el, `<section class="doubt">${head}${code ? toolStateHTML(code, { retry: 'doubt' }) : `<p class="st-say">${esc(p.doubts)}</p>`}</section>`); return; }
   const label = { solid: 'Solid', check: 'Check', shaky: 'Shaky' };
-  const h = `<div class="doubt"><h2>Skeptic mode</h2><p>The claims on this page most worth verifying before you repeat them, highlighted in the text above.</p><ol>${p.doubts.map(d => `<li><span class="r ${d.rating}">${label[d.rating]}</span><q>${esc(d.quote)}</q><p>${esc(d.note)}</p></li>`).join('')}</ol></div>`;
+  const h = `<section class="doubt">${head}<p class="st-say">The claims on this page most worth verifying before you repeat them, marked in the text above.</p><dl class="readings dq-r">${p.doubts.map(d => `<div data-r="${d.rating}"><dt>${label[d.rating]}</dt><dd><q>${esc(d.quote)}</q><span>${esc(d.note)}</span></dd></div>`).join('')}</dl></section>`;
   if (el._h === h && $('mark.dq', sec)) return; setHTML(el, h);
   const body = $('.a-body', sec);
   for (const d of p.doubts) {

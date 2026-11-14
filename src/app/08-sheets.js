@@ -1,10 +1,11 @@
 import { capFirst, cardsOf, clip, keyOf, panelLines, parseArticle, plain } from '../shared/article.js';
 import { routeOf, topicKey } from '../shared/world.js';
 import { kattr } from './01-data.js';
-import { $, errText, esc, relTime, save, toast, write } from './02-util.js';
+import { $, esc, relTime, save, toast, write } from './02-util.js';
 import { waitHTML } from './03-orbs.js';
 import { curTrail, pageOf, parsed, trailPages } from './04-pages.js';
 import { fmt } from './05-render.js';
+import { toolStateHTML } from './06-page-end.js';
 
 export let sheet;
 /* Opening a sheet replaces whatever was in it, so anything still being written for the old one stops. */
@@ -20,7 +21,7 @@ function viaLine(step) {
 }
 function trailHTML(t) {
   const steps = t.steps.filter(s => pageOf(s[0]));
-  return `<p class="tr-sum">${steps.length} step${steps.length === 1 ? '' : 's'}, from ${esc(relTime(steps[0][1]))}.</p><ol class="trail-list">${steps.map((s, i) => { const p = pageOf(s[0]); return `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}><span class="tl-n">${i + 1}</span><b>${esc(p.title)}</b><span>${viaLine(s)}</span></a></li>`; }).join('')}</ol>`;
+  return `<p class="lbl tr-sum">${steps.length} step${steps.length === 1 ? '' : 's'}, from ${esc(relTime(steps[0][1]))}</p><ol class="trail-list">${steps.map((s, i) => { const p = pageOf(s[0]); return `<li><a href="${esc(routeOf(p.req))}" data-goto="${esc(p.id)}"${kattr(p.kind || (p.hint && p.hint.kind))}><span class="lbl tl-n">${i + 1}</span><b><i class="kdot3" aria-hidden="true"></i>${esc(p.title)}</b><span>${viaLine(s)}</span></a></li>`; }).join('')}</ol>`;
 }
 export function trailSheet(t = curTrail()) {
   if (!t || !t.steps.length) { toast('Your trail starts with your first page.'); return; }
@@ -57,7 +58,7 @@ export async function recapTrail(fresh) {
     const said = p => { const A = parsed(p); return clip([...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
     const { text } = await write('recap', { pages: done.slice(-12).map(p => ({ title: p.title, deck: p.deck ? clip(p.deck, 400) : '', text: said(p) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = notesHTML(text); } });
     t.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', notesHTML(text), notesFoot());
-  } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
+  } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = toolStateHTML(e?.code || 'dropped', { full: true, retry: 'renotes' }); }
 }
 
 /* ================= export: the trail you're on, as Markdown ================= */

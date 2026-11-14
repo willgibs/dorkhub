@@ -7,11 +7,12 @@ import { $, $$, afterMotion, announce, errText, esc, leave, reducedMotion, save,
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
-import { paintDoubt, paintEnd, paintTools, readingsHTML, stateOf, toolsOver } from './06-page-end.js';
+import { codeOf, paintDoubt, paintEnd, paintTools, readingsHTML, stateOf, toolStateHTML } from './06-page-end.js';
 import { renderSide } from './10-tools.js';
 import { worldGrew } from './11-world.js';
 import { renderWorldBtn, syncFab } from './12-chrome.js';
 import { plateSlotHTML } from './13-landing.js';
+import { tipAttrs } from './14-map-tips.js';
 import { GUARD, VIEW, guardHTML } from './16-router.js';
 export let WV = 0;                       // bumps whenever a page finishes, is saved or leaves
 let WIDX = null;
@@ -150,7 +151,7 @@ export function patch(container, items, animate = true) {
   for (const it of items) {
     let el = existing.get(it.k);
     if (!el) { el = document.createElement(it.tag || 'div'); el.dataset.k = it.k; el.className = ((it.cls || '') + (animate && !reducedMotion() ? ' enter' : '')).trim(); }
-    else { existing.delete(it.k); const want = ((it.cls || '') + (el.classList.contains('enter') ? ' enter' : '')).trim(); if (el.className !== want) el.className = want; }
+    else { existing.delete(it.k); const want = ((it.cls || '') + (el.classList.contains('enter') ? ' enter' : '') + (el.classList.contains('leaving') ? ' leaving' : '')).trim(); if (el.className !== want) el.className = want; }
     if (it.role && el.getAttribute('role') !== it.role) el.setAttribute('role', it.role);
     if (it.attrs) for (const [a, v] of Object.entries(it.attrs)) if (el.getAttribute(a) !== v) el.setAttribute(a, v);
     if (it.fill) it.fill(el); else if (it.ink != null) inkHTML(el, it.html, it.ink); else setHTML(el, it.html);
@@ -386,12 +387,17 @@ function noteItem(n, p, j) {
   const known = [...n.s.matchAll(/\[\[([^\]]+)\]\]/g)].some(m => { const k = topicKey(splitLink(m[1])[1]); return k !== nodeKeyOf(p) && worldIndex().read.has(k); });
   return { k: 'n' + j, tag: 'aside', cls: 'mnote' + (known ? ' cb' : ''), html: `${known ? `<span class="ml" data-tip="Links to a topic you’ve read">${ic('loop')}</span>` : ''}${inline(n.s, p)}` };
 }
+/* a paragraph's expansion or a peek opens under it as one of the page's sections does: its name in small capitals on a
+   rule, with a bare close at the rule's end; a peek names its topic as a card does, then the text, then the way on. One
+   that didn't come through says so there, as a state (toolStateHTML). */
+const xpHead = (label, close) => `<p class="xp-h"><span class="lbl">${label}</span><button class="tool ib xp-x" type="button" ${close}${tipAttrs('Close')}>${ic('x')}</button></p>`;
+const xpBody = (h, node, wait) => h.status === 'error' ? toolStateHTML(codeOf(h.text)) : `<div class="xp-b">${h.text ? inline(h.text, node) : `<span class="digging">${wait}</span>`}</div>`;
 function extrasItems(node, i) {
   const items = [];
   const u = node.unfolds && node.unfolds[i];
-  if (u) items.push({ k: 'u', cls: 'xp', html: `<p class="xp-h"><span>${UF_LABEL[u.mode]}</span><button type="button" data-fold="${i}" aria-label="Close">×</button></p><div>${u.text ? inline(u.text, node) : `<span class="digging">${waitHTML('composing', 'Expanding')}</span>`}</div>${toolsOver(u.text, u.status)}` });
+  if (u) items.push({ k: 'u', cls: 'xp', html: `${xpHead(esc(UF_LABEL[u.mode]), `data-fold="${i}"`)}${xpBody(u, node, waitHTML('composing', 'Expanding'))}` });
   (node.peeks || []).filter(p => p.after === i && p.open !== false).forEach(p => {
-    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `<p class="xp-h"><span>Peek</span><b>${esc(p.target)}</b><button type="button" data-peek-close="${esc(p.key)}" aria-label="Close">×</button></p><div>${p.text ? inline(p.text, node) : `<span class="digging">${waitHTML('searching', 'Taking a look')}</span>`}</div>${toolsOver(p.text, p.status)}${p.status === 'done' ? `<button class="xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))} →</button>` : ''}` });
+    items.push({ k: 'pk-' + p.key, cls: 'xp', html: `${xpHead('Peek', `data-peek-close="${esc(p.key)}"`)}<p class="xp-t">${esc(p.target)}</p>${xpBody(p, node, waitHTML('searching', 'Taking a look'))}${p.status === 'done' ? `<button class="btn ghost xp-go" type="button" data-peek-dig="${esc(p.target)}">Open the full page on ${esc(clip(p.target, 34))}</button>` : ''}` });
   });
   return items;
 }

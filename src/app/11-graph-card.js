@@ -4,7 +4,7 @@
 import { clip, plain } from '../shared/article.js';
 import { addStep, routeOf } from '../shared/world.js';
 import { kattr } from './01-data.js';
-import { esc, relTime, save, store } from './02-util.js';
+import { esc, leave, relTime, save, stay, store } from './02-util.js';
 import { CUR, go, openTopic, pageOf } from './04-pages.js';
 import { kg, radius, setFocus, toScreen } from './11-graph-camera.js';
 
@@ -17,12 +17,13 @@ export function showTip(S, i, actions) {
   const status = describe ? describe(n) : n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;
   const links = near.length ? `${n.read ? 'Links to' : 'Linked from'} ${near.slice(0, 2).map(t => `<b>${esc(clip(t, 26))}</b>`).join(' and ')}${near.length > 2 ? ` and ${near.length - 2} more` : ''}` : '';
   tip.innerHTML = `<p class="gt-k lbl"><span class="kind"${kattr(n.kind)}>${esc(n.kind || 'topic')}</span><span>${esc(status)}</span></p><p class="gt-t">${esc(n.title)}</p>${lead ? `<p class="gt-h">${esc(clip(lead, 140))}</p>` : ''}${links ? `<p class="gt-l">${links}</p>` : ''}${actions ? `<div class="gt-a"><button class="btn glow" type="button" data-gv="open">${n.read && !open ? 'Go there' : 'Open page'}</button>${mini || still ? '' : '<button class="btn ghost" type="button" data-gv="focus">Focus</button>'}</div>` : ''}`;
-  tip.dataset.kind = kg(n); tip.hidden = false; tip.classList.toggle('act', !!actions);
+  tip.dataset.kind = kg(n); stay(tip); tip.hidden = false; tip.classList.toggle('act', !!actions);
   const tw = tip.offsetWidth, th = tip.offsetHeight; const r = radius(S, n);
   let left = x - tw / 2, top = y + r + 12; if (top + th > ch - 8) top = y - r - 12 - th;
   tip.style.left = `${Math.max(8, Math.min(cw - tw - 8, left))}px`; tip.style.top = `${Math.max(8, top)}px`;
 }
-export function hideTip(S) { S.tip.hidden = true; }
+/* the card is a raised surface: it arrives as one does, and leaves the way it came (what opens, closes) */
+export function hideTip(S) { if (!S.tip.hidden) leave(S.tip, () => { S.tip.hidden = true; }); }
 /* the card's buttons act on the selected topic */
 export function listenCard(S) {
   S.tip.addEventListener('click', e => { const b = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-gv]')); if (!b || S.sel < 0) return; const n = S.g.nodes[S.sel]; if (b.dataset.gv === 'open') openNode(S, n); else { setFocus(S, n.key); hideTip(S); } });

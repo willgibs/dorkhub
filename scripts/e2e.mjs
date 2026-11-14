@@ -481,7 +481,7 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('[data-uf="simpler"]').click();
       await page.waitForFunction(() => /mock writer/.test(document.querySelector('.xp')?.textContent || ''), null, { timeout: 15000 });
     });
-    await step(`${tag}: skeptic mode`, async () => { await page.keyboard.press('d'); await page.waitForSelector('.doubt ol li', { timeout: 15000 }); });
+    await step(`${tag}: skeptic mode`, async () => { await page.keyboard.press('d'); await page.waitForSelector('.doubt .dq-r > div', { timeout: 15000 }); });
     await step(`${tag}: around this`, async () => { await page.keyboard.press('l'); await page.waitForSelector('.land-list li', { timeout: 15000 }); await page.keyboard.press('Escape'); });
     await step(`${tag}: your trail`, async () => {
       await page.keyboard.press('t'); await page.waitForSelector('.trail-list li', { timeout: 15000 });
@@ -549,7 +549,9 @@ async function run(page, { mobile = false } = {}) {
       await page.goBack(); await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(400);
       await page.focus('#wpStage canvas'); await page.keyboard.press('ArrowRight'); await page.waitForTimeout(150);
       await page.keyboard.press('Escape');
-      if (!(await page.locator('#wpStage .gv-tip').isHidden()) || !(await onMap())) throw new Error('the first Escape lets the selection go and keeps the map');
+      /* the card leaves the way it came, so it is gone a moment after the key, not at it */
+      const gone = await page.locator('#wpStage .gv-tip').waitFor({ state: 'hidden', timeout: 3000 }).then(() => true, () => false);
+      if (!gone || !(await onMap())) throw new Error('the first Escape lets the selection go and keeps the map');
       await page.keyboard.press('Escape'); await page.keyboard.press('Tab');
       if (await onMap()) throw new Error('Escape then Tab did not leave the map');
     });

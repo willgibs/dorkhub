@@ -8,7 +8,7 @@
 import { clip, plain } from '../shared/article.js';
 import { addStep, pageId, parseRoute, routeOf } from '../shared/world.js';
 import { LENSES } from './01-data.js';
-import { $, $$, esc, isLeaving, save, settle, shut, stay, store, toast, write } from './02-util.js';
+import { $, $$, esc, isLeaving, leave, save, settle, shut, stay, store, toast, write } from './02-util.js';
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
 import { ACTIVE, CUR, HERO, OPENED, PLATE, canVT, curPage, curTrail, ensurePage, go, openTopic, pageInput, pageOf, quiet, setCUR, trailPages } from './04-pages.js';
 import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
@@ -31,7 +31,7 @@ function setView(v) {
   VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.toggle('at-trail', v === 'trail'); document.body.classList.remove('titled');
 }
 /* a route change clears everything at once: nothing that was leaving is left over the new view */
-function closeFloating() { settle(); hideSel(); hideCard(true); closePMenu(false, true); closeMenu(false, true); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
+function closeFloating() { settle(); hideSel(true); hideCard(true); closePMenu(false, true); closeMenu(false, true); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
 export function route() {
   closeFloating();
   const h = location.hash;
@@ -150,8 +150,9 @@ document.addEventListener('click', e => {
   const br = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-bridge]')); if (br) { makeBridge(br.dataset.bridge); return; }
   const gs = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-guess]'));
   if (gs) { const p = curPage(); if (p) { p.reveals = { ...p.reveals, [gs.dataset.guess]: true }; save(); paint(p, true); const sec = secFor(p.id); const ans = sec && $(`.panel [data-k="a"] .pn-a`, sec); if (ans) { ans.tabIndex = -1; ans.focus({ preventScroll: true }); } } return; }
-  const fold = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fold]')); if (fold) { const p = curPage(); if (p && p.unfolds) { delete p.unfolds[fold.dataset.fold]; save(); paint(p); } return; }
-  const pc = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-close]')); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) { x.open = false; save(); paint(p); } return; }
+  /* an expansion or a peek closes the way it opened, then leaves the page */
+  const fold = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fold]')); if (fold) { const p = curPage(); if (p && p.unfolds) leave(fold.closest('.xp'), () => { delete p.unfolds[fold.dataset.fold]; save(); paint(p); }); return; }
+  const pc = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-close]')); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) leave(pc.closest('.xp'), () => { x.open = false; save(); paint(p); }); return; }
   const pd = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-dig]')); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
   const wy = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[data-way]')); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
   const seed = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-seed]')); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
