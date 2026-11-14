@@ -10,9 +10,10 @@ import { asksQuestion, routeOf, topicKey } from '../shared/world.js';
 import { localGraph, nodeKeyOf } from '../shared/graph.js';
 import { enigma } from '../shared/enigma.js';
 import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
-import { LENSES, kattr, kindOf } from './01-data.js';
+import { KIND_LABEL, LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
+import { DEAL, lampBoard, rethemeLamps } from './03-lamps.js';
 import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { renderVoice, trialLine } from './09-start.js';
@@ -26,6 +27,8 @@ export let DOORS;
 export function surprise() {
   const shown = new Set($$('.door[data-seed]').map(b => b.dataset.seed));
   const pool = DOORS.filter(d => !shown.has(d.t));
+  /* the composer's lamps all come on: a page is asked for */
+  $('#seedBox')?.classList.add('go');
   openTopic((pool[Math.floor(Math.random() * pool.length)] || DOORS[0]).t, { via: 'start' });
 }
 export const doorHTML = d => `<button class="door" type="button" data-seed="${esc(d.t)}" data-tip="${esc(d.h)}">${esc(d.t)}</button>`;
@@ -418,6 +421,20 @@ function syncSend() {
   if (go) { b.dataset.key = '↵'; } else delete b.dataset.key;
 }
 function growSeed() { const i = $('#seedIn'); if (!i) return; i.style.height = 'auto'; i.style.height = `${Math.min(i.scrollHeight, 168)}px`; }
+/* ================= the composer is an instrument, not a glow =================
+   Its corners carry the brackets that mark the map's stage, faint at rest and drawn out when the field takes focus.
+   Its row of lamps says what the machine is doing: unlit at rest, awake while it listens, all lit as the page is
+   asked for (.cbox.go); the stylesheet does all three. Here, each key it hears flashes the next lamp along, and the
+   lamps take a kind's colour only once the kind of what is typed is known: a topic of the front page's, or one this
+   reader has read. Nothing runs while nothing happens. */
+const LAMPS = 5;
+let SEED_KINDS = null;
+function heard() {
+  const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return;
+  const l = $$('.clamps i', box)[i.value.length % LAMPS]; if (l) { l.classList.remove('hit'); void l.offsetWidth; l.classList.add('hit'); }
+  const key = topicKey(i.value), k = SEED_KINDS.get(key) || kindOf((worldIndex().read.get(key) || {}).kind);
+  if (k) box.dataset.kind = k; else delete box.dataset.kind;
+}
 /* what you typed becomes the page title: a copy of it takes the title's place in the page transition */
 export function seedMirror(v) {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return null;
@@ -440,11 +457,15 @@ function livingWord() {
   const fit = t => { m.textContent = t; return m.getBoundingClientRect().width; };
   const steps = [...LIVING.slice(1).map(([t, title]) => [t, livingKind(title)]), ['anything', '']];
   slot.style.width = `${fit(w.textContent)}px`;
+  /* the composer's lamps take each word's colour with it, while nothing is typed: this is where such a word goes */
+  const lamps = k => { const box = $('#seedBox'); if (!box || $('#seedIn').value) return; if (kindOf(k)) box.dataset.kind = kindOf(k); else delete box.dataset.kind; };
+  lamps(livingKind(LIVING[0][1]));
   /* each word holds long enough to read, steps out softly, and the line glides to the next word's width */
   steps.forEach(([t, k], i) => {
     const at = 1100 + i * 1300;
     LW_T.push(setTimeout(() => { w.classList.remove('in'); w.classList.add('out'); }, at));
     LW_T.push(setTimeout(() => {
+      lamps(k);
       w.textContent = t; if (k) w.setAttribute('data-kind', kindOf(k) || k); else w.removeAttribute('data-kind');
       slot.style.width = `${fit(t)}px`; w.classList.remove('out'); void w.offsetWidth; w.classList.add('in');
       if (i === steps.length - 1) LW_T.push(setTimeout(() => { slot.style.width = ''; slot.removeAttribute('data-live'); }, 600));
@@ -461,15 +482,16 @@ export function viewStart() {
   return `<section class="hero${intro ? ' intro' : ''}" aria-labelledby="startH">
   <h1 class="s-h rise" style="--i:0" id="startH" tabindex="-1">Learn about <span class="sr">anything</span>${livingHTML(intro)}</h1>
   <form class="composer rise" style="--i:1" id="seedForm" autocomplete="off">
-    <div class="cbox beam" id="seedBox">
+    <div class="cbox" id="seedBox">
       <textarea id="seedIn" rows="1" maxlength="160" aria-labelledby="startH" placeholder="A topic, question, or idea…" enterkeyhint="go"></textarea>
       <div class="ctools">
         <details class="voice cvoice"><summary class="ctool"${tipAttrs('Voice')}>${ic('voice')}</summary><div class="pop voice-pop"></div></details>
         <span id="seedChips">${voiceChipHTML()}</span>
+        <span class="clamps" aria-hidden="true">${Array.from({ length: LAMPS }, (_, n) => `<i style="--i:${n}"></i>`).join('')}</span>
         <button class="ckey" type="button" id="seedKey" data-act="keys">${seedKeyHTML()}</button>
         <button class="send" type="button" id="seedGo" data-mode="dice" data-act="surprise"${tipAttrs('Surprise me')}><span class="sw" data-icon="dice">${ic('dice')}</span><span class="sw" data-icon="go">${ic('send')}</span></button>
       </div>
-      <span class="beam-bloom" aria-hidden="true"></span>
+      <span class="cbk" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
     </div>
     <p class="seed-err" id="seedErr" aria-live="polite"></p>
   </form>
@@ -480,25 +502,45 @@ export function viewStart() {
   <div id="statusSlot" class="rise" style="--i:3">${trialLine()}</div>
 </section>
 ${frontShellHTML()}
-<footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p></footer>`;
+${footHTML()}`;
 }
-/* the beam only runs while someone can see it */
-let BEAM_IO = null;
-function watchBeam() {
-  const box = $('#seedBox'); if (!box || typeof IntersectionObserver !== 'function') return;
-  BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
+/* ================= the footer: the fine print, the key to the eight colours, and the wordmark set in lamps =================
+   The page ends on Dorkhub's mark, a board of lamps across its width (03-lamps.js). The lit lamps are the eight kinds'
+   colours, scattered, in the proportions of what this reader has read; a board nobody has written on yet shows every
+   kind in equal measure. The key above it names the kinds, most read first, each with its count once there is one
+   (a kind not read yet is unlit, like a lamp); pointing at one calls out its lamps. */
+let FOOT = null, FOOT_MIX = null;
+function footHTML() {
+  const mix = {}; for (const p of worldIndex().read.values()) { const k = kindOf(p.kind) || 'concept'; mix[k] = (mix[k] || 0) + 1; }
+  const mine = Object.keys(mix).length > 0; if (!mine) for (const k of DEAL) mix[k] = 1;
+  FOOT_MIX = mix;
+  const kinds = mine ? [...DEAL].sort((a, b) => (mix[b] || 0) - (mix[a] || 0)) : DEAL;
+  return `<footer class="land-foot">
+  <p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p>
+  <p class="lf-key" id="footKey"><span class="lbl">${mine ? 'What you read' : 'Eight kinds of topic'}</span>${kinds.map(k => `<span class="lk" data-lk="${k}"${mix[k] ? ` data-kind="${k}"` : ''}>${KIND_LABEL[k]}${mine && mix[k] ? ` <b>${mix[k]}</b>` : ''}</span>`).join('')}</p>
+  <div class="lf-board" id="footBoard" role="img" aria-label="dorkhub"></div>
+</footer>`;
+}
+function mountFoot() {
+  const host = $('#footBoard'), key = $('#footKey'); if (!host || !key) return;
+  if (FOOT) FOOT.destroy();
+  FOOT = lampBoard(host, { mix: FOOT_MIX, arrive: true });
+  key.addEventListener('pointerover', e => { const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-kind]')); if (FOOT) FOOT.only(k ? k.dataset.lk : ''); });
+  key.addEventListener('pointerleave', () => { if (FOOT) FOOT.only(''); });
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-/* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves) */
-export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); }
-export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+export function startLanding() { livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+/* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
+   so does every board of lamps on screen */
+export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }
+export function stopLanding() { stopLiving(); stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 DOORS = [...FRONT, ...EARLIER];
 LIVE = new Set(['flytrap', 'enigma']);
-document.addEventListener('input', e => { if (/** @type {HTMLElement} */ (e.target).id !== 'seedIn') return; growSeed(); syncSend(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
+SEED_KINDS = new Map(DOORS.map(d => [topicKey(d.t), kindOf(d.k)]));
+document.addEventListener('input', e => { if (/** @type {HTMLElement} */ (e.target).id !== 'seedIn') return; growSeed(); syncSend(); heard(); const err = $('#seedErr'); if (err && err.textContent) err.textContent = ''; });
 /* Enter starts reading, Shift+Enter breaks the line, and a word mid-composition (an IME) is left alone */
 document.addEventListener('keydown', e => { if (/** @type {HTMLElement} */ (e.target).id === 'seedIn' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#seedForm')?.requestSubmit(); } });
 }

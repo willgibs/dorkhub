@@ -619,6 +619,11 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pv-list a:hover{color:var(--ink);text-decoration:underline}
 /* the one note that pages can be wrong: once, at the bottom of the page */
 .colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* a page ends as the front page does, on the mark and the fine print: the wordmark in lamps (03-lamps.js hands it over
+   as a picture), small and still. It is unlit, in faint ink, until the page is written; then it is lit in the colour of
+   the page's kind */
+.colfoot::before{content:"";display:block;width:184px;aspect-ratio:var(--wordmark-ar);margin:20px 0 16px;background:var(--ink);opacity:.3;-webkit-mask:var(--wordmark) 0 0/100% 100% no-repeat;mask:var(--wordmark) 0 0/100% 100% no-repeat;transition:background-color var(--d-wash) var(--ease-in-out),opacity var(--d-wash) var(--ease-in-out)}
+.column:has(.article[aria-busy="false"] .a-end .card)+.colfoot::before{background:var(--acc);opacity:1}
 .speaking{border-radius:var(--r-2);background:var(--mark);box-shadow:0 0 0 6px var(--mark)}
 /* ================= a state is a page (stateOf in 06-page-end.js) =================
    Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,
@@ -863,12 +868,6 @@ body.at-start .omni-btn{display:none}
   body:not(.at-start) .colfoot{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
 
-/* ================= the footer's wordmark: all eight colours ================= */
-:root{--spec:linear-gradient(90deg,#2563EB,#0E7C86,#2F7D32,#A16207,#C2410C,#BE123C,#A21CAF,#6D28D9)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}}
-:root[data-theme="dark"]{--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}
-
-
 /* ================= colour as information: what a link leads to ================= */
 [data-kind="concept"]{--kc:#2563EB}[data-kind="phenomenon"]{--kc:#0E7C86}[data-kind="mechanism"]{--kc:#2F7D32}[data-kind="place"]{--kc:#A16207}
 [data-kind="person"]{--kc:#C2410C}[data-kind="event"]{--kc:#BE123C}[data-kind="thing"]{--kc:#A21CAF}[data-kind="mystery"]{--kc:#6D28D9}
@@ -917,16 +916,35 @@ body.at-start .omni-btn{display:none}
 .lw-w.in{animation:lwin var(--d-medium) var(--ease-out) both}
 @keyframes lwin{from{opacity:0;filter:blur(var(--blur-m));transform:translateY(.18em)}}
 .lw-m{position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none}
-/* the composer: one surface with the beam riding its edge; what you type, then the tools that shape it */
+/* the composer: one raised surface, and an instrument the reader works. What you type, then the tools that shape it;
+   at its corners the brackets that mark the map's stage; and a row of lamps that says what the machine is doing */
 .composer{position:relative;z-index:5;width:100%;margin-top:30px;text-align:left}
-.cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
-.cbox.go{--beam-strength:1.5}
-.composer:focus-within .cbox{--beam-strength:1;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
-.cbox>:not(.beam-bloom):not(.cmirror){position:relative;z-index:4}
+.cbox{--bk:9px;--cut:6px;--bw:1px;--lit:.46;position:relative;display:grid;gap:2px;padding:20px 20px 18px 26px;border-radius:var(--r-3);background:var(--surface);box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:box-shadow var(--d-fast) var(--ease-out)}
+.cbox:focus-within{--cut:0px;--bw:1.5px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
+/* four corners, no glow: each a mark whose two outer edges are ruled. At rest it is short and faint, as on a map nobody
+   is steering; when the field takes focus it is drawn out from its corner to full length and strength */
+.cbk i{position:absolute;width:18px;height:18px;border:0 solid var(--ink);opacity:.36;pointer-events:none;transition:clip-path var(--d-medium) var(--ease-out),opacity var(--d-medium) var(--ease-out),border-width var(--d-medium) var(--ease-out)}
+.cbk i:nth-child(1){left:var(--bk);top:var(--bk);border-width:var(--bw) 0 0 var(--bw);clip-path:inset(0 var(--cut) var(--cut) 0)}
+.cbk i:nth-child(2){right:var(--bk);top:var(--bk);border-width:var(--bw) var(--bw) 0 0;clip-path:inset(0 0 var(--cut) var(--cut))}
+.cbk i:nth-child(3){left:var(--bk);bottom:var(--bk);border-width:0 0 var(--bw) var(--bw);clip-path:inset(var(--cut) var(--cut) 0 0)}
+.cbk i:nth-child(4){right:var(--bk);bottom:var(--bk);border-width:0 var(--bw) var(--bw) 0;clip-path:inset(var(--cut) 0 0 var(--cut))}
+.cbox:focus-within .cbk i{opacity:1}
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
-.cmirror{position:absolute;left:20px;top:18px;z-index:5;max-width:calc(100% - 40px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
+.cmirror{position:absolute;left:26px;top:22px;z-index:5;max-width:calc(100% - 52px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
 .ctools{display:flex;align-items:center;gap:6px;margin-left:-8px}
+/* the lamps: unlit at rest, faint dots; awake while the machine listens, coming on one after the next, and each key
+   it hears flashes the next lamp along (13-landing.js); all of them lit as the page is asked for, at once, so the view
+   that leaves carries them lit. Ink, or the colour of the topic's kind once that is known, and stronger for it */
+.clamps{display:inline-flex;gap:4px;margin-left:auto;padding:0 8px}
+.clamps i{width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
+.cbox[data-kind]{--lit:.9}
+.cbox[data-kind] .clamps i{background:var(--kc)}
+.cbox:focus-within .clamps i{opacity:var(--lit);transform:scale(.8);transition-delay:calc(var(--i) * var(--d-stagger))}
+.clamps i.hit{animation:lamphit var(--d-vslow) var(--ease-out)}
+@keyframes lamphit{0%,22%{opacity:1;transform:none}}
+.cbox.go .clamps i{opacity:1;transform:none;transition:none;animation:none}
+@media (prefers-reduced-motion:reduce){ .clamps i{transition-delay:0s!important} }
 .ctool,.ckey,.cchip,.send,.pr-shuf{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;font:600 13px/1 var(--f-ui);transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out),box-shadow var(--d-quick) var(--ease-out)}
 .ctool{width:34px;height:34px;border-radius:var(--r-pill);background:transparent;color:var(--mute);list-style:none}
 .ctool::-webkit-details-marker{display:none}
@@ -940,7 +958,7 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
 .cchip .ic{width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
-.ckey{gap:6px;height:36px;margin-left:auto;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
+.ckey{gap:6px;height:36px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .ckey .ic{width:16px;height:16px}
 .ckey b{font:600 12.5px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
 .ckey:hover{background:var(--sunken)}
@@ -966,11 +984,22 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 .pr-list.out .door{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .pr-list.in .door{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 .hero .status{justify-content:center;margin-top:22px}
-/* the footer: the wordmark in all eight link colours, then the fine print */
-.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:60px 28px 72px;border-top:1px solid var(--line)}
-.lf-mark{display:inline-block;font:900 clamp(44px,7vw,84px)/1 var(--f-dot);letter-spacing:-.01em;background:var(--spec);-webkit-background-clip:text;background-clip:text;color:transparent}
-.credit{max-width:62ch;margin-top:20px;font-size:12.5px;line-height:1.55;color:var(--faint)}
-.credit a{color:inherit}
+/* the footer: the fine print and the key to the eight colours, then the wordmark set in lamps across the page, as wide
+   as the cards above it. The board takes its shape from its grid (03-lamps.js), and its canvas reaches a little past
+   it, for a lamp at the edge that swells */
+.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:36px 28px 48px;border-top:1px solid var(--line)}
+.credit{max-width:62ch;font-size:12.5px;line-height:1.55;color:var(--faint)}
+.credit a{display:inline-block;margin:-6px 0;padding:6px 0;color:inherit}
+.lf-key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:clamp(30px,4.4vw,56px) 0 18px;font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
+.lf-key .lbl{margin-right:auto}
+/* where the kinds would not all fit beside the key's name, they run on under it */
+@media (max-width:1040px){ .lf-key .lbl{flex-basis:100%} }
+.lk{cursor:default;transition:opacity var(--d-quick) var(--ease-out)}
+.lk[data-kind]{color:var(--kc)}
+.lk b{margin-left:1px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.lf-key:has(.lk[data-kind]:hover) .lk:not(:hover){opacity:.45}
+.lf-board{position:relative;aspect-ratio:var(--wordmark-ar);color:var(--ink)}
+.lamps{position:absolute;left:-4px;top:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
 @media (max-width:560px){
   /* the hero is exactly one screen */
   .hero{--peek:120px;min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek));padding-top:20px;padding-bottom:24px}
@@ -981,9 +1010,13 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
   /* one row on a phone: two suggestions, or the page to continue and one, then shuffle */
   .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
   .door-cont{max-width:58vw}
-  .cbox{padding:14px 10px 8px 16px}
+  .cbox{--bk:8px;padding:18px 17px 16px 22px}
+  .clamps{padding:0 4px}
   #seedIn,.cmirror{font-size:16px}
-  .cmirror{left:16px;top:16px}
+  .cmirror{left:22px;top:20px;max-width:calc(100% - 44px)}
+  /* the board keeps the cards' edges */
+  .land-foot{padding:28px 16px 36px}
+  .lf-key{gap:6px 16px;margin-bottom:14px}
 }
 /* on the landing the top bar is the wordmark alone: keys and voice live in the composer. The theme switch is on every
    page (on a phone, in the menu) */

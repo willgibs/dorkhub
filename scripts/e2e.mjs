@@ -61,15 +61,30 @@ async function run(page, { mobile = false } = {}) {
     if (off) throw new Error('the front page still describes rabbit holes');
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
-  /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
+  /* the hero is one composer, and an instrument: brackets at its four corners, short and faint at rest and drawn out to
+     full strength while it has focus; a row of lamps, unlit at rest, awake while it listens, in a kind's colour only once
+     the kind of what is typed is known, all lit as a page is asked for; and nothing in it runs on a loop. Send is
+     Surprise me until there is something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
-    const h = await page.evaluate(() => { const box = document.querySelector('#seedBox'); const cs = box && getComputedStyle(box); return { h1: document.querySelector('h1')?.textContent, beam: !!box && box.classList.contains('beam') && !!box.querySelector('.beam-bloom'), anim: cs ? cs.animationName : '', send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
+    const h = await page.evaluate(() => { const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')); return { h1: document.querySelector('h1')?.textContent, corners: box.querySelectorAll('.cbk i').length, lamps: box.querySelectorAll('.clamps i').length, loops: /** @type {HTMLElement} */ (box.parentElement).getAnimations({ subtree: true }).filter(a => !Number.isFinite(Number(a.effect?.getComputedTiming().endTime))).length, send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
     /* the heading as read aloud: its last word may still be stepping through topics, but it is heard whole */
     const named = await page.locator('h1').ariaSnapshot();
-    if (!named.includes('heading "Learn about anything"') || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
+    if (!named.includes('heading "Learn about anything"') || h.corners !== 4 || h.lamps !== 5 || h.loops || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
+    /* a corner's strength and how much of it is cut back, and how lit the lamps are, once they have stopped moving */
+    const look = async (/** @type {boolean} */ live) => {
+      await page.waitForFunction(on => getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cbk i'))).opacity === (on ? '1' : '0.36') && !document.querySelector('#seedBox')?.getAnimations({ subtree: true }).some(a => a.playState === 'running'), live, { timeout: 15000 }).catch(() => {});
+      return page.evaluate(() => { const c = getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cbk i'))); return { corner: c.opacity, cut: c.clipPath, lamps: [...document.querySelectorAll('#seedBox .clamps i')].map(l => +(+getComputedStyle(l).opacity).toFixed(2)) }; });
+    };
+    await page.focus('#seedIn'); const live = await look(true);
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); const rest = await look(false);
+    if (live.corner !== '1' || !/^inset\(0px\)$/.test(live.cut) || rest.corner !== '0.36' || !/6px/.test(rest.cut) || live.lamps.some(o => o < .4) || rest.lamps.some(o => o > .2)) throw new Error(`the composer's brackets and lamps: ${JSON.stringify({ live, rest })}`);
+    /* a topic of the front page's is known for what it is; a question nobody has asked is not */
+    await page.fill('#seedIn', 'Black holes');
+    const known = await page.evaluate(() => { const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')); const heard = box.querySelectorAll('.clamps i.hit').length; box.classList.add('go'); const sent = [...box.querySelectorAll('.clamps i')].every(l => getComputedStyle(l).opacity === '1'); box.classList.remove('go'); return { kind: box.dataset.kind || '', heard, sent }; });
+    if (known.kind !== 'phenomenon' || known.heard !== 1 || !known.sent) throw new Error(`the composer's lamps: ${JSON.stringify(known)}`);
     await page.fill('#seedIn', 'Why do cats purr?');
-    const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '' }; });
-    if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
+    const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '', kind: /** @type {HTMLElement} */ (document.querySelector('#seedBox')).dataset.kind || '' }; });
+    if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act || typed.kind) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
     await page.fill('#seedIn', '');
     const before = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="shuffle"]').click();
@@ -168,6 +183,32 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
+  /* the page ends on the wordmark set in lamps, across its width: lit in the eight kinds' colours once it is seen, then
+     still; its key names the eight kinds, and pointing at one hushes every other lamp; and the theme draws it again */
+  await step(`${tag}: the footer's board of lamps`, async () => {
+    const f = await page.evaluate(() => ({ label: document.querySelector('#footBoard[role="img"]')?.getAttribute('aria-label'), kinds: document.querySelectorAll('#footKey .lk[data-kind]').length, name: document.querySelector('#footKey .lbl')?.textContent, credits: !!document.querySelector('.land-foot .credit a[href="/licenses.txt"]') }));
+    if (f.label !== 'dorkhub' || f.kinds !== 8 || f.name !== 'Eight kinds of topic' || !f.credits) throw new Error(`the footer: ${JSON.stringify(f)}`);
+    /* how many of the board's pixels are in colour (a lamp lit in a kind's), and how light they are */
+    const lit = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) { n++; l += d[i] + d[i + 1] + d[i + 2]; } return [n, n ? l / n / 3 : 0]; });
+    /* the board has come to rest when two looks at it, a moment apart, are the same */
+    const settled = async () => { let was = [-1, 0]; for (let i = 0; i < 40; i++) { const now = await lit(); if (now[0] === was[0] && now[1] === was[1]) return now; was = now; await page.waitForTimeout(350); } throw new Error('the board never came to rest'); };
+    if (!mobile) await page.mouse.move(0, 0);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForFunction(() => { const r = /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, null, { timeout: 5000 });
+    await page.waitForTimeout(600); const rest = await settled();
+    if (rest[0] < 1000) throw new Error(`the board is not lit: ${rest[0]} pixels in colour`);
+    await page.locator('.land-foot').screenshot({ path: `${shots}/${tag}-1g-footer.png` });
+    if (mobile) return;
+    await page.hover('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const one = await settled();
+    await page.mouse.move(0, 0); await page.waitForTimeout(400); const all = await settled();
+    if (one[0] > rest[0] * .4 || one[0] < 100 || all[0] !== rest[0]) throw new Error(`calling out a kind: ${JSON.stringify({ rest, one, all })}`);
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
+    for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const dark = await lit();
+    for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const back = await lit();
+    if (Math.abs(dark[1] - rest[1]) < 30 || Math.abs(back[1] - rest[1]) > 6) throw new Error(`the board's colours: light ${rest[1].toFixed(0)}, dark ${dark[1].toFixed(0)}, back ${back[1].toFixed(0)}`);
+  });
   /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
   if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
     await page.mouse.move(0, 0); await page.locator('#threadStage').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
@@ -186,6 +227,11 @@ async function run(page, { mobile = false } = {}) {
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
     if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || p.fine.trim() || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
+    /* the page ends on the mark, small, above the fine print: a picture of the lamps, lit once the page is written */
+    const foot = () => page.evaluate(() => { const c = getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before'); return { lit: c.opacity, picture: /^url\("data:image\/svg/.test(c.maskImage || c.webkitMaskImage || ''), wide: c.width }; });
+    await page.waitForFunction(() => getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before').opacity === '1', null, { timeout: 8000 }).catch(() => {});
+    const mark = await foot();
+    if (mark.lit !== '1' || !mark.picture || mark.wide !== '184px') throw new Error(`the mark at the page's foot: ${JSON.stringify(mark)}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* a card leads into one of the front page's topics: until its page is written it opens a placeholder, free
@@ -847,12 +893,20 @@ async function sharing() {
 }
 
 try {
-  await step('reduced motion: the beam holds still and stays lit', async () => {
+  await step('reduced motion: the composer and the footer\'s board are drawn at rest', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
-    await still.goto(base); await still.waitForSelector('#seedBox');
-    const b = await still.evaluate(() => { const cs = getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox'))); return { anim: cs.animationName, on: cs.getPropertyValue('--beam-on').trim() }; });
+    await still.goto(base); await still.waitForSelector('#footBoard canvas');
+    /* with the caret in it the composer's brackets are at full strength at once, nothing in it is moving, and the board,
+       far below and not yet seen, already stands lit */
+    await still.focus('#seedIn'); await still.waitForTimeout(150);
+    const b = await still.evaluate(() => {
+      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), k = getComputedStyle(/** @type {Element} */ (box.querySelector('.cbk i')));
+      const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')), d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let lit = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) lit++;
+      return { corner: k.opacity, cut: k.clipPath, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
+    });
     await still.close();
-    if (b.anim !== 'none' || b.on !== '1') throw new Error(`reduced-motion beam: ${JSON.stringify(b)}`);
+    if (b.corner !== '1' || b.cut !== 'inset(0px)' || b.moving || b.lit < 1000 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
   });
   const desk = await browser.newPage({ viewport: { width: 1360, height: 900 } });
   await run(desk);

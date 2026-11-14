@@ -103,7 +103,7 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
 - The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
   and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
   scale, effects ported from libraries.dev. The brand spectrum (all eight link colours)
-  appears once: the beam riding the composer's edge.
+  appears once: the front page's footer, where the wordmark is set in lamps (see Lamps).
 - Dots say the machine is working: the Doto wordmark, thinking orbs during a real wait (a
   different motion for each kind of wait), and pictures that resolve out of a field of dots.
 - Your world is lit dots on deep paper: each topic glows in its colour, sized by how
