@@ -82,8 +82,9 @@ test('every card leads into a planned topic, with a source, and a drawing that i
     const w = Number(/&amp;w=(\d+)/.exec(c.art)?.[1]); assert.ok(WIDTHS.includes(w), `${c.t}: width ${w}`);
     assert.ok(c.credit && /·/.test(c.credit), `${c.t}: credit and licence`);
   }
-  /* the drawings carry real geometry (some 5,000 dots in the black hole's disk alone): about 50 KB compressed */
-  assert.ok(JSON.stringify(data).length < 192 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
+  /* the drawings carry real geometry (some 5,000 dots in the black hole's disk alone): about 50 KB compressed. Raised
+     from 192 to 200 KB on 2026-11-14 for Fireworks' night show, every shell's stars computed (no further) */
+  assert.ok(JSON.stringify(data).length < 200 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
 });
 
 /* the cards share one page: an id in one card's drawing (a gradient, a mask, a path for words to follow) must not
