@@ -1178,3 +1178,21 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 /* like Your world, a trail has no sidebar, nor the page's tools button on a phone */
 body.at-trail .shell{grid-template-columns:minmax(0,1fr)}
 body.at-trail :is(.side,.fab){display:none!important}
+
+/* ================= small to look at, easy to hit (Lamps) =================
+   A control keeps its size; what takes the tap grows, as an empty box around it (a pseudo-element), never into a
+   neighbour's. 44 px for what a thumb reaches for all the time (the bar's icons, the floating button, the page's tools, a
+   sheet's close, a pill), 24 px for everything else. :where() keeps the rule at no weight, so a control that is placed
+   (absolute, fixed, sticky) by its own rule stays where it is. */
+:where(.btn,.tools>.tool,.tools>.more>summary,.sh-x,.wp-find,.pic figcaption a,.credit a){position:relative}
+.btn::before{content:"";position:absolute;inset:-5px 0}
+/* the page's tools: 34 px icons 10 px apart, each taking 44 */
+.tools{gap:10px}
+.tools>.tool::before,.tools>.more>summary::before{content:"";position:absolute;inset:-5px}
+.sh-x::before{content:"";position:absolute;inset:-4px}
+/* Your world's find field: the whole pill takes a tap and gives it to the field, which fills the pill's height */
+.wp-find::before{content:"";position:absolute;inset:-4px 0}
+.wp-find input{align-self:stretch}
+/* a picture's credit and the footer's Credits link stay small type; their tap areas are 24 px or more */
+.pic figcaption a::before{content:"";position:absolute;inset:-4px -2px}
+.credit a::before{content:"";position:absolute;inset:-5px -4px}
