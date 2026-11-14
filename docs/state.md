@@ -25,8 +25,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 ## Open
 - CI's second try for the walk warns when used; drop it after a clean week.
 - A local walk failure means little while other projects load this Mac: check `uptime` first, then rerun.
-- Worktrees: `.claude/worktrees/cohesion` and the motion builder's (remove both once #43 merges);
-  `sharing-afdbe3` is from an older session and was left alone.
+- Worktrees: `.claude/worktrees/cohesion` and the motion builder's (remove once #43 merges); `sharing-afdbe3` is older.
 
 ## Blocked on Will
 - His look at #43's preview (motion).
