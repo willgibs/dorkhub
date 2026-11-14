@@ -28,11 +28,17 @@ export function frameView(S, center = '', instant = false) {
   const v = fitView(ns, cw, ch, { pad: mini ? 26 : cw < 520 ? 22 : still ? 44 : 70, max: mini ? 1.6 : still ? 3 : 1.8, min: .12 });
   flyTo(S, v, instant);
 }
+/* a flight's own time: the map's recipe, named once here; whatever waits for the camera waits for it to land (afterFlight) */
+const FLIGHT_MS = 650;
 export function flyTo(S, v, instant) {
   const cam = S.cam;
-  if (instant || reducedMotion() || !S.cw) { cam.x = v.x; cam.y = v.y; cam.k = v.k; S.camTo = null; wake(S); return; }
-  S.camTo = { from: { ...cam }, to: v, t0: performance.now(), dur: 650 }; wake(S);
+  if (instant || reducedMotion() || !S.cw) { cam.x = v.x; cam.y = v.y; cam.k = v.k; S.camTo = null; landed(S); wake(S); return; }
+  S.camTo = { from: { ...cam }, to: v, t0: performance.now(), dur: FLIGHT_MS }; wake(S);
 }
+/** fn runs once the camera is where it is going: now when it is still, or when the flight lands. A flight cut short (a
+    drag, a wheel) never lands, so what waited for it doesn't happen; each caller checks it is still wanted. */
+export function afterFlight(S, fn) { if (!S.camTo) { fn(); return; } (S.onLand = S.onLand || []).push(fn); }
+function landed(S) { const fns = S.onLand || []; S.onLand = []; fns.forEach(f => f()); }
 /* Focus: a topic and everything within two links of it; the rest fades */
 export function setFocus(S, key, fly = true) {
   const { g, adj } = S;
@@ -47,5 +53,5 @@ export function moveCamera(S, now) {
   const { cam, camTo } = S; if (!camTo) return false;
   const t = clamp01((now - camTo.t0) / camTo.dur); const e = easeOut(t); const f = camTo.from, to = camTo.to;
   cam.x = f.x + (to.x - f.x) * e; cam.y = f.y + (to.y - f.y) * e; cam.k = Math.exp(Math.log(f.k) + (Math.log(to.k) - Math.log(f.k)) * e);
-  if (t >= 1) S.camTo = null; return true;
+  if (t >= 1) { S.camTo = null; landed(S); } return true;
 }

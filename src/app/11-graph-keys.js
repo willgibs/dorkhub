@@ -8,7 +8,7 @@
 import { keyStep } from '../shared/graph.js';
 import { announce, reducedMotion } from './02-util.js';
 import { wake } from './11-graph.js';
-import { flyTo, frameView, isShown, toScreen } from './11-graph-camera.js';
+import { afterFlight, flyTo, frameView, isShown, toScreen } from './11-graph-camera.js';
 import { hideTip, openNode, showTip } from './11-graph-card.js';
 
 const OWN = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'Enter', 'Escape', '+', '=', '-', '0'];
@@ -18,10 +18,10 @@ function heard(S, i) {
   const links = S.adj[i].length;
   return `${n.title}, ${n.kind || 'topic'}, ${n.read ? 'read' : 'not read yet'}, ${links} link${links === 1 ? '' : 's'}`;
 }
-/* the card, once the camera has arrived */
+/* the card, once the camera has landed */
 function cardFor(S, i, flying) {
   if (!flying) { showTip(S, i, false); return; }
-  hideTip(S); setTimeout(() => { if (S.kb === i && S.hover < 0) showTip(S, i, false); }, reducedMotion() ? 0 : 680);
+  hideTip(S); afterFlight(S, () => { if (S.kb === i && S.hover < 0) showTip(S, i, false); });
 }
 function choose(S, i) {
   if (i < 0) return;

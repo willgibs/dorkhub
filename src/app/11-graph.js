@@ -8,7 +8,7 @@
    (11-graph-picture.js). This file holds the data, the loop and the map's life. */
 import { boundsOf, createSim, isHot, tick } from '../shared/graph.js';
 import { reducedMotion, save, store } from './02-util.js';
-import { frameView, flyTo, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
+import { afterFlight, frameView, flyTo, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
 import { hideTip, listenCard, showTip } from './11-graph-card.js';
 import { listenPointer } from './11-graph-input.js';
 import { clearKey, listenKeys } from './11-graph-keys.js';
@@ -62,7 +62,7 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     retheme() { themeColors(S); wake(S); },
     setHidden(set) { S.hidden = set; S.hover = -1; if (S.kb >= 0 && S.hidden.has(kg(S.g.nodes[S.kb]))) clearKey(S); wake(S); },
     find(q) { const s = q.trim().toLowerCase(); if (!s) return -1; const i = S.g.nodes.findIndex(n => n.title.toLowerCase().startsWith(s)); return i >= 0 ? i : S.g.nodes.findIndex(n => n.title.toLowerCase().includes(s)); },
-    select(i) { S.sel = i; S.hover = -1; if (i >= 0) { const n = S.g.nodes[i]; flyTo(S, { x: n.x, y: n.y, k: Math.max(S.cam.k, 1.4) }); setTimeout(() => { if (S.sel === i) showTip(S, i, true); }, reducedMotion() ? 0 : 680); } else hideTip(S); wake(S); },
+    select(i) { S.sel = i; S.hover = -1; if (i >= 0) { const n = S.g.nodes[i]; flyTo(S, { x: n.x, y: n.y, k: Math.max(S.cam.k, 1.4) }); afterFlight(S, () => { if (S.sel === i) showTip(S, i, true); }); } else hideTip(S); wake(S); },
     sleep() { if (S.raf) cancelAnimationFrame(S.raf); S.raf = 0; keepPositions(S); },
     /* a map held back (the front page's, waiting its turn among the cards) traces in when asked */
     play() { S.held = false; wake(S); },
