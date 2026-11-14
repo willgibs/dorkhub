@@ -2,38 +2,38 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-13, late night)
-- **Live on dorkhub.com** (production is byte for byte `main`; the tests, the 68-step walk in CI and the nine free
-  production checks pass): the engine wave (#30, #32 to #34), the walk's checks (#35), `makeGraph` split (#36),
-  the writer's thinking (#38), the eval's subscription route (#41), Wave 2 (#37, #40, #39); three waves merged at
-  Will's word after a preview each: **the cohesion wave (#42)**, **motion on one clock (#43)**, **the kit on
-  the tool panels and sheets (#44)**; and the keyboard and screen-reader fixes from the audit (#45, on green).
-- **The review desk** is where Will sees all of it: https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp (private;
-  built by `.e2e/desk/build.mjs`, see `CLAUDE.md`). Eight items wait on him there, numbered: four ideas (dot
-  numerals in a page's figures and the free-pages count is the orchestrator's pick) and four audit findings a
-  reader could notice. Chat refers to them by those numbers.
-- **Vercel:** a push that changes nothing deployed no longer builds (`scripts/skip-build.mjs`); records travel
-  with the change they describe. Dorkhub was 81% of the account's transfer (the Sentry monitor, now disabled) and
-  holds 497 of its 763 MB of deployment storage, from 52 deployments on 2026-11-13. Its deployments are now
-  kept a week, not 30 days (set at Will's word; the live one and the last three production ones always stay).
-- **Will, 2026-11-13:** engine first; Fable 5.2 orchestrates itself and Opus/Sonnet builders; he is product
-  visionary and art director. Test on the Claude subscription, not paid credits. He rated the app 6 or 7 of 10
-  before these waves. Keep the orchestrator's context lean: offer a compaction point at 60 to 75%.
+## Now (2026-11-13, midnight)
+- **Live on dorkhub.com** (production is byte for byte `main`): everything through the cohesion wave (#42), motion
+  on one clock (#43), the kit on the tool panels and sheets (#44), the keyboard and screen-reader fixes (#45),
+  builds skipped when nothing deployed has changed (#46) and the trimmed CI (#47).
+- **The lamps wave waits on Will's look**: branch `design/lamps`, one pull request, each piece numbered on the
+  review desk with pictures and films (https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp). His answers of 13 Nov
+  became the **Lamps** rules in `docs/vision.md`. In it: the top bar (counts in the dot face, reading position
+  as a row of lamps, tap areas of 44 px); the composer as an instrument (the vendor beam is gone); the footer's
+  wordmark as a board of lamps; moves that run both ways (the front page, links, Your world, Back and Forward);
+  five cards redrawn (Enigma, Origami, Infinity, Atlantis; Magnets by thumb); nothing running at rest (an idle
+  reading page made about 310 frames in 5 s, now none); eight fixes from an independent review and a sweep.
+- **His one open call in it:** the footer's word is ink at rest and a lamp takes colour for each page read
+  (built, the orchestrator's pick), or every lamp a colour (`allKinds` on `lampBoard`). He said he likes the
+  colour on the wordmark, so both are on the desk.
+- **The desk holds only what is open** (Will): what he is being asked and what is in progress. A change that is
+  live comes off it.
+- **Tokens are shared with Will's other agents.** No optional lanes: three more card redraws (Fireworks, Venus
+  flytraps, Pompeii) were stopped as they started. Vercel: every push is a deployment on a shared Hobby plan, so
+  records travel with their change and a branch is pushed once.
 - **The writer** has still never run live: #38 is unproven until a live write. The judged eval has not run.
 
 ## Open
 - CI's second try for the walk warns when used; drop it after a clean week.
 - A local walk failure means little while other projects load this Mac: check `uptime` first, then rerun.
-- Capture scripts for every state, Your world, the chrome, the moves and the tool panels are kept, untracked, in
-  `.e2e/cohesion-{states,world,chrome}/`, `.e2e/motion/` and `.e2e/kit-rest/` of the main checkout.
+- Left on purpose: Back from a page opened from the composer has nowhere to land; a picture whose image never
+  answers keeps its dots moving while on screen; the cards' behaviour ships in every page's script.
 
-## Blocked on Will
-- The desk's eight items.
-- A few dollars of gateway credit: proves live writing (#38) and runs the eval's writers; judges need none.
+## Before launch, all of it Will's (production is otherwise ready)
+- A few dollars of gateway credit: then `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves live
+  writing, the eval takes its first look (`--judge-via claude`), and the winner is wired into `lib/write.js`.
 - Connecting Upstash Redis (his click), and whether to switch the library on.
-- Still open from October: the 11 earlier pages; old resources (Sentry's project, Supabase, tags, keys); repo
-  visibility; Pro pricing.
+- From October: the 11 earlier pages; old resources; repo visibility; Pro pricing. Also one HTML shell, not 46.
 
 ## Next
-See the backlog's first item. Then credits, `prove.mjs --spend --yes`, the eval's first look
-(`--judge-via claude`), and wiring the winner into `lib/write.js`.
+His look at the lamps wave; merge at his word; check production; clear the desk. Then credits.
