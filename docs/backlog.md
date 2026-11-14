@@ -11,8 +11,8 @@ writer's thinking settings (#38), the eval's subscription route (#41), Wave 2 (#
 (#42), motion on one clock (#43), the kit on the tool panels and sheets (#44), the keyboard and screen-reader fixes
 from the audit (#45), builds skipped when nothing deployed has changed (#46) and the trimmed CI (#47). In order
 from here:
-1. **(Will) The lamps wave**, waiting on his look: one pull request from `design/lamps`, each piece numbered on
-   the review desk. His answers to the desk's eight items (the dot face only where a count stands alone; more
+1. **The lamps wave**, merged 14 Nov at Will's word (willgibs/dorkhub#48); live with the first deployment after
+   Vercel's daily limit clears. His answers to the desk's eight items (the dot face only where a count stands alone; more
    presence for the top bar; a wordmark that is ours and no flag's; moves that run both ways; any visual may be
    redrawn if it stays performant; small controls with generous tap areas; the composer's beam must not cost
    frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer's glow,

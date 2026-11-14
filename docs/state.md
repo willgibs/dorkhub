@@ -2,32 +2,30 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-13, midnight)
-- **Live on dorkhub.com** (production is byte for byte `main`): everything through the cohesion wave (#42), motion
-  on one clock (#43), the kit on the tool panels and sheets (#44), the keyboard and screen-reader fixes (#45),
-  builds skipped when nothing deployed has changed (#46) and the trimmed CI (#47).
-- **The lamps wave waits on Will's look**: branch `design/lamps`, one pull request, each piece numbered on the
-  review desk with pictures and films (https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp). His answers of 13 Nov
-  became the **Lamps** rules in `docs/vision.md`. In it: the top bar (counts in the dot face, reading position
-  as a row of lamps, tap areas of 44 px); the composer's glow, rebuilt to cost nothing at rest; the footer's
-  wordmark as a board of lamps; moves that run both ways (the front page, links, Your world, Back and Forward);
-  five cards redrawn (Enigma, Origami, Infinity, Atlantis; Magnets by thumb); nothing running at rest (an idle
-  reading page made about 310 frames in 5 s, now none); eight fixes from an independent review and a sweep.
-- **The footer's word is ink at rest** (Will's call, 14 Nov): a lamp takes colour for each page read; every
-  lamp a colour stays one option away (`allKinds` on `lampBoard`).
-- **The desk holds only what is open** (Will): what he is being asked and what is in progress. A change that is
-  live comes off it.
-- **Tokens are shared with Will's other agents.** No optional lanes: three more card redraws (Fireworks, Venus
-  flytraps, Pompeii) were stopped as they started. Vercel: every push is a deployment on a shared Hobby plan, so
-  records travel with their change and a branch is pushed once.
+## Now (2026-11-14, early morning)
+- **Live on dorkhub.com:** everything through the trimmed CI (#47). **Merged but not yet deployed: the lamps
+  wave (#48)**, merged 14 Nov at Will's word after his look at a preview. Vercel refused its production
+  deployment ("Deployment rate limited, retry in 24 hours"): the account had reached Hobby's 100 deployments a
+  day, which counts every push of every project, skipped builds included. It goes live with the next push to
+  `main` after the limit clears (the commit carrying this file is that push). His answers of 13 Nov became the
+  **Lamps** rules in `docs/vision.md`. In the wave: the top bar (counts in the dot face, position as a row of
+  lamps, tap areas of 44 px); the composer's glow, rebuilt to cost nothing at rest (corner brackets were tried
+  in its place and dropped at his word); the footer's wordmark in lamps, ink at rest, a lamp coloured for each
+  page read (his call); moves both ways (cards, links, Your world); five cards redrawn; nothing running at
+  rest; eleven fixes from an independent review and a visual sweep.
+- **The review desk** (https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp) holds only what is open: what Will
+  is being asked and what is being built. It is empty now. A change that goes live comes off it.
+- **Tokens are shared with Will's other agents** (his words, 13 Nov): no optional lanes. Not built, his to ask
+  for: Fireworks, Venus flytraps and Pompeii redrawn; Back landing in the composer; the front page's own maps
+  joining the moves.
 - **The writer** has still never run live: #38 is unproven until a live write. The judged eval has not run.
 
 ## Open
 - CI's second try for the walk warns when used; drop it after a clean week.
 - A local walk failure means little while other projects load this Mac: check `uptime` first, then rerun.
 - The page is 382 of the 384 KB `tests/page.test.js` allows; the cards' code could load with `front.json`.
-- Left on purpose: Back from a page opened from the composer has nowhere to land; a picture whose image never
-  answers keeps its dots moving while on screen; the cards' behaviour ships in every page's script.
+- Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone,
+  keyboard focus into the sticky bar scrolls the page (older than the lamps wave).
 
 ## Before launch, all of it Will's (production is otherwise ready)
 - A few dollars of gateway credit: then `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves live
@@ -36,4 +34,5 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - From October: the 11 earlier pages; old resources; repo visibility; Pro pricing. Also one HTML shell, not 46.
 
 ## Next
-His look at the lamps wave; merge at his word; check production; clear the desk. Then credits.
+Push `main` once Vercel's limit clears; then check production: `curl -s https://dorkhub.com/ | shasum -a 256`
+against a local build, and `node scripts/prove.mjs https://dorkhub.com`. Then credits.
