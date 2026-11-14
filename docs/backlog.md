@@ -11,11 +11,11 @@ writer's thinking settings (#38), the eval's subscription route (#41), and Wave 
 phones, #40 Your world by keyboard, #39 sharing). In order from here:
 1. **One seamless app** (Will: 6 or 7 of 10 before these; "under a cohesive, rooted visual identity"). Live at
    his word: willgibs/dorkhub#42, the cohesion wave, and #43, motion on one clock. Next, in order:
-   a. **(Will)** Up for his look: willgibs/dorkhub#44, the kit where it had not reached: the tool panels (peek,
-      expand, skeptic mode), the tool sheets (quiz, around this, connect, the trail) and their out-of-tools
-      state, the selection button, Your world's card. The front cards' drawings keep their own motion.
-   b. **Accessibility and speed**, audited 2026-11-13 (nothing changed). Being built on `fix/a11y`, stacked on
-      #44, to merge on green because a reader would not notice: focus returning to its opener when a sheet from
+   a. Live at his word: willgibs/dorkhub#44, the kit where it had not reached: the tool panels (peek, expand,
+      skeptic mode), the tool sheets (quiz, around this, connect, the trail) and their out-of-tools state, the
+      selection button, Your world's card. The front cards' drawings keep their own motion.
+   b. **Accessibility and speed**, audited 2026-11-13 (nothing changed). Being built on `fix/a11y`, to merge on
+      green because a reader would not notice: focus returning to its opener when a sheet from
       the More menu or the phone menu closes; the More menu by keyboard; the recap announcing once; search as a
       combobox; heading order; the Enigma card's 28 Tab stops; the phone button's droplets by Tab; the aurora
       picture loading lazily; the phone front page's layout shift. **(Will)** A reader could notice these four:
