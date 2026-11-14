@@ -1,248 +1,96 @@
 # Backlog
 
-_Ordered by priority. **(Will)** means it needs his decision or action first: ask, don't
-assume. Move finished items into `docs/decisions.md` (when a real decision was made) and
-keep `docs/state.md` current._
+_Ordered by priority. **(Will)** means it needs his decision or action first: ask, don't assume. What has shipped
+lives in `docs/decisions.md` and on dorkhub.com, not here. Questions for Will go on the review desk (`CLAUDE.md`)._
 
-## Now: one app, then launch (2026-11-13; the calls are in `docs/decisions.md`)
+## Now: everything left needs Will (2026-11-14)
 
-Live: the engine wave (willgibs/dorkhub#30, #32, #33, #34), the walk's checks (#35), `makeGraph` split (#36), the
-writer's thinking settings (#38), the eval's subscription route (#41), Wave 2 (#37, #40, #39), the cohesion wave
-(#42), motion on one clock (#43), the kit on the tool panels and sheets (#44), the keyboard and screen-reader fixes
-from the audit (#45), builds skipped when nothing deployed has changed (#46) and the trimmed CI (#47). In order
-from here:
-1. **The lamps wave**, merged 14 Nov at Will's word (willgibs/dorkhub#48); live with the first deployment after
-   Vercel's daily limit clears. His answers to the desk's eight items (the dot face only where a count stands alone; more
-   presence for the top bar; a wordmark that is ours and no flag's; moves that run both ways; any visual may be
-   redrawn if it stays performant; small controls with generous tap areas; the composer's beam must not cost
-   frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer's glow,
-   rebuilt; the footer's wordmark as a board of lamps; moves both ways, Your world included; five cards
-   redrawn; nothing running at rest; eight fixes from an independent review and a visual sweep. He chose ink
-   for the footer's word (14 Nov); every lamp a colour stays one option away (`allKinds` on `lampBoard`).
-   Not built, his to ask for: Fireworks, Venus flytraps and Pompeii redrawn (stopped as they started, to leave
-   tokens for his other agents: about 150k a card); Back landing in the composer; the front page's own maps
-   joining the moves.
-2. **(Will) A few dollars of gateway credit.** Live writing has never run, and #38 changed what it sends:
-   `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
-   gateway too (cents); its judges run on the subscription (`--judge-via claude`).
-3. The eval's first look, then Will's blind picks in `review.html`. Topics are in `scripts/eval/topics.json` (a
-   proposal: swap any). Early signals, unjudged, are in `docs/eval-plan.md`.
-4. Wire the winner into `lib/write.js` (`composePage`; `split` is the early favourite), bump `PROMPT_VERSION`.
-5. **(Will) Connect Upstash Redis** (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
-6. **(Will) One HTML shell instead of 46 copies.** Each deployment stores the 360 KB page 46 times (16 of its
-   20 MB), so that every address has its own link preview. A function that writes the head would cut stored
-   output and build time; it changes how previews are served. Not started: a product trade.
-7. Drop CI's second try for the walk after a week with no "needed a second try" warning.
-8. **Room on the page.** It is 382 of the 384 KB that `tests/page.test.js` allows. Loading the front cards'
-   behaviour with `public/front.json` instead of in every page's script is the obvious first saving.
+The product is built: the front page and its 13 cards, the reading page, Your world, sharing, moves both ways, the
+Lamps identity. Production is proven except for live writing. What remains, in order:
 
-## 0. Blocked on Will (check each one's status before planning around it)
-
-- **The old Sentry uptime monitor: disabled 2026-11-13** (Will asked; done in his Chrome). The first Dorkhub's
-  launch had set a check on `https://dorkhub.com/` every minute, and it fetched the page uncompressed: nearly all
-  of Dorkhub's Fast Data Transfer (16.7 GB in 30 days). Disabled, not deleted ("Uptime check for dorkhub.com" in
-  Sentry's Monitors, org `dorkhub`); the pings stopped at 17:35 ET. Deleting it goes with retiring the project.
-- **AI Gateway credits.** The free tier can't call Claude Haiku 5.5, so free pages show
-  "paused". You'll know it's fixed when a live write logs `{"evt":"write",…,"end":"ok"}`
-  rather than `trial_paused`.
-- **Upstash Redis** (free, from the Vercel Marketplace) for exact trial counts. You'll
-  know it's connected when the function log shows `{"evt":"store","counters":"redis"}`.
-  Will asked (2026-10-14) whether to set it up now. Our answer: yes. It's free and not needed
-  while live pages are paused (pre-written pages skip the counters), but connecting it now
-  lets us check the Redis counters (§5) before credits make them matter. Will connects it
-  in the Vercel dashboard (an account change); then redeploy and read the log.
-- **Old resources to retire:**
-  - Revoke the `dorkhub-imports` gateway key.
-  - Delete the 21 old git tags (they keep the old codebase public).
-  - Retire the old Supabase and Sentry projects (the Sentry uptime monitor first: see above).
-  - Remove the GitHub OAuth app, the fine-grained token and the `CRON_SECRET` Actions
-    secret.
-  - Revoke the Gemini key.
-  - Remove the old sitemap in Search Console.
-  - Remove the Mac backup agent (`com.dorkhub.backup`: still loaded, it runs on Sundays at 09:00 and fails, its
-    script gone since the rebuild).
-- **Repo visibility.** It's public today, so the prompts are readable. On Hobby, making it
-  private may block deploys of commits authored by an agent.
-- **Pro pricing.**
+1. **(Will) A few dollars of AI Gateway credit.** The free tier can't call Claude Haiku 5.5, so a page nobody has
+   written yet shows "paused". Live writing has never run, and #38 changed what it sends. Then, in order: §1
+   (prove production), §2 (the writer on real output), §3 (the model eval). You'll know it works when a live write
+   logs `{"evt":"write",…,"end":"ok"}` rather than `trial_paused`.
+2. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
+   whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
+   once connected. Then §5's "Real Redis".
+3. **(Will) Old resources to retire**, all in his accounts:
+   - Revoke the `dorkhub-imports` gateway key, and the Gemini key.
+   - Retire the old Supabase and Sentry projects. Sentry's uptime monitor on dorkhub.com is already disabled
+     (2026-11-13: it was nearly all of Dorkhub's data transfer); deleting it goes with the project.
+   - Remove the GitHub OAuth app, the fine-grained token and the `CRON_SECRET` Actions secret.
+   - Remove the old sitemap in Search Console.
+   - Remove the Mac backup agent `com.dorkhub.backup` (it still runs on Sundays at 09:00 and fails).
+4. **(Will) Repo visibility.** Public today, so the prompts are readable. On Hobby, making it private may block
+   deploys of commits authored by an agent.
+5. Drop CI's second try for the walk after a week with no "needed a second try" warning (from 2026-11-14).
 
 ## 1. Prove production (as soon as credits exist)
 
-- A live page streams word by word on dorkhub.com (not buffered), `x-dh-trial` counts
-  down, and a repeated first page comes back with `x-dh-cache: hit`.
-- "Stop writing" really stops the writer: the log ends with `cancelled` and shows fewer
-  output tokens.
-- The 41st call to `/api/write` in a minute from one IP gets a 429, and the page says
-  "Lots of readers at once."
-- Measure the real cost per page and per quick tool from `{"evt":"write"}` logs, and
-  record it in `docs/decisions.md`.
-- Bring-your-own-key works end to end with a real key. Will types his key himself; never
-  enter one.
+`node scripts/prove.mjs https://dorkhub.com --spend --yes` covers the first two; the rest by hand.
+- A live page streams word by word on dorkhub.com (not buffered), `x-dh-trial` counts down, and a repeated first
+  page comes back with `x-dh-cache: hit`.
+- "Stop writing" really stops the writer: the log ends with `cancelled` and shows fewer output tokens.
+- The 41st call to `/api/write` in a minute from one IP gets a 429, and the page says "Lots of readers at once."
+- Measure the real cost per page and per quick tool from `{"evt":"write"}` logs; record it in `docs/decisions.md`.
+- Bring-your-own-key works end to end with a real key. Will types his key himself; never enter one.
 
-## 2. The experience (Will's priority, before the model eval)
+## 2. The writer, on real output (after credits)
 
-**Now: a world of topics, not a tunnel** (Will's direction and plan, 2026-10-15; the calls are
-in `docs/decisions.md`). In order, each through a preview and Will's look:
-- **PR A, pages written for the topic** (live since 2026-10-15, willgibs/dorkhub#13): format v3, the
-  page cache by topic, free repeats before the trial gate, private rewrites, `cachedOnly`.
-- **PR B, the world reader** (live since 2026-10-15, willgibs/dorkhub#14): one topic per screen at clean, guarded links
-  (`dorkhub.com/black-holes`), six "keep exploring" cards, the Save star, Your world (the
-  graph, its stats and trails, growth moments only where the graph is visible), the phone's
-  "…" menu and a new gooey button, prefetch, and the store migration. Levels, the flow-in
-  below and reactions go.
-- **PR C, the homepage** (live since 2026-10-15, willgibs/dorkhub#15): the hero with the parked heading sizes
-  and placeholder, then today's pages as a feed of cards that peeks above the fold, with a
-  map of where they lead (or the reader's own world). The marketing sections were already
-  gone in PR B.
-- **PR D, the map redrawn** (live since 2026-10-15, willgibs/dorkhub#16): Your world, the
-  sidebar and the front page's map drawn like an instrument, not glow.
-- **PR F, the reading page calmer** (live since 2026-10-15, willgibs/dorkhub#18): one centred
-  column (asides, facts and the picture under their paragraph), one rhythm in the top bar, no
-  rail (the sidebar's toggle sits before the wordmark).
-- **PR E, the front page curated** (live since 2026-10-16, willgibs/dorkhub#17): cards made by
-  hand that lead into the front page's 33 topics, a map of the threads between them, and the
-  suggestions drawn from them, with a placeholder for each of the 32 pages not written yet (Will,
-  2026-10-15), each free and instant, each replaced by its page once that is written.
-- **PR G, the cards finished** (live since 2026-10-16, willgibs/dorkhub#19): every card redrawn and composed,
-  with a material of its own, one entrance story when first seen, a phone version, and new
-  layout sizes (Black holes tall, Pompeii square, Time travel wide); the cards' styles move to
-  `/front.css`. Details in `docs/decisions.md`.
-- **PR H, the drawing leads** (live since 2026-10-16, willgibs/dorkhub#20): every card is its drawing, edge to
-  edge, with only its kind and title; one card plays at a time as you scroll; Black holes becomes
-  the hero (a ray-traced disk, as Luminet drew one in 1979), Northern lights tall; Origami,
-  Atlantis, Magnets and Lightning replace Volcanoes, Time travel, Quicksand and Dreams on the cards
-  (all eight stay among the 33). Details in `docs/decisions.md`.
-- **PR I, the hero** (live since 2026-10-18, willgibs/dorkhub#22): dark mode near
-  black, no heading over the cards, Continue as the first suggestion with a play mark, and the
-  heading's last word stepping once through four topics in their colours to "anything" (Will chose
-  this over A, "What are you curious about?"). Details in `docs/decisions.md`.
-- **PR J, the article page** (live since 2026-10-18, willgibs/dorkhub#23, B, Will's pick of two): the measure, a
-  card's drawing carried into its page, the picture as a captioned plate, the link card in the margin, the title
-  in the top bar, the small capitals, sources, and the thread (where you came from, the end drawn as threads out
-  to the six ways on). A stays on `experience/article-a`. Details in `docs/decisions.md`.
-- **The front page's 33 pages** (live since 2026-10-19, willgibs/dorkhub#25): written the way any page is, by
-  the production writer in one pass, in small batches scored between, with the line of key facts on every page
-  and the prompt fixed from what the first tries showed. Details in `docs/decisions.md`.
-- **Next: the writer, page by page** (Will, 2026-10-19: get any page right on the first try, quickly). Keep the
-  loop: small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs <dir>`), a rule only for a failure on two or more
-  pages of different kinds, a regression set unlike the front page whenever the prompt changes. Once credits land,
-  the real writer replaces the stand-ins, and pages written ahead of time are rewritten when the prompt changes, so
+Will (2026-10-19): get any page right on the first try, quickly. Judge against `docs/vision.md`.
+- **Page by page.** Small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs
+  <dir>`); a prompt rule only for a failure on two or more pages of different kinds; a regression set unlike the
+  front page whenever the prompt changes. Pages written ahead of time are rewritten whenever the prompt changes, so
   they never fall behind live pages (one bar). **(Will)** The 11 earlier pages (Tardigrades and the rest) were
   written and fact-checked the old way: rewrite them in one pass too?
-- Later, each needing Will's go: a durable page store (Runtime Cache is best effort), one
-  write per page in flight, graph keyboard navigation, re-recording the three mock pages that
-  still say "your path".
-
-Will wants the generative UI and the whole experience solid first. Judge everything
-against `docs/vision.md`. v1 shipped in PR willgibs/dorkhub#1, v2 in PR willgibs/dorkhub#3
-(merged 2026-10-14). From Will's review of #3:
-
-- **The polish pass is live** (willgibs/dorkhub#8, merged 2026-10-15 as 6fc9c22 after Will's
-  look): one motion scale, calm failure states (a paused page offers free pages written ahead
-  of time), icon-closed sheets over a blurred backdrop, a scrim for the phone's tools, and the
-  404 in the identity. Shots: https://claude.ai/artifact/7XnVHxLSVNMgxVS8BXMpQk
-  - Then, live too: the open phone tools above toasts (willgibs/dorkhub#9), and Will's landing
-    notes (willgibs/dorkhub#10): Inter for the interface (Literata stays for reading), a
-    wordmark-only nav, plain preset chips, How it works first, and chains of familiar names.
-    Shots: https://claude.ai/artifact/ESExHbGpi2R97bkWDJhVpg
-  - The recap's "Where to dig next" heading is now "Where to go next" (format v3).
-- **The new hero and the reading page are live** (willgibs/dorkhub#6 and willgibs/dorkhub#7,
-  merged 2026-10-15 after Will's look). Shots: https://claude.ai/artifact/8nqFKG8iUwG7HwjqcfbDTJ
-  - Not done: up next dripping out of the tools button, the goo's planned stretch goal (it
-    docks beside the button instead).
-  - Left out on purpose: libraries.dev's Voice (a mic would send readers' audio to Google or
-    Apple), Metal and Bot avatars (decoration).
-  - Once live pages exist: check the orbs' pacing and the picture reveal on real timings.
-- **The landing hero and the panel polish are live** (PRs willgibs/dorkhub#4 and
-  willgibs/dorkhub#5, merged after Will's look at the previews). For later rounds, reinstall
-  the transitions.dev skills with `npx skills add Jakubantalik/transitions.dev`; for Pro,
-  `npx transitions-dev login`, then `npx transitions-dev skill` (Pro licenses Will
-  personally). Keep the page-500 test.
-- **The door list, before any more seeds. Proposal sent 2026-10-14** (the artifact in
-  `docs/state.md`), waiting for his numbers.
-  - Criteria: interesting to any new visitor; a real range of fields; well documented, so
-    every claim can be checked; a good Wikipedia lead picture; evergreen and not grim;
-    specific, not an umbrella subject.
-  - Keep: the Carrington Event, Why is ice slippery?, Whale falls, Tulip mania, Fresnel
-    lenses, Umami.
-  - New: Ultramarine (art), the theremin (music), Linear B (language), Benford's law (maths),
-    Pareidolia (the mind), Why do we yawn? (the body). Each hook was checked against its
-    Wikipedia article.
-  - Off the landing: Tardigrades and the Antikythera mechanism (stock curiosities our own
-    prompt bars as links), the Voynich manuscript (Linear B covers lost scripts), Kessler
-    syndrome (a second space door), Bioluminescence (an umbrella subject). Their pages
-    stay and join the dice.
-  - The Great Emu War's Wikipedia lead picture is a dead emu, shown beside the opening, so
-    it leaves the dice too unless its picture is turned off.
-  - Surprise me: pre-written pages only (built in #4). Once credits land, a pool of 13 live
-    topics, also in the artifact.
-  - When he picks: write and fully check each new door, update `DOORS` and `CHAINS` (each
-    chain starts at a door), and rebuild the index. The 12 written stay until replaced.
-- **Layer 2 (pages one click off the doors) is on hold.** Our advice: stop at the doors
-  for now and let credits start at the second page. A live Haiku page costs about
-  a tenth of a cent at the gateway's list prices (2026-11-13; measure in §1), while each pre-written page needs a full fact-check
-  (about 250–300k Claude tokens each for the doors), and all 240 would need redoing if
-  the door list or the format changed. Revisit once real costs are known.
-- **Accuracy** (Will: factual errors in a knowledge tool are "very, very bad"). Plan sent
-  2026-10-14:
-  - pre-written pages: a full source check of every number, date, name and attribution
-    (done for the 12 doors, and the rule for every new one);
-  - live pages: **grounding tested 2026-10-14.** 8 non-door topics; 16 Haiku stand-in pages,
-    plain and with the topic's Wikipedia intro as reference notes; a blind Opus fact-check of
-    1,087 claims. Wrong or disputed claims fell from 5.8% to 3.9% (32 to 21; 4.0 to 2.6 per
-    page), with pages no blander. It is not significant on eight topics (p ≈ 0.14): better on 5,
-    tied on 1, worse on 2. On the Ghent Altarpiece, four errors came straight from Wikipedia's
-    own outdated intro.
-    - Cost: about 500 extra input tokens (about $0.00005 a page), and a 113 ms median fetch
-      from a Mac (cache it, and time-box it).
-    - Hover hooks are the most error-prone part of a page (9% of their claims), and the notes
-      don't cover them.
-    - **Parked (Will, 2026-10-15).** No model, prompt, fact or performance testing until the
-      base product settles, so nothing has to be tested twice. Grounding waits with the model
-      eval (§3). The results above stand for when it's picked up: facts from the notes, not
-      their wording; credit and link the article (CC BY-SA); tighten the hooks.
-  - factual accuracy is a hard gate in the model eval (`docs/eval-plan.md`), scored by
-    fact-checking a sample of real pages per model;
-  - if the number-heavy panels (figures, guess, timeline) invite errors, tighten or cut
-    them in the prompt;
-  - the stand-ins in `lib/recorded.js` are not fact-checked; they replay only in dev,
-    e2e and previews, never in production.
-- **Live pages.** Re-read at least 5 live pages once credits exist, to confirm what the
-  Haiku stand-ins showed. Replace the stand-ins in `lib/recorded.js` with live pages
-  (`scripts/recorded.mjs`; the raw text is in the reader's localStorage).
-- **Secondary UI.** Quiz, recap, thread and expand only ever showed mock output.
-  Record real outputs for them, then judge their layouts.
-- **Phone.** Check paragraph spacing on touch now that ¶ appears only on tap.
-- **Flow and weight.** Look at latency (first word, J to next page) once live timings
-  exist, and re-measure page weight after v2.
-
-**Ideas to bring to Will** (don't build without his go):
-- Shareable pages or the Hub (`docs/prototype/`).
-- A Pro waitlist.
-- An Open Graph image.
-- Privacy-preserving page-view analytics. This would need a change to the footer's "nothing
-  you read is tracked."
+- **Replace the stand-ins.** `lib/recorded.js` holds Haiku stand-ins written through a Claude Code subagent, not
+  fact-checked; three still say "your path" (the old voice). Re-record them from live output
+  (`scripts/recorded.mjs`). They replay only in dev, the walk and previews, never in production.
+- **Live pages.** Re-read at least five live pages to confirm what the stand-ins showed.
+- **Secondary UI.** Quiz, recap, thread and expand have only ever shown mock output: record real outputs, then
+  judge their layouts.
+- **Accuracy** (Will: factual errors in a knowledge tool are "very, very bad"). Grounding was tested 2026-10-14 on
+  16 stand-in pages and a blind fact-check of 1,087 claims: wrong or disputed claims fell from 5.8% to 3.9%, not
+  significant on eight topics; hover hooks were the most error-prone part (9%). Parked with the eval at Will's word
+  (2026-10-15); `lib/grounding.js` and `docs/eval-plan.md` carry it. If the number-heavy panels invite errors,
+  tighten or cut them in the prompt.
+- **Flow and weight.** Latency (first word, J to the next page) once live timings exist.
 
 ## 3. The model eval (Will gives the go and approves the cost)
 
-Built and proven on the mock (2026-11-13): `docs/eval-plan.md`, `node scripts/eval.mjs plan`. Nothing has been
-run. Other models (Sonnet 5.5 as the writer, OpenAI, Gemini) are a `--models` flag on the same harness, after the
-first look says which prompt to carry forward.
+Built and proven on the mock (2026-11-13): `docs/eval-plan.md`, `node scripts/eval.mjs plan`. Nothing has been run.
+Its writers need the gateway (cents); its judges run on the subscription (`--judge-via claude`). Then Will's blind
+picks in `review.html`, and the winner wired into `lib/write.js` (`composePage`; `split` is the early favourite)
+with `PROMPT_VERSION` bumped. Other models (Sonnet 5.5 as the writer, OpenAI, Gemini) are a `--models` flag on the
+same harness, after the first look.
 
 ## 4. Pro (after Will sets pricing)
 
-- Accounts created at checkout only.
-- Stripe.
-- A credits ledger, with server-side entitlement that replaces the trial for subscribers.
-- Bring-your-own-key stays available.
+- Accounts created at checkout only. Stripe. A credits ledger, with server-side entitlement that replaces the trial
+  for subscribers. Bring-your-own-key stays available.
 
-## 5. Engineering hygiene
+## 5. Long-term, each needing Will's go
 
-- **Real Redis.** Verify `redisCounters` and the library's `redisLayer` against real Upstash once it's
-  connected; both have only been tested against a fake.
-- **Prompt caching** for the static instructions: the `split` variant sends them as the system message;
-  measure the saving in the eval, and check the provider's minimum cacheable length first.
+- **One HTML shell instead of 46 copies.** Each deployment stores the ~390 KB page 46 times, so that every address
+  has its own link preview. A function that writes the head would cut stored output and build time; it changes how
+  previews are served. A product trade.
+- **A shared feed** (the prototype's Hub, `docs/prototype/`), and a Pro waitlist.
+- **Privacy-preserving page-view analytics.** Would need a change to the footer's "nothing you read is tracked".
+- **More writers** (OpenAI, Gemini): wired in, switched off until the eval clears them.
+
+## 6. Engineering hygiene
+
+- **Real Redis.** Verify `redisCounters` and the library's `redisLayer` against real Upstash once it's connected;
+  both have only been tested against a fake.
+- **Prompt caching** for the static instructions: the `split` variant sends them as the system message; measure
+  the saving in the eval, and check the provider's minimum cacheable length first.
 - **Structured outputs** for the JSON tools (part of the eval).
 - **`DH_SALT`.** Optional; without it the project ID is the salt.
-- **Trial size on the page.** `TRIAL_PAGES` is baked into the page at build time from
-  `DH_TRIAL_PAGES`. Changing that setting in Vercel needs a redeploy before the page shows
-  the new number; the server enforces it immediately.
+- **Trial size on the page.** `TRIAL_PAGES` is baked in at build time from `DH_TRIAL_PAGES`: changing it in Vercel
+  needs a redeploy before the page shows it; the server enforces it at once.
+- **Room on the page.** The page budget is 400 KB (`tests/page.test.js`), `front.json`'s 192 KB
+  (`tests/front.test.js`). Moving the front cards' behaviour into a file of its own would free ~25 KB from every
+  page, but needs the CSP to admit a second script.
+- Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone, keyboard
+  focus into the sticky bar scrolls the page.
