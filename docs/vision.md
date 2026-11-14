@@ -103,7 +103,7 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
 - The look (Will, 2026-10-15): modern, sleek and sophisticated, while light, minimal, seamless
   and fluid. Paper, raised surfaces and one scale of elevation. Motion on transitions.dev's
   scale, effects ported from libraries.dev. The brand spectrum (all eight link colours)
-  appears once: the beam riding the composer's edge.
+  appears once: the front page's footer, where the wordmark is set in lamps (see Lamps).
 - Dots say the machine is working: the Doto wordmark, thinking orbs during a real wait (a
   different motion for each kind of wait), and pictures that resolve out of a field of dots.
 - Your world is lit dots on deep paper: each topic glows in its colour, sized by how
@@ -120,7 +120,7 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
   - Colour is a topic's kind and nothing else.
   - Brackets and a faint grid where the app is an instrument: a map, a plate.
   - Dots where the machine is at work (the wordmark, a wait, a picture arriving) and for the numbers it reads
-    out, at display size only.
+    out, at display size and only when the number stands alone (see Lamps).
   - Three controls: a bare icon; a pill, ink for the one thing to do and a hairline for the rest; a chip for a
     topic.
   - **A state is a page.** Not written yet, paused, out of free pages, failed: each keeps a page's anatomy (a
@@ -142,7 +142,39 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
     keeps its own copy of a duration: it waits for the motion to end, or reads the token.
   - A recipe (the menu button's morph, the counter's digits) keeps its own choreography, with its values named once
     beside it.
+  - **A move runs both ways.** What travelled out travels home: Back returns a page's picture and title to the
+    card or the link they came from. Readers go back and forth all the time; a move that only works going in
+    teaches them the way back is second-class (Will, 2026-11-13). Your world is no exception: a page's title lands on
+    its topic's name on the map and comes back from it, and a name opened on the map becomes the title.
   - Reduced motion turns all of it off.
+- **Lamps** (2026-11-13; up for Will's look). The dot face made physical: Dorkhub's mark is a board of round lamps
+  on a regular grid. It answers three things Will asked for: a footer wordmark with its colour but "distinct from
+  any LGBTQ mixup, our bespoke and recognizable version"; "more presence in the top bar, our single persistent
+  interface"; and "our bespoke identity" where the composer wore a borrowed beam.
+  - A lamp is unlit (a faint dot), lit in ink, or lit in a kind's colour when what it reads out has a kind.
+    Nothing else on a board has colour.
+  - **The wordmark is set in lamps.** At display size each lamp is drawn, not typed.
+  - **The wordmark is ink, and takes colour only for what the reader has read**: one lamp for each page read, in
+    that page's kind. Otherwise colour passes through it and leaves: the word lights across in the eight colours
+    as it arrives and cools to ink, the pointer warms lamps to a kind's colour and they cool behind it, and a kind
+    named in the key lights its lamps (the reader's own, or before anything is read, the lamps that hold it).
+  - **Our spectrum is the eight kinds as separate lamps, never a sweep.** Where many kinds show at once they are
+    scattered, or stand in the order of the reader's own world: no bands, no blend from one hue into the next,
+    no red-to-violet order. That is what keeps it ours and not a flag's.
+  - **A count that stands alone is set in lamps**: the top bar's counts, Your world's head, a score. A number
+    inside a line of text stays in the text's face: a change of face mid-line makes the reader ask "why is that
+    different?" instead of reading the number (Will).
+  - **Position is a row of lamps**: how far down a page the reader is, how many free pages are left, how many
+    questions are answered.
+  - **Brackets mark an instrument the reader works**: the map's stage, a plate. Four corners, no glow; focus draws
+    them in. The composer keeps its glow instead (Will, 2026-11-14: "I hate the caret replacing our cool glow in
+    the input"), rebuilt so it turns on the compositor alone and costs the main thread nothing.
+  - **A board rests.** Lamps move once when something changes (arriving, answering the pointer, a write
+    beginning) and then hold still. No loop runs while nothing is happening, so a board costs nothing at idle.
+    Reduced motion shows the resting board.
+  - **Small to look at, easy to hit.** A control may stay small and refined; the area that takes a tap does not:
+    at least 44 px for the controls a thumb uses all the time, at least 24 px for everything else (Will: big
+    controls are a junior's reflex, but common touch controls must stay highly clickable).
 
 ## Anatomy of a page (the generative UI)
 

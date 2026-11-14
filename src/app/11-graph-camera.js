@@ -17,7 +17,8 @@ export function resize(S) {
   const was = S.cw; S.cw = Math.max(1, Math.round(r.width)); S.ch = Math.max(1, Math.round(r.height));
   S.cv.width = Math.round(S.cw * S.DPR); S.cv.height = Math.round(S.ch * S.DPR); S.cv.style.width = `${S.cw}px`; S.cv.style.height = `${S.ch}px`;
   /* the first real size (a sidebar that just opened): frame the world now that there is room to */
-  if (!S.userMoved && S.g.nodes.length && (was <= 1 || !S.camTo)) frameView(S, S.lastCenter, true);
+  /* not while a name is landing: the title is on its way to where the map is now */
+  if (!S.userMoved && !S.lift && S.g.nodes.length && (was <= 1 || !S.camTo)) frameView(S, S.lastCenter, true);
   wake(S);
 }
 /* the view: around a topic (the small map) or everything */

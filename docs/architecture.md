@@ -136,7 +136,15 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   kind's colour, shows the card pointing would and is announced through `#srLive`; Enter opens it,
   Escape lets it go and then leaves; on /world + - 0 zoom and fit, and the camera follows only a
   selection about to leave the view. While a map has focus only those keys are its own (it stops them
-  reaching the page's handler); the pointer takes the card back by pointing. Positions are kept when
+  reaching the page's handler); the pointer takes the card back by pointing. A map lends a topic's name
+  an element for a move to or from a page (`lift(key, { land })` on the graph view, `lift` in `11-graph.js`):
+  a small canvas painted as the map paints the name (`nameStand`, `11-graph-paint.js`), named `hero` for
+  the view transition, while the map draws the leader but not the words. Leaving, it stands where the name
+  was last drawn (or the card's title travels, when the card shows the topic); landing, the camera is put
+  at rest, the topic held still and the map drawn whole, and the name is drawn first from then on
+  (`firstSpot`), so it sits where the title landed. Each move is one object in `04-pages.js`
+  (`prepMove`, `nameFor`, `onMove`, `endMove`): it clears only the names it set, and runs what it left
+  to do once the old view is captured and once it has landed. Positions are kept when
   they move (a settle, a drag let go) and on sleep, destroy and pagehide, never on a timer.
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
   The hero (`viewStart`): the heading, whose last word steps once through four of `FRONT`'s topics
@@ -195,6 +203,39 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   read (not written yet, paused, out of free pages, failed: a state is a page, `stateOf` in
   `06-page-end.js`), draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
   free and instant.
+- **Lamps** (`src/app/03-lamps.js`; the law is in `docs/vision.md`, Identity). `MARK` is "dorkhub" as the dot
+  face sets it, 41 lamps by 7. `lampBoard(host, { read, allKinds, arrive })` draws it on a canvas as a board: every
+  place on the grid a lamp, the word's lit and the rest faint. The lit lamps are ink at rest. `read` (pages read
+  by kind) makes one lamp *owned* per page, in its kind, and owned lamps keep their colour; every other lit lamp
+  holds a *latent* kind (the eight in equal shares) that shows only while colour passes through it. Kinds are
+  dealt by largest remainder along a fixed scatter (a lattice on the plastic number, with the kinds in an order
+  that keeps neighbours on the colour wheel apart), so the spectrum never forms a band or a sweep; read past the
+  92 lit lamps, every lamp is owned, in proportion. `allKinds` makes every lamp owned (the old board, kept as an
+  alternative). The board draws only while a lamp has somewhere to go: arriving (once a visit, when half of it is
+  seen: every lamp in colour, a hold, then the lamps not owned cool to ink), warming to the pointer (a latent
+  colour shows as far as it is warmed) and cooling behind it, or calling one kind out (`only`: its owned lamps,
+  or its latent ones when nothing is read, the rest hushed). At rest it asks for no frame; reduced motion draws
+  the resting board once. `init()` hands the stylesheet the board's shape (`--wordmark-ar`) and the mark as a
+  picture (`--wordmark`, an SVG a rule paints through as a mask) for where it stands small and still.
+  - **The footer** (`footHTML`, `mountFoot` in `13-landing.js`): the fine print, a key to the eight kinds, and
+    the board across the page, given what the reader has read (`worldIndex`) as `read`. Each kind in the key has
+    its count, most read first; nothing read, the key names all eight. Pointing at a kind in the key, or giving
+    it keyboard focus (each kind that can be called out is a tab stop with a name like "Phenomena, 11 pages
+    read"), calls out its lamps.
+  - **The composer** wears a glow on its edge (`.cglow`) and a row of lamps (`.clamps`). The glow is the
+    stylesheet's: the eight colours stand still around the edge while a cone of light turns over them. What turns
+    is a square as wide as the box's diagonal (`.cg-turn`, the cone its mask); the colours ride a box-sized layer
+    inside it that turns back as it turns on (`.cg-fix`), so they stand still; the one-pixel ring and the inner
+    band are masks on layers that never move; the bloom is the bead clipped to the box and blurred by the
+    compositor. Only `transform` and `opacity` animate, so the main thread never draws it. It is brighter while the
+    composer has focus and brighter still as a page is asked for (`.cbox.go`); `watchGlow()` pauses it off screen
+    (an IntersectionObserver toggling `.off`), and reduced motion shows it still, at its resting strength. The
+    lamps: unlit at rest, awake while it listens, all lit as a page is asked for, all in the stylesheet. `heard()`
+    flashes the next lamp along for each key and gives the box the kind of what is typed once it is known (a
+    topic in `DOORS`, or a page the reader has read); the heading's stepping word lends the lamps its colour while
+    nothing is typed.
+  - **A page's end** carries the mark small, through the mask, on `.colfoot`: faint ink until the page is
+    written, then the colour of its kind.
 - **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
   placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a
   real page's shape (an opening, sections, two notes, two panels, six cards, three questions),

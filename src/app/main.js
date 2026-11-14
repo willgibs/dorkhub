@@ -1,5 +1,6 @@
 /* The page's entry. No module does anything when it loads; each one's init() runs here, in this order. */
 import { init as initUtil } from './02-util.js';
+import { init as initLamps } from './03-lamps.js';
 import { init as initOrbs } from './03-orbs.js';
 import { init as initRender } from './05-render.js';
 import { init as initReading } from './07-reading.js';
@@ -15,6 +16,7 @@ import { init as initRouter } from './16-router.js';
 import { init as initShare } from './17-share.js';
 
 initUtil();
+initLamps();
 initOrbs();
 initRender();
 initReading();

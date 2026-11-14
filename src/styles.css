@@ -119,19 +119,25 @@ kbd{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding:
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:6px;height:var(--top-h);padding:0 20px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color var(--d-fast) var(--ease-out);view-transition-name:topbar}
 /* the hairline appears once the page has moved under the bar */
 body.scrolled .top{border-bottom-color:var(--line)}
-.logo{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none}
-.logo span{font:900 22px/1 var(--f-dot);letter-spacing:.01em}
-/* the top bar's actions share one shape: an icon in a 36 px target, or an icon and its count with the
-   same padding either side; a count is set the same everywhere. Space inside a target is tighter than
-   between targets, so each icon reads with its own number. */
-.top-r{display:flex;align-items:center;gap:2px;margin-left:auto;flex:none}
-.tb{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:var(--ctl);min-width:var(--ctl);padding:0 10px 0 9px;border:0;border-radius:var(--r-2);background:transparent;color:var(--mute);font:600 13px/1 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none;transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
+/* where a page is open, its row of lamps is the bar's edge, so the hairline steps aside */
+body.scrolled .top:has(>.prog:not([hidden])){border-bottom-color:transparent}
+/* the wordmark is the mark, not a label: set larger and closer than any word on the bar, in ink. The link's tap
+   area runs the bar's height (44 px) while the letters keep their size */
+.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out)}
+.logo::before{content:"";position:absolute;inset:-11px 0}
+.logo span{font:900 26px/1 var(--f-dot);letter-spacing:-.02em}
+/* the top bar's actions share one shape: an icon in a 36 px box, or an icon and its count with the same padding
+   either side; a count is set the same everywhere. What takes a tap is 44 px: the box grown 4 px each way, with 8 px
+   between boxes so no two tap areas meet. */
+.top-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.tb::before{content:"";position:absolute;inset:-4px}
+.tb{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:var(--ctl);min-width:var(--ctl);padding:0 10px 0 9px;border:0;border-radius:var(--r-2);background:transparent;color:var(--mute);font:600 13px/1 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none;transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
 .tb.ib{width:var(--ctl);padding:0}
 .tb:hover,.tb[aria-expanded="true"],.voice[open]>.tb{background:var(--panel);color:var(--ink)}
 .tb::-webkit-details-marker{display:none}
-/* a count is part of its icon, not a badge: the icon's own colour, a size under it, figures of one width, and set on
-   the icon's optical middle (cap height to baseline) */
-.tb-c{font:500 12.5px/1 var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:0;color:inherit;text-box:trim-both cap alphabetic}
+/* a count is part of its icon, not a badge. It stands alone, so it is set in lamps (the dot face), lit in ink beside
+   its quieter icon, and set on the icon's optical middle (cap height to baseline) */
+.tb-c{font:900 17px/1 var(--f-dot);letter-spacing:.02em;color:var(--ink);text-box:trim-both cap alphabetic}
 .tb-c:empty{display:none}
 .voice{position:relative}
 .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(330px,86vw);transform-origin:top right;animation:popin var(--d-fast) var(--ease-out) both}
@@ -159,15 +165,35 @@ body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibili
 .menu-btn{display:none}
 /* once the page's title has scrolled away, it waits in the middle of the top bar, so you always know where you are;
    a click goes back to the top */
-.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px);padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
+.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px,var(--t-room,560px));padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
 .top-t[data-kind]{color:var(--kc)}
 .top-tt{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .top-t:hover{background:var(--panel)}
 body.titled .top-t{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
 body.at-start .top-t,body.at-world .top-t{display:none}
-@media (max-width:760px){ .top-t{display:none} }
-.prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--acc);transition:width var(--d-micro) linear}
-body.at-start .prog{display:none}
+.top-t::before{content:"";position:absolute;inset:-8px 0}
+/* on a phone there is no room for both: once the title has gone under the bar, the wordmark yields its place to it,
+   and comes back when the reader returns to the top */
+@media (max-width:760px){
+  /* the title sits on the bar's own paper: nothing readable passes behind it */
+  .top{background:var(--bg)}
+  .top-t{left:14px;right:60px;max-width:none;padding:6px 0;font-size:15px;transform:translateY(-50%) translateY(var(--dist-micro))}
+  body.titled .top-t{transform:translateY(-50%)}
+  .top-t:hover{background:transparent}
+  /* out of sight, the home link stays in the Tab order and the accessibility tree (no visibility:hidden); the title takes
+     its taps. When the keyboard reaches it, it shows, and the title steps aside, so focus never rests on something unseen */
+  body.titled:not(.at-start):not(.at-world) .logo:not(:focus){opacity:0;pointer-events:none;transition:opacity var(--d-quick) var(--ease-out)}
+  body.titled:not(.at-start):not(.at-world) .top:has(.logo:focus) .top-t{opacity:0;pointer-events:none}
+}
+/* Position is a row of lamps along the bar's lower edge: unlit lamps are faint, and they light in the page's kind colour
+   as far as the reader has read. The row holds a whole number of lamps (--n, about one every --pitch), so none is cut at
+   its end. Script writes how many are lit (--lit) only when that number changes, at most once a
+   frame while scrolling and never at rest. Where there is no position (the front page, Your world) the row is absent
+   and the bar keeps its hairline. */
+.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x}
+.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x;clip-path:inset(0 calc(100% - 100% * var(--lit,0) / var(--n,1)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
+body.at-start .prog,body.at-world .prog{display:none}
+@media (prefers-reduced-motion:reduce){ .prog::after{transition:none} }
 
 /* ================= shell & sidebar: Your world beside the page, closed by default ================= */
 .shell{display:grid;grid-template-columns:var(--side-w,288px) minmax(0,1fr);min-height:calc(100% - var(--top-h));transition:grid-template-columns var(--d-medium) var(--ease-out)}
@@ -597,8 +623,14 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pv-list{display:grid;gap:3px;margin:10px 0 0;padding:0 0 0 21px;list-style:decimal;font-variant-numeric:tabular-nums}
 .pv-list a{color:var(--mute);text-decoration:none}
 .pv-list a:hover{color:var(--ink);text-decoration:underline}
-/* the one note that pages can be wrong: once, at the bottom of the page */
-.colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* the one note that pages can be wrong: once, at the bottom of the page, on the reading column (.article's width and
+   padding), so the mark and the fine print read as the column's last line */
+.colfoot{max-width:calc(580px + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* a page ends as the front page does, on the mark and the fine print: the wordmark in lamps (03-lamps.js hands it over
+   as a picture), small and still. It is unlit, in faint ink, until the page is written; then it is lit in the colour of
+   the page's kind */
+.colfoot::before{content:"";display:block;width:184px;aspect-ratio:var(--wordmark-ar);margin:20px 0 16px;background:var(--ink);opacity:.3;-webkit-mask:var(--wordmark) 0 0/100% 100% no-repeat;mask:var(--wordmark) 0 0/100% 100% no-repeat;transition:background-color var(--d-wash) var(--ease-in-out),opacity var(--d-wash) var(--ease-in-out)}
+.column:has(.article[aria-busy="false"] .a-end .card)+.colfoot::before{background:var(--acc);opacity:1}
 .speaking{border-radius:var(--r-2);background:var(--mark);box-shadow:0 0 0 6px var(--mark)}
 /* ================= a state is a page (stateOf in 06-page-end.js) =================
    Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,
@@ -765,6 +797,10 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
    with the page, on its duration and curve */
 ::view-transition-group(*){animation-duration:var(--d-slow);animation-timing-function:var(--ease-out)}
 ::view-transition-old(hero),::view-transition-new(hero){height:100%;width:auto;object-fit:contain;object-position:left top}
+/* a move runs both ways: what has nowhere on screen to land (the link scrolled away, a card off the front page's
+   fold) leaves and arrives with the page, so nothing outlasts the clock */
+::view-transition-old(hero):only-child,::view-transition-old(plate):only-child{animation:vt-out var(--d-quick) var(--ease-in) both}
+::view-transition-new(hero):only-child,::view-transition-new(plate):only-child{animation:vt-in var(--d-slow) var(--ease-out) both}
 
 
 /* ================= search or ask anything ================= */
@@ -839,12 +875,6 @@ body.at-start .omni-btn{display:none}
   body:not(.at-start) .colfoot{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
 
-/* ================= the footer's wordmark: all eight colours ================= */
-:root{--spec:linear-gradient(90deg,#2563EB,#0E7C86,#2F7D32,#A16207,#C2410C,#BE123C,#A21CAF,#6D28D9)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}}
-:root[data-theme="dark"]{--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}
-
-
 /* ================= colour as information: what a link leads to ================= */
 [data-kind="concept"]{--kc:#2563EB}[data-kind="phenomenon"]{--kc:#0E7C86}[data-kind="mechanism"]{--kc:#2F7D32}[data-kind="place"]{--kc:#A16207}
 [data-kind="person"]{--kc:#C2410C}[data-kind="event"]{--kc:#BE123C}[data-kind="thing"]{--kc:#A21CAF}[data-kind="mystery"]{--kc:#6D28D9}
@@ -893,16 +923,83 @@ body.at-start .omni-btn{display:none}
 .lw-w.in{animation:lwin var(--d-medium) var(--ease-out) both}
 @keyframes lwin{from{opacity:0;filter:blur(var(--blur-m));transform:translateY(.18em)}}
 .lw-m{position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none}
-/* the composer: one surface with the beam riding its edge; what you type, then the tools that shape it */
+/* the composer: one raised surface with a glow riding its edge; what you type, then the tools that shape it, and a row of
+   lamps that says what the machine is doing */
 .composer{position:relative;z-index:5;width:100%;margin-top:30px;text-align:left}
-.cbox{--beam-r:var(--r-4);--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:--beam-strength var(--d-slow) var(--ease-out),box-shadow var(--d-fast) var(--ease-out)}
-.cbox.go{--beam-strength:1.5}
-.composer:focus-within .cbox{--beam-strength:1;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
-.cbox>:not(.beam-bloom):not(.cmirror){position:relative;z-index:4}
+.cbox{--lit:.46;--cedge:color-mix(in srgb,var(--ink) 7%,transparent);position:relative;display:grid;gap:2px;padding:16px 12px 10px 20px;border-radius:var(--r-4);background:var(--surface);box-shadow:inset 0 0 0 1px var(--cedge),0 1px 2px rgba(16,17,20,.04),0 18px 44px -24px rgba(16,17,20,.3);transition:box-shadow var(--d-fast) var(--ease-out)}
+.composer:focus-within .cbox{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 14%,transparent),0 1px 2px rgba(16,17,20,.05),0 22px 52px -24px rgba(16,17,20,.36)}
+.cbox>:not(.cglow):not(.cmirror){position:relative;z-index:4}
+/* the glow (after border-beam, https://libraries.dev/beam, MIT: see /licenses.txt). The eight kinds' colours stand still
+   around the edge while a cone of light turns over them once every four seconds, lighting each as it passes, with a
+   bright bead at its head. It is as strong as the moment: .7 at rest, 1 while the composer has focus, 1.5 as a page is
+   asked for (.cbox.go).
+   It costs the main thread nothing: only transform and opacity move, on layers painted once. What turns is a square as
+   wide as the box's diagonal, about the box's centre, its cone a mask that turns with it. The colours ride a box-sized
+   layer inside it that turns back as it turns on, so they stand still while the cone passes over them. The one-pixel
+   ring at the edge and the band inside it are masks on layers that never move, so they stay sharp. The bloom is the
+   bead clipped to the box and then blurred, by the compositor, as the original's was. Off screen it pauses
+   (13-landing.js); with reduced motion it stands still, lit, at its resting strength */
+.cglow{--cg-r:var(--r-4);--cg-s:.7;--cg-hl:0 0 0;--cg-ha:.6;--cg-1:.7;--cg-2:.5;--cg-3:.25;--cg-sh:rgba(0,0,0,.08);--cg-cone:conic-gradient(transparent 30%,rgb(255 255 255 / .1) 36%,rgb(255 255 255 / .35) 44%,#fff 52%,#fff 80%,rgb(255 255 255 / .35) 86%,rgb(255 255 255 / .1) 92%,transparent 95%);position:absolute;inset:0;z-index:1;overflow:hidden;clip-path:inset(0 round var(--cg-r));container-type:size;pointer-events:none;animation:cg-on .6s ease both}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .cglow{--cg-hl:255 255 255;--cg-ha:1;--cg-1:.85;--cg-2:.75;--cg-3:.4;--cg-sh:rgba(255,255,255,.16)} }
+:root[data-theme="dark"] .cglow{--cg-hl:255 255 255;--cg-ha:1;--cg-1:.85;--cg-2:.75;--cg-3:.4;--cg-sh:rgba(255,255,255,.16)}
+.cbox.go .cglow{--cg-s:1.5}
+.composer:focus-within .cbox .cglow{--cg-s:1}
+.cglow i{position:absolute}
+/* three layers, each as strong as the moment: the inner glow, the stroke, the bloom */
+.cg-in,.cg-edge,.cg-bloom{inset:0;transition:opacity var(--d-slow) var(--ease-out)}
+/* the inner glow: the colours, softer, and a faint shadow, within 28 px of the edge */
+.cg-in{--cg-band:linear-gradient(#fff,transparent 28px,transparent calc(100% - 28px),#fff),linear-gradient(to right,#fff,transparent 28px,transparent calc(100% - 28px),#fff);opacity:calc(var(--cg-2) * var(--cg-s));-webkit-mask:var(--cg-band);mask:var(--cg-band)}
+/* the stroke and the bloom: each a one-pixel ring at the edge */
+.cg-edge,.cg-bloom{border-radius:calc(var(--cg-r) - 1px);padding:1px;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude}
+.cg-edge{opacity:calc(var(--cg-1) * var(--cg-s))}
+.cg-bloom{opacity:calc(var(--cg-3) * var(--cg-s))}
+/* what turns: squares as wide as the box's diagonal, about its centre. The cone is the mask of the square that carries
+   the colours */
+.cg-turn,.cg-hl,.cg-bead{left:50%;top:50%;width:calc(100cqw + 100cqh);width:hypot(100cqw,100cqh);aspect-ratio:1;margin:calc((100cqw + 100cqh) / -2);margin:calc(hypot(100cqw,100cqh) / -2);animation:cg-turn 4s linear infinite}
+.cg-turn{-webkit-mask:var(--cg-cone);mask:var(--cg-cone)}
+/* the colours, on the box's own shape, turning back as the square turns on, so they stand still: the eight link colours
+   at glow strength, placed around the edge. The layer reaches a pixel past the box on every side, so the box's last
+   row of pixels is coloured even where the compositor puts a moving layer a fraction of a pixel off */
+.cg-fix{left:50%;top:50%;width:calc(100cqw + 2px);height:calc(100cqh + 2px);margin:calc(-50cqh - 1px) 0 0 calc(-50cqw - 1px);animation:cg-turn 4s linear infinite reverse}
+.cg-in .cg-fix{border-radius:calc(var(--cg-r) + 1px);box-shadow:inset 0 0 9px 2px var(--cg-sh);background:radial-gradient(ellipse 54px 32px at 12% -5%,rgb(59 130 246 / .45),transparent),radial-gradient(ellipse 63px 36px at 33% -7.4%,rgb(244 63 94 / .45),transparent),radial-gradient(ellipse 67px 29px at 93.9% 0%,rgb(249 115 22 / .45),transparent),radial-gradient(ellipse 47px 43px at 100% 27.1%,rgb(245 158 11 / .45),transparent),radial-gradient(ellipse 23px 38px at 100% 27.1%,rgb(217 70 239 / .45),transparent),radial-gradient(ellipse 162px 29px at 74.4% 100%,rgb(139 92 246 / .45),transparent),radial-gradient(ellipse 77px 23px at 55% 100%,rgb(59 130 246 / .45),transparent),radial-gradient(ellipse 36px 63px at 2.1% 68.3%,rgb(34 197 94 / .45),transparent),radial-gradient(ellipse 18px 32px at 2.1% 68.3%,rgb(20 184 166 / .45),transparent)}
+.cg-edge .cg-fix{background:radial-gradient(ellipse 60px 35px at 12% -5%,rgb(59 130 246),transparent),radial-gradient(ellipse 70px 40px at 33% -7.4%,rgb(244 63 94),transparent),radial-gradient(ellipse 74px 32px at 93.9% 0%,rgb(249 115 22),transparent),radial-gradient(ellipse 52px 48px at 100% 27.1%,rgb(245 158 11),transparent),radial-gradient(ellipse 26px 42px at 100% 27.1%,rgb(217 70 239),transparent),radial-gradient(ellipse 180px 32px at 74.4% 100%,rgb(139 92 246),transparent),radial-gradient(ellipse 85px 26px at 55% 100%,rgb(59 130 246),transparent),radial-gradient(ellipse 40px 70px at 2.1% 68.3%,rgb(34 197 94),transparent),radial-gradient(ellipse 20px 35px at 2.1% 68.3%,rgb(20 184 166),transparent)}
+/* the light at the cone's head: ink on paper, light on dark */
+.cg-hl{background:conic-gradient(transparent 54%,rgb(var(--cg-hl) / calc(.1 * var(--cg-ha))) 57%,rgb(var(--cg-hl) / calc(.3 * var(--cg-ha))) 60%,rgb(var(--cg-hl) / calc(.6 * var(--cg-ha))) 63%,rgb(var(--cg-hl) / calc(.75 * var(--cg-ha))) 66%,rgb(var(--cg-hl) / calc(.6 * var(--cg-ha))) 69%,rgb(var(--cg-hl) / calc(.3 * var(--cg-ha))) 72%,rgb(var(--cg-hl) / calc(.1 * var(--cg-ha))) 75%,transparent 78%)}
+/* the bloom: a bead of light where the cone is brightest, clipped to the box, then blurred */
+.cg-blur{inset:0;overflow:hidden;border-radius:calc(var(--cg-r) - 1px);filter:blur(8px)}
+.cg-bead{background:conic-gradient(transparent 58%,rgb(var(--cg-hl) / calc(.03 * var(--cg-ha))) 62%,rgb(var(--cg-hl) / calc(.08 * var(--cg-ha))) 65%,rgb(var(--cg-hl) / calc(.2 * var(--cg-ha))) 67%,rgb(var(--cg-hl) / calc(.45 * var(--cg-ha))) 69%,rgb(var(--cg-hl) / calc(.85 * var(--cg-ha))) 70%,rgb(var(--cg-hl) / calc(.85 * var(--cg-ha))) 70.5%,rgb(var(--cg-hl) / calc(.45 * var(--cg-ha))) 71.5%,rgb(var(--cg-hl) / calc(.2 * var(--cg-ha))) 73%,rgb(var(--cg-hl) / calc(.08 * var(--cg-ha))) 75%,rgb(var(--cg-hl) / calc(.03 * var(--cg-ha))) 78%,transparent 82%)}
+/* both ends are written out: with only an end, Chromium takes the start from the layer's own style and, every time it
+   looks again, starts the turn over on the compositor, which wakes the main thread every frame */
+@keyframes cg-turn{from{transform:rotate(0deg)}to{transform:rotate(1turn)}}
+@keyframes cg-on{from{opacity:0}to{opacity:1}}
+.cglow.off,.cglow.off i{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){ .cglow,.cglow i{animation:none} .cglow{--cg-s:.7!important} .cg-turn,.cg-hl,.cg-bead{transform:rotate(150deg)} .cg-fix{transform:rotate(-150deg)} }
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
 .cmirror{position:absolute;left:20px;top:18px;z-index:5;max-width:calc(100% - 40px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
-.ctools{display:flex;align-items:center;gap:6px;margin-left:-8px}
+.ctools{display:flex;align-items:center;gap:6px;min-width:0;margin-left:-8px}
+/* the lamps: unlit at rest, faint dots; awake while the machine listens, coming on one after the next, and each key
+   it hears flashes the next lamp along (13-landing.js); all of them lit as the page is asked for, at once, so the view
+   that leaves carries them lit. Ink, or the colour of the topic's kind once that is known, and stronger for it */
+/* on a narrow phone the tool row is full: the lamps are the least needed thing in it, so they yield first, a whole lamp at
+   a time (one that no longer fits wraps out of sight), and then the voice's chip shrinks to an ellipsis. Voice, key and
+   send never shrink, so send stays inside the box */
+.clamps{display:inline-flex;flex-wrap:wrap;flex-shrink:1000;min-width:0;height:6px;overflow:hidden;gap:4px;margin-left:auto}
+/* the row's margins are empty items, so they go with the lamps; the first holds the first line, so even the first lamp
+   can wrap away */
+.clamps::before,.clamps::after{content:"";width:4px;height:6px}
+.ctools>.cvoice,.ckey,.send{flex:none}
+#seedChips{display:inline-flex;min-width:0}
+.cchip{min-width:0;max-width:100%}
+.cchip-t{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.clamps i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
+.cbox[data-kind]{--lit:.9}
+.cbox[data-kind] .clamps i{background:var(--kc)}
+.cbox:focus-within .clamps i{opacity:var(--lit);transform:scale(.8);transition-delay:calc(var(--i) * var(--d-stagger))}
+.clamps i.hit{animation:lamphit var(--d-vslow) var(--ease-out)}
+@keyframes lamphit{0%,22%{opacity:1;transform:none}}
+.cbox.go .clamps i{opacity:1;transform:none;transition:none;animation:none}
+@media (prefers-reduced-motion:reduce){ .clamps i{transition-delay:0s!important} }
 .ctool,.ckey,.cchip,.send,.pr-shuf{display:inline-flex;align-items:center;justify-content:center;border:0;cursor:pointer;font:600 13px/1 var(--f-ui);transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out),box-shadow var(--d-quick) var(--ease-out)}
 .ctool{width:34px;height:34px;border-radius:var(--r-pill);background:transparent;color:var(--mute);list-style:none}
 .ctool::-webkit-details-marker{display:none}
@@ -914,9 +1011,9 @@ body.at-start .omni-btn{display:none}
 details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
 @keyframes popout{to{opacity:0;transform:scale(var(--scale-m))}}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
-.cchip .ic{width:14px;height:14px;color:var(--mute)}
+.cchip .ic{flex:none;width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
-.ckey{gap:6px;height:36px;margin-left:auto;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
+.ckey{gap:6px;height:36px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .ckey .ic{width:16px;height:16px}
 .ckey b{font:600 12.5px/1 var(--f-mono);color:var(--ink);font-variant-numeric:tabular-nums}
 .ckey:hover{background:var(--sunken)}
@@ -942,11 +1039,22 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 .pr-list.out .door{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .pr-list.in .door{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 .hero .status{justify-content:center;margin-top:22px}
-/* the footer: the wordmark in all eight link colours, then the fine print */
-.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:60px 28px 72px;border-top:1px solid var(--line)}
-.lf-mark{display:inline-block;font:900 clamp(44px,7vw,84px)/1 var(--f-dot);letter-spacing:-.01em;background:var(--spec);-webkit-background-clip:text;background-clip:text;color:transparent}
-.credit{max-width:62ch;margin-top:20px;font-size:12.5px;line-height:1.55;color:var(--faint)}
-.credit a{color:inherit}
+/* the footer: the fine print and the key to the eight colours, then the wordmark set in lamps across the page, as wide
+   as the cards above it. The board takes its shape from its grid (03-lamps.js), and its canvas reaches a little past
+   it, for a lamp at the edge that swells */
+.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:36px 28px 48px;border-top:1px solid var(--line)}
+.credit{max-width:62ch;font-size:12.5px;line-height:1.55;color:var(--faint)}
+.credit a{display:inline-block;margin:-6px 0;padding:6px 0;color:inherit}
+.lf-key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:clamp(30px,4.4vw,56px) 0 18px;font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
+.lf-key .lbl{margin-right:auto}
+/* where the kinds would not all fit beside the key's name, they run on under it */
+@media (max-width:1040px){ .lf-key .lbl{flex-basis:100%} }
+.lk{cursor:default;transition:opacity var(--d-quick) var(--ease-out)}
+.lk[data-kind]{color:var(--kc)}
+.lk b{margin-left:1px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.lf-key:has(.lk[data-kind]:hover) .lk:not(:hover),.lf-key:has(.lk[data-kind]:focus-visible) .lk:not(:focus-visible){opacity:.45}
+.lf-board{position:relative;aspect-ratio:var(--wordmark-ar);color:var(--ink)}
+.lamps{position:absolute;left:-4px;top:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
 @media (max-width:560px){
   /* the hero is exactly one screen */
   .hero{--peek:120px;min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek));padding-top:20px;padding-bottom:24px}
@@ -958,8 +1066,12 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
   .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
   .door-cont{max-width:58vw}
   .cbox{padding:14px 10px 8px 16px}
+  .clamps::before,.clamps::after{width:0}
   #seedIn,.cmirror{font-size:16px}
   .cmirror{left:16px;top:16px}
+  /* the board keeps the cards' edges */
+  .land-foot{padding:28px 16px 36px}
+  .lf-key{gap:6px 16px;margin-bottom:14px}
 }
 /* on the landing the top bar is the wordmark alone: keys and voice live in the composer. The theme switch is on every
    page (on a phone, in the menu) */
@@ -1026,6 +1138,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .gv-tip.leaving{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none!important}
 .gv-tip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--acc))}
 .gv-tip.act{pointer-events:auto}
+/* a topic's name lent an element for a move to or from a page (11-graph.js lift): set where the map draws it, as it draws it */
+.gv-stand{position:absolute;z-index:2;display:block;pointer-events:none}
 .gt-k{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .gt-k .kind{font:inherit}
 .gt-t{margin-top:5px!important;font:650 15.5px/1.25 var(--f-ui);letter-spacing:-.01em}
@@ -1052,6 +1166,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;color:var(--faint)}
 .wp-find .ic{width:16px;height:16px}
 .wp-find input{width:min(200px,38vw);border:0;background:transparent;font:500 14px var(--f-ui);color:var(--ink);outline:none}
+/* an empty field keeps no room for its clear button, so the placeholder is whole on a 320 px phone */
+.wp-find input:placeholder-shown::-webkit-search-cancel-button{display:none}
 .wp-kinds{display:inline-flex;gap:2px;height:36px;padding:0 6px;align-items:center}
 .wp-kinds button{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
 .wp-kinds i{width:9px;height:9px;border-radius:50%;background:var(--kc);transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
@@ -1158,3 +1274,21 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 /* like Your world, a trail has no sidebar, nor the page's tools button on a phone */
 body.at-trail .shell{grid-template-columns:minmax(0,1fr)}
 body.at-trail :is(.side,.fab){display:none!important}
+
+/* ================= small to look at, easy to hit (Lamps) =================
+   A control keeps its size; what takes the tap grows, as an empty box around it (a pseudo-element), never into a
+   neighbour's. 44 px for what a thumb reaches for all the time (the bar's icons, the floating button, the page's tools, a
+   sheet's close, a pill), 24 px for everything else. :where() keeps the rule at no weight, so a control that is placed
+   (absolute, fixed, sticky) by its own rule stays where it is. */
+:where(.btn,.tools>.tool,.tools>.more>summary,.sh-x,.wp-find,.pic figcaption a,.credit a){position:relative}
+.btn::before{content:"";position:absolute;inset:-5px 0}
+/* the page's tools: 34 px icons 10 px apart, each taking 44 */
+.tools{gap:10px}
+.tools>.tool::before,.tools>.more>summary::before{content:"";position:absolute;inset:-5px}
+.sh-x::before{content:"";position:absolute;inset:-4px}
+/* Your world's find field: the whole pill takes a tap and gives it to the field, which fills the pill's height */
+.wp-find::before{content:"";position:absolute;inset:-4px 0}
+.wp-find input{align-self:stretch}
+/* a picture's credit and the footer's Credits link stay small type; their tap areas are 24 px or more */
+.pic figcaption a::before{content:"";position:absolute;inset:-4px -2px}
+.credit a::before{content:"";position:absolute;inset:-5px -4px}

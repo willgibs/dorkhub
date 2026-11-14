@@ -6,11 +6,12 @@
    /trail/<a>/<b>…  a trail someone shared (17-share.js)
    #/w/<id>/<id>    an address from before Dorkhub had clean links: sent on to its page */
 import { clip, plain } from '../shared/article.js';
-import { addStep, pageId, parseRoute, routeOf } from '../shared/world.js';
+import { addStep, pageId, parseRoute, routeOf, topicKey } from '../shared/world.js';
 import { LENSES } from './01-data.js';
-import { $, $$, esc, isLeaving, leave, save, settle, shut, stay, store, toast, write } from './02-util.js';
+import { $, $$, esc, isLeaving, leave, save, settle, shut, stay, store, toast, tokenMs, write } from './02-util.js';
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
-import { ACTIVE, CUR, HERO, OPENED, PLATE, canVT, curPage, curTrail, ensurePage, go, openTopic, pageInput, pageOf, quiet, setCUR, trailPages } from './04-pages.js';
+import { ACTIVE, CUR, HERO, OPENED, PLATE, STEP, canVT, cleanTitle, curMove, curPage, curTrail, ensurePage, go, inView, nameFor, openTopic, pageInput, pageOf, prepMove, setCUR, startTransition, setSTEP, trailPages } from './04-pages.js';
+import { nodeKeyOf } from '../shared/graph.js';
 import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
 import { doubtPage, stateBodyHTML, stateOf, toggleSave } from './06-page-end.js';
 import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
@@ -19,7 +20,7 @@ import { renderVoice, setLens } from './09-start.js';
 import { IDXKIND, applySide, bridgeSheet, landSheet, listen, makeBridge, narrow, openIndexEntry, recall, renderIndex, renderIndexList, renderQuiz, renderSide, setIDXKIND, setIDXSORT, setSIDE, stopListening, toggleSide } from './10-tools.js';
 import { MINI, WORLD, leaveWorld, showWorld } from './11-world.js';
 import { closeMenu, omni, openOmni, openPage, renderWorldBtn, setFab, syncFab } from './12-chrome.js';
-import { mountPlate, rethemeLanding, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
+import { cardOf, frontShown, mountPlate, rethemeLanding, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
 import { forgetKey, keysSheet, renderKeyBtn, saveKey } from './15-keys.js';
 import { showTrail, walked } from './17-share.js';
 export let VIEW = '', FIRST = true, GUARD = new Map();
@@ -32,22 +33,85 @@ function setView(v) {
 }
 /* a route change clears everything at once: nothing that was leaving is left over the new view */
 function closeFloating() { settle(); hideSel(true); hideCard(true); closePMenu(false, true); closeMenu(false, true); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
+/* an address the router puts right keeps its place in the visit: its count, or for an entry the browser made (an old
+   #/ address typed or followed), one step on from where the reader was */
+const keepStep = () => { const s = history.state || {}; return { ...s, y: 0, n: s.n != null ? s.n : FIRST ? (STEP ?? 0) : (STEP ?? 0) + 1 }; };
 export function route() {
   closeFloating();
   const h = location.hash;
-  if (h.startsWith('#/w/')) { const [, , wid, nid] = h.split('/'); const p = pageOf(store.legacy[wid] && store.legacy[wid][nid]); history.replaceState({ y: 0 }, '', p ? routeOf(p.req) : '/'); }
-  else if (h === '#/' || h === '#') history.replaceState({ y: 0 }, '', '/');
+  if (h.startsWith('#/w/')) { const [, , wid, nid] = h.split('/'); const p = pageOf(store.legacy[wid] && store.legacy[wid][nid]); history.replaceState(keepStep(), '', p ? routeOf(p.req) : '/'); }
+  else if (h === '#/' || h === '#') history.replaceState(keepStep(), '', '/');
   const r = parseRoute(location.pathname, location.search);
   if (r.view === 'page') showPage(r.input);
   else if (r.view === 'trail') { setView('trail'); showTrail(r.steps); }
-  else if (r.view === 'world') { setView('world'); setCUR(''); document.documentElement.dataset.accent = 'concept'; showWorld(); window.scrollTo(0, 0); renderWorldBtn(); updateProg(); }
-  else { if (r.view === 'none') history.replaceState({ y: 0 }, '', '/'); showHome(); }
+  else if (r.view === 'world') {
+    const from = curPage(); setView('world'); setCUR(''); document.documentElement.dataset.accent = 'concept'; showWorld(); window.scrollTo(0, 0); renderWorldBtn(); updateProg();
+    /* the page's title, sent from the bar's Your world button, lands on its topic */
+    if (HERO) { const el = from && landing(from); if (el && inView(el)) nameFor(curMove(), el, 'hero'); }
+  }
+  else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
+  setSTEP(history.state && history.state.n != null ? history.state.n : null);
   FIRST = false;
 }
 function showHome() {
   setView('home'); setCUR(''); document.documentElement.dataset.accent = 'concept';
   $('#view').innerHTML = viewStart(); startLanding(); document.title = 'dorkhub: learn about anything';
   window.scrollTo(0, 0); updateProg(); renderWorldBtn();
+  /* back where you were, once the cards below the composer are made */
+  const y = (history.state && history.state.y) || 0;
+  if (y) frontShown().then(() => { if (VIEW === 'home') { window.scrollTo(0, y); updateProg(); } });
+}
+/* ================= a move runs both ways =================
+   Going in, what you clicked travels: the words become the page's title, a card's drawing its plate (04-pages.js go).
+   Back makes the same move in reverse: the title travels home into the link, question or card it came from, and a
+   card's page's plate into its card, when that is on screen once scroll is restored; if not, the plain move. Forward
+   again makes the forward move from whatever on screen leads there. Between a page and Your world the move is the same
+   whichever way it runs: the page's title and its topic's name on the map travel into each other (the map lends the
+   name an element: 11-graph.js lift). */
+/* the map's end of a move: the topic's name on Your world, landing or leaving */
+const landing = p => (WORLD ? WORLD.lift(nodeKeyOf(p), { land: true }) : null);
+const pageAt = r => pageOf(pageId({ ...r.input, lens: LENSES[r.input.lens] ? r.input.lens : 'encyclopedic' }));
+/* to Your world from anywhere: from a page, its title travels */
+export const toWorld = () => go('/world', { src: VIEW === 'page' ? $('.a-title') : null });
+const sameTopic = (a, b) => !!a && !!b && topicKey(cleanTitle(a)) === topicKey(cleanTitle(b));
+/* on a page, the link, card or question on screen that opens `title` */
+function sourceOn(title) {
+  for (const el of $$('#view a.hole[data-t], #view .a-end .card[data-t] .cd-t, #view [data-q] .rt')) {
+    const owner = /** @type {HTMLElement} */ (el.closest('[data-t], [data-q]'));
+    if (owner && sameTopic(owner.dataset.t || owner.dataset.q, title) && inView(el)) return { hero: el };
+  }
+  return null;
+}
+/* the things that travel to or from `title` in the view on screen: on the front page its card, on a page what opens it */
+const sourceOf = title => VIEW === 'home' ? cardOf(title) : VIEW === 'page' ? sourceOn(title) : null;
+/* a page's own end of the move: its title, and its plate if it has one */
+const ownEnd = () => ({ hero: $('.a-title'), plate: $('.a-plate') });
+function travel() {
+  /* where this entry and the one we left stand in the visit; an entry from before Dorkhub counted its steps has none, and
+     with neither side counted, Back can't be told from Forward: then the plain move */
+  const n = history.state && history.state.n != null ? history.state.n : null;
+  const known = n != null || STEP != null; const back = (n ?? 0) < (STEP ?? 0);
+  const r = parseRoute(location.pathname, location.search); const leaving = curPage();
+  /* Back: this page's title (and plate, going home to its card) leave for where they came from; Forward: what leads to
+     the next page leaves for its title and plate */
+  /* between a page and Your world, Back and Forward make one move: the title and the topic's name on the map, either way */
+  const world = (VIEW === 'world' && r.view === 'page') || (VIEW === 'page' && r.view === 'world' && !!leaving);
+  let out = !known ? null : back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(r.input.title) : null);
+  if (world && known) { const to = VIEW === 'world' ? pageAt(r) : null; out = to ? { hero: WORLD && WORLD.lift(nodeKeyOf(to)) } : VIEW === 'page' ? ownEnd() : null; }
+  const m = prepMove(); const named = [];
+  if (out) for (const n of ['hero', 'plate']) { const el = out[n]; if (el && inView(el) && (n === 'hero' || (back ? r.view === 'home' : VIEW === 'home'))) { nameFor(m, el, n); named.push(n); } }
+  const land = () => {
+    const into = world ? (VIEW === 'page' ? ownEnd() : leaving ? { hero: landing(leaving) } : null) : back ? (leaving ? sourceOf(leaving.req.title) : null) : (VIEW === 'page' ? ownEnd() : null);
+    for (const n of named) { const el = into && into[n]; if (el && inView(el)) { nameFor(m, el, n); if (n === 'hero') el.classList.remove('enter'); } }
+  };
+  const run = () => {
+    route();
+    if (!named.length) return undefined;
+    /* the front page's cards are made a moment after it is: wait for them, but never longer than the old view takes to leave */
+    if (VIEW === 'home') return Promise.race([frontShown(), new Promise(ok => setTimeout(ok, tokenMs('--d-quick')))]).then(land);
+    land(); return undefined;
+  };
+  startTransition(m, run);
 }
 const fromHere = () => { try { return !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) { return false; } };
 function showPage(input) {
@@ -63,8 +127,8 @@ function showPage(input) {
      clicked words faded where they were while the title rose on its own), and arrives whole, without rising as well;
      the card arrives as the plate, box and drawing together (naming only the drawing left the box to fade in with the
      page, a second picture under the travelling one) */
-  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); t.style.viewTransitionName = 'hero'; } }
-  if (PLATE) { const w = $('.a-plate'); if (w) w.style.viewTransitionName = 'plate'; }
+  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); nameFor(curMove(), t, 'hero'); } }
+  if (PLATE) { const w = $('.a-plate'); if (w) nameFor(curMove(), w, 'plate'); }
   window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); syncTopTitle();
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */
@@ -119,8 +183,9 @@ let wasNarrow, sheetW = 0;
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 BOOT = Date.now();
-/* back and forward make the same move as a click, from every view, unless the browser has already animated it (a swipe) */
-addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
+/* back and forward make the same move as a click, from every view, the other way when it is Back, unless the browser has
+   already animated it (a swipe) */
+addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) travel(); else route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
   /* a popover's own button closes it the way it opened, and opens it again if it is still leaving */
@@ -161,7 +226,7 @@ document.addEventListener('click', e => {
   if (a && plainClick(e) && !a.hasAttribute('download') && !a.target && parseRoute(new URL(a.href).pathname).view !== 'none') {
     const u = new URL(a.href); const r = parseRoute(u.pathname, u.search); e.preventDefault(); if (sheet.open) sheet.close();
     if (r.view === 'page') { const pid = pageId({ ...r.input, lens: LENSES[r.input.lens] ? r.input.lens : 'encyclopedic' }); const p = pageOf(pid); if (p && p.status !== 'empty') { openPage(p, 'link'); return; } openTopic(r.input.title, { via: 'link', lens: r.input.lens, ctx: r.input.ctx, q: r.input.q, bridge: r.input.bridge }); return; }
-    go(u.pathname + u.search); return;
+    if (r.view === 'world' && !u.search) toWorld(); else go(u.pathname + u.search); return;
   }
   const act = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-act]')); if (!act) return;
   const x = act.dataset.act; if (act.tagName === 'A') e.preventDefault();
@@ -220,7 +285,7 @@ document.addEventListener('keydown', e => {
   if (VIEW === 'home') { if (e.key === '/') { e.preventDefault(); $('#seedIn')?.focus(); } else if (k === 'g') go('/world'); return; }
   if (e.key === '/') { e.preventDefault(); openOmni(); return; }
   if (k === 'n') { e.preventDefault(); go('/'); return; }
-  if (k === 'g') { if (VIEW !== 'world') go('/world'); return; }
+  if (k === 'g') { if (VIEW !== 'world') toWorld(); return; }
   const p = curPage(); if (VIEW !== 'page' || !p) return;
   const sec = secFor(p.id);
   if (/^[1-6]$/.test(e.key)) { const c = sec && $(`.card[data-n="${e.key}"]`, sec); if (c) { e.preventDefault(); c.click(); } }
@@ -231,7 +296,7 @@ document.addEventListener('keydown', e => {
   else if (k === 'q') recall(false);
   else if (k === 'c') bridgeSheet(p);
   else if (k === 'p') listen(p);
-  else if (k === 'i') { setSIDE('index'); if (narrow()) go('/world'); else toggleSide(true); setTimeout(() => $('#ixq')?.focus(), 50); }
+  else if (k === 'i') { setSIDE('index'); if (narrow()) toWorld(); else toggleSide(true); setTimeout(() => $('#ixq')?.focus(), 50); }
   else if (k === 'r' && p.status !== 'digging') rewrite(p);
   else if (k === 'f') recapTrail(false);
   else if (k === 'a') { e.preventDefault(); sec && $('.ask input', sec)?.focus(); }
@@ -242,7 +307,7 @@ new MutationObserver(rerenderTheme).observe(document.documentElement, { attribut
 wasNarrow = narrow(); sheetW = innerWidth;
 addEventListener('resize', () => { clearTimeout(selT); setSelT(setTimeout(() => { hideSel(); if (!(keepsSheet() && innerWidth === sheetW)) hideCard(); sheetW = innerWidth; closePMenu(); if (narrow() !== wasNarrow) { wasNarrow = narrow(); renderSide(); } }, 150)); });
 $('#keyBtn').addEventListener('click', () => keysSheet());
-$('#worldBtn').addEventListener('click', () => go('/world'));
+$('#worldBtn').addEventListener('click', toWorld);
 if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 renderKeyBtn();
 renderVoice();

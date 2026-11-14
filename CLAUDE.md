@@ -79,11 +79,13 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
 ## Working with Will
 Show, don't describe. For anything a reader would notice, push a branch and send Will the
 Vercel preview URL (previews need his Vercel login), with screenshots from `npm run e2e`.
-Every change and every open question also goes on the **review desk**, a private page he keeps open
-(https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp): its number, its pictures before and after (or now and
-proposed), and a link to the place itself, so he never has to hunt. `node .e2e/desk/build.mjs` rebuilds it from
-the lists at its top and the pictures in `.e2e/desk/shots/` (both untracked); republish the same file to keep
-its address. Builders' briefs say where their before-and-after pictures go.
+What is open also goes on the **review desk**, a private page he keeps open
+(https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp): each question for him (numbered) and each piece in progress,
+with its pictures before and after (or now and proposed) and a link to the place itself, so he never has to hunt.
+Nothing already live belongs there: when a change reaches dorkhub.com, take it off the desk in the same sitting,
+because the site is the record. `node .e2e/desk/build.mjs` rebuilds it from the two lists at its top and the
+pictures in `.e2e/desk/shots/` (both untracked); republish the same file to keep its address. Builders' briefs say
+where their before-and-after pictures go.
 Merge to `main` only when `npm run verify` and `npm run e2e` are green.
 Will has given agents merge and deploy rights (2026-10-14); anything a reader would notice
 still gets his look at a preview first. He replies in numbered lists: answer every item,

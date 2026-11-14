@@ -1,4 +1,4 @@
-/* ================= reading progress: a thin line under the top bar ================= */
+/* ================= reading position: a row of lamps along the top bar's lower edge ================= */
 import { capFirst, clip, hookOf, keyOf, plain } from '../shared/article.js';
 import { asksQuestion, pageId, topicKey } from '../shared/world.js';
 import { LENS_SHORT, kattr, kindOf } from './01-data.js';
@@ -8,16 +8,45 @@ import { ACC, secFor, worldIndex } from './05-render.js';
 import { peek, unfold } from './06-page-end.js';
 import { narrow } from './10-tools.js';
 import { VIEW } from './16-router.js';
+/* How many lamps are lit, as last written: the row is written only when that number changes, so scrolling costs at most
+   one write a frame and a page at rest costs nothing. -1 is no position at all: the row is hidden, as it is on a page
+   too short to scroll. The row holds a whole number of lamps (--n): as many as fit at the stylesheet's pitch, read once,
+   which flexes a little so the last lamp is never cut; that is written only when the row's width changes. */
+let LIT = -2, N = 0, PITCH = 0;
 export function updateProg() {
-  const pr = $('#prog'); const sec = CUR && secFor(CUR); if (!sec) { pr.style.width = '0'; return; }
-  const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
-  pr.style.width = `${(v * 100).toFixed(1)}%`;
+  const pr = $('#prog'); const sec = CUR && secFor(CUR); let lit = -1;
+  const max = document.documentElement.scrollHeight - innerHeight;
+  if (sec && max > 0) {
+    if (pr.hidden) pr.hidden = false;
+    /* The reading line travels from the top of the viewport to its bottom as the document scrolls from start to end, so
+       nothing is lit at the top, every lamp is lit at the end, and the row never goes back while the reader goes down.
+       Where it stands against the page's own section is how far the reader is. */
+    const y = Math.min(scrollY, max), line = y + (y >= max - 1 ? 1 : y / max) * innerHeight;
+    const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (line - (r.top + scrollY)) / Math.max(1, r.height)));
+    PITCH = PITCH || parseFloat(getComputedStyle(pr).getPropertyValue('--pitch')) || 6;
+    const n = Math.max(1, Math.round(pr.getBoundingClientRect().width / PITCH));
+    if (n !== N) { pr.style.setProperty('--n', String(n)); N = n; }
+    lit = Math.round(v * n);
+  } else if (!pr.hidden) pr.hidden = true;
+  if (lit === LIT) return;
+  if (lit >= 0) pr.style.setProperty('--lit', String(lit));
+  LIT = lit;
 }
 /* the page's title in the top bar, once the title itself has gone under it, in its kind's colour */
 export function syncTopTitle() {
   const h1 = VIEW === 'page' && $('.a-title'); const on = !!h1 && h1.getBoundingClientRect().bottom < TOP_H() + 4;
   if (on) { const p = curPage(); const t = $('#topT'); const want = h1.textContent; if (t.dataset.t !== want) { t.dataset.t = want; $('.top-tt', t).textContent = want; } const k = kindOf((p && p.kind) || (ACC && ACC.kind) || ''); if ((t.dataset.kind || '') !== k) { if (k) t.dataset.kind = k; else delete t.dataset.kind; } }
   document.body.classList.toggle('titled', on);
+}
+/* The bar's title is centred on the bar, so its box may be at most twice its room to the nearer neighbour: the wordmark
+   on the left, the controls on the right (a count widens them). Measured only when the bar or its controls change size;
+   the stylesheet takes the smaller of this and its own cap. */
+const TITLE_CLEAR = 12;
+function fitTopTitle() {
+  const top = $('.top'), t = $('#topT'), l = $('.logo'), r = $('.top-r'); if (!top || !t || !l || !r) return;
+  const b = top.getBoundingClientRect(), mid = b.left + b.width / 2;
+  const room = 2 * Math.min(mid - l.getBoundingClientRect().right, r.getBoundingClientRect().left - mid) - 2 * TITLE_CLEAR;
+  const v = `${Math.max(0, Math.floor(room))}px`; if (t.style.getPropertyValue('--t-room') !== v) t.style.setProperty('--t-room', v);
 }
 /* back and forward return you to where you were on a page */
 let scrollQ = false, scrollT = 0;
@@ -206,7 +235,10 @@ export function setSelT(v) { return (selT = v); }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
+{ const ro = new ResizeObserver(fitTopTitle); ro.observe($('.top')); ro.observe($('.top-r')); }
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
+/* a page grows as it arrives, which moves the reader's place without a scroll: the lamps follow the page's length too */
+new ResizeObserver(() => updateProg()).observe($('#view'));
 addEventListener('scroll', () => {
   if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Date.now() > hcNudge && Math.abs(scrollY - hcY) > (hcard.classList.contains('docked') ? HC_READ_ON : 90)) hideCard(); }); }
   /* noted for this address only: a move in between (a click, back) must not hand this page's place to the next one */

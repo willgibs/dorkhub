@@ -4,37 +4,37 @@ _Ordered by priority. **(Will)** means it needs his decision or action first: as
 assume. Move finished items into `docs/decisions.md` (when a real decision was made) and
 keep `docs/state.md` current._
 
-## Now: one app (2026-11-13; the calls are in `docs/decisions.md`)
+## Now: one app, then launch (2026-11-13; the calls are in `docs/decisions.md`)
 
 Live: the engine wave (willgibs/dorkhub#30, #32, #33, #34), the walk's checks (#35), `makeGraph` split (#36), the
-writer's thinking settings (#38), the eval's subscription route (#41), and Wave 2 (#37 the link card as a sheet on
-phones, #40 Your world by keyboard, #39 sharing). In order from here:
-1. **One seamless app** (Will: 6 or 7 of 10 before these; "under a cohesive, rooted visual identity"). Live at
-   his word: willgibs/dorkhub#42, the cohesion wave, and #43, motion on one clock. Next, in order:
-   a. Live at his word: willgibs/dorkhub#44, the kit where it had not reached: the tool panels (peek, expand,
-      skeptic mode), the tool sheets (quiz, around this, connect, the trail) and their out-of-tools state, the
-      selection button, Your world's card. The front cards' drawings keep their own motion.
-   b. **Accessibility and speed**, audited 2026-11-13. Live (willgibs/dorkhub#45, merged on green because a
-      reader would not notice; the layout shift could not be reproduced and was left): focus returning to its opener when a sheet from
-      the More menu or the phone menu closes; the More menu by keyboard; the recap announcing once; search as a
-      combobox; heading order; the Enigma card's 28 Tab stops; the phone button's droplets by Tab; the aurora
-      picture loading lazily; the phone front page's layout shift. **(Will)** A reader could notice these four:
-      the Enigma keys' labels at 3.79:1; the Origami card's "Technique" at 4.19:1 and "IN" at 4.42:1; small
-      touch targets (Your world's find field 19 px tall, the image credit 17 px, the footer's Credits 15 px);
-      the composer's beam at about 10% of the main thread while in view. Noted, not proposed: the whole app is
-      inlined in each of 44 HTML files (363 KB, about 100 KB compressed), the price of a CSP with no external
-      scripts; a full minify would save about 6 KB compressed.
-      These four and the four ideas below are items 1 to 8 on the review desk, with pictures.
-   c. **(Will)** Which idea goes to a preview: dotted numerals in the figures panel and the trial count, more
-      presence for the top bar, the footer's wordmark elsewhere, the picture travelling back into its card on Back.
-2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
+writer's thinking settings (#38), the eval's subscription route (#41), Wave 2 (#37, #40, #39), the cohesion wave
+(#42), motion on one clock (#43), the kit on the tool panels and sheets (#44), the keyboard and screen-reader fixes
+from the audit (#45), builds skipped when nothing deployed has changed (#46) and the trimmed CI (#47). In order
+from here:
+1. **(Will) The lamps wave**, waiting on his look: one pull request from `design/lamps`, each piece numbered on
+   the review desk. His answers to the desk's eight items (the dot face only where a count stands alone; more
+   presence for the top bar; a wordmark that is ours and no flag's; moves that run both ways; any visual may be
+   redrawn if it stays performant; small controls with generous tap areas; the composer's beam must not cost
+   frames) became the Lamps rules in `docs/vision.md` and these pieces: the top bar; the composer's glow,
+   rebuilt; the footer's wordmark as a board of lamps; moves both ways, Your world included; five cards
+   redrawn; nothing running at rest; eight fixes from an independent review and a visual sweep. He chose ink
+   for the footer's word (14 Nov); every lamp a colour stays one option away (`allKinds` on `lampBoard`).
+   Not built, his to ask for: Fireworks, Venus flytraps and Pompeii redrawn (stopped as they started, to leave
+   tokens for his other agents: about 150k a card); Back landing in the composer; the front page's own maps
+   joining the moves.
+2. **(Will) A few dollars of gateway credit.** Live writing has never run, and #38 changed what it sends:
    `node scripts/prove.mjs https://dorkhub.com --spend --yes` proves it (section 1). The eval's writers need the
    gateway too (cents); its judges run on the subscription (`--judge-via claude`).
 3. The eval's first look, then Will's blind picks in `review.html`. Topics are in `scripts/eval/topics.json` (a
    proposal: swap any). Early signals, unjudged, are in `docs/eval-plan.md`.
 4. Wire the winner into `lib/write.js` (`composePage`; `split` is the early favourite), bump `PROMPT_VERSION`.
-5. **(Will)** Connect Upstash Redis (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
-6. Drop CI's second try for the walk after a week with no "needed a second try" warning.
+5. **(Will) Connect Upstash Redis** (free; his click), then whether `DH_LIBRARY=redis` keeps every finished page.
+6. **(Will) One HTML shell instead of 46 copies.** Each deployment stores the 360 KB page 46 times (16 of its
+   20 MB), so that every address has its own link preview. A function that writes the head would cut stored
+   output and build time; it changes how previews are served. Not started: a product trade.
+7. Drop CI's second try for the walk after a week with no "needed a second try" warning.
+8. **Room on the page.** It is 382 of the 384 KB that `tests/page.test.js` allows. Loading the front cards'
+   behaviour with `public/front.json` instead of in every page's script is the obvious first saving.
 
 ## 0. Blocked on Will (check each one's status before planning around it)
 

@@ -61,15 +61,37 @@ async function run(page, { mobile = false } = {}) {
     if (off) throw new Error('the front page still describes rabbit holes');
     await page.screenshot({ path: `${shots}/${tag}-1-landing.png` });
   });
-  /* the hero is one composer: its beam runs, send is Surprise me until there is something to read about, and the presets re-roll */
+  /* the hero is one composer, with a glow riding its edge: a cone of light turning over the eight colours, which loops
+     but moves only transform and opacity, so the main thread never draws it, and is brighter while the composer has
+     focus. A row of lamps, unlit at rest, awake while it listens, in a kind's colour only once the kind of what is typed
+     is known, all lit as a page is asked for. Nothing else in it runs on a loop. Send is Surprise me until there is
+     something to read about, and the presets re-roll */
   await step(`${tag}: the composer`, async () => {
-    const h = await page.evaluate(() => { const box = document.querySelector('#seedBox'); const cs = box && getComputedStyle(box); return { h1: document.querySelector('h1')?.textContent, beam: !!box && box.classList.contains('beam') && !!box.querySelector('.beam-bloom'), anim: cs ? cs.animationName : '', send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act }; });
+    const h = await page.evaluate(() => {
+      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')), glow = /** @type {HTMLElement} */ (box.querySelector('.cglow'));
+      const loops = /** @type {HTMLElement} */ (box.parentElement).getAnimations({ subtree: true }).filter(a => !Number.isFinite(Number(a.effect?.getComputedTiming().endTime)));
+      /* what each of the glow's running animations changes: a CSS transition names its property, an animation its keyframes' */
+      const changes = glow.getAnimations({ subtree: true }).filter(a => a.playState === 'running').flatMap(a => /** @type {any} */ (a).transitionProperty ? [/** @type {any} */ (a).transitionProperty] : /** @type {KeyframeEffect} */ (a.effect).getKeyframes().flatMap(k => Object.keys(k).filter(p => !['offset', 'computedOffset', 'easing', 'composite'].includes(p))));
+      return { h1: document.querySelector('h1')?.textContent, lamps: box.querySelectorAll('.clamps i').length, glow: box.querySelectorAll('.cglow').length, loops: loops.length, loopsElsewhere: loops.filter(a => !(/** @type {KeyframeEffect} */ (a.effect).target?.closest('.cglow'))).length, changes: [...new Set(changes)], send: document.querySelector('#seedGo')?.getAttribute('aria-label'), act: /** @type {HTMLElement} */ (document.querySelector('#seedGo'))?.dataset.act };
+    });
     /* the heading as read aloud: its last word may still be stepping through topics, but it is heard whole */
     const named = await page.locator('h1').ariaSnapshot();
-    if (!named.includes('heading "Learn about anything"') || !h.beam || !/beam-spin/.test(h.anim) || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
+    if (!named.includes('heading "Learn about anything"') || h.lamps !== 5 || h.glow !== 1 || h.loops < 1 || h.loopsElsewhere || !h.changes.length || h.changes.some(p => p !== 'transform' && p !== 'opacity') || h.send !== 'Surprise me' || h.act !== 'surprise') throw new Error(`composer: ${JSON.stringify(h)} ${named}`);
+    /* how strong the glow's stroke is and how lit the lamps are, once nothing but the glow's turn is moving */
+    const look = async () => {
+      await page.waitForFunction(() => !document.querySelector('#seedBox')?.getAnimations({ subtree: true }).some(a => a.playState === 'running' && Number.isFinite(Number(a.effect?.getComputedTiming().endTime))), null, { timeout: 15000 }).catch(() => {});
+      return page.evaluate(() => ({ glow: +(+getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox .cg-edge'))).opacity).toFixed(3), lamps: [...document.querySelectorAll('#seedBox .clamps i')].map(l => +(+getComputedStyle(l).opacity).toFixed(2)) }));
+    };
+    await page.focus('#seedIn'); const live = await look();
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); const rest = await look();
+    if (!(rest.glow > .3) || !(live.glow > rest.glow) || live.lamps.some(o => o < .4) || rest.lamps.some(o => o > .2)) throw new Error(`the composer's glow and lamps: ${JSON.stringify({ live, rest })}`);
+    /* a topic of the front page's is known for what it is; a question nobody has asked is not */
+    await page.fill('#seedIn', 'Black holes');
+    const known = await page.evaluate(() => { const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox')); const heard = box.querySelectorAll('.clamps i.hit').length; box.classList.add('go'); const sent = [...box.querySelectorAll('.clamps i')].every(l => getComputedStyle(l).opacity === '1'); box.classList.remove('go'); return { kind: box.dataset.kind || '', heard, sent }; });
+    if (known.kind !== 'phenomenon' || known.heard !== 1 || !known.sent) throw new Error(`the composer's lamps: ${JSON.stringify(known)}`);
     await page.fill('#seedIn', 'Why do cats purr?');
-    const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '' }; });
-    if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
+    const typed = await page.evaluate(() => { const b = /** @type {HTMLButtonElement} */ (document.querySelector('#seedGo')); return { label: b.getAttribute('aria-label'), type: b.type, act: b.dataset.act || '', kind: /** @type {HTMLElement} */ (document.querySelector('#seedBox')).dataset.kind || '' }; });
+    if (typed.label !== 'Start reading' || typed.type !== 'submit' || typed.act || typed.kind) throw new Error(`send after typing: ${JSON.stringify(typed)}`);
     await page.fill('#seedIn', '');
     const before = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));
     await page.locator('[data-act="shuffle"]').click();
@@ -168,6 +190,45 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
+  /* the page ends on the wordmark set in lamps, across its width: it lights across in the kinds' colours once it is
+     seen, then cools to ink, since nothing is read yet, and holds still; its key names the eight kinds, and pointing at
+     one lights that kind's lamps and hushes the rest; and the theme draws it again */
+  await step(`${tag}: the footer's board of lamps`, async () => {
+    const f = await page.evaluate(() => ({ label: document.querySelector('#footBoard[role="img"]')?.getAttribute('aria-label'), kinds: document.querySelectorAll('#footKey .lk[data-kind]').length, name: document.querySelector('#footKey .lbl')?.textContent, credits: !!document.querySelector('.land-foot .credit a[href="/licenses.txt"]') }));
+    if (f.label !== 'dorkhub' || f.kinds !== 8 || f.name !== 'Eight kinds of topic' || !f.credits) throw new Error(`the footer: ${JSON.stringify(f)}`);
+    /* how many of the board's solid pixels are in colour (a lamp lit in a kind's), how many are solid at all (a lit
+       lamp, ink or colour), and how light the solid ones are */
+    const lit = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, s = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { s++; l += d[i] + d[i + 1] + d[i + 2]; if (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; } return [n, s, s ? l / s / 3 : 0]; });
+    /* the board has come to rest when four looks at it over a second are the same (longer than the word holds its
+       colours before it cools) */
+    const settled = async () => { let was = '', same = 0; for (let i = 0; i < 60; i++) { const now = await lit(); if (String(now) === was) { if (++same === 3) return now; } else same = 0; was = String(now); await page.waitForTimeout(350); } throw new Error('the board never came to rest'); };
+    if (!mobile) await page.mouse.move(0, 0);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForFunction(() => { const r = /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, null, { timeout: 5000 });
+    /* arriving, the word is in colour */
+    const arriving = await page.waitForFunction(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) n++; return n > 1000; }, null, { timeout: 5000, polling: 50 }).then(() => true, () => false);
+    if (!arriving) throw new Error('the word did not light in colour as it arrived');
+    /* settled, with nothing read, every lit lamp is ink: no pixel of it is a kind's colour */
+    const rest = await settled();
+    if (rest[1] < 1000 || rest[0] > 20) throw new Error(`the board at rest: ${rest[1]} pixels lit, ${rest[0]} of them in colour`);
+    await page.locator('.land-foot').screenshot({ path: `${shots}/${tag}-1g-footer.png` });
+    if (mobile) return;
+    /* nothing read: a kind called out lights the lamps that hold it, and hushes the rest */
+    await page.hover('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const one = await settled();
+    await page.mouse.move(0, 0); await page.waitForTimeout(400); const all = await settled();
+    if (one[0] < 100 || one[1] > rest[1] * .4 || all[0] !== rest[0] || all[1] !== rest[1]) throw new Error(`calling out a kind: ${JSON.stringify({ rest, one, all })}`);
+    /* by keyboard: a kind in the key takes focus, has a name, and calls out its lamps as pointing does; blur lets go */
+    await page.focus('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const kb = await settled();
+    const named = await page.evaluate(() => { const e = /** @type {HTMLElement} */ (document.activeElement); return `${e.tabIndex} ${e.getAttribute('aria-label')}`; });
+    await page.evaluate(() => /** @type {HTMLElement} */ (document.activeElement).blur()); await page.waitForTimeout(400); const free = await settled();
+    if (String(kb) !== String(one) || named !== '0 Ideas' || String(free) !== String(rest)) throw new Error(`the key by keyboard: ${JSON.stringify({ one, kb, named, rest, free })}`);
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
+    for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const dark = await lit();
+    for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const back = await lit();
+    if (Math.abs(dark[2] - rest[2]) < 30 || Math.abs(back[2] - rest[2]) > 6) throw new Error(`the board's ink: light ${rest[2].toFixed(0)}, dark ${dark[2].toFixed(0)}, back ${back[2].toFixed(0)}`);
+  });
   /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
   if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
     await page.mouse.move(0, 0); await page.locator('#threadStage').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);
@@ -186,6 +247,11 @@ async function run(page, { mobile = false } = {}) {
     const p = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, fine: document.querySelector('.fineprint')?.textContent || '', paras: document.querySelectorAll('.a-body .pb').length, bridge: !!document.querySelector('.bridge') }));
     if (p.url !== '/tardigrades' || p.title !== 'Tardigrades' || p.paras < 3 || p.fine.trim() || p.bridge) throw new Error(`pre-written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a pre-written page spent a free page: ${await left()}`);
+    /* the page ends on the mark, small, above the fine print: a picture of the lamps, lit once the page is written */
+    const foot = () => page.evaluate(() => { const c = getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before'); return { lit: c.opacity, picture: /^url\("data:image\/svg/.test(c.maskImage || c.webkitMaskImage || ''), wide: c.width }; });
+    await page.waitForFunction(() => getComputedStyle(/** @type {Element} */ (document.querySelector('.colfoot')), '::before').opacity === '1', null, { timeout: 8000 }).catch(() => {});
+    const mark = await foot();
+    if (mark.lit !== '1' || !mark.picture || mark.wide !== '184px') throw new Error(`the mark at the page's foot: ${JSON.stringify(mark)}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* a card leads into one of the front page's topics: until its page is written it opens a placeholder, free
@@ -240,6 +306,43 @@ async function run(page, { mobile = false } = {}) {
     if (p.url !== '/black-holes' || p.fine.trim() || p.rows.length !== 3 || p.rows.some(r => !r.dt || !r.dd) || !p.under || !p.above || !laid || !p.plate) throw new Error(`the written page: ${JSON.stringify(p)}`);
     if ((await left()) !== String(PAGES)) throw new Error(`a page written ahead of time spent a free page: ${await left()}`);
     await page.screenshot({ path: `${shots}/${tag}-1f-written.png` });
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
+  /* a move runs both ways: Back from a card's page is the front page again, scrolled where the reader left it, and
+     nothing that travelled home still carries a view-transition name */
+  await step(`${tag}: back from a card's page returns to the front page, where you were`, async () => {
+    const card = page.locator('.wc[data-card="black-holes"] .wc-t a'); await card.waitFor();
+    await page.evaluate(() => document.querySelector('.wc[data-card="black-holes"]')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(400);
+    const y = await page.evaluate(() => Math.round(scrollY));
+    await card.click(); await page.waitForFunction(() => location.pathname === '/black-holes'); await waitDone();
+    await page.goBack(); await page.waitForFunction(() => location.pathname === '/'); await page.waitForSelector('.wc[data-card="black-holes"]'); await page.waitForTimeout(900);
+    const p = await page.evaluate(() => ({ y: Math.round(scrollY), named: [...document.querySelectorAll('body *')].map(el => getComputedStyle(el).viewTransitionName).filter(n => n && !['none', 'topbar', 'sidebar'].includes(n)) }));
+    if (Math.abs(p.y - y) > 4 || p.named.length) throw new Error(`back on the front page: ${JSON.stringify({ was: y, ...p })}`);
+  });
+  /* a move runs both ways with Your world too: the page's title lands on its topic's name on the map, Back sends it home,
+     and a topic opened on the map sends its name to be the title; each move carries one travelling name, and leaves
+     nothing named or standing in once it has landed */
+  const heroMoves = () => page.evaluate(() => new Promise(ok => { const t0 = performance.now(); const look = () => { if (document.getAnimations().some(a => /group\(hero\)/.test(a.effect?.pseudoElement || ''))) ok(true); else if (performance.now() - t0 > 2500) ok(false); else requestAnimationFrame(look); }; look(); }));
+  const leftover = () => page.evaluate(() => ({ named: [...document.querySelectorAll('body *')].map(el => getComputedStyle(el).viewTransitionName).filter(n => n && !['none', 'topbar', 'sidebar'].includes(n)), stands: document.querySelectorAll('.gv-stand').length }));
+  await step(`${tag}: a page's title and its topic on Your world travel into each other, both ways`, async () => {
+    await page.goto(`${base}/black-holes`); await waitDone(); await page.waitForTimeout(600);
+    let moved = heroMoves(); await page.keyboard.press('g'); await page.waitForFunction(() => location.pathname === '/world');
+    const to = await moved; await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(900); const atMap = await leftover();
+    moved = heroMoves(); await page.goBack(); await page.waitForFunction(() => location.pathname === '/black-holes');
+    const back = await moved; await waitDone(); await page.waitForTimeout(900); const atPage = await leftover();
+    if (!to || !back || atMap.named.length || atMap.stands || atPage.named.length) throw new Error(`page and map: ${JSON.stringify({ to, back, atMap, atPage })}`);
+  });
+  await step(`${tag}: a topic opened on Your world becomes the page's title`, async () => {
+    await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(900);
+    /* the find box flies the map to the topic: it rests at the stage's middle */
+    await page.fill('#wpFind', 'Black holes'); await page.press('#wpFind', 'Enter'); await page.waitForTimeout(1200);
+    /* on a desk, a click on the topic itself (its name travels); on a phone, the card the topic shows (its title travels) */
+    const b = await page.locator('#wpStage canvas').boundingBox(); if (!b) throw new Error('no map');
+    const moved = heroMoves();
+    if (mobile) await page.locator('.gv-tip.act [data-gv="open"]').click(); else await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForFunction(() => location.pathname === '/black-holes'); const went = await moved; await waitDone(); await page.waitForTimeout(900);
+    const after = await leftover();
+    if (!went || after.named.length || after.stands) throw new Error(`map to page: ${JSON.stringify({ went, after })}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
@@ -737,6 +840,30 @@ async function failedPhotos() {
     if (c.img !== 'hidden' || c.alt !== 'rgba(0, 0, 0, 0)' || c.credit !== 'hidden' || !/radial-gradient/.test(c.art) || c.title !== 'Northern lights') throw new Error(`the card: ${JSON.stringify(c)}`);
     await page.locator('.wc[data-card="northern-lights"]').screenshot({ path: `${shots}/desktop-11-photo-failed.png` });
   });
+  /* a board rests: a picture waiting off screen asks for no frames, and still arrives once the reader reaches it */
+  await step('a picture waiting off screen rests, and arrives when reached', async () => {
+    await page.goto(`${base}/black-holes`, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
+    await page.waitForSelector('.pic-box.loading', { timeout: 8000 });
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight)); await page.waitForTimeout(600);
+    const frames = await page.evaluate(() => new Promise(ok => { const w = /** @type {any} */ (window), raf = w.requestAnimationFrame; let n = 0; w.requestAnimationFrame = (/** @type {FrameRequestCallback} */ f) => { n++; return raf.call(w, f); }; setTimeout(() => { w.requestAnimationFrame = raf; ok({ n, off: (document.querySelector('.pic-box')?.getBoundingClientRect().bottom || 0) < 0 }); }, 1000); }));
+    if (!frames.off || frames.n > 2) throw new Error(`off screen, the picture asked for frames: ${JSON.stringify(frames)}`);
+    await page.evaluate(() => document.querySelector('.pic-box')?.scrollIntoView({ block: 'center' }));
+    await page.waitForSelector('.pic-box.shown', { timeout: 8000 });
+  });
+  /* a wait's orb turns while it is seen; left in a sheet closed before the answer came, it asks for no frames */
+  await step('a wait closed before it ends rests', async () => {
+    const slow = async (/** @type {import('playwright').Route} */ r) => { const b = r.request().postDataJSON(); if (b && b.task !== 'page') await new Promise(ok => setTimeout(ok, 4000)); await r.continue().catch(() => {}); };
+    await page.route('**/api/write', slow);
+    const count = () => page.evaluate(() => new Promise(ok => { const w = /** @type {any} */ (window), raf = w.requestAnimationFrame; let n = 0; w.requestAnimationFrame = (/** @type {FrameRequestCallback} */ f) => { n++; return raf.call(w, f); }; setTimeout(() => { w.requestAnimationFrame = raf; ok(n); }, 800); }));
+    await page.mouse.click(4, 300); await page.keyboard.press('l'); await page.waitForSelector('#sheet[open] canvas.orb', { timeout: 5000 });
+    const open = await count();
+    await page.keyboard.press('Escape'); await page.waitForTimeout(600);
+    const left = await page.evaluate(() => document.querySelectorAll('canvas.orb').length); const closed = await count();
+    await page.unroute('**/api/write', slow);
+    if (open < 10 || closed > 2) throw new Error(`orb frames: ${JSON.stringify({ open, left, closed })}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
   await step('a lead picture that fails on a later visit is dropped', async () => {
     const done = () => page.waitForFunction(() => { const a = document.querySelector('.chamber .article'); return a && a.getAttribute('aria-busy') === 'false' && a.querySelector('.a-end .card'); }, null, { timeout: 20000 });
     await page.fill('#seedIn', 'Moss on lunar soil'); await page.press('#seedIn', 'Enter'); await done();
@@ -836,12 +963,50 @@ async function sharing() {
 }
 
 try {
-  await step('reduced motion: the beam holds still and stays lit', async () => {
+  await step('reduced motion: the composer and the footer\'s board are drawn at rest', async () => {
     const still = await browser.newPage({ viewport: { width: 1360, height: 900 }, reducedMotion: 'reduce' });
-    await still.goto(base); await still.waitForSelector('#seedBox');
-    const b = await still.evaluate(() => { const cs = getComputedStyle(/** @type {Element} */ (document.querySelector('#seedBox'))); return { anim: cs.animationName, on: cs.getPropertyValue('--beam-on').trim() }; });
+    await still.goto(base); await still.waitForSelector('#footBoard canvas');
+    /* with the caret in it the composer's glow stands still, lit at its resting strength (the stroke at .7 of its own
+       .7), turned part way round; nothing in the composer is moving; and the board, far below and not yet seen, already
+       stands lit, in ink, as it rests with nothing read */
+    await still.focus('#seedIn'); await still.waitForTimeout(150);
+    const b = await still.evaluate(() => {
+      const box = /** @type {HTMLElement} */ (document.querySelector('#seedBox'));
+      const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')), d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let lit = 0, hue = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) { lit++; if (Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) hue++; }
+      return { glow: +(+getComputedStyle(/** @type {Element} */ (box.querySelector('.cg-edge'))).opacity).toFixed(3), turned: getComputedStyle(/** @type {Element} */ (box.querySelector('.cg-turn'))).transform, moving: box.getAnimations({ subtree: true }).filter(a => a.playState === 'running').length, lit, hue, seen: /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect().top < innerHeight };
+    });
     await still.close();
-    if (b.anim !== 'none' || b.on !== '1') throw new Error(`reduced-motion beam: ${JSON.stringify(b)}`);
+    if (Math.abs(b.glow - .49) > .01 || b.turned === 'none' || b.moving || b.lit < 1000 || b.hue > 20 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
+  });
+  /* on a narrow phone with a voice chosen, the composer's lamps yield and the chip shrinks before send would leave the box */
+  await step('a narrow phone: send stays inside the composer with a voice chosen', async () => {
+    const c = await browser.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true, isMobile: true });
+    await c.addInitScript(() => { if (!localStorage.getItem('dorkhub:world:v1')) localStorage.setItem('dorkhub:world:v1', JSON.stringify({ v: 1, settings: { lens: 'story' } })); });
+    const p = await c.newPage(); await p.goto(base); await p.waitForSelector('#seedBox .cchip');
+    for (const w of [320, 360, 375, 390]) {
+      await p.setViewportSize({ width: w, height: 640 }); await p.waitForTimeout(150);
+      const m = await p.evaluate(() => { const b = /** @type {Element} */ (document.querySelector('#seedBox')).getBoundingClientRect(), s = /** @type {Element} */ (document.querySelector('#seedGo')).getBoundingClientRect(); return { box: [b.left, b.right], send: [s.left, s.right] }; });
+      if (m.send[0] < m.box[0] || m.send[1] > m.box[1]) { await c.close(); throw new Error(`send outside the composer at ${w}: ${JSON.stringify(m)}`); }
+    }
+    await c.close();
+  });
+  /* the reading row: a whole number of lamps at any width, none lit at a page's top and all of them at its end */
+  await step('the reading row: whole lamps, none lit at the top, all at the end', async () => {
+    const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    await p.goto(`${base}/tardigrades`); await p.waitForFunction(() => document.querySelector('.chamber .article')?.getAttribute('aria-busy') === 'false', null, { timeout: 20000 });
+    const row = () => p.evaluate(() => { const r = /** @type {HTMLElement} */ (document.querySelector('#prog')); return { hidden: r.hidden, w: r.getBoundingClientRect().width, n: +r.style.getPropertyValue('--n'), lit: +r.style.getPropertyValue('--lit') }; });
+    const bad = [];
+    for (const w of [320, 1024, 1280]) {
+      await p.setViewportSize({ width: w, height: 800 }); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(200);
+      const top = await row();
+      await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(200);
+      const end = await row();
+      /* the drawing's tile is the row's width over n, so a whole number of lamps; the pitch flexes only a little */
+      if (top.hidden || !Number.isInteger(end.n) || Math.abs(end.w / end.n - 6) > .5 || top.lit !== 0 || end.lit !== end.n) bad.push({ w, top, end });
+    }
+    await p.close();
+    if (bad.length) throw new Error(`the reading row: ${JSON.stringify(bad)}`);
   });
   const desk = await browser.newPage({ viewport: { width: 1360, height: 900 } });
   await run(desk);

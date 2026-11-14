@@ -95,42 +95,60 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.armed.seen .bh-glow{animation:fade .8s var(--ease-out) .9s both}
 .wc.armed.seen .bh-g0,.wc.armed.seen .bh-ring{animation-delay:.35s}
 
-/* Origami: a sheet in Miura's fold, white paper in the light and graphite in the dark, over its soft shadow. Each face
-   is one of four ways round; how dark each is (--s0 to --s3) the build sets at rest and the page sets while it moves */
-.vz.mi{--mi-paper:#FFFCF7;--mi-ink:#2C384E;--mi-edge:rgba(44,56,78,.16);--mi-drop:rgba(44,56,78,.2)}
-.wc[data-card="origami"]{background:#ECE8E0}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root:not([data-theme="light"]) .wc[data-card="origami"]{background:#121316}}
-:root[data-theme="dark"] .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root[data-theme="dark"] .wc[data-card="origami"]{background:#121316}
+/* Origami: a sheet of white paper in Miura's fold on a table, lit from the upper left: paper on paper by day, a lit
+   sheet in a dark room at night. Each face lies one of four ways; how dark each way is (--s0 to --s3, 0 in the light,
+   1 turned from it) the build sets at rest and the page sets while it moves, and each face is shaded along itself,
+   darkest in its valley and lightest at its ridge. Round it, the outline of the whole sheet; on its free corner, a
+   ring to pull it by */
+.vz.mi{--mi-paper:#FFFEFB;--mi-ink:#4A5878;--mi-deep:.44;--mi-drop:rgba(60,68,96,.22);--mi-near:rgba(60,68,96,.16);--mi-top:#FFF;--mi-table:#F5F3EF}
+.wc[data-card="origami"]{background:#F5F3EF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.mi{--mi-paper:#EEE9DF;--mi-ink:#12141C;--mi-deep:.74;--mi-drop:rgba(0,0,0,.8);--mi-near:rgba(0,0,0,.6);--mi-top:rgba(255,255,255,.55);--mi-table:#101114}:root:not([data-theme="light"]) .wc[data-card="origami"]{background:#101114}}
+:root[data-theme="dark"] .vz.mi{--mi-paper:#EEE9DF;--mi-ink:#12141C;--mi-deep:.74;--mi-drop:rgba(0,0,0,.8);--mi-near:rgba(0,0,0,.6);--mi-top:rgba(255,255,255,.55);--mi-table:#101114}:root[data-theme="dark"] .wc[data-card="origami"]{background:#101114}
+.vz .mi-ghost{fill:none;stroke:var(--ink);stroke-opacity:.34;stroke-dasharray:2.5 3.5}
 .vz .mi-shadow{fill:var(--mi-drop);stroke:none}
-.vz .mi-f{stroke:var(--mi-edge);stroke-width:.7;stroke-linejoin:round}
-.vz .mi-o0{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s0,0) * 100%),var(--mi-paper))}
-.vz .mi-o1{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s1,0) * 100%),var(--mi-paper))}
-.vz .mi-o2{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s2,0) * 100%),var(--mi-paper))}
-.vz .mi-o3{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s3,0) * 100%),var(--mi-paper))}
-.wc[data-fx="origami"]{cursor:ew-resize}
+.vz .mi-near{fill:var(--mi-near)}
+.vz :is(.mi-g0,.mi-o0){--s:var(--s0)}.vz :is(.mi-g1,.mi-o1){--s:var(--s1)}.vz :is(.mi-g2,.mi-o2){--s:var(--s2)}.vz :is(.mi-g3,.mi-o3){--s:var(--s3)}
+.vz .mi-g stop{stop-color:color-mix(in srgb,var(--mi-ink) clamp(0%,calc((var(--s,0) + var(--d,0))*var(--mi-deep)*100%),100%),var(--mi-paper))}
+.vz .mi-g stop:first-child{--d:.34}.vz .mi-g stop:last-child{--d:-.12}
+.vz .mi-f{stroke:color-mix(in srgb,var(--mi-ink) clamp(0%,calc((var(--s,0) + .25)*var(--mi-deep)*100%),100%),var(--mi-paper));stroke-width:.55;stroke-linejoin:round}
+.vz .mi-ridge{fill:none;stroke:var(--mi-top);stroke-width:.8;stroke-linejoin:round;stroke-linecap:round}
+.vz .mi-hand{fill:var(--mi-table);stroke:var(--ink);stroke-width:1.3}
+.wc[data-fx="origami"]{touch-action:pan-y}
 
-/* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines, its land stippled, its walls in
-   Plato's metals. On its turn it rises from the island outward, and the orichalcum catches the light once */
-.vz.at{--at-sea:color-mix(in srgb,var(--ink) 8%,var(--surface));--at-land:var(--surface);--at-cliff:color-mix(in srgb,var(--ink) 18%,var(--surface))}
+/* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines and darker than its land in either
+   theme, its land stippled, its banks and its three walls of metal taking the light from the upper left as round walls
+   do. Under it the city in section, to the same scale, with each ring's width in stadia. On its turn it rises from the
+   island outward, and the orichalcum catches the light once */
+.vz.at{--at-sea:color-mix(in srgb,var(--ink) 12%,var(--surface));--at-land:var(--surface);--at-cut:color-mix(in srgb,var(--ink) 24%,var(--surface))}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.at{--at-sea:#08090B;--at-land:color-mix(in srgb,var(--ink) 10%,var(--surface));--at-cut:color-mix(in srgb,var(--ink) 20%,var(--surface))}}
+:root[data-theme="dark"] .vz.at{--at-sea:#08090B;--at-land:color-mix(in srgb,var(--ink) 10%,var(--surface));--at-cut:color-mix(in srgb,var(--ink) 20%,var(--surface))}
 .vz .at-water{fill:var(--at-sea);stroke:none}
-.vz .at-wave{fill:none;stroke:var(--ink);stroke-opacity:.22;stroke-width:.55}
-.vz .at-top{fill:var(--at-land);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-cliff{fill:var(--at-cliff);stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-stip{fill:none;stroke:var(--ink);stroke-opacity:.34;stroke-width:1.1;stroke-linecap:round}
-.vz .at-plain{stroke-opacity:.18}
-.vz .at-track{fill:none;stroke:var(--ink);stroke-opacity:.35;stroke-width:.7}
-.vz .at-canal{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
-.vz .at-shore{fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-wave{fill:none;stroke:var(--ink);stroke-opacity:.3;stroke-width:.55}
+.vz :is(.at-top,.at-bridge){fill:var(--at-land);stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-cliff{stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-gb stop{stop-color:color-mix(in srgb,var(--ink) 26%,var(--surface))}
+.vz .at-gb stop:nth-child(2){stop-color:color-mix(in srgb,var(--ink) 9%,var(--surface))}
+.vz .at-gb stop:last-child{stop-color:color-mix(in srgb,var(--ink) 38%,var(--surface))}
+.vz .at-stip{fill:none;stroke:var(--ink);stroke-opacity:.36;stroke-width:1.1;stroke-linecap:round}
+.vz .at-plain{stroke-opacity:.2}
+.vz :is(.at-track,.at-canal,.at-shore){fill:none;stroke:var(--ink);stroke-opacity:.5;stroke-width:.7}
+.vz .at-track{stroke-opacity:.36}
 .vz .at-wall{stroke:none}
-.vz .at-rim{fill:none;stroke-width:1.2}
-.vz .at-brass{fill:#A07A40}.vz .at-brass-l{stroke:#C99B57}
-.vz .at-tin{fill:#8C949E}.vz .at-tin-l{stroke:#B9C1CA}
-.vz .at-ori{fill:#B5492A}.vz .at-ori-l{stroke:#E8774E}
+.vz .at-brass{--m:#AC8440}.vz .at-tin{--m:#949CA6}.vz .at-ori{--m:#C24D2A}
+.vz .at-gm stop{stop-color:color-mix(in srgb,var(--m) 74%,#000)}
+.vz .at-gm stop:nth-child(2){stop-color:color-mix(in srgb,var(--m) 56%,#fff)}
+.vz .at-gm stop:last-child{stop-color:color-mix(in srgb,var(--m) 58%,#000)}
+.vz .at-rim{fill:none;stroke:color-mix(in srgb,var(--m) 72%,#fff);stroke-width:1.2}
 .vz .at-glint{fill:none;stroke:#FFE6CF;stroke-width:2.4;stroke-dasharray:.14 .86;opacity:0}
 .vz .at-temple{fill:var(--ink);fill-opacity:.85}
 .vz .at-temple-top{fill:var(--ink);fill-opacity:.55}
+.vz .at-rule{stroke:var(--line-2)}
+.vz .at-cut{fill:var(--at-cut);stroke:var(--ink);stroke-opacity:.55;stroke-width:.7;stroke-linejoin:round}
+.vz .at-level{fill:none;stroke:var(--ink);stroke-opacity:.55;stroke-width:.7}
+.vz .at-sw{fill:none;stroke:var(--m);stroke-width:1.8}
+.vz .at-num{font-size:9.5px;letter-spacing:0;fill:var(--mute)}
 .vz .at-src{font-size:9.5px;letter-spacing:.06em}
-.vz .at-lv{transform-box:view-box;transform-origin:182px 190px}
+.vz .at-lv{transform-box:view-box;transform-origin:182px 170px}
 .wc.armed:not(.seen) .at-lv{opacity:0}
 .wc.armed:not(.seen) .at-l0{opacity:1}
 .wc.armed.seen .at-lv{animation:atrise .7s var(--ease-out) both}
@@ -142,6 +160,7 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 
 /* Magnets: the filings on a canvas under the bar (the page draws them), the bar in its usual colours, north red */
 .mg-cv{position:absolute;inset:0;width:100%;height:100%}
+.wc[data-fx="magnets"]{touch-action:pan-y}
 .vz .mg-n{fill:#C8372D}.vz .mg-s{fill:#4E5D74}
 .vz .mg-edge{fill:none;stroke:rgba(0,0,0,.25);stroke-width:.8}
 .vz .mg-l{font:700 14px/1 var(--f-ui);letter-spacing:0;fill:#fff}
@@ -319,64 +338,142 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.reading .fw-m{opacity:.3}
 .wc.reading .fw-m:has(.hit.on){opacity:1}
 
-/* Enigma: the card is the machine's top, black in either theme: its rotor letters on ivory rings, its lamps lit in the
-   topic's colour, its keys to tap; beside it a paper tape of your letters over the lamps they lit, and the tally */
-.wc[data-card="enigma-machine"]{background:#0D0E11}
-.wc[data-card="enigma-machine"] .wc-art{display:grid;place-items:center end;padding-right:max(26px,5%)}
-.en{--kc:#F08CF5;display:grid;justify-items:center;gap:12px;color:#E8E8EA}
-.en-r{display:flex;gap:22px;padding:2px 0 4px}
-.en-rw{position:relative;width:30px;height:40px;overflow:hidden;border-radius:5px;background:#E6DFCF;box-shadow:0 0 0 2px #1D1F23,0 0 0 3px rgba(255,255,255,.07)}
-.en-strip{--i:0;display:flex;flex-direction:column;transform:translateY(calc(9px - var(--i) * 22px));transition:transform 260ms var(--ease-out)}
+/* Enigma: the card is the machine with its lid off, black in either theme, laid out on a measure of its own (--u: a
+   pixel of a 745 by 350 card), so it keeps its shape at any size: the card, the plate on its page, a phone. Left: the
+   rotors' windows on their ivory rings over a drawing of their wiring, with the letter's way through it, in ink going
+   in and in the topic's colour coming out; under it the tape, your letters over the lamps they lit, and the tally.
+   Right: the lampboard over the keyboard, bracketed as an instrument is; a lamp lit in the topic's colour, the last key
+   in ink. A lamp lights fast and fades slowly, as a filament does (--en-on, --en-off); the current takes --en-flow to
+   go in and as long to come out, quick under a reader's fingers and slower while the machine types its own word */
+.wc[data-card="enigma-machine"]{background:#0B0C0F}
+.wc[data-card="enigma-machine"] .wc-art{container-type:size}
+.en{--kc:#F08CF5;--dw:745;--dh:350;--top:76;--u:1px;--lamp:calc(var(--u)*32);--en-on:70ms;--en-off:420ms;--en-flow:55ms;position:absolute;inset:0;color:#ECECEE}
+@supports (width:1cqw){.en{--u:min(100cqw/var(--dw),100cqh/var(--dh))}}
+.en-sc,.en-tape{position:absolute;left:calc(var(--u)*18);width:calc(var(--u)*312)}
+.en-sc{top:calc(var(--u)*var(--top));height:calc(var(--u)*142)}
+/* a rotor's window on its ivory ring, standing on its drum, and beside it the knurled edge of the wheel that turns it by
+   hand: both roll on with the rotor (--i, its letter counted from A) */
+.en-rw{--i:0;position:absolute;top:0;z-index:1;display:flex;align-items:center;gap:calc(var(--u)*3);margin-left:calc(var(--u)*-14);padding:0;border:0;background:none;cursor:pointer;touch-action:manipulation}
+.en-rw:nth-child(1){left:calc(var(--u)*76)}.en-rw:nth-child(2){left:calc(var(--u)*162)}.en-rw:nth-child(3){left:calc(var(--u)*248)}
+.en-rw:focus-visible{outline:2px solid var(--kc);outline-offset:calc(var(--u)*4)}
+.en-win{position:relative;width:calc(var(--u)*28);height:calc(var(--u)*36);overflow:hidden;border-radius:calc(var(--u)*5);background:#E6DFCF;box-shadow:0 0 0 calc(var(--u)*2) #1D1F23,0 0 0 calc(var(--u)*3) rgba(255,255,255,.1)}
+.en-strip{display:flex;flex-direction:column;transform:translateY(calc(var(--u)*7 - var(--i)*var(--u)*22));transition:transform var(--d-fast) var(--ease-out)}
+.en-strip i{display:grid;place-items:center;height:calc(var(--u)*22);flex:none;font:700 calc(var(--u)*15)/1 var(--f-ui);font-style:normal;color:#141518}
 /* the ring curves away above and below its window */
-.en-rw::after{content:"";position:absolute;inset:0;background:linear-gradient(#E6DFCF 4%,rgba(230,223,207,0) 36%,rgba(230,223,207,0) 64%,#E6DFCF 96%);box-shadow:inset 0 5px 6px rgba(0,0,0,.5),inset 0 -5px 6px rgba(0,0,0,.38)}
-.en-strip.snap{transition:none}
-.en-strip i{display:grid;place-items:center;height:22px;flex:none;font:700 15px/1 var(--f-ui);font-style:normal;color:#141518}
-.en-lamps,.en-keys{display:grid;gap:7px;justify-items:center}
-.en-lamps p,.en-keys p{display:flex;gap:8px}
-.en-lamps i{display:grid;place-items:center;width:29px;height:29px;border-radius:50%;background:#1A1C20;box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);font:600 12px/1 var(--f-ui);font-style:normal;color:rgba(255,255,255,.4);transition:background-color 90ms var(--ease-out),color 90ms var(--ease-out),box-shadow 90ms var(--ease-out)}
-.en-lamps i.on{background:var(--kc);color:#141518;box-shadow:0 0 0 4px color-mix(in srgb,var(--kc) 26%,transparent),0 0 16px color-mix(in srgb,var(--kc) 55%,transparent)}
-.en-keys{padding-top:8px;border-top:1px solid rgba(255,255,255,.07)}
-.en-keys button{width:29px;height:29px;padding:0;border:0;border-radius:50%;background:#2B2D33;color:#EDEDF0;font:600 11.5px/1 var(--f-ui);cursor:pointer;box-shadow:inset 0 -2px 0 rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1),0 0 0 1px rgba(0,0,0,.7);transition:transform 70ms var(--ease-out),background-color 90ms var(--ease-out)}
-.en-keys button:hover{background:#363940}
-.en-keys button:is(.down,:active){transform:translateY(1.5px);box-shadow:inset 0 -1px 0 rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.7)}
-.en-keys button:focus-visible{outline:2px solid var(--kc);outline-offset:2px}
-/* the tape: a strip of paper with your letters over the lamps they lit; the field under it takes a keyboard */
-.en-tape{position:absolute;left:18px;top:86px;z-index:2;display:grid;gap:7px;width:min(244px,34%);padding:12px 36px 12px 14px;border-radius:3px;background:#EEE8DA;box-shadow:0 1px 0 rgba(0,0,0,.35),0 10px 24px -14px rgba(0,0,0,.9);color:#16171A}
-.en-tape:focus-within{box-shadow:0 0 0 2px var(--kc),0 10px 24px -14px rgba(0,0,0,.9)}
-.en-tape p,.en-in{position:relative;display:flex;align-items:center;gap:10px;min-height:18px}
-.en-tape span{flex:none;width:28px;font:600 9.5px/1 var(--f-ui);letter-spacing:.08em;color:#6E6A60}
-.en-in input{position:absolute;inset:-4px 0;width:100%;padding:0;border:0;opacity:0;cursor:text}
-.en-tape b{display:flex;min-width:0;overflow:hidden;font:900 16px/1 var(--f-dot)}
-.en-tape b i{flex:none;width:11.5px;font-style:normal;text-align:center}
-.en-pl{color:#16171A}
-.en-cy{color:#A21CAF}
-.en-pl:empty::before{content:"Type, or tap the keys";font:500 12px/1 var(--f-ui);color:#7A766C}
-.en-x{position:absolute;right:6px;top:6px;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;border-radius:50%;background:transparent;color:#6E6A60;cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
+.en-win::after{content:"";position:absolute;inset:0;background:linear-gradient(#E6DFCF 4%,rgba(230,223,207,0) 36%,rgba(230,223,207,0) 64%,#E6DFCF 96%);box-shadow:inset 0 calc(var(--u)*5) calc(var(--u)*6) rgba(0,0,0,.5),inset 0 calc(var(--u)*-5) calc(var(--u)*6) rgba(0,0,0,.38)}
+.en-rw::after{content:"";width:calc(var(--u)*6);height:calc(var(--u)*26);border-radius:calc(var(--u)*2);background:repeating-linear-gradient(#7A7D85 0 calc(var(--u)*1),#202226 calc(var(--u)*1) calc(var(--u)*3.5)) 0 calc(var(--i)*var(--u)*-3.5);box-shadow:inset 0 calc(var(--u)*6) calc(var(--u)*5) #0B0C0F,inset 0 calc(var(--u)*-6) calc(var(--u)*5) #0B0C0F,0 0 0 1px rgba(255,255,255,.06);transition:background-position var(--d-fast) var(--ease-out)}
+.en-rw:hover::after{background-image:repeating-linear-gradient(#B4B7BE 0 calc(var(--u)*1),#2A2C31 calc(var(--u)*1) calc(var(--u)*3.5))}
+.en-rw.snap .en-strip,.en-rw.snap::after{transition:none}
+/* the wiring: hairlines for every wire there is, each rotor a drum that curves away at its top and bottom */
+.en-wire{position:absolute;left:0;bottom:0;display:block;width:100%;height:calc(var(--u)*112)}
+.en-wire path,.en-box{fill:none}
+.en-box{stroke:rgba(236,236,238,.22)}
+.en-ukw,.en-mesh{stroke:rgba(236,236,238,.2);stroke-width:.7}
+.en-mesh.step{animation:enstep var(--d-fast) var(--ease-out)}
+@keyframes enstep{from{transform:translateY(4px)}}
+.en-d0{stop-color:#0B0C0F;stop-opacity:.94}.en-d1{stop-color:#0B0C0F;stop-opacity:0}
+.en-dots{stroke:rgba(236,236,238,.36);stroke-width:1.7;stroke-linecap:round}
+.en-way{stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.en-go{stroke:#ECECEE}.en-back{stroke:var(--kc)}
+.en-t0{stop-color:#ECECEE}.en-t1{stop-color:var(--kc)}
+.en-way.run{stroke-dasharray:1 1;animation:vzdraw var(--en-flow) linear both}
+.en-turn.run{animation-duration:calc(var(--en-flow)*.3);animation-delay:var(--en-flow)}
+.en-back.run{animation-delay:calc(var(--en-flow)*1.3)}
+.en-pin-i{fill:#ECECEE}.en-pin-o{fill:var(--kc)}
+.en-pin text{font:700 9px/1 var(--f-ui)}
+/* the lamp's letter is marked as the current comes out to it */
+.en-pin-o.run{animation:fade var(--en-on) linear calc(var(--en-flow)*2.3) both}
+.wc:not(.typed) :is(.en-way,.en-pin){visibility:hidden}
+.en-wire .hit{fill:transparent}
+/* the tape: three readings on hairlines; the field over the first takes a keyboard */
+.en-tape{top:calc(var(--u)*(var(--top) + 154));display:grid}
+.en-tape>:is(label,p){position:relative;display:flex;align-items:center;gap:calc(var(--u)*10);height:calc(var(--u)*24);border-top:1px solid rgba(236,236,238,.1)}
+.en-in>span,.en-out>span{flex:none;width:calc(var(--u)*30);font:600 max(8.5px,calc(var(--u)*10))/1 var(--f-ui);letter-spacing:.08em;color:rgba(236,236,238,.62)}
+.en-in input{position:absolute;inset:0;width:100%;padding:0;border:0;opacity:0;cursor:text}
+.en-tape b{display:flex;min-width:0;overflow:hidden;font:900 calc(var(--u)*17)/1 var(--f-dot)}
+.en-tape b i{flex:none;width:calc(var(--u)*13);font-style:normal;text-align:center}
+.en-pl{color:#ECECEE}
+.en-cy{color:var(--kc)}
+/* a lamp's letter joins the tape as the lamp lights */
+.en-cy i:last-child{animation:fade var(--en-on) linear calc(var(--en-flow)*2.3) both}
+.en-pl:empty::before{content:"Type, or tap the keys";font:500 max(10px,calc(var(--u)*12.5))/1 var(--f-ui);color:rgba(236,236,238,.62)}
+.en-in:focus-within{border-top-color:rgba(236,236,238,.34)}
+.en-in:focus-within .en-pl::after{content:"";flex:none;width:calc(var(--u)*1.5);height:calc(var(--u)*15);margin-left:calc(var(--u)*3);background:#ECECEE}
+.en-tally>b{flex:none;width:calc(var(--u)*30);font-size:calc(var(--u)*23);color:var(--kc)}
+.en-tally>span{font:500 max(10px,calc(var(--u)*12.5))/1 var(--f-ui);color:rgba(236,236,238,.72)}
+.en-tally i{font-style:normal;font-variant-numeric:tabular-nums}
+.en-x{position:absolute;right:0;top:0;display:grid;place-items:center;width:calc(var(--u)*24);height:calc(var(--u)*24);padding:0;border:0;border-radius:50%;background:transparent;color:rgba(236,236,238,.62);cursor:pointer;opacity:0;transition:opacity var(--d-quick) var(--ease-out)}
 .wc.typed .en-x,.en-x:focus-visible{opacity:1}
-.en-x:hover{color:#16171A;background:rgba(0,0,0,.07)}
-.en-x .ic{width:14px;height:14px}
-.en-tally{position:absolute;left:18px;top:178px;z-index:2;display:flex;align-items:baseline;gap:8px;max-width:34%;font:500 12.5px/1.3 var(--f-ui);color:rgba(236,236,238,.72)}
-.en-n{font:900 30px/1 var(--f-dot);color:#F08CF5}
-.en-of{font-style:normal;font-variant-numeric:tabular-nums}
+.en-x:hover{color:#ECECEE;background:rgba(255,255,255,.08)}
+.en-x:focus-visible{outline:2px solid var(--kc);outline-offset:-2px}
+.en-x .ic{width:calc(var(--u)*14);height:calc(var(--u)*14)}
+/* the machine's top, in brackets: four corners, drawn in while it has the keyboard */
+.en-m{position:absolute;right:calc(var(--u)*30);top:calc(50% + var(--u)*5);transform:translateY(-50%);display:grid;gap:calc(var(--u)*13)}
+.en-m::before{--b:calc(var(--u)*12);content:"";position:absolute;inset:calc(var(--u)*-11);pointer-events:none;opacity:.38;transition:opacity var(--d-fast) var(--ease-out);
+  background:linear-gradient(#ECECEE,#ECECEE) 0 0/var(--b) 1px,linear-gradient(#ECECEE,#ECECEE) 0 0/1px var(--b),linear-gradient(#ECECEE,#ECECEE) 100% 0/var(--b) 1px,linear-gradient(#ECECEE,#ECECEE) 100% 0/1px var(--b),linear-gradient(#ECECEE,#ECECEE) 0 100%/var(--b) 1px,linear-gradient(#ECECEE,#ECECEE) 0 100%/1px var(--b),linear-gradient(#ECECEE,#ECECEE) 100% 100%/var(--b) 1px,linear-gradient(#ECECEE,#ECECEE) 100% 100%/1px var(--b);background-repeat:no-repeat}
+.en:focus-within .en-m::before{opacity:1}
+.en-lamps,.en-keys{display:grid;gap:calc(var(--u)*7);justify-items:center}
+.en-lamps p,.en-keys p{display:flex;gap:calc(var(--u)*8)}
+/* a lamp: dark glass set into the board, its letter quiet until the lamp behind it lights; lit, it spills on its
+   neighbours */
+.en-lamps i{position:relative;width:var(--lamp);height:var(--lamp);border-radius:50%;background:radial-gradient(circle at 50% 28%,#24272D,#15171A 60%,#0E0F12);box-shadow:inset 0 calc(var(--u)*1.5) calc(var(--u)*2.5) rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.075),0 1px 0 0 rgba(255,255,255,.05),0 0 0 0 rgba(240,140,245,0),0 0 0 0 rgba(240,140,245,0),0 0 0 0 rgba(240,140,245,0);font-size:0;transition:box-shadow var(--en-off) var(--ease-out)}
+.en-lamps i::before,.en-lamps i::after{content:"";position:absolute;inset:0;border-radius:50%;transition:opacity var(--en-off) var(--ease-out),color var(--en-off) var(--ease-out)}
+.en-lamps i::before{background:radial-gradient(circle at 50% 46%,#FFF4FF,#FBC2FD 30%,var(--kc) 64%,#C363CB);opacity:0}
+.en-lamps i::after{content:attr(data-l);display:grid;place-items:center;font:600 calc(var(--u)*12.5)/1 var(--f-ui);font-style:normal;color:#9A9CA1}
+.en-lamps i.on{z-index:1;box-shadow:inset 0 calc(var(--u)*1.5) calc(var(--u)*2.5) rgba(0,0,0,0),inset 0 0 0 1px rgba(255,255,255,0),0 0 0 1px #FCD0FD,0 0 0 calc(var(--u)*4) rgba(240,140,245,.2),0 0 calc(var(--u)*22) 0 rgba(240,140,245,.62),0 0 calc(var(--u)*60) 0 rgba(240,140,245,.3)}
+.en-lamps i.on::before{opacity:1}
+.en-lamps i.on::after{color:#2A1230}
+.en-lamps i.on,.en-lamps i.on::before,.en-lamps i.on::after{transition-duration:var(--en-on);transition-delay:calc(var(--en-flow)*2.3)}
+.en-keys{padding-top:calc(var(--u)*13);border-top:1px solid rgba(236,236,238,.1)}
+/* a key: black, ringed in nickel, standing off the board until it is pressed; the last one pressed stays lit in ink */
+.en-keys button{position:relative;width:var(--lamp);height:var(--lamp);padding:0;border:0;border-radius:50%;background:radial-gradient(circle at 50% 24%,#3C3F47,#26282D 58%,#1C1D21);color:#F1F1F3;font:600 calc(var(--u)*12.5)/1 var(--f-ui);cursor:pointer;touch-action:manipulation;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 calc(var(--u)*1.5) rgba(255,255,255,.07),0 0 0 1px #000,0 calc(var(--u)*2.5) 0 #050506,0 calc(var(--u)*4) calc(var(--u)*5) rgba(0,0,0,.55);transition:transform var(--d-micro) var(--ease-out),box-shadow var(--d-micro) var(--ease-out),color var(--d-quick) var(--ease-out)}
+.en-keys button::after{content:"";position:absolute;inset:calc(var(--u)*-3.5)}
+.en-keys button:hover{background:radial-gradient(circle at 50% 24%,#4A4E57,#2E3036 58%,#222327)}
+.en-keys button.last{background:radial-gradient(circle at 50% 24%,#FFFFFF,#ECECEE 58%,#C9C9CD);color:#141518}
+.en-keys button:is(.down,:active){transform:translateY(calc(var(--u)*2));box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 0 0 calc(var(--u)*1.5) rgba(255,255,255,.07),0 0 0 1px #000,0 calc(var(--u)*.5) 0 #050506,0 calc(var(--u)*1) calc(var(--u)*2) rgba(0,0,0,.55)}
+.en-keys button:focus-visible{outline:2px solid var(--kc);outline-offset:2px}
+/* a plate has no title over it */
+.wc-plate .en{--top:62}
+/* taller than it is wide (a phone, or its plate there): the same parts, one over the other, under the room the title
+   takes (--cap), which does not shrink with the rest */
+@container (max-aspect-ratio:1/1){
+  .en{--cap:60px;--u:min(100cqw/358,(100cqh - var(--cap))/498);--lamp:calc(var(--u)*30)}
+  .en-sc,.en-tape{left:50%;margin-left:calc(var(--u)*-156)}
+  .en-sc{top:calc(var(--cap) + var(--u)*2)}
+  .en-tape{top:calc(var(--cap) + var(--u)*154)}
+  .en-m{right:auto;left:50%;top:auto;bottom:calc(var(--u)*26);transform:translateX(-50%);gap:calc(var(--u)*10)}
+  .en-m::before{inset:calc(var(--u)*-10)}
+  .en-lamps,.en-keys,.en-lamps p,.en-keys p{gap:calc(var(--u)*6)}
+  .en-keys{padding-top:calc(var(--u)*10)}
+  .en-keys button::after{inset:calc(var(--u)*-3)}
+  .wc-plate .en{--cap:16px}
+}
+.wc.demo .en{--en-flow:85ms}
+@media (prefers-reduced-motion:reduce){.wc .en{--en-flow:0s}}
 
-/* Infinity: Cantor's list, set like type on a table running off into the distance, its diagonal lit in the kind's
-   colour; the new number in the foreground. On its turn the diagonal lights from near to far, digit by digit */
-.vz .in-g,.vz .in-0,.vz .in-n{font-family:var(--f-ui);font-weight:500;letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
-.vz .in-n{fill:var(--faint);font-weight:600}
-.vz .in-0{fill:var(--mute)}
-.vz .in-on{fill:var(--kc);font-weight:700}
-.vz .in-cell{fill:var(--kc);fill-opacity:.16;stroke:var(--kc);stroke-opacity:.5;stroke-width:.8}
+/* Infinity: Cantor's list as a table that runs on, its diagonal lit in the kind's colour, and under it the new number,
+   each digit at the foot of the band that falls to it from the diagonal. On its turn the diagonal lights row by row,
+   each band falls, and each new digit lands. Pointing at a row picks it out */
+.vz :is(.in-g,.in-0,.in-n,.in-on,.in-new,.in-nd){font:500 15px/1 var(--f-ui);letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz .in-n{font-size:10.5px;font-weight:600;fill:var(--faint)}
+.vz .in-on{font-weight:700;fill:var(--kc)}
+.vz .in-cell{fill:color-mix(in srgb,var(--kc) 8%,var(--surface));stroke:var(--kc);stroke-opacity:.6;stroke-width:.8}
+.vz .in-band{fill:var(--kc);fill-opacity:.07;stroke:var(--kc);stroke-opacity:0;stroke-width:.8;transform-box:fill-box;transform-origin:50% 0;transition:stroke-opacity var(--d-fast) var(--ease-out)}
 .vz .in-more{font:600 13px/1 var(--f-ui);fill:var(--faint)}
 .vz .in-rule{stroke:var(--line-2)}
-.vz .in-new{font:650 19px/1 var(--f-ui);letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz :is(.in-new,.in-nd){font-size:18px;font-weight:650}
 .vz .in-nd{fill:var(--kc)}
 .vz .in-tag{font:600 12px/1 var(--f-ui);letter-spacing:0;fill:var(--kc)}
 .vz .in-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
-.vz :is(.in-cell,.in-on){transform-box:fill-box;transform-origin:center}
-.wc.armed:not(.seen) :is(.in-cell,.in-on){opacity:0}
-.wc.armed.seen :is(.in-cell,.in-on){animation:vzpop .45s var(--ease-pop) both}
-.wc.armed.seen :is(.in-d1,.in-r1 .in-on){animation-delay:0.00s}.wc.armed.seen :is(.in-d2,.in-r2 .in-on){animation-delay:0.11s}.wc.armed.seen :is(.in-d3,.in-r3 .in-on){animation-delay:0.22s}.wc.armed.seen :is(.in-d4,.in-r4 .in-on){animation-delay:0.33s}.wc.armed.seen :is(.in-d5,.in-r5 .in-on){animation-delay:0.44s}.wc.armed.seen :is(.in-d6,.in-r6 .in-on){animation-delay:0.55s}.wc.armed.seen :is(.in-d7,.in-r7 .in-on){animation-delay:0.66s}.wc.armed.seen :is(.in-d8,.in-r8 .in-on){animation-delay:0.77s}
-
+.vz .in-c{transform-box:fill-box;transform-origin:center}
+.vz .in-row{transition:opacity var(--d-fast) var(--ease-out)}
+.wc.reading .in-row{opacity:.38}
+.wc.reading .in-row:has(.hit.on){opacity:1}
+.wc.reading .in-row:has(.hit.on) .in-band{stroke-opacity:.6}
+.wc.armed:not(.seen) .in-c{opacity:0}
+.wc.armed:not(.seen) .in-band{transform:scaleY(0)}
+.wc.armed.seen .in-c{animation:vzpop .45s var(--ease-pop) calc(var(--w,0s)*1.1 - .11s) both}
+.wc.armed.seen .in-band{animation:vzrise .4s var(--ease-out) calc(var(--w,0s)*1.1 - .05s) both}
 
 /* a reader's world, in the last slot: their map, edge to edge, and how far it reaches */
 .ww-stage{position:absolute;inset:0;background:var(--stage)}
@@ -409,7 +506,7 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .a-plate.pl-hero .wc,.a-plate.pl-big .wc{border-radius:0;box-shadow:none}
 .a-plate.pl-wide .vz-w{display:none}
 .a-plate.pl-wide .vz-n{display:block}
-.a-plate [data-card="enigma-machine"]{--par:.7}
+.a-plate [data-card="enigma-machine"]{--par:2.129}
 @media (max-width:760px){ .a-plate .wc{border-radius:0;box-shadow:none} }
 @media (max-width:1100px){
   .bento{grid-template-columns:repeat(4,minmax(0,1fr))}
@@ -433,12 +530,12 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   .wc{aspect-ratio:var(--ar,1.05)}
   .wc-hero{--ar:1.2}.wc-tall{--ar:.76}.wc-sq{--ar:1.04}.wc-wide{--ar:1.5}.wc-big{--ar:1.05}.wc-small{--ar:2}
   .nl-scale{top:70px;bottom:44px}
-  /* a phone: the tape and the tally under the title, the machine below them */
-  .wc[data-card="enigma-machine"]{--ar:.7}
-  .wc[data-card="enigma-machine"] .wc-art{place-items:end center;padding:0 0 18px}
-  .en-tape{top:78px;right:18px;width:auto}
-  .en-tally{top:166px;max-width:none}
-  .en-lamps p,.en-keys p{gap:5px}
-  .en-lamps i,.en-keys button{width:28px;height:28px;font-size:11px}
+  /* the Enigma keeps its wide shape in one column while there is room for its keys, */
+  .wc[data-card="enigma-machine"]{--ar:2.129}
   .th-stage{min-height:420px}
+}
+/* and on a phone stands its parts one over the other (its own stylesheet lays it out by its shape) */
+@media (max-width:640px){
+  .wc[data-card="enigma-machine"]{--ar:.6416}
+  .a-plate [data-card="enigma-machine"]{--par:.696}
 }
