@@ -11,9 +11,10 @@ writer's thinking settings (#38), the eval's subscription route (#41), and Wave 
 phones, #40 Your world by keyboard, #39 sharing). In order from here:
 1. **The cohesion wave** (Will: 6 or 7 of 10; "one seamless app under a cohesive, rooted visual identity").
    Live: willgibs/dorkhub#42, merged at his word (the kit, states as pages, Your world's surroundings as
-   readings, the chrome and raised surfaces as one family, a pass over the three). Next, on `design/motion`: the
-   moves between views (one clock for a view change, what opens closes, a state arrives as text does), as its
-   own pull request for his look. To bring to him, not built: dotted numerals beyond Your world (the figures panel, the trial
+   readings, the chrome and raised surfaces as one family, a pass over the three). **(Will)** Up for his look:
+   willgibs/dorkhub#43, the moves between views (one clock for a view change, what opens closes, a state arrives
+   as text does). Not in it: the front cards' own drawings (`src/front.css`), the selection button, the timers on
+   Your world's tips. To bring to him, not built: dotted numerals beyond Your world (the figures panel, the trial
    count), more presence for the top bar, the footer's wordmark elsewhere, and the tool sheets (quiz, recap,
    around this) in the kit.
 2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
