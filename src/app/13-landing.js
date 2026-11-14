@@ -494,7 +494,7 @@ function enigmaDemo(card) {
   let i = 0; const t = setInterval(() => { if (i >= 6 || input.value.length !== i) { enigmaStop(card); delete input.dataset.demo; return; } input.dataset.demo = '1'; enigmaPress(card, 'WETTER'[i++]); input.dataset.demo = ''; }, 300);
   EN_DEMO.set(card, t); card.classList.add('demo'); FX_STOP.push(() => enigmaStop(card));
 }
-export const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}>${esc(LENSES[store.settings.lens][0])}${ic('x')}</button>`;
+export const voiceChipHTML = () => store.settings.lens === 'encyclopedic' ? '' : `<button class="cchip" type="button" data-act="voice-clear"${tipAttrs('Back to the encyclopedic voice')}><span class="cchip-t">${esc(LENSES[store.settings.lens][0])}</span>${ic('x')}</button>`;
 /* the key pill: free pages left, or the model a reader's own key writes with */
 export const seedKeyHTML = () => auth.byok ? `${ic('key')}<b>${esc(modelName(auth.byok.model).replace(/^Claude /, ''))}</b>` : `${ic('key')}<b>${pagesLeft()}</b>`;
 /* send doubles as Surprise me: a dice while the box is empty, an arrow once there is something to read about */

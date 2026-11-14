@@ -123,7 +123,7 @@ body.scrolled .top{border-bottom-color:var(--line)}
 body.scrolled .top:has(>.prog:not([hidden])){border-bottom-color:transparent}
 /* the wordmark is the mark, not a label: set larger and closer than any word on the bar, in ink. The link's tap
    area runs the bar's height (44 px) while the letters keep their size */
-.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out),visibility 0s linear}
+.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out)}
 .logo::before{content:"";position:absolute;inset:-11px 0}
 .logo span{font:900 26px/1 var(--f-dot);letter-spacing:-.02em}
 /* the top bar's actions share one shape: an icon in a 36 px box, or an icon and its count with the same padding
@@ -165,7 +165,7 @@ body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibili
 .menu-btn{display:none}
 /* once the page's title has scrolled away, it waits in the middle of the top bar, so you always know where you are;
    a click goes back to the top */
-.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px);padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
+.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px,var(--t-room,560px));padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
 .top-t[data-kind]{color:var(--kc)}
 .top-tt{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .top-t:hover{background:var(--panel)}
@@ -175,17 +175,23 @@ body.at-start .top-t,body.at-world .top-t{display:none}
 /* on a phone there is no room for both: once the title has gone under the bar, the wordmark yields its place to it,
    and comes back when the reader returns to the top */
 @media (max-width:760px){
+  /* the title sits on the bar's own paper: nothing readable passes behind it */
+  .top{background:var(--bg)}
   .top-t{left:14px;right:60px;max-width:none;padding:6px 0;font-size:15px;transform:translateY(-50%) translateY(var(--dist-micro))}
   body.titled .top-t{transform:translateY(-50%)}
   .top-t:hover{background:transparent}
-  body.titled:not(.at-start):not(.at-world) .logo{opacity:0;visibility:hidden;transition:opacity var(--d-quick) var(--ease-out),visibility 0s linear var(--d-quick)}
+  /* out of sight, the home link stays in the Tab order and the accessibility tree (no visibility:hidden); the title takes
+     its taps. When the keyboard reaches it, it shows, and the title steps aside, so focus never rests on something unseen */
+  body.titled:not(.at-start):not(.at-world) .logo:not(:focus){opacity:0;pointer-events:none;transition:opacity var(--d-quick) var(--ease-out)}
+  body.titled:not(.at-start):not(.at-world) .top:has(.logo:focus) .top-t{opacity:0;pointer-events:none}
 }
 /* Position is a row of lamps along the bar's lower edge: unlit lamps are faint, and they light in the page's kind colour
-   as far as the reader has read. Script writes how many are lit (--lit) only when that number changes, at most once a
+   as far as the reader has read. The row holds a whole number of lamps (--n, about one every --pitch), so none is cut at
+   its end. Script writes how many are lit (--lit) only when that number changes, at most once a
    frame while scrolling and never at rest. Where there is no position (the front page, Your world) the row is absent
    and the bar keeps its hairline. */
-.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/var(--pitch) 100% repeat-x}
-.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/var(--pitch) 100% repeat-x;clip-path:inset(0 calc(100% - var(--lit,0) * var(--pitch)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
+.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x}
+.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/calc(100% / var(--n,1)) 100% repeat-x;clip-path:inset(0 calc(100% - 100% * var(--lit,0) / var(--n,1)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
 body.at-start .prog,body.at-world .prog{display:none}
 @media (prefers-reduced-motion:reduce){ .prog::after{transition:none} }
 
@@ -617,8 +623,9 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pv-list{display:grid;gap:3px;margin:10px 0 0;padding:0 0 0 21px;list-style:decimal;font-variant-numeric:tabular-nums}
 .pv-list a{color:var(--mute);text-decoration:none}
 .pv-list a:hover{color:var(--ink);text-decoration:underline}
-/* the one note that pages can be wrong: once, at the bottom of the page */
-.colfoot{max-width:1120px;margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
+/* the one note that pages can be wrong: once, at the bottom of the page, on the reading column (.article's width and
+   padding), so the mark and the fine print read as the column's last line */
+.colfoot{max-width:calc(580px + 2 * clamp(20px,4vw,56px));margin:0 auto;padding:4px clamp(20px,4vw,56px) calc(40px + env(safe-area-inset-bottom,0px));font:400 12px/1.5 var(--f-ui);color:var(--faint)}
 /* a page ends as the front page does, on the mark and the fine print: the wordmark in lamps (03-lamps.js hands it over
    as a picture), small and still. It is unlit, in faint ink, until the page is written; then it is lit in the colour of
    the page's kind */
@@ -932,12 +939,22 @@ body.at-start .omni-btn{display:none}
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
 .cmirror{position:absolute;left:26px;top:22px;z-index:5;max-width:calc(100% - 52px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
-.ctools{display:flex;align-items:center;gap:6px;margin-left:-8px}
+.ctools{display:flex;align-items:center;gap:6px;min-width:0;margin-left:-8px}
 /* the lamps: unlit at rest, faint dots; awake while the machine listens, coming on one after the next, and each key
    it hears flashes the next lamp along (13-landing.js); all of them lit as the page is asked for, at once, so the view
    that leaves carries them lit. Ink, or the colour of the topic's kind once that is known, and stronger for it */
-.clamps{display:inline-flex;gap:4px;margin-left:auto;padding:0 8px}
-.clamps i{width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
+/* on a narrow phone the tool row is full: the lamps are the least needed thing in it, so they yield first, a whole lamp at
+   a time (one that no longer fits wraps out of sight), and then the voice's chip shrinks to an ellipsis. Voice, key and
+   send never shrink, so send stays inside the box */
+.clamps{display:inline-flex;flex-wrap:wrap;flex-shrink:1000;min-width:0;height:6px;overflow:hidden;gap:4px;margin-left:auto}
+/* the row's margins are empty items, so they go with the lamps; the first holds the first line, so even the first lamp
+   can wrap away */
+.clamps::before,.clamps::after{content:"";width:4px;height:6px}
+.ctools>.cvoice,.ckey,.send{flex:none}
+#seedChips{display:inline-flex;min-width:0}
+.cchip{min-width:0;max-width:100%}
+.cchip-t{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.clamps i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
 .cbox[data-kind]{--lit:.9}
 .cbox[data-kind] .clamps i{background:var(--kc)}
 .cbox:focus-within .clamps i{opacity:var(--lit);transform:scale(.8);transition-delay:calc(var(--i) * var(--d-stagger))}
@@ -956,7 +973,7 @@ body.at-start .omni-btn{display:none}
 details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
 @keyframes popout{to{opacity:0;transform:scale(var(--scale-m))}}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
-.cchip .ic{width:14px;height:14px;color:var(--mute)}
+.cchip .ic{flex:none;width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
 .ckey{gap:6px;height:36px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .ckey .ic{width:16px;height:16px}
@@ -1011,7 +1028,7 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
   .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
   .door-cont{max-width:58vw}
   .cbox{--bk:8px;padding:18px 17px 16px 22px}
-  .clamps{padding:0 4px}
+  .clamps::before,.clamps::after{width:0}
   #seedIn,.cmirror{font-size:16px}
   .cmirror{left:22px;top:20px;max-width:calc(100% - 44px)}
   /* the board keeps the cards' edges */
@@ -1111,6 +1128,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;color:var(--faint)}
 .wp-find .ic{width:16px;height:16px}
 .wp-find input{width:min(200px,38vw);border:0;background:transparent;font:500 14px var(--f-ui);color:var(--ink);outline:none}
+/* an empty field keeps no room for its clear button, so the placeholder is whole on a 320 px phone */
+.wp-find input:placeholder-shown::-webkit-search-cancel-button{display:none}
 .wp-kinds{display:inline-flex;gap:2px;height:36px;padding:0 6px;align-items:center}
 .wp-kinds button{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
 .wp-kinds i{width:9px;height:9px;border-radius:50%;background:var(--kc);transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
