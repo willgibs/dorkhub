@@ -168,6 +168,32 @@ async function run(page, { mobile = false } = {}) {
       await page.locator('#threads').screenshot({ path: `${shots}/${tag}-1d-threads.png` });
     }
   });
+  /* the page ends on the wordmark set in lamps, across its width: lit in the eight kinds' colours once it is seen, then
+     still; its key names the eight kinds, and pointing at one hushes every other lamp; and the theme draws it again */
+  await step(`${tag}: the footer's board of lamps`, async () => {
+    const f = await page.evaluate(() => ({ label: document.querySelector('#footBoard[role="img"]')?.getAttribute('aria-label'), kinds: document.querySelectorAll('#footKey .lk[data-kind]').length, name: document.querySelector('#footKey .lbl')?.textContent, credits: !!document.querySelector('.land-foot .credit a[href="/licenses.txt"]') }));
+    if (f.label !== 'dorkhub' || f.kinds !== 8 || f.name !== 'Eight kinds of topic' || !f.credits) throw new Error(`the footer: ${JSON.stringify(f)}`);
+    /* how many of the board's pixels are in colour (a lamp lit in a kind's), and how light they are */
+    const lit = () => page.evaluate(() => { const c = /** @type {HTMLCanvasElement} */ (document.querySelector('#footBoard canvas')); const d = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d')).getImageData(0, 0, c.width, c.height).data; let n = 0, l = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) - Math.min(d[i], d[i + 1], d[i + 2]) > 60) { n++; l += d[i] + d[i + 1] + d[i + 2]; } return [n, n ? l / n / 3 : 0]; });
+    /* the board has come to rest when two looks at it, a moment apart, are the same */
+    const settled = async () => { let was = [-1, 0]; for (let i = 0; i < 40; i++) { const now = await lit(); if (now[0] === was[0] && now[1] === was[1]) return now; was = now; await page.waitForTimeout(350); } throw new Error('the board never came to rest'); };
+    if (!mobile) await page.mouse.move(0, 0);
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForFunction(() => { const r = /** @type {Element} */ (document.querySelector('#footBoard')).getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }, null, { timeout: 5000 });
+    await page.waitForTimeout(600); const rest = await settled();
+    if (rest[0] < 1000) throw new Error(`the board is not lit: ${rest[0]} pixels in colour`);
+    await page.locator('.land-foot').screenshot({ path: `${shots}/${tag}-1g-footer.png` });
+    if (mobile) return;
+    await page.hover('#footKey .lk[data-kind]'); await page.waitForTimeout(400); const one = await settled();
+    await page.mouse.move(0, 0); await page.waitForTimeout(400); const all = await settled();
+    if (one[0] > rest[0] * .4 || one[0] < 100 || all[0] !== rest[0]) throw new Error(`calling out a kind: ${JSON.stringify({ rest, one, all })}`);
+    const theme = () => page.evaluate(() => document.documentElement.dataset.theme || '');
+    for (let i = 0; i < 3 && (await theme()) !== 'dark'; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const dark = await lit();
+    for (let i = 0; i < 3 && (await theme()) !== ''; i++) await page.locator('#themeBtn').click();
+    await page.waitForTimeout(300); const back = await lit();
+    if (Math.abs(dark[1] - rest[1]) < 30 || Math.abs(back[1] - rest[1]) > 6) throw new Error(`the board's colours: light ${rest[1].toFixed(0)}, dark ${dark[1].toFixed(0)}, back ${back[1].toFixed(0)}`);
+  });
   /* the map of threads is drawn on a canvas: switching the theme draws it again in the new theme's ink */
   if (!mobile) await step(`${tag}: the map of threads follows the theme`, async () => {
     await page.mouse.move(0, 0); await page.locator('#threadStage').scrollIntoViewIfNeeded(); await page.waitForTimeout(400);

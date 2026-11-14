@@ -839,12 +839,6 @@ body.at-start .omni-btn{display:none}
   body:not(.at-start) .colfoot{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 }
 
-/* ================= the footer's wordmark: all eight colours ================= */
-:root{--spec:linear-gradient(90deg,#2563EB,#0E7C86,#2F7D32,#A16207,#C2410C,#BE123C,#A21CAF,#6D28D9)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}}
-:root[data-theme="dark"]{--spec:linear-gradient(90deg,#93B4FF,#5CD0D8,#7FD483,#F5B94A,#FF9F6E,#FF8A9E,#F08CF5,#B89CFF)}
-
-
 /* ================= colour as information: what a link leads to ================= */
 [data-kind="concept"]{--kc:#2563EB}[data-kind="phenomenon"]{--kc:#0E7C86}[data-kind="mechanism"]{--kc:#2F7D32}[data-kind="place"]{--kc:#A16207}
 [data-kind="person"]{--kc:#C2410C}[data-kind="event"]{--kc:#BE123C}[data-kind="thing"]{--kc:#A21CAF}[data-kind="mystery"]{--kc:#6D28D9}
@@ -942,11 +936,22 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 .pr-list.out .door{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .pr-list.in .door{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 .hero .status{justify-content:center;margin-top:22px}
-/* the footer: the wordmark in all eight link colours, then the fine print */
-.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:60px 28px 72px;border-top:1px solid var(--line)}
-.lf-mark{display:inline-block;font:900 clamp(44px,7vw,84px)/1 var(--f-dot);letter-spacing:-.01em;background:var(--spec);-webkit-background-clip:text;background-clip:text;color:transparent}
-.credit{max-width:62ch;margin-top:20px;font-size:12.5px;line-height:1.55;color:var(--faint)}
-.credit a{color:inherit}
+/* the footer: the fine print and the key to the eight colours, then the wordmark set in lamps across the page, as wide
+   as the cards above it. The board takes its shape from its grid (03-lamps.js), and its canvas reaches a little past
+   it, for a lamp at the edge that swells */
+.land-foot{max-width:1180px;margin:clamp(72px,9vw,128px) auto 0;padding:36px 28px 48px;border-top:1px solid var(--line)}
+.credit{max-width:62ch;font-size:12.5px;line-height:1.55;color:var(--faint)}
+.credit a{display:inline-block;margin:-6px 0;padding:6px 0;color:inherit}
+.lf-key{display:flex;flex-wrap:wrap;gap:6px 22px;margin:clamp(30px,4.4vw,56px) 0 18px;font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
+.lf-key .lbl{margin-right:auto}
+/* where the kinds would not all fit beside the key's name, they run on under it */
+@media (max-width:1040px){ .lf-key .lbl{flex-basis:100%} }
+.lk{cursor:default;transition:opacity var(--d-quick) var(--ease-out)}
+.lk[data-kind]{color:var(--kc)}
+.lk b{margin-left:1px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.lf-key:has(.lk[data-kind]:hover) .lk:not(:hover){opacity:.45}
+.lf-board{position:relative;aspect-ratio:var(--wordmark-ar);color:var(--ink)}
+.lamps{position:absolute;left:-4px;top:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
 @media (max-width:560px){
   /* the hero is exactly one screen */
   .hero{--peek:120px;min-height:calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek));padding-top:20px;padding-bottom:24px}
@@ -960,6 +965,9 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
   .cbox{padding:14px 10px 8px 16px}
   #seedIn,.cmirror{font-size:16px}
   .cmirror{left:16px;top:16px}
+  /* the board keeps the cards' edges */
+  .land-foot{padding:28px 16px 36px}
+  .lf-key{gap:6px 16px;margin-bottom:14px}
 }
 /* on the landing the top bar is the wordmark alone: keys and voice live in the composer. The theme switch is on every
    page (on a phone, in the menu) */

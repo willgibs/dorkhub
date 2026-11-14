@@ -10,9 +10,10 @@ import { asksQuestion, routeOf, topicKey } from '../shared/world.js';
 import { localGraph, nodeKeyOf } from '../shared/graph.js';
 import { enigma } from '../shared/enigma.js';
 import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
-import { LENSES, kattr, kindOf } from './01-data.js';
+import { KIND_LABEL, LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
+import { DEAL, lampBoard, rethemeLamps } from './03-lamps.js';
 import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { renderVoice, trialLine } from './09-start.js';
@@ -476,7 +477,31 @@ export function viewStart() {
   <div id="statusSlot" class="rise" style="--i:3">${trialLine()}</div>
 </section>
 ${frontShellHTML()}
-<footer class="land-foot"><p class="lf-mark">dorkhub</p><p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p></footer>`;
+${footHTML()}`;
+}
+/* ================= the footer: the fine print, the key to the eight colours, and the wordmark set in lamps =================
+   The page ends on Dorkhub's mark, a board of lamps across its width (03-lamps.js). The lit lamps are the eight kinds'
+   colours, scattered, in the proportions of what this reader has read; a board nobody has written on yet shows every
+   kind in equal measure. The key above it names the kinds, most read first, each with its count once there is one
+   (a kind not read yet is unlit, like a lamp); pointing at one calls out its lamps. */
+let FOOT = null, FOOT_MIX = null;
+function footHTML() {
+  const mix = {}; for (const p of worldIndex().read.values()) { const k = kindOf(p.kind) || 'concept'; mix[k] = (mix[k] || 0) + 1; }
+  const mine = Object.keys(mix).length > 0; if (!mine) for (const k of DEAL) mix[k] = 1;
+  FOOT_MIX = mix;
+  const kinds = mine ? [...DEAL].sort((a, b) => (mix[b] || 0) - (mix[a] || 0)) : DEAL;
+  return `<footer class="land-foot">
+  <p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p>
+  <p class="lf-key" id="footKey"><span class="lbl">${mine ? 'What you read' : 'Eight kinds of topic'}</span>${kinds.map(k => `<span class="lk" data-lk="${k}"${mix[k] ? ` data-kind="${k}"` : ''}>${KIND_LABEL[k]}${mine && mix[k] ? ` <b>${mix[k]}</b>` : ''}</span>`).join('')}</p>
+  <div class="lf-board" id="footBoard" role="img" aria-label="dorkhub"></div>
+</footer>`;
+}
+function mountFoot() {
+  const host = $('#footBoard'), key = $('#footKey'); if (!host || !key) return;
+  if (FOOT) FOOT.destroy();
+  FOOT = lampBoard(host, { mix: FOOT_MIX, arrive: true });
+  key.addEventListener('pointerover', e => { const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-kind]')); if (FOOT) FOOT.only(k ? k.dataset.lk : ''); });
+  key.addEventListener('pointerleave', () => { if (FOOT) FOOT.only(''); });
 }
 /* the beam only runs while someone can see it */
 let BEAM_IO = null;
@@ -485,10 +510,11 @@ function watchBeam() {
   BEAM_IO = new IntersectionObserver(([e]) => box.toggleAttribute('data-paused', !e.isIntersecting)); BEAM_IO.observe(box);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
-/* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves) */
-export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); }
-export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; }
+export function startLanding() { watchBeam(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+/* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
+   so does every board of lamps on screen */
+export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }
+export function stopLanding() { stopLiving(); if (BEAM_IO) { BEAM_IO.disconnect(); BEAM_IO = null; } stopStage(); FX_STOP.splice(0).forEach(f => f()); for (const m of [THREADMAP, WORLDCARD]) if (m) m.destroy(); THREADMAP = WORLDCARD = null; if (FOOT) { FOOT.destroy(); FOOT = null; } }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {

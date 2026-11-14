@@ -195,6 +195,19 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   read (not written yet, paused, out of free pages, failed: a state is a page, `stateOf` in
   `06-page-end.js`), draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
   free and instant.
+- **Lamps** (`src/app/03-lamps.js`; the law is in `docs/vision.md`, Identity). `MARK` is "dorkhub" as the dot
+  face sets it, 41 lamps by 7. `lampBoard(host, { mix, arrive })` draws it on a canvas as a board: every place on
+  the grid a lamp, the word's lit and the rest faint. `mix` shares the lit lamps among the kinds by largest
+  remainder, dealt along a fixed scatter (a lattice on the plastic number, with the kinds in an order that keeps
+  neighbours on the colour wheel apart), so the spectrum never forms a band or a sweep. The board draws only while
+  a lamp has somewhere to go: arriving (once a visit, when half of it is seen), warming to the pointer and
+  cooling behind it, or hushing every kind but one (`only`). At rest it asks for no frame; reduced motion draws
+  the resting board once. `init()` hands the stylesheet the board's shape (`--wordmark-ar`) and the mark as a
+  picture (`--wordmark`, an SVG a rule paints through as a mask) for where it stands small and still.
+  - **The footer** (`footHTML`, `mountFoot` in `13-landing.js`): the fine print, a key to the eight kinds, and
+    the board across the page. Lit in the proportions of what the reader has read (`worldIndex`), each kind in
+    the key with its count, most read first; nothing read, every kind in equal measure. Pointing at a kind in
+    the key calls out its lamps.
 - **Placeholders** (`lib/placeholder.js`). Until a front-page topic's page is written, it opens a
   placeholder, made when asked from `lib/front.js` alone: the topic's title, kind and hook, a
   real page's shape (an opening, sections, two notes, two panels, six cards, three questions),
