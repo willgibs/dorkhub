@@ -14,7 +14,8 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   reader could notice. Chat refers to them by those numbers.
 - **Vercel:** a push that changes nothing deployed no longer builds (`scripts/skip-build.mjs`); records travel
   with the change they describe. Dorkhub was 81% of the account's transfer (the Sentry monitor, now disabled) and
-  holds 497 of its 763 MB of deployment storage, from 52 deployments on 2026-11-13.
+  holds 497 of its 763 MB of deployment storage, from 52 deployments on 2026-11-13. Its deployments are now
+  kept a week, not 30 days (set at Will's word; the live one and the last three production ones always stay).
 - **Will, 2026-11-13:** engine first; Fable 5.2 orchestrates itself and Opus/Sonnet builders; he is product
   visionary and art director. Test on the Claude subscription, not paid credits. He rated the app 6 or 7 of 10
   before these waves. Keep the orchestrator's context lean: offer a compaction point at 60 to 75%.
@@ -28,7 +29,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 
 ## Blocked on Will
 - The desk's eight items.
-- Deployment retention is 30 days in every class (project Settings, Build and Deployment): shorter is his to set.
 - A few dollars of gateway credit: proves live writing (#38) and runs the eval's writers; judges need none.
 - Connecting Upstash Redis (his click), and whether to switch the library on.
 - Still open from October: the 11 earlier pages; old resources (Sentry's project, Supabase, tags, keys); repo
