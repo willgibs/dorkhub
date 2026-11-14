@@ -165,7 +165,8 @@ document.addEventListener('click', e => {
   }
   const act = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-act]')); if (!act) return;
   const x = act.dataset.act; if (act.tagName === 'A') e.preventDefault();
-  const md = /** @type {HTMLDetailsElement} */ (act.closest('details.more')); if (md) shut(md);
+  /* the item goes with its menu, so focus waits on the menu's button: a sheet it opens gives focus back there */
+  const md = /** @type {HTMLDetailsElement} */ (act.closest('details.more')); if (md) { if (md.contains(document.activeElement)) /** @type {HTMLElement} */ (md.firstElementChild).focus({ preventScroll: true }); shut(md); }
   const p = curPage();
   if (x === 'surprise') surprise();
   else if (x === 'shuffle') shufflePresets();
@@ -209,7 +210,7 @@ document.addEventListener('submit', e => {
   }
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (pm) closePMenu(true); closeMenu(true); $$('details.voice[open]').forEach(d => shut(/** @type {HTMLDetailsElement} */ (d))); if (WORLD && (WORLD.focused || WORLD.replaying)) { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); } return; }
+  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (pm) closePMenu(true); closeMenu(true); $$('details.voice[open], details.more[open]').forEach(d => { const back = d.contains(document.activeElement); shut(/** @type {HTMLDetailsElement} */ (d)); if (back) /** @type {HTMLElement} */ (d.firstElementChild).focus({ preventScroll: true }); }); if (WORLD && (WORLD.focused || WORLD.replaying)) { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); } return; }
   const tag = (/** @type {HTMLElement} */ (e.target).tagName || '').toLowerCase();
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (VIEW === 'home') $('#seedIn')?.focus(); else openOmni(); return; }
   if (['input', 'textarea', 'select'].includes(tag) || /** @type {HTMLElement} */ (e.target).isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;

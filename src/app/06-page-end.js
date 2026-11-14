@@ -207,7 +207,7 @@ export function paintTools(p, sec) {
   more.push(mi('recall', 'What stuck? A quick quiz', 'Q', true));
   more.push(mi('rewrite', `Rewrite as ${esc(LENSES[store.settings.lens][0].toLowerCase())}`, 'R', p.status !== 'digging'));
   more.push(`<button class="mi keys-mi" type="button" data-act="help">All shortcuts <kbd>?</kbd></button>`);
-  t.push(`<details class="more"><summary class="tool ib"${tipAttrs('More')}>${ic('more')}</summary><div class="more-pop" role="menu">${more.join('')}</div></details>`);
+  t.push(`<details class="more"><summary class="tool ib"${tipAttrs('More')}>${ic('more')}</summary><div class="more-pop">${more.join('')}</div></details>`);
   const tools = $('.tools', sec); if ($('details.more[open]', tools)) return;
   setHTML(tools, t.join(''));
 }
