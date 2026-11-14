@@ -160,6 +160,7 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 
 /* Magnets: the filings on a canvas under the bar (the page draws them), the bar in its usual colours, north red */
 .mg-cv{position:absolute;inset:0;width:100%;height:100%}
+.wc[data-fx="magnets"]{touch-action:pan-y}
 .vz .mg-n{fill:#C8372D}.vz .mg-s{fill:#4E5D74}
 .vz .mg-edge{fill:none;stroke:rgba(0,0,0,.25);stroke-width:.8}
 .vz .mg-l{font:700 14px/1 var(--f-ui);letter-spacing:0;fill:#fff}

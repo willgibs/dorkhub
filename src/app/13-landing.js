@@ -297,8 +297,9 @@ function origamiFx(card) {
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });
 }
 /* Magnets: about 1,800 filings on a canvas, each turned along the field where it lies (src/shared/plates.js). Waiting
-   its turn they lie scattered; on its turn they swing into line, rippling out from the bar; with a mouse the pointer is
-   a pole they turn toward, and when it leaves they settle back. Drawn in the theme's ink, again when the theme changes */
+   its turn they lie scattered; on its turn they swing into line, rippling out from the bar; the pointer, or a thumb
+   dragged across the card, is a pole they turn toward, and when it leaves they settle back. Drawn in the theme's ink,
+   again when the theme changes */
 function magnetsFx(card) {
   const cv = $('.mg-cv', card); if (!cv || cv.dataset.wired) return; cv.dataset.wired = '1';
   const ctx = cv.getContext('2d'), F = filings(), rand = F.map((_, i) => ((i * 7919) % 360) / 360 * Math.PI);
@@ -328,8 +329,19 @@ function magnetsFx(card) {
   const waiting = card.classList.contains('armed') && !card.classList.contains('seen');
   F.forEach((_, i) => { ang[i] = waiting ? rand[i] : aim[i]; }); draw();
   FX_PLAY.set(card, () => { play = performance.now(); go(); });
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || play) return; const r = card.getBoundingClientRect(); pole = [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s, 2.6]; along(pole); go(); });
-  card.addEventListener('pointerleave', () => { if (!pole) return; pole = null; along(null); go(); });
+  /* the pointer is a pole, and so is a thumb once it has travelled across the card (one that only taps opens the page) */
+  let drag = null, from = null, dragged = 0;
+  const away = () => { if (!pole) return; pole = null; along(null); go(); };
+  card.addEventListener('pointerdown', e => { dragged = 0; if (e.pointerType !== 'mouse') { drag = e.pointerId; from = [e.clientX, e.clientY]; } }, true);
+  card.addEventListener('pointermove', e => {
+    if (!card.classList.contains('seen') || play || (e.pointerType !== 'mouse' && (e.pointerId !== drag || (from && Math.hypot(e.clientX - from[0], e.clientY - from[1]) < 8)))) return;
+    if (from) { from = null; dragged = 1; }
+    const r = card.getBoundingClientRect(); pole = [(e.clientX - r.left - ox) / s, (e.clientY - r.top - oy) / s, 2.6]; along(pole); go();
+  });
+  card.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') away(); });
+  for (const up of ['pointerup', 'pointercancel']) card.addEventListener(up, e => { if (e.pointerId !== drag) return; drag = from = null; away(); });
+  /* letting go after a drag is not a tap on the card */
+  card.addEventListener('click', e => { if (!dragged) return; dragged = 0; e.preventDefault(); e.stopPropagation(); }, true);
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => { size(); draw(); }) : null; if (ro) ro.observe(card);
   const mo = new MutationObserver(() => { size(); draw(); }); mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   const mq = matchMedia('(prefers-color-scheme: dark)'), re = () => { size(); draw(); }; mq.addEventListener('change', re);
