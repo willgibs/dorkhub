@@ -14,8 +14,8 @@ phones, #40 Your world by keyboard, #39 sharing). In order from here:
    a. Live at his word: willgibs/dorkhub#44, the kit where it had not reached: the tool panels (peek, expand,
       skeptic mode), the tool sheets (quiz, around this, connect, the trail) and their out-of-tools state, the
       selection button, Your world's card. The front cards' drawings keep their own motion.
-   b. **Accessibility and speed**, audited 2026-11-13 (nothing changed). Being built on `fix/a11y`, to merge on
-      green because a reader would not notice: focus returning to its opener when a sheet from
+   b. **Accessibility and speed**, audited 2026-11-13. Live (willgibs/dorkhub#45, merged on green because a
+      reader would not notice; the layout shift could not be reproduced and was left): focus returning to its opener when a sheet from
       the More menu or the phone menu closes; the More menu by keyboard; the recap announcing once; search as a
       combobox; heading order; the Enigma card's 28 Tab stops; the phone button's droplets by Tab; the aurora
       picture loading lazily; the phone front page's layout shift. **(Will)** A reader could notice these four:
@@ -24,6 +24,7 @@ phones, #40 Your world by keyboard, #39 sharing). In order from here:
       the composer's beam at about 10% of the main thread while in view. Noted, not proposed: the whole app is
       inlined in each of 44 HTML files (363 KB, about 100 KB compressed), the price of a CSP with no external
       scripts; a full minify would save about 6 KB compressed.
+      These four and the four ideas below are items 1 to 8 on the review desk, with pictures.
    c. **(Will)** Which idea goes to a preview: dotted numerals in the figures panel and the trial count, more
       presence for the top bar, the footer's wordmark elsewhere, the picture travelling back into its card on Back.
 2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
