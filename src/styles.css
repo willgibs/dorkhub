@@ -175,6 +175,8 @@ body.at-start .top-t,body.at-world .top-t{display:none}
 /* on a phone there is no room for both: once the title has gone under the bar, the wordmark yields its place to it,
    and comes back when the reader returns to the top */
 @media (max-width:760px){
+  /* the title sits on the bar's own paper: nothing readable passes behind it */
+  .top{background:var(--bg)}
   .top-t{left:14px;right:60px;max-width:none;padding:6px 0;font-size:15px;transform:translateY(-50%) translateY(var(--dist-micro))}
   body.titled .top-t{transform:translateY(-50%)}
   .top-t:hover{background:transparent}
