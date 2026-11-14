@@ -119,19 +119,25 @@ kbd{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding:
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;display:flex;align-items:center;gap:6px;height:var(--top-h);padding:0 20px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color var(--d-fast) var(--ease-out);view-transition-name:topbar}
 /* the hairline appears once the page has moved under the bar */
 body.scrolled .top{border-bottom-color:var(--line)}
-.logo{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none}
-.logo span{font:900 22px/1 var(--f-dot);letter-spacing:.01em}
-/* the top bar's actions share one shape: an icon in a 36 px target, or an icon and its count with the
-   same padding either side; a count is set the same everywhere. Space inside a target is tighter than
-   between targets, so each icon reads with its own number. */
-.top-r{display:flex;align-items:center;gap:2px;margin-left:auto;flex:none}
-.tb{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:var(--ctl);min-width:var(--ctl);padding:0 10px 0 9px;border:0;border-radius:var(--r-2);background:transparent;color:var(--mute);font:600 13px/1 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none;transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
+/* where a page is open, its row of lamps is the bar's edge, so the hairline steps aside */
+body.scrolled .top:has(>.prog:not([hidden])){border-bottom-color:transparent}
+/* the wordmark is the mark, not a label: set larger and closer than any word on the bar, in ink. The link's tap
+   area runs the bar's height (44 px) while the letters keep their size */
+.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out),visibility 0s linear}
+.logo::before{content:"";position:absolute;inset:-11px 0}
+.logo span{font:900 26px/1 var(--f-dot);letter-spacing:-.02em}
+/* the top bar's actions share one shape: an icon in a 36 px box, or an icon and its count with the same padding
+   either side; a count is set the same everywhere. What takes a tap is 44 px: the box grown 4 px each way, with 8 px
+   between boxes so no two tap areas meet. */
+.top-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex:none}
+.tb::before{content:"";position:absolute;inset:-4px}
+.tb{position:relative;display:inline-flex;align-items:center;justify-content:center;gap:5px;height:var(--ctl);min-width:var(--ctl);padding:0 10px 0 9px;border:0;border-radius:var(--r-2);background:transparent;color:var(--mute);font:600 13px/1 var(--f-ui);cursor:pointer;text-decoration:none;list-style:none;transition:background-color var(--d-quick) var(--ease-out),color var(--d-quick) var(--ease-out)}
 .tb.ib{width:var(--ctl);padding:0}
 .tb:hover,.tb[aria-expanded="true"],.voice[open]>.tb{background:var(--panel);color:var(--ink)}
 .tb::-webkit-details-marker{display:none}
-/* a count is part of its icon, not a badge: the icon's own colour, a size under it, figures of one width, and set on
-   the icon's optical middle (cap height to baseline) */
-.tb-c{font:500 12.5px/1 var(--f-ui);font-variant-numeric:tabular-nums;letter-spacing:0;color:inherit;text-box:trim-both cap alphabetic}
+/* a count is part of its icon, not a badge. It stands alone, so it is set in lamps (the dot face), lit in ink beside
+   its quieter icon, and set on the icon's optical middle (cap height to baseline) */
+.tb-c{font:900 17px/1 var(--f-dot);letter-spacing:.02em;color:var(--ink);text-box:trim-both cap alphabetic}
 .tb-c:empty{display:none}
 .voice{position:relative}
 .pop{position:absolute;right:0;top:calc(100% + 8px);z-index:50;width:min(330px,86vw);transform-origin:top right;animation:popin var(--d-fast) var(--ease-out) both}
@@ -165,9 +171,23 @@ body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibili
 .top-t:hover{background:var(--panel)}
 body.titled .top-t{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
 body.at-start .top-t,body.at-world .top-t{display:none}
-@media (max-width:760px){ .top-t{display:none} }
-.prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--acc);transition:width var(--d-micro) linear}
-body.at-start .prog{display:none}
+.top-t::before{content:"";position:absolute;inset:-8px 0}
+/* on a phone there is no room for both: once the title has gone under the bar, the wordmark yields its place to it,
+   and comes back when the reader returns to the top */
+@media (max-width:760px){
+  .top-t{left:14px;right:60px;max-width:none;padding:6px 0;font-size:15px;transform:translateY(-50%) translateY(var(--dist-micro))}
+  body.titled .top-t{transform:translateY(-50%)}
+  .top-t:hover{background:transparent}
+  body.titled:not(.at-start):not(.at-world) .logo{opacity:0;visibility:hidden;transition:opacity var(--d-quick) var(--ease-out),visibility 0s linear var(--d-quick)}
+}
+/* Position is a row of lamps along the bar's lower edge: unlit lamps are faint, and they light in the page's kind colour
+   as far as the reader has read. Script writes how many are lit (--lit) only when that number changes, at most once a
+   frame while scrolling and never at rest. Where there is no position (the front page, Your world) the row is absent
+   and the bar keeps its hairline. */
+.prog{--pitch:6px;position:absolute;left:0;right:0;bottom:0;height:6px;pointer-events:none;background:radial-gradient(circle,var(--line-2) 1.1px,transparent 1.6px) 0 50%/var(--pitch) 100% repeat-x}
+.prog::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--acc) 1.3px,transparent 1.8px) 0 50%/var(--pitch) 100% repeat-x;clip-path:inset(0 calc(100% - var(--lit,0) * var(--pitch)) 0 0);transition:clip-path var(--d-quick) var(--ease-out)}
+body.at-start .prog,body.at-world .prog{display:none}
+@media (prefers-reduced-motion:reduce){ .prog::after{transition:none} }
 
 /* ================= shell & sidebar: Your world beside the page, closed by default ================= */
 .shell{display:grid;grid-template-columns:var(--side-w,288px) minmax(0,1fr);min-height:calc(100% - var(--top-h));transition:grid-template-columns var(--d-medium) var(--ease-out)}
