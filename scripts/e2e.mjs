@@ -921,6 +921,35 @@ try {
     await still.close();
     if (b.corner !== '1' || b.cut !== 'inset(0px)' || b.moving || b.lit < 1000 || b.hue > 20 || b.seen) throw new Error(`reduced motion: ${JSON.stringify(b)}`);
   });
+  /* on a narrow phone with a voice chosen, the composer's lamps yield and the chip shrinks before send would leave the box */
+  await step('a narrow phone: send stays inside the composer with a voice chosen', async () => {
+    const c = await browser.newContext({ viewport: { width: 320, height: 640 }, hasTouch: true, isMobile: true });
+    await c.addInitScript(() => { if (!localStorage.getItem('dorkhub:world:v1')) localStorage.setItem('dorkhub:world:v1', JSON.stringify({ v: 1, settings: { lens: 'story' } })); });
+    const p = await c.newPage(); await p.goto(base); await p.waitForSelector('#seedBox .cchip');
+    for (const w of [320, 360, 375, 390]) {
+      await p.setViewportSize({ width: w, height: 640 }); await p.waitForTimeout(150);
+      const m = await p.evaluate(() => { const b = /** @type {Element} */ (document.querySelector('#seedBox')).getBoundingClientRect(), s = /** @type {Element} */ (document.querySelector('#seedGo')).getBoundingClientRect(); return { box: [b.left, b.right], send: [s.left, s.right] }; });
+      if (m.send[0] < m.box[0] || m.send[1] > m.box[1]) { await c.close(); throw new Error(`send outside the composer at ${w}: ${JSON.stringify(m)}`); }
+    }
+    await c.close();
+  });
+  /* the reading row: a whole number of lamps at any width, none lit at a page's top and all of them at its end */
+  await step('the reading row: whole lamps, none lit at the top, all at the end', async () => {
+    const p = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+    await p.goto(`${base}/tardigrades`); await p.waitForFunction(() => document.querySelector('.chamber .article')?.getAttribute('aria-busy') === 'false', null, { timeout: 20000 });
+    const row = () => p.evaluate(() => { const r = /** @type {HTMLElement} */ (document.querySelector('#prog')); return { hidden: r.hidden, w: r.getBoundingClientRect().width, n: +r.style.getPropertyValue('--n'), lit: +r.style.getPropertyValue('--lit') }; });
+    const bad = [];
+    for (const w of [320, 1024, 1280]) {
+      await p.setViewportSize({ width: w, height: 800 }); await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(200);
+      const top = await row();
+      await p.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight)); await p.waitForTimeout(200);
+      const end = await row();
+      /* the drawing's tile is the row's width over n, so a whole number of lamps; the pitch flexes only a little */
+      if (top.hidden || !Number.isInteger(end.n) || Math.abs(end.w / end.n - 6) > .5 || top.lit !== 0 || end.lit !== end.n) bad.push({ w, top, end });
+    }
+    await p.close();
+    if (bad.length) throw new Error(`the reading row: ${JSON.stringify(bad)}`);
+  });
   const desk = await browser.newPage({ viewport: { width: 1360, height: 900 } });
   await run(desk);
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
