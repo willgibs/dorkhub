@@ -12,7 +12,7 @@ import { $, $$, esc, isLeaving, leave, save, settle, shut, stay, store, toast, t
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
 import { ACTIVE, CUR, HERO, OPENED, PLATE, STEP, canVT, cleanTitle, curMove, curPage, curTrail, ensurePage, go, inView, nameFor, openTopic, pageInput, pageOf, prepMove, setCUR, startTransition, setSTEP, trailPages } from './04-pages.js';
 import { nodeKeyOf } from '../shared/graph.js';
-import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
+import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC, wakePics } from './05-render.js';
 import { doubtPage, stateBodyHTML, stateOf, toggleSave } from './06-page-end.js';
 import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
 import { exportTrail, fileSlug, recapTrail, saveFile, sheet, trailSheet } from './08-sheets.js';
@@ -52,6 +52,8 @@ export function route() {
     if (HERO) { const el = from && landing(from); if (el && inView(el)) nameFor(curMove(), el, 'hero'); }
   }
   else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
+  /* the view left goes whole: a picture still arriving there lets go of it */
+  wakePics();
   setSTEP(history.state && history.state.n != null ? history.state.n : null);
   FIRST = false; POP = false;
 }
