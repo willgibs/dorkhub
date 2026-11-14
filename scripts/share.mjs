@@ -38,7 +38,7 @@ const ART = {
   'venus-flytraps': '.wc-art{left:500px;top:-20px;right:-30px;bottom:-10px}',
   magnets: '.wc-art{-webkit-mask-image:radial-gradient(ellipse 640px 210px at 300px 115px,transparent 58%,#000 100%);mask-image:radial-gradient(ellipse 640px 210px at 300px 115px,transparent 58%,#000 100%)}',
   'rubiks-cube': '.wc-art{left:600px;top:30px;right:20px;bottom:30px}.rb-n{left:-532px;bottom:64px;font-size:34px}.rb-cap{left:-532px;bottom:34px;font-size:19px}',
-  fireworks: '&{background:#03040A}.wc-art{top:300px}',
+  fireworks: '&{background:#03040A}.wc-art{top:262px}',
   lightning: '.wc-art{left:560px}',
   'giant-squid': '.wc-art{left:560px}.wc-line{max-width:470px}',
   pompeii: '.wc-art{left:590px}.wc-line{max-width:440px}',
