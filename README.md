@@ -5,9 +5,9 @@
 ## How it works
 
 - **One static page.** `public/index.html` is built from `src/` (plain JavaScript modules bundled into one inline script, no framework) and served from Vercel's CDN. Rabbit holes live in the reader's browser.
-- **Two functions.** `POST /api/write` (`api/write.js` → `lib/write.js`) writes every word. The page names a task (`page`, `peek`, `sketch`…) and sends structured context: titles, the path, a passage. The server owns every prompt (`lib/prompts.js`), chooses the writer (`lib/ai.js`) and streams plain text back. `GET /api/picture` (`lib/picture.js`) finds a page's lead picture on Wikipedia and serves it through our own origin; no model is involved.
-- **Pages written ahead of time.** The landing's doors, and the pages one click off them, can be pre-written in `lib/seeds` and are then served free (`lib/seeds.js`).
-- **Shared code.** `src/shared/article.js` (the page-format parser) and `src/shared/models.js` (the model catalog) run on both sides. The build inlines them into the page.
+- **Three functions.** `POST /api/write` (`api/write.js` → `lib/write.js`) writes every word. The page names a task (`page`, `peek`, `sketch`…) and sends structured context: titles, the path, a passage. The server owns every prompt (`lib/prompts.js`), chooses the writer (`lib/ai.js`) and streams plain text back. `GET /api/picture` (`lib/picture.js`) finds a page's lead picture on Wikipedia and serves it through our own origin; no model is involved. `GET /api/share` (`lib/share.js`) gives a link preview the head of an address that has no file of its own.
+- **Pages written ahead of time.** The front page's topics (`lib/front.js`: its hand-drawn cards, the threads between topics, and the pages written before them) are pre-written in `lib/seeds` and served free and instant (`lib/seeds.js`, `lib/library.js`). A topic whose page isn't written yet opens a placeholder (`lib/placeholder.js`).
+- **Shared code.** `src/shared/` runs on both sides: the page-format parser (`article.js`), the model catalog (`models.js`), page identity and addresses (`world.js`), Your world's data (`graph.js`), and the drawings a card and its page share (`plates.js`, `enigma.js`). The build inlines what the page uses.
 
 ## Who pays for the words
 
@@ -36,7 +36,7 @@ npx playwright install chromium  # once, for the browser test
 npm run e2e                      # the whole reader flow in Chromium, desktop and phone
 ```
 
-The mock writer replays real recorded pages (try Lanchester's laws, Bog bodies, Mantis shrimp vision or Lewis gun, which show off the v2 panels) at a writer's pace, and streams correctly formatted stand-ins for anything else. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
+The mock writer replays real recorded pages (try Lanchester's laws, Bog bodies, Mantis shrimp vision or Lewis gun) at a writer's pace, and streams correctly formatted stand-ins for anything else. Failure drills: put `[fail-early]`, `[fail-mid]`, `[cut]`, `[slow]` or `[garbled]` in a page title; a key containing `bad` is rejected. For live writing locally, put `AI_GATEWAY_API_KEY` in `.env.local`.
 
 ## Deploy
 
@@ -47,19 +47,29 @@ Production needs no secrets. The function authenticates to AI Gateway with the d
 ## Layout
 
 ```
-api/write.js         the Vercel Function (a thin wrapper)
-lib/write.js         request → trial check → cache → stream; the wire protocol
+api/                 the Vercel Functions, thin wrappers: write, picture, share
+lib/write.js         request → trial check → library → stream; the wire protocol
 lib/prompts.js       every prompt and task: validation, output budget, caching
 lib/ai.js            trial writer vs. reader's key; provider errors → our codes
 lib/trial.js         the free allowance: device, network and /48 caps; reserve and refund
 lib/counters.js      where counts live: Upstash Redis (atomic) or Runtime Cache
+lib/library.js       where finished pages are kept: seeds, cache, durable store
+lib/flight.js        one write per page in flight
+lib/front.js         the front page by hand: topics, cards and their drawings, threads
+lib/placeholder.js   a front-page topic's page before it is written
+lib/seeds.js, seeds/ pages written ahead of time
+lib/picture.js       a page's lead picture, through our own origin
+lib/share.js         what a link to Dorkhub shows where it is pasted
+lib/grounding.js     source notes for the writer (the model eval)
 lib/mock.js          the mock writer: replays recorded pages, or writes stand-ins
 lib/recorded.js      real writer output for the exact prompts (scripts/recorded.mjs adds more)
 src/app/*.js         the page, as modules (main.js starts it; 16-router routes)
-src/shared/          parser + model catalog, shared with the server
-src/static/          404 page, favicon, robots.txt
-scripts/             build, dev server, browser test
+src/shared/          code the page and the server share
+src/static/          404 page, favicon, fonts, robots.txt, link-preview pictures
+src/vendor/          vendored code, with its licence
+scripts/             build, dev server, browser walk, eval, production check, seeds
 tests/               node:test suites
+.github/workflows/   CI: verify and the walk on every pull request
 docs/                vision, state, backlog, architecture, decisions, eval plan, prototype
 ```
 

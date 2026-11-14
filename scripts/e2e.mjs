@@ -21,11 +21,14 @@ try { ({ chromium } = require('playwright')); } catch { console.error('Playwrigh
 const shots = process.env.E2E_SHOTS || '.e2e';
 mkdirSync(shots, { recursive: true });
 const port = 3900 + Math.floor(Math.random() * 90);
-const base = `http://localhost:${port}`;
+/* E2E_BASE walks a server already running (a worktree's own, started with the env below, so two builds never race in one
+   public/); E2E_ONLY walks only the steps whose names match it, on the desk and the phone */
+const ONLY = process.env.E2E_ONLY ? new RegExp(process.env.E2E_ONLY) : null;
+const base = process.env.E2E_BASE || `http://localhost:${port}`;
 /* A small trial keeps the run short, and goes through the same setting production uses. */
 const PAGES = 5;
-const server = spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_PICTURES: 'off', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
-await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
+const server = process.env.E2E_BASE ? null : spawn(process.execPath, [fileURLToPath(new URL('dev.mjs', import.meta.url))], { env: { ...process.env, PORT: String(port), DH_MOCK: '1', DH_MOCK_PACE: 'quick', DH_PICTURES: 'off', DH_TRIAL_PAGES: String(PAGES) }, stdio: ['ignore', 'pipe', 'inherit'] });
+if (server) await new Promise((resolve, reject) => { server.stdout.on('data', d => { if (String(d).includes('dorkhub on')) resolve(null); }); server.on('exit', () => reject(new Error('dev server exited'))); });
 
 const browser = await chromium.launch();
 const errors = [];
@@ -35,7 +38,7 @@ const results = [];
 const written = new Set();
 const seeded = new Set([...Object.keys(JSON.parse(readFileSync(new URL('../lib/seeds/index.json', import.meta.url), 'utf8')).pages), ...FRONT.map(f => topicKey(f.t))]);
 const fresh = (/** @type {string} */ t) => t && !written.has(topicKey(t)) && !seeded.has(topicKey(t));
-const step = async (name, fn) => { const t = Date.now(); try { await fn(); results.push(`ok   ${name} (${Date.now() - t} ms)`); } catch (e) { results.push(`FAIL ${name}: ${String(e.message).split('\n')[0]}`); throw e; } };
+const step = async (name, fn) => { if (ONLY && !ONLY.test(name)) return; const t = Date.now(); try { await fn(); results.push(`ok   ${name} (${Date.now() - t} ms)`); } catch (e) { results.push(`FAIL ${name}: ${String(e.message).split('\n')[0]}`); throw e; } };
 
 async function run(page, { mobile = false } = {}) {
   page.on('pageerror', e => errors.push(`pageerror: ${e.message}`));
@@ -143,12 +146,14 @@ async function run(page, { mobile = false } = {}) {
     const count = await page.locator('[data-card="rubiks-cube"] .rb-n').ariaSnapshot();
     if (!count.includes('43,252,003,274,489,856,000') || /\d \d/.test(count)) throw new Error(`the cube's count, read aloud: ${count.slice(0, 120)}`);
     if (!mobile) for (const c of await page.locator('#ways .wc').all()) { const name = await c.getAttribute('data-card'); if (name) await c.screenshot({ path: `${shots}/${tag}-card-${name}.png` }); }
-    /* the flytrap counts touches, shuts on the second and digests at five */
+    /* the flytrap counts touches on its record: it shuts on the second (marked SHUTS) and digests at five */
     const ft = page.locator('.wc[data-fx="flytrap"]'); await ft.scrollIntoViewIfNeeded();
-    await ft.locator('.ft-btn').click(); const one = await ft.getAttribute('data-state');
-    await ft.locator('.ft-btn').click(); const two = await ft.getAttribute('data-state');
-    const lit = await ft.evaluate(c => c.querySelectorAll('.ft-steps li.on').length);
-    if (one !== 'armed' || two !== 'shut' || lit !== 2) throw new Error(`the flytrap: ${one}, then ${two}, ${lit} steps lit`);
+    const ftLit = () => ft.evaluate(c => [c.dataset.state, c.querySelectorAll('.ft-k.lit').length, [...c.querySelectorAll('.ft-at.lit')].map(a => a.textContent).join(' ')].join('/'));
+    await ft.locator('.ft-btn').click(); const one = await ftLit();
+    await ft.locator('.ft-btn').click(); const two = await ftLit();
+    for (let i = 0; i < 3; i++) await ft.locator('.ft-btn').click();
+    const five = await ftLit();
+    if (one !== 'armed/1/' || two !== 'shut/2/SHUTS' || five !== 'digest/5/SHUTS DIGESTS') throw new Error(`the flytrap: ${one}, then ${two}, then ${five}`);
     /* the Enigma: typing or tapping lights the lamp each letter becomes, steps the rotors, and never lights a key itself */
     const en = page.locator('.wc[data-fx="enigma"]'); await en.scrollIntoViewIfNeeded();
     await en.locator('.en-in input').fill('AAAAA');
@@ -343,6 +348,60 @@ async function run(page, { mobile = false } = {}) {
     await page.waitForFunction(() => location.pathname === '/black-holes'); const went = await moved; await waitDone(); await page.waitForTimeout(900);
     const after = await leftover();
     if (!went || after.named.length || after.stands) throw new Error(`map to page: ${JSON.stringify({ went, after })}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
+  /* the front page's other ways in run both ways too: Back sends a page's title home to where it was opened from (the
+     composer, keeping what was typed; a topic's name on the map of threads, or the panel beside it; a name on the world
+     card), and Forward sends it out again */
+  const landsOn = (/** @type {string} */ sel) => page.evaluate(sel => new Promise(ok => { const t0 = performance.now(); const look = () => { if ([...document.querySelectorAll(sel)].some(el => /** @type {HTMLElement} */ (el).style.viewTransitionName === 'hero')) ok(true); else if (performance.now() - t0 > 2500) ok(false); else requestAnimationFrame(look); }; look(); }), sel);
+  const opened = () => page.waitForFunction(() => location.pathname !== '/' && document.querySelector('.chamber .article')?.getAttribute('aria-busy') === 'false', null, { timeout: 20000 });
+  /* point across a map until a topic is under the pointer (read: one the reader has read, as its card says) */
+  const topicOn = async (/** @type {string} */ sel, read = false) => {
+    const b = await page.locator(sel).boundingBox(); if (!b) throw new Error(`no map at ${sel}`);
+    for (let y = b.y + b.height * .15; y < b.y + b.height * .85; y += 8) for (let x = b.x + b.width * .1; x < b.x + b.width * .9; x += 8) {
+      await page.mouse.move(x, y);
+      if (await page.evaluate(([s, r]) => /** @type {HTMLElement} */ (document.querySelector(s)).style.cursor === 'pointer' && (!r || /^Read/.test(document.querySelector('.wc-world .gv-tip:not([hidden]) .gt-k span:last-child')?.textContent || '')), [sel, read])) return { x, y };
+    }
+    throw new Error(`no topic under the pointer on ${sel}`);
+  };
+  await step(`${tag}: Back lands a page asked for in the composer in the composer, and Forward sends it out again`, async () => {
+    await page.goto(base); await page.waitForSelector('#seedIn'); await page.waitForTimeout(600);
+    await page.fill('#seedIn', 'Black holes'); await page.press('#seedIn', 'Enter');
+    await page.waitForFunction(() => location.pathname === '/black-holes'); await waitDone(); await page.waitForTimeout(600);
+    let moved = landsOn('#seedBox .cmirror'); await page.goBack(); await page.waitForFunction(() => location.pathname === '/');
+    const back = await moved; await page.waitForTimeout(900); const atHome = await leftover();
+    /* what was typed is there again, to change and send */
+    const box = await page.evaluate(() => { const i = /** @type {HTMLTextAreaElement} */ (document.querySelector('#seedIn')); return { v: i.value, color: i.style.color, mirrors: document.querySelectorAll('.cmirror').length, send: /** @type {HTMLElement} */ (document.querySelector('#seedGo')).dataset.mode }; });
+    moved = heroMoves(); await page.goForward(); await page.waitForFunction(() => location.pathname === '/black-holes');
+    const out = await moved; await waitDone(); await page.waitForTimeout(900); const atPage = await leftover();
+    if (!back || !out || box.v !== 'Black holes' || box.color || box.mirrors || box.send !== 'go' || atHome.named.length || atPage.named.length) throw new Error(`composer and page: ${JSON.stringify({ back, out, box, atHome, atPage })}`);
+  });
+  await step(`${tag}: Back lands a suggestion's page on its suggestion, become Continue`, async () => {
+    await page.goto(base); const door = page.locator('#presetList .door').first(); await door.waitFor(); await page.waitForTimeout(600);
+    const t = await door.getAttribute('data-seed'); const moved = heroMoves(); await door.click(); await opened(); const went = await moved; await page.waitForTimeout(600);
+    const home = landsOn('.door-cont .dc-t'); await page.goBack(); await page.waitForFunction(() => location.pathname === '/');
+    const back = await home; await page.waitForTimeout(900); const after = await leftover(); const cont = await page.locator('.door-cont .dc-t').textContent();
+    if (!went || !back || !t || !cont || !t.startsWith(cont.replace(/…$/, '')) || after.named.length) throw new Error(`suggestion and page: ${JSON.stringify({ t, cont, went, back, after })}`);
+  });
+  await step(`${tag}: a topic opened from the map of threads becomes the title, and Back sends it home`, async () => {
+    await page.goto(base); await page.waitForSelector('#threadStage canvas'); await page.evaluate(() => document.querySelector('#threads')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(1500);
+    const at = await topicOn('#threadStage canvas'); const moved = heroMoves();
+    /* on a desk, a click on the topic (its name travels); on a phone, a tap shows it beside the map, and its panel opens it */
+    if (mobile) { await page.touchscreen.tap(at.x, at.y); await page.waitForTimeout(300); await page.locator('#threads .wc-go').click(); } else await page.mouse.click(at.x, at.y);
+    await opened(); const went = await moved; await page.waitForTimeout(600);
+    const home = landsOn(mobile ? '#threads .th-t' : '#threadStage .gv-stand'); await page.goBack(); await page.waitForFunction(() => location.pathname === '/');
+    const back = await home; await page.waitForTimeout(900); const after = await leftover();
+    if (!went || !back || after.named.length || after.stands) throw new Error(`threads and page: ${JSON.stringify({ went, back, after })}`);
+  });
+  await step(`${tag}: a topic opened on the world card becomes the title, and Back sends it home to its name`, async () => {
+    await page.goto(`${base}/black-holes`); await waitDone();
+    await page.goto(base); await page.waitForSelector('.wc-world #worldStage canvas'); await page.evaluate(() => document.querySelector('.wc-world')?.scrollIntoView({ block: 'center' })); await page.waitForTimeout(1500);
+    const at = await topicOn('#worldStage canvas', true); const moved = heroMoves();
+    if (mobile) await page.touchscreen.tap(at.x, at.y); else await page.mouse.click(at.x, at.y);
+    await opened(); const went = await moved; await page.waitForTimeout(600);
+    const home = landsOn('#worldStage .gv-stand'); await page.goBack(); await page.waitForFunction(() => location.pathname === '/');
+    const back = await home; await page.waitForTimeout(900); const after = await leftover();
+    if (!went || !back || after.named.length || after.stands) throw new Error(`world card and page: ${JSON.stringify({ went, back, after })}`);
     await page.goto(base); await page.waitForSelector('#seedIn');
   });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
@@ -1012,13 +1071,10 @@ try {
   await run(desk);
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, colorScheme: 'dark' });
   await run(await ctx.newPage(), { mobile: true });
-  await movingIn();
-  await outliers(false); await outliers(true);
-  await failedPhotos();
-  await sharing();
+  if (!ONLY) { await movingIn(); await outliers(false); await outliers(true); await failedPhotos(); await sharing(); }
 } catch (e) { const pages = browser.contexts().flatMap(c => c.pages()); await pages.at(-1)?.screenshot({ path: `${shots}/failure.png` }).catch(() => {}); }
 await browser.close();
-server.kill();
+server?.kill();
 console.log(results.join('\n'));
 if (errors.length) console.log(`\nbrowser errors:\n${[...new Set(errors)].join('\n')}`);
 process.exit(results.some(r => r.startsWith('FAIL')) || errors.length ? 1 : 0);

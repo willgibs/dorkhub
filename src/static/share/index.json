@@ -130,7 +130,7 @@
    "title": "Venus flytraps",
    "kind": "creature",
    "line": "It counts: two touches within 20 seconds shut it, five start digestion.",
-   "alt": "Venus flytraps, a creature: It counts: two touches within 20 seconds shut it, five start digestion. A Venus flytrap from above, open: two lobes red inside, rimmed with long teeth, three trigger hairs on each and beads of nectar on the rims, on a winged stalk"
+   "alt": "Venus flytraps, a creature: It counts: two touches within 20 seconds shut it, five start digestion. A Venus flytrap, open: two lobes red inside with anthocyanin and dotted with glands, fringed with cilia, three trigger hairs on each. Under it a record with a place for each of five signals, one per touch of a hair: a second within 20 seconds of the first shuts it, and the fifth starts digestion"
   },
   "quicksand": {
    "file": "quicksand.jpg",
@@ -276,7 +276,7 @@
    "title": "Pompeii",
    "kind": "place",
    "line": "The textbook date of the eruption, 24 August 79, may be months off.",
-   "alt": "Pompeii, a place: The textbook date of the eruption, 24 August 79, may be months off. Vesuvius erupting in AD 79, drawn to scale: a column of ash and pumice rising up to 33 km over a mountain barely more than one kilometre high, spreading at its top like a pine tree, as Pliny wrote, and dropping pumice on Pompeii 8 km away"
+   "alt": "Pompeii, a place: The textbook date of the eruption, 24 August 79, may be months off. The eruption of AD 79 as Pliny the Younger saw it from Misenum, 29 km across the Bay of Naples: a column of ash rising 33 km over Vesuvius, its top spread like the crown of the umbrella pine beside him, and pumice falling downwind on Pompeii"
   },
   "mona-lisa": {
    "file": "mona-lisa.jpg",

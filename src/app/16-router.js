@@ -20,7 +20,7 @@ import { renderVoice, setLens } from './09-start.js';
 import { IDXKIND, applySide, bridgeSheet, landSheet, listen, makeBridge, narrow, openIndexEntry, recall, renderIndex, renderIndexList, renderQuiz, renderSide, setIDXKIND, setIDXSORT, setSIDE, stopListening, toggleSide } from './10-tools.js';
 import { MINI, WORLD, leaveWorld, showWorld } from './11-world.js';
 import { closeMenu, omni, openOmni, openPage, renderWorldBtn, setFab, syncFab } from './12-chrome.js';
-import { cardOf, frontShown, mountPlate, rethemeLanding, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
+import { frontShown, homeEnd, mountPlate, rethemeLanding, seedMirror, shufflePresets, startLanding, stopLanding, stopPlate, surprise, viewStart } from './13-landing.js';
 import { forgetKey, keysSheet, renderKeyBtn, saveKey } from './15-keys.js';
 import { showTrail, walked } from './17-share.js';
 export let VIEW = '', FIRST = true, GUARD = new Map();
@@ -36,6 +36,8 @@ function closeFloating() { settle(); hideSel(true); hideCard(true); closePMenu(f
 /* an address the router puts right keeps its place in the visit: its count, or for an entry the browser made (an old
    #/ address typed or followed), one step on from where the reader was */
 const keepStep = () => { const s = history.state || {}; return { ...s, y: 0, n: s.n != null ? s.n : FIRST ? (STEP ?? 0) : (STEP ?? 0) + 1 }; };
+/* set while Back or Forward is being shown, so the composer gets the reader's words back only then */
+let POP = false;
 export function route() {
   closeFloating();
   const h = location.hash;
@@ -51,21 +53,23 @@ export function route() {
   }
   else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
   setSTEP(history.state && history.state.n != null ? history.state.n : null);
-  FIRST = false;
+  FIRST = false; POP = false;
 }
 function showHome() {
   setView('home'); setCUR(''); document.documentElement.dataset.accent = 'concept';
-  $('#view').innerHTML = viewStart(); startLanding(); document.title = 'dorkhub: learn about anything';
+  $('#view').innerHTML = viewStart(); startLanding(POP); document.title = 'dorkhub: learn about anything';
   window.scrollTo(0, 0); updateProg(); renderWorldBtn();
-  /* back where you were, once the cards below the composer are made */
-  const y = (history.state && history.state.y) || 0;
+  /* back where you were, once the cards below the composer are made; a page asked for in the composer comes home to
+     the top, where the composer is whole under the bar (where typing had scrolled to could tuck it under on a phone) */
+  const at = history.state && history.state.at, y = at && at.k === 'seed' ? 0 : (history.state && history.state.y) || 0;
   if (y) frontShown().then(() => { if (VIEW === 'home') { window.scrollTo(0, y); updateProg(); } });
 }
 /* ================= a move runs both ways =================
    Going in, what you clicked travels: the words become the page's title, a card's drawing its plate (04-pages.js go).
    Back makes the same move in reverse: the title travels home into the link, question or card it came from, and a
-   card's page's plate into its card, when that is on screen once scroll is restored; if not, the plain move. Forward
-   again makes the forward move from whatever on screen leads there. Between a page and Your world the move is the same
+   card's page's plate into its card, when that is on screen once scroll is restored; if not, the plain move. On the front
+   page, home is where the page was opened from: the composer, a suggestion, a name on one of its maps (13-landing.js
+   homeEnd). Forward again makes the forward move from whatever on screen leads there. Between a page and Your world the move is the same
    whichever way it runs: the page's title and its topic's name on the map travel into each other (the map lends the
    name an element: 11-graph.js lift). */
 /* the map's end of a move: the topic's name on Your world, landing or leaving */
@@ -82,8 +86,9 @@ function sourceOn(title) {
   }
   return null;
 }
-/* the things that travel to or from `title` in the view on screen: on the front page its card, on a page what opens it */
-const sourceOf = title => VIEW === 'home' ? cardOf(title) : VIEW === 'page' ? sourceOn(title) : null;
+/* the things that travel to or from page p (on `title`) in the view on screen: on the front page where it was opened from,
+   or its card (homeEnd); on a page what opens it. land: the move is coming home to them */
+const sourceOf = (p, title, land) => VIEW === 'home' ? homeEnd(p, title, land) : VIEW === 'page' ? sourceOn(title) : null;
 /* a page's own end of the move: its title, and its plate if it has one */
 const ownEnd = () => ({ hero: $('.a-title'), plate: $('.a-plate') });
 function travel() {
@@ -96,12 +101,12 @@ function travel() {
      the next page leaves for its title and plate */
   /* between a page and Your world, Back and Forward make one move: the title and the topic's name on the map, either way */
   const world = (VIEW === 'world' && r.view === 'page') || (VIEW === 'page' && r.view === 'world' && !!leaving);
-  let out = !known ? null : back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(r.input.title) : null);
+  let out = !known ? null : back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(pageAt(r), r.input.title, false) : null);
   if (world && known) { const to = VIEW === 'world' ? pageAt(r) : null; out = to ? { hero: WORLD && WORLD.lift(nodeKeyOf(to)) } : VIEW === 'page' ? ownEnd() : null; }
   const m = prepMove(); const named = [];
   if (out) for (const n of ['hero', 'plate']) { const el = out[n]; if (el && inView(el) && (n === 'hero' || (back ? r.view === 'home' : VIEW === 'home'))) { nameFor(m, el, n); named.push(n); } }
   const land = () => {
-    const into = world ? (VIEW === 'page' ? ownEnd() : leaving ? { hero: landing(leaving) } : null) : back ? (leaving ? sourceOf(leaving.req.title) : null) : (VIEW === 'page' ? ownEnd() : null);
+    const into = world ? (VIEW === 'page' ? ownEnd() : leaving ? { hero: landing(leaving) } : null) : back ? (leaving ? sourceOf(leaving, leaving.req.title, true) : null) : (VIEW === 'page' ? ownEnd() : null);
     for (const n of named) { const el = into && into[n]; if (el && inView(el)) { nameFor(m, el, n); if (n === 'hero') el.classList.remove('enter'); } }
   };
   const run = () => {
@@ -185,7 +190,7 @@ export function init() {
 BOOT = Date.now();
 /* back and forward make the same move as a click, from every view, the other way when it is Back, unless the browser has
    already animated it (a swipe) */
-addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) travel(); else route(); });
+addEventListener('popstate', e => { POP = true; if (canVT() && !e.hasUAVisualTransition) travel(); else route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
   /* a popover's own button closes it the way it opened, and opens it again if it is still leaving */
@@ -219,7 +224,8 @@ document.addEventListener('click', e => {
   const fold = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fold]')); if (fold) { const p = curPage(); if (p && p.unfolds) leave(fold.closest('.xp'), () => { delete p.unfolds[fold.dataset.fold]; save(); paint(p); }); return; }
   const pc = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-close]')); if (pc) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.key === pc.dataset.peekClose); if (x) leave(pc.closest('.xp'), () => { x.open = false; save(); paint(p); }); return; }
   const pd = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-peek-dig]')); if (pd) { const p = curPage(); const x = p && (p.peeks || []).find(y => y.target === pd.dataset.peekDig); openTopic(pd.dataset.peekDig, { via: 'peek', hint: x && x.text ? { gloss: clip(plain(x.text), 120), kind: '' } : null }); return; }
-  const wy = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[data-way]')); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
+  /* a card's title travels; from the panel beside the map of threads, the panel's title */
+  const wy = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[data-way]')); if (wy) { if (!plainClick(e)) return; e.preventDefault(); openTopic(wy.dataset.way, { via: 'start', src: wy.closest('.wc-t') ? wy : wy.closest('.th-body') ? $('.th-t', wy.closest('.th-body')) : null, plate: wy.closest('.wc[data-card]'), hint: { kind: wy.dataset.fk || '', gloss: wy.dataset.h || '' } }); return; }
   const seed = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-seed]')); if (seed) { openTopic(seed.dataset.seed, { via: 'start', src: seed.matches('.door') ? seed : null }); return; }
   /* any other address of ours opens here, without a reload */
   const a = /** @type {HTMLAnchorElement} */ (/** @type {HTMLElement} */ (e.target).closest('a[href^="/"]'));
@@ -268,7 +274,7 @@ document.addEventListener('submit', e => {
   if (/** @type {HTMLElement} */ (e.target).id === 'seedForm') {
     e.preventDefault(); const v = $('#seedIn').value.trim();
     if (!v) { $('#seedErr').textContent = 'Type anything: a topic, a question, a name.'; $('#seedIn').focus(); return; }
-    $('#seedBox')?.classList.add('go'); openTopic(v, { via: 'start', src: canVT() ? seedMirror(v) : null });
+    $('#seedBox')?.classList.add('go'); openTopic(v, { via: 'start', src: canVT() ? seedMirror(v) : null, seed: v });
   } else if (/** @type {HTMLElement} */ (e.target).classList.contains('ask')) {
     e.preventDefault(); const inp = $('input', /** @type {HTMLElement} */ (e.target)); const v = inp.value.trim(); if (!v) { inp.focus(); return; }
     openTopic(v, { via: 'ask' });

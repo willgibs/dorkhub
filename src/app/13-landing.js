@@ -14,7 +14,7 @@ import { KIND_LABEL, LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
 import { DEAL, lampBoard, rethemeLamps } from './03-lamps.js';
-import { CUR, openTopic, pageOf, worldCount } from './04-pages.js';
+import { CUR, curMove, inView, onMove, openTopic, pageOf, worldCount } from './04-pages.js';
 import { worldIndex } from './05-render.js';
 import { renderVoice, trialLine } from './09-start.js';
 import { makeGraph, worldLabel } from './11-graph.js';
@@ -96,7 +96,31 @@ export function plateSlotHTML(p) {
 /* a move runs both ways: Back from a card's page lands on its card, its title on the card's title (16-router.js),
    once the front page's cards are made (startLanding makes them first, so this settles after) */
 export const frontShown = () => loadFront().then(() => {});
-export function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
+function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
+/* ---------- a move runs both ways from the front page's other ways in ----------
+   A page opened from the composer, a suggestion, the map of threads (a name on it, or the panel beside it) or the world
+   card keeps that on the entry it left (04-pages.js go), so Back lands its title there: in the composer, on what was
+   typed, which stays to change and send again; on the suggestion, or Continue once it has become that; on the topic's
+   name on its map, the panel showing it again. Forward makes the same move out. Any other page, its card (16-router.js). */
+const FROM = [['#seedBox', 'seed'], ['.door', 'door'], ['.th-body', 'panel'], ['#threads', 'threads'], ['.wc-world', 'world']];
+/** @param {HTMLElement} el */
+export const homeAt = el => { const f = el.isConnected && FROM.find(([s]) => el.closest(s)); return f ? { k: f[1] } : null; };
+let AT = null, THPANEL = null;
+/** @param {any} p the page coming home (land) or about to be left for @param {string} title @param {boolean} land */
+export function homeEnd(p, title, land) {
+  const u = p && routeOf(p.req), k = AT && AT.u === u ? AT.k : '', key = topicKey(title);
+  if (k === 'seed') {
+    const i = $('#seedIn'); if (!i || !inView(i) || topicKey(i.value) !== key) return null;
+    const m = seedMirror(i.value); onMove(curMove(), 'finish', () => { m.remove(); i.style.color = ''; }); return { hero: m };
+  }
+  if (k === 'door') { const d = $$('#view .door').find(b => b.getAttribute('href') === u || topicKey(b.dataset.seed || '') === key); return d ? { hero: $('.dc-t', d) || d } : null; }
+  if (k === 'world') return WORLDCARD ? { hero: WORLDCARD.lift(nodeKeyOf(p), { land }) } : null;
+  if (k && THREADMAP) {
+    const n = THREADMAP.graph.nodes.find(x => x.key === key); if (land && n && THPANEL) THPANEL(n);
+    return { hero: (k === 'panel' && $('#threads .th-body')?.dataset.at === key && $('#threads .th-t')) || THREADMAP.lift(key, { land }) };
+  }
+  return cardOf(title);
+}
 export function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
 export function mountPlate(p) {
   const slot = $('.a-plate'); if (!slot || slot.dataset.mounted) return; slot.dataset.mounted = '1';
@@ -140,7 +164,7 @@ function renderThreads() {
     const mine = FRONTD.threads.filter(t => t.a === n.title || t.b === n.title);
     const href = routeOf({ title: n.title, lens: 'encyclopedic', q: asksQuestion(n.title), ctx: '', bridge: null });
     body.innerHTML = `<p class="th-k"><span class="kind"${kattr(n.kind)}>${esc(capFirst(n.kind))}</span><span>${mine.length} thread${mine.length === 1 ? '' : 's'}</span></p><h3 class="th-t">${esc(n.title)}</h3><p class="th-p">${esc(n.hook)}</p><ul class="th-list">${mine.map(t => `<li><b>${esc(t.a === n.title ? t.b : t.a)}</b><span>${esc(t.l)}</span></li>`).join('')}</ul><a class="wc-go" href="${esc(href)}" data-way="${esc(n.title)}" data-fk="${esc(n.kind)}" data-h="${esc(n.hook)}">Open the page ${ic('right')}</a>`;
-  };
+  }; THPANEL = panel;
   const nodes = FRONT.map(f => ({ key: topicKey(f.t), pid: '', title: f.t, kind: f.k, read: true, saved: 0, first: 0, last: 0, hook: f.h, count: 0, deg: 0, cur: false, x: 0, y: 0, vx: 0, vy: 0, fx: null, fy: null }));
   const at = new Map(nodes.map((n, i) => [n.title, i])); const edges = [];
   for (const th of FRONTD.threads) { const a = at.get(th.a), b = at.get(th.b); if (a == null || b == null) continue; edges.push({ a, b, move: false, unread: false, len: 96, label: th.l }); nodes[a].deg++; nodes[b].deg++; }
@@ -148,7 +172,7 @@ function renderThreads() {
   /* the map traces in on its turn among the cards, once a visit */
   const hold = motionOK() && !PLAYED.has('threads'); el.classList.toggle('armed', hold); el.dataset.beat = '1300';
   THREADMAP = makeGraph($('#threadStage'), {
-    still: true, hold, positions: THREAD_POS, panel, open: n => openTopic(n.title, { via: 'start', hint: { gloss: n.hook, kind: n.kind } }),
+    still: true, hold, positions: THREAD_POS, panel, open: (n, src) => openTopic(n.title, { via: 'start', src, hint: { gloss: n.hook, kind: n.kind } }),
     label: g => `A map of the front page's ${g.nodes.length} topics and the ${g.edges.length} threads between them. Arrow keys move between topics, Enter opens one.`,
     speak: n => `${n.title}, ${n.kind}, ${n.deg} thread${n.deg === 1 ? '' : 's'}`,
   });
@@ -363,42 +387,53 @@ function odometer(el) {
   el.innerHTML = `<span class="sr">${esc(text)}</span><span aria-hidden="true">${reels}</span>`;
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
 }
-/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it in about a tenth of a second (the
-   page turns its lobes about the midrib, src/shared/plates.js, with a little overshoot, so the teeth cross), and five
-   start digestion. The meter under it counts, marked where it shuts and where it starts to digest */
+/* a flytrap you can touch: a touch bends the trigger hair nearest it, which flicks, and fires a signal that lights the
+   next place on the record. The first the trap remembers for 20 seconds (the bracket burns down; left alone, it
+   forgets); a second in time shuts it in about a tenth of a second (the page turns its lobes about the midrib,
+   src/shared/plates.js, overshooting a little, so the cilia cross); at five it seals to digest. A while after the
+   last touch it opens again. Nothing runs between touches but the trap's own clocks */
 function flytrapFx(card) {
   const art = $('.wc-art', card), sv = $('.vz.ft', card); if (!art || !sv || art.dataset.wired) return; art.dataset.wired = '1';
-  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><div class="ft-meter" aria-live="polite"><span class="ft-s">Touch a hair</span><ol class="ft-steps">${[1, 2, 3, 4, 5].map(i => `<li${i === 2 ? ' data-l="Shuts"' : i === 5 ? ' data-l="Digests"' : ''}><i></i></li>`).join('')}</ol></div>`);
-  let n = 0, armed = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0; const steps = $$('.ft-steps li', art);
-  /* the trap at an opening: each lobe's face, rim, teeth, hairs and nectar, and the line its colour follows */
+  art.insertAdjacentHTML('beforeend', '<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><p class="sr" aria-live="polite"></p>');
+  let n = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0, snapping = false, v = trapView(phi, TRAP);
+  const ks = $$('.ft-k', sv), ats = $$('.ft-at', sv), hairs = $$('.ft-h', sv), live = $('p.sr', art);
+  /* the trap at an opening: each lobe's shell, face, rim band, glands, cilia and hairs, and the line its colour follows */
   const draw = () => {
-    const v = trapView(phi, TRAP);
+    v = trapView(phi, TRAP, snapping ? 0 : undefined);
     v.lobes.forEach((l, i) => {
       const g = $(`.ft-l${i}`, sv), gr = $(`#ft-g${i}`, sv); if (!g) return;
-      $('.ft-shell', g).setAttribute('d', l.shell);
-      const face = $('.ft-face', g); face.setAttribute('d', l.face); face.setAttribute('class', `ft-face${l.inside ? '' : ' ft-hid'}`);
-      $('.ft-rim', g).setAttribute('d', l.rim); $('.ft-teeth', g).setAttribute('d', l.teeth); $('.ft-hair', g).setAttribute('d', l.hairs.map(h => h.d).join(''));
-      $('.ft-nectar', g).setAttribute('d', l.nectar.map(([x, y]) => `M${x} ${y}h0`).join(''));
-      /* shut, the hairs and the nectar are inside */
-      for (const sel of ['.ft-hair', '.ft-nectar']) $(sel, g).classList.toggle('ft-hid', !l.inside);
+      for (const [c, d] of [['shell', l.shell], ['face', l.face], ['band', l.band], ['gl', l.glands], ['teeth', l.teeth], ['hsh', l.hairs.map(h => h.d).join('')]]) $(`.ft-${c}`, g).setAttribute('d', d);
+      /* shut, the inside is closed away, hairs and all */
+      for (const c of ['face', 'band', 'gl', 'hsh']) $(`.ft-${c}`, g).classList.toggle('ft-hid', !l.inside);
+      $$('.ft-h', g).forEach((h, j) => { h.setAttribute('d', l.hairs[j].d); h.classList.toggle('ft-hid', !l.inside); });
       if (gr) ['x1', 'y1', 'x2', 'y2'].forEach((a, j) => gr.setAttribute(a, String(l.across[j])));
     });
   };
   /* close (or open) over ms, overshooting a little when it snaps */
   const move = (to, ms, snap) => {
-    if (raf) cancelAnimationFrame(raf); const from = phi, t0 = performance.now();
-    if (reducedMotion()) { phi = to; draw(); return; }
-    const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
+    if (raf) cancelAnimationFrame(raf); const from = phi, t0 = performance.now(); snapping = !!snap;
+    if (reducedMotion()) { phi = to; snapping = false; draw(); return; }
+    /* a snap overshoots past shut for a moment: that is not sealing, so the cilia stay crossed through it */
+    const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; if (t >= 1) snapping = false; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
     raf = requestAnimationFrame(step);
   };
-  const say = (c, t) => { $('.ft-s', art).textContent = t; steps.forEach((s, i) => s.classList.toggle('on', i < c)); };
-  const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say(0, 'Touch a hair'); if (phi !== TRAP.open) move(TRAP.open, 900, false); };
-  $('.ft-btn', art).addEventListener('click', () => {
-    clearTimeout(rest); const now = Date.now(); if (armed && now - armed > 20000 && n < 2) n = 0;
-    n = Math.min(n + 1, 5); card.classList.remove('zap'); void card.offsetWidth; card.classList.add('zap');
-    if (n === 1) { armed = now; card.dataset.state = 'armed'; say(1, 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
-    else if (n < 5) { clearTimeout(timer); if (card.dataset.state !== 'shut') move(TRAP.shut, 140, true); card.dataset.state = 'shut'; say(n, n === 2 ? 'Shut, in a tenth of a second' : `${5 - n} more to digest`); }
-    else { card.dataset.state = 'digest'; move(TRAP.shut * .2, 300, false); say(5, 'Digesting'); }
+  const say = (c, t) => { ks.forEach((k, i) => k.classList.toggle('lit', i < c)); ats.forEach(a => a.classList.toggle('lit', c >= Number(a.dataset.at))); live.textContent = t; };
+  const reset = () => { n = 0; card.dataset.state = ''; say(0, ''); if (phi !== TRAP.open) move(TRAP.open, 900, false); };
+  /* the hair a touch bends: the one nearest the pointer, or from the keyboard the next in turn. It flicks, and the
+     signal it fires spreads from it across the trap */
+  const flick = e => {
+    const m = sv.getScreenCTM(), tips = v.lobes.flatMap(l => l.hairs.map(h => h.tip)); let k = n % tips.length;
+    if (m && e.detail) { const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), d = t => Math.hypot(t[0] - q.x, t[1] - q.y); k = tips.reduce((b, t, i) => (d(t) < d(tips[b]) ? i : b), 0); }
+    const replay = el => { el.classList.remove('zap'); void el.getBoundingClientRect(); el.classList.add('zap'); };
+    const p = $('.ft-ping', sv); if (p && tips[k]) { p.setAttribute('cx', String(tips[k][0])); p.setAttribute('cy', String(tips[k][1])); replay(p); }
+    if (hairs[k]) replay(hairs[k]);
+  };
+  $('.ft-btn', art).addEventListener('click', e => {
+    clearTimeout(rest); if (phi === TRAP.open) flick(e);
+    n = Math.min(n + 1, 5); clearTimeout(timer);
+    if (n === 1) { card.dataset.state = 'armed'; say(1, 'One touch: the trap remembers it for 20 seconds'); timer = setTimeout(reset, 20000); return; }
+    if (n < 5) { if (card.dataset.state !== 'shut') move(TRAP.shut, 140, true); card.dataset.state = 'shut'; say(n, n === 2 ? 'Two touches within 20 seconds: it shut' : `${n} touches`); }
+    else { card.dataset.state = 'digest'; move(TRAP.shut * .2, 300, false); say(5, 'Five touches: it seals and starts to digest'); }
     rest = setTimeout(reset, 9000);
   });
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(rest); });
@@ -519,9 +554,9 @@ let SEED_KINDS = null;
 function heard() {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return;
   const l = $$('.clamps i', box)[i.value.length % LAMPS]; if (l) { l.classList.remove('hit'); void l.offsetWidth; l.classList.add('hit'); }
-  const key = topicKey(i.value), k = SEED_KINDS.get(key) || kindOf((worldIndex().read.get(key) || {}).kind);
-  if (k) box.dataset.kind = k; else delete box.dataset.kind;
+  seedKind(box, i);
 }
+function seedKind(box, i) { const key = topicKey(i.value), k = SEED_KINDS.get(key) || kindOf((worldIndex().read.get(key) || {}).kind); if (k) box.dataset.kind = k; else delete box.dataset.kind; }
 /* what you typed becomes the page title: a copy of it takes the title's place in the page transition */
 export function seedMirror(v) {
   const box = $('#seedBox'), i = $('#seedIn'); if (!box || !i) return null;
@@ -626,7 +661,13 @@ function watchGlow() {
   GLOW_IO = new IntersectionObserver(([e]) => g.classList.toggle('off', !e.isIntersecting)); GLOW_IO.observe(g);
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
-export function startLanding() { watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
+/** @param {boolean} [popped] shown by Back or Forward: only then does the composer get the reader's words back */
+export function startLanding(popped = false) {
+  /* back from a page asked for here, what was typed is in the composer again (homeEnd); a fresh visit to the same
+     entry (the wordmark, say) starts empty */
+  AT = (history.state && history.state.at) || null; const i = $('#seedIn');
+  if (popped && AT && AT.k === 'seed' && i) { i.value = AT.t; growSeed(); syncSend(); seedKind($('#seedBox'), i); }
+  watchGlow(); livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }
 /* the theme changed: the front page's two maps redraw in its colours (the magnet's filings follow it themselves), and
    so does every board of lamps on screen */
 export function rethemeLanding() { for (const m of [THREADMAP, WORLDCARD]) if (m) m.retheme(); rethemeLamps(); }
