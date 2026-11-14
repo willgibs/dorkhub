@@ -9,7 +9,8 @@ agents own execution.
 2. `docs/vision.md`: the product in Will's terms. Read it before changing anything a reader sees.
 3. `docs/backlog.md`: what's next, in order. `(Will)` items need his decision first.
 Then, as needed: `docs/architecture.md` before touching `lib/`, `api/` or the build;
-`docs/eval-plan.md` for the model eval; `docs/decisions.md` for why things are the way they are.
+`docs/eval-plan.md` for the model eval; `docs/decisions.md` for why things are the way they are;
+`docs/showcase.md` to capture the site (what to show, and what works without credits).
 
 ## Stack
 One static page (plain JS modules bundled by esbuild in `scripts/build.mjs`, no framework) +
