@@ -58,8 +58,11 @@ const csp = [
 
 /* the page, with the head a link to it shows (lib/share.js): the front page's own, or a known page's */
 const site = siteOf(process.env);
-const pageHTML = (/** @type {import('../lib/share.js').Meta} */ meta) => [
-  src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`).replace('<!--meta-->', metaTags(meta, site)),
+/* the front page and a card topic's page fetch the cards and their stylesheet: start both with the page, not after its
+   script has run (they came after it, in a chain) */
+const CARD_PRELOAD = '<link rel="preload" href="/front.json" as="fetch" crossorigin>\n<link rel="preload" href="/front.css" as="style">';
+const pageHTML = (/** @type {import('../lib/share.js').Meta} */ meta, cards = false) => [
+  src('head.html').trimEnd().replace('<!--csp-->', `<meta http-equiv="Content-Security-Policy" content="${csp}">`).replace('<!--meta-->', metaTags(meta, site)) + (cards ? `\n${CARD_PRELOAD}` : ''),
   '<style>',
   /* the stylesheet's notes stay in the source; the page ships without them (vendored notices stay) */
   css('styles.css'),
@@ -72,7 +75,7 @@ const pageHTML = (/** @type {import('../lib/share.js').Meta} */ meta) => [
   '</html>',
   '',
 ].join('\n');
-const html = pageHTML(frontMeta());
+const html = pageHTML(frontMeta(), true);
 if (!html.includes('Content-Security-Policy')) throw new Error('src/head.html lost its <!--csp--> placeholder');
 if (!html.includes('og:image')) throw new Error('src/head.html lost its <!--meta--> placeholder');
 
@@ -86,7 +89,7 @@ cpSync(join(root, 'src', 'static'), out, { recursive: true });
 const known = await knownPages();
 for (const p of known) {
   if (!/^[a-z0-9-]+$/.test(p.word) || existsSync(join(out, `${p.word}.html`))) throw new Error(`a known page can't take the address ${p.path}`);
-  writeFileSync(join(out, `${p.word}.html`), pageHTML(pageMeta(p)));
+  writeFileSync(join(out, `${p.word}.html`), pageHTML(pageMeta(p), CARDS.some(c => c.t === p.title)));
 }
 const pics = images().pages; const bare = known.filter(p => !pics[p.word]).map(p => p.title);
 if (bare.length) console.log(`${bare.length} known page${bare.length === 1 ? '' : 's'} without a picture of ${bare.length === 1 ? 'its' : 'their'} own yet (node scripts/share.mjs): ${bare.join(', ')}`);

@@ -31,13 +31,15 @@ test('every page written ahead of time and every placeholder is known, at its ow
 
 test('the build gives each known page the head that says what it is, and changes nothing else', async () => {
   const index = read('public/index.html'); const known = await knownPages();
-  const cut = (/** @type {string} */ h) => h.replace(/<title>[\s\S]*?<meta name="twitter:card" content="summary_large_image">\n/, '');
+  /* the head that says what a page is, and the preload of the cards (only the front page and the card topics fetch them) */
+  const cut = (/** @type {string} */ h) => h.replace(/<title>[\s\S]*?<meta name="twitter:card" content="summary_large_image">\n/, '').replace(/\n<link rel="preload" href="\/front\.(json|css)"[^>]*>/g, '');
   const front = tags(index);
   assert.equal(front['og:title'], GENERIC.title); assert.ok(front['og:image'].endsWith(`/share/${GENERIC.image}`)); assert.equal(front['twitter:card'], 'summary_large_image');
   assert.ok(!front.robots, 'the front page stays findable');
   for (const p of known) {
     const html = read(`public/${p.word}.html`); const t = tags(html);
     assert.equal(cut(html), cut(index), `${p.word}.html is the page itself`);
+    assert.equal(html.includes('href="/front.json"'), CARDS.some(c => c.t === p.title), `${p.word}.html preloads the cards only if it is a card's page`);
     assert.equal(t['og:title'], p.title); assert.equal(t['og:description'], (p.deck || p.line).slice(0, 300));
     assert.ok(t['og:url'].endsWith(p.path), p.path); assert.equal(t.robots, 'noindex');
     const im = images().pages[p.word]; assert.ok(t['og:image'].endsWith(`/share/${im ? im.file : GENERIC.image}`), `${p.word}: ${t['og:image']}`);

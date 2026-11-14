@@ -444,6 +444,8 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 /* a lamp: dark glass set into the board, its letter quiet until the lamp behind it lights; lit, it spills on its
    neighbours */
 .en-lamps i{position:relative;width:var(--lamp);height:var(--lamp);border-radius:50%;background:radial-gradient(circle at 50% 28%,#24272D,#15171A 60%,#0E0F12);box-shadow:inset 0 calc(var(--u)*1.5) calc(var(--u)*2.5) rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,.075),0 1px 0 0 rgba(255,255,255,.05),0 0 0 0 rgba(240,140,245,0),0 0 0 0 rgba(240,140,245,0),0 0 0 0 rgba(240,140,245,0);font-size:0;transition:box-shadow var(--en-off) var(--ease-out)}
+/* upright, though nothing shows it: an <i> is italic by default, and that alone fetched Inter's 80 KB italic for the front page */
+.en-lamps i{font-style:normal}
 .en-lamps i::before,.en-lamps i::after{content:"";position:absolute;inset:0;border-radius:50%;transition:opacity var(--en-off) var(--ease-out),color var(--en-off) var(--ease-out)}
 .en-lamps i::before{background:radial-gradient(circle at 50% 46%,#FFF4FF,#FBC2FD 30%,var(--kc) 64%,#C363CB);opacity:0}
 .en-lamps i::after{content:attr(data-l);display:grid;place-items:center;font:600 calc(var(--u)*12.5)/1 var(--f-ui);font-style:normal;color:#9A9CA1}

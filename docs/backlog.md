@@ -89,8 +89,8 @@ same harness, after the first look.
 - **`DH_SALT`.** Optional; without it the project ID is the salt.
 - **Trial size on the page.** `TRIAL_PAGES` is baked in at build time from `DH_TRIAL_PAGES`: changing it in Vercel
   needs a redeploy before the page shows it; the server enforces it at once.
-- **Room on the page.** The page budget is 400 KB (`tests/page.test.js`), `front.json`'s 192 KB
-  (`tests/front.test.js`). Moving the front cards' behaviour into a file of its own would free ~25 KB from every
+- **Room on the page.** The page budget is 400 KB (`tests/page.test.js`), `front.json`'s 200 KB
+  (`tests/front.test.js`); both are nearly full. Moving the front cards' behaviour into a file of its own would free ~25 KB from every
   page, but needs the CSP to admit a second script.
 - Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone, keyboard
   focus into the sticky bar scrolls the page.
