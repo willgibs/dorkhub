@@ -30,6 +30,16 @@ export function syncTopTitle() {
   if (on) { const p = curPage(); const t = $('#topT'); const want = h1.textContent; if (t.dataset.t !== want) { t.dataset.t = want; $('.top-tt', t).textContent = want; } const k = kindOf((p && p.kind) || (ACC && ACC.kind) || ''); if ((t.dataset.kind || '') !== k) { if (k) t.dataset.kind = k; else delete t.dataset.kind; } }
   document.body.classList.toggle('titled', on);
 }
+/* The bar's title is centred on the bar, so its box may be at most twice its room to the nearer neighbour: the wordmark
+   on the left, the controls on the right (a count widens them). Measured only when the bar or its controls change size;
+   the stylesheet takes the smaller of this and its own cap. */
+const TITLE_CLEAR = 12;
+function fitTopTitle() {
+  const top = $('.top'), t = $('#topT'), l = $('.logo'), r = $('.top-r'); if (!top || !t || !l || !r) return;
+  const b = top.getBoundingClientRect(), mid = b.left + b.width / 2;
+  const room = 2 * Math.min(mid - l.getBoundingClientRect().right, r.getBoundingClientRect().left - mid) - 2 * TITLE_CLEAR;
+  const v = `${Math.max(0, Math.floor(room))}px`; if (t.style.getPropertyValue('--t-room') !== v) t.style.setProperty('--t-room', v);
+}
 /* back and forward return you to where you were on a page */
 let scrollQ = false, scrollT = 0;
 
@@ -217,6 +227,7 @@ export function setSelT(v) { return (selT = v); }
 
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
+{ const ro = new ResizeObserver(fitTopTitle); ro.observe($('.top')); ro.observe($('.top-r')); }
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
 /* a page grows as it arrives, which moves the reader's place without a scroll: the lamps follow the page's length too */
 new ResizeObserver(() => updateProg()).observe($('#view'));

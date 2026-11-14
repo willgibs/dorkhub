@@ -165,7 +165,7 @@ body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibili
 .menu-btn{display:none}
 /* once the page's title has scrolled away, it waits in the middle of the top bar, so you always know where you are;
    a click goes back to the top */
-.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px);padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
+.top-t{position:absolute;left:50%;top:50%;display:flex;align-items:center;max-width:min(46vw,560px,var(--t-room,560px));padding:6px 10px;border:0;border-radius:var(--r-2);background:transparent;color:var(--ink);font:600 14px/1.2 var(--f-ui);letter-spacing:-.005em;cursor:pointer;opacity:0;pointer-events:none;transform:translate(-50%,-50%) translateY(var(--dist-micro));transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-quick) var(--ease-out)}
 .top-t[data-kind]{color:var(--kc)}
 .top-tt{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .top-t:hover{background:var(--panel)}
