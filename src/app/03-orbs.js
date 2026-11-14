@@ -19,16 +19,27 @@ function drawOrb(c, t) {
   ctx.setTransform(k, 0, 0, k, 0, 0); ctx.clearRect(0, 0, ORB_PX, ORB_PX);
   ORBS.paintFrame(ctx, ORBS.frame(c.dataset.orb, ORB_PX, t), isDark(), ORB_INK);
 }
+/* The loop runs only while an orb is on screen: a wait scrolled out of sight, or left in a sheet that was closed
+   before it ended, asks for no frames. An orb is drawn the moment it arrives, and again whenever it comes back. */
+const ORB_SEEN = new Set();
+let ORB_IO = /** @type {IntersectionObserver | null} */ (null);
 function orbLoop(now) {
-  ORB_RAF = 0; const orbs = $$('canvas.orb'); if (!orbs.length) return;
-  if (!document.hidden) for (const c of orbs) { const r = c.getBoundingClientRect(); if (r.width && r.bottom > 0 && r.top < innerHeight) drawOrb(c, now / 1000); }
-  ORB_RAF = requestAnimationFrame(orbLoop);
+  ORB_RAF = 0;
+  for (const c of ORB_SEEN) { if (!c.isConnected) { forget(c); continue; } if (document.hidden) continue; const r = c.getBoundingClientRect(); if (r.width && r.bottom > 0 && r.top < innerHeight) drawOrb(c, now / 1000); }
+  if (ORB_SEEN.size) ORB_RAF = requestAnimationFrame(orbLoop);
 }
+function forget(/** @type {Element} */ c) { ORB_SEEN.delete(c); ORB_IO?.unobserve(c); /** @type {any} */ (c)._io = false; }
 function wakeOrbs() {
-  if (ORB_RAF || !$('canvas.orb')) return;
-  ORB_INK = orbInk();
-  if (reducedMotion()) { $$('canvas.orb').forEach(c => drawOrb(c, 0.6)); return; }
-  ORB_RAF = requestAnimationFrame(orbLoop);
+  const orbs = $$('canvas.orb'); if (!orbs.length) return;
+  if (reducedMotion()) { ORB_INK = orbInk(); orbs.forEach(c => drawOrb(c, 0.6)); return; }
+  const fresh = orbs.filter(c => !(/** @type {any} */ (c))._io); if (!fresh.length) return;
+  if (!ORB_RAF) ORB_INK = orbInk();
+  if (typeof IntersectionObserver !== 'function') { fresh.forEach(c => { /** @type {any} */ (c)._io = true; ORB_SEEN.add(c); }); if (!ORB_RAF) ORB_RAF = requestAnimationFrame(orbLoop); return; }
+  ORB_IO = ORB_IO || new IntersectionObserver(es => {
+    for (const e of es) { const c = e.target; if (!c.isConnected) forget(c); else if (e.isIntersecting) ORB_SEEN.add(c); else ORB_SEEN.delete(c); }
+    if (ORB_SEEN.size && !ORB_RAF) { ORB_INK = orbInk(); ORB_RAF = requestAnimationFrame(orbLoop); }
+  });
+  for (const c of fresh) { /** @type {any} */ (c)._io = true; ORB_IO.observe(c); drawOrb(/** @type {HTMLCanvasElement} */ (c), performance.now() / 1000); }
 }
 /* the theme changed: the orbs take its ink at once, mid-wait included (a still orb is drawn again) */
 export function rethemeOrbs() {
