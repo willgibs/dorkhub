@@ -33,11 +33,14 @@ function setView(v) {
 }
 /* a route change clears everything at once: nothing that was leaving is left over the new view */
 function closeFloating() { settle(); hideSel(true); hideCard(true); closePMenu(false, true); closeMenu(false, true); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
+/* an address the router puts right keeps its place in the visit: its count, or for an entry the browser made (an old
+   #/ address typed or followed), one step on from where the reader was */
+const keepStep = () => { const s = history.state || {}; return { ...s, y: 0, n: s.n != null ? s.n : FIRST ? (STEP ?? 0) : (STEP ?? 0) + 1 }; };
 export function route() {
   closeFloating();
   const h = location.hash;
-  if (h.startsWith('#/w/')) { const [, , wid, nid] = h.split('/'); const p = pageOf(store.legacy[wid] && store.legacy[wid][nid]); history.replaceState({ y: 0 }, '', p ? routeOf(p.req) : '/'); }
-  else if (h === '#/' || h === '#') history.replaceState({ y: 0 }, '', '/');
+  if (h.startsWith('#/w/')) { const [, , wid, nid] = h.split('/'); const p = pageOf(store.legacy[wid] && store.legacy[wid][nid]); history.replaceState(keepStep(), '', p ? routeOf(p.req) : '/'); }
+  else if (h === '#/' || h === '#') history.replaceState(keepStep(), '', '/');
   const r = parseRoute(location.pathname, location.search);
   if (r.view === 'page') showPage(r.input);
   else if (r.view === 'trail') { setView('trail'); showTrail(r.steps); }
@@ -46,8 +49,8 @@ export function route() {
     /* the page's title, sent from the bar's Your world button, lands on its topic */
     if (HERO) { const el = from && landing(from); if (el && inView(el)) el.style.viewTransitionName = 'hero'; }
   }
-  else { if (r.view === 'none') history.replaceState({ y: 0 }, '', '/'); showHome(); }
-  setSTEP((history.state && history.state.n) || 0);
+  else { if (r.view === 'none') history.replaceState(keepStep(), '', '/'); showHome(); }
+  setSTEP(history.state && history.state.n != null ? history.state.n : null);
   FIRST = false;
 }
 function showHome() {
@@ -84,14 +87,17 @@ const sourceOf = title => VIEW === 'home' ? cardOf(title) : VIEW === 'page' ? so
 /* a page's own end of the move: its title, and its plate if it has one */
 const ownEnd = () => ({ hero: $('.a-title'), plate: $('.a-plate') });
 function travel() {
-  const back = ((history.state && history.state.n) || 0) < STEP;
+  /* where this entry and the one we left stand in the visit; an entry from before Dorkhub counted its steps has none, and
+     with neither side counted, Back can't be told from Forward: then the plain move */
+  const n = history.state && history.state.n != null ? history.state.n : null;
+  const known = n != null || STEP != null; const back = (n ?? 0) < (STEP ?? 0);
   const r = parseRoute(location.pathname, location.search); const leaving = curPage();
   /* Back: this page's title (and plate, going home to its card) leave for where they came from; Forward: what leads to
      the next page leaves for its title and plate */
   /* between a page and Your world, Back and Forward make one move: the title and the topic's name on the map, either way */
   const world = (VIEW === 'world' && r.view === 'page') || (VIEW === 'page' && r.view === 'world' && !!leaving);
-  let out = back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(r.input.title) : null);
-  if (world) { const to = VIEW === 'world' ? pageAt(r) : null; out = to ? { hero: WORLD && WORLD.lift(nodeKeyOf(to)) } : VIEW === 'page' ? ownEnd() : null; }
+  let out = !known ? null : back ? (VIEW === 'page' && leaving ? ownEnd() : null) : (r.view === 'page' ? sourceOf(r.input.title) : null);
+  if (world && known) { const to = VIEW === 'world' ? pageAt(r) : null; out = to ? { hero: WORLD && WORLD.lift(nodeKeyOf(to)) } : VIEW === 'page' ? ownEnd() : null; }
   const named = [];
   if (out) for (const n of ['hero', 'plate']) { const el = out[n]; if (el && inView(el) && (n === 'hero' || (back ? r.view === 'home' : VIEW === 'home'))) { el.style.viewTransitionName = n; named.push(n); } }
   const land = () => {

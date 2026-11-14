@@ -64,11 +64,12 @@ export function due(when) { for (const fn of DUE[when].splice(0)) { try { fn(); 
 /* what travels is one box the reader can see: a link broken over two lines is two boxes, and can't travel as one */
 export const inView = el => { if (!el || !el.isConnected) return false; const r = el.getClientRects(); if (r.length !== 1) return false; const b = r[0]; return b.width > 0 && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth; };
 /* where a view stands in this visit's history, so Back and Forward can tell themselves apart (16-router.js) */
-export let STEP = 0;
+/** @type {number | null} null: this entry was made without a count (before Dorkhub kept one) */
+export let STEP = null;
 export const setSTEP = v => (STEP = v);
 /* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate */
 export function go(url, { src = null, plate = null, replace = false } = {}) {
-  const run = () => { due('update'); if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : STEP + 1 }, '', url); } route(); };
+  const run = () => { due('update'); if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : (STEP ?? 0) + 1 }, '', url); } route(); };
   if (!canVT()) { run(); return; }
   if (src && inView(src)) { src.style.viewTransitionName = 'hero'; HERO = true; }
   if (plate && plate.isConnected) { plate.style.viewTransitionName = 'plate'; PLATE = true; }
