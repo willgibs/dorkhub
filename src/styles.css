@@ -932,12 +932,21 @@ body.at-start .omni-btn{display:none}
 #seedIn{display:block;width:100%;min-height:calc(2lh + 6px);max-height:168px;margin:0;padding:2px 8px 4px 0;border:0;background:transparent;resize:none;font:400 17px/1.5 var(--f-ui);color:var(--ink);outline:none;overflow-y:auto;scrollbar-width:thin}
 #seedIn::placeholder{color:var(--faint);opacity:1}
 .cmirror{position:absolute;left:26px;top:22px;z-index:5;max-width:calc(100% - 52px);overflow:hidden;font:400 17px/1.5 var(--f-ui);color:var(--ink);white-space:nowrap;text-overflow:ellipsis;pointer-events:none}
-.ctools{display:flex;align-items:center;gap:6px;margin-left:-8px}
+.ctools{display:flex;align-items:center;gap:6px;min-width:0;margin-left:-8px}
 /* the lamps: unlit at rest, faint dots; awake while the machine listens, coming on one after the next, and each key
    it hears flashes the next lamp along (13-landing.js); all of them lit as the page is asked for, at once, so the view
    that leaves carries them lit. Ink, or the colour of the topic's kind once that is known, and stronger for it */
-.clamps{display:inline-flex;gap:4px;margin-left:auto;padding:0 8px}
-.clamps i{width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
+/* on a narrow phone the tool row is full: the lamps are the least needed thing in it, so they yield first, a whole lamp at
+   a time (one that no longer fits wraps out of sight), and then the voice's chip shrinks to an ellipsis. Voice, key and
+   send never shrink, so send stays inside the box */
+.clamps{display:inline-flex;flex-wrap:wrap;flex-shrink:1000;min-width:0;height:6px;overflow:hidden;gap:4px;margin-left:auto;padding:0 8px}
+/* an empty first item holds the first line, so even the first lamp can wrap away */
+.clamps::before{content:"";height:6px;margin-right:-4px}
+.ctools>.cvoice,.ckey,.send{flex:none}
+#seedChips{display:inline-flex;min-width:0}
+.cchip{min-width:0;max-width:100%}
+.cchip-t{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.clamps i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58);transition:opacity var(--d-fast) var(--ease-out),transform var(--d-fast) var(--ease-out),background-color var(--d-fast) var(--ease-out)}
 .cbox[data-kind]{--lit:.9}
 .cbox[data-kind] .clamps i{background:var(--kc)}
 .cbox:focus-within .clamps i{opacity:var(--lit);transform:scale(.8);transition-delay:calc(var(--i) * var(--d-stagger))}
@@ -956,7 +965,7 @@ body.at-start .omni-btn{display:none}
 details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
 @keyframes popout{to{opacity:0;transform:scale(var(--scale-m))}}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
-.cchip .ic{width:14px;height:14px;color:var(--mute)}
+.cchip .ic{flex:none;width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
 .ckey{gap:6px;height:36px;padding:0 11px 0 9px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .ckey .ic{width:16px;height:16px}
