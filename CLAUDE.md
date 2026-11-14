@@ -22,7 +22,9 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 `npx playwright install chromium` once). Pushing `main` deploys production immediately, unless the push changes
 nothing that is deployed (docs, tests, CI: `scripts/skip-build.mjs` decides, as Vercel's ignored build step). Keep
 records with the change they describe, on its branch, not as pushes of their own: every deployment is a build
-and stored output on a Hobby plan Will shares with other projects.
+and stored output on a Hobby plan Will shares with other projects. That plan allows 100 deployments a day across all
+his projects, skipped builds included (on 14 Nov a merge's deployment was refused for a day): push a branch only
+when it is ready for his look, iterate on local dev servers, and keep a slot for the merge.
 CI runs verify and e2e on every pull request; a push of records alone runs nothing, and a merged pull request
 is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a writer eval (never run
 `--live` without Will's go); `node scripts/prove.mjs <url>` checks a deployment (free unless `--spend --yes`).

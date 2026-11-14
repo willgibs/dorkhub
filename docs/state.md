@@ -7,7 +7,7 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
   wave (#48)**, merged 14 Nov at Will's word after his look at a preview. Vercel refused its production
   deployment ("Deployment rate limited, retry in 24 hours"): the account had reached Hobby's 100 deployments a
   day, which counts every push of every project, skipped builds included. It goes live with the next push to
-  `main` after the limit clears (the commit carrying this file is that push). His answers of 13 Nov became the
+  `main` after the limit clears (any new commit pushed to `main` deploys it). His answers of 13 Nov became the
   **Lamps** rules in `docs/vision.md`. In the wave: the top bar (counts in the dot face, position as a row of
   lamps, tap areas of 44 px); the composer's glow, rebuilt to cost nothing at rest (corner brackets were tried
   in its place and dropped at his word); the footer's wordmark in lamps, ink at rest, a lamp coloured for each
@@ -34,5 +34,6 @@ _Rewrite this at the end of each session. Keep it under 40 lines._
 - From October: the 11 earlier pages; old resources; repo visibility; Pro pricing. Also one HTML shell, not 46.
 
 ## Next
-Push `main` once Vercel's limit clears; then check production: `curl -s https://dorkhub.com/ | shasum -a 256`
-against a local build, and `node scripts/prove.mjs https://dorkhub.com`. Then credits.
+Push `main` once Vercel's limit clears (Will says when); then check production: `curl -s https://dorkhub.com/ |
+shasum -a 256` against a local build, and `node scripts/prove.mjs https://dorkhub.com`; then clear the review desk.
+The orchestrator's working notes are in `.claude/orchestrator-handoff.md` (untracked, on Will's Mac). Then credits.
