@@ -19,7 +19,10 @@ Gateway (OIDC, no secrets) · Vercel Runtime Cache · npm.
 ## Commands
 `npm run dev` (mock writer, :3000) · `npm run verify` (build + tsc + tests: THE green gate,
 run before calling anything done) · `npm run e2e` (full reader flow in Chromium; run
-`npx playwright install chromium` once). Pushing `main` deploys production immediately.
+`npx playwright install chromium` once). Pushing `main` deploys production immediately, unless the push changes
+nothing that is deployed (docs, tests, CI: `scripts/skip-build.mjs` decides, as Vercel's ignored build step). Keep
+records with the change they describe, on its branch, not as pushes of their own: every deployment is a build
+and stored output on a Hobby plan Will shares with other projects.
 CI runs verify and e2e on every pull request. `node scripts/eval.mjs plan` prices a writer eval (never run
 `--live` without Will's go); `node scripts/prove.mjs <url>` checks a deployment (free unless `--spend --yes`).
 
@@ -75,6 +78,11 @@ CI runs verify and e2e on every pull request. `node scripts/eval.mjs plan` price
 ## Working with Will
 Show, don't describe. For anything a reader would notice, push a branch and send Will the
 Vercel preview URL (previews need his Vercel login), with screenshots from `npm run e2e`.
+Every change and every open question also goes on the **review desk**, a private page he keeps open
+(https://claude.ai/artifact/Lg3WC6c8uGrzjMno1rFycp): its number, its pictures before and after (or now and
+proposed), and a link to the place itself, so he never has to hunt. `node .e2e/desk/build.mjs` rebuilds it from
+the lists at its top and the pictures in `.e2e/desk/shots/` (both untracked); republish the same file to keep
+its address. Builders' briefs say where their before-and-after pictures go.
 Merge to `main` only when `npm run verify` and `npm run e2e` are green.
 Will has given agents merge and deploy rights (2026-10-14); anything a reader would notice
 still gets his look at a preview first. He replies in numbered lists: answer every item,
