@@ -123,7 +123,7 @@ body.scrolled .top{border-bottom-color:var(--line)}
 body.scrolled .top:has(>.prog:not([hidden])){border-bottom-color:transparent}
 /* the wordmark is the mark, not a label: set larger and closer than any word on the bar, in ink. The link's tap
    area runs the bar's height (44 px) while the letters keep their size */
-.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out),visibility 0s linear}
+.logo{position:relative;display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;flex:none;transition:opacity var(--d-fast) var(--ease-out)}
 .logo::before{content:"";position:absolute;inset:-11px 0}
 .logo span{font:900 26px/1 var(--f-dot);letter-spacing:-.02em}
 /* the top bar's actions share one shape: an icon in a 36 px box, or an icon and its count with the same padding
@@ -178,7 +178,10 @@ body.at-start .top-t,body.at-world .top-t{display:none}
   .top-t{left:14px;right:60px;max-width:none;padding:6px 0;font-size:15px;transform:translateY(-50%) translateY(var(--dist-micro))}
   body.titled .top-t{transform:translateY(-50%)}
   .top-t:hover{background:transparent}
-  body.titled:not(.at-start):not(.at-world) .logo{opacity:0;visibility:hidden;transition:opacity var(--d-quick) var(--ease-out),visibility 0s linear var(--d-quick)}
+  /* out of sight, the home link stays in the Tab order and the accessibility tree (no visibility:hidden); the title takes
+     its taps. When the keyboard reaches it, it shows, and the title steps aside, so focus never rests on something unseen */
+  body.titled:not(.at-start):not(.at-world) .logo:not(:focus){opacity:0;pointer-events:none;transition:opacity var(--d-quick) var(--ease-out)}
+  body.titled:not(.at-start):not(.at-world) .top:has(.logo:focus) .top-t{opacity:0;pointer-events:none}
 }
 /* Position is a row of lamps along the bar's lower edge: unlit lamps are faint, and they light in the page's kind colour
    as far as the reader has read. Script writes how many are lit (--lit) only when that number changes, at most once a
