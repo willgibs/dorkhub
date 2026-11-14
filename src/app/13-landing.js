@@ -591,28 +591,31 @@ ${frontShellHTML()}
 ${footHTML()}`;
 }
 /* ================= the footer: the fine print, the key to the eight colours, and the wordmark set in lamps =================
-   The page ends on Dorkhub's mark, a board of lamps across its width (03-lamps.js). The lit lamps are the eight kinds'
-   colours, scattered, in the proportions of what this reader has read; a board nobody has written on yet shows every
-   kind in equal measure. The key above it names the kinds, most read first, each with its count once there is one
-   (a kind not read yet is unlit, like a lamp); pointing at one calls out its lamps. */
-let FOOT = null, FOOT_MIX = null;
+   The page ends on Dorkhub's mark, a board of lamps across its width (03-lamps.js). It is ink, and earns its colour:
+   one lamp for each page this reader has read, in that page's kind, scattered; colour otherwise only passes through
+   it, as it arrives and under the pointer. The key above it names the kinds, most read first, each with its count
+   once there is one (a kind not read yet is unlit, like a lamp); pointing at one calls out its lamps, the reader's
+   own once there are any, else the lamps that hold that kind, which is how a new reader learns the colours. */
+let FOOT = null, FOOT_READ = null;
 function footHTML() {
   const mix = {}; for (const p of worldIndex().read.values()) { const k = kindOf(p.kind) || 'concept'; mix[k] = (mix[k] || 0) + 1; }
-  const mine = Object.keys(mix).length > 0; if (!mine) for (const k of DEAL) mix[k] = 1;
-  FOOT_MIX = mix;
+  const mine = Object.keys(mix).length > 0; FOOT_READ = mine ? { ...mix } : null; if (!mine) for (const k of DEAL) mix[k] = 1;
   const kinds = mine ? [...DEAL].sort((a, b) => (mix[b] || 0) - (mix[a] || 0)) : DEAL;
   return `<footer class="land-foot">
   <p class="credit">Every page is written by AI for its topic, and pages can contain mistakes, so check anything you plan to repeat. Your world stays in this browser, and nothing you read is tracked. <a href="/licenses.txt">Credits</a></p>
-  <p class="lf-key" id="footKey"><span class="lbl">${mine ? 'What you read' : 'Eight kinds of topic'}</span>${kinds.map(k => `<span class="lk" data-lk="${k}"${mix[k] ? ` data-kind="${k}"` : ''}>${KIND_LABEL[k]}${mine && mix[k] ? ` <b>${mix[k]}</b>` : ''}</span>`).join('')}</p>
+  <p class="lf-key" id="footKey"><span class="lbl">${mine ? 'What you read' : 'Eight kinds of topic'}</span>${kinds.map(k => `<span class="lk" data-lk="${k}"${mix[k] ? ` data-kind="${k}" tabindex="0" role="button" aria-label="${KIND_LABEL[k]}${mine ? `, ${mix[k]} ${mix[k] === 1 ? 'page' : 'pages'} read` : ''}"` : ''}>${KIND_LABEL[k]}${mine && mix[k] ? ` <b>${mix[k]}</b>` : ''}</span>`).join('')}</p>
   <div class="lf-board" id="footBoard" role="img" aria-label="dorkhub"></div>
 </footer>`;
 }
 function mountFoot() {
   const host = $('#footBoard'), key = $('#footKey'); if (!host || !key) return;
   if (FOOT) FOOT.destroy();
-  FOOT = lampBoard(host, { mix: FOOT_MIX, arrive: true });
+  FOOT = lampBoard(host, { read: FOOT_READ, arrive: true });
   key.addEventListener('pointerover', e => { const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-kind]')); if (FOOT) FOOT.only(k ? k.dataset.lk : ''); });
   key.addEventListener('pointerleave', () => { if (FOOT) FOOT.only(''); });
+  /* by keyboard, a kind in focus is called out as pointing at it does, and let go when focus leaves it */
+  key.addEventListener('focusin', e => { const k = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-kind]')); if (FOOT && k) FOOT.only(k.dataset.lk); });
+  key.addEventListener('focusout', () => { if (FOOT) FOOT.only(''); });
 }
 /* with a mouse, the caret is already waiting in the composer; a phone keeps its keyboard down until asked */
 export function startLanding() { livingWord(); renderVoice(); renderKeyBtn(); syncSend(); mountFoot(); loadFront().then(() => { if (VIEW === 'home') renderFront(); }); if (matchMedia('(hover: hover) and (pointer: fine)').matches) $('#seedIn')?.focus({ preventScroll: true }); }

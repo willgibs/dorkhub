@@ -997,7 +997,7 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
 .lk{cursor:default;transition:opacity var(--d-quick) var(--ease-out)}
 .lk[data-kind]{color:var(--kc)}
 .lk b{margin-left:1px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
-.lf-key:has(.lk[data-kind]:hover) .lk:not(:hover){opacity:.45}
+.lf-key:has(.lk[data-kind]:hover) .lk:not(:hover),.lf-key:has(.lk[data-kind]:focus-visible) .lk:not(:focus-visible){opacity:.45}
 .lf-board{position:relative;aspect-ratio:var(--wordmark-ar);color:var(--ink)}
 .lamps{position:absolute;left:-4px;top:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
 @media (max-width:560px){

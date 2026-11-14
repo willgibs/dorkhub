@@ -196,18 +196,24 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   `06-page-end.js`), draw on `DOORS`: the front page's topics, then the pages written before them (`EARLIER`), each
   free and instant.
 - **Lamps** (`src/app/03-lamps.js`; the law is in `docs/vision.md`, Identity). `MARK` is "dorkhub" as the dot
-  face sets it, 41 lamps by 7. `lampBoard(host, { mix, arrive })` draws it on a canvas as a board: every place on
-  the grid a lamp, the word's lit and the rest faint. `mix` shares the lit lamps among the kinds by largest
-  remainder, dealt along a fixed scatter (a lattice on the plastic number, with the kinds in an order that keeps
-  neighbours on the colour wheel apart), so the spectrum never forms a band or a sweep. The board draws only while
-  a lamp has somewhere to go: arriving (once a visit, when half of it is seen), warming to the pointer and
-  cooling behind it, or hushing every kind but one (`only`). At rest it asks for no frame; reduced motion draws
+  face sets it, 41 lamps by 7. `lampBoard(host, { read, allKinds, arrive })` draws it on a canvas as a board: every
+  place on the grid a lamp, the word's lit and the rest faint. The lit lamps are ink at rest. `read` (pages read
+  by kind) makes one lamp *owned* per page, in its kind, and owned lamps keep their colour; every other lit lamp
+  holds a *latent* kind (the eight in equal shares) that shows only while colour passes through it. Kinds are
+  dealt by largest remainder along a fixed scatter (a lattice on the plastic number, with the kinds in an order
+  that keeps neighbours on the colour wheel apart), so the spectrum never forms a band or a sweep; read past the
+  92 lit lamps, every lamp is owned, in proportion. `allKinds` makes every lamp owned (the old board, kept as an
+  alternative). The board draws only while a lamp has somewhere to go: arriving (once a visit, when half of it is
+  seen: every lamp in colour, a hold, then the lamps not owned cool to ink), warming to the pointer (a latent
+  colour shows as far as it is warmed) and cooling behind it, or calling one kind out (`only`: its owned lamps,
+  or its latent ones when nothing is read, the rest hushed). At rest it asks for no frame; reduced motion draws
   the resting board once. `init()` hands the stylesheet the board's shape (`--wordmark-ar`) and the mark as a
   picture (`--wordmark`, an SVG a rule paints through as a mask) for where it stands small and still.
   - **The footer** (`footHTML`, `mountFoot` in `13-landing.js`): the fine print, a key to the eight kinds, and
-    the board across the page. Lit in the proportions of what the reader has read (`worldIndex`), each kind in
-    the key with its count, most read first; nothing read, every kind in equal measure. Pointing at a kind in
-    the key calls out its lamps.
+    the board across the page, given what the reader has read (`worldIndex`) as `read`. Each kind in the key has
+    its count, most read first; nothing read, the key names all eight. Pointing at a kind in the key, or giving
+    it keyboard focus (each kind that can be called out is a tab stop with a name like "Phenomena, 11 pages
+    read"), calls out its lamps.
   - **The composer** is an instrument: four corner brackets (`.cbk`), short and faint at rest, drawn out while
     it has focus, and a row of lamps (`.clamps`): unlit at rest, awake while it listens, all lit as a page is
     asked for (`.cbox.go`), all three in the stylesheet. `heard()` flashes the next lamp along for each key and
