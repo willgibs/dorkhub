@@ -438,24 +438,29 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.demo .en{--en-flow:85ms}
 @media (prefers-reduced-motion:reduce){.wc .en{--en-flow:0s}}
 
-/* Infinity: Cantor's list, set like type on a table running off into the distance, its diagonal lit in the kind's
-   colour; the new number in the foreground. On its turn the diagonal lights from near to far, digit by digit */
-.vz .in-g,.vz .in-0,.vz .in-n{font-family:var(--f-ui);font-weight:500;letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
-.vz .in-n{fill:var(--faint);font-weight:600}
-.vz .in-0{fill:var(--mute)}
-.vz .in-on{fill:var(--kc);font-weight:700}
-.vz .in-cell{fill:var(--kc);fill-opacity:.16;stroke:var(--kc);stroke-opacity:.5;stroke-width:.8}
+/* Infinity: Cantor's list as a table that runs on, its diagonal lit in the kind's colour, and under it the new number,
+   each digit at the foot of the band that falls to it from the diagonal. On its turn the diagonal lights row by row,
+   each band falls, and each new digit lands. Pointing at a row picks it out */
+.vz :is(.in-g,.in-0,.in-n,.in-on,.in-new,.in-nd){font:500 15px/1 var(--f-ui);letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz .in-n{font-size:10.5px;font-weight:600;fill:var(--faint)}
+.vz .in-on{font-weight:700;fill:var(--kc)}
+.vz .in-cell{fill:color-mix(in srgb,var(--kc) 8%,var(--surface));stroke:var(--kc);stroke-opacity:.6;stroke-width:.8}
+.vz .in-band{fill:var(--kc);fill-opacity:.07;stroke:var(--kc);stroke-opacity:0;stroke-width:.8;transform-box:fill-box;transform-origin:50% 0;transition:stroke-opacity var(--d-fast) var(--ease-out)}
 .vz .in-more{font:600 13px/1 var(--f-ui);fill:var(--faint)}
 .vz .in-rule{stroke:var(--line-2)}
-.vz .in-new{font:650 19px/1 var(--f-ui);letter-spacing:0;fill:var(--ink);font-variant-numeric:tabular-nums}
+.vz :is(.in-new,.in-nd){font-size:18px;font-weight:650}
 .vz .in-nd{fill:var(--kc)}
 .vz .in-tag{font:600 12px/1 var(--f-ui);letter-spacing:0;fill:var(--kc)}
 .vz .in-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
-.vz :is(.in-cell,.in-on){transform-box:fill-box;transform-origin:center}
-.wc.armed:not(.seen) :is(.in-cell,.in-on){opacity:0}
-.wc.armed.seen :is(.in-cell,.in-on){animation:vzpop .45s var(--ease-pop) both}
-.wc.armed.seen :is(.in-d1,.in-r1 .in-on){animation-delay:0.00s}.wc.armed.seen :is(.in-d2,.in-r2 .in-on){animation-delay:0.11s}.wc.armed.seen :is(.in-d3,.in-r3 .in-on){animation-delay:0.22s}.wc.armed.seen :is(.in-d4,.in-r4 .in-on){animation-delay:0.33s}.wc.armed.seen :is(.in-d5,.in-r5 .in-on){animation-delay:0.44s}.wc.armed.seen :is(.in-d6,.in-r6 .in-on){animation-delay:0.55s}.wc.armed.seen :is(.in-d7,.in-r7 .in-on){animation-delay:0.66s}.wc.armed.seen :is(.in-d8,.in-r8 .in-on){animation-delay:0.77s}
-
+.vz .in-c{transform-box:fill-box;transform-origin:center}
+.vz .in-row{transition:opacity var(--d-fast) var(--ease-out)}
+.wc.reading .in-row{opacity:.38}
+.wc.reading .in-row:has(.hit.on){opacity:1}
+.wc.reading .in-row:has(.hit.on) .in-band{stroke-opacity:.6}
+.wc.armed:not(.seen) .in-c{opacity:0}
+.wc.armed:not(.seen) .in-band{transform:scaleY(0)}
+.wc.armed.seen .in-c{animation:vzpop .45s var(--ease-pop) calc(var(--w,0s)*1.1 - .11s) both}
+.wc.armed.seen .in-band{animation:vzrise .4s var(--ease-out) calc(var(--w,0s)*1.1 - .05s) both}
 
 /* a reader's world, in the last slot: their map, edge to edge, and how far it reaches */
 .ww-stage{position:absolute;inset:0;background:var(--stage)}
