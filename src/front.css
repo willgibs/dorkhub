@@ -95,19 +95,25 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .wc.armed.seen .bh-glow{animation:fade .8s var(--ease-out) .9s both}
 .wc.armed.seen .bh-g0,.wc.armed.seen .bh-ring{animation-delay:.35s}
 
-/* Origami: a sheet in Miura's fold, white paper in the light and graphite in the dark, over its soft shadow. Each face
-   is one of four ways round; how dark each is (--s0 to --s3) the build sets at rest and the page sets while it moves */
-.vz.mi{--mi-paper:#FFFCF7;--mi-ink:#2C384E;--mi-edge:rgba(44,56,78,.16);--mi-drop:rgba(44,56,78,.2)}
-.wc[data-card="origami"]{background:#ECE8E0}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root:not([data-theme="light"]) .wc[data-card="origami"]{background:#121316}}
-:root[data-theme="dark"] .vz.mi{--mi-paper:#A0988C;--mi-ink:#08090D;--mi-edge:rgba(0,0,0,.2);--mi-drop:rgba(0,0,0,.7)}:root[data-theme="dark"] .wc[data-card="origami"]{background:#121316}
+/* Origami: a sheet of white paper in Miura's fold on a table, lit from the upper left: paper on paper by day, a lit
+   sheet in a dark room at night. Each face lies one of four ways; how dark each way is (--s0 to --s3, 0 in the light,
+   1 turned from it) the build sets at rest and the page sets while it moves, and each face is shaded along itself,
+   darkest in its valley and lightest at its ridge. Round it, the outline of the whole sheet; on its free corner, a
+   ring to pull it by */
+.vz.mi{--mi-paper:#FFFEFB;--mi-ink:#4A5878;--mi-deep:.44;--mi-drop:rgba(60,68,96,.22);--mi-near:rgba(60,68,96,.16);--mi-top:#FFF;--mi-table:#F5F3EF}
+.wc[data-card="origami"]{background:#F5F3EF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.mi{--mi-paper:#EEE9DF;--mi-ink:#12141C;--mi-deep:.74;--mi-drop:rgba(0,0,0,.8);--mi-near:rgba(0,0,0,.6);--mi-top:rgba(255,255,255,.55);--mi-table:#101114}:root:not([data-theme="light"]) .wc[data-card="origami"]{background:#101114}}
+:root[data-theme="dark"] .vz.mi{--mi-paper:#EEE9DF;--mi-ink:#12141C;--mi-deep:.74;--mi-drop:rgba(0,0,0,.8);--mi-near:rgba(0,0,0,.6);--mi-top:rgba(255,255,255,.55);--mi-table:#101114}:root[data-theme="dark"] .wc[data-card="origami"]{background:#101114}
+.vz .mi-ghost{fill:none;stroke:var(--ink);stroke-opacity:.34;stroke-dasharray:2.5 3.5}
 .vz .mi-shadow{fill:var(--mi-drop);stroke:none}
-.vz .mi-f{stroke:var(--mi-edge);stroke-width:.7;stroke-linejoin:round}
-.vz .mi-o0{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s0,0) * 100%),var(--mi-paper))}
-.vz .mi-o1{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s1,0) * 100%),var(--mi-paper))}
-.vz .mi-o2{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s2,0) * 100%),var(--mi-paper))}
-.vz .mi-o3{fill:color-mix(in srgb,var(--mi-ink) calc(var(--s3,0) * 100%),var(--mi-paper))}
-.wc[data-fx="origami"]{cursor:ew-resize}
+.vz .mi-near{fill:var(--mi-near)}
+.vz :is(.mi-g0,.mi-o0){--s:var(--s0)}.vz :is(.mi-g1,.mi-o1){--s:var(--s1)}.vz :is(.mi-g2,.mi-o2){--s:var(--s2)}.vz :is(.mi-g3,.mi-o3){--s:var(--s3)}
+.vz .mi-g stop{stop-color:color-mix(in srgb,var(--mi-ink) clamp(0%,calc((var(--s,0) + var(--d,0))*var(--mi-deep)*100%),100%),var(--mi-paper))}
+.vz .mi-g stop:first-child{--d:.34}.vz .mi-g stop:last-child{--d:-.12}
+.vz .mi-f{stroke:color-mix(in srgb,var(--mi-ink) clamp(0%,calc((var(--s,0) + .25)*var(--mi-deep)*100%),100%),var(--mi-paper));stroke-width:.55;stroke-linejoin:round}
+.vz .mi-ridge{fill:none;stroke:var(--mi-top);stroke-width:.8;stroke-linejoin:round;stroke-linecap:round}
+.vz .mi-hand{fill:var(--mi-table);stroke:var(--ink);stroke-width:1.3}
+.wc[data-fx="origami"]{touch-action:pan-y}
 
 /* Atlantis: a model of the city in the theme's ink, its sea engraved in level lines, its land stippled, its walls in
    Plato's metals. On its turn it rises from the island outward, and the orichalcum catches the light once */

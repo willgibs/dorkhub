@@ -9,7 +9,7 @@ import { capFirst, clip } from '../shared/article.js';
 import { asksQuestion, routeOf, topicKey } from '../shared/world.js';
 import { localGraph, nodeKeyOf } from '../shared/graph.js';
 import { EN_WIRE, enigma, enigmaWay, wired } from '../shared/enigma.js';
-import { BAR, FOLD, TRAP, barField, filings, foldView, trapView } from '../shared/plates.js';
+import { BAR, FOLD, TRAP, barField, filings, foldHand, foldView, trapView } from '../shared/plates.js';
 import { LENSES, kattr, kindOf } from './01-data.js';
 import { $, $$, afterMotion, auth, esc, pagesLeft, reducedMotion, store } from './02-util.js';
 import { ic } from './03-icons.js';
@@ -236,21 +236,24 @@ function readoutFx(card) {
   card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse') return; show(/** @type {HTMLElement[]} */ (document.elementsFromPoint(e.clientX, e.clientY)).find(el => el.dataset && el.dataset.read && card.contains(el)) || null, e.clientX, e.clientY); });
   card.addEventListener('pointerleave', () => show(null, 0, 0));
 }
-/* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded shut; on its turn it
-   pulls open to rest; with a mouse, pointing across the card opens it toward the right and folds it toward the left,
-   and when the pointer leaves it settles back to rest */
+/* Origami: the sheet moves as Miura's fold does, in one motion. Waiting its turn, it lies folded to a packet; on its
+   turn it pulls open to rest; after that the pointer, or a thumb dragged across the card, takes its free corner along
+   the way that corner goes, from packet to open sheet, and the whole sheet follows; let go, it settles back to rest */
 function origamiFx(card) {
-  const sheets = $$('.vz.mi', card); if (!sheets.length || card.dataset.wired) return; card.dataset.wired = '1';
+  if (card.dataset.wired) return;
+  const sheets = $$('.vz.mi', card).map(el => ({ el, v: /** @type {'w' | 'n'} */ (el.classList.contains('vz-n') ? 'n' : 'w'), way: null, faces: [], runs: $$('.mi-g', el), shadows: $$('.mi-shadow', el), ridge: $('.mi-ridge', el), hand: $('.mi-hand', el) }));
+  if (!sheets.length) return; card.dataset.wired = '1';
   /* the sheet's faces, laid here rather than shipped, since they move */
-  for (const el of sheets) { const g = $('.mi-sheet', el); g.innerHTML = '<path class="mi-f"/>'.repeat(Number(g.dataset.faces) || 0); }
-  let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null;
+  for (const s of sheets) { const g = $('.mi-sheet', s.el); g.innerHTML = '<path class="mi-f"/>'.repeat(Number(g.dataset.faces) || 0); s.faces = $$('.mi-f', g); }
+  let th = card.classList.contains('armed') && !card.classList.contains('seen') ? FOLD.shut : FOLD.rest, aim = th, raf = 0, tween = null, drag = null, from = null, dragged = 0;
   const draw = () => {
-    for (const el of sheets) {
-      if (!el.getClientRects().length) continue;
-      const { faces, shadow } = foldView(th, el.classList.contains('vz-n') ? 'n' : 'w'), ps = $$('.mi-f', el);
-      faces.forEach((f, k) => { if (!ps[k]) return; ps[k].setAttribute('d', f.d); ps[k].setAttribute('class', `mi-f mi-o${f.o}`); });
-      $('.mi-shadow', el).setAttribute('d', shadow);
-      for (let o = 0; o < 4; o++) el.style.setProperty(`--s${o}`, (faces.find(f => f.o === o)?.s || 0).toFixed(3));
+    for (const s of sheets) {
+      if (!s.el.getClientRects().length) continue;
+      const { faces, tones, runs, ridge, shadow, hand } = foldView(th, s.v);
+      /* back to front: a path takes whichever face is next, and with it the way that face lies */
+      faces.forEach((f, k) => { const p = s.faces[k]; if (!p) return; p.setAttribute('d', f.d); if (p.dataset.o === String(f.o)) return; p.dataset.o = String(f.o); p.setAttribute('class', `mi-f mi-o${f.o}`); p.setAttribute('fill', `url(#mi-g${s.v}${f.o})`); });
+      s.runs.forEach((g, o) => { ['x1', 'y1', 'x2', 'y2'].forEach((a, n) => g.setAttribute(a, String(runs[o][n]))); s.el.style.setProperty(`--s${o}`, tones[o].toFixed(3)); });
+      s.shadows.forEach(p => p.setAttribute('d', shadow)); s.ridge.setAttribute('d', ridge); s.hand.setAttribute('cx', String(hand[0])); s.hand.setAttribute('cy', String(hand[1]));
     }
   };
   const loop = now => {
@@ -265,8 +268,32 @@ function origamiFx(card) {
   /* a sheet hidden at first (a phone's or a desk's) is laid when it shows */
   const ro = typeof ResizeObserver === 'function' ? new ResizeObserver(() => draw()) : null; if (ro) ro.observe(card);
   FX_STOP.push(() => { if (ro) ro.disconnect(); });
-  card.addEventListener('pointermove', e => { if (e.pointerType !== 'mouse' || !card.classList.contains('seen') || reducedMotion()) return; const r = card.getBoundingClientRect(), f = Math.min(1, Math.max(0, (e.clientX - r.left - r.width * .12) / (r.width * .76))); tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * f; go(); });
-  card.addEventListener('pointerleave', () => { if (tween) return; aim = FOLD.rest; go(); });
+  /* the corner goes to the point of its way nearest the pointer: its way, as the corner's place at some fifty openings */
+  const STEPS = 48;
+  const pull = e => {
+    const s = sheets.find(q => q.el.getClientRects().length), m = s && s.el.getScreenCTM(); if (!s || !m) return;
+    s.way = s.way || Array.from({ length: STEPS + 1 }, (_, i) => foldHand(FOLD.shut + (FOLD.open - FOLD.shut) * i / STEPS, s.v));
+    const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); let at = 0, near = Infinity;
+    for (let i = 0; i < STEPS; i++) {
+      const [ax, ay] = s.way[i], dx = s.way[i + 1][0] - ax, dy = s.way[i + 1][1] - ay, t = Math.min(1, Math.max(0, ((q.x - ax) * dx + (q.y - ay) * dy) / (dx * dx + dy * dy || 1))), d = Math.hypot(q.x - ax - dx * t, q.y - ay - dy * t);
+      if (d < near) { near = d; at = (i + t) / STEPS; }
+    }
+    tween = null; aim = FOLD.shut + (FOLD.open - FOLD.shut) * at; go();
+  };
+  const rest = () => { if (tween) return; aim = FOLD.rest; go(); };
+  card.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse') { drag = e.pointerId; from = [e.clientX, e.clientY]; } });
+  card.addEventListener('pointermove', e => {
+    if (!card.classList.contains('seen') || reducedMotion() || (e.pointerType !== 'mouse' && e.pointerId !== drag)) return;
+    /* a thumb that only taps opens the page; one that travels pulls the sheet */
+    if (from && Math.hypot(e.clientX - from[0], e.clientY - from[1]) < 8) return;
+    if (from) { from = null; dragged = 1; }
+    pull(e);
+  });
+  card.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') rest(); });
+  for (const up of ['pointerup', 'pointercancel']) card.addEventListener(up, e => { if (e.pointerId !== drag) return; drag = from = null; rest(); });
+  /* letting go after a pull is not a tap on the card */
+  card.addEventListener('click', e => { if (!dragged) return; dragged = 0; e.preventDefault(); e.stopPropagation(); }, true);
+  card.addEventListener('pointerdown', () => { dragged = 0; }, true);
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); raf = 0; });
 }
 /* Magnets: about 1,800 filings on a canvas, each turned along the field where it lies (src/shared/plates.js). Waiting
