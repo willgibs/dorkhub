@@ -125,6 +125,24 @@ cards and its tools; Your world is one step away, in the sidebar or at /world.
     topic.
   - **A state is a page.** Not written yet, paused, out of free pages, failed: each keeps a page's anatomy (a
     label, the title, a deck, readings, ways on) instead of turning into a notice.
+- **Motion** (2026-11-13, the motion pass; up for Will's look): one vocabulary, so the app moves as one thing. One point of
+  focus at a time, and nothing appears above where the reader already is.
+  - Motion says what changed and where it came from. It is never decoration.
+  - **A view changes on one clock.** The old view leaves in `--d-quick`; the new one arrives in `--d-slow`; whatever
+    travels with the reader (the title they clicked, a card's drawing, the top bar, the sidebar) lands with the page, on
+    the same duration and curve, not after it. The same move runs whichever way the reader came: a card, a link, the
+    composer, back, forward, to and from Your world (unless the browser has already animated a swipe back).
+  - **What opens, closes.** A raised surface (a popover, the paragraph menu, a link's card, a sheet, the menu) arrives
+    in `--d-fast` and leaves the way it came in `--d-quick`, taking no clicks as it goes. A move to another view clears
+    them all at once.
+  - **A state arrives as text does.** The wait leaves where it stood and the state's label, sentence and readings
+    enter; nothing snaps, and nothing moves what the reader is already looking at.
+  - Durations and curves come from the tokens in `src/styles.css`. Ambient tempos (the shimmer, the living word, a
+    picture's reveal, the theme's wash, a reel, the threads' drawing) keep their own time, each named once. Script never
+    keeps its own copy of a duration: it waits for the motion to end, or reads the token.
+  - A recipe (the menu button's morph, the counter's digits) keeps its own choreography, with its values named once
+    beside it.
+  - Reduced motion turns all of it off.
 
 ## Anatomy of a page (the generative UI)
 

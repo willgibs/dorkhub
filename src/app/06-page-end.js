@@ -3,7 +3,7 @@ import { capFirst, cardsOf, clip, keyOf, panelLines, plain } from '../shared/art
 import { routeOf, topicKey } from '../shared/world.js';
 import { LENSES, kattr, kindOf } from './01-data.js';
 import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
-import { $, $$, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, relTime, save, store, toast, write, writeJSON } from './02-util.js';
+import { $, $$, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, relTime, save, store, toast, tokenMs, write, writeJSON } from './02-util.js';
 import { ic } from './03-icons.js';
 import { waitHTML } from './03-orbs.js';
 import { REV, ctxInput, curPage, pageOf, parsed } from './04-pages.js';
@@ -45,6 +45,9 @@ const fanNarrow = () => matchMedia('(max-width: 560px)').matches;
 /* the middle of a dot in the map, read from the layout: a card still rising into place must not bend its thread, as a
    reading off the screen would (it includes the rise, and a thread drawn mid-rise lands below its ring) */
 function fanAt(d, fan) { let x = d.offsetWidth / 2, y = d.offsetHeight / 2; for (let n = d; n && n !== fan; n = n.offsetParent) { x += n.offsetLeft; y += n.offsetTop; } return [x, y]; }
+/* the threads are drawn once: when the last has landed (its delay and the draw, read from the tokens), a redraw no longer
+   replays them */
+export function settleFan(el) { const n = $$('.fan-t', el).length; setTimeout(() => el.classList.add('fan-settled'), tokenMs('--d-stagger') * (3 + n) + tokenMs('--d-draw')); }
 function drawFan(el) {
   const fan = $('.fan', el); const svg = fan && $('.fan-svg', fan); const me = fan && $('.fan-me', fan);
   if (!svg) return; if (!me || fanNarrow()) { svg.innerHTML = ''; return; }
@@ -65,7 +68,7 @@ function watchFan(el, p) {
     if (!es.some(e => e.isIntersecting) || !el.classList.contains('fan-ready')) return; io.disconnect(); FAN_SEEN.add(p.id);
     /* new to your world this visit: it pings as it joins */
     if ((p.first || 0) >= BOOT) el.classList.add('fan-new');
-    el.classList.add('fan-drawn'); setTimeout(() => el.classList.add('fan-settled'), 1600);
+    el.classList.add('fan-drawn'); settleFan(el);
   }, { threshold: .35 });
   io.observe(el);
 }

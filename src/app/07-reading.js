@@ -2,7 +2,7 @@
 import { capFirst, clip, hookOf, keyOf, plain } from '../shared/article.js';
 import { asksQuestion, pageId, topicKey } from '../shared/world.js';
 import { LENS_SHORT, kattr, kindOf } from './01-data.js';
-import { $, $$, esc, reducedMotion, relTime, store, write } from './02-util.js';
+import { $, $$, esc, leave, reducedMotion, relTime, settle, stay, store, write } from './02-util.js';
 import { ACTIVE, CUR, cleanTitle, curPage, full, isLive, openTopic, pageOf, rememberScroll } from './04-pages.js';
 import { ACC, secFor, worldIndex } from './05-render.js';
 import { peek, unfold } from './06-page-end.js';
@@ -79,7 +79,7 @@ export function showCard(a) {
 ${wn.line ? `<p class="hc-else">${wn.line}</p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'}<span class="hc-key" aria-hidden="true"> ↵</span></button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!wn.read ? `<div class="hc-lens"><span class="lbl">Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;
-  hcard.hidden = false; hcY = scrollY;
+  stay(hcard); hcard.hidden = false; hcY = scrollY;
   placeCard(a);
 }
 /* Where there is room, the card sits in the margin beside the line it belongs to, a hairline leading to it, so it
@@ -108,9 +108,13 @@ function placeCard(a) {
   hcard.style.left = `${x}px`; hcard.style.top = `${(below ? r.bottom + 8 : r.top - ch - 8) + scrollY}px`;
 }
 const TOP_H = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--top-h')) || 56;
-export function hideCard() {
-  clearTimeout(hcTimer); if (!hcard.hidden) { hcard.hidden = true; if (hc) hc.a.classList.remove('hc-on'); hc = null; }
-  hcard.classList.remove('going'); hcard.style.transform = ''; document.body.classList.remove('hc-docked');
+/* the card leaves the way it came (docked, it slides back down); `now` (a route change) takes it at once */
+export function hideCard(now = false) {
+  clearTimeout(hcTimer); if (hc) { hc.a.classList.remove('hc-on'); hc = null; }
+  document.body.classList.remove('hc-docked');
+  const gone = () => { hcard.hidden = true; hcard.classList.remove('going'); hcard.style.transform = ''; };
+  if (hcard.hidden || now) { settle(hcard); gone(); return; }
+  leave(hcard, gone, hcard.classList.contains('docked') ? 'going' : 'leaving');
 }
 
 /* ---------- on a phone, the card is a sheet docked to the bottom edge ----------
@@ -145,12 +149,7 @@ function dragEnd() {
   if (!drag) return; const d = drag; drag = null; hcard.classList.remove('dragging');
   if (d.dy > 64 || (d.dy > 12 && d.v > .45)) dropSheet(); else hcard.style.transform = '';
 }
-function dropSheet() {
-  if (reducedMotion()) { hideCard(); return; }
-  hcard.style.transform = ''; hcard.classList.add('going');
-  const done = () => { clearTimeout(t); hcard.removeEventListener('transitionend', done); if (hcard.classList.contains('going')) hideCard(); };
-  const t = setTimeout(done, 400); hcard.addEventListener('transitionend', done);
-}
+function dropSheet() { hcard.style.transform = ''; hideCard(); }
 /* the page's own resize (a phone's toolbar folding away as it scrolls) keeps the sheet; a new width does not */
 export const keepsSheet = () => !hcard.hidden && hcard.classList.contains('docked') && docked();
 
@@ -159,12 +158,17 @@ export let pmenu; export let pm = null;
 export function openPMenu(btn) {
   pm = { i: +btn.dataset.i, btn };
   $$('.ptool[aria-expanded="true"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
-  btn.setAttribute('aria-expanded', 'true'); pmenu.hidden = false;
+  btn.setAttribute('aria-expanded', 'true'); stay(pmenu); pmenu.hidden = false;
   const r = btn.getBoundingClientRect(); const x = Math.max(12, Math.min(r.left, innerWidth - 250));
   pmenu.style.left = `${x + scrollX}px`; pmenu.style.top = `${r.bottom + 6 + scrollY}px`;
   $('button', pmenu).focus();
 }
-export function closePMenu(refocus) { if (pmenu.hidden) return; pmenu.hidden = true; if (pm && pm.btn) { pm.btn.setAttribute('aria-expanded', 'false'); if (refocus && pm.btn.isConnected) pm.btn.focus(); } pm = null; }
+/* the menu is closed the moment it is asked to close (pm is null); it leaves the way it came, and `now` takes it at once */
+export function closePMenu(refocus, now = false) {
+  if (!pm) { if (now) settle(pmenu); return; }
+  pm.btn.setAttribute('aria-expanded', 'false'); if (refocus && pm.btn.isConnected) pm.btn.focus(); pm = null;
+  if (now) { settle(pmenu); pmenu.hidden = true; } else leave(pmenu, () => { pmenu.hidden = true; });
+}
 
 /* touch: a tap on a paragraph shows its ¶ button; a tap anywhere else hides it again */
 export function tapPara(t) {
@@ -198,7 +202,8 @@ export function init() {
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
 addEventListener('scroll', () => {
   if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Date.now() > hcNudge && Math.abs(scrollY - hcY) > (hcard.classList.contains('docked') ? HC_READ_ON : 90)) hideCard(); }); }
-  clearTimeout(scrollT); scrollT = setTimeout(rememberScroll, 160);
+  /* noted for this address only: a move in between (a click, back) must not hand this page's place to the next one */
+  clearTimeout(scrollT); const at = location.href; scrollT = setTimeout(() => { if (location.href === at) rememberScroll(); }, 160);
 }, { passive: true });
 hcard = $('#hcard');
 hcard.addEventListener('touchstart', dragStart, { passive: true });

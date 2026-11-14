@@ -13,11 +13,15 @@
   --f-mono:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-dot:"Doto",ui-monospace,Menlo,monospace;
   --top-h:56px;
-  --ease:var(--ease-out);
-  /* motion tokens, the full transitions.dev scale: match a value by what the motion does, not by the nearest number */
+  /* motion tokens, on transitions.dev's scale: match a value by what the motion does, not by the nearest number. The law
+     (docs/vision.md, Motion): a view changes on one clock (the old leaves in quick, the new arrives in slow, and whatever
+     travels with the reader lands with it); a raised surface arrives in fast and leaves in quick; text arrives in vslow.
+     Script never mirrors a duration: it waits for the motion to end (afterMotion in 02-util.js) or reads the token. */
   --d-stagger:40ms;--d-micro:80ms;--d-quick:150ms;--d-fast:250ms;--d-medium:350ms;--d-slow:400ms;--d-vslow:500ms;
-  --ease-out:cubic-bezier(.22,1,.36,1);--ease-in-out:ease-in-out;--ease-pop:cubic-bezier(.34,1.36,.64,1);--ease-bounce-strong:cubic-bezier(.34,3.85,.64,1);
-  --dist-micro:4px;--dist-small:6px;--dist-base:8px;--dist-medium:12px;--scale-l:.96;--scale-m:.97;--scale-s:.98;--scale-xs:.99;--blur-s:2px;--blur-m:3px;--blur-l:8px;
+  --ease-out:cubic-bezier(.22,1,.36,1);--ease-in:cubic-bezier(.4,0,1,1);--ease-in-out:ease-in-out;--ease-pop:cubic-bezier(.34,1.36,.64,1);
+  /* ambient tempos, each named once: they keep their own time, apart from the interface's */
+  --d-wash:600ms;--d-shimmer:2s;--d-picture:650ms;--d-reel:1s;--d-draw:750ms;--d-ping:1.3s;
+  --dist-micro:4px;--dist-base:8px;--dist-medium:12px;--scale-l:.96;--scale-m:.97;--scale-s:.98;--scale-xs:.99;--blur-s:2px;--blur-m:3px;
   /* shape: a radius for each size of thing, from a key cap to the composer */
   --r-1:6px;--r-2:10px;--r-3:14px;--r-4:22px;--r-pill:999px;
   --base:#FCFCFB; --ink:#18181B; --mute:#5E636B; --faint:#6A6F78; --line:rgba(24,24,27,.09); --line-2:rgba(24,24,27,.17); --panel:#F3F3F1; --on-acc:#FFFFFF;
@@ -83,7 +87,7 @@
 *,*::before,*::after{box-sizing:inherit}
 [hidden]{display:none!important}
 html{height:100%;scroll-padding-top:calc(env(safe-area-inset-top,0px) + var(--top-h));-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-ui);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:background-color .6s ease}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--f-ui);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;transition:background-color var(--d-wash) var(--ease-in-out)}
 a{color:var(--link);text-underline-offset:3px}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
@@ -162,7 +166,7 @@ body.at-start .side-btn,body.at-world .side-btn,body.at-trail .side-btn{visibili
 body.titled .top-t{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
 body.at-start .top-t,body.at-world .top-t{display:none}
 @media (max-width:760px){ .top-t{display:none} }
-.prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--acc);transition:width .12s linear}
+.prog{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--acc);transition:width var(--d-micro) linear}
 body.at-start .prog{display:none}
 
 /* ================= shell & sidebar: Your world beside the page, closed by default ================= */
@@ -236,7 +240,7 @@ body.at-start .side,body.at-world .side{display:none!important}
 
 /* ================= pages ================= */
 .column{display:block}
-.chamber{background:var(--bg);color:var(--ink);transition:background-color .6s ease}
+.chamber{background:var(--bg);color:var(--ink);transition:background-color var(--d-wash) var(--ease-in-out)}
 .chamber:last-child{min-height:calc(100dvh - var(--top-h))}
 /* one column, centred in the room it has, whatever the sidebar does: everything a page has lives in it. Its
    width is the reading measure: body text at 17 px sets about 67 characters to a line on 580 px. At 20 px on 680 px
@@ -334,12 +338,15 @@ body.at-start .side,body.at-world .side{display:none!important}
 /* a link to a topic you've read carries a small dot of its colour */
 .hole.read::after{content:"";display:inline-block;width:4px;height:4px;margin:0 1px 0 3px;border-radius:50%;background:var(--kc,var(--acc));vertical-align:.35em;opacity:.7}
 /* the soft frontier: each new stretch of words resolves in from the moment it arrived */
-.ink{animation:ink .42s var(--ease-out) both}
+.ink{animation:ink var(--d-slow) var(--ease-out) both}
 @keyframes ink{from{opacity:0;filter:blur(1px)}}
 /* a truthful status, only while there is a real wait */
 .status-line{margin:2px 0 26px;font:500 14px var(--f-ui);color:var(--faint)}
+/* a wait that has ended fades where it stood, out of the flow, as the state's text arrives (liftWaits in 05-render.js) */
+.status-line.leaving{animation:fadeout var(--d-quick) var(--ease-out) both;pointer-events:none}
+@keyframes fadeout{to{opacity:0}}
 .shim{position:relative;display:inline-block}
-.shim::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 2s linear infinite}
+.shim::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim var(--d-shimmer) linear infinite}
 @keyframes shim{to{background-position:0 0}}
 .shim.swap{animation:swapin var(--d-fast) var(--ease-out) both}
 @keyframes swapin{from{opacity:0;transform:translateY(4px);filter:blur(var(--blur-s))}}
@@ -375,7 +382,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .pn-h{display:flex;align-items:center;gap:12px;margin:0 0 16px;font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--acc)}
 .pn-h::after{content:"";flex:1;height:1px;background:var(--acc-line)}
 .pn-h span{position:relative;display:inline-block}
-.panel[data-live] .pn-h span::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim 2s linear infinite}
+.panel[data-live] .pn-h span::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim var(--d-shimmer) linear infinite}
 .pn-r dt{font-size:12.5px;color:var(--faint)}
 .pn-r dd{margin:0;font-weight:600}
 /* timeline: dates in one column, a dot for each on a rail; a century or more between two rows breaks the rail */
@@ -449,7 +456,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .pn-big small{margin-right:8px;font:600 .4em/1 var(--f-ui);letter-spacing:0;color:var(--mute)}
 .pn-big small.after{margin:0 0 0 8px}
 .odo{position:relative;display:inline-block;height:1.1em;overflow:hidden;vertical-align:bottom;color:transparent}
-.odo::before{content:"0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9" / "";position:absolute;left:0;top:0;width:100%;white-space:pre;line-height:1.1em;text-align:center;color:var(--acc);transform:translateY(calc(-1.1em * (10 + var(--d))));animation:reel 1s var(--ease-out) both;animation-delay:calc(var(--i) * 70ms)}
+.odo::before{content:"0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9\A 0\A 1\A 2\A 3\A 4\A 5\A 6\A 7\A 8\A 9" / "";position:absolute;left:0;top:0;width:100%;white-space:pre;line-height:1.1em;text-align:center;color:var(--acc);transform:translateY(calc(-1.1em * (10 + var(--d))));animation:reel var(--d-reel) var(--ease-out) both;animation-delay:calc(var(--i) * var(--d-stagger))}
 @keyframes reel{from{transform:translateY(0)}}
 .pn-said{margin-top:6px;font:400 16px/1.55 var(--f-read);color:var(--ink)}
 .pn-why{margin-top:6px;color:var(--mute)}
@@ -479,7 +486,6 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
   .a-plate>div{width:min(100%,calc(460px * var(--par,1.05)))!important;height:auto!important;aspect-ratio:var(--par,1.05)!important}
   .a-plate.pl-hero{--par:1.2}.a-plate.pl-tall{--par:.76}.a-plate.pl-sq{--par:1.04}.a-plate.pl-wide{--par:1.5}.a-plate.pl-big{--par:1.05}
 }
-::view-transition-group(plate){animation-duration:var(--d-vslow);animation-timing-function:var(--ease-out)}
 
 /* ================= the lead picture: a plate across the column, named and credited ================= */
 .pic{margin:0}
@@ -493,8 +499,8 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 /* the dot field while the picture loads, then the photo through a shared blur */
 .pic-field{position:absolute;inset:0;width:100%;height:100%;display:block}
 .pic-box.loading img{opacity:0;filter:blur(var(--blur-m))}
-.pic-box.reveal img{opacity:1;filter:blur(0);transition:opacity 650ms var(--ease-out),filter 650ms var(--ease-out)}
-.pic-box.reveal .pic-field{opacity:0;transition:opacity 650ms var(--ease-out) 120ms}
+.pic-box.reveal img{opacity:1;filter:blur(0);transition:opacity var(--d-picture) var(--ease-out),filter var(--d-picture) var(--ease-out)}
+.pic-box.reveal .pic-field{opacity:0;transition:opacity var(--d-picture) var(--ease-out) calc(var(--d-stagger) * 3)}
 /* what the picture shows, in its uploader's words, then who made it */
 .pic figcaption{display:flex;flex-wrap:wrap;align-items:baseline;gap:3px 10px;margin-top:9px;font:400 13px/1.45 var(--f-ui);color:var(--mute)}
 .pic figcaption a{font-size:11.5px;color:var(--faint);text-decoration:none}
@@ -532,7 +538,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .fan-t.read{stroke:color-mix(in srgb,var(--kc,var(--acc)) 60%,transparent)}
 @media (prefers-reduced-motion:no-preference){
   .eblock:not(.fan-drawn) .fan-t{stroke-dasharray:1;stroke-dashoffset:1}
-  .fan-drawn:not(.fan-settled) .fan-t{stroke-dasharray:1;animation:fandraw .75s var(--ease-out) both;animation-delay:calc(120ms + var(--i,0) * 55ms)}
+  .fan-drawn:not(.fan-settled) .fan-t{stroke-dasharray:1;animation:fandraw var(--d-draw) var(--ease-out) both;animation-delay:calc(var(--d-stagger) * 3 + var(--i,0) * var(--d-stagger))}
 }
 @keyframes fandraw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
 .fan-in{position:relative;height:14px}
@@ -550,7 +556,7 @@ mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 .fan:has(.fan-door[data-n="1"]:hover) .fan-t[data-n="1"],.fan:has(.fan-door[data-n="2"]:hover) .fan-t[data-n="2"],.fan:has(.fan-door[data-n="3"]:hover) .fan-t[data-n="3"],
 .fan:has(.fan-door[data-n="4"]:hover) .fan-t[data-n="4"],.fan:has(.fan-door[data-n="5"]:hover) .fan-t[data-n="5"],.fan:has(.fan-door[data-n="6"]:hover) .fan-t[data-n="6"]{opacity:1;stroke:var(--kc,var(--acc));stroke-width:1.6}
 /* new to your world: the point pings once as it joins */
-.fan-new .fan-me::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--kc,var(--acc));opacity:0;animation:fanping 1.3s var(--ease-out) .35s both}
+.fan-new .fan-me::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid var(--kc,var(--acc));opacity:0;animation:fanping var(--d-ping) var(--ease-out) var(--d-medium) both}
 @keyframes fanping{from{transform:scale(.55);opacity:.95}to{transform:scale(2.9);opacity:0}}
 /* on a phone, one stem through the rings: from the point to the first ring, then from each ring to the next, so it
    meets every ring at its middle and stops at the last one, however much each way on holds */
@@ -597,7 +603,7 @@ details.pv summary:hover .pv-n{color:var(--ink)}
    Not written yet, paused, out of free pages, failed: the head keeps its anatomy (the state named in small capitals,
    in ink, beside the kind when the kind is known; the title; a sentence where the deck goes; readings where the key
    facts go), then the one thing to do, then ways on, set as the end's cards. No rule, no box, no colour of its own. */
-.st-l{color:var(--ink)}
+.st-l{color:var(--ink);animation:fade var(--d-vslow) var(--ease-out) both}
 .h-main .st-r{margin-top:26px;max-width:var(--col)}
 .st-a{display:flex;flex-wrap:wrap;gap:8px}
 .st-ways{margin-top:52px}
@@ -622,6 +628,11 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .hcard.in-margin{animation-name:cardin-x}
 .hcard.in-margin::before{content:"";position:absolute;right:100%;top:var(--ly,20px);width:32px;height:1px;background:linear-gradient(90deg,transparent,var(--line-2))}
 @keyframes cardin-x{from{opacity:0;transform:translateX(calc(-1 * var(--dist-base))) scale(var(--scale-s))}}
+/* what opens, closes: the card and the paragraph menu leave the way they came, quicker, and take no clicks while they go */
+.hcard.leaving,.pmenu.leaving{animation:cardout var(--d-quick) var(--ease-out) both;pointer-events:none}
+.hcard.in-margin.leaving{animation-name:cardout-x}
+@keyframes cardout{to{opacity:0;transform:translateY(var(--dist-micro)) scale(var(--scale-s))}}
+@keyframes cardout-x{to{opacity:0;transform:translateX(calc(-1 * var(--dist-base))) scale(var(--scale-s))}}
 .hc-meta{display:flex;align-items:center;gap:8px}
 .hc-meta .kind{margin-right:auto;font:inherit;color:var(--acc)}
 .hc-title{margin-top:6px!important;font:700 19px/1.2 var(--f-ui);letter-spacing:-.015em;text-wrap:balance}
@@ -642,7 +653,7 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .hcard.docked.dragging{transition:none}
 /* the Enter key's mark means nothing where there is no keyboard */
 .hcard.docked .hc-key{display:none}
-.hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));transition:transform var(--d-fast) var(--ease-out),opacity var(--d-fast) var(--ease-out)}
+.hcard.docked.going{opacity:0;transform:translateY(calc(100% + 12px));pointer-events:none}
 @keyframes dockin{from{opacity:0;transform:translateY(var(--dist-medium))}}
 @media (prefers-reduced-motion:reduce){ .hcard.docked{animation-name:fade;transition:none} }
 .pmenu{position:absolute;z-index:46;display:grid;gap:1px;width:232px;animation:cardin var(--d-fast) var(--ease-out)}
@@ -735,13 +746,14 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 .toast.out{opacity:0;transform:translateY(var(--dist-micro));filter:blur(var(--blur-s));transition:opacity var(--d-medium) var(--ease-out),transform var(--d-medium) var(--ease-out),filter var(--d-medium) var(--ease-out)}
 
 /* ================= page transitions ================= */
-::view-transition-old(root){animation:vt-out var(--d-quick) cubic-bezier(.4,0,1,1) both}
+::view-transition-old(root){animation:vt-out var(--d-quick) var(--ease-in) both}
 ::view-transition-new(root){animation:vt-in var(--d-slow) var(--ease-out) both}
 @keyframes vt-out{to{opacity:0;transform:translateY(calc(-1 * var(--dist-base)))}}
 @keyframes vt-in{from{opacity:0;transform:translateY(var(--dist-medium));filter:blur(var(--blur-m))}}
-::view-transition-group(hero){animation-duration:var(--d-vslow);animation-timing-function:var(--ease-out)}
+/* one clock: whatever travels with the reader (the title they clicked, a card's drawing, the top bar, the sidebar) lands
+   with the page, on its duration and curve */
+::view-transition-group(*){animation-duration:var(--d-slow);animation-timing-function:var(--ease-out)}
 ::view-transition-old(hero),::view-transition-new(hero){height:100%;width:auto;object-fit:contain;object-position:left top}
-::view-transition-group(topbar),::view-transition-group(sidebar){animation-duration:var(--d-medium)}
 
 
 /* ================= search or ask anything ================= */
@@ -769,7 +781,7 @@ body.at-start .omni-btn{display:none}
 /* ================= the tools button on a phone: a liquid split into four droplets =================
    transitions.dev's Pro "Gooey plus menu", fitted to the corner. The anchor reserves the open fan's
    footprint but lets clicks through; the goo layer carries the surface and its one shadow. */
-.fab{--fab-open:350ms;--fab-close:250ms;--fab-open-ease:cubic-bezier(.34,1.56,.64,1);--fab-close-ease:var(--ease-out);display:none;position:fixed;right:max(4px,env(safe-area-inset-right,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px));z-index:36;width:160px;height:160px;pointer-events:none}
+.fab{--fab-open:var(--d-medium);--fab-close:var(--d-fast);--fab-open-ease:cubic-bezier(.34,1.56,.64,1);--fab-close-ease:var(--ease-out);--fab-ic-close:120ms;--fab-ic-open:180ms;--fab-ic-ease:ease;--fab-nudge:700ms;display:none;position:fixed;right:max(4px,env(safe-area-inset-right,0px));bottom:calc(4px + env(safe-area-inset-bottom,0px));z-index:36;width:160px;height:160px;pointer-events:none}
 /* open, the page steps back behind a light scrim, and a tap on it only closes the tools */
 .fab::before{content:"";position:fixed;inset:0;background:color-mix(in srgb,var(--bg) 70%,transparent);opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--fab-close) var(--ease-out),visibility 0s linear var(--fab-close)}
 .fab[data-open="true"]::before{opacity:1;visibility:visible;pointer-events:auto;transition:opacity var(--fab-open) var(--ease-out),visibility 0s}
@@ -783,8 +795,8 @@ body.at-start .omni-btn{display:none}
 .fab-main{left:108px;top:108px;width:48px;height:48px}
 .fab-item{left:110px;top:110px;width:44px;height:44px;pointer-events:none}
 .fab[data-open="true"] .fab-item{pointer-events:auto;transform:translate(var(--fx,0px),var(--fy,0px));transition:transform var(--fab-open) var(--fab-open-ease);transition-delay:calc(var(--i,0) * var(--d-stagger))}
-.fab-item .ic{width:19px;height:19px;opacity:0;filter:blur(var(--blur-s));transition:opacity 120ms ease,filter 120ms ease}
-.fab[data-open="true"] .fab-item .ic{opacity:1;filter:blur(0);transition:opacity 180ms ease,filter 180ms ease;transition-delay:calc(var(--i,0) * var(--d-stagger) + 120ms)}
+.fab-item .ic{width:19px;height:19px;opacity:0;filter:blur(var(--blur-s));transition:opacity var(--fab-ic-close) var(--fab-ic-ease),filter var(--fab-ic-close) var(--fab-ic-ease)}
+.fab[data-open="true"] .fab-item .ic{opacity:1;filter:blur(0);transition:opacity var(--fab-ic-open) var(--fab-ic-ease),filter var(--fab-ic-open) var(--fab-ic-ease);transition-delay:calc(var(--i,0) * var(--d-stagger) + var(--fab-ic-close))}
 .fab-main:focus-visible,.fab-item:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .fab-item.on{color:var(--acc)}
 .fab-item.on .ic{fill:currentColor}
@@ -796,7 +808,7 @@ body.at-start .omni-btn{display:none}
 .fab-sw[data-state="a"] [data-icon="b"],.fab-sw[data-state="b"] [data-icon="a"]{opacity:0;filter:blur(var(--blur-s));transform:scale(.25)}
 /* closing dips the whole liquid into the returning droplets, then it settles */
 @keyframes fab-dip{0%{transform:translateY(0)}30%{transform:translateY(5px)}100%{transform:translateY(0)}}
-.fab.nudge .fab-goo,.fab.nudge .fab-main{animation-name:fab-dip;animation-duration:700ms;animation-timing-function:var(--ease-out);animation-fill-mode:both}
+.fab.nudge .fab-goo,.fab.nudge .fab-main{animation-name:fab-dip;animation-duration:var(--fab-nudge);animation-timing-function:var(--ease-out);animation-fill-mode:both}
 @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .fab-ring{flood-color:#fff;flood-opacity:.12} :root:not([data-theme="light"]) .fab-sh,:root:not([data-theme="light"]) .fab-sh2{flood-opacity:.5} }
 :root[data-theme="dark"] .fab-ring{flood-color:#fff;flood-opacity:.12}
 :root[data-theme="dark"] .fab-sh,:root[data-theme="dark"] .fab-sh2{flood-opacity:.5}
@@ -845,7 +857,7 @@ body.at-start .omni-btn{display:none}
 .ix[data-kind] .ix-k{color:var(--kc)}
 /* ================= tooltips and icons ================= */
 .tip{position:fixed;left:0;top:0;z-index:95;max-width:280px;padding:6px 10px;pointer-events:none;opacity:0;transform:scale(var(--scale-s));transform-origin:50% 100%}
-.tip.on{opacity:1;transform:none;transition:opacity var(--d-quick) ease-out,transform var(--d-quick) ease-out}
+.tip.on{opacity:1;transform:none;transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .tip kbd{margin-left:7px;border-color:currentColor;color:inherit;opacity:.65}
 .ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .ic .f{fill:currentColor;stroke:none}
@@ -858,7 +870,7 @@ body.at-start .omni-btn{display:none}
 /* the hero fills the first screen but for the top of the feed, which peeks in so there is clearly more below: a card's
    name and the edge of its drawing, no more, so the composer has the screen to itself (Will, 2026-10-19) */
 .hero{--peek:116px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:min(960px,calc(100svh - var(--top-h) - env(safe-area-inset-top,0px) - var(--peek)));max-width:780px;margin:0 auto;padding:clamp(32px,6vh,72px) 20px clamp(24px,5vh,56px);text-align:center}
-.hero.intro .rise{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * 60ms)}
+.hero.intro .rise{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 @keyframes risein{from{opacity:0;transform:translateY(var(--dist-medium));filter:blur(var(--blur-m))}}
 /* the heading, set large, tight and plain */
 .s-h{font:600 clamp(32px,3.4vw,48px)/1.08 var(--f-ui);letter-spacing:-.032em;text-wrap:balance}
@@ -866,7 +878,7 @@ body.at-start .omni-btn{display:none}
 .lw{display:inline-block;white-space:nowrap;text-align:left;transition:width var(--d-medium) var(--ease-out)}
 .lw-w{display:inline-block}
 .lw-w[data-kind]{color:var(--kc)}
-.lw-w.out{opacity:0;filter:blur(var(--blur-m));transform:translateY(-.14em);transition:opacity var(--d-quick) ease,filter var(--d-quick) ease,transform var(--d-quick) ease}
+.lw-w.out{opacity:0;filter:blur(var(--blur-m));transform:translateY(-.14em);transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .lw-w.in{animation:lwin var(--d-medium) var(--ease-out) both}
 @keyframes lwin{from{opacity:0;filter:blur(var(--blur-m));transform:translateY(.18em)}}
 .lw-m{position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;pointer-events:none}
@@ -887,6 +899,9 @@ body.at-start .omni-btn{display:none}
 .cvoice{position:relative}
 .cvoice .pop{left:0;right:auto;text-align:left;animation:popin var(--d-fast) var(--ease-out) both;transform-origin:top left}
 @keyframes popin{from{opacity:0;transform:scale(var(--scale-m))}}
+/* a popover (the voice, More) shrinks back the way it grew, and takes no clicks while it goes */
+details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
+@keyframes popout{to{opacity:0;transform:scale(var(--scale-m))}}
 .cchip{gap:6px;height:30px;padding:0 8px 0 11px;border-radius:var(--r-pill);background:var(--mark);color:var(--ink);animation:risein var(--d-fast) var(--ease-out) both}
 .cchip .ic{width:14px;height:14px;color:var(--mute)}
 .cchip:hover .ic{color:var(--ink)}
@@ -913,7 +928,7 @@ body.at-start .omni-btn{display:none}
 .pr-shuf{width:36px;height:36px;border-radius:var(--r-pill);background:transparent;color:var(--mute);box-shadow:inset 0 0 0 1px var(--line-2)}
 .pr-shuf .ic{width:17px;height:17px}
 .pr-shuf:hover{background:var(--surface);color:var(--ink)}
-.pr-list.out .door{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) ease,filter var(--d-quick) ease,transform var(--d-quick) ease}
+.pr-list.out .door{opacity:0;filter:blur(var(--blur-s));transform:translateY(calc(-1 * var(--dist-micro)));transition:opacity var(--d-quick) var(--ease-out),filter var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
 .pr-list.in .door{animation:risein var(--d-vslow) var(--ease-out) both;animation-delay:calc(var(--i,0) * var(--d-stagger))}
 .hero .status{justify-content:center;margin-top:22px}
 /* the footer: the wordmark in all eight link colours, then the fine print */
@@ -1115,11 +1130,11 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 @media (hover:none){ .mn-i.kb{display:none} }
 
 /* ================= the count of your world: changed digits pop in (transitions.dev's Number pop-in) ================= */
-.t-digit-group{display:inline-flex;align-items:baseline}
+.t-digit-group{--digit-ease:cubic-bezier(.34,1.45,.64,1);--digit-stagger:70ms;display:inline-flex;align-items:baseline}
 .t-digit{display:inline-block}
-.t-digit-group.is-animating .t-digit{animation:t-digit-pop-in var(--d-vslow) cubic-bezier(.34,1.45,.64,1) both}
-.t-digit-group.is-animating .t-digit[data-stagger="1"]{animation-delay:70ms}
-.t-digit-group.is-animating .t-digit[data-stagger="2"]{animation-delay:140ms}
+.t-digit-group.is-animating .t-digit{animation:t-digit-pop-in var(--d-vslow) var(--digit-ease) both}
+.t-digit-group.is-animating .t-digit[data-stagger="1"]{animation-delay:var(--digit-stagger)}
+.t-digit-group.is-animating .t-digit[data-stagger="2"]{animation-delay:calc(var(--digit-stagger) * 2)}
 .t-digit-group.is-animating .t-digit[data-same]{animation:none}
 @keyframes t-digit-pop-in{0%{transform:translateY(var(--dist-base));opacity:0;filter:blur(var(--blur-s))}100%{transform:translateY(0);opacity:1;filter:blur(0)}}
 @media (prefers-reduced-motion:reduce){ .t-digit-group .t-digit{animation:none!important} }

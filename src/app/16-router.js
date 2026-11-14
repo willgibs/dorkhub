@@ -8,12 +8,12 @@
 import { clip, plain } from '../shared/article.js';
 import { addStep, pageId, parseRoute, routeOf } from '../shared/world.js';
 import { LENSES } from './01-data.js';
-import { $, $$, esc, save, store, toast, write } from './02-util.js';
+import { $, $$, esc, isLeaving, save, settle, shut, stay, store, toast, write } from './02-util.js';
 import { orbHTML, rethemeOrbs } from './03-orbs.js';
 import { ACTIVE, CUR, HERO, OPENED, PLATE, canVT, curPage, curTrail, ensurePage, go, openTopic, pageInput, pageOf, quiet, setCUR, trailPages } from './04-pages.js';
 import { backfillLinks, chamberHTML, fill, generate, paint, rethemePics, secFor, setACC } from './05-render.js';
 import { doubtPage, stateBodyHTML, stateOf, toggleSave } from './06-page-end.js';
-import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, pmenu, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
+import { PF, closePMenu, hc, hcard, hideCard, hideSel, keepsSheet, lastTouch, openPMenu, pm, selT, setSelT, showCard, syncTopTitle, tapPara, updateProg } from './07-reading.js';
 import { exportTrail, fileSlug, recapTrail, saveFile, sheet, trailSheet } from './08-sheets.js';
 import { renderVoice, setLens } from './09-start.js';
 import { IDXKIND, applySide, bridgeSheet, landSheet, listen, makeBridge, narrow, openIndexEntry, recall, renderIndex, renderIndexList, renderQuiz, renderSide, setIDXKIND, setIDXSORT, setSIDE, stopListening, toggleSide } from './10-tools.js';
@@ -30,7 +30,8 @@ function setView(v) {
   if (VIEW === 'page' && v !== 'page') stopPlate();
   VIEW = v; document.body.classList.toggle('at-start', v === 'home'); document.body.classList.toggle('at-world', v === 'world'); document.body.classList.toggle('at-trail', v === 'trail'); document.body.classList.remove('titled');
 }
-function closeFloating() { hideSel(); hideCard(); closePMenu(); closeMenu(); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
+/* a route change clears everything at once: nothing that was leaving is left over the new view */
+function closeFloating() { settle(); hideSel(); hideCard(true); closePMenu(false, true); closeMenu(false, true); stopListening(); setFab(false); if (sheet.open) sheet.close(); if (omni.open) omni.close(); }
 export function route() {
   closeFloating();
   const h = location.hash;
@@ -57,9 +58,13 @@ function showPage(input) {
   setView('page'); setCUR(id); store.current = id; setACC(null); PF.view = 0;
   $('#view').innerHTML = `<div class="column" id="column">${chamberHTML(p)}</div><p class="colfoot">Written by AI for this topic. It can make mistakes, so check anything you plan to repeat.</p>`;
   document.title = `${p.title}: dorkhub`;
-  if (HERO) { const t = $('.a-title'); if (t) t.style.viewTransitionName = 'hero'; }
-  if (PLATE) { const w = $('.a-plate .wc'); if (w) w.style.viewTransitionName = 'plate'; }
   paint(p); mountPlate(p); renderSide(); syncFab(); renderWorldBtn();
+  /* what you clicked travels as one thing: the title is named once paint has made it (before, there was none yet, so the
+     clicked words faded where they were while the title rose on its own), and arrives whole, without rising as well;
+     the card arrives as the plate, box and drawing together (naming only the drawing left the box to fade in with the
+     page, a second picture under the travelling one) */
+  if (HERO) { const t = $('.a-title'); if (t) { t.classList.remove('enter'); t.style.viewTransitionName = 'hero'; } }
+  if (PLATE) { const w = $('.a-plate'); if (w) w.style.viewTransitionName = 'plate'; }
   window.scrollTo(0, (history.state && history.state.y) || 0); updateProg(); syncTopTitle();
   if (arrived && !FIRST) { const t = $('.a-title'); if (t) t.focus({ preventScroll: true }); }
   /* what to show: the page you have, one already written, or (for an address from outside) a choice */
@@ -114,9 +119,13 @@ let wasNarrow, sheetW = 0;
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 BOOT = Date.now();
-addEventListener('popstate', () => { if (canVT() && VIEW === 'page') { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
+/* back and forward make the same move as a click, from every view, unless the browser has already animated it (a swipe) */
+addEventListener('popstate', e => { if (canVT() && !e.hasUAVisualTransition) { try { quiet(document.startViewTransition(route)); return; } catch (e) { /* fall through */ } } route(); });
 addEventListener('hashchange', () => { if (location.hash.startsWith('#/')) route(); });
 document.addEventListener('click', e => {
+  /* a popover's own button closes it the way it opened, and opens it again if it is still leaving */
+  const sm = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('details.voice > summary, details.more > summary'));
+  if (sm) { const d = /** @type {HTMLDetailsElement} */ (sm.parentElement); if (d.open) { e.preventDefault(); if (isLeaving(d)) stay(d); else shut(d); } }
   const hole = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('a.hole'));
   if (hole) {
     if (!plainClick(e)) return; e.preventDefault();
@@ -132,7 +141,7 @@ document.addEventListener('click', e => {
   const gt = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-goto]')); if (gt) { const p = pageOf(gt.dataset.goto); if (p && plainClick(e)) { e.preventDefault(); if (sheet.open) sheet.close(); openPage(p, gt.closest('.trail-list,.trails,.from') ? 'trail' : gt.closest('.wpage') ? 'world' : gt.closest('.hero') ? 'start' : 'index'); } return; }
   const ld = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-land]')); if (ld) { if (!plainClick(e)) return; e.preventDefault(); const p = curPage(); const o = p && p.land && p.land[+ld.dataset.land]; if (o) { sheet.close(); openTopic(o.name, { via: 'around', hint: { gloss: o.relation, kind: o.kind } }); } return; }
   const qz = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-qz]')); if (qz) { const t = curTrail(); const R = t && t.recall; if (R && R.picked == null) { R.picked = +qz.dataset.qz; if (R.picked === R.qs[R.i].answer) R.score++; save(); renderQuiz(); } return; }
-  if (!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.more'))) $$('details.more[open]').forEach(d => { d.open = false; });
+  if (!/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.more'))) $$('details.more[open]').forEach(d => shut(/** @type {HTMLDetailsElement} */ (d)));
   const tab = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-tab]')); if (tab) { setSIDE(tab.dataset.tab); renderSide(); return; }
   const ixs = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-ixsort]')); if (ixs) { setIDXSORT(ixs.dataset.ixsort); renderIndex(); return; }
   const ixk = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-ixkind]')); if (ixk) { setIDXKIND(IDXKIND === ixk.dataset.ixkind ? '' : ixk.dataset.ixkind); renderIndexList(); return; }
@@ -155,7 +164,7 @@ document.addEventListener('click', e => {
   }
   const act = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-act]')); if (!act) return;
   const x = act.dataset.act; if (act.tagName === 'A') e.preventDefault();
-  const md = /** @type {HTMLDetailsElement} */ (act.closest('details.more')); if (md) md.open = false;
+  const md = /** @type {HTMLDetailsElement} */ (act.closest('details.more')); if (md) shut(md);
   const p = curPage();
   if (x === 'surprise') surprise();
   else if (x === 'shuffle') shufflePresets();
@@ -199,11 +208,11 @@ document.addEventListener('submit', e => {
   }
 });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (!pmenu.hidden) closePMenu(true); closeMenu(true); $$('details.voice[open]').forEach(d => { d.open = false; }); if (WORLD && (WORLD.focused || WORLD.replaying)) { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); } return; }
+  if (e.key === 'Escape') { stopListening(); hideSel(); hideCard(); if (pm) closePMenu(true); closeMenu(true); $$('details.voice[open]').forEach(d => shut(/** @type {HTMLDetailsElement} */ (d))); if (WORLD && (WORLD.focused || WORLD.replaying)) { WORLD.setFocus(''); WORLD.stopReplay(); WORLD.frameView(); } return; }
   const tag = (/** @type {HTMLElement} */ (e.target).tagName || '').toLowerCase();
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); if (VIEW === 'home') $('#seedIn')?.focus(); else openOmni(); return; }
   if (['input', 'textarea', 'select'].includes(tag) || /** @type {HTMLElement} */ (e.target).isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (omni.open || sheet.open || $('#help').open || !pmenu.hidden) return;
+  if (omni.open || sheet.open || $('#help').open || pm) return;
   if (e.key === '?') { e.preventDefault(); $('#help').showModal(); return; }
   const k = e.key.toLowerCase();
   if (VIEW === 'home') { if (e.key === '/') { e.preventDefault(); $('#seedIn')?.focus(); } else if (k === 'g') go('/world'); return; }

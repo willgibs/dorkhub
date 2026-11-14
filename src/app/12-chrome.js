@@ -4,7 +4,7 @@
 import { cardsOf, isQuestion, plain } from '../shared/article.js';
 import { addStep, routeOf } from '../shared/world.js';
 import { LENSES, kattr } from './01-data.js';
-import { $, $$, applyTheme, auth, esc, pagesLeft, reducedMotion, relTime, save, store } from './02-util.js';
+import { $, $$, afterMotion, applyTheme, auth, esc, leave, pagesLeft, reducedMotion, relTime, save, settle, stay, store } from './02-util.js';
 import { ic } from './03-icons.js';
 import { CUR, curPage, go, openTopic, parsed, worldCount } from './04-pages.js';
 import { WV, worldIndex } from './05-render.js';
@@ -97,11 +97,12 @@ function renderMenu() {
 <button class="mn-i kb" type="button" role="menuitem" data-mn="help">${ic('help')}<span>Shortcuts</span></button>
 <a class="mn-i" href="/" role="menuitem" data-mn="new">${ic('plus')}<span>New topic</span></a>`;
 }
-function openMenu() { renderMenu(); menu.hidden = false; menu.classList.remove('is-closing'); void menu.offsetWidth; menu.classList.add('is-open'); menuBtn.setAttribute('aria-expanded', 'true'); $('.mn-i', menu)?.focus({ preventScroll: true }); }
-export function closeMenu(refocus) {
-  if (!menu.classList.contains('is-open')) return;
-  menu.classList.remove('is-open'); menu.classList.add('is-closing'); menuBtn.setAttribute('aria-expanded', 'false');
-  setTimeout(() => { menu.classList.remove('is-closing'); if (!menu.classList.contains('is-open')) menu.hidden = true; }, reducedMotion() ? 0 : 150);
+function openMenu() { renderMenu(); stay(menu); menu.hidden = false; void menu.offsetWidth; menu.classList.add('is-open'); menuBtn.setAttribute('aria-expanded', 'true'); $('.mn-i', menu)?.focus({ preventScroll: true }); }
+/* the menu shrinks back into its button; `now` (a route change) puts it away at once */
+export function closeMenu(refocus, now = false) {
+  if (!menu.classList.contains('is-open')) { if (now) settle(menu); return; }
+  menu.classList.remove('is-open'); menuBtn.setAttribute('aria-expanded', 'false');
+  if (now) menu.hidden = true; else leave(menu, () => { menu.hidden = true; }, 'is-closing');
   if (refocus) menuBtn.focus();
 }
 
@@ -126,7 +127,6 @@ ${FAB_SAT.map(([k, icon, label], i) => `<button class="fab-item" type="button" d
 <button class="fab-main" type="button" aria-expanded="false" aria-label="Open the tools"><span class="fab-sw" data-state="a"><span data-icon="a">${ic('dots')}</span><span data-icon="b">${ic('x')}</span></span></button>`;
 }
 let fab;
-let fabNudge = 0;
 export function setFab(open, refocus) {
   if ((fab.dataset.open === 'true') === open) return;
   if (open) syncFab();
@@ -135,8 +135,7 @@ export function setFab(open, refocus) {
   $('.fab-sw', fab).dataset.state = open ? 'b' : 'a';
   $$('.fab-item', fab).forEach(b => { b.tabIndex = open ? 0 : -1; });
   /* closing dips the button into the returning droplets' momentum, once; opening never bounces back */
-  clearTimeout(fabNudge);
-  if (!open) { fab.classList.add('nudge'); fabNudge = setTimeout(() => fab.classList.remove('nudge'), 750); if (refocus) main.focus(); }
+  if (!open) { fab.classList.remove('nudge'); void fab.offsetWidth; fab.classList.add('nudge'); afterMotion(main, () => fab.classList.remove('nudge')); if (refocus) main.focus(); }
 }
 /* the save droplet shows whether this page is saved; save and around wait for a finished page */
 export function syncFab() {
