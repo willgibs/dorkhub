@@ -92,15 +92,19 @@ export function hull(pts) {
   return [...lo.slice(0, -1), ...up.slice(0, -1)];
 }
 
-/** The Venus flytrap card's trap, seen from above and in front: two lobes hinged on a midrib, each opened phi from
-    upright (about 38° open, 3° shut). Each lobe is cupped, edged with long teeth that lean inward, and carries three
-    trigger hairs and a bead of nectar along its rim. Returns, back lobe first, each lobe's face (which side shows, and
-    a line across it for its colour to follow), rim, teeth, hairs and nectar, the stalk, and where the hairs' tips are.
+/** The Venus flytrap card's trap (Dionaea muscipula), seen from above and in front: a leaf blade of two lobes hinged on
+    a midrib, each opened phi from upright (44° open, 3° shut). Each lobe is cupped; its inner face is red with
+    anthocyanin and dotted with the glands that pour out enzymes, all but a band along its rim; long stiff cilia
+    fringe the rim, leaning in; and three trigger hairs stand on it in a triangle. Pressed tighter than shut (phi under 3°), it is sealing to digest: the lobes flatten against
+    each other and the cilia, crossed like bars while it was only shut, turn outward. Returns, back lobe first, each
+    lobe's face (which side shows, and a line across it for its colour to follow), shell, rim band, glands, cilia and
+    hairs (each hair's path and tip), and the stalk: a flat, winged leaf that narrows to a neck at the trap.
     @param {number} phi @param {{ W: number, H: number, k: number, ox: number, oy: number, az: number, el: number }} C */
 export function trapView(phi, C) {
   const cam = camera({ at: [0, 0, .35], az: C.az, el: C.el, dist: 30, k: C.k, ox: C.ox, oy: C.oy });
-  const r = (/** @type {number} */ q) => Math.round(q * 10) / 10, P = (/** @type {number[]} */ q) => cam.to(q).map(r).join(' ');
-  const LH = 1.32, WL = 1.02, CUP = .3;
+  /* to half a unit (at the card's size a unit is a pixel): smooth at twice the pixels, and the drawing much smaller */
+  const r = (/** @type {number} */ q) => Math.round(q * 2) / 2, P = (/** @type {number[]} */ q) => cam.to(q).map(r).join(' ');
+  const seal = Math.min(1, Math.max(0, 1 - phi * 60 / Math.PI)), LH = 1.32, WL = 1.02, CUP = .3 * (1 - .5 * seal);
   /** the rim's distance from the midrib along the lobe, u from −1 (the stalk's end) to 1 (the tip) */
   const rim = (/** @type {number} */ u) => Math.pow(Math.max(0, 1 - u * u), .62) * (1 - .12 * u);
   /** one lobe: s = 1 leans back (away from you), −1 toward you */
@@ -108,6 +112,8 @@ export function trapView(phi, C) {
     const a = s * phi, w = [0, Math.sin(a), Math.cos(a)], n = [0, s * Math.cos(a), -s * Math.sin(a)];
     /** a point on the lobe: along the midrib u, out toward the rim v (0 to 1), cupped outward */
     const at = (/** @type {number} */ u, /** @type {number} */ v, out = 0) => { const vv = v * rim(u) * WL, c = CUP * v * (1 - v * .6) * (1 - u * u) + out; return [u * LH + w[0] * vv + n[0] * c, w[1] * vv + n[1] * c, w[2] * vv + n[2] * c]; };
+    /** a point lifted off the inner face by h, toward the other lobe */
+    const up = (/** @type {number[]} */ b, /** @type {number} */ h) => [b[0] - n[0] * h, b[1] - n[1] * h, b[2] - n[2] * h];
     const us = Array.from({ length: 33 }, (_, i) => -1 + i / 16);
     const edge = us.map(u => at(u, 1));
     /* which side faces you: the inside (red) or the outside (green) */
@@ -117,28 +123,32 @@ export function trapView(phi, C) {
     const face = `M${P(at(-1, 0))}${edge.map(q => `L${P(q)}`).join('')}L${P(at(1, 0))}Z`;
     /* its outside: the outline of the whole cupped lobe as you see it, so a bulge shows past the rim */
     const shell = `M${hull(us.flatMap(u => [0, .25, .5, .75, 1].map(v => cam.to(at(u, v))))).map(q => q.map(r).join(' ')).join('L')}Z`;
-    /* the teeth: from the rim, carrying the lobe on outward, curving a little in toward the other lobe, fanning
-       toward the ends, longest mid-lobe */
-    let teeth = '';
-    for (let i = 0; i <= 17; i++) { const u = -.92 + 1.84 * i / 17, b = at(u, 1), len = .3 + .32 * (1 - u * u), d = [w[0] * .97 - n[0] * .25 + u * .2, w[1] * .97 - n[1] * .25, w[2] * .97 - n[2] * .25], m = [b[0] + d[0] * len * .5, b[1] + w[1] * len * .55, b[2] + w[2] * len * .55], e = [b[0] + d[0] * len, b[1] + d[1] * len, b[2] + d[2] * len]; teeth += `M${P(b)}Q${P(m)} ${P(e)}`; }
-    /* three trigger hairs on the inside, standing toward the other lobe */
-    const hairs = [[-.42, .42], [.02, .5], [.44, .4]].map(([u, v]) => { const b = at(u, v), t = [b[0] - n[0] * .16, b[1] - n[1] * .16, b[2] - n[2] * .16]; return { d: `M${P(b)}L${P(t)}`, tip: cam.to(t).map(r) }; });
-    /* nectar, beaded just inside the rim */
-    const nectar = Array.from({ length: 9 }, (_, i) => cam.to(at(-.75 + 1.5 * i / 8, .9, -.01)).map(r));
+    /* the rim band, where there are no digestive glands: drawn along the rim */
+    const band = `M${edge.map(P).join('L')}`;
+    /* the digestive glands, scattered over the rest of the face (the same scatter every time) */
+    let glands = '';
+    for (let i = 0; i < 46; i++) { const u = -.9 + 1.8 * ((i * .618034 + .31) % 1), v = .1 + .7 * ((i * .754878 + .17) % 1), [x, y] = cam.to(at(u, v)); glands += `M${Math.round(x)} ${Math.round(y)}h0`; }
+    /* the cilia: from the rim, carrying the lobe on outward, curving a little in toward the other lobe (out, once
+       it seals), fanning toward the ends, longest mid-lobe */
+    let teeth = ''; const lean = .25 - .75 * seal;
+    for (let i = 0; i <= 17; i++) { const u = -.92 + 1.84 * i / 17, b = at(u, 1), len = .3 + .32 * (1 - u * u), d = [w[0] * .97 - n[0] * lean + u * .2, w[1] * .97 - n[1] * lean, w[2] * .97 - n[2] * lean], m = [b[0] + d[0] * len * .5, b[1] + w[1] * len * .55, b[2] + w[2] * len * .55], e = [b[0] + d[0] * len, b[1] + d[1] * len, b[2] + d[2] * len]; teeth += `M${P(b)}Q${P(m)} ${P(e)}`; }
+    /* three trigger hairs in a triangle, each standing toward the other lobe */
+    const hairs = [[-.44, .6], [.04, .34], [.46, .6]].map(([u, v]) => { const b = at(u, v), t = up(b, .28); return { d: `M${P(b)}L${P(t)}`, tip: cam.to(t).map(r) }; });
     /* a line across the lobe for its colour to follow: from the midrib to the rim's middle */
     const across = [...cam.to(at(0, 0)), ...cam.to(at(0, 1))].map(r);
-    return { face, shell, inside, rim: `M${edge.map(P).join('L')}`, teeth, hairs, nectar, across, z: cam.depth(mid) };
+    return { face, shell, inside, band, glands, teeth, hairs, across, z: cam.depth(mid) };
   };
   const lobes = [lobe(1), lobe(-1)].sort((p, q) => p.z - q.z);
-  /* the stalk: a neck from the hinge's end, widening into the flat leaf that runs off the card */
-  const st = [[-LH - .04, 0, 0], [-LH - .28, -.2, -.05], [-LH - .62, -.5, -.1], [-LH - 1.05, -.9, -.14], [-LH - 1.6, -1.4, -.18]];
-  const half = [.035, .07, .16, .26, .33];
-  const wing = (/** @type {number} */ side) => st.map((q, i) => [q[0] - side * half[i] * .63, q[1] + side * half[i] * .78, q[2]]);
+  /* the stalk: a short neck from the hinge's end, then the flat leaf, broad at once and narrowing as it runs off,
+     far enough to leave the card at its widest (a tablet centres the drawing in a wide card) */
+  const st = [[-LH - .04, 0, 0], [-LH - .2, -.08, -.03], [-LH - .55, -.27, -.09], [-LH - 1.05, -.54, -.15], [-LH - 1.7, -.88, -.2], [-LH - 2.8, -1.45, -.28], [-LH - 4.6, -2.38, -.36]];
+  const half = [.03, .1, .25, .27, .22, .16, .1];
+  const wing = (/** @type {number} */ side) => st.map((q, i) => [q[0] - side * half[i] * .46, q[1] + side * half[i] * .89, q[2]]);
   const stalk = `M${wing(1).map(P).join('L')}L${wing(-1).reverse().map(P).join('L')}Z`, vein = `M${st.map(P).join('L')}`;
   return { lobes, stalk, vein, hinge: `M${P([-LH, 0, 0])}L${P([LH, 0, 0])}` };
 }
 /** The flytrap card's camera and its trap's two openings: waiting open, and snapped shut. */
-export const TRAP = { W: 365, H: 350, k: 82, ox: 206, oy: 176, az: -.3, el: 1.36, open: 44 * Math.PI / 180, shut: 3 * Math.PI / 180 };
+export const TRAP = { W: 365, H: 350, k: 88, ox: 200, oy: 168, az: -.2, el: 1.1, open: 44 * Math.PI / 180, shut: 3 * Math.PI / 180 };
 
 /** The Magnets card: a bar magnet in a 365 × 350 picture, its poles as two charges just inside its ends, and the iron
     filings round it, placed the same way every time. Each filing: where it lies, how long and heavy it is, and the
