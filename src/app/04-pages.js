@@ -55,7 +55,12 @@ export function linksFrom(A, p) {
 /* a page transition needs frames to run in; a page in a hidden tab just changes */
 export const canVT = () => typeof document.startViewTransition === 'function' && !reducedMotion() && document.visibilityState === 'visible';
 export let HERO = false, PLATE = false;
-export function clearHero() { HERO = PLATE = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); }
+export function clearHero() { HERO = PLATE = false; $$('[style*="view-transition-name"]').forEach(el => { el.style.viewTransitionName = ''; }); due('update'); due('finish'); }
+/* what a move leaves to do: on 'update', once the old view has been captured (the new one is being made); on 'finish',
+   once it has landed, or was skipped. A map's name in flight uses these (11-graph.js lift). */
+const DUE = { update: [], finish: [] };
+export const onMove = (when, fn) => { DUE[when].push(fn); };
+export function due(when) { for (const fn of DUE[when].splice(0)) { try { fn(); } catch (e) { /* the rest still run */ } } }
 /* what travels is one box the reader can see: a link broken over two lines is two boxes, and can't travel as one */
 export const inView = el => { if (!el || !el.isConnected) return false; const r = el.getClientRects(); if (r.length !== 1) return false; const b = r[0]; return b.width > 0 && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth; };
 /* where a view stands in this visit's history, so Back and Forward can tell themselves apart (16-router.js) */
@@ -63,7 +68,7 @@ export let STEP = 0;
 export const setSTEP = v => (STEP = v);
 /* the thing you clicked becomes the next title; a front-page card's drawing becomes the page's plate */
 export function go(url, { src = null, plate = null, replace = false } = {}) {
-  const run = () => { if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : STEP + 1 }, '', url); } route(); };
+  const run = () => { due('update'); if (location.pathname + location.search !== url) { rememberScroll(); history[replace ? 'replaceState' : 'pushState']({ y: 0, n: replace ? STEP : STEP + 1 }, '', url); } route(); };
   if (!canVT()) { run(); return; }
   if (src && inView(src)) { src.style.viewTransitionName = 'hero'; HERO = true; }
   if (plate && plate.isConnected) { plate.style.viewTransitionName = 'plate'; PLATE = true; }
@@ -82,7 +87,7 @@ export function openTopic(target, { via = 'link', src = null, plate = null, hint
   const from = via === 'start' ? null : CUR || null;
   const req = { title: bridge ? cleanTitle(target || `${bridge[0]} and ${bridge[1]}`) : title, lens: LENSES[lens] ? lens : store.settings.lens, q: !bridge && (q == null ? asksQuestion(title) : !!q), ctx: bridge ? '' : cleanTitle(ctx), bridge: bridge ? bridge.map(cleanTitle) : null };
   const p = ensurePage(req, hint || hintFor(pageOf(from), title));
-  if (p.id === CUR) return;
+  if (p.id === CUR) { clearHero(); return; }
   addStep(store.trails, p.id, { from, via });
   p.last = Date.now(); OPENED.add(p.id); save();
   go(routeOf(req), { src, plate });
