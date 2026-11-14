@@ -23,7 +23,8 @@ run before calling anything done) · `npm run e2e` (full reader flow in Chromium
 nothing that is deployed (docs, tests, CI: `scripts/skip-build.mjs` decides, as Vercel's ignored build step). Keep
 records with the change they describe, on its branch, not as pushes of their own: every deployment is a build
 and stored output on a Hobby plan Will shares with other projects.
-CI runs verify and e2e on every pull request. `node scripts/eval.mjs plan` prices a writer eval (never run
+CI runs verify and e2e on every pull request; a push of records alone runs nothing, and a merged pull request
+is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a writer eval (never run
 `--live` without Will's go); `node scripts/prove.mjs <url>` checks a deployment (free unless `--spend --yes`).
 
 ## Map
