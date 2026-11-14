@@ -143,12 +143,14 @@ async function run(page, { mobile = false } = {}) {
     const count = await page.locator('[data-card="rubiks-cube"] .rb-n').ariaSnapshot();
     if (!count.includes('43,252,003,274,489,856,000') || /\d \d/.test(count)) throw new Error(`the cube's count, read aloud: ${count.slice(0, 120)}`);
     if (!mobile) for (const c of await page.locator('#ways .wc').all()) { const name = await c.getAttribute('data-card'); if (name) await c.screenshot({ path: `${shots}/${tag}-card-${name}.png` }); }
-    /* the flytrap counts touches, shuts on the second and digests at five */
+    /* the flytrap counts touches on its record: it shuts on the second (marked SHUTS) and digests at five */
     const ft = page.locator('.wc[data-fx="flytrap"]'); await ft.scrollIntoViewIfNeeded();
-    await ft.locator('.ft-btn').click(); const one = await ft.getAttribute('data-state');
-    await ft.locator('.ft-btn').click(); const two = await ft.getAttribute('data-state');
-    const lit = await ft.evaluate(c => c.querySelectorAll('.ft-steps li.on').length);
-    if (one !== 'armed' || two !== 'shut' || lit !== 2) throw new Error(`the flytrap: ${one}, then ${two}, ${lit} steps lit`);
+    const ftLit = () => ft.evaluate(c => [c.dataset.state, c.querySelectorAll('.ft-k.lit').length, [...c.querySelectorAll('.ft-at.lit')].map(a => a.textContent).join(' ')].join('/'));
+    await ft.locator('.ft-btn').click(); const one = await ftLit();
+    await ft.locator('.ft-btn').click(); const two = await ftLit();
+    for (let i = 0; i < 3; i++) await ft.locator('.ft-btn').click();
+    const five = await ftLit();
+    if (one !== 'armed/1/' || two !== 'shut/2/SHUTS' || five !== 'digest/5/SHUTS DIGESTS') throw new Error(`the flytrap: ${one}, then ${two}, then ${five}`);
     /* the Enigma: typing or tapping lights the lamp each letter becomes, steps the rotors, and never lights a key itself */
     const en = page.locator('.wc[data-fx="enigma"]'); await en.scrollIntoViewIfNeeded();
     await en.locator('.en-in input').fill('AAAAA');

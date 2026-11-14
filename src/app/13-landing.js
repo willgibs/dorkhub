@@ -363,24 +363,25 @@ function odometer(el) {
   el.innerHTML = `<span class="sr">${esc(text)}</span><span aria-hidden="true">${reels}</span>`;
   requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('rolled')));
 }
-/* a flytrap you can touch: one touch it remembers for 20 seconds, a second shuts it in about a tenth of a second (the
-   page turns its lobes about the midrib, src/shared/plates.js, with a little overshoot, so the teeth cross), and five
-   start digestion. The meter under it counts, marked where it shuts and where it starts to digest */
+/* a flytrap you can touch: a touch bends the trigger hair nearest it, which flicks, and fires a signal that lights the
+   next place on the record. The first the trap remembers for 20 seconds (the bracket burns down; left alone, it
+   forgets); a second in time shuts it in about a tenth of a second (the page turns its lobes about the midrib,
+   src/shared/plates.js, overshooting a little, so the cilia cross); at five it seals to digest. A while after the
+   last touch it opens again. Nothing runs between touches but the trap's own clocks */
 function flytrapFx(card) {
   const art = $('.wc-art', card), sv = $('.vz.ft', card); if (!art || !sv || art.dataset.wired) return; art.dataset.wired = '1';
-  art.insertAdjacentHTML('beforeend', `<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><div class="ft-meter" aria-live="polite"><span class="ft-s">Touch a hair</span><ol class="ft-steps">${[1, 2, 3, 4, 5].map(i => `<li${i === 2 ? ' data-l="Shuts"' : i === 5 ? ' data-l="Digests"' : ''}><i></i></li>`).join('')}</ol></div>`);
-  let n = 0, armed = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0; const steps = $$('.ft-steps li', art);
-  /* the trap at an opening: each lobe's face, rim, teeth, hairs and nectar, and the line its colour follows */
+  art.insertAdjacentHTML('beforeend', '<button class="ft-btn" type="button" aria-label="Touch a trigger hair"></button><p class="sr" aria-live="polite"></p>');
+  let n = 0, timer = 0, rest = 0, phi = TRAP.open, raf = 0, v = trapView(phi, TRAP);
+  const ks = $$('.ft-k', sv), ats = $$('.ft-at', sv), hairs = $$('.ft-h', sv), live = $('p.sr', art);
+  /* the trap at an opening: each lobe's shell, face, rim band, glands, cilia and hairs, and the line its colour follows */
   const draw = () => {
-    const v = trapView(phi, TRAP);
+    v = trapView(phi, TRAP);
     v.lobes.forEach((l, i) => {
       const g = $(`.ft-l${i}`, sv), gr = $(`#ft-g${i}`, sv); if (!g) return;
-      $('.ft-shell', g).setAttribute('d', l.shell);
-      const face = $('.ft-face', g); face.setAttribute('d', l.face); face.setAttribute('class', `ft-face${l.inside ? '' : ' ft-hid'}`);
-      $('.ft-rim', g).setAttribute('d', l.rim); $('.ft-teeth', g).setAttribute('d', l.teeth); $('.ft-hair', g).setAttribute('d', l.hairs.map(h => h.d).join(''));
-      $('.ft-nectar', g).setAttribute('d', l.nectar.map(([x, y]) => `M${x} ${y}h0`).join(''));
-      /* shut, the hairs and the nectar are inside */
-      for (const sel of ['.ft-hair', '.ft-nectar']) $(sel, g).classList.toggle('ft-hid', !l.inside);
+      for (const [c, d] of [['shell', l.shell], ['face', l.face], ['band', l.band], ['gl', l.glands], ['teeth', l.teeth], ['hsh', l.hairs.map(h => h.d).join('')]]) $(`.ft-${c}`, g).setAttribute('d', d);
+      /* shut, the inside is closed away, hairs and all */
+      for (const c of ['face', 'band', 'gl', 'hsh']) $(`.ft-${c}`, g).classList.toggle('ft-hid', !l.inside);
+      $$('.ft-h', g).forEach((h, j) => { h.setAttribute('d', l.hairs[j].d); h.classList.toggle('ft-hid', !l.inside); });
       if (gr) ['x1', 'y1', 'x2', 'y2'].forEach((a, j) => gr.setAttribute(a, String(l.across[j])));
     });
   };
@@ -391,14 +392,23 @@ function flytrapFx(card) {
     const step = now => { const t = Math.min(1, (now - t0) / ms), e = snap ? 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2) : 1 - Math.pow(1 - t, 3); phi = from + (to - from) * e; draw(); raf = t < 1 ? requestAnimationFrame(step) : 0; };
     raf = requestAnimationFrame(step);
   };
-  const say = (c, t) => { $('.ft-s', art).textContent = t; steps.forEach((s, i) => s.classList.toggle('on', i < c)); };
-  const reset = () => { n = 0; armed = 0; card.dataset.state = ''; say(0, 'Touch a hair'); if (phi !== TRAP.open) move(TRAP.open, 900, false); };
-  $('.ft-btn', art).addEventListener('click', () => {
-    clearTimeout(rest); const now = Date.now(); if (armed && now - armed > 20000 && n < 2) n = 0;
-    n = Math.min(n + 1, 5); card.classList.remove('zap'); void card.offsetWidth; card.classList.add('zap');
-    if (n === 1) { armed = now; card.dataset.state = 'armed'; say(1, 'It remembers for 20 s'); clearTimeout(timer); timer = setTimeout(() => { if (n < 2) reset(); }, 20000); }
-    else if (n < 5) { clearTimeout(timer); if (card.dataset.state !== 'shut') move(TRAP.shut, 140, true); card.dataset.state = 'shut'; say(n, n === 2 ? 'Shut, in a tenth of a second' : `${5 - n} more to digest`); }
-    else { card.dataset.state = 'digest'; move(TRAP.shut * .2, 300, false); say(5, 'Digesting'); }
+  const say = (c, t) => { ks.forEach((k, i) => k.classList.toggle('lit', i < c)); ats.forEach(a => a.classList.toggle('lit', c >= Number(a.dataset.at))); live.textContent = t; };
+  const reset = () => { n = 0; card.dataset.state = ''; say(0, ''); if (phi !== TRAP.open) move(TRAP.open, 900, false); };
+  /* the hair a touch bends: the one nearest the pointer, or from the keyboard the next in turn. It flicks, and the
+     signal it fires spreads from it across the trap */
+  const flick = e => {
+    const m = sv.getScreenCTM(), tips = v.lobes.flatMap(l => l.hairs.map(h => h.tip)); let k = n % tips.length;
+    if (m && e.detail) { const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()), d = t => Math.hypot(t[0] - q.x, t[1] - q.y); k = tips.reduce((b, t, i) => (d(t) < d(tips[b]) ? i : b), 0); }
+    const replay = el => { el.classList.remove('zap'); void el.getBoundingClientRect(); el.classList.add('zap'); };
+    const p = $('.ft-ping', sv); if (p && tips[k]) { p.setAttribute('cx', String(tips[k][0])); p.setAttribute('cy', String(tips[k][1])); replay(p); }
+    if (hairs[k]) replay(hairs[k]);
+  };
+  $('.ft-btn', art).addEventListener('click', e => {
+    clearTimeout(rest); if (phi === TRAP.open) flick(e);
+    n = Math.min(n + 1, 5); clearTimeout(timer);
+    if (n === 1) { card.dataset.state = 'armed'; say(1, 'One touch: the trap remembers it for 20 seconds'); timer = setTimeout(reset, 20000); return; }
+    if (n < 5) { if (card.dataset.state !== 'shut') move(TRAP.shut, 140, true); card.dataset.state = 'shut'; say(n, n === 2 ? 'Two touches within 20 seconds: it shut' : `${n} touches`); }
+    else { card.dataset.state = 'digest'; move(TRAP.shut * .2, 300, false); say(5, 'Five touches: it seals and starts to digest'); }
     rest = setTimeout(reset, 9000);
   });
   FX_STOP.push(() => { if (raf) cancelAnimationFrame(raf); clearTimeout(timer); clearTimeout(rest); });
