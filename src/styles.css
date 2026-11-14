@@ -945,9 +945,10 @@ body.at-start .omni-btn{display:none}
 /* on a narrow phone the tool row is full: the lamps are the least needed thing in it, so they yield first, a whole lamp at
    a time (one that no longer fits wraps out of sight), and then the voice's chip shrinks to an ellipsis. Voice, key and
    send never shrink, so send stays inside the box */
-.clamps{display:inline-flex;flex-wrap:wrap;flex-shrink:1000;min-width:0;height:6px;overflow:hidden;gap:4px;margin-left:auto;padding:0 8px}
-/* an empty first item holds the first line, so even the first lamp can wrap away */
-.clamps::before{content:"";height:6px;margin-right:-4px}
+.clamps{display:inline-flex;flex-wrap:wrap;flex-shrink:1000;min-width:0;height:6px;overflow:hidden;gap:4px;margin-left:auto}
+/* the row's margins are empty items, so they go with the lamps; the first holds the first line, so even the first lamp
+   can wrap away */
+.clamps::before,.clamps::after{content:"";width:4px;height:6px}
 .ctools>.cvoice,.ckey,.send{flex:none}
 #seedChips{display:inline-flex;min-width:0}
 .cchip{min-width:0;max-width:100%}
@@ -1026,7 +1027,7 @@ details.leaving>.pop,details.leaving>.more-pop{animation:popout var(--d-quick) v
   .pr-list .door:nth-child(n+3),.presets:has(.door-cont) .pr-list .door:nth-child(n+2){display:none}
   .door-cont{max-width:58vw}
   .cbox{--bk:8px;padding:18px 17px 16px 22px}
-  .clamps{padding:0 4px}
+  .clamps::before,.clamps::after{width:0}
   #seedIn,.cmirror{font-size:16px}
   .cmirror{left:22px;top:20px;max-width:calc(100% - 44px)}
   /* the board keeps the cards' edges */
