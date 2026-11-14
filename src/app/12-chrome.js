@@ -7,6 +7,7 @@ import { LENSES, kattr } from './01-data.js';
 import { $, $$, afterMotion, applyTheme, auth, esc, leave, pagesLeft, reducedMotion, relTime, save, settle, stay, store } from './02-util.js';
 import { ic } from './03-icons.js';
 import { CUR, curPage, go, openTopic, parsed, worldCount } from './04-pages.js';
+import { toWorld } from './16-router.js';
 import { WV, worldIndex } from './05-render.js';
 import { toggleSave } from './06-page-end.js';
 import { closePMenu, hideCard } from './07-reading.js';
@@ -202,7 +203,7 @@ fab.addEventListener('click', e => {
   if (/** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('.fab-main'))) { setFab(fab.dataset.open !== 'true'); return; }
   const it = /** @type {HTMLButtonElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-fab]')); if (!it || it.disabled) return; setFab(false); const a = it.dataset.fab;
   if (a === 'ask') openOmni();
-  else if (a === 'world') go('/world');
+  else if (a === 'world') toWorld();
   else if (a === 'save') toggleSave(curPage());
   else if (a === 'land') landSheet(curPage());
 });

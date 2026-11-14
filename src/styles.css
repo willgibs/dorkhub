@@ -1083,6 +1083,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .gv-tip.leaving{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none!important}
 .gv-tip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--acc))}
 .gv-tip.act{pointer-events:auto}
+/* a topic's name lent an element for a move to or from a page (11-graph.js lift): set where the map draws it, as it draws it */
+.gv-stand{position:absolute;z-index:2;display:block;pointer-events:none}
 .gt-k{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .gt-k .kind{font:inherit}
 .gt-t{margin-top:5px!important;font:650 15.5px/1.25 var(--f-ui);letter-spacing:-.01em}

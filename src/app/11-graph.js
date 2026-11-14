@@ -8,11 +8,12 @@
    (11-graph-picture.js). This file holds the data, the loop and the map's life. */
 import { boundsOf, createSim, isHot, tick } from '../shared/graph.js';
 import { reducedMotion, save, store } from './02-util.js';
-import { afterFlight, frameView, flyTo, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
+import { curMove, onMove, prepMove } from './04-pages.js';
+import { afterFlight, frameView, flyTo, isShown, kg, moveCamera, resize, setFocus } from './11-graph-camera.js';
 import { hideTip, listenCard, showTip } from './11-graph-card.js';
 import { listenPointer } from './11-graph-input.js';
 import { clearKey, listenKeys } from './11-graph-keys.js';
-import { SPREAD, TRACE, draw, themeColors } from './11-graph-paint.js';
+import { SPREAD, TRACE, draw, firstSpot, nameStand, themeColors } from './11-graph-paint.js';
 import { picture } from './11-graph-picture.js';
 import { startReplay, stepReplay, stopReplay } from './11-graph-replay.js';
 
@@ -42,6 +43,9 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     dirty: false,   // positions moved since they were last kept
     seenAt: 0, dashLive: false, /** @type {{ at: number, fromA: boolean }[] | null} */ tD: null, /** @type {number[] | null} */ nD: null,
     pointers: new Map(), pinch: null,
+    /* a name in flight: its topic's key, and the place its words keep on the map (lift); the topic a title landed on,
+       whose name is always drawn (keep); where each name was drawn last frame (tags) */
+    /** @type {{ key: string, spot: any } | null} */ lift: null, keep: '', /** @type {Map<number, any>} */ tags: new Map(),
     pos: positions || store.pos,
   };
   themeColors(S);
@@ -55,9 +59,12 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
   /* a tab closed mid-settle keeps where things had got to */
   const onHide = () => keepPositions(S, true); addEventListener('pagehide', onHide);
   resize(S);
+  /* a map made in view draws at once: an arriving view's map is drawn before the observer first reports */
+  if (!S.visible) { const r = host.getBoundingClientRect(); S.visible = r.width > 0 && r.bottom > 0 && r.top < innerHeight; }
   return {
     el: cv, setData: (next, o) => setData(S, next, o), frameView: (center, instant) => frameView(S, center, instant), setFocus: (key, fly) => setFocus(S, key, fly), flyTo: (v, instant) => flyTo(S, v, instant),
     picture: o => picture(S, o), startReplay: pids => startReplay(S, pids), stopReplay: () => stopReplay(S), wake: () => wake(S), hideTip: () => hideTip(S),
+    lift: (key, o) => lift(S, key, o),
     get graph() { return S.g; }, get focused() { return S.focusKey; }, get replaying() { return !!S.replay && !S.replay.done; },
     retheme() { themeColors(S); wake(S); },
     setHidden(set) { S.hidden = set; S.hover = -1; if (S.kb >= 0 && S.hidden.has(kg(S.g.nodes[S.kb]))) clearKey(S); wake(S); },
@@ -68,6 +75,40 @@ export function makeGraph(host, { mini = false, still = false, hold = false, pos
     play() { S.held = false; wake(S); },
     destroy() { S.alive = false; if (S.raf) cancelAnimationFrame(S.raf); if (ro) ro.disconnect(); if (io) io.disconnect(); removeEventListener('pagehide', onHide); keepPositions(S); cv.remove(); tip.remove(); },
   };
+}
+/* ---------- a name that travels ----------
+   A topic on the map has no element for a page's title to land on or leave from, so its name stands in: a copy of the
+   words, set where the map draws them, named for the view transition (04-pages.js go, 16-router.js travel). While it
+   is in flight the map draws the leader but not the words, so the name is never on screen twice.
+   Leaving (a topic opened from the map): the name where it was last drawn, or the card's title when the card shows
+   this topic. Landing (a page's title coming to its topic): the camera is put where it will rest and the topic held
+   still, and its name, drawn first from then on, sits where the title lands.
+   Returns the element that travels, or null when the topic is not drawn on the map (the plain move). */
+export function lift(S, key, { land = false } = {}) {
+  const i = S.g.nodes.findIndex(n => n.key === key); if (i < 0 || !isShown(S, i) || !S.cw) return null;
+  const n = S.g.nodes[i];
+  const tipped = !land && !S.tip.hidden && !S.tip.classList.contains('leaving') && S.tipAt === i ? /** @type {HTMLElement} */ (S.tip.querySelector('.gt-t')) : null;
+  /* a map a title lands on arrives whole, on the view's clock (no first trace), its camera already at rest */
+  if (land) { if (S.camTo) { Object.assign(S.cam, S.camTo.to); S.camTo = null; } S.born.delete(i); S.seenAt = -1e9; S.tD = S.nD = null; }
+  const spot = land ? firstSpot(S, i) : S.tags.get(i) || null;
+  if (!spot && !tipped) return null;
+  if (land) { n.fx = n.x; n.fy = n.y; }
+  S.lift = spot ? { key, spot } : null;
+  let el = tipped;
+  if (!el) {
+    el = nameStand(S, spot); S.host.appendChild(el);
+  }
+  if (land) S.keep = key;
+  /* the map shows the move at once: the words leave the canvas in the frame the old view is captured from */
+  draw(S, performance.now());
+  const stand = el === tipped ? null : el;
+  /* the old view is captured once the move starts: what left it is done with (and a map that stays, beside a page,
+     must not hold a second element of the same name); a landing name stays until the move has landed */
+  /* a leaving name belongs to the move being prepared; a landing one to the move being made */
+  const m = land ? curMove() : prepMove();
+  if (!land) onMove(m, 'update', () => { if (stand) stand.remove(); else if (tipped) { tipped.style.viewTransitionName = ''; S.tip.hidden = true; } });
+  onMove(m, 'finish', () => { if (stand) stand.remove(); if (S.lift && S.lift.key === key) S.lift = null; const m = S.g.nodes.find(x => x.key === key); if (land && m) m.fx = m.fy = null; wake(S); });
+  return el;
 }
 /* what a map of your world says it is: its counts, and how to move on it */
 export function worldLabel(g, name = 'Your world') {

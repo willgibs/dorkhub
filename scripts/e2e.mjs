@@ -312,6 +312,32 @@ async function run(page, { mobile = false } = {}) {
     const p = await page.evaluate(() => ({ y: Math.round(scrollY), named: [...document.querySelectorAll('body *')].map(el => getComputedStyle(el).viewTransitionName).filter(n => n && !['none', 'topbar', 'sidebar'].includes(n)) }));
     if (Math.abs(p.y - y) > 4 || p.named.length) throw new Error(`back on the front page: ${JSON.stringify({ was: y, ...p })}`);
   });
+  /* a move runs both ways with Your world too: the page's title lands on its topic's name on the map, Back sends it home,
+     and a topic opened on the map sends its name to be the title; each move carries one travelling name, and leaves
+     nothing named or standing in once it has landed */
+  const heroMoves = () => page.evaluate(() => new Promise(ok => { const t0 = performance.now(); const look = () => { if (document.getAnimations().some(a => /group\(hero\)/.test(a.effect?.pseudoElement || ''))) ok(true); else if (performance.now() - t0 > 2500) ok(false); else requestAnimationFrame(look); }; look(); }));
+  const leftover = () => page.evaluate(() => ({ named: [...document.querySelectorAll('body *')].map(el => getComputedStyle(el).viewTransitionName).filter(n => n && !['none', 'topbar', 'sidebar'].includes(n)), stands: document.querySelectorAll('.gv-stand').length }));
+  await step(`${tag}: a page's title and its topic on Your world travel into each other, both ways`, async () => {
+    await page.goto(`${base}/black-holes`); await waitDone(); await page.waitForTimeout(600);
+    let moved = heroMoves(); await page.keyboard.press('g'); await page.waitForFunction(() => location.pathname === '/world');
+    const to = await moved; await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(900); const atMap = await leftover();
+    moved = heroMoves(); await page.goBack(); await page.waitForFunction(() => location.pathname === '/black-holes');
+    const back = await moved; await waitDone(); await page.waitForTimeout(900); const atPage = await leftover();
+    if (!to || !back || atMap.named.length || atMap.stands || atPage.named.length) throw new Error(`page and map: ${JSON.stringify({ to, back, atMap, atPage })}`);
+  });
+  await step(`${tag}: a topic opened on Your world becomes the page's title`, async () => {
+    await page.goto(`${base}/world`); await page.waitForSelector('#wpStage canvas'); await page.waitForTimeout(900);
+    /* the find box flies the map to the topic: it rests at the stage's middle */
+    await page.fill('#wpFind', 'Black holes'); await page.press('#wpFind', 'Enter'); await page.waitForTimeout(1200);
+    /* on a desk, a click on the topic itself (its name travels); on a phone, the card the topic shows (its title travels) */
+    const b = await page.locator('#wpStage canvas').boundingBox(); if (!b) throw new Error('no map');
+    const moved = heroMoves();
+    if (mobile) await page.locator('.gv-tip.act [data-gv="open"]').click(); else await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+    await page.waitForFunction(() => location.pathname === '/black-holes'); const went = await moved; await waitDone(); await page.waitForTimeout(900);
+    const after = await leftover();
+    if (!went || after.named.length || after.stands) throw new Error(`map to page: ${JSON.stringify({ went, after })}`);
+    await page.goto(base); await page.waitForSelector('#seedIn');
+  });
   /* the dice only ever opens a page written ahead of time, and never one already on screen */
   await step(`${tag}: the dice opens a pre-written topic that isn't on screen`, async () => {
     const shown = await page.$$eval('.door[data-seed]', bs => bs.map(b => /** @type {HTMLElement} */ (b).dataset.seed));

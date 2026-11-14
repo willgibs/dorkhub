@@ -5,13 +5,14 @@ import { clip, plain } from '../shared/article.js';
 import { addStep, routeOf } from '../shared/world.js';
 import { kattr } from './01-data.js';
 import { esc, leave, relTime, save, stay, store } from './02-util.js';
-import { CUR, go, openTopic, pageOf } from './04-pages.js';
+import { CUR, canVT, go, openTopic, pageOf } from './04-pages.js';
 import { kg, radius, setFocus, toScreen } from './11-graph-camera.js';
+import { lift } from './11-graph.js';
 
 export function showTip(S, i, actions) {
   if (i < 0) { hideTip(S); return; }
   const { g, adj, tip, describe, open, panel, mini, still, cw, ch } = S;
-  if (panel) { panel(g.nodes[i], actions); return; }
+  S.tipAt = i; if (panel) { panel(g.nodes[i], actions); return; }
   const n = g.nodes[i]; const [x, y] = toScreen(S, n); const near = adj[i].map(j => g.nodes[j]).filter(m => m.read).map(m => m.title);
   const lead = n.read && pageOf(n.pid)?.deck ? plain(pageOf(n.pid).deck) : n.hook || '';
   const status = describe ? describe(n) : n.read ? `Read ${relTime(n.last)}${n.saved ? ' · saved' : ''}` : n.count === 1 ? 'On one of your pages' : `On ${n.count} of your pages`;
@@ -28,8 +29,10 @@ export function hideTip(S) { if (!S.tip.hidden) leave(S.tip, () => { S.tip.hidde
 export function listenCard(S) {
   S.tip.addEventListener('click', e => { const b = /** @type {HTMLElement} */ (/** @type {HTMLElement} */ (e.target).closest('[data-gv]')); if (!b || S.sel < 0) return; const n = S.g.nodes[S.sel]; if (b.dataset.gv === 'open') openNode(S, n); else { setFocus(S, n.key); hideTip(S); } });
 }
+/* opening a topic from the map: its name travels to become the page's title (the card's title, when the card shows it) */
 export function openNode(S, n) {
-  hideTip(S); if (S.open) { S.open(n); return; }
-  if (n.read && n.pid) { const p = pageOf(n.pid); if (p) { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via: 'world' }); p.last = Date.now(); save(); } go(routeOf(p.req)); return; } }
-  openTopic(n.title, { via: 'world', hint: n.kind || n.hook ? { gloss: n.hook, kind: n.kind } : null });
+  if (S.open) { hideTip(S); S.open(n); return; }
+  const src = canVT() ? lift(S, n.key) : null; if (!src || !S.tip.contains(src)) hideTip(S);
+  if (n.read && n.pid) { const p = pageOf(n.pid); if (p) { if (p.id !== CUR) { addStep(store.trails, p.id, { from: CUR || null, via: 'world' }); p.last = Date.now(); save(); } go(routeOf(p.req), { src }); return; } }
+  openTopic(n.title, { via: 'world', src, hint: n.kind || n.hook ? { gloss: n.hook, kind: n.kind } : null });
 }

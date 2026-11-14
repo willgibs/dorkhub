@@ -136,7 +136,15 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   kind's colour, shows the card pointing would and is announced through `#srLive`; Enter opens it,
   Escape lets it go and then leaves; on /world + - 0 zoom and fit, and the camera follows only a
   selection about to leave the view. While a map has focus only those keys are its own (it stops them
-  reaching the page's handler); the pointer takes the card back by pointing. Positions are kept when
+  reaching the page's handler); the pointer takes the card back by pointing. A map lends a topic's name
+  an element for a move to or from a page (`lift(key, { land })` on the graph view, `lift` in `11-graph.js`):
+  a small canvas painted as the map paints the name (`nameStand`, `11-graph-paint.js`), named `hero` for
+  the view transition, while the map draws the leader but not the words. Leaving, it stands where the name
+  was last drawn (or the card's title travels, when the card shows the topic); landing, the camera is put
+  at rest, the topic held still and the map drawn whole, and the name is drawn first from then on
+  (`firstSpot`), so it sits where the title landed. Each move is one object in `04-pages.js`
+  (`prepMove`, `nameFor`, `onMove`, `endMove`): it clears only the names it set, and runs what it left
+  to do once the old view is captured and once it has landed. Positions are kept when
   they move (a settle, a drag let go) and on sleep, destroy and pagehide, never on a timer.
 - **The front page** (`src/app/13-landing.js`, `lib/front.js`): the composer, then ways in.
   The hero (`viewStart`): the heading, whose last word steps once through four of `FRONT`'s topics
