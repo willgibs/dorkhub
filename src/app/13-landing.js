@@ -90,6 +90,10 @@ export function plateSlotHTML(p) {
   const c = FRONTD && FRONTD.cards.find(x => x.t === f.t);
   return `<div class="a-plate pl-${f.c}${f.n ? ' night' : ''}" data-plate="${esc(f.t)}">${c ? plateCardHTML(c, false) : `<div class="wc wc-plate wc-${f.c}${f.n ? ' wc-night' : ''}" aria-hidden="true"></div>`}</div>`;
 }
+/* a move runs both ways: Back from a card's page lands on its card, its title on the card's title (16-router.js),
+   once the front page's cards are made (startLanding makes them first, so this settles after) */
+export const frontShown = () => loadFront().then(() => {});
+export function cardOf(t) { const el = $(`#ways .wc[data-card="${slugOfCard(t)}"]`); return el ? { plate: el, hero: $('.wc-t a', el) } : null; }
 export function stopPlate() { FX_STOP.splice(0).forEach(f => f()); }
 export function mountPlate(p) {
   const slot = $('.a-plate'); if (!slot || slot.dataset.mounted) return; slot.dataset.mounted = '1';

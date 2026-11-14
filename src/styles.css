@@ -765,6 +765,10 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
    with the page, on its duration and curve */
 ::view-transition-group(*){animation-duration:var(--d-slow);animation-timing-function:var(--ease-out)}
 ::view-transition-old(hero),::view-transition-new(hero){height:100%;width:auto;object-fit:contain;object-position:left top}
+/* a move runs both ways: what has nowhere on screen to land (the link scrolled away, a card off the front page's
+   fold) leaves and arrives with the page, so nothing outlasts the clock */
+::view-transition-old(hero):only-child,::view-transition-old(plate):only-child{animation:vt-out var(--d-quick) var(--ease-in) both}
+::view-transition-new(hero):only-child,::view-transition-new(plate):only-child{animation:vt-in var(--d-slow) var(--ease-out) both}
 
 
 /* ================= search or ask anything ================= */
