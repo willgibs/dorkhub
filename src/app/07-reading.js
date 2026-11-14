@@ -1,4 +1,4 @@
-/* ================= reading progress: a thin line under the top bar ================= */
+/* ================= reading position: a row of lamps along the top bar's lower edge ================= */
 import { capFirst, clip, hookOf, keyOf, plain } from '../shared/article.js';
 import { asksQuestion, pageId, topicKey } from '../shared/world.js';
 import { LENS_SHORT, kattr, kindOf } from './01-data.js';
@@ -8,10 +8,21 @@ import { ACC, secFor, worldIndex } from './05-render.js';
 import { peek, unfold } from './06-page-end.js';
 import { narrow } from './10-tools.js';
 import { VIEW } from './16-router.js';
+/* How many lamps are lit, as last written: the row is written only when that number changes, so scrolling costs at most
+   one write a frame and a page at rest costs nothing. -1 is no position at all (the row is hidden). The lamps' pitch is
+   the stylesheet's, read once. */
+let LIT = -2, PITCH = 0;
 export function updateProg() {
-  const pr = $('#prog'); const sec = CUR && secFor(CUR); if (!sec) { pr.style.width = '0'; return; }
-  const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
-  pr.style.width = `${(v * 100).toFixed(1)}%`;
+  const pr = $('#prog'); const sec = CUR && secFor(CUR); let lit = -1;
+  if (sec) {
+    if (pr.hidden) pr.hidden = false;
+    const r = sec.getBoundingClientRect(); const v = Math.min(1, Math.max(0, (innerHeight * .45 - r.top) / Math.max(1, r.height)));
+    PITCH = PITCH || parseFloat(getComputedStyle(pr).getPropertyValue('--pitch')) || 6;
+    lit = Math.round(v * Math.floor(pr.clientWidth / PITCH));
+  } else if (!pr.hidden) pr.hidden = true;
+  if (lit === LIT) return;
+  if (lit >= 0) pr.style.setProperty('--lit', String(lit));
+  LIT = lit;
 }
 /* the page's title in the top bar, once the title itself has gone under it, in its kind's colour */
 export function syncTopTitle() {
@@ -207,6 +218,8 @@ export function setSelT(v) { return (selT = v); }
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 $('#topT').addEventListener('click', () => scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' }));
+/* a page grows as it arrives, which moves the reader's place without a scroll: the lamps follow the page's length too */
+new ResizeObserver(() => updateProg()).observe($('#view'));
 addEventListener('scroll', () => {
   if (!scrollQ) { scrollQ = true; requestAnimationFrame(() => { scrollQ = false; updateProg(); document.body.classList.toggle('scrolled', scrollY > 4); syncTopTitle(); if (!hcard.hidden && Date.now() > hcNudge && Math.abs(scrollY - hcY) > (hcard.classList.contains('docked') ? HC_READ_ON : 90)) hideCard(); }); }
   /* noted for this address only: a move in between (a click, back) must not hand this page's place to the next one */
