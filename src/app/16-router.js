@@ -59,8 +59,9 @@ function showHome() {
   setView('home'); setCUR(''); document.documentElement.dataset.accent = 'concept';
   $('#view').innerHTML = viewStart(); startLanding(POP); document.title = 'dorkhub: learn about anything';
   window.scrollTo(0, 0); updateProg(); renderWorldBtn();
-  /* back where you were, once the cards below the composer are made */
-  const y = (history.state && history.state.y) || 0;
+  /* back where you were, once the cards below the composer are made; a page asked for in the composer comes home to
+     the top, where the composer is whole under the bar (where typing had scrolled to could tuck it under on a phone) */
+  const at = history.state && history.state.at, y = at && at.k === 'seed' ? 0 : (history.state && history.state.y) || 0;
   if (y) frontShown().then(() => { if (VIEW === 'home') { window.scrollTo(0, y); updateProg(); } });
 }
 /* ================= a move runs both ways =================
