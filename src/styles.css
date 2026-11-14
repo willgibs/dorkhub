@@ -698,8 +698,8 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 .keys-note b{color:var(--ink)}
 .sh-body{overflow:auto;padding:6px 22px 20px;font:400 17px/1.7 var(--f-read)}
 .sh-body p{margin:0 0 .9em}
-.sh-body h1{font:700 26px/1.15 var(--f-ui);letter-spacing:-.02em;margin:0 0 12px}
-.sh-body h2{font:700 17px/1.2 var(--f-ui);margin:1.2em 0 .4em}
+.sh-body h3{font:700 26px/1.15 var(--f-ui);letter-spacing:-.02em;margin:0 0 12px}
+.sh-body h4{font:700 17px/1.2 var(--f-ui);margin:1.2em 0 .4em}
 .sh-body ul{margin:0 0 1em;padding-left:1.1em}
 .sh-foot{display:flex;flex-wrap:wrap;gap:8px;padding:12px 22px 18px;border-top:1px solid var(--line)}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0;font:14.5px var(--f-ui)}
@@ -803,7 +803,7 @@ body.at-start .omni-btn{display:none}
 .fab-blob{fill:var(--surface);transform:translate(0,0);transform-box:fill-box;transition:transform var(--fab-close) var(--fab-close-ease);will-change:transform}
 .fab[data-open="true"] .fab-blob{transform:translate(var(--fx,0px),var(--fy,0px));transition:transform var(--fab-open) var(--fab-open-ease);transition-delay:calc(var(--i,0) * var(--d-stagger))}
 .fab-item,.fab-main{position:absolute;display:grid;place-items:center;padding:0;border:0;border-radius:50%;background:transparent;color:var(--ink);cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent;transform:translate(0,0);transition:transform var(--fab-close) var(--fab-close-ease);will-change:transform}
-.fab-main{left:108px;top:108px;width:48px;height:48px}
+.fab-main{z-index:1;left:108px;top:108px;width:48px;height:48px}
 .fab-item{left:110px;top:110px;width:44px;height:44px;pointer-events:none}
 .fab[data-open="true"] .fab-item{pointer-events:auto;transform:translate(var(--fx,0px),var(--fy,0px));transition:transform var(--fab-open) var(--fab-open-ease);transition-delay:calc(var(--i,0) * var(--d-stagger))}
 .fab-item .ic{width:19px;height:19px;opacity:0;filter:blur(var(--blur-s));transition:opacity var(--fab-ic-close) var(--fab-ic-ease),filter var(--fab-ic-close) var(--fab-ic-ease)}

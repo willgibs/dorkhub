@@ -73,6 +73,7 @@ function renderOmni() {
     h += `<button class="om-i" type="button" role="option" id="om${i}" data-om="${i}" aria-selected="${i === 0}"${kattr(it.k)}><span class="oi">${it.icon}</span><span class="ot">${it.title}</span>${it.tag ? `<span class="od lbl">${esc(String(it.tag))}</span>` : '<span></span>'}${it.hook ? `<span class="oh">${it.hook}</span>` : ''}</button>`;
   });
   omniList.innerHTML = h || `<p class="om-none">Type anything: a question, a topic, a half-remembered fact.</p>`;
+  omniIn.setAttribute('aria-expanded', String(items.length > 0));
   if (items.length) omniIn.setAttribute('aria-activedescendant', 'om0'); else omniIn.removeAttribute('aria-activedescendant');
 }
 function moveOmni(dir) {
@@ -123,8 +124,8 @@ function fabHTML() {
 <feGaussianBlur in="shape" stdDeviation="14" result="s3-b"/><feOffset in="s3-b" dy="6" result="s3-o"/><feFlood class="fab-sh2" result="s3-c"/><feComposite in="s3-c" in2="s3-o" operator="in" result="s3"/>
 <feMerge><feMergeNode in="s3"/><feMergeNode in="s2"/><feMergeNode in="ring"/><feMergeNode in="shape"/></feMerge></filter></defs>
 <g filter="url(#fab-goo)">${FAB_SAT.map((_, i) => `<circle class="fab-blob" cx="132" cy="132" r="22"${off(i)}/>`).join('')}<circle class="fab-blob fab-blob-main" cx="132" cy="132" r="24"/></g></svg>
-${FAB_SAT.map(([k, icon, label], i) => `<button class="fab-item" type="button" data-fab="${k}" aria-label="${esc(label)}" tabindex="-1"${off(i)}>${ic(icon)}</button>`).join('')}
-<button class="fab-main" type="button" aria-expanded="false" aria-label="Open the tools"><span class="fab-sw" data-state="a"><span data-icon="a">${ic('dots')}</span><span data-icon="b">${ic('x')}</span></span></button>`;
+<button class="fab-main" type="button" aria-expanded="false" aria-label="Open the tools"><span class="fab-sw" data-state="a"><span data-icon="a">${ic('dots')}</span><span data-icon="b">${ic('x')}</span></span></button>
+${FAB_SAT.map(([k, icon, label], i) => `<button class="fab-item" type="button" data-fab="${k}" aria-label="${esc(label)}" tabindex="-1"${off(i)}>${ic(icon)}</button>`).join('')}`;
 }
 let fab;
 export function setFab(open, refocus) {
@@ -175,7 +176,8 @@ menuBtn.addEventListener('click', () => (menu.classList.contains('is-open') ? cl
 menu.addEventListener('click', e => {
   const b = e.target.closest('[data-mn]'); if (!b) return; const a = b.dataset.mn;
   if (a === 'theme') { cycleTheme(); renderMenu(); $('[data-mn="theme"]', menu)?.focus(); return; }
-  closeMenu();
+  /* the item goes with the menu, so focus waits on its button: a sheet opened from here gives focus back there */
+  closeMenu(true);
   if (a === 'keys') keysSheet();
   else if (a === 'voice') { openSheet('Voice', '<div class="voice-pop"></div>'); renderVoice(); }
   else if (a === 'export') exportTrail();

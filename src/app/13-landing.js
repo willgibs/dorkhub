@@ -71,7 +71,7 @@ function wayHTML(c) {
   const open = live ? `<a class="wc-open" ${go}${tipAttrs('Open the page')}>${ic('arrow')}</a>` : `<span class="wc-open" aria-hidden="true">${ic('arrow')}</span>`;
   return `<article class="wc wc-${c.size}${c.tab ? ` wc-tab-${c.tab}` : ''}${c.night ? ' wc-night' : ''}${live ? ' wc-live' : ''}${motionOK() && !PLAYED.has(slug) ? ' armed' : ''}" data-card="${slug}"${kattr(c.k)}${c.fx ? ` data-fx="${c.fx}"` : ''}${c.beat ? ` data-beat="${c.beat}"` : ''}>
   <div class="wc-art">${c.art}</div>
-  <div class="wc-cap"><p class="wc-kind"><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h3 class="wc-t"><a ${go}>${esc(c.t)}</a></h3></div>
+  <div class="wc-cap"><p class="wc-kind"><span class="kind"${kattr(c.k)}>${esc(capFirst(c.k))}</span></p><h2 class="wc-t"><a ${go}>${esc(c.t)}</a></h2></div>
   ${c.more || ''}${c.credit ? `<p class="wc-cr">${esc(c.credit)}</p>` : ''}${open}
 </article>`;
 }
@@ -150,7 +150,7 @@ function renderThreads() {
 /* a reader's world, in the last slot: the neighbourhood of the last page read, edge to edge, and how far it reaches */
 function worldCardHTML(slot) {
   const n = worldCount();
-  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-cap"><p class="wc-kind"><span class="ww-you">You</span></p><h3 class="wc-t"><a href="/world">Your world</a></h3></div><p class="ww-stats"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><a class="wc-open" href="/world"${tipAttrs('Open Your world')}>${ic('arrow')}</a></article>`;
+  return `<article class="wc wc-${slot.size}${slot.tab ? ` wc-tab-${slot.tab}` : ''} wc-world wc-live"><div class="wc-art"><div class="ww-stage" id="worldStage"></div></div><div class="wc-cap"><p class="wc-kind"><span class="ww-you">You</span></p><h2 class="wc-t"><a href="/world">Your world</a></h2></div><p class="ww-stats"><b>${n}</b> topic${n === 1 ? '' : 's'} read · <b>${oneClickAway()}</b> one click away</p><a class="wc-open" href="/world"${tipAttrs('Open Your world')}>${ic('arrow')}</a></article>`;
 }
 function mountWorldCard() {
   const host = $('#worldStage'); if (!host) return; if (WORLDCARD) WORLDCARD.destroy();

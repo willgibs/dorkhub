@@ -9,7 +9,7 @@ import { toolStateHTML } from './06-page-end.js';
 
 export let sheet;
 /* Opening a sheet replaces whatever was in it, so anything still being written for the old one stops. */
-export function openSheet(title, bodyHTML, footHTML = '') { if (sheetCtl) { sheetCtl.abort(); sheetCtl = null; } $('#sheetTitle').textContent = title; $('#sheetBody').innerHTML = bodyHTML; $('#sheetFoot').innerHTML = footHTML; $('#sheetFoot').hidden = !footHTML; if (!sheet.open) sheet.showModal(); }
+export function openSheet(title, bodyHTML, footHTML = '') { if (sheetCtl) { sheetCtl.abort(); sheetCtl = null; } $('#sheetTitle').textContent = title; $('#sheetBody').innerHTML = bodyHTML; $('#sheetFoot').innerHTML = footHTML; $('#sheetFoot').hidden = !footHTML; $('#sheetBody').removeAttribute('aria-busy'); if (!sheet.open) sheet.showModal(); }
 export let sheetCtl = null;
 
 /* ================= your trail: how you got here, step by step ================= */
@@ -35,8 +35,9 @@ function mdToHTML(md) {
     const l = raw.trim(); let m;
     if (!/^[-*]\s/.test(l) && list) { h += '</ul>'; list = false; }
     if (!l) continue;
-    if ((m = /^#\s+(.+)/.exec(l))) h += `<h1>${esc(m[1])}</h1>`;
-    else if ((m = /^#{2,3}\s+(.+)/.exec(l))) h += `<h2>${esc(m[1])}</h2>`;
+    /* under the sheet's own title (an h2), the recap's headings go one and two levels down */
+    if ((m = /^#\s+(.+)/.exec(l))) h += `<h3>${esc(m[1])}</h3>`;
+    else if ((m = /^#{2,3}\s+(.+)/.exec(l))) h += `<h4>${esc(m[1])}</h4>`;
     else if ((m = /^[-*]\s+(.+)/.exec(l))) { if (!list) { h += '<ul>'; list = true; } h += `<li>${fmt(esc(m[1]))}</li>`; }
     else h += `<p>${fmt(esc(l))}</p>`;
   }
@@ -51,6 +52,8 @@ export async function recapTrail(fresh) {
   const done = trailPages(t).filter(p => p.text && p.status === 'done');
   if (done.length < 2) { toast('Read at least two pages first. A recap needs a trail.'); return; }
   openSheet('Recap', `<p class="digging">${waitHTML('composing', 'Gathering what you found')}</p>`);
+  /* the sheet's body is a live region: silent while the recap streams in, heard once when it is ready (openSheet clears it) */
+  $('#sheetBody').setAttribute('aria-busy', 'true');
   const read = new Set(done.map(p => topicKey(p.title)));
   const untaken = [...new Set(done.flatMap(p => cardsOf(parseArticle(p.text)).map(c => c.target)).filter(x => !read.has(topicKey(x))))].slice(0, 14);
   const ctl = sheetCtl = new AbortController();
@@ -58,7 +61,7 @@ export async function recapTrail(fresh) {
     const said = p => { const A = parsed(p); return clip([...panelLines(A), ...A.blocks.filter(b => b.t === 'p').slice(0, 2).map(b => b.s)].map(plain).join(' '), 420); };
     const { text } = await write('recap', { pages: done.slice(-12).map(p => ({ title: p.title, deck: p.deck ? clip(p.deck, 400) : '', text: said(p) })), untaken }, { signal: ctl.signal, fresh, onText: ({ text }) => { if (sheetCtl === ctl) $('#sheetBody').innerHTML = notesHTML(text); } });
     t.notes = text; save(); if (sheetCtl === ctl) openSheet('Recap', notesHTML(text), notesFoot());
-  } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = toolStateHTML(e?.code || 'dropped', { full: true, retry: 'renotes' }); }
+  } catch (e) { if (sheetCtl === ctl && e?.code !== 'cancelled') { $('#sheetBody').innerHTML = toolStateHTML(e?.code || 'dropped', { full: true, retry: 'renotes' }); $('#sheetBody').removeAttribute('aria-busy'); } }
 }
 
 /* ================= export: the trail you're on, as Markdown ================= */

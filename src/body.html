@@ -82,7 +82,7 @@
 </dialog>
 <dialog id="omni" class="omni" aria-label="Search or ask anything">
   <div class="om-in">
-    <div class="om-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="omniIn" autocomplete="off" spellcheck="false" placeholder="Ask a question, name a topic, or find a page" aria-controls="omniList" aria-autocomplete="list"><kbd>esc</kbd></div>
+    <div class="om-row"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input id="omniIn" role="combobox" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Ask a question, name a topic, or find a page" aria-controls="omniList" aria-autocomplete="list"><kbd>esc</kbd></div>
     <div class="om-list" id="omniList" role="listbox" aria-label="Suggestions"></div>
     <p class="om-foot"><span><kbd>↑</kbd><kbd>↓</kbd> to choose</span><span><kbd>↵</kbd> to open</span></p>
   </div>
