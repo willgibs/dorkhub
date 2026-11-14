@@ -3,11 +3,11 @@ import { KINDS, clip, keyOf, panelLines, plain, timeOf } from '../shared/article
 import { addStep, routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { KIND_LABEL, kattr, kindOf } from './01-data.js';
-import { $, $$, errText, esc, reducedMotion, relTime, save, store, toast, writeError, writeJSON } from './02-util.js';
+import { $, $$, esc, reducedMotion, relTime, save, store, toast, writeError, writeJSON } from './02-util.js';
 import { waitHTML } from './03-orbs.js';
 import { CUR, cleanTitle, ctxInput, curPage, curTrail, go, openTopic, pageOf, parsed, shownTitle, trailPages } from './04-pages.js';
 import { buildIndex, secFor, worldIndex } from './05-render.js';
-import { paintTools } from './06-page-end.js';
+import { paintTools, toolStateHTML } from './06-page-end.js';
 import { openSheet, setSheetCtl, sheet, sheetCtl } from './08-sheets.js';
 import { renderMini, sleepMini } from './11-world.js';
 import { VIEW } from './16-router.js';
@@ -102,7 +102,7 @@ export function bridgeSheet(p = curPage()) {
   if (!others.length) { toast('Read another page first, then connect them.'); return; }
   openSheet('Connect to…', `<p>Pick another topic from your world. Dorkhub will write the page that connects <b>${esc(p.title)}</b> to it, one link in the chain at a time.</p>
 <label class="sr" for="bq">Filter your topics</label><input id="bq" class="sheet-q" type="search" placeholder="Filter your topics" autocomplete="off">
-<ul class="bridge-list" id="bridgeList">${others.slice(0, 200).map(o => `<li><button type="button" data-bridge="${esc(o.id)}" data-name="${esc(o.title.toLowerCase())}"${kattr(o.kind)}><span class="bl-d"></span><b>${esc(o.title)}</b><span>${esc(relTime(o.last))}</span></button></li>`).join('')}</ul>`);
+<ul class="bridge-list" id="bridgeList">${others.slice(0, 200).map(o => `<li><button type="button" data-bridge="${esc(o.id)}" data-name="${esc(o.title.toLowerCase())}"${kattr(o.kind)}><span class="bl-d"></span><b>${esc(o.title)}</b><span class="lbl">${esc(relTime(o.last))}</span></button></li>`).join('')}</ul>`);
   setTimeout(() => { if (matchMedia('(hover: hover)').matches) $('#bq')?.focus(); }, 60);
 }
 export function makeBridge(otherId) {
@@ -125,7 +125,7 @@ export async function landSheet(p = curPage()) {
     const list = (Array.isArray(out) ? out : []).filter(o => o && o.name && !read.has(topicKey(String(o.name)))).slice(0, 8).map(o => ({ name: cleanTitle(o.name), relation: String(o.relation || ''), kind: KINDS.includes(o.kind) ? o.kind : '', bearing: BEARINGS[o.bearing] != null ? o.bearing : 'elsewhere', distance: Math.max(1, Math.min(3, parseInt(o.distance, 10) || 2)) }));
     if (!list.length) throw writeError('bad_output');
     p.land = list; save(); if (sheet.open && sheetCtl === ctl) openSheet('Around this page', landHTML(p));
-  } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
+  } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = toolStateHTML(e?.code || 'dropped', { full: true, retry: 'land' }); }
 }
 /* The map's labels are placed, not just drawn: nearest topics first, each tries the side away from the centre, then
    under, over and the far side of its dot, shortened to the room before the map's edge, and takes the first place no
@@ -171,7 +171,7 @@ function landHTML(p) {
      title (a question, say) would run it to three lines */
   return `<p><span class="land-hint">Closer rings are closer relatives. </span>Pick anything to open a page on it.</p>
 <figure class="land"><svg viewBox="-24 -8 ${Wd + 48} ${Ht + 16}" role="img" aria-label="Radial map of topics around ${esc(p.title)}">${svg}</svg></figure>
-<ol class="land-list">${p.land.map((o, i) => `<li><a href="${esc(routeOf({ title: o.name, lens: store.settings.lens }))}" data-land="${i}"${kattr(o.kind)}><b><i class="kdot3" aria-hidden="true"></i>${esc(o.name)}</b>${o.kind ? `<span class="kind">${esc(o.kind)}</span>` : ''}<span class="ll-r">${esc(o.relation)}</span><span class="ll-b">${o.bearing}, ${['', 'next door', 'nearby', 'far'][o.distance]}</span></a></li>`).join('')}</ol>`;
+<ol class="land-list">${p.land.map((o, i) => `<li><a href="${esc(routeOf({ title: o.name, lens: store.settings.lens }))}" data-land="${i}"${kattr(o.kind)}><b><i class="kdot3" aria-hidden="true"></i>${esc(o.name)}</b>${o.kind ? `<span class="kind">${esc(o.kind)}</span>` : ''}<span class="ll-r">${esc(o.relation)}</span><span class="lbl ll-b">${o.bearing}, ${['', 'next door', 'nearby', 'far'][o.distance]}</span></a></li>`).join('')}</ol>`;
 }
 
 /* ================= listen: free narration with the browser's own voice ================= */
@@ -214,19 +214,24 @@ export async function recall(fresh) {
     });
     if (!qs.length) throw writeError('bad_output');
     t.recall = { qs, i: 0, score: 0, picked: null, at: Date.now() }; save(); if (sheet.open && sheetCtl === ctl) renderQuiz();
-  } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = `<p>${esc(errText(e?.code))}</p>`; }
+  } catch (e) { if (sheet.open && sheetCtl === ctl && e?.code !== 'cancelled') $('#sheetBody').innerHTML = toolStateHTML(e?.code || 'dropped', { full: true, retry: 'recall-new' }); }
 }
+/* the quiz: the question as a sheet's heading, its options as rows on hairlines lettered in small capitals (the answer
+   marked once it is chosen, in ink: colour is a kind's), and the score read out as the machine reads its numbers, in
+   dots, with a dot a question */
+const LETTERS = 'ABCD';
 export function renderQuiz() {
   const t = curTrail(); const R = t && t.recall; if (!R) return;
   if (R.i >= R.qs.length) {
     t.recallLast = { score: R.score, of: R.qs.length, at: Date.now() }; save();
     const verdict = R.score === R.qs.length ? 'Everything stuck.' : R.score >= R.qs.length * .6 ? 'Most of it stuck.' : 'Some of it slipped away. That’s what going back is for.';
-    openSheet('What stuck?', `<p class="qz-score"><b>${R.score}</b> of ${R.qs.length}</p><p>${verdict} Questions you missed link back to the page where the answer lives.</p>`, `<button class="btn glow" type="button" data-act="recall-new">New questions</button><button class="btn ghost" type="button" data-act="sheet-close">Back to reading</button>`);
+    openSheet('What stuck?', `<p class="lbl">Your score</p><p class="qz-score"><b class="dotnum">${R.score}</b> of ${R.qs.length}<span class="dots" aria-hidden="true">${R.qs.map((_, i) => `<i${i < R.score ? ' class="on"' : ''}></i>`).join('')}</span></p><p>${verdict} Questions you missed link back to the page where the answer lives.</p>`, `<button class="btn glow" type="button" data-act="recall-new">New questions</button><button class="btn ghost" type="button" data-act="sheet-close">Back to reading</button>`);
     return;
   }
   const q = R.qs[R.i]; const done = R.picked != null; const last = R.i === R.qs.length - 1; const src = pageOf(q.pid);
-  openSheet('What stuck?', `<p class="qz-n">Question ${R.i + 1} of ${R.qs.length}${q.from ? `, from ${esc(q.from)}` : ''}</p><p class="qz-q">${esc(q.q)}</p>
-<div class="qz-o">${q.options.map((o, j) => `<button type="button" data-qz="${j}"${done ? ' disabled' : ''} class="${done ? (j === q.answer ? 'right' : j === R.picked ? 'wrong' : '') : ''}">${esc(o)}</button>`).join('')}</div>
+  const mark = j => (!done ? LETTERS[j] : j === q.answer ? '✓' : j === R.picked ? '✕' : LETTERS[j]);
+  openSheet('What stuck?', `<p class="lbl qz-n">Question ${R.i + 1} of ${R.qs.length}${q.from ? `, from ${esc(clip(q.from, 40))}` : ''}</p><p class="qz-q">${esc(q.q)}</p>
+<div class="qz-o">${q.options.map((o, j) => `<button type="button" data-qz="${j}"${done ? ' disabled' : ''} class="${done ? (j === q.answer ? 'right' : j === R.picked ? 'wrong' : '') : ''}"><span class="lbl" aria-hidden="true">${mark(j)}</span><span>${esc(o)}</span></button>`).join('')}</div>
 ${done ? `<p class="qz-why"><b>${R.picked === q.answer ? 'Yes.' : 'Not quite.'}</b> ${esc(q.why)}</p>` : ''}`,
     done ? `<button class="btn glow" type="button" data-act="qz-next">${last ? 'See your score' : 'Next question'}</button>${src && R.picked !== q.answer ? `<a class="btn ghost" href="${esc(routeOf(src.req))}" data-goto="${esc(src.id)}">Revisit ${esc(clip(q.from, 30))}</a>` : ''}` : '');
 }

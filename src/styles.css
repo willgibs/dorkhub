@@ -254,8 +254,8 @@ body.at-start .side,body.at-world .side{display:none!important}
 .where .kind{font-size:inherit}
 .kind.lens{color:var(--acc)}
 /* the page you came here from, quietly, after what this one is */
-.from{display:inline-flex;align-items:center;gap:7px;color:var(--faint);text-decoration:none}
-.from b{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--mute);transition:color var(--d-quick) var(--ease-out)}
+.from{display:inline-flex;align-items:center;gap:7px;color:var(--faint);text-decoration:none;overflow-wrap:normal}
+.from b{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow-wrap:anywhere;font-weight:600;color:var(--mute);transition:color var(--d-quick) var(--ease-out)}
 .from b::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--kc,var(--faint))}
 .from:hover b{color:var(--ink)}
 .kind.plain{color:var(--mute)}
@@ -355,24 +355,25 @@ body.at-start .side,body.at-world .side{display:none!important}
 .wait{display:inline-flex;align-items:center;gap:9px;vertical-align:middle}
 .orb{display:block;flex:none;width:20px;height:20px}
 .px{display:grid}
-.xp{margin:-.35em 0 1.2em;padding:2px 0 4px 16px;border-left:2px solid var(--acc);font:400 16px/1.65 var(--f-read);color:var(--ink)}
+/* an expansion or a peek, under its paragraph: its name in small capitals on a rule with a bare close at the rule's end,
+   as the page's own sections are named; a peek names its topic as a card does; a rule closes it. No colour of its own */
+.xp{margin:-.35em 0 1.4em;padding:0 0 14px;border-bottom:1px solid var(--line);font:400 16px/1.65 var(--f-read);color:var(--ink)}
 .xp.enter{animation:open var(--d-slow) var(--ease-out) both}
 @keyframes open{from{opacity:0;transform:translateY(calc(-1 * var(--dist-micro)));filter:blur(var(--blur-s))}}
-.xp-h{display:flex;align-items:center;gap:8px;margin-bottom:2px;font:600 12px/1.3 var(--f-ui);color:var(--acc)}
-.xp-h b{font:700 14px var(--f-ui);color:var(--ink)}
-.xp-h button{margin-left:auto;display:grid;place-items:center;width:22px;height:22px;padding:0;border:0;border-radius:var(--r-1);background:transparent;color:var(--faint);font:500 16px/1 var(--f-ui);cursor:pointer}
-.xp-h button:hover{background:var(--panel);color:var(--ink)}
-.xp-go{margin-top:6px;padding:0;border:0;background:none;color:var(--link);font:600 13.5px var(--f-ui);cursor:pointer}
-.xp-go:hover{text-decoration:underline}
-.doubt{margin-top:32px;padding-left:16px;border-left:2px solid var(--acc)}
-.doubt h2{font:700 17px var(--f-ui)}
-.doubt>p{font-size:13.5px;color:var(--mute);margin-top:2px}
-.doubt ol{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:12px}
-.doubt li{display:grid;grid-template-columns:52px minmax(0,1fr);gap:2px 12px;font-size:14.5px}
-.doubt q{font:italic 400 15.5px/1.5 var(--f-read)}
-.doubt .r{grid-row:span 2;align-self:start;font:600 12px/1.6 var(--f-ui);color:var(--mute)}
-.doubt .r.shaky{color:var(--acc)}
-.doubt li p{color:var(--mute);font-size:13.5px}
+.xp.leaving{animation:fadeout var(--d-quick) var(--ease-out) both;pointer-events:none}
+.xp-h{display:flex;align-items:center;gap:12px;margin:0}
+.xp-h::after{content:"";order:1;flex:1;height:1px;background:var(--line)}
+.tool.ib.xp-x{order:2;width:var(--ctl-s);height:var(--ctl-s);margin-right:-7px;color:var(--faint)}
+.tool.ib.xp-x:hover{color:var(--ink)}
+.xp-t{margin:0 0 4px;font:600 16px/1.3 var(--f-ui);letter-spacing:-.005em;color:var(--ink)}
+.btn.xp-go{height:auto;min-height:var(--ctl-s);max-width:100%;margin-top:12px;padding:6px 14px;font-size:13px;line-height:1.3;white-space:normal;text-align:left}
+/* skeptic mode: one of the page's sections, its claims as readings, each rated where a reading's name goes (the shaky
+   ones in ink); a claim's words are the page's own, in the reading face */
+.doubt{margin-top:40px}
+.doubt>.st-say{margin:0 0 16px}
+.dq-r [data-r="shaky"] dt{color:var(--ink)}
+.dq-r q{display:block;font:italic 400 15.5px/1.5 var(--f-read)}
+.dq-r dd span{display:block;margin-top:3px;font:400 13.5px/1.5 var(--f-ui);color:var(--mute)}
 mark.dq{background:var(--mark);color:inherit;border-radius:2px}
 
 /* ================= panels: information the writer chose to lay out, drawn quietly ================= */
@@ -613,8 +614,13 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .st-part{margin-top:40px}
 .st-say{max-width:34em;font:400 16px/1.6 var(--f-read);color:var(--mute);text-wrap:pretty}
 .st-part .st-a{margin-top:16px}
-/* a quick tool that is out of its free allowance, in the tool's own place */
-.doubt .st-a,.xp .st-a{margin:12px 0 4px}
+/* a quick tool that didn't come through, in the tool's own place (toolStateHTML): the state named in ink, a sentence,
+   readings when a sheet has the room, the way past it */
+.tstate{padding:2px 0 4px}
+.tstate>p.lbl{margin:8px 0 6px;color:var(--ink);animation:fade var(--d-vslow) var(--ease-out) both}
+.tstate>p.st-say{margin:0;font-size:16px}
+.tstate>.readings{margin-top:18px}
+.tstate>.st-a{margin-top:16px}
 /* Save: a star that fills, with one small pop */
 .tool.save[aria-pressed="true"]{color:var(--acc)}
 .tool.save[aria-pressed="true"] .ic{fill:currentColor}
@@ -661,7 +667,8 @@ details.pv summary:hover .pv-n{color:var(--ink)}
 .pmenu button{display:grid;gap:0;padding:7px 10px;border:0;background:transparent;text-align:left;cursor:pointer;font:600 14px var(--f-ui);color:var(--ink)}
 .pmenu button span{font:400 12.5px var(--f-ui);color:var(--mute)}
 .pmenu button:hover,.pmenu button:focus-visible{background:var(--panel)}
-.dig-sel{position:absolute;z-index:45;display:inline-flex;align-items:center;gap:6px;height:var(--ctl-s);padding:0 12px;border:0;border-radius:var(--r-pill);background:var(--ink);color:var(--base);font:600 13px/1 var(--f-ui);box-shadow:var(--sh-2);cursor:pointer;transform:translateX(-50%)}
+.dig-sel{position:absolute;z-index:45;display:block;max-width:calc(100vw - 16px);height:var(--ctl-s);padding:0 12px;border:0;border-radius:var(--r-pill);background:var(--ink);color:var(--base);font:600 13px/var(--ctl-s) var(--f-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--sh-2);cursor:pointer;transform-origin:50% 100%;animation:popin var(--d-fast) var(--ease-out) both}
+.dig-sel.leaving{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none}
 
 /* ================= sheets ================= */
 dialog{width:min(640px,calc(100vw - 28px));max-height:min(86vh,760px);padding:0;border:0;border-radius:var(--r-4);background:var(--surface);color:var(--ink);box-shadow:var(--sh-3)}
@@ -699,23 +706,25 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 .keys dt{text-align:right}
 .keys dd{margin:0;color:var(--mute)}
 /* your trail, step by step */
-.tr-sum{font:500 14px/1.5 var(--f-ui)!important;color:var(--faint)}
-.trail-list{list-style:none;margin:6px 0 0;padding:0;display:grid}
+.sh-body .tr-sum{margin:2px 0 12px}
+.trail-list{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--line-2)}
 .trail-list a{position:relative;display:grid;grid-template-columns:26px minmax(0,1fr);gap:1px 10px;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font:400 15px/1.4 var(--f-ui)}
 .trail-list a:hover{background:var(--panel)}
-.trail-list .tl-n{grid-row:span 2;align-self:start;display:grid;place-items:center;width:22px;height:22px;margin-top:1px;border-radius:50%;background:color-mix(in srgb,var(--kc,var(--acc)) 14%,transparent);color:var(--kc,var(--acc));font:600 11.5px/1 var(--f-mono);font-variant-numeric:tabular-nums}
+.trail-list .tl-n{grid-row:span 2;align-self:start;padding-top:4px;font-variant-numeric:tabular-nums}
+.trail-list b{position:relative;padding-left:16px}
 .trail-list b{font:600 15.5px/1.35 var(--f-ui)}
 .trail-list span:last-child{font-size:13px;color:var(--faint)}
-.sheet-q{width:100%;margin:12px 0 4px;padding:9px 12px;border:1px solid var(--line-2);border-radius:var(--r-2);background:transparent;font:15px var(--f-ui)}
-.bridge-list{list-style:none;margin:10px 0 0;padding:0;display:grid}
+.sheet-q{width:100%;margin:12px 0 0;padding:9px 0;border:0;border-bottom:1px solid var(--line-2);border-radius:0;background:transparent;font:500 15px var(--f-ui);outline:none;transition:border-color var(--d-quick) var(--ease-out)}
+.sheet-q:focus{border-bottom-color:var(--ink)}
+.bridge-list{list-style:none;margin:0;padding:0;display:grid}
 .bridge-list button{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;width:100%;padding:10px 6px;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);text-align:left;cursor:pointer;font:600 15px var(--f-ui)}
 .bridge-list button:hover{background:var(--panel)}
-.bridge-list span:last-child{font-size:12px;color:var(--faint);font-weight:500}
+.bridge-list .lbl{white-space:nowrap}
 .bl-d{width:9px;height:9px;border-radius:50%;background:var(--kc,var(--acc))}
 .land{margin:8px 0 0}
 .land svg{display:block;width:100%;height:auto}
 .land a{cursor:pointer}
-.land-list{list-style:none;margin:10px 0 0;padding:0;display:grid}
+.land-list{list-style:none;margin:14px 0 0;padding:0;display:grid;border-top:1px solid var(--line-2)}
 .land-list a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 12px;width:100%;padding:9px 6px;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font:600 15px var(--f-ui)}
 .land-list a:hover{background:var(--panel)}
 .land{color:var(--ink)}
@@ -725,19 +734,21 @@ dialog[open]::backdrop{animation:fade var(--d-fast) var(--ease-out)}
 .kdot3{position:absolute;left:0;top:.45em;display:block;width:8px;height:8px;border-radius:50%;background:var(--kc,var(--line-2))}
 @media (max-width:560px){ .land,.land-hint{display:none} }
 .ll-r{grid-column:1;font:400 14px/1.4 var(--f-ui);color:var(--mute)}
-.ll-b{grid-column:2;grid-row:1/span 2;align-self:center;font:500 12px var(--f-ui);color:var(--faint)}
+.ll-b{grid-column:2;grid-row:1/span 2;align-self:center}
 /* on a phone the bearing goes under its topic, so a long name has the whole width */
 @media (max-width:560px){ .land-list a{grid-template-columns:minmax(0,1fr)} .ll-b{grid-column:1;grid-row:auto;align-self:start} }
-.qz-n{font:600 12.5px var(--f-ui)!important;color:var(--faint)}
-.qz-q{margin-top:6px!important;font:700 22px/1.3 var(--f-ui)!important;letter-spacing:-.015em}
-.qz-o{display:grid;gap:6px;margin:14px 0 4px}
-.qz-o button{padding:11px 13px;border:1px solid var(--line-2);border-radius:var(--r-2);background:transparent;color:var(--ink);font:400 16px/1.4 var(--f-read);text-align:left;cursor:pointer}
-.qz-o button:hover:not(:disabled){border-color:var(--ink)}
+.sh-body .qz-n{margin:2px 0 8px}
+.sh-body .qz-q{margin:0;font:700 22px/1.3 var(--f-ui);letter-spacing:-.015em;text-wrap:pretty}
+.qz-o{display:grid;margin:18px 0 8px;border-top:1px solid var(--line-2)}
+.qz-o button{display:grid;grid-template-columns:20px minmax(0,1fr);align-items:baseline;gap:12px;width:100%;padding:12px 6px 11px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent;color:var(--ink);font:400 16px/1.45 var(--f-read);text-align:left;cursor:pointer;transition:background-color var(--d-quick) var(--ease-out)}
+.qz-o button:hover:not(:disabled){background:var(--panel)}
 .qz-o button:disabled{cursor:default}
-.qz-o button.right{border-color:var(--acc);background:var(--mark);font-weight:600}
-.qz-o button.wrong{text-decoration:line-through;color:var(--faint)}
-.qz-score{font:700 18px var(--f-ui)!important}
-.qz-score b{font:700 56px/1 var(--f-ui);color:var(--acc);letter-spacing:-.025em}
+.qz-o button.right{font-weight:600}
+.qz-o button.right .lbl{color:var(--ink)}
+.qz-o button.wrong>span:last-child{text-decoration:line-through;color:var(--faint)}
+.sh-body .qz-score{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 10px;margin:4px 0 14px;font:500 15px/1.4 var(--f-ui);color:var(--mute)}
+.qz-score b{font-size:64px;line-height:1;color:var(--ink)}
+.qz-score .dots{margin-left:4px}
 .field{display:grid;gap:6px;margin-top:14px;font:600 13.5px var(--f-ui)}
 .field input{padding:9px 11px;border:1px solid var(--line-2);border-radius:var(--r-2);background:transparent;font:16px var(--f-read)}
 .fine{font-size:12.5px;color:var(--faint)}
@@ -1011,7 +1022,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 /* focused, a map says so in its own drawing (its corner brackets strengthen), not with a ring round the canvas */
 .gv-canvas:focus{outline:none}
 /* the card beside a topic: what it is, when you read it, what it connects to */
-.gv-tip{position:absolute;z-index:3;width:min(280px,calc(100% - 16px));font:13.5px/1.45 var(--f-ui);pointer-events:none;overflow:hidden}
+.gv-tip{position:absolute;z-index:3;width:min(280px,calc(100% - 16px));font:13.5px/1.45 var(--f-ui);pointer-events:none;overflow:hidden;transform-origin:50% 0;animation:popin var(--d-fast) var(--ease-out) both}
+.gv-tip.leaving{animation:popout var(--d-quick) var(--ease-out) both;pointer-events:none!important}
 .gv-tip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--kc,var(--acc))}
 .gv-tip.act{pointer-events:auto}
 .gt-k{display:flex;align-items:center;justify-content:space-between;gap:8px}
