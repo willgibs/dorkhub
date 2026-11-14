@@ -1126,6 +1126,8 @@ body.at-start #keyBtn,body.at-start #voice{display:none}
 .wp-find{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 10px;color:var(--faint)}
 .wp-find .ic{width:16px;height:16px}
 .wp-find input{width:min(200px,38vw);border:0;background:transparent;font:500 14px var(--f-ui);color:var(--ink);outline:none}
+/* an empty field keeps no room for its clear button, so the placeholder is whole on a 320 px phone */
+.wp-find input:placeholder-shown::-webkit-search-cancel-button{display:none}
 .wp-kinds{display:inline-flex;gap:2px;height:36px;padding:0 6px;align-items:center}
 .wp-kinds button{display:grid;place-items:center;width:26px;height:26px;padding:0;border:0;border-radius:50%;background:transparent;cursor:pointer}
 .wp-kinds i{width:9px;height:9px;border-radius:50%;background:var(--kc);transition:opacity var(--d-quick) var(--ease-out),transform var(--d-quick) var(--ease-out)}
