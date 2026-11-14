@@ -11,10 +11,19 @@ writer's thinking settings (#38), the eval's subscription route (#41), and Wave 
 phones, #40 Your world by keyboard, #39 sharing). In order from here:
 1. **One seamless app** (Will: 6 or 7 of 10 before these; "under a cohesive, rooted visual identity"). Live at
    his word: willgibs/dorkhub#42, the cohesion wave, and #43, motion on one clock. Next, in order:
-   a. **What the kit has not reached**, by preview: the tool sheets (quiz, recap, around this) and their
-      out-of-tools state, any surface that still sets its own label, box or shadow, and the motion left out of
-      #43 (the selection button, the timers on Your world's tips; the front cards' drawings keep their own).
-   b. **A read-only audit of the built page** for accessibility and speed, then the invisible fixes on green.
+   a. Live at his word: willgibs/dorkhub#44, the kit where it had not reached: the tool panels (peek, expand,
+      skeptic mode), the tool sheets (quiz, around this, connect, the trail) and their out-of-tools state, the
+      selection button, Your world's card. The front cards' drawings keep their own motion.
+   b. **Accessibility and speed**, audited 2026-11-13 (nothing changed). Being built on `fix/a11y`, to merge on
+      green because a reader would not notice: focus returning to its opener when a sheet from
+      the More menu or the phone menu closes; the More menu by keyboard; the recap announcing once; search as a
+      combobox; heading order; the Enigma card's 28 Tab stops; the phone button's droplets by Tab; the aurora
+      picture loading lazily; the phone front page's layout shift. **(Will)** A reader could notice these four:
+      the Enigma keys' labels at 3.79:1; the Origami card's "Technique" at 4.19:1 and "IN" at 4.42:1; small
+      touch targets (Your world's find field 19 px tall, the image credit 17 px, the footer's Credits 15 px);
+      the composer's beam at about 10% of the main thread while in view. Noted, not proposed: the whole app is
+      inlined in each of 44 HTML files (363 KB, about 100 KB compressed), the price of a CSP with no external
+      scripts; a full minify would save about 6 KB compressed.
    c. **(Will)** Which idea goes to a preview: dotted numerals in the figures panel and the trial count, more
       presence for the top bar, the footer's wordmark elsewhere, the picture travelling back into its card on Back.
 2. **(Will)** A few dollars of gateway credit. Live writing has never run, and #38 changed what it sends:
