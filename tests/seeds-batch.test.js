@@ -9,9 +9,9 @@ import { test } from 'node:test';
 import { streamText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { cachedPrompt, writerSettings } from '../lib/ai.js';
-import { TASKS, pageInput, pageParts, pagePrompt } from '../lib/prompts.js';
+import { TASKS, composePage, pageInput, pageParts, pagePrompt } from '../lib/prompts.js';
 import { MODELS, TRIAL_MODEL, directId } from '../src/shared/models.js';
-import { batchCost, readResult, seedProblems, seedRequest } from '../scripts/seeds/batch.js';
+import { batchCost, readResult, scorecard, seedProblems, seedRequest } from '../scripts/seeds/batch.js';
 
 const repo = fileURLToPath(new URL('..', import.meta.url));
 
@@ -55,6 +55,29 @@ test('a front-page topic is sent with its brief, exactly as `seeds.mjs brief` pr
   }
   for (const title of ['Tardigrades', 'Why is ice slippery?']) assert.equal(text(seedRequest('p00', title, TRIAL_MODEL).params), pagePrompt(pageInput({ title, lens: 'encyclopedic' })), title);
   assert.match(text(seedRequest('p00', 'Why is ice slippery?', TRIAL_MODEL).params), /The reader asked: "Why is ice slippery\?"/, 'a question is asked as one');
+});
+
+test('a try changes one thing from production\'s call, and asks the same words', () => {
+  const prod = seedRequest('p00', 'Black holes', TRIAL_MODEL).params;
+  const think = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'haiku-think').params;
+  assert.deepEqual([think.model, think.thinking, think.output_config, think.max_tokens], [prod.model, undefined, { effort: 'low' }, TASKS.page.maxTokens + 8000], 'thinking a little, with room for it');
+  assert.equal(text(think), text(prod));
+  const split = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'haiku-split').params;
+  assert.deepEqual(split.system?.[0].cache_control, { type: 'ephemeral', ttl: '1h' });
+  assert.equal(`${split.system?.[0].text}\n\n${split.messages[0].content}`, text(prod), 'the fixed part as instructions, the request as the message');
+  assert.equal(split.system?.[0].text, composePage(pageInput({ title: 'Black holes' }), 'split').system, "the eval's split variant");
+  assert.deepEqual(split.thinking, prod.thinking);
+  const sonnet = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'sonnet').params;
+  assert.deepEqual([sonnet.model, sonnet.thinking], ['claude-sonnet-5-5', { type: 'between_tools' }]);
+  assert.throws(() => seedRequest('p00', 'Black holes', TRIAL_MODEL, 'nope'), /unknown arm/);
+});
+
+test('an arm\'s scorecard: kept, passing, stopped early, thinking and cost', () => {
+  const page = readFileSync(new URL('../lib/seeds/black-holes/index.txt', import.meta.url), 'utf8');
+  const usage = { input_tokens: 100, output_tokens: Math.round(page.length / 2.77) + 400 };
+  const s = scorecard(TRIAL_MODEL, [{ title: 'Black holes', text: page, usage }, { title: 'Black holes', text: page.slice(0, 900), usage }, { title: 'Black holes', text: null, usage: null }]);
+  assert.deepEqual([s.pages, s.written, s.keptByProduction, s.passSeedsChecks, s.stoppedBeforeQuestions], [3, 2, 1, 1, 1]);
+  assert.ok(s.thinkingTokens > 0 && s.waitSeconds > 0 && s.dollars > 0);
 });
 
 test('a result is a page only when the writer stopped on its own', () => {

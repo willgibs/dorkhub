@@ -233,6 +233,14 @@ export function parseArticle(raw, streaming) {
       P = panel; continue;
     }
     if ((m = /^\^\s+(.+)$/.exec(L))) { flush(); if (pcount) A.notes.push({ n: pcount, s: m[1] }); continue; }
+    /* A page's first line is its title line, but writers sometimes leave off the "# " (Claude Haiku 5.5 without
+       thinking, on about half its pages: 2026-11-17). So a first line naming a kind after " :: " is the title line
+       all the same. Until that line is whole it is held back, since it can't yet be told from a paragraph. */
+    if (!A.title && !deckSeen && !body && !para.length && mode === 'body' && !/^[#>^~@:*•-]/.test(L)) {
+      if (li === open) continue;
+      const s = /\s+::|::(?=\s|$)/.exec(L);
+      if (s) { A.kind = kindOfWord(L.slice(s.index + s[0].length), true); A.title = L.slice(0, s.index).replace(/\[\[|\]\]/g, '').replace(/\*\*/g, '').trim(); continue; }
+    }
     if ((m = /^#\s+(.+)$/.exec(L)) && !A.title) {
       /* v3 names the page's kind after " :: ". The kind counts once the line is whole, and a title
          like "std::vector" keeps its colons, the way "::" without spaces stays prose in the body. */
