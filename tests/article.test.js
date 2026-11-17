@@ -88,6 +88,20 @@ test('the link plan accepts bulleted lines and pre-body blocks do not end the bo
   assert.equal(A.bodyDone, false);
 });
 
+/* Writers copy the section's label (Sonnet 5.5 on 35 of 43 pages, 2026-11-17), in every shape seen; it is never a fact,
+   and the facts after it stay facts, never a paragraph ahead of the body. */
+test('a copied "Key facts" label is never a fact, and the facts after it stay in their place', () => {
+  const FACTS = 'Mass :: about 4 million Suns\nFirst image :: April 2019\nRadius :: about 9 mm';
+  const want = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\n${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+  for (const label of ['Key facts ::', 'Key facts :: ', 'Key facts:', 'Key facts: exactly 3 lines', 'Key facts :: 3 lines', '**Key facts**', 'Key facts']) {
+    const A = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\n${label}\n${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+    assert.deepEqual(A, want, `the label "${label}"`);
+  }
+  const glued = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\nKey facts :: ${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+  assert.deepEqual(glued, want, 'the label ahead of the first fact');
+  assert.deepEqual(parseArticle('# B :: thing\n!!!\nKey facts :: Ma', true).keyFacts, [], 'a line still being written waits');
+});
+
 /* Every page carries a line of key facts right under its deck (v3.1); only a page written ahead of time can end with sources */
 test('the line of key facts and the sources: read in place, never ending the plan or the body', () => {
   const page = '# Pompeii :: place\n> A town buried and kept.\n!!!\nWhere :: Near Naples, Italy\nBuried :: AD 79, by Vesuvius\nUnearthed :: Since 1748\nA fourth :: never shown\n+++\n[[Vesuvius]] :: place\n---\nThe town under [[Vesuvius]].\n\nMore.\n===\n- [[Herculaneum]] :: Its neighbour, kept in mud :: place\n???\nWhy did Pompeii stay buried?\n@@@\n- Wikipedia: Pompeii :: https://en.wikipedia.org/wiki/Pompeii\nhttps://example.org/not-a-link-list\n';

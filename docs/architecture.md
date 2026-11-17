@@ -67,7 +67,9 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
   their own, `&&&` a hook for every planned link, and, only on a page written ahead of time, `@@@` the sources it
   was checked against (`- Label :: https://…`; a live writer is never asked for them, and the page lists them only
-  for a seeded page: today only the placeholders carry any). Kinds come before the body so links appear
+  for a seeded page: today only the placeholders carry any). A first line naming a kind after ` :: ` is the title line
+  even without its `# ` (Claude Haiku 5.5 without thinking drops it on about half its pages); it is held back until
+  it is whole, since until then it can't be told from a paragraph. Kinds come before the body so links appear
   in colour; hooks come last because only hover cards need them. The page's own kind counts
   once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
   six cards, de-duplicated and never the page itself.

@@ -213,7 +213,11 @@ export function parseArticle(raw, streaming) {
     }
     /* the line of key facts: "Label :: value", at most three; a line still being written waits for its newline */
     if (mode === 'keyfacts') {
-      if ((m = /^[-*•]?\s*([^:]{1,40}?)\s+::\s+(.+)$/.exec(L))) { if (li !== open && A.keyFacts.length < 3) A.keyFacts.push({ label: m[1].trim(), value: clip(m[2].trim(), 80) }); continue; }
+      /* the format names the section "Key facts", and writers copy the label (Sonnet 5.5 on 35 of 43 pages, 2026-11-17):
+         as a line of its own ("Key facts ::", "Key facts: 3 lines") or ahead of the first fact. It is never a fact. */
+      const K = L.replace(/^[-*•]?\s*\**\s*key\s+facts?\s*\**\s*(?:::|:)\s*/i, '');
+      if (/^[-*•]?\W*key\s+facts?\W*$/i.test(L) || (K !== L && !/\s::\s/.test(K))) continue;
+      if ((m = /^[-*•]?\s*([^:]{1,40}?)\s+::\s+(.+)$/.exec(K))) { if (li !== open && A.keyFacts.length < 3) A.keyFacts.push({ label: m[1].trim(), value: clip(m[2].trim(), 80) }); continue; }
       if (li === open) continue;
       mode = 'body';
     }
