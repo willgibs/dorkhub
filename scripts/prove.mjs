@@ -6,7 +6,7 @@
 // bad requests). --spend --yes adds the checks that write two live pages with the caller's free
 // trial (real tokens on production). --ratelimit sends free prefetches until the firewall answers
 // 429. No dependencies beyond Node. Exit code 1 if anything failed.
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 
 /** @typedef {{ status: 'ok' | 'FAIL' | 'skip' | 'manual', name: string, detail: string, paused?: boolean }} Result */
@@ -101,7 +101,11 @@ export async function prove(baseUrl, options = {}) {
 
   async function spending() {
     const pausedMsg = 'live writing is paused: no credits or the trial is off';
-    const topic = `Prove ${rand()} ${rand()}`;
+    /* A real topic no earlier run is likely to have asked for (a year in a place: some 9,600 of them), so the writer
+       writes a whole page and it is kept for the repeat. A nonsense topic can come back too thin to keep, and then the
+       repeat writes again (2026-11-17, the first live run). */
+    const PLACES = ['Portugal', 'Japan', 'Venice', 'Persia', 'Scotland', 'Poland', 'Hungary', 'England', 'France', 'China', 'Egypt', 'the Ottoman Empire', 'Russia', 'Spain', 'Sweden', 'Florence'];
+    const topic = `The year ${1300 + randomInt(600)} in ${PLACES[randomInt(PLACES.length)]}`;
     /** @type {string} */ let cookie = '';
     /** @type {string} */ let text = '';
     /** @type {number | null} */ let after1 = null;
