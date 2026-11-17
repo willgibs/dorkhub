@@ -245,7 +245,14 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   opens another page written ahead of time. A written page in `lib/seeds` replaces it with no
   other change. `node scripts/seeds.mjs brief "<title>"` gives a writer the page's own prompt
   plus what the front page says about the topic (hooks and drawings) and its threads, each
-  with its source, to keep and to link.
+  with its source, to keep and to link. `node scripts/seeds.mjs batch plan|send|take` writes
+  the pages written ahead of time through Anthropic's Message Batches API, at half a live page's
+  price: each request is production's own call (model, output limit, thinking and words, with the
+  shared instructions cached for the hour a batch may take; `scripts/seeds/batch.js`), and only
+  a page that stopped on its own and passes the seeds' tests is kept, stamped in
+  `lib/seeds/index.json` with the model and prompt version that wrote it (`doors` shows a page
+  stale once either changes). It spends on `DH_ANTHROPIC_KEY` from `.env.local`, never on a stray
+  `ANTHROPIC_API_KEY`.
 - **State on the server.** Trial counters live in Redis or Runtime Cache. Written pages and
   answers are kept by **the library** (`lib/library.js`), three layers read in order: pages
   written ahead of time (`lib/seeds`), the Runtime Cache (14 days, best effort: it is regional
@@ -263,7 +270,16 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 3. **Writer** (`lib/ai.js`):
    - A reader's key headers (`x-dh-provider`, `x-dh-model`, `x-dh-key`) go to that provider
      directly, or through their own gateway key. Quick tools use the provider's fast model.
-   - Without a key, writing goes to `gateway(DH_TRIAL_MODEL)` over OIDC.
+   - Without a key, writing goes straight to Anthropic on Dorkhub's own key (`DH_ANTHROPIC_KEY`, Production only,
+     from the Console workspace "Dorkhub", whose monthly spend limit is the free pages' budget), or, where that key
+     isn't set, to `gateway(DH_TRIAL_MODEL)` over OIDC. Each instance says which once: `{"evt":"writer","via":…}`.
+     No SDK reads a `DH_` variable by itself and a reader's key is always passed explicitly, so the two never mix.
+   - A page's prompt goes in two parts (`pageParts` in `lib/prompts.js`, `cachedPrompt` in `lib/ai.js`): the fixed
+     instructions, identical for every topic, voice and question (about 2,050 tokens, 96% of a page's input), marked
+     for Anthropic's prompt cache, then the request. Joined, they are the page's prompt exactly. A page that starts
+     within five minutes of another reads the instructions from the cache (on Haiku a tenth of their price, about
+     18% off the page; each read keeps them five minutes more); one that finds the cache cold pays a quarter more
+     for them (about 4% on the page). The write log's `cacheRead` and `cacheWrite` say which.
    - Every writer is told how long to think before its first word (`writerSettings`): Claude's 5.5 models think
      unless told otherwise, and what they think counts against the output limit, so Haiku is told not to, Sonnet
      only between tool calls (a page makes none), and Opus, which cannot stop, as little as it can, with room
@@ -301,9 +317,10 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
    unit, unless the reader hung up after the writer started, and return the error status.
 11. **Stream** plain text. A mid-stream failure or cut-off appends one trailer:
    `\u0000` + JSON. Only clean stops that pass `task.usable()` are kept, and never a
-   `fresh` answer. Every write logs one line (task, model, tokens, ms, end, cached), never
-   content, IPs, cookies or keys. `trial_paused` says `why` in the log (`off`, `counters`,
-   `gateway_auth`, `no_credit`); a deferred job that fails (a cache write, a refund, a usage
+   `fresh` answer. Every write logs one line (task, model, tokens in and out, and from or into
+   the prompt cache when any, ms, end, cached), never content, IPs, cookies or keys. `trial_paused`
+   says `why` in the log (`off`, `counters`, `auth`, `no_credit`: out of credit, or the month's spend
+   limit reached); a deferred job that fails (a cache write, a refund, a usage
    report) logs `{ evt: 'deferred', what, error }`.
 
 ## Error codes (`STATUS` in `lib/ai.js`; reader-facing text is `errText()` in `src/app/02-util.js`)
@@ -321,7 +338,7 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
 | rate_limited | 429 | Busy (trial), or the Firewall rule |
 | key_limit | 429 | The reader's key is rate-limited or out of credit |
 | upstream_error | 502 | Anything else from the provider |
-| trial_paused | 503 | Trial switched off, or Dorkhub's gateway refused (credits, budget, auth) |
+| trial_paused | 503 | Trial switched off, or Dorkhub's own credentials refused: auth, no credit, or the month's spend limit reached |
 
 ## Invariants (most are guarded by tests; the security review established them)
 
@@ -379,6 +396,8 @@ which pages were cached.
 | Lead pictures against a fake Wikimedia: crawler refusals, input limits, licences, the image proxy, captions (the article's own, else an English description, never a bare name) | `tests/picture.test.js` |
 | Prompts and input validation | `tests/prompts.test.js` |
 | Pre-written pages: served by topic, both index shapes, the real seeds complete and each naming its kind; every front-page topic opens free, its placeholder complete, linking only to pages written ahead of time and claiming nothing unchecked; a written page replaces it; the writer's brief | `tests/seeds.test.js` |
+| A batch of pages written ahead of time asks as production does (model, limit, thinking, words, for every vetted writer), sends a front-page topic with its brief, keeps only a page that stopped on its own and passes the seeds' checks, and prices itself | `tests/seeds-batch.test.js` |
+| The writer's route: Dorkhub's Anthropic key for the trial only (a reader's key never meets it, a preview never spends), the gateway without it; a page's shared instructions marked for the prompt cache, its words unchanged; out of credit or at the spend limit pauses | `tests/write.test.js`, `tests/thinking.test.js`, `tests/prompts.test.js` |
 | The front page by hand: topics, threads and cards each with a source, drawings labelled and inert (a canvas hidden from assistive tech), no line of prose on a card, an entrance length for each, ids unique across cards, a phone version of each wide drawing, short readings, drawings true to their subjects, the cards' styles in their own sheet with the computed rules, the door list, the grid without holes, the Enigma's cipher | `tests/front.test.js` |
 | Page identity, addresses both ways, trails, the move-in from rabbit holes, what to drop when the browser is full | `tests/world.test.js` |
 | Sharing: every known page at its own address with its own head (otherwise the page itself), its picture made for it (1200 × 630, its title, kind and line, credited), an address told by itself to link previews only, a function that never writes, robots.txt's one exception, trail addresses both ways | `tests/share.test.js` |
@@ -394,12 +413,17 @@ region iad1 and a 120 s max duration.
 
 **Not in the repo** (dashboard only):
 - A Firewall rule rate-limits `/api/write` to 40 requests per minute per IP, then 429.
-- The AI Gateway team budget is $5 a month.
-- Production has no `AI_GATEWAY_API_KEY`; it uses OIDC.
+- `DH_ANTHROPIC_KEY` (Production only, Sensitive): a key from the Console workspace "Dorkhub" in Will's
+  organization. The workspace's monthly spend limit ($50, Will, 2026-11-17) caps what the free pages spend; above
+  it, the organization's credit ($200 a month with his subscription, auto-reload off) is the ceiling, so nothing is
+  ever charged to a card. When either runs out, free pages pause (`why: 'no_credit'`) until the month turns.
+- The AI Gateway team budget is $5 a month; the gateway writes only where `DH_ANTHROPIC_KEY` isn't set.
+- Production has no `AI_GATEWAY_API_KEY`; the gateway uses OIDC.
 
 **Log lines worth knowing:**
 - `{"evt":"store"}`: once per instance; says which counter store is in use.
-- `{"evt":"write"}`: one per write, with tokens and timing.
-- `{"evt":"trial-credentials"}`: the gateway refused Dorkhub's own credentials.
+- `{"evt":"writer","via":"anthropic"}`: once per instance; whose credit the free pages spend (`gateway` without the key).
+- `{"evt":"write"}`: one per write, with tokens (`cacheRead`/`cacheWrite` when the prompt cache was used) and timing.
+- `{"evt":"trial-credentials"}`: Dorkhub's own credentials were refused (the key, the gateway, no credit, the limit).
 
 **Settings:** see `.env.example`.

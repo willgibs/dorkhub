@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { streamText } from 'ai';
 import { chooseWriter, classify, mockAllowed, pauseCause, trialModel } from '../lib/ai.js';
 import { redisCounters } from '../lib/counters.js';
 import { TASKS } from '../lib/prompts.js';
@@ -228,12 +229,53 @@ test('a paused trial says why in the log, never on the wire', async () => {
   const err = console.error; console.error = () => {};
   try { assert.equal((await c.call(pageBody('Umami'))).status, 503); } finally { console.error = err; }
   assert.equal(c.logs.at(-1).why, 'counters');
-  assert.equal(pauseCause({ statusCode: 401 }), 'gateway_auth');
-  assert.equal(pauseCause({ message: 'Invalid API key' }), 'gateway_auth');
+  assert.equal(pauseCause({ statusCode: 401 }), 'auth');
+  assert.equal(pauseCause({ message: 'Invalid API key' }), 'auth');
   assert.equal(pauseCause({ statusCode: 402 }), 'no_credit');
   assert.equal(pauseCause({ message: 'Insufficient credits on this account' }), 'no_credit');
   assert.equal(pauseCause({ statusCode: 429 }), null);
   assert.equal(classify({ statusCode: 401 }, false), 'trial_paused'); assert.equal(classify({ statusCode: 402 }, true), 'key_limit');
+  /* Anthropic says so in a 400: out of credit, or the workspace's monthly spend limit reached. Either pauses the
+     free pages until the month turns (a reader's own key: their limit), never a "something went wrong". */
+  for (const message of ['Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.', 'You have reached your specified workspace API usage limits. You will regain access on 2026-12-01 at 00:00 UTC.']) {
+    assert.equal(pauseCause({ statusCode: 400, message }), 'no_credit', message);
+    assert.equal(classify({ statusCode: 400, message }, false), 'trial_paused');
+    assert.equal(classify({ statusCode: 400, message }, true), 'key_limit');
+  }
+});
+
+/* The key a writer really sends, read off its first request by a stand-in for the network. The writer is chosen
+   inside, so a provider that keeps fetch from when it was made still meets the stand-in. */
+const keySent = async (/** @type {Record<string, string>} */ env, /** @type {Record<string, string>} */ headers = {}) => {
+  const real = globalThis.fetch; /** @type {string | null} */ let key = null;
+  globalThis.fetch = /** @type {any} */ (async (/** @type {any} */ _url, /** @type {any} */ init) => { key = new Headers(init.headers).get('x-api-key'); return new Response(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'a test' } }), { status: 400, headers: { 'content-type': 'application/json' } }); });
+  try {
+    const w = await chooseWriter({ request: new Request('https://dorkhub.com/api/write', { method: 'POST', headers }), env: { VERCEL_ENV: 'production', ...env }, task: TASKS.page, taskName: 'page', input: {} });
+    const r = streamText({ model: w.model, prompt: 'A page.', maxRetries: 0, onError: () => {} });
+    try { for await (const _ of r.textStream) { /* nothing comes */ } } catch { /* the refusal */ }
+    return { w, key };
+  } finally { globalThis.fetch = real; }
+};
+
+test('the free pages are written on Dorkhub\'s Anthropic key when production has one, else through the gateway', async () => {
+  const house = 'sk-ant-house-000000000000';
+  const { w, key } = await keySent({ DH_ANTHROPIC_KEY: ` ${house}\n` });
+  assert.equal(w.via, 'anthropic'); assert.equal(w.byok, null);
+  assert.equal(/** @type {any} */ (w.model).provider, 'anthropic.messages'); assert.equal(/** @type {any} */ (w.model).modelId, 'claude-haiku-5-5');
+  assert.equal(w.id, 'anthropic/claude-haiku-5.5', 'the same id as through the gateway, so every page already kept stays a hit');
+  assert.equal(key, house, 'pasted with a space or a newline, the key still works');
+  for (const env of [{}, { DH_ANTHROPIC_KEY: '  ' }]) {
+    const g = await chooseWriter({ request: new Request('https://dorkhub.com/api/write', { method: 'POST' }), env: { VERCEL_ENV: 'production', ...env }, task: TASKS.page, taskName: 'page', input: {} });
+    assert.equal(g.via, 'gateway'); assert.equal(/** @type {any} */ (g.model).provider, 'gateway');
+  }
+  const preview = await chooseWriter({ request: new Request('https://dorkhub.com/api/write', { method: 'POST' }), env: { VERCEL_ENV: 'preview', DH_MOCK: '1', DH_ANTHROPIC_KEY: house }, task: TASKS.page, taskName: 'page', input: {} });
+  assert.equal(preview.via, 'mock', 'a preview never spends, key or no key');
+});
+
+test('a reader\'s Anthropic key is the only key their pages use, even where Dorkhub has its own', async () => {
+  const { w, key } = await keySent({ DH_ANTHROPIC_KEY: 'sk-ant-house-000000000000' }, KEY);
+  assert.equal(w.via, 'reader'); assert.equal(w.byok, 'anthropic');
+  assert.equal(key, KEY['x-dh-key']);
 });
 
 test('work after the answer that fails is logged by what it was, never with content', async () => {

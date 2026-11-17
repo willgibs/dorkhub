@@ -5,13 +5,14 @@ on camera without fighting the app._
 
 ## Where it works
 
-- **dorkhub.com** is the real thing. Without AI Gateway credit the writer can't run, so stay on the pages written
-  ahead of time: the 33 front-page topics (every card, suggestion and thread on the front page) and the 11 earlier
-  pages they lead to. They open free and instant. **Don't type a new topic into the composer on production**: it
-  opens a "paused" page until credits exist.
-- **A page being written, word by word**, can only be filmed locally for now: `npm run dev` (port 3000, or `PORT=…`)
-  runs a mock writer that replays real recorded pages at a writer's pace. Type *Lanchester's laws*, *Bog bodies*,
-  *Mantis shrimp vision* or *Lewis gun* into the composer.
+- **dorkhub.com** is the real thing. Since 2026-11-17 it writes new pages live, on Will's Anthropic API credit:
+  a topic typed into the composer is written word by word, from the free pages a browser gets (10 a month). The
+  pages written ahead of time open free and instant: the 33 front-page topics (every card, suggestion and thread on
+  the front page) and the 11 earlier pages they lead to. If the month's spend limit is ever reached, a new topic
+  opens a "paused" page until the 1st.
+- **A page being written, word by word**, also films locally, for free and at will: `npm run dev` (port 3000, or
+  `PORT=…`) runs a mock writer that replays real recorded pages at a writer's pace. Type *Lanchester's laws*,
+  *Bog bodies*, *Mantis shrimp vision* or *Lewis gun* into the composer.
 - Production rate-limits `/api/write` (40 a minute per address) and every reading page calls it once: pace a
   capture script under ~20 page loads a minute. Use a generic User-Agent.
 

@@ -3,15 +3,16 @@
 _Ordered by priority. **(Will)** means it needs his decision or action first: ask, don't assume. What has shipped
 lives in `docs/decisions.md` and on dorkhub.com, not here. Questions for Will go on the review desk (`CLAUDE.md`)._
 
-## Now: everything left needs Will (2026-11-14)
+## Now (2026-11-17)
 
 The product is built: the front page and its 13 cards, the reading page, Your world, sharing, moves both ways, the
-Lamps identity. Production is proven except for live writing. What remains, in order:
+Lamps identity. Since 2026-11-17 the free pages write on Will's Anthropic API credit (a $50-a-month Console
+workspace; `docs/decisions.md`). What remains, in order:
 
-1. **(Will) A few dollars of AI Gateway credit.** The free tier can't call Claude Haiku 5.5, so a page nobody has
-   written yet shows "paused". Live writing has never run, and #38 changed what it sends. Then, in order: §1
-   (prove production), §2 (the writer on real output), §3 (the model eval). You'll know it works when a live write
-   logs `{"evt":"write",…,"end":"ok"}` rather than `trial_paused`.
+1. **Prove live writing** (§1): `node scripts/prove.mjs https://dorkhub.com --spend --yes`, and the function log
+   shows `{"evt":"writer","via":"anthropic"}`, then `{"evt":"write",…,"end":"ok"}` rather than `trial_paused`, with
+   `cacheRead` on a page written within five minutes of another. Then the pages written ahead of time, rewritten by
+   the production writer through the Batch API (§2), and the model eval on the same credit (§3).
 2. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
    whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
    once connected. Then §5's "Real Redis".
@@ -41,9 +42,9 @@ Lamps identity. Production is proven except for live writing. What remains, in o
 Will (2026-10-19): get any page right on the first try, quickly. Judge against `docs/vision.md`.
 - **Page by page.** Small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs
   <dir>`); a prompt rule only for a failure on two or more pages of different kinds; a regression set unlike the
-  front page whenever the prompt changes. Pages written ahead of time are rewritten whenever the prompt changes, so
-  they never fall behind live pages (one bar). **(Will)** The 11 earlier pages (Tardigrades and the rest) were
-  written and fact-checked the old way: rewrite them in one pass too?
+  front page whenever the prompt changes. Pages written ahead of time are rewritten whenever the prompt or the
+  writer changes, so they never fall behind live pages (one bar): all 44, the 11 earlier pages (Tardigrades and the
+  rest) included (Will, 2026-11-17), in one batch through the Batch API with production's own call.
 - **Replace the stand-ins.** `lib/recorded.js` holds Haiku stand-ins written through a Claude Code subagent, not
   fact-checked; three still say "your path" (the old voice). Re-record them from live output
   (`scripts/recorded.mjs`). They replay only in dev, the walk and previews, never in production.
@@ -60,7 +61,8 @@ Will (2026-10-19): get any page right on the first try, quickly. Judge against `
 ## 3. The model eval (Will gives the go and approves the cost)
 
 Built and proven on the mock (2026-11-13): `docs/eval-plan.md`, `node scripts/eval.mjs plan`. Nothing has been run.
-Its writers need the gateway (cents); its judges run on the subscription (`--judge-via claude`). Then Will's blind
+Its writers need the gateway (cents), or the Anthropic credit once `scripts/eval.mjs` gains a `--via anthropic` route
+on `DH_ANTHROPIC_KEY`; its judges run on the subscription (`--judge-via claude`). Then Will's blind
 picks in `review.html`, and the winner wired into `lib/write.js` (`composePage`; `split` is the early favourite)
 with `PROMPT_VERSION` bumped. Other models (Sonnet 5.5 as the writer, OpenAI, Gemini) are a `--models` flag on the
 same harness, after the first look.
@@ -83,8 +85,10 @@ same harness, after the first look.
 
 - **Real Redis.** Verify `redisCounters` and the library's `redisLayer` against real Upstash once it's connected;
   both have only been tested against a fake.
-- **Prompt caching** for the static instructions: the `split` variant sends them as the system message; measure
-  the saving in the eval, and check the provider's minimum cacheable length first.
+- **Prompt caching** has been on for a page's fixed instructions since 2026-11-17 (5-minute cache). After a week of
+  live pages, read the hit rate from the write log's `cacheRead`/`cacheWrite`: a 1-hour cache costs twice as much to
+  store, and pays only if pages come at least hourly but rarely within five minutes of each other. A `split` winner
+  in the eval moves the mark onto its system message (`pageParts`' test fails until it does).
 - **Structured outputs** for the JSON tools (part of the eval).
 - **`DH_SALT`.** Optional; without it the project ID is the salt.
 - **Trial size on the page.** `TRIAL_PAGES` is baked in at build time from `DH_TRIAL_PAGES`: changing it in Vercel

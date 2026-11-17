@@ -14,8 +14,9 @@ Then, as needed: `docs/architecture.md` before touching `lib/`, `api/` or the bu
 
 ## Stack
 One static page (plain JS modules bundled by esbuild in `scripts/build.mjs`, no framework) +
-one Vercel Function (`api/write.js`, Node 24, ESM, JSDoc-typed JS) · AI SDK 7 · Vercel AI
-Gateway (OIDC, no secrets) · Vercel Runtime Cache · npm.
+one Vercel Function (`api/write.js`, Node 24, ESM, JSDoc-typed JS) · AI SDK 7 · the Anthropic
+API for the free pages (one key, `DH_ANTHROPIC_KEY`, Production only; Vercel AI Gateway over OIDC
+where it isn't set) · Vercel Runtime Cache · npm.
 
 ## Commands
 `npm run dev` (mock writer, :3000) · `npm run verify` (build + tsc + tests: THE green gate,
@@ -44,7 +45,9 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
   threads between topics, each with its source, and `DOORS` (those topics, then the pages written
   before them); the build writes `public/front.json`.
 - `lib/placeholder.js`: a front-page topic whose page isn't written yet opens a placeholder, built
-  from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page.
+  from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page;
+  `node scripts/seeds.mjs batch plan` (then `send --yes`, `take`) writes them all through the Batch API,
+  with production's own call, at half price (it spends: Will's go first).
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`
@@ -105,6 +108,9 @@ recommendation, not plan documents. Think in one head; use subagents only for re
   in to a different team and can't see dorkhub. `DH_MOCK=1` is set on Preview only.
 - GitHub: `gh` is signed in as willgibs; preview URLs are in
   `gh api repos/willgibs/dorkhub/deployments`.
+- Anthropic Console (platform.claude.com, Will's organization): the free pages spend the API credit
+  his subscription includes, through the workspace "Dorkhub" and its $50 monthly spend limit. Keys
+  and limits are his to make and change; read usage in his Chrome, read-only.
 - Cloudflare holds dorkhub.com's DNS and email routing: never touch MX, SPF or DKIM.
 - Port 3000 on this Mac often runs another project's dev server.
 - Agents that browse never put personal data in a request: a generic User-Agent, no names,
