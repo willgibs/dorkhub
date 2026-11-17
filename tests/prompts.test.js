@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { BadInput, FORMAT, LENS_VOICE, PAGE_VARIANT, PAGE_VARIANTS, PROMPT_VERSION, TASKS, composePage, pageInput, pagePrompt } from '../lib/prompts.js';
+import { BadInput, FORMAT, LENS_VOICE, PAGE_VARIANT, PAGE_VARIANTS, PROMPT_VERSION, TASKS, composePage, pageInput, pageParts, pagePrompt } from '../lib/prompts.js';
 import { PANELS } from '../src/shared/article.js';
 
 const page = (/** @type {Record<string, unknown>} */ o) => pagePrompt(pageInput({ title: 'Tardigrades', ...o }));
@@ -123,6 +123,19 @@ test('split sends the same words, the fixed part as instructions', () => {
     assert.equal(s.maxTokens, TASKS.page.maxTokens);
   }
   assert.equal(composePage(pageInput({ title: 'X' }), 'split').system, composePage(pageInput({ title: 'Y', lens: 'nerd' }), 'split').system, 'the instructions are identical page to page, so they can be cached');
+});
+
+test('a page in two parts, for the prompt cache: what every page shares, then this page; joined, its words exactly', () => {
+  assert.equal(TASKS.page.parts, pageParts);
+  const shared = pageParts(pageInput({ title: 'Tardigrades' })).fixed;
+  for (const raw of [{ title: 'Tardigrades' }, { title: 'Black holes', lens: 'nerd' }, { title: 'Why is ice slippery?' }, { title: 'Mercury', ctx: 'Planets', lens: 'kid' }, { title: 'A and B', bridge: ['A', 'B'] }]) {
+    const p = pageInput(raw); const { fixed, request } = pageParts(p);
+    assert.equal(fixed + request, pagePrompt(p), `${raw.title}: the writer reads what it always read`);
+    assert.equal(fixed, shared, `${raw.title}: one cached part for every topic, voice and question`);
+    assert.ok(!request.includes('Output format'));
+  }
+  /* Claude's 5.5 models cache a part of 512 tokens or more; at about four characters a token this is several times that */
+  assert.ok(shared.length > 4 * 512 * 3, `${shared.length} characters`);
 });
 
 test('grounded adds reference notes only when they are supplied, with the rules for using them', () => {

@@ -4,16 +4,16 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { createGateway, streamText } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { writerSettings } from '../lib/ai.js';
-import { MODELS, directId } from '../src/shared/models.js';
-import { TASKS } from '../lib/prompts.js';
+import { cachedPrompt, writerSettings } from '../lib/ai.js';
+import { MODELS, TRIAL_MODEL, directId } from '../src/shared/models.js';
+import { TASKS, pageInput, pageParts, pagePrompt } from '../lib/prompts.js';
 
 /* send one call the way lib/write.js does, and return the body that left */
-const sent = async (/** @type {(fetch: typeof globalThis.fetch) => import('ai').LanguageModel} */ make, /** @type {string} */ id) => {
+const sent = async (/** @type {(fetch: typeof globalThis.fetch) => import('ai').LanguageModel} */ make, /** @type {string} */ id, /** @type {string | import('ai').ModelMessage[]} */ prompt = 'A page.') => {
   /** @type {any} */ let body = null;
   const fetch = /** @type {any} */ (async (/** @type {any} */ _url, /** @type {any} */ init) => { body = JSON.parse(init.body); return new Response(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: 'a test' } }), { status: 400, headers: { 'content-type': 'application/json' } }); });
   const tuned = writerSettings(id);
-  const r = streamText({ model: make(fetch), prompt: 'A page.', maxOutputTokens: TASKS.page.maxTokens + tuned.room, maxRetries: 0, ...(tuned.options ? { providerOptions: tuned.options } : {}), onError: () => {} });
+  const r = streamText({ model: make(fetch), prompt, maxOutputTokens: TASKS.page.maxTokens + tuned.room, maxRetries: 0, ...(tuned.options ? { providerOptions: tuned.options } : {}), onError: () => {} });
   try { for await (const _ of r.textStream) { /* nothing comes */ } } catch { /* the refusal */ }
   return body;
 };
@@ -38,6 +38,19 @@ test('with a reader\'s key, Anthropic is told: Haiku does not think, Sonnet only
   assert.equal(opus.output_config?.effort, 'low');
   assert.equal(opus.thinking, undefined, 'Opus 5.5 refuses a request that turns thinking off');
   assert.equal(opus.max_tokens, TASKS.page.maxTokens + writerSettings('anthropic/claude-opus-5.5').room);
+});
+
+test('a page\'s shared instructions are marked for the prompt cache, and the writer still reads the prompt\'s own words', async () => {
+  const input = pageInput({ title: 'Black holes' });
+  const page = cachedPrompt(pageParts(input));
+  const direct = await sent(fetch => createAnthropic({ apiKey: 'sk-ant-test', fetch })(directId(TRIAL_MODEL)), TRIAL_MODEL, page);
+  assert.equal(direct.messages.length, 1);
+  const blocks = /** @type {any[]} */ (direct.messages[0].content);
+  assert.deepEqual(blocks.map(b => b.cache_control ?? null), [{ type: 'ephemeral' }, null], 'the shared part only: the rest differs page to page');
+  assert.equal(blocks.map(b => b.text).join(''), pagePrompt(input), 'what the writer reads is unchanged');
+  assert.deepEqual(direct.thinking, { type: 'disabled' }, 'and Haiku still writes without thinking first');
+  const via = await sent(fetch => createGateway({ apiKey: 'vck_test', fetch })(TRIAL_MODEL), TRIAL_MODEL, page);
+  assert.match(JSON.stringify(via), /"cacheControl":\{"type":"ephemeral"\}/, 'through the gateway the mark travels too');
 });
 
 test('through the gateway, the same settings travel with the request', async () => {

@@ -2,28 +2,26 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-14, evening): built, live, handed off
-- **Live on dorkhub.com, everything through the handoff round** (#49, #50, #51): the front page and its 13 hand-drawn
-  cards (Pompeii, Venus flytraps and Fireworks redrawn this day), the reading page, Your world, sharing, moves that
-  run both ways (cards, links, the composer, the front page's maps, Your world), the Lamps identity, and a
-  performance pass (the composer's glow rests at idle, no layout shift on phones, the cards preload, no stray font).
-- **Production is proven except live writing**: the page, `/front.json` and `/front.css` match a local build byte for
-  byte, and `node scripts/prove.mjs https://dorkhub.com` passes. The writer has never run live; the eval has not run.
-- **The review desk** (https://claude.ai/artifact/5H9tMoB19rZjCUkfkHKSLP) holds Will's current asks; he answers each
-  on the page (Approve, Revise, Deny, a note: read `verdicts` with ArtifactData, see `CLAUDE.md`). One ask is open:
-  gateway credit.
-- **Clean**: GitHub holds only `main`, no open pull requests; no worktrees or branches beyond `main` on this Mac.
+## Now (2026-11-17): live writing moves to Will's Anthropic API credit
+- **The free writer goes straight to Anthropic** on `DH_ANTHROPIC_KEY` (Production only, Sensitive), a key from the
+  Console workspace "Dorkhub", whose $50 monthly spend limit is the free pages' budget; auto-reload stays off, so
+  nothing is charged beyond the month's credit. Without the key, the gateway as before. Why not the gateway's
+  bring-your-own-key, and the costs: `docs/decisions.md` (2026-11-17).
+- **Prompt caching** on a page's fixed instructions (identical for every page, 96% of its input): about 18% off a
+  page that starts within five minutes of another. The write log's `cacheRead`/`cacheWrite` tell the hit rate.
+- **Will's calls:** Haiku 5.5 stays the free writer and the eval decides any switch; $50 a month; rewrite all 44
+  pages written ahead of time through the Batch API (the 11 earlier ones included).
+- **Will's part:** the workspace, its limit and two keys (`dorkhub-production` into Vercel as `DH_ANTHROPIC_KEY`,
+  `dorkhub-local` into `.env.local`). Keys are his to make and paste; agents never see one.
 
-## For Will's portfolio
-`docs/showcase.md`: what to capture in the order a visitor meets it. Without credit, production serves only the
-pages written ahead of time (the 33 front-page topics and 11 earlier pages); film a page being written locally.
-
-## Next, all of it Will's first (`docs/backlog.md` "Now")
-1. Gateway credit, then: prove live writing (`prove.mjs … --spend --yes`), the eval's first look, wire the winner
-   into `lib/write.js`, replace the writer stand-ins in `lib/recorded.js` (backlog §1–3).
-2. Connect Upstash (and whether the library keeps every page); retire the old resources in his accounts; repo
-   visibility; Pro pricing.
-3. Long-term: one HTML shell instead of 46 copies, a shared feed, analytics, more writers (backlog §5).
+## Next
+1. Merge the writer change once `DH_ANTHROPIC_KEY` is in Vercel, then prove it:
+   `node scripts/prove.mjs https://dorkhub.com --spend --yes` (about $0.002), the `writer` and `write` log lines
+   in his Chrome, the spend under the Dorkhub workspace in the Console. Take the gateway-credit ask off the desk.
+2. `node scripts/seeds.mjs batch`: plan, send, take. Rewrites the 44 pages written ahead of time with production's
+   own call (about 3 cents); before and after pictures on the desk; merge on his Approve.
+3. Then (each on his go): the eval's first look on the credit, re-recording `lib/recorded.js` from live output,
+   the trial size once readers reach it; Upstash, old resources to retire, repo visibility, Pro pricing.
 
 ## Open, small
 - CI's second try for the walk warns when used: drop it after a clean week (from 14 Nov).
@@ -32,6 +30,6 @@ pages written ahead of time (the 33 front-page topics and 11 earlier pages); fil
   (`tests/front.test.js`).
 - Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone, keyboard
   focus into the sticky bar scrolls the page.
-- Fable hit its account limit on 14 Nov; card builders ran on Opus (300–370k tokens a card).
 
+The review desk: https://claude.ai/artifact/5H9tMoB19rZjCUkfkHKSLP (verdicts via ArtifactData, see `CLAUDE.md`).
 The orchestrator's working notes: `.claude/orchestrator-handoff.md` (untracked, on Will's Mac).
