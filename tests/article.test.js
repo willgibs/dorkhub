@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
+import { readFileSync, readdirSync } from 'node:fs';
+import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, quietRuns, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
 import { FIXTURES } from './fixtures.js';
 import { DISEASE, LAW, QUESTION, RULES, VILLAGE, outlierPage } from './outliers.js';
-import { mockModel, page as mockPage } from '../lib/mock.js';
+import { mockModel, page as mockPage, splitTimeline } from '../lib/mock.js';
 import { RECORDED } from '../lib/recorded.js';
 import { streamText } from 'ai';
 
@@ -328,6 +329,42 @@ test('v1 pages: head facts and timelines become panels below the first paragraph
   assert.equal(A.gloss[keyOf('Regelation')].gloss, 'Ice refreezes'); assert.equal(A.gloss[keyOf('Regelation')].kind, 'phenomenon');
   assert.equal(parseArticle(v1.slice(0, v1.indexOf('More')), true).panels.length, 2, 'they appear once the first paragraph is finished');
   assert.equal(parseArticle(v1.slice(0, v1.indexOf('helps')), true).panels.length, 0);
+});
+
+/* A page's reveal passes over the lines a reader never sees (05-render.js), so a page that arrives whole shows its first
+   words with its head: what it passes over must hold nothing the parser shows, on every page written ahead and every
+   page recorded from a writer, and a run still being written stays open. */
+test('the quiet runs of a page hold nothing a reader sees', () => {
+  const seeds = readdirSync(new URL('../lib/seeds/', import.meta.url), { withFileTypes: true }).filter(d => d.isDirectory()).map(d => readFileSync(new URL(`../lib/seeds/${d.name}/index.txt`, import.meta.url), 'utf8'));
+  const shown = (/** @type {string} */ t) => { const A = parseArticle(t, true); return JSON.stringify([A.title, A.deck, A.keyFacts, A.blocks, A.panels.length, A.notes, A.tunnels, A.questions]); };
+  let passed = 0;
+  for (const text of [...seeds, ...RECORDED.map(r => r.text)]) {
+    const runs = quietRuns(text);
+    for (const [a, b] of runs) { assert.equal(shown(text.slice(0, a)), shown(text.slice(0, Math.min(b, text.length))), `a run of ${text.slice(a, a + 40)}`); passed += Math.min(b, text.length) - a; }
+  }
+  assert.ok(seeds.length >= 40 && passed > seeds.length * 400, `the link plans are passed over (${passed} characters)`);
+  /* a page written ahead: its plan to the body's first line, and its hooks to the end */
+  const bh = seeds.find(t => t.startsWith('# Black holes')) || seeds[0]; const [plan] = quietRuns(bh);
+  assert.equal(bh.slice(plan[0], plan[0] + 4), '+++\n'); assert.ok(parseArticle(bh.slice(0, plan[1] + 12), true).blocks.length, 'the body follows at once');
+  /* still being written: the plan's run is open; a line of prose straight after it (no "---") ends it */
+  const live = '# Osedax :: creature\n> Deck.\n!!!\nA :: b\n+++\n[[Whale fall]] :: phenomenon\n';
+  assert.deepEqual(quietRuns(live), [[live.indexOf('+++'), Infinity]]);
+  const slip = '# T\n+++\n[[A]] :: thing\nBody begins here.\n';
+  assert.deepEqual(quietRuns(slip), [[slip.indexOf('+++'), slip.indexOf('Body')]]);
+});
+
+/* DH_MOCK_WAIT, on a developer's machine: a recorded page's head as the split writer sends it (its lines one by one,
+   the plan all at once), then nothing until its first body words, so the wait before them can be watched (lib/mock.js) */
+test('the mock can replay a head on the split writer’s timeline', () => {
+  const text = RECORDED.find(r => r.title === 'Osedax')?.text || RECORDED[0].text;
+  assert.equal(splitTimeline(text, 0), null, 'off unless a wait is asked for');
+  const s = splitTimeline(text, 2600); const head = s.lines.map(l => l.text).join('');
+  assert.ok(text.startsWith(head) && !parseArticle(head, true).blocks.length && parseArticle(text.slice(0, head.length + 40), true).blocks.length, 'the head, whole lines, up to the body');
+  assert.deepEqual([s.lines[0].at, s.body], [900, 2600], 'the title at 0.9 s, the first words at 2.6 s');
+  const plan = s.lines.findIndex(l => l.text.startsWith('+++'));
+  assert.ok(plan > 1 && s.lines.slice(plan).every(l => l.at === 1801) && s.lines[plan - 1].at === 1410, 'the head whole at 1.4 s, the plan all at once at 1.8 s');
+  assert.ok(s.lines.every((l, i) => !i || l.at >= s.lines[i - 1].at), 'in order');
+  const quick = splitTimeline(text, 1000); assert.ok(quick.lines[0].at >= 0 && quick.lines.at(-1).at < quick.body);
 });
 
 test('small helpers', () => {

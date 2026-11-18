@@ -38,6 +38,26 @@ export function titleIsLocked({ title, q, bridge, depth, from }) {
   return !((depth === undefined || depth === 0) && isQuestion(title));
 }
 
+/* The runs of a page's text that show nothing as it streams in: the link plan, v1's timeline, the hooks for link cards
+   and the sources, each from its marker to the next marker (the body's own "---" with it), as [start, end) offsets, the
+   last open-ended while it is still being written. A run holds only lines shaped like those sections' own (a link, a
+   " :: ", an address, a label ending in a colon) and ends at any other line, which the parser would show: so a reveal
+   that passes over a run never hides anything, and at worst shows a slipped line at once instead of streaming it in. */
+const QUIET = new Set(['+++', '%%%', '&&&', '@@@']);
+const QUIET_LINE = /^[-*•]?\s*\[\[|::|https:\/\/|:\W*$/;
+/** @param {string} text @returns {[number, number][]} */
+export function quietRuns(text) {
+  /** @type {[number, number][]} */ const runs = []; let at = 0, from = -1;
+  for (const line of String(text || '').split('\n')) {
+    const L = line.trim(), m = /^(={3,}|\+{3,}|\^{3,}|\?{3,}|>{3,}|%{3,}|&{3,}|@{3,}|!{3,}|-{3,})\s*$/.exec(L), end = at + line.length + 1;
+    if (m) { const k = m[1].slice(0, 3); if (QUIET.has(k)) { if (from < 0) from = at; } else if (from >= 0) { runs.push([from, k === '---' ? end : at]); from = -1; } }
+    else if (from >= 0 && L && !QUIET_LINE.test(L)) { runs.push([from, at]); from = -1; }
+    at = end;
+  }
+  if (from >= 0) runs.push([from, Infinity]);
+  return runs;
+}
+
 /* For answers that should be JSON: tolerate code fences and stray prose around the value. */
 /** @param {unknown} text @returns {any} */
 export function looseJSON(text) {

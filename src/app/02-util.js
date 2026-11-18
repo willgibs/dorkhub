@@ -67,6 +67,7 @@ export function save(now) {
   const doSave = () => {
     const protect = [CUR, store.current].filter(Boolean);
     for (const id of textsToDrop(store.pages, { keep: 200, protect })) store.pages[id].text = null;
+    saveTimer = 0;
     for (let keep = 160; keep >= 0; keep -= 40) {
       try { localStorage.setItem(KEY, JSON.stringify(store)); return; }
       catch (e) { for (const id of textsToDrop(store.pages, { keep, protect })) store.pages[id].text = null; }
@@ -185,4 +186,8 @@ auth = (() => {
   return a;
 })();
 applyTheme();
+/* a save still waiting (they gather for 400 ms) is made as the page goes, so a page that has just finished is never
+   kept as one cut off mid-write by a reload or a closed tab */
+addEventListener('pagehide', () => { if (saveTimer) save(true); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && saveTimer) save(true); });
 }
