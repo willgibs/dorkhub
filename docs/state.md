@@ -2,29 +2,30 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-17, night): Haiku writes every live page, Sonnet the covers
+## Now (2026-11-17, night): two PRs on the desk; the free writer rebuilt around Haiku
 - **Live on dorkhub.com:** the free pages write on Will's Anthropic credit (`DH_ANTHROPIC_KEY`, Production only;
-  Console workspace "Dorkhub", $50 monthly limit, auto-reload off), and the prompt cache works. #54 shipped the
-  parser's first two fixes for Haiku's slips (a bare title line, a copied "Key facts" label).
-- **Will's calls (desk, 2026-11-17):** Haiku 5.5 stays the live writer, "its weaknesses accommodated elegantly in
-  our own architecture and design", and should write genuinely engaging pages. Sonnet 5.5 writes the pages written
-  ahead of time, "a fun entry point". His time travel page opened on one narrow angle (GPS clocks).
-- **Branch `fix/unmarked-sections`** (one PR, on the desk as asks "closing-sections" and "covers"):
-  - The parser knows Haiku's closing sections by their lines' shape, and drops copied labels. On its 44 pages,
-    format lines in the body fall from 18 to 3, and real cards rise from 23 to 37.
-  - Sonnet rewrote all 44 covers ($0.73). The cover brief now opens on the whole topic, and Sonnet's limit gets
-    1,000 tokens of room.
-  - The covers' checks accept a thread as a card or a body link, and leave long facts to the layout.
-- **Spent on the credit so far:** about $1.50 of the $50 month (live proof, three writer arms, the covers).
+  Console workspace "Dorkhub", $50 monthly limit), and #54's parser fixes for the bare title and the "Key facts" label.
+- **PR #55 (`fix/unmarked-sections`)**, desk asks "closing-sections" and "covers":
+  - the parser reads Haiku's closing sections by their shape and drops copied labels;
+  - Sonnet 5.5 rewrote all 44 covers ($0.73), each opening on its topic.
+- **The split-writer PR (`feat/split-writer`, stacked on #55)**, desk ask "split-writer": Dorkhub's own writer writes a
+  page in three calls (frame, body, ways on; `lib/split.js`), with planned topics linked at their first mention.
+  - By batch on the 44 topics: bodies that link nothing fall from 17 to 0, the median rises from 2 links to 12
+    (Sonnet 13), and every page is whole (25 today).
+  - Merge #55 first, then this one. Each needs Will's Approve.
+- **Will's first-principles call (2026-11-17):** "work in from both ends", with everything up for relitigation. Haiku
+  does best with one job at a time and mirrors the prompt's words, so its prompts carry no phrases it could copy.
+- **Card audit:** a separate session ("Front-page cards that show their own topic") audits the cards that picture a
+  neighbouring idea. Changed lines mean those covers are written again (Will's go).
+- **Spent on the credit so far:** about $1.65 of the $50 month.
 
 ## Next
-1. Ship the PR after Will's look (desk asks 1 and 2), then take both off the desk.
-2. **(Will)** Engaging Haiku pages: the eval's `lean` prompt on Haiku, 44 topics by batch (about $0.03), in blind
-   pairs with today's prompt on the desk.
-3. Haiku's early stops: 6 of 44 pages end after the body. Either finish them with a short second call (about
-   $0.0003 a page), or keep them with cards made from their links.
-4. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size once readers reach it;
-   Upstash; old resources to retire; repo visibility; Pro pricing; identity federation instead of the key.
+1. Ship #55 then the split writer after Will's look. Prove it live (`node scripts/prove.mjs https://dorkhub.com
+   --spend --yes`, about $0.004) and read `split: true` in the logs, with the time to the first word.
+2. Relitigate the rest of the page around what Haiku writes well: hooks on hover rather than written for every link,
+   and readers' own keys on the split writer.
+3. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size; Upstash; old resources; repo
+   visibility; Pro pricing; identity federation.
 
 ## Open, small
 - The audit PR (#53, `package-lock.json` only) awaits Will's review.
