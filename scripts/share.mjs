@@ -41,7 +41,7 @@ const ART = {
   fireworks: '&{background:#03040A}.wc-art{top:262px}',
   lightning: '.wc-art{left:560px}',
   'giant-squid': '.wc-art{left:560px}.wc-line{max-width:470px}',
-  pompeii: '.wc-art{left:590px}.wc-line{max-width:440px}',
+  pompeii: '.wc-art{left:500px;top:-150px;right:-10px;bottom:-30px}.wc-line{max-width:430px}.wc-cr{left:68px!important;right:auto!important}.pm-l{stroke-width:.5}.pm-ring{stroke-width:1.6}',
   'enigma-machine': '.wc-art{left:560px;top:40px;right:20px;bottom:30px;transform:scale(1.42);transform-origin:62% 50%}.en-tape,.en-tally{display:none}',
   infinity: '.wc-art{left:520px;top:0;right:-10px;bottom:-10px}',
 };

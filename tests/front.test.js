@@ -10,6 +10,7 @@ import { KINDS, parseArticle } from '../src/shared/article.js';
 import { enigma } from '../src/shared/enigma.js';
 import { FOLD, barField, miura } from '../src/shared/plates.js';
 import { trace } from '../lib/plates/blackhole.js';
+import { PLAN } from '../lib/plates/pompeii.js';
 import { topicKey } from '../src/shared/world.js';
 
 const titles = new Set(FRONT.map(t => t.t));
@@ -82,9 +83,10 @@ test('every card leads into a planned topic, with a source, and a drawing that i
     const w = Number(/&amp;w=(\d+)/.exec(c.art)?.[1]); assert.ok(WIDTHS.includes(w), `${c.t}: width ${w}`);
     assert.ok(c.credit && /·/.test(c.credit), `${c.t}: credit and licence`);
   }
-  /* the drawings carry real geometry (some 5,000 dots in the black hole's disk alone): about 50 KB compressed. Raised
-     from 192 to 200 KB on 2026-11-14 for Fireworks' night show, every shell's stars computed (no further) */
-  assert.ok(JSON.stringify(data).length < 200 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
+  /* the drawings carry real geometry (some 5,000 dots in the black hole's disk alone): about 52 KB compressed. Raised
+     from 192 to 200 KB on 2026-11-14 for Fireworks' night show, every shell's stars computed, and to 220 KB on
+     2026-11-18 for Pompeii's plan, every wall the survey maps, the look Will approved (7 KB more by brotli) */
+  assert.ok(JSON.stringify(data).length < 220 * 1024, `front.json is ${(JSON.stringify(data).length / 1024).toFixed(0)} KB`);
 });
 
 /* the cards share one page: an id in one card's drawing (a gradient, a mask, a path for words to follow) must not
@@ -136,6 +138,13 @@ test('the drawings are true to their subjects', () => {
   const ways = fact(8) * 3n ** 7n * fact(12) / 2n * 2n ** 11n;
   assert.equal(ways.toLocaleString('en-US'), '43,252,003,274,489,856,000');
   assert.match(frontData().cards.find(c => c.t === 'Rubik’s Cube')?.art || '', /43,252,003,<wbr>274,489,856,000/);
+  /* Pompeii: what the survey of the ruins leaves undug inside the walls is about a third of the town (Wikipedia:
+     two-thirds of it has been excavated), as its line says; the quarters come out in five steps, and the survey is
+     credited, as its licence asks */
+  assert.ok(PLAN.still > .25 && PLAN.still < .4, `Pompeii: ${PLAN.still} of the town still buried`);
+  assert.equal(PLAN.walled.length, 5); assert.ok(PLAN.walled.every(Boolean) && PLAN.ash.every(Boolean), 'Pompeii: every quarter has walls and ash');
+  assert.match(FRONT.find(t => t.t === 'Pompeii')?.h || '', /Two-thirds/);
+  assert.match(CARDS.find(c => c.t === 'Pompeii')?.credit || '', /OpenStreetMap contributors/);
 });
 
 /* only the front page wears the cards' look: it lives in src/front.css, which the build ships as /front.css */

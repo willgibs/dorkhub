@@ -165,37 +165,21 @@ a.wc-open:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
 .vz .mg-edge{fill:none;stroke:rgba(0,0,0,.25);stroke-width:.8}
 .vz .mg-l{font:700 14px/1 var(--f-ui);letter-spacing:0;fill:#fff}
 
-/* Pompeii: Pliny's view across the bay, an afternoon in a hazy light on paper, and at night the same view at dusk, the
-   column's top still lit rose and a fire at the vent. On its turn the column climbs inside a rising dome, its crown
-   spreads from the top of the trunk and the pumice falls; the pine is there from the first */
-.vz.pp{--pp-s0:#C3D2E0;--pp-s1:#EEF0EC;--pp-w0:#D3DDE3;--pp-w1:#A9BBC8;--pp-glint:#fff;--pp-far:#A6B0B9;--pp-mt:#8E99A4;--pp-c0:#8F8A84;--pp-b0:#ECE9E3;--pp-b1:#B5ADA2;--pp-l0:#fff;--pp-l1:#DDD7CD;--pp-dirt:#7E7469;--pp-stone:#6B6259;--pp-land:#7C7E5F;--pp-land2:#545A41;--pp-p0:#26301F;--pp-p1:#3A4733;--pp-p2:#5D6F4B;--pp-bark:#4B4038;--pp-glow:0}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .vz.pp{--pp-s0:#0D1120;--pp-s1:#4A3A50;--pp-w0:#2E2839;--pp-w1:#0C0E17;--pp-glint:#D8BFCB;--pp-gl-o:.28;--pp-far:#241F2D;--pp-mt:#2B2533;--pp-c0:#1B1D29;--pp-b0:#93808B;--pp-b1:#2B2E3E;--pp-l0:#EDC2AE;--pp-l1:#474A5D;--pp-dirt:#15161F;--pp-stone:#A49CAB;--pp-land:#0A0B11;--pp-land2:#040509;--pp-p0:#030406;--pp-p1:#08090F;--pp-p2:#141824;--pp-bark:#08090F;--pp-glow:1}}
-:root[data-theme="dark"] .vz.pp{--pp-s0:#0D1120;--pp-s1:#4A3A50;--pp-w0:#2E2839;--pp-w1:#0C0E17;--pp-glint:#D8BFCB;--pp-gl-o:.28;--pp-far:#241F2D;--pp-mt:#2B2533;--pp-c0:#1B1D29;--pp-b0:#93808B;--pp-b1:#2B2E3E;--pp-l0:#EDC2AE;--pp-l1:#474A5D;--pp-dirt:#15161F;--pp-stone:#A49CAB;--pp-land:#0A0B11;--pp-land2:#040509;--pp-p0:#030406;--pp-p1:#08090F;--pp-p2:#141824;--pp-bark:#08090F;--pp-glow:1}
-.vz .pp-s0{stop-color:var(--pp-s0)}.vz .pp-s1{stop-color:var(--pp-s1)}.vz .pp-w0{stop-color:var(--pp-w0)}.vz .pp-w1{stop-color:var(--pp-w1)}.vz .pp-h0{stop-color:var(--pp-land)}.vz .pp-h1{stop-color:var(--pp-land2)}
-.vz .pp-b0{stop-color:var(--pp-b0)}.vz .pp-b1{stop-color:var(--pp-b1)}.vz .pp-l0{stop-color:var(--pp-l0)}.vz .pp-l1{stop-color:var(--pp-l1)}
-.vz .pp-f0{stop-color:var(--pp-stone);stop-opacity:0}.vz .pp-f1{stop-color:var(--pp-stone);stop-opacity:.6}.vz .pp-f2{stop-color:var(--pp-stone);stop-opacity:.3}
-.vz .pp-g0{stop-color:#FF7A3A;stop-opacity:.75}.vz .pp-g1{stop-color:#FF7A3A;stop-opacity:0}.vz .pp-glow{opacity:var(--pp-glow)}
-.vz :is(.pp-c0,.pp-c1,.pp-c2,.pp-dirt,.pp-p0,.pp-p1,.pp-p2,.pp-limb){fill:none;stroke-linecap:round}
-.vz :is(.pp-trunk,.pp-crown,.pp-pine) path,.vz .pp-limb{vector-effect:none}
-.vz .pp-c0{stroke:var(--pp-c0)}.vz .pp-dirt{stroke:var(--pp-dirt);stroke-opacity:.22}
-.vz .pp-p0{stroke:var(--pp-p0)}.vz .pp-p1{stroke:var(--pp-p1)}.vz .pp-p2{stroke:var(--pp-p2)}
-.vz .pp-bark{fill:var(--pp-bark)}.vz .pp-limb{stroke:var(--pp-bark)}
-.vz .pp-glint{fill:none;stroke:var(--pp-glint);stroke-opacity:var(--pp-gl-o,.6);stroke-linecap:round}
-.vz .pp-far{fill:var(--pp-far)}.vz .pp-mt{fill:var(--pp-mt)}
-.vz .pp-veil{opacity:.4}.vz .pp-stone{fill:none;stroke-width:.8;stroke-opacity:.7}
-.vz .pp-tick{fill:none;stroke:var(--ink);stroke-opacity:.45}
-.vz .pp-t{font-size:9.5px}
-.vz .pp-big{font:650 18px/1 var(--f-ui);letter-spacing:-.01em;fill:var(--ink)}
-.vz .pp-note{font:500 11px/1 var(--f-ui);letter-spacing:0;fill:var(--mute)}
-.wc.armed:not(.seen) .pp-riser{transform:translateY(250px)}
-.wc.armed.seen .pp-riser{animation:pprise 1s cubic-bezier(.3,.55,.3,1) both}
-@keyframes pprise{from{transform:translateY(250px)}}
-.wc.armed:not(.seen) .pp-crown{opacity:0}
-.wc.armed.seen .pp-crown{animation:ppspread 1s var(--ease-out) .5s both}
-@keyframes ppspread{from{opacity:0;transform:scale(.12,.25)}25%{opacity:1}}
-.wc.armed:not(.seen) .pp-fall{opacity:0}
-.wc.armed.seen .pp-fall{animation:ppfall .8s var(--ease-out) 1.05s both}
-@keyframes ppfall{from{opacity:0;transform:translateY(-14px)}}
+/* Pompeii: the town inside its walls, from the survey of its ruins, in ink and grey whatever the theme (the drawing's
+   units are half-pixels; its lines keep their own width, and only the ash's grain grows with it). Every wall is ink; the ground never dug is ash, a grain of dots. On its turn the whole town is
+   ash, and each quarter's ash clears as its walls come out of it, in the order they were dug; the name of what stays
+   buried comes last. Its credit, which the survey's licence asks for, sits right, clear of the scale */
+.vz .pm-grain{fill:none;stroke:var(--mute);stroke-width:2.3;stroke-linecap:round;stroke-opacity:.42;vector-effect:none}
+.vz .pm-l{fill:none;stroke:var(--ink);stroke-width:.32;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.82}
+.vz .pm-ring{fill:none;stroke:var(--ink);stroke-width:1.2;stroke-linejoin:round}
+.vz .pm-t{font-size:19px;letter-spacing:.09em}
+.vz .pm-s{font-size:17px;letter-spacing:.08em}
+.vz .pm-bar{fill:var(--ink);stroke:none}
+.vz .pm-a{opacity:0}
+.wc.armed:not(.seen) .pm-a{opacity:1}
+.wc.armed.seen .pm-a{animation:pmclear .7s var(--ease-out) var(--w,0s) both}
+@keyframes pmclear{from{opacity:1}to{opacity:0}}
+.wc[data-card="pompeii"] .wc-cr{left:auto;right:18px}
 
 /* Northern lights: the photograph, cropped tall, its scale of heights down the right edge: numbers outside the axis,
    the bands against it, the words inside. On its turn the bands rise, red after green */

@@ -2,6 +2,9 @@ Dorkhub uses these third-party works. Thank you to their authors.
 
 Fonts (Inter, Doto): SIL Open Font License 1.1, see /fonts/OFL.txt.
 
+Map data: the Pompeii card draws OpenStreetMap's survey of the ruins. © OpenStreetMap contributors, available under
+the Open Database Licence (https://www.openstreetmap.org/copyright).
+
 Motion recipes from transitions.dev by Jakub Antalik: the icon swap and texts reveal, and, under a
 Transitions Pro licence, the gooey plus menu (the tools button on a phone) and the image
 generation placeholder (the dots a picture loads behind).
