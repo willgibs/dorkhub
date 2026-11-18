@@ -531,3 +531,19 @@ One line each, newest last. Why, not just what.
   - The time goes to the frame, written whole as structured output before the body can start, and then to the body
     call's own wait for its first token. Kept for what it buys (a median of 12 links a page against 2, every page
     whole); winning the time back is next. `.e2e/desk/tools/timing.mjs` (untracked, on Will's Mac) measures both.
+- 2026-11-18 · **The split writer's frame, written as the page's own head lines** (#58). As structured output the frame
+  waited 1.2 to 1.8 s for its first token and ran to ~430 tokens, so the body's first words came 1.8 s after the single
+  pass's. Now its call writes the head itself (title and kind, deck, `!!!` facts, `+++` topics), stopped where a body
+  would begin (`FRAME_STOP`), read by the page's own parser (`frameOfLines`), each line out as soon as it is whole.
+  - **Timed** on twelve topics, the three writers in rotating order, straight to Anthropic from Will's Mac (medians):
+    the deck at 0.9 s (JSON 1.6, one pass 0.7), the first body words at 3.0 s (JSON 3.8, one pass 2.2), the end at
+    16.0 s (JSON 17.2, one pass 13.0). Links in the body: 13 a page (JSON 12, one pass 3).
+  - **On the 44 pages written ahead of time**, live through `lib/split.js`: every page kept and whole, a median of 13
+    links in the body (the JSON frame's batch: 12), none without, fewest 6 (7); the deck at 0.9 s, the first body
+    words at 3.0 s. About $0.0016 a page, as before.
+  - **How Haiku slips, live** (by batch it never did): 4 of 24 frames wrote their topics as "Wild yeast (creature)",
+    so none was planned and Sourdough's body linked nothing; the prompt now shows the line ("[[Topic]] :: kind"), and
+    0 of 24 did after. 3 of 88 wrote a fact with one colon, a bar or a colon too many. `frameOfLines` reads every form
+    seen, and all 180 saved frames read whole (three facts, 12 or more topics).
+  - **What's left:** the body's first words come 0.7 s after the single pass's: the body call's own wait for its
+    first token (~0.6 s) and the plan written before it can start, the price of the links.
