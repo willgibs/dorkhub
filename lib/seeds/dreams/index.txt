@@ -1,78 +1,81 @@
 # Dreams :: phenomenon
-> Every night, your brain runs films your body is forbidden to act out, and the longest one plays just before you wake.
+> Every night your brain stages vivid, illogical dramas while your body lies paralyzed, and no one has settled why.
 !!!
-REM share :: 20 to 25% of adult sleep
-Sleep cycle :: about 90 minutes
-Final REM period :: up to an hour
+Key facts :: 
+Discovered :: REM sleep identified in 1953
+Cycle length :: about 90 minutes
+Nightly total :: roughly 2 hours of dreaming
 +++
 [[REM sleep]] :: phenomenon
+[[Eugene Aserinsky]] :: person
 [[Sleep paralysis]] :: phenomenon
-[[REM sleep behavior disorder]] :: phenomenon
-[[Pons]] :: thing
-[[Ultradian rhythm]] :: concept
-[[Dream incubation]] :: technique
+[[Lucid dreaming]] :: phenomenon
 [[Activation-synthesis hypothesis]] :: concept
 [[The Interpretation of Dreams]] :: work
-[[Hypnagogia]] :: phenomenon
-[[Night terror]] :: phenomenon
-[[Lucid dream]] :: phenomenon
+[[Michel Jouvet]] :: person
+[[REM sleep behavior disorder]] :: phenomenon
+[[Nightmare]] :: phenomenon
 [[Octopuses]] :: creature
+[[Memory consolidation]] :: mechanism
+[[Pons]] :: thing
+[[Threat simulation theory]] :: concept
+[[Narcolepsy]] :: phenomenon
 ---
-Lie down on any night and your brain will not switch off. About ninety minutes after you fall asleep, its electrical rhythm speeds up until it looks almost like waking, your eyes dart behind closed lids, and the body goes limp. Dreams are most vivid in that state, and most are forgotten within minutes.
+Every night, in cycles of roughly ninety minutes, your brain stops behaving like a sleeping organ and starts behaving like a waking one. Your eyes dart beneath closed lids, your heart rate and breathing turn ragged, and your cortex fires in patterns resembling alertness, while your voluntary muscles are switched off. In that state you walk through cities that are also your childhood school, talk to people who are also someone else, and accept all of it as real. Everyone dreams, including people who swear they never do; they simply don't remember. Across a lifetime, a person spends something like six years dreaming.
 
-## The stage where the body stops
+Most vivid dreaming happens during [[REM sleep]], first identified in 1953 when graduate student [[Eugene Aserinsky]] and his supervisor Nathaniel Kleitman at the University of Chicago noticed bursts of rapid eye movement in sleeping subjects. Woken during those bursts, people reported dreams far more often than when woken at other times. Dreams are not exclusive to REM, however: people roused from non-REM sleep report mental experiences too, though they tend to be shorter, blander and more thoughtlike.
 
-In 1953, Eugene Aserinsky and Nathaniel Kleitman at the University of Chicago recorded sleepers whose eyes moved in bursts, a state now called [[REM sleep|rapid eye movement sleep]]. A night runs in cycles of about ninety minutes, each usually closing with a REM period. The first REM period is short, but later ones grow longer, so the last, just before waking, can run to an hour. That makes the longest dream of the night the one that arrives last, and such cycles are a kind of [[Ultradian rhythm|ultradian rhythm]].
-^ Newborns spend about half their sleep in REM, far more than adults, and no one is sure why.
+^ Dreams in REM are so reliably vivid that in 1953 Aserinsky first tested the finding on his own young son, wiring him up for sleep.
 
-In REM most large muscles go slack, a state called atonia, so the body cannot act out what the brain shows. The switch is wired into the brainstem, where the [[Pons|pons]] plays a central part in turning REM on. In the late 1950s, Michel Jouvet's team in Lyon found that cats with pontine damage kept their muscle tone in REM and made hunting-like movements. Jouvet read this as the cats acting out their dreams.
+## The shape of a night
 
-Sometimes the mind wakes while atonia still holds, leaving a person aware but unable to move, a state known as [[Sleep paralysis|sleep paralysis]]. When the signals that keep the muscles still fail, people with [[REM sleep behavior disorder]] punch, shout or fall out of bed mid-dream. That disorder is often an early sign of Parkinson's disease, years before its movement problems begin.
+Sleep proceeds in cycles, and the REM portion of each cycle grows as the night goes on. The first REM period may last only five to ten minutes, while the last, shortly before you wake, can stretch past forty-five minutes or even an hour. That is why the longest and most elaborate dream of the night tends to arrive just before morning, and why you so often wake from one with the details still fresh. Cutting a night short by a couple of hours therefore costs you a disproportionate share of your dream time.
 
-## Messages, or noise?
-
-For much of history dreams were read as messages. Patients who slept at Epidaurus, a healing sanctuary of Asclepius, practised [[Dream incubation|dream incubation]], and fourth-century BCE inscriptions there record cures credited to dream visits. Freud argued in [[The Interpretation of Dreams]] that dreams disguise unconscious wishes, a view most scientists now doubt.
-
-Modern explanations have not settled the question. In 1977, J. Allan Hobson and Robert McCarley proposed the [[Activation-synthesis hypothesis]], which put the brainstem at the centre of dreaming. Other researchers have proposed rival accounts, and each remains contested.
-::: theories
-Activation-synthesis :: Dreams make sense of random brainstem firing during REM :: partly
-Threat simulation :: Dreams rehearse responses to danger in a safe setting :: disputed
-Memory processing :: Dreams help sort and store the day's memories :: disputed
+::: figures
+90 min :: typical length of one sleep cycle
+4 to 6 :: cycles in a night
+20 to 25% :: share of adult sleep spent in REM
+45+ min :: possible length of the final REM period
 :::
 
-## Who else dreams, and when
+During REM, neurons in the [[Pons]] trigger a muscle shutdown so complete that you cannot act out your dreams. When this brake fails, as in [[REM sleep behavior disorder]], sleepers punch, shout and leap from bed; Michel Jouvet's cats, whose pontine brake was surgically damaged in the 1960s, famously stalked and pounced on imaginary prey in their sleep. When the opposite happens and you wake while the paralysis lingers, you get [[Sleep paralysis]], often with a sensed presence in the room. In [[Narcolepsy]], the brain can slip into REM within minutes of falling asleep.
 
-Dreams are not confined to REM. In a 1957 study, William Dement and Nathaniel Kleitman found that people woken from REM reported dreams far more often than those woken from other stages. Reports from non-REM sleep tend to be vaguer, and the edges of sleep bring [[Hypnagogia|hypnagogic]] images and voices as you drift off.
+## Why we dream
 
-[[Night terror|Night terrors]] happen in deep non-REM sleep, not REM. The sleeper may sit bolt upright and scream, yet usually remembers little or nothing by morning. They are most common in children and tend to come early in the night, when deep sleep is most abundant.
+No explanation has won. The [[Activation-synthesis hypothesis]], proposed by Allan Hobson and Robert McCarley in 1977, held that dreams are the cortex's attempt to make a story out of random brainstem signals. Sigmund Freud, in [[The Interpretation of Dreams]] (1899), had argued instead that dreams disguise forbidden wishes, a view that experiments have never supported. Other ideas link sleep to [[Memory consolidation]], with replay of the day's experience strengthening some memories and pruning others, or to rehearsal: the [[Threat simulation theory]] of Antti Revonsuo suggests dreams practice responses to danger, which would explain why a [[Nightmare]] feels so purposeful.
 
-Sleep resembling REM is not limited to mammals, since birds have it too. [[Octopuses]] have two distinct kinds of sleep, though their brains are built very differently from ours. Whether either is comparable to REM is still unclear.
+^ Mammals and birds show REM sleep, and [[Octopuses]] cycle between quiet sleep and a skin-flickering active phase that resembles it, hinting that the pattern may have evolved more than once.
 
-Occasionally a dreamer realises they are dreaming while the dream runs, and in a [[Lucid dream|lucid dream]] the plot can sometimes be steered. People can learn this on purpose, and a few use it to confront recurring nightmares. Many people have had one at least once, but few have them often.
-^ In sleep labs, lucid dreamers have sent pre-agreed eye movements from inside REM, and the recordings picked them up.
-
-Because a dream leaves so little trace, the study depends on the moment of waking. Researchers wake sleepers and ask what was passing through their minds. Reports from REM are richer than those from other stages, but they are still reconstructions made after the fact.
+The strangest dream state is [[Lucid dreaming]], in which the sleeper knows they are dreaming. In 1975 British psychophysiologist Keith Hearne and later Stephen LaBerge at Stanford showed it objectively: trained dreamers signalled from inside a dream with prearranged eye movements, which the recording equipment picked up. That result proved the dreaming mind can be reached from outside, and it keeps the question open of what dreams are for.
 ===
-- [[Hypnic jerk]] :: The sudden twitch that can jolt you awake as you drift off. :: phenomenon
-- [[Sleepwalking]] :: Sleepwalkers have cooked, dressed and even driven while fast asleep. :: phenomenon
-- [[Unihemispheric sleep]] :: Dolphins can sleep with half their brain awake and keep swimming. :: phenomenon
-- [[Benzene]] :: A chemist's dream of a tail-biting snake may have revealed benzene's ring. :: thing
-- [[Yesterday (The Beatles song)]] :: Paul McCartney woke with a melody and feared it belonged to someone else. :: work
-- [[Dream telepathy]] :: A 1960s Brooklyn lab tried to send pictures into sleepers' dreams. :: mystery
+- [[Lucid dreaming]] :: Dreamers signalled researchers with eye movements from inside a dream.
+:: phenomenon
+- [[Sleep paralysis]] :: Why you wake frozen, sensing a figure in the room.
+:: phenomenon
+- [[Octopuses]] :: Two kinds of sleep, like ours, with skin flickering through colours.
+:: creature
+- [[Michel Jouvet]] :: His cats stalked imaginary prey after he disabled their sleep paralysis.
+:: person
+- [[Memory consolidation]] :: How sleep may decide which of the day's memories survive.
+:: mechanism
+- [[The Interpretation of Dreams]] :: Freud's 1899 book that made dreams a scientific battleground.
+:: work
 ???
-Can people learn to steer their own dreams while they are dreaming?
-Do birds have REM sleep the way mammals do?
-What do sleep labs measure to tell when a person is dreaming?
+Why do I forget most of my dreams?
+Do animals dream, and how would we know?
+Can people who never remember dreams still have them?
 &&&
-[[REM sleep]] :: Limp muscles, darting eyes, a brain nearly as busy as waking.
-[[Sleep paralysis]] :: Your mind wakes before your body, still held in REM's paralysis.
-[[REM sleep behavior disorder]] :: Sleepers act out their dreams when the body's paralysis fails.
-[[Pons]] :: Damage here left cats seemingly acting out their dreams.
-[[Ultradian rhythm]] :: Body clocks that tick faster than daily, like the sleep cycle.
-[[Dream incubation]] :: Patients slept in healing shrines, hoping a dream would cure them.
-[[Activation-synthesis hypothesis]] :: A 1977 idea: dreams are the brain making stories from noise.
-[[The Interpretation of Dreams]] :: Freud said dreams disguise wishes, a view most scientists doubt.
-[[Hypnagogia]] :: Images and voices arrive as you drift off, before REM begins.
-[[Night terror]] :: Deep-sleep terror, usually with no memory of the night.
-[[Lucid dream]] :: Sleepers have signalled from inside a dream using their eyes.
-[[Octopuses]] :: Built nothing like ours, yet they have two kinds of sleep.
+[[REM sleep]] :: The brain's wakelike state, with a body switched off.
+[[Eugene Aserinsky]] :: A graduate student whose odd eye twitches opened a field.
+[[Sleep paralysis]] :: Waking awake but frozen, often sensing a presence.
+[[Lucid dreaming]] :: Knowing you dream, and steering it from inside.
+[[Activation-synthesis hypothesis]] :: Dreams as the cortex's story about brainstem noise.
+[[The Interpretation of Dreams]] :: Freud's wish-fulfilment theory, beloved and unsupported.
+[[Michel Jouvet]] :: Discovered paradoxical sleep and cats that acted out dreams.
+[[REM sleep behavior disorder]] :: Sleepers who physically act out vivid dreams.
+[[Nightmare]] :: Fear dreams that may serve a purpose.
+[[Octopuses]] :: Invertebrates with sleep stages and dramatic colour changes.
+[[Memory consolidation]] :: Sleep as the brain's overnight filing and pruning.
+[[Pons]] :: Brainstem region that paralyzes you while you dream.
+[[Threat simulation theory]] :: Dreams as a rehearsal room for danger.
+[[Narcolepsy]] :: A disorder that throws people straight into REM.

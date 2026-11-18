@@ -1,69 +1,76 @@
 # Coral reefs :: place
-> A reef is built by animals that run partly on sunlight, one skeleton at a time, over thousands of years.
+> Built by animals the size of a lentil, these living cities cover a sliver of the ocean floor yet shelter a quarter of marine life.
 !!!
-Found in :: warm, sunlit tropical seas
-Seafloor cover :: under 1% of the ocean floor
-Species share :: an estimated quarter of marine species
+Key facts :: 
+Coverage :: under 1% of sea floor
+Species hosted :: about 25% of marine species
+Great Barrier Reef :: 2,300 km long
 +++
-[[Coral (animal)]] :: creature
-[[Zooxanthellae]] :: creature
+[[Zooxanthellae]] :: kind
 [[Coral bleaching]] :: phenomenon
 [[Great Barrier Reef]] :: place
-[[Atoll]] :: place
-[[Charles Darwin]] :: person
+[[Darwin's theory of atoll formation|Atoll]] :: thing
 [[Ice ages]] :: era
-[[Last Glacial Maximum]] :: era
-[[Fringing reef]] :: place
-[[Eniwetok Atoll]] :: place
-[[Ocean acidification]] :: phenomenon
+[[Octopuses]] :: creature
 [[Crown-of-thorns starfish]] :: creature
+[[Parrotfish]] :: creature
+[[Coral spawning]] :: phenomenon
+[[Cleaner wrasse]] :: creature
+[[Ocean acidification]] :: phenomenon
+[[Mesophotic reef]] :: place
+[[Calcium carbonate]] :: thing
 ---
-From a plane above north-eastern Australia, the [[Great Barrier Reef]] looks like a mosaic of blue-green patches laid across the sea. Look closer and the mosaic turns out to be built by animals, tiny polyps that have been stacking limestone skeletons for thousands of years. Most of the reef's bulk is old skeleton, and only a thin living skin of coral covers it at any moment.
+A coral reef is a rampart of limestone raised by animals, and a city grown on top of it. Wade over the edge of one in the tropics and the water seems to boil with life: fish in every colour, crabs wedged in crevices, sea fans, giant clams, sharks idling in the shade of branching thickets. The reefs of the world together cover less than 1% of the sea floor, yet they are home to an estimated quarter of all marine species, a density of life that rivals rainforest and far exceeds the surrounding open ocean. Most of the architects are polyps, soft-bodied relatives of jellyfish a few millimetres across, each drawing [[calcium carbonate|Calcium carbonate]] from seawater to build a cup-shaped skeleton beneath itself. Over thousands of years, trillions of those cups pile into structures visible from orbit.
 
-## Animals that run partly on sunlight
+^ Reef-building corals live only where water stays above roughly 18°C, which is why reefs hug the tropics and why a degree or two of warming matters so much.
 
-Each [[Coral (animal)|coral]] is a colony of polyps, soft-bodied animals that sit inside cups of calcium carbonate they draw from seawater. Their tissues host single-celled algae called [[Zooxanthellae]], which photosynthesise and pass sugars to the coral, while the coral gives the algae shelter and nutrients. That partnership is why reef-building corals need clear, sunlit water, and why most reefs stop growing where light runs thin.
+## A partnership in clear water
 
-Reefs cover very little of the planet. Coral reefs occupy less than 1 per cent of the ocean floor, yet they are home to an estimated quarter of all marine species. That makes them one of the densest concentrations of life in the sea, packed into a sliver of the sea floor.
-^ Many of today's reefs grow on the skeletons of older reefs, so the living layer sits on a foundation far older than itself.
+Reefs thrive in water that is almost empty of nutrients, which looks like a paradox. The explanation is a bargain: inside the tissues of reef-building corals live microscopic algae called [[zooxanthellae]], which photosynthesise and hand much of their sugar to the host, sometimes supplying the large majority of its energy. The coral in turn provides shelter and the nitrogen waste the algae need. This tight recycling is why reefs flourish in clear, sunlit, nutrient-poor shallows, and why most reef-building species are confined to the top few dozen metres where light penetrates.
 
-## Sea level and sinking islands
+The partnership is also the reef's weak point. When water runs too hot, the algae are expelled, the coral turns ghostly white, and unless temperatures fall within weeks the animal starves. This is [[coral bleaching]], and mass events have struck the [[Great Barrier Reef]] repeatedly, with severe episodes in 1998, 2002, 2016, 2017, 2020 and 2022.
 
-In 1842 [[Charles Darwin]] published his account of coral reefs, written after the voyage of HMS Beagle, and his explanation of atolls has shaped the field since. His idea ran from a [[Fringing reef|fringing reef]] that hugs a shore, to a barrier reef set further out, to an [[Atoll|atoll]]. It also predicted what drilling would find beneath an atoll, so the idea could be tested rather than merely argued. In the early 1950s, drilling at [[Eniwetok Atoll]] reached volcanic rock beneath a thick column of reef limestone, which fitted the prediction. The test did not settle everything, because sea-level swings during the [[Ice ages|ice ages]] also left their mark on reef growth.
-::: theories
-Subsidence :: Atolls form as volcanic islands sink while corals grow upward. :: accepted
-Glacial control :: Sea-level swings in the ice ages shaped reef growth on shelves. :: partly
+::: figures
+2,300 :: kilometres the Great Barrier Reef stretches along Queensland
+1 :: percent of sea floor covered by all coral reefs
+25 :: percent of marine species estimated to depend on reefs
+18 :: degrees Celsius, rough minimum for reef-building corals
 :::
 
-At the [[Last Glacial Maximum]], roughly 20,000 years ago, global sea level stood about 120 metres lower than it does now. Shelves that are now a few dozen metres under the sea were then dry or close to it, so reefs that had once grown there were left exposed. When the ice melted and the sea climbed again, many of the reefs on today's shelves grew upward through that rise, and some drowned where the water rose faster than they could keep up.
+## Slow construction, sudden change
 
-## Too warm, too acidic
+Reefs grow by only millimetres to a few centimetres a year, so large ones are old. The living veneer of the Great Barrier Reef sits on foundations laid down over hundreds of thousands of years, but the surface we see is young: during the last [[ice ages|Ice ages]], sea level stood about 120 metres lower, and today's shallow reef platforms were dry land. As the ice melted, seas rose and corals climbed upward with them, so most living reef dates only from the last 8,000 years or so. In 1842 Charles Darwin used this logic to explain the [[atoll]], a ring of reef around an empty lagoon: a volcanic island slowly sinks while the coral keeps growing upward, leaving only the circle. Drilling at Eniwetok in the 1950s found volcanic rock beneath more than a kilometre of coral limestone, confirming him.
 
-The reef's fragility shows most clearly in [[Coral bleaching|bleaching]]. When water stays too warm for too long, corals expel their algae, lose their colour and turn white, and without the sugars the algae supply, they can starve unless the algae return. The [[Great Barrier Reef]] suffered mass bleaching in 1998, and again in 2016 and 2017, as heat waves swept along its length.
-^ Bleached coral is not automatically dead, and many colonies recover if cooler water returns in time.
+^ Reefs can pull off a similar trick at depth: [[mesophotic reefs|Mesophotic reef]], found 30 to 150 metres down, survive in dim light that shallow species could not use.
 
-A second threat works more slowly: as the ocean absorbs carbon dioxide, its chemistry shifts toward [[Ocean acidification|acidification]], which makes it harder for corals and other organisms to build their skeletons. Outbreaks of the [[Crown-of-thorns starfish]] add a biological pressure, since the starfish feed on coral tissue, and outbreaks can strip large stretches of reef faster than corals regrow. Where pollution and warm water arrive together, recovery is slower, which is why managers focus on the pressures they can reduce locally.
+## Who lives there, and who eats whom
+
+A reef is crowded because space is the scarce resource and every niche gets filled. [[Parrotfish]] scrape algae off the rock with beak-like teeth and excrete much of it as fine white sand, which is where many tropical beaches come from. Cleaner fish such as the [[cleaner wrasse]] run stations where much larger predators queue to have parasites picked from their skin and even their mouths. [[Octopuses]] hunt among the crevices, and in some cases cooperate with groupers and other fish, which flush prey from hiding. A single night each year can look like a snowstorm in reverse: during [[coral spawning]] off the Great Barrier Reef, usually after a late-spring full moon, colonies release bundles of eggs and sperm in near synchrony.
+
+Reefs have their own enemies. Outbreaks of the [[crown-of-thorns starfish]] can strip coral over huge areas, and the absorption of carbon dioxide by seawater, [[ocean acidification]], makes it harder for corals to lay down skeleton at all. Even so, reefs have recovered from past hammerings, which is part of why researchers still argue about how much can be saved, and how fast the damage can be slowed.
+
 ===
-- [[Octopuses]] :: Reef octopuses hunt alongside fish, a partnership documented in 2024. :: creature
-- [[Fluorescent protein]] :: A coral's red glow supplied the protein that lights up cells in labs. :: thing
-- [[Stromatolite]] :: Microbial reefs built billions of years before any animal could build one. :: thing
-- [[Great Blue Hole]] :: A giant sinkhole off Belize was dry land when seas sat far lower. :: place
-- [[Coral spawning]] :: Many corals spawn together on a few nights, timed by the moon. :: phenomenon
-- [[Mangrove]] :: Mangrove roots trap sediment that would otherwise smother nearby reefs. :: thing
+- [[Ocean acidification]] :: Why rising CO2 dissolves the very skeletons corals build :: phenomenon
+- [[Coral spawning]] :: One night, trillions of eggs released at once under the moon :: phenomenon
+- [[Zooxanthellae]] :: The algae that feed corals and give them their colour :: creature
+- [[Darwin's theory of atoll formation|Atoll]] :: How sinking volcanoes leave rings of coral behind :: thing
+- [[Ice ages]] :: Seas 120 m lower once left today's reef platforms high and dry :: era
+- [[Octopuses]] :: They hunt alongside reef fish, apparently coordinating the chase :: creature
 ???
-How do reef corals survive in water with almost no nutrients?
-Why did the Great Barrier Reef bleach in 2016 and 2017?
-Can a damaged coral reef recover after a single bleaching event?
+How do corals reproduce all at the same moment?
+Can damaged coral reefs actually recover?
+Why do parrotfish produce so much sand?
 &&&
-[[Coral (animal)]] :: Soft animals that build their own limestone homes, cup by cup.
-[[Zooxanthellae]] :: Algae that pay their rent in sugar, fuelling the reef.
-[[Coral bleaching]] :: Corals can turn white within weeks of a heat wave.
-[[Great Barrier Reef]] :: A reef system long enough to be seen from orbit.
-[[Atoll]] :: A coral ring that may crown a long-sunken volcano.
-[[Charles Darwin]] :: The naturalist whose atoll idea waited a century for a drill.
-[[Ice ages]] :: Ice ages moved the sea by more than a hundred metres.
-[[Last Glacial Maximum]] :: The ice age peak when shelves lay high and dry.
-[[Fringing reef]] :: A reef hugging a shore, the first stage of Darwin's sequence.
-[[Eniwetok Atoll]] :: A drill hole that reached volcanic rock under a thick reef.
-[[Ocean acidification]] :: Carbon dioxide makes seawater slowly harder for skeletons to form.
-[[Crown-of-thorns starfish]] :: Coral-eating starfish whose outbreaks can strip large stretches bare.
+[[Zooxanthellae]] :: Tiny algae that supply most of a coral's energy
+[[Coral bleaching]] :: A reef turns white when its partners are expelled
+[[Great Barrier Reef]] :: A reef system visible from space, built over millennia
+[[Darwin's theory of atoll formation|Atoll]] :: Rings of coral marking drowned volcanoes
+[[Ice ages]] :: Falling seas exposed reef platforms as dry land
+[[Octopuses]] :: They hunt together with fish across reef crevices
+[[Crown-of-thorns starfish]] :: A spiny coral eater that can devastate whole reefs
+[[Parrotfish]] :: Turns coral rock into white tropical beach sand
+[[Coral spawning]] :: Whole reefs release eggs and sperm in one night
+[[Cleaner wrasse]] :: Tiny fish that run grooming stations for sharks
+[[Ocean acidification]] :: Seawater chemistry change that weakens coral skeletons
+[[Mesophotic reef]] :: Twilight reefs surviving far below sunlit shallows
+[[Calcium carbonate]] :: The mineral that builds reefs and also limestone cliffs

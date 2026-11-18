@@ -1,71 +1,84 @@
 # Tardigrades :: creature
-> Eight-legged animals half a millimetre long can dry into husks, survive the vacuum of space, and walk again after a sip of water.
-~ You can follow these animals into proteins that turn drying cells to something like glass, a Moon lander that crashed with them aboard, and a genome claim that fell apart within weeks.
+> Half-millimetre animals with eight stubby legs that can dry into dust, survive open space, and wake up when you add water.
+
+!!!
+Key facts :: 
+Size :: 0.1 to 1.2 mm long
+Named :: 1773, Johann Goeze
+Phyla :: Tardigrada, over 1,300 species
 +++
-[[Lazzaro Spallanzani]] :: person
-[[Extremophile]] :: concept
+[[Cryptobiosis]] :: phenomenon
+[[Tun state]] :: phenomenon
+[[Trehalose]] :: thing
+[[Damage suppressor protein]] :: mechanism
 [[Intrinsically disordered proteins]] :: concept
-[[Glass transition]] :: phenomenon
-[[Dsup]] :: thing
-[[TARDIS experiment]] :: event
-[[Beresheet]] :: thing
-[[Planetary protection]] :: concept
-[[Velvet worm]] :: creature
-[[Hox genes]] :: mechanism
+[[Foton-M3]] :: event
+[[Ecdysozoa]] :: concept
+[[Hypsibius exemplaris]] :: creature
+[[Ramazzottius varieornatus]] :: creature
+[[Moss]] :: thing
 [[Horizontal gene transfer]] :: mechanism
-[[Bdelloid rotifers]] :: creature
+[[Anhydrobiosis]] :: phenomenon
+[[Lazzaro Spallanzani]] :: person
+[[Johann August Ephraim Goeze]] :: person
 ---
-Tardigrades, also called water bears or moss piglets, are plump animals about half a millimetre long that lumber along on eight stubby legs tipped with claws or sticky pads. About 1,500 species live in seafloor sediment, ponds, soil and leaf litter, and in the films of water clinging to moss and lichen, from tropical forests to Antarctica. Most pierce plant cells or other tiny animals with a pair of needle-like stylets and suck out the contents. The German pastor Johann August Ephraim Goeze described the first in 1773 as a "little water bear". A few years later the Italian priest [[Lazzaro Spallanzani]] named them Tardigrada, "slow steppers", and revived them from dried gutter sediment.
+Under a microscope, a tardigrade looks like a plump, translucent bear that has wandered into the wrong scale: eight clawed legs, a rounded body, and a head that sways as it feels its way across a film of water. Johann August Ephraim Goeze, a German pastor, described one in 1773 and called it the "little water bear"; the Italian naturalist [[Lazzaro Spallanzani]] named the group Tardigrada, "slow walkers," in 1776. Adults mostly measure under a millimetre, yet tardigrades live in the film of water around [[Moss]] and lichen, in sediments, on mountaintops and in the deep sea. They are animals in the full sense: a brain, a gut, muscles, and, in many species, a few hundred cells that never divide after hatching.
 
-## Life on pause
+^ Despite the "slow walker" name, a tardigrade moves at roughly a few body lengths per minute; its fame comes from stillness, not speed.
 
-When their moss dries out, many land-dwelling tardigrades pull in their head and legs and shrivel into a husk called a tun. They lose nearly all their body water, and their metabolism drops below a ten-thousandth of normal, a state called cryptobiosis. A tun can wait years for rain and revive after a soaking, and tuns have survived cold, pressure and radiation far beyond anything they meet in nature. They are often called [[extremophiles|Extremophile]], but they endure extremes rather than thrive in them: in a 2020 study, a day at about 37 °C killed half the active animals of one hardy species.
-::: figures
-−272 °C :: cold that dried tardigrades have survived, briefly
-600 MPa :: pressure tuns survived, over five times the deepest ocean's
-5,000 Gy :: gamma dose killing half; around 5 can kill people
-30 years :: frozen in Antarctic moss, then revived and bred
+## Dying without dying
+
+The trick behind their reputation is [[Cryptobiosis]], a state in which metabolism falls to a level that is hard to detect at all. When the water around a tardigrade evaporates, the animal pulls in its legs, expels most of its water, and shrivels into a wrinkled barrel called a [[Tun state|tun]]. This form of [[Anhydrobiosis]] can last for years, and tuns have been revived after about a decade in dry storage, with reports of far longer survival under less rigorous conditions. Add water and, within hours, the animal rehydrates and walks away.
+
+Tun formation takes preparation. Slow drying matters: tardigrades dried abruptly often fail, while those given time to adjust survive far better. Many species rely on production of sugars and protective proteins during the drying window, and the tun's shrunken geometry, with legs tucked into the body, limits water loss to the air.
+
+::: steps
+Drying begins :: Surrounding water evaporates and the animal contracts its body lengthwise.
+Tun forms :: Legs retract and the body shrivels into a compact barrel.
+Metabolism drops :: Activity falls to a level that is barely measurable.
+Protection takes over :: Protective proteins and sugars stabilise cell structures.
+Rehydration :: Added water restores the animal, often within hours.
 :::
 
-How they do it is only partly understood. Some tardigrades make little or no trehalose, the sugar brine shrimp pack into their dried eggs, and rely instead on [[intrinsically disordered proteins|Intrinsically disordered proteins]], molecules with no fixed shape. As a cell dries, some of these seem to set into a glassy solid that holds its contents still, the same kind of [[glass transition|Glass transition]] that turns boiled sugar into hard candy. Another protein, [[Dsup]], clings to DNA; human cells engineered to make it took about 40 per cent less DNA damage from X-rays.
+## What protects them
 
-^ Unlike most of their other feats, radiation tolerance needs no drying: active tardigrades withstand about as much as tuns.
+Early explanations pointed to [[Trehalose]], a sugar that shields cells in other dried organisms such as yeast and brine shrimp. Tardigrades turned out to be inconsistent on this point: some species make little of it, so something else must be at work. Attention shifted to proteins unique to tardigrades, including families of [[Intrinsically disordered proteins]] that lack a fixed shape and may form a glass-like matrix around cellular components as water leaves.
 
-## Off the planet
+In 2016, Takekazu Kunieda's team in Tokyo reported a protein they named Dsup, the [[Damage suppressor protein]], from the species [[Ramazzottius varieornatus]]. It binds to DNA and appeared to reduce X-ray damage; human cells engineered to express it showed about 40 percent less damage in the experiment. The same year, a genome of [[Hypsibius exemplaris]] claimed a huge share of foreign genes through [[Horizontal gene transfer]], but later sequencing showed that figure was largely contamination, a cautionary tale about genome assembly.
 
-In September 2007 the [[TARDIS experiment]] flew dried tardigrades on the outside of a Russian satellite, open to space for ten days. Vacuum alone barely harmed them. Adding the Sun's full, unfiltered ultraviolet killed almost all, but a few still revived, and they became the first animals known to survive open space.
+^ Tardigrades share the group [[Ecdysozoa]], the moulting animals, with insects, spiders and roundworms; their closest relatives are probably velvet worms and arthropods.
 
-The Israeli lander [[Beresheet]] carried thousands more inside a time capsule when it crashed on the Moon in April 2019, after its main engine cut out during descent. Researchers who later fired tardigrades from a gas gun concluded they most likely died on impact; any survivors would find no liquid water to wake them. The episode still drew criticism over [[planetary protection|Planetary protection]], the rules meant to stop spacecraft carrying Earth life to other worlds.
+## Tested in space
 
-^ The tardigrades were set in epoxy between the layers of that capsule, an archive of over 30 million pages including English Wikipedia.
+In September 2007, the European Space Agency's [[Foton-M3]] mission exposed dried tardigrades to open space for about ten days. Researchers led by Ingemar Jönsson in Sweden found that many survived the vacuum, and a subset survived solar ultraviolet radiation as well, with some going on to lay eggs. This was not the whole story: results varied by species and by exposure, and survival was never universal.
 
-## A body that is mostly head
+The lab record is a series of such limits. Dried tardigrades have survived temperatures near absolute zero, brief heating above 100 degrees Celsius, and pressures far beyond those at the ocean floor. These tolerances almost certainly evolved for ordinary hazards, such as drying puddles and freezing mountain moss, rather than for space; no tardigrade has ever needed to survive a vacuum. Active, hydrated animals are far more fragile, and they die like any other small animal in boiling water or sustained dryness.
 
-Tardigrades' closest living relatives are thought to be the arthropods and the slime-squirting [[velvet worms|Velvet worm]] of damp forests. Their genes help explain the squat shape. They have lost several [[Hox genes]], which pattern an animal from head to tail, along with the stretch of body those genes would build: almost the whole tardigrade corresponds to an arthropod's head, with nothing matching an insect's thorax or most of its abdomen.
-
-Their genome made news in 2015, when a study reported that about a sixth of one species' genes had arrived from bacteria and other organisms by [[horizontal gene transfer|Horizontal gene transfer]]. Within about a week a rival team blamed contamination from microbes in the cultures, and later genomes put the foreign share at a per cent or two at most. Their neighbours in the moss are the real borrowers: [[bdelloid rotifers|Bdelloid rotifers]], in which no male has ever been seen, have taken up to a tenth of their genes from bacteria, fungi and plants.
->>>
-[[Cryptobiosis]] :: The paused state behind their survival records, where "alive" becomes surprisingly hard to define.
 ===
-- [[Fossil tardigrades]] :: Six-legged Cambrian relatives, and a handful of specimens sealed in amber :: deeper :: thing
-- [[Deinococcus radiodurans]] :: A bacterium found in 1956 in canned meat radiation should have sterilised :: sideways :: creature
-- [[Panagrolaimus kolymaensis]] :: Roundworms reportedly revived after 46,000 years frozen in Siberian permafrost :: sideways :: creature
-- [[Aurora Australis (book)]] :: The first book printed in Antarctica featured giant tardigrades with an anaesthetic bite :: wild :: work
-- [[Sea-Monkeys]] :: Mail-order "instant life" built on the same trick: shrimp eggs that survive drying :: wild :: thing
+- [[Rotifer]] :: Another microscopic animal that survives complete drying, with a very different method :: creature
+- [[Brine shrimp]] :: Sea-Monkey eggs wait years dry, then hatch in salt water :: creature
+- [[Panspermia]] :: Whether life could hop between planets inside a tough dried-out traveller :: concept
+- [[Extremophile]] :: Organisms thriving in boiling acid, ice and radiation, and what they teach :: concept
+- [[Velvet worm]] :: Tardigrades' soft-legged cousin that shoots sticky slime at prey :: creature
+- [[Resurrection plant]] :: A fern ally that dries to a brown ball and greens again :: creature
+
 ???
-Could a tardigrade ride a meteorite from one planet to another?
-Why would a moss-dwelling animal survive radiation doses no natural habitat delivers?
-Could tardigrade proteins keep medicines stable without refrigeration?
+How long can tardigrades survive without water?
+Did tardigrades really survive in space?
+Why do tardigrades have only a few hundred cells that stop dividing?
+
 &&&
-[[Lazzaro Spallanzani]] :: This priest blinded bats and found they still flew perfectly
-[[Extremophile]] :: Some microbes need near-boiling heat, acid or brine just to grow
-[[Intrinsically disordered proteins]] :: They work without a fixed shape, defying the textbook lock-and-key picture
-[[Glass transition]] :: Why hard candy and window glass are solids without crystals
-[[Dsup]] :: Unique to tardigrades, yet it works inside human cells too
-[[TARDIS experiment]] :: Dried animals rode outside a satellite, then came home and bred
-[[Beresheet]] :: Israel's first Moon lander, undone by a gyroscope fault and reboot
-[[Planetary protection]] :: Why NASA baked the Viking Mars landers in ovens before launch
-[[Velvet worm]] :: The only animal phylum living entirely on land
-[[Hox genes]] :: Mutate one and a fly grows legs where antennae belong
-[[Horizontal gene transfer]] :: How bacteria swap antibiotic resistance, tangling the tree of life
-[[Bdelloid rotifers]] :: Drying shatters their DNA, and repairs may stitch in foreign genes
+[[Cryptobiosis]] :: Life paused so deeply that metabolism nearly vanishes.
+[[Tun state]] :: The shrivelled barrel shape tardigrades fold themselves into.
+[[Trehalose]] :: A sugar that shields dried cells, though tardigrades barely use it.
+[[Damage suppressor protein]] :: A tardigrade protein that cut DNA damage in human cells.
+[[Intrinsically disordered proteins]] :: Floppy proteins that may vitrify around cells as water leaves.
+[[Foton-M3]] :: A 2007 satellite that exposed dried tardigrades to open space.
+[[Ecdysozoa]] :: The moulting-animal clade tying tardigrades to insects and roundworms.
+[[Hypsibius exemplaris]] :: The lab-favourite species whose genome sparked a contamination controversy.
+[[Ramazzottius varieornatus]] :: A hardy species where the Dsup protein was discovered.
+[[Moss]] :: The damp cushion that is tardigrades' classic home habitat.
+[[Horizontal gene transfer]] :: Gene swapping between species, once wrongly claimed for tardigrades.
+[[Anhydrobiosis]] :: Surviving by losing nearly all of one's water.
+[[Lazzaro Spallanzani]] :: The Italian naturalist who named tardigrades and revived dried ones.
+[[Johann August Ephraim Goeze]] :: The pastor who first described the "little water bear."

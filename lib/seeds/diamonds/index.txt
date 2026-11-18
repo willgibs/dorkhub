@@ -1,67 +1,76 @@
 # Diamonds :: thing
-> Most diamonds began as carbon crushed deep under ancient continents, then rode a volcanic eruption to the surface.
+> Crystallized carbon forged 150 kilometres down, older than complex life, and blasted to the surface by some of the fastest eruptions Earth has produced.
 !!!
-Material :: carbon atoms in a cubic lattice
-Typical age :: 1 to 3.5 billion years
+Key facts :: 
+Formed :: 150–200 km deep, 1–3.5 billion years ago
+Structure :: Carbon atoms in a cubic lattice
 Hardness :: 10 on the Mohs scale
 +++
-[[Volcanoes]] :: phenomenon
 [[Kimberlite]] :: thing
-[[Diamond cubic]] :: concept
+[[Volcanoes]] :: phenomenon
+[[Craton]] :: thing
+[[Mohs scale of mineral hardness|Mohs scale]] :: concept
 [[Graphite]] :: thing
-[[Lonsdaleite]] :: thing
 [[Cullinan Diamond]] :: thing
-[[Cullinan Mine]] :: place
-[[Mohs scale]] :: concept
-[[Moissanite]] :: thing
-[[Carbonado]] :: mystery
-[[Diamond cutting]] :: technique
+[[Kimberley Big Hole]] :: place
+[[Lonsdaleite]] :: thing
+[[Chemical vapor deposition]] :: technique
+[[Mantle (geology)|Earth's mantle]] :: thing
+[[Blood diamond]] :: concept
+[[Ringwoodite]] :: thing
+[[Diamond anvil cell]] :: thing
+[[Cullinan Diamond]] :: thing
 ---
-Somewhere far below the old continents, carbon atoms are pressed into a lattice so tight that the result is one of the hardest materials on Earth. Much later, a volcanic eruption can tear through the rock above and carry those crystals up from more than 150 kilometres down. Most people who wear them never think about that trip, which can take less time than the stone spent waiting underground.
+A diamond is a crystal of pure carbon in which every atom is bonded to four neighbours in a rigid cubic lattice. That geometry makes it the hardest natural material and an unmatched conductor of heat, and it bends light so sharply that a well-cut stone throws it back as fire. The same element, rearranged into flat sheets, is soft [[Graphite|graphite]]; the difference between pencil lead and a gemstone is only how the atoms are stacked. Nearly all natural diamonds are between 1 and 3.5 billion years old, which means the stone on a finger is typically far older than the first animals, and often older than the oxygen in the air.
 
-## Carbon under pressure
+^ A diamond is not "forever" in air: it can burn at roughly 700–900 °C, and left in a vacuum it slowly converts toward graphite.
 
-Diamond is pure carbon, and its atoms form a rigid [[Diamond cubic]] lattice in which each atom is bonded to four neighbours. That structure needs extreme pressure and heat, which the mantle, roughly 150 to 200 kilometres down, supplies. Most natural diamonds crystallised between 1 and 3.5 billion years ago, when the roots of ancient continents provided those conditions.
-::: myth
-Myth :: Diamonds are made from compressed coal.
-Actually :: Most formed deep in the mantle long before coal forests existed.
+## Made deep, delivered fast
+
+Diamonds form in the [[Mantle (geology)|Earth's mantle]] at depths of roughly 150 to 200 kilometres, at pressures above 45,000 atmospheres and temperatures above 900 °C. The right conditions exist beneath ancient, thick, cold continental cores called [[Craton|cratons]], whose deep keels stay stable for billions of years. Carbon there comes from ancient mantle material, and in some cases from subducted crust, and slowly crystallizes from metal-rich fluids. Inclusions trapped inside stones, tiny flecks of other minerals sealed in like insects in amber, let geologists date them and reconstruct the chemistry of places no drill will ever reach. Some stones from the deepest sources even hold [[Ringwoodite|ringwoodite]] containing water, evidence that the mantle holds far more of it than once assumed.
+
+Diamonds only reach us because of a rare kind of eruption. A [[Kimberlite|kimberlite]] magma, rich in carbon dioxide and water, rises from the mantle at speeds estimated at tens of kilometres per hour, fast enough to carry dense rock and crystals upward before the diamonds can revert to graphite. The eruption blasts through the crust and leaves a carrot-shaped pipe, narrowing downward for kilometres. The pipe's soil is where miners dig, and kimberlite is named for Kimberley in South Africa, whose [[Kimberley Big Hole|Big Hole]] was excavated almost entirely by hand in the 1870s and after, reaching about 215 metres deep before it was abandoned. These are among the deepest-sourced eruptions known, and no kimberlite has erupted in human history. The [[Volcanoes|volcanoes]] that deliver diamonds belong to a vanished kind.
+
+::: timeline
+~3 Gya :: Oldest natural diamonds crystallize in the mantle
+~1870 :: Diamonds found at Kimberley, South Africa; rush begins
+1905 :: Cullinan Diamond, 3,106 carats, found at Premier Mine
+1954 :: General Electric makes first reproducible synthetic diamonds
+1980s :: Chemical vapor deposition grows diamond film from gas
 :::
 
-[[Graphite]] is the same element in a different arrangement: its atoms form loose sheets that slide over one another, which is why it marks paper and diamond does not. The contrast shows that structure, not the element alone, decides whether a material is soft enough to write with or hard enough to cut glass. Under the shock of a meteorite impact, carbon can also form [[Lonsdaleite]], a rarer hexagonal form.
-^ Most diamonds contain traces of nitrogen, which is why many of them look yellow or brown.
+## Cut, counted and contested
 
-## Carried up by eruptions
+The [[Cullinan Diamond]], found in 1905 at the Premier Mine near Pretoria, weighed 3,106 carats (about 621 grams), the largest gem-quality rough diamond ever recovered. It was cleaved into nine major stones and about a hundred smaller ones, and the two largest, Cullinan I and II, sit in British royal regalia. A carat is exactly 200 milligrams, a unit descended from carob seeds once used as counterweights on merchant scales. Colour comes from impurities: nitrogen turns stones yellow, while boron makes the rare blue ones.
 
-Most mined diamonds reach the surface inside [[kimberlite|Kimberlite]], an unusual volcanic rock that erupts through the crust in narrow pipes. The [[volcanic eruptions|Volcanoes]] that drive it are fast enough that the diamonds survive the climb, and the pipes they leave behind are often the first clue miners look for. For centuries before that, many diamonds came from river gravels in India, where erosion had worn them loose from their original rock.
-^ Tiny mineral grains sealed inside some diamonds are samples of rock from the deep mantle.
+Diamonds are also tied to violence. In civil wars in Sierra Leone, Angola and elsewhere, gems financed armies, producing the [[Blood diamond|"blood diamond"]] trade and, in 2003, the Kimberley Process certification scheme, whose definition of conflict stones critics consider narrow. Meanwhile the market's most disruptive change is chemical: since the 1950s, labs have grown real diamonds under high pressure, and [[Chemical vapor deposition|chemical vapor deposition]] now builds them atom by atom from methane. Lab-grown stones are physically and chemically diamond, distinguishable only by instruments. Most industrial diamond, used for cutting, drilling and grinding, is already synthetic.
 
-In January 1905 Frederick Wells, the superintendent of the [[Cullinan Mine]] near Pretoria, found a crystal of 3,106 carats, about 620 grams, now known as the [[Cullinan Diamond]]. In 1908 the stone was cleaved in Amsterdam, a risky operation that split it into several major pieces. One of the resulting stones now sits in the British royal sceptre.
+## Beyond the jewellery case
 
-## Hard, but not unbreakable
+Hardness is not toughness: a diamond resists scratching better than anything natural, yet a hammer blow along a cleavage plane can split it, which is exactly how cutters have long worked. On the [[Mohs scale of mineral hardness|Mohs scale]] it is a 10, though in absolute terms it is far harder than the 9 held by corundum. Scientists compress samples between two diamond tips in a [[Diamond anvil cell|diamond anvil cell]] to recreate pressures near Earth's core, and such experiments have even been used to hunt [[Lonsdaleite|lonsdaleite]], a rarer hexagonal form of carbon found in meteorite impact sites.
 
-A diamond scores 10 on the [[Mohs scale]], the top of a ranking built on scratching, yet it can still split along its internal planes, a weakness called cleavage. Cutters exploit that weakness: they score a crystal along a chosen plane and then split it, a step that once made diamond cutting a gamble. [[Diamond cutting]] now relies on diamond dust and saw blades, because nothing common is hard enough to shape it.
-
-[[Moissanite]] looks so much like diamond that it fools many eyes, and it was first identified in 1893 by the chemist Henri Moissan in fragments of a meteorite. [[Carbonado]], a black, porous form of diamond, has a murkier past, and its origin remains disputed, with some researchers proposing a source in outer space. Its toughness makes it useful for drill bits rather than jewellery.
 ===
-- [[Kimberley Process]] :: A certification scheme born from diamonds that funded wars in West Africa. :: event
-- [[Crown Jewels of the United Kingdom]] :: A royal sceptre and crown hold pieces cut from the Cullinan. :: thing
-- [[Diamond rain]] :: Carbon under planetary pressure may fall as diamonds on Neptune. :: phenomenon
-- [[Canyon Diablo meteorite]] :: Tiny diamonds in an Arizona iron meteorite, thought to be impact-made. :: thing
-- [[Synthetic diamond]] :: Some lab-grown stones are chemically identical to mined diamonds. :: technique
-- [[Hope Diamond]] :: A blue stone whose cursed reputation rests on legend, not records. :: thing
+- [[Kimberlite]] :: The strange, fast-rising magma that is the only way diamonds reach the surface :: thing
+- [[Craton]] :: Continental cores billions of years old that act as diamond nurseries :: thing
+- [[Graphite]] :: Same carbon, different stacking: why one is a pencil and the other a gem :: thing
+- [[Diamond anvil cell]] :: Squeezing matter between two diamonds to mimic the centre of planets :: thing
+- [[Ringwoodite]] :: A diamond inclusion revealed a hidden water reservoir deep in the mantle :: thing
+- [[Chemical vapor deposition]] :: Growing diamond atom by atom from methane gas in a lab chamber :: technique
 ???
-How do geologists date a diamond that formed a billion years ago?
-Why does a diamond that scratches almost nothing still split along planes?
-Can a lab-grown diamond be told apart from a mined one?
+How do scientists tell a lab-grown diamond from a natural one?
+Why do diamonds survive the violent trip from the mantle to the surface?
+What is lonsdaleite and has anyone made gem-sized samples of it?
 &&&
-[[Volcanoes]] :: Eruptions act as elevators, lifting crystals from the mantle.
-[[Kimberlite]] :: Eroded pipes of this rock mark where miners dig for diamonds.
-[[Diamond cubic]] :: Four-way bonding makes diamond rigid, and also lets it cleave.
-[[Graphite]] :: Same carbon in loose sheets, which is why pencils write.
-[[Lonsdaleite]] :: A hexagonal carbon form made by meteorite impacts, rarer than diamond.
-[[Cullinan Diamond]] :: A 3,106-carat crystal, cut into stones now in royal regalia.
-[[Cullinan Mine]] :: A South African mine that gave up the Cullinan in 1905.
-[[Mohs scale]] :: Scratch tests that crown diamond the hardest of ten minerals.
-[[Moissanite]] :: Fools many eyes, and was first found inside a meteorite.
-[[Carbonado]] :: A black, porous diamond whose origin is still argued over.
-[[Diamond cutting]] :: Shaping a crystal with diamond dust, since nothing common is harder.
+[[Kimberlite]] :: The eruption rock that ferries diamonds from the deep mantle upward.
+[[Volcanoes]] :: Kimberlite eruptions once punched through continents faster than most volcanoes.
+[[Craton]] :: Ancient thick continental roots where diamonds crystallize and survive.
+[[Mohs scale of mineral hardness|Mohs scale]] :: A simple scratch ranking where diamond tops out at 10.
+[[Graphite]] :: Soft, black twin of diamond, made of identical carbon.
+[[Cullinan Diamond]] :: A 3,106-carat find cleaved into jewels now among royal regalia.
+[[Kimberley Big Hole]] :: A vast pit dug largely by hand while chasing kimberlite.
+[[Lonsdaleite]] :: Hexagonal carbon first found in meteorites, predicted to outdo diamond.
+[[Chemical vapor deposition]] :: Gas-grown diamond that now rivals mined stones.
+[[Mantle (geology)|Earth's mantle]] :: The vast hot rocky layer where diamonds are born.
+[[Blood diamond]] :: Gems that funded wars and prompted a global certification scheme.
+[[Ringwoodite]] :: Deep-mantle mineral, found in diamonds, that locks away water.
+[[Diamond anvil cell]] :: Tabletop device using diamonds to squeeze matter to planetary pressures.

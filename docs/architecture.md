@@ -67,9 +67,14 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
   their own, `&&&` a hook for every planned link, and, only on a page written ahead of time, `@@@` the sources it
   was checked against (`- Label :: https://…`; a live writer is never asked for them, and the page lists them only
-  for a seeded page: today only the placeholders carry any). A first line naming a kind after ` :: ` is the title line
-  even without its `# ` (Claude Haiku 5.5 without thinking drops it on about half its pages); it is held back until
-  it is whole, since until then it can't be told from a paragraph. Kinds come before the body so links appear
+  for a seeded page: today only the placeholders carry any). The parser reads the free writer's slips as it meant
+  them (Claude Haiku 5.5 without thinking, 2026-11-17): a first line naming a kind after ` :: ` is the title line
+  even without its `# `; once the body has a paragraph, a section after it whose marker is missing is known by its
+  lines' shape (a topic's `- [[Topic]] :: hook :: kind` opens the six topics, a line ending in `?` after them a
+  question, `[[Topic]] :: hook` the hooks; hooks straight after the body may yet be stray lines inside it, so prose
+  takes the body up again); and the format's own labels copied onto a line ("Key facts:", "Link plan:", "Body:",
+  "Keep exploring:"), like a lone `<br>`, are never prose. A line still being written that could turn out to be any
+  of these is held back until it is whole or can't be one, since until then it can't be told from a paragraph. Kinds come before the body so links appear
   in colour; hooks come last because only hover cards need them. The page's own kind counts
   once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
   six cards, de-duplicated and never the page itself.
@@ -249,7 +254,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   plus what the front page says about the topic (hooks and drawings) and its threads, each
   with its source, to keep and to link. `node scripts/seeds.mjs batch plan|send|take` writes
   the pages written ahead of time through Anthropic's Message Batches API, at half a live page's
-  price: each request is production's own call (model, output limit, thinking and words, with the
+  price, by Claude Sonnet 5.5 (`SEED_MODEL`: Will, 2026-11-17, while Haiku 5.5 writes every live page): each
+  request is production's own call for that model (output limit, thinking and words, with the
   shared instructions cached for the hour a batch may take; `scripts/seeds/batch.js`), and only
   a page that stopped on its own and passes the seeds' tests is kept, stamped in
   `lib/seeds/index.json` with the model and prompt version that wrote it (`doors` shows a page

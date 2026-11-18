@@ -1,75 +1,79 @@
 # Antarctica :: place
-> A continent most people have never visited holds enough ice to lift the world's oceans about 58 metres.
+> A continent larger than Europe, buried under ice up to 4.8 kilometres thick, with no native human population and no country.
 !!!
-Area :: about 14 million square kilometres
-Ice volume :: about 26 million cubic kilometres
-Coldest reading :: −89.2 °C at Vostok, 1983
+Key facts :: 
+Area :: 14 million km², mostly ice-covered
+Ice volume :: about 26.5 million km³
+Treaty :: Antarctic Treaty, signed 1959
 +++
-[[Antarctic ice sheet]] :: thing
-[[Thwaites Glacier]] :: thing
+[[Antarctic ice sheet]] :: phenomenon
+[[Lake Vostok]] :: place
 [[Ice ages]] :: era
-[[Vostok Station]] :: place
 [[Northern lights]] :: phenomenon
-[[Polar night]] :: phenomenon
-[[Emperor penguin]] :: creature
-[[Icefish]] :: creature
-[[Antifreeze protein]] :: mechanism
-[[Blue ice (glaciology)]] :: thing
 [[Apollo 11]] :: event
+[[Allan Hills meteorites]] :: thing
+[[Dry Valleys]] :: place
 [[Antarctic Treaty]] :: event
+[[Emperor penguin]] :: creature
+[[Katabatic wind]] :: phenomenon
+[[Roald Amundsen]] :: person
+[[Ernest Shackleton]] :: person
+[[Ozone hole]] :: phenomenon
+[[Ice core]] :: technique
 ---
-Antarctica is the coldest, driest and windiest continent on Earth, and about 98 per cent of it is buried under ice. That ice averages nearly two kilometres thick, lifting the land high above sea level, and the interior gets so little snow that it counts as a desert. In winter, temperatures there can fall below minus 60 degrees Celsius.
+Antarctica is the fifth-largest continent, around 14 million square kilometres, and about 98 percent of it lies under ice. That ice is the [[Antarctic ice sheet]], which averages roughly 2 kilometres thick and reaches about 4.8 kilometres in places. It holds around 90 percent of the planet's ice and roughly 70 percent of its fresh water. If it all melted, the seas would rise by about 58 metres, enough to drown most of the world's coastal cities; no one expects that, but even small losses from its margins matter.
 
-^ Greenland's ice would raise the sea about 7 metres; Antarctica's holds roughly eight times that.
+The continent is the coldest, driest and windiest on Earth. The interior is technically a desert, receiving only a few centimetres of precipitation a year in water equivalent, and snow that falls near the South Pole may never melt. In July 1983 the Soviet Vostok station recorded -89.2 °C, the lowest air temperature ever measured directly at ground level. Along the coast, [[katabatic wind|katabatic winds]] pour off the high plateau, driven by dense cold air sliding downhill, and at Commonwealth Bay they have been clocked averaging far above gale force for days.
 
-## Ice that could move the sea
+^ The ice is heavy enough to push the bedrock beneath it down by hundreds of metres in places; if it vanished, the land would slowly rebound upward.
 
-If all of its ice melted, the [[Antarctic ice sheet]] would raise global sea level by about 58 metres, a figure known as its sea-level equivalent. Most of that volume sits on East Antarctica, but much of West Antarctica rests on bedrock below sea level, where warm ocean water can reach its underside. Where that water undercuts the ice, the point where it lifts off the bed can retreat inland, and some models show that retreat speeding up once it starts. [[Thwaites Glacier]], in West Antarctica, is the focus of that worry and has been nicknamed the Doomsday Glacier in the press.
+## Ice that remembers
 
-## Records in the ice
+Because snow in the interior is never thawed, each year's fall is stacked on the last, trapping tiny bubbles of ancient air. The [[Ice core|ice cores]] drilled by the European Project for Ice Coring in Antarctica at Dome C reached back about 800,000 years, recording eight glacial cycles of the [[Ice ages]] and the carbon dioxide levels that rose and fell with them. Nothing in that record approaches today's concentration of the gas. Beneath the ice lies [[Lake Vostok]], one of more than 400 subglacial lakes, kept liquid by geothermal heat and the insulating weight above, and sealed off for possibly millions of years.
 
-Snow that compacts into ice traps tiny bubbles of ancient air, so a drilled core reads the atmosphere like a diary. The European EPICA project drilled more than three kilometres down at Dome C, and its core reaches back about 800,000 years, through eight glacial cycles of the [[ice ages|Ice ages]]. Its bubbles show carbon dioxide swinging between about 180 and 280 parts per million, rising and falling with each cycle's temperature. At [[Vostok Station]], a thermometer recorded minus 89.2 degrees Celsius on 21 July 1983, the lowest reliable reading on record.
+Ice also preserves rocks from space. Dark meteorites stand out on the pale surface, and glacial flow concentrates them where it is stopped against mountains, such as at the [[Allan Hills meteorites|Allan Hills]]. Allan Hills A81005, found in 1982, was identified as a piece of the Moon, with a composition matching samples brought back by [[Apollo 11]] and its successors. Antarctica has since yielded tens of thousands of meteorites, more than the rest of the world combined.
 
-## Darkness, cold and unusual animals
-
-For about six months each year the sun never rises at the pole, and in that [[polar night|Polar night]] the [[southern lights|Northern lights]] glow in the sky. The aurora australis forms when charged particles from the Sun meet the upper atmosphere, the same process that lights the Arctic at the other end of the planet. The brightest displays tend to follow solar storms, when the Sun hurls extra particles toward Earth.
-
-::: compare Antarctica | Arctic
-Polar bears :: none on the continent | roam the Arctic sea ice
-Sea ice :: a ring that swells and shrinks each year | a pack that persists through summer near the pole
-Human residents :: research and support staff only | Indigenous peoples and settlements
+::: timeline
+1820 :: Russian, British and American sailors first sight the continent's coast
+1911 Dec :: Roald Amundsen's party reaches the South Pole
+1912 Jan :: Robert Falcon Scott's party arrives, finding Amundsen's tent
+1914-1916 :: Shackleton's Endurance is crushed by sea ice; all crew survive
+1959 :: Twelve nations sign the Antarctic Treaty
+1985 :: British Antarctic Survey scientists report the ozone hole
 :::
 
-[[Emperor penguin|Emperor penguins]] breed through this darkness. Each female lays a single egg and heads out to sea to feed, while the male keeps it balanced on his feet under a fold of belly skin, fasting for about two months. The chicks hatch in late winter, when the light is only just returning.
+## A continent run by treaty
 
-In the Southern Ocean, [[icefish|Icefish]] have no haemoglobin and no red blood cells, so their blood looks almost colourless. They carry oxygen dissolved in the plasma instead, and their survival in water close to freezing depends on [[antifreeze proteins|Antifreeze protein]] that bind to ice crystals and stop them growing. Cold water holds more dissolved oxygen than warm water, which makes the trick workable.
+Exploration of the interior came late. [[Roald Amundsen]] beat Robert Falcon Scott to the Pole by about five weeks in 1911, and Scott's party died on the return. [[Ernest Shackleton]] turned a failed expedition into a legend when his ship Endurance was crushed in the Weddell Sea ice, and he led all 27 of his men to safety in 1916 after a boat journey to South Georgia. Seven countries had territorial claims, some overlapping. The [[Antarctic Treaty]] of 1959 froze them, banned military activity, and reserved the continent for science; it now has more than 50 parties.
 
-## Meteorites and a shared continent
+Life clings to the margins. The [[Emperor penguin]] breeds through the winter on sea ice, males incubating a single egg on their feet for about two months in temperatures far below freezing. In the [[Dry Valleys]], almost snowless and ice-free, the climate is so Mars-like that NASA tested spacecraft there, and microbes survive inside porous rocks. Above, during the long polar night, the southern lights, a counterpart of the [[Northern lights]], ripple over the ice.
 
-Meteorites that land on the ice sheet are carried along by its slow flow, and wind-scoured [[blue ice|Blue ice (glaciology)]] brings them back to the surface. Those patches have yielded tens of thousands of meteorites since searches began in the 1960s. One of them, found in 1981, is a fragment of the Moon that reached Earth by impact, unlike the rocks that [[Apollo 11]] astronauts carried home from the Moon.
+Antarctica is also where the [[Ozone hole]] was found: each southern spring, chlorine from human-made chemicals, working on the surface of polar stratospheric clouds, strips ozone from the air above it. The 1987 Montreal Protocol cut those emissions, and the hole is slowly recovering.
 
-Seven countries have territorial claims on Antarctica, and the [[Antarctic Treaty]] froze those claims rather than settling them. The treaty, signed in 1959 by twelve nations, reserves the continent for peaceful purposes and science. A 1991 protocol added a ban on mining that runs until 2048, so the continent's minerals are off limits for now.
+^ No one lives there permanently, but about 1,000 people winter at research stations, and the summer population rises to roughly 5,000.
 ===
-- [[Lake Vostok]] :: Planetary scientists compare an ice-sealed lake with the ocean under Europa :: place
-- [[McMurdo Dry Valleys]] :: The driest valleys on Earth, used to test instruments meant for Mars :: place
-- [[Terra Australis]] :: A southern continent, drawn on maps for centuries before its coast was sighted :: concept
-- [[Mount Erebus]] :: On Ross Island, a volcano keeps a lava lake churning :: place
-- [[Roald Amundsen]] :: Amundsen reached the pole first in 1911, about five weeks ahead of Scott :: person
-- [[Antarctic krill]] :: A shrimp-like animal whose swarms feed whales, seals and penguins :: creature
+- [[Lake Vostok]] :: A buried lake, sealed under 4 km of ice for millions of years :: place
+- [[Ice ages]] :: Eight glacial cycles read from air bubbles in Antarctic ice cores :: era
+- [[Northern lights]] :: The aurora's southern twin glows over the ice during polar night :: phenomenon
+- [[Apollo 11]] :: Moon rock A81005 matched what astronauts carried home from the Moon :: event
+- [[Ozone hole]] :: Found over Antarctica in 1985, then partly healed by treaty :: phenomenon
+- [[Ernest Shackleton]] :: Crushed ship, 27 men, and an open-boat voyage to South Georgia :: person
 ???
-How much would sea level rise if Antarctica's ice melted?
-Why do icefish survive without red blood cells?
-How did a piece of the Moon end up in Antarctic ice?
+How cold can Antarctica get in winter?
+Are there any penguins at the South Pole?
+Who owns Antarctica?
 &&&
-[[Antarctic ice sheet]] :: The ice that could add 58 metres to the world's oceans.
-[[Thwaites Glacier]] :: A glacier nicknamed the Doomsday Glacier, watched closely from space.
-[[Ice ages]] :: Ice cores here log climate swings across hundreds of millennia.
-[[Vostok Station]] :: The place where a thermometer read minus 89.2 degrees in 1983.
+[[Antarctic ice sheet]] :: Holds 70 percent of Earth's fresh water in one slab.
+[[Lake Vostok]] :: A liquid lake sealed beneath four kilometres of ice.
+[[Ice ages]] :: Eight cycles of glaciation recorded in Antarctic bubbles.
 [[Northern lights]] :: Its southern twin, the aurora australis, shimmers over the ice.
-[[Polar night]] :: Six months of darkness, with the stars wheeling overhead.
-[[Emperor penguin]] :: Males fast through winter, balancing one egg on their feet.
-[[Icefish]] :: Fish with no red blood cells, living in water near freezing.
-[[Antifreeze protein]] :: Molecules that stop ice crystals from growing in fish blood.
-[[Blue ice (glaciology)]] :: Bare ice where wind uncovers meteorites that fell long ago.
-[[Apollo 11]] :: Its Moon rocks came home with astronauts; Antarctica's Moon rock fell.
-[[Antarctic Treaty]] :: A 1959 pact that froze territorial claims rather than settling them.
+[[Apollo 11]] :: Antarctic ice preserved lunar rocks matching its samples.
+[[Allan Hills meteorites]] :: Ice acts as a conveyor belt gathering space rocks.
+[[Dry Valleys]] :: Snowless valleys so Mars-like that NASA tested spacecraft there.
+[[Antarctic Treaty]] :: A whole continent set aside for peace and science.
+[[Emperor penguin]] :: Males incubate eggs through winter on their feet.
+[[Katabatic wind]] :: Cold air sliding downhill produces days of gale-force wind.
+[[Roald Amundsen]] :: Reached the South Pole first using skis and sled dogs.
+[[Ernest Shackleton]] :: Lost his ship but brought every man home alive.
+[[Ozone hole]] :: Found over Antarctica, then partly mended by a treaty.
+[[Ice core]] :: Frozen air bubbles that preserve ancient atmospheres.

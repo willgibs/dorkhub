@@ -1,89 +1,76 @@
 # Black holes :: phenomenon
-> A region where gravity wins so completely that not even light escapes, and yet we have now imaged its shadow.
+> A region where gravity grows so strong that nothing returns, not even light, yet astronomers now photograph, weigh and listen to them.
 !!!
-Sun-mass horizon :: about 3 km radius
-Milky Way centre :: about 4.3 million solar masses
-First image :: M87 galaxy, 55 million light-years
+Key facts :: 
+Earth's horizon size :: about 18 mm across
+Sagittarius A* mass :: roughly 4 million Suns
+First image :: M87*, April 2019
 +++
+[[Event horizon]] :: phenomenon
 [[Schwarzschild radius]] :: concept
-[[Photon sphere]] :: concept
-[[Accretion disk]] :: mechanism
-[[Gravitational lensing]] :: phenomenon
-[[Event Horizon Telescope]] :: thing
-[[Messier 87]] :: place
-[[Jean-Pierre Luminet]] :: person
-[[Cygnus X-1]] :: thing
-[[GW150914]] :: event
-[[Spaghettification]] :: phenomenon
 [[Supernovas]] :: phenomenon
-[[Time travel]] :: concept
-[[Holograms]] :: technique
+[[Gravitational lensing]] :: phenomenon
+[[Accretion disk]] :: thing
+[[Cygnus X-1]] :: thing
+[[Sagittarius A*]] :: thing
+[[Event Horizon Telescope]] :: thing
+[[Hawking radiation]] :: phenomenon
+[[Gravitational waves]] :: phenomenon
 [[Infinity]] :: concept
-
+[[Time travel]] :: concept
+[[Holograms]] :: concept
+[[Spaghettification]] :: phenomenon
 ---
+A black hole is what is left when matter is packed so tightly that the escape speed at its edge exceeds the speed of light. Nothing needs to be exotic about the material: the Sun would become one if squeezed to a sphere about 6 km across, and Earth would do it at about 18 mm, the size of a marble. The boundary of no return is the [[event horizon|Event horizon]], and its radius for a non-spinning hole is the [[Schwarzschild radius]], named for Karl Schwarzschild, who found the solution to Einstein's equations in 1915 while serving on the Russian front. The horizon is not a surface you could touch; it is a one-way membrane in spacetime, beyond which every possible path leads inward.
 
-Squeeze Earth into a ball about 18 millimetres across, roughly the size of a marble, and it would become a black hole. The [[Schwarzschild radius]] of Earth is about 9 millimetres, against a real radius of 6,400 kilometres. At that surface the escape speed reaches the speed of light, so nothing that crosses it can come back out.
+^ John Michell and Pierre-Simon Laplace imagined "dark stars" in the 1780s using Newtonian gravity. The idea of a star too heavy for light to leave is older than relativity.
 
-^ Squeeze the Sun the same way and its horizon would be about 6 km across, against a real diameter of 1.4 million km.
+## Where they come from
 
-## The edge of no return
+Most known black holes are the remains of stars. When a star of perhaps 20 or more solar masses exhausts its fuel, its core can no longer hold itself up and collapses in a fraction of a second, often accompanied by a [[supernova|Supernovas]]; if the core is heavy enough, no known force stops it. The first strong candidate was [[Cygnus X-1]], a bright X-ray source discovered in 1964 and tied in 1971 to a blue supergiant whirling around an unseen companion of roughly 20 solar masses, too heavy to be a neutron star. Stellar holes range from a few to a few dozen solar masses, and some are far larger than that.
 
-The boundary is not a solid surface, and nothing physical marks it. It is a one-way limit: outside, a rocket can still escape with enough speed; inside, every possible path leads inward. At the centre, general relativity predicts [[a singularity|Infinity]], where density grows without limit. Most physicists expect a fuller theory of quantum gravity to replace that prediction.
+At the other extreme sit the supermassive ones. At the center of the Milky Way, [[Sagittarius A*]] weighs about 4 million Suns; astronomers, including the groups of Andrea Ghez and Reinhard Genzel, tracked stars orbiting it for decades, one passing at a few percent of the speed of light, and the work earned them a share of the 2020 Nobel Prize in Physics. In the galaxy M87 the hole is about 6.5 billion solar masses, with a horizon larger than our solar system's planetary orbits. How such giants grew so quickly in the early universe is still debated.
 
-A black hole's entropy, a measure of hidden information, scales with the area of its horizon, not its volume. That observation helped inspire [[the holographic principle|Holograms]], the idea that a region's contents might be written on its boundary.
-
-## Light that bends over the top
-
-Seen from just above its disk, a black hole shows you the far side of that disk, because [[gravitational lensing|Gravitational lensing]] bends its light so sharply. The far side is bent up and over the shadow, while the near side passes in front. Infalling gas glows in an [[accretion disk|Accretion disk]] that can reach millions of degrees, and the left side of the picture is brighter, where the gas is coming toward you.
-
-[[Jean-Pierre Luminet]] drew this in 1979, decades before anyone imaged a black hole. Each dot in his picture stood for a light path he had calculated through the curved space around the hole. It showed the arch of the far side and a thin ring of light hugging the shadow: light that has looped close to the [[photon sphere|Photon sphere]] before escaping.
-
-^ Luminet drew his black hole in 1979; the first real picture of one came forty years later, in 2019.
-
-The first picture came from the [[Event Horizon Telescope]] in April 2019, a network of radio dishes that together act as a telescope the size of Earth. Its target was [[Messier 87]], a galaxy about 55 million light-years away whose central black hole weighs roughly 6.5 billion Suns. It captured not the hole but its shadow, a dark centre ringed by glowing gas.
-
-## How they form, and what they do to time
-
-Stellar black holes are what remains of stars many times heavier than the Sun. Each stage of that end follows from the one before.
-
-::: steps
-Fuel runs out :: fusion in the core stops, so the outward push that held the star up fades
-Core collapses :: gravity wins, and the core falls inward in a fraction of a second
-Outer layers :: they may burst outward as a supernova, or fall back in
-Horizon forms :: a remnant heavy enough cannot be stopped by any known pressure
+::: figures
+3 km :: horizon radius of a one-solar-mass black hole
+4 million :: solar masses in Sagittarius A*
+6.5 billion :: solar masses in the M87 black hole
 :::
 
-Often a heavy star's collapse is marked by a [[supernova|Supernovas]], a blast that can briefly outshine its whole host galaxy. Some massive stars may vanish with no explosion at all, and astronomers hunt for them.
+## Seeing the invisible
 
-[[Cygnus X-1]] was one of the first black holes widely accepted: X-rays come from gas pulled off a blue supergiant toward an unseen companion too heavy to be a neutron star. Stephen Hawking bet against it in the 1970s and later conceded. The clearest evidence came on 14 September 2015, when LIGO recorded [[GW150914]], the merger of two black holes of about 36 and 29 Suns.
+A black hole emits no light of its own, but gas spiralling toward it forms an [[accretion disk|Accretion disk]] heated to millions of degrees. Light from that disk follows paths bent by [[gravitational lensing|Gravitational lensing]]: rays from the far side of the disk are bent up and over the hole, so an observer sees the back of the disk arching above the shadow while the near side passes in front. Jean-Pierre Luminet computed this picture in 1979 on an IBM 7040, drawing it by hand in ink dots because the printouts were crude. The side of the disk rotating toward you looks brighter, because motion toward the observer beams the light forward, and a thin ring of light hugs the dark shadow, made of photons that circled the hole before escaping.
 
-Time runs differently there too. Watched from far away, a clock falling towards the horizon slows, reddens and seems to freeze, while the person on board crosses in what for them is an ordinary moment. Anyone who spends time deep in a gravity well returns to find more years have passed for everyone else, which makes forward [[time travel|Time travel]] real, though backward travel remains speculative.
+The real thing was imaged in April 2019, when the [[Event Horizon Telescope]], a network of radio dishes spanning Earth, released a picture of the M87 hole: a lopsided glowing ring around a dark center, matching predictions from relativity. In 2022 it did the same for Sagittarius A*. Another route is sound of a kind: in September 2015 the LIGO detectors recorded [[gravitational waves|Gravitational waves]] from two black holes of about 36 and 29 solar masses merging 1.3 billion light-years away, ending in a ringing of spacetime itself.
 
-Stretching is the other danger. Gravity pulls harder on the near end of a falling body than on the far end, drawing it into a thread, a process known as [[spaghettification|Spaghettification]]. For a hole of a few Suns, that happens before the horizon is reached.
+## What breaks down
 
+Falling in is not uneventful. A small hole's tides would stretch an astronaut head to foot long before the horizon, a fate called [[spaghettification|Spaghettification]], while for a supermassive hole the crossing could be gentle, with the stretching coming later. A distant observer, meanwhile, sees the faller slow, redden and fade at the edge, since clocks run slow in deep gravity, which is why black holes are a favorite of [[time travel|Time travel]] speculation, though they offer no way back.
+
+At the center, general relativity predicts a singularity, where density and curvature diverge toward [[infinity|Infinity]]; most physicists read this as the theory failing rather than nature truly producing an infinity. In 1974 Stephen Hawking showed that quantum effects make holes glow faintly with [[Hawking radiation|Hawking radiation]], so they slowly evaporate, raising the information paradox of what becomes of what fell in. One proposed escape, the holographic principle, holds that everything inside might be encoded on the horizon like a hologram, an idea explored through [[holograms|Holograms]]-style mathematics in string theory.
 ===
-- [[Hawking radiation]] :: A Sun-mass black hole's Hawking temperature is about 60 billionths of a kelvin :: phenomenon
-- [[Ergosphere]] :: Around a spinning black hole, nothing can stand still :: concept
-- [[Black hole information paradox]] :: Does a book's text vanish for good inside a black hole? :: mystery
-- [[Sagittarius A*]] :: Stars whip round the Milky Way's heart at thousands of kilometres a second :: thing
-- [[Interstellar (film)]] :: Interstellar's black hole came from real lensing equations and a published paper :: work
-- [[J. Robert Oppenheimer]] :: The 1939 collapse paper came from the physicist who later ran Los Alamos :: person
+- [[Supernovas]] :: The stellar explosions that can leave a collapsed core behind :: phenomenon
+- [[Gravitational waves]] :: Ripples from merging holes that shook LIGO's mirrors by less than a proton's width :: phenomenon
+- [[Hawking radiation]] :: How quantum fuzz at the horizon makes black holes slowly evaporate :: phenomenon
+- [[Time travel]] :: Gravitational time dilation: clocks near a hole tick slower than ours :: concept
+- [[Holograms]] :: The holographic principle, where a volume's contents live on its surface :: concept
+- [[Infinity]] :: A singularity is where the equations return infinite curvature :: concept
 ???
-What would an astronaut feel crossing a black hole's event horizon?
-How long would a black hole take to evaporate?
-Why does swallowing matter make a black hole's horizon grow?
+What would happen to an astronaut falling into a black hole?
+Could a black hole ever evaporate completely?
+How did the Event Horizon Telescope photograph a black hole?
 &&&
-[[Schwarzschild radius]] :: One formula shrinks any weight to its black-hole size.
-[[Photon sphere]] :: Light can circle a black hole here, balanced on a knife-edge.
-[[Accretion disk]] :: Gas heats to millions of degrees on its way in.
-[[Gravitational lensing]] :: Galaxies bend light from farther galaxies into magnified arcs.
-[[Event Horizon Telescope]] :: Dishes scattered across the planet that act as one Earth-sized telescope.
-[[Messier 87]] :: Its black hole fires a jet across thousands of light-years.
-[[Jean-Pierre Luminet]] :: His 1979 drawing anticipated the first real picture by forty years.
-[[Cygnus X-1]] :: The black hole found by X-rays, and a famous bet.
-[[GW150914]] :: A merger 1.3 billion years old, detected on Earth in 2015.
-[[Spaghettification]] :: Feet pulled harder than heads, stretching a body into a thread.
-[[Supernovas]] :: A dying star can briefly outshine the galaxy it lives in.
-[[Time travel]] :: Clocks near a black hole tick slower, a real route forward.
-[[Holograms]] :: Could a room's contents be written on its walls?
-[[Infinity]] :: Physicists expect the equations' infinite answer to be an artefact.
+[[Event horizon]] :: A one-way boundary where every path leads only inward.
+[[Schwarzschild radius]] :: Found in 1915 from the trenches, it sets every hole's size.
+[[Supernovas]] :: The collapse that leaves behind a stellar black hole.
+[[Gravitational lensing]] :: Bends light enough to show a disk's far side overhead.
+[[Accretion disk]] :: Spiralling gas heated to millions of degrees, the only glow.
+[[Cygnus X-1]] :: First strong black hole candidate, spotted in X-rays in 1964.
+[[Sagittarius A*]] :: Our galaxy's 4-million-Sun heart, mapped by orbiting stars.
+[[Event Horizon Telescope]] :: An Earth-sized radio network that produced the first shadow image.
+[[Hawking radiation]] :: Quantum glow that lets black holes slowly lose mass.
+[[Gravitational waves]] :: Spacetime ripples from mergers, first heard in 2015.
+[[Infinity]] :: What the equations return at a singularity's center.
+[[Time travel]] :: Clocks slow near holes, forward only, no way back.
+[[Holograms]] :: A hole's information may be written on its horizon.
+[[Spaghettification]] :: Tidal forces stretch a falling body into a thin strand.

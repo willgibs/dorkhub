@@ -1,71 +1,74 @@
 # Quicksand :: phenomenon
-> Quicksand rarely swallows anyone whole, yet pulling a trapped foot free can take the force of lifting a car.
+> Sand that behaves like a liquid until it doesn't: a trap that rarely kills by sinking, but holds with astonishing force.
 !!!
-Where it forms :: saturated sand at springs and shorelines
-Saturated sand :: about 2,000 kg/m³, denser than water
-Human body :: about 1,000 kg/m³, less than sand
+Key facts :: 
+Density :: about twice that of the human body
+Pull-out force :: roughly a car's weight to free a foot
+Typical depth :: usually knee to waist, rarely more
 +++
-[[Soil liquefaction]] :: phenomenon
-[[Effective stress]] :: concept
-[[Pore water pressure]] :: concept
-[[Dilatancy]] :: concept
-[[Osborne Reynolds]] :: person
-[[Karl Terzaghi]] :: person
+[[Thixotropy]] :: concept
 [[Non-Newtonian fluid]] :: concept
-[[Archimedes' principle]] :: concept
-[[1964 Niigata earthquake]] :: event
-[[2011 Christchurch earthquake]] :: event
-[[Sand volcano]] :: phenomenon
-[[Tidal flat]] :: place
+[[Liquefaction (soil)]] :: phenomenon
+[[Pore water pressure]] :: concept
+[[Morecambe Bay]] :: place
+[[Bay of Mont-Saint-Michel]] :: place
+[[Tidal bore]] :: phenomenon
+[[Fulgurite]] :: thing
+[[Lightning]] :: phenomenon
+[[Quick clay]] :: thing
+[[Christchurch earthquakes of 2010 and 2011]] :: event
+[[Oobleck]] :: thing
+[[Sand boil]] :: phenomenon
+[[Grain size]] :: concept
 ---
-Step onto wet sand near a river or the sea and it can feel solid for a moment, then give way under your heel. Your shin slides in without warning, and each struggle shifts the grains around it and can tighten their grip. The name comes from an older English sense of quick, meaning alive, which suits ground that seems to move under you.
-^ Quicksand is not a special kind of sand, only loose, water-saturated sand fine enough to liquefy.
+Quicksand is not a special kind of sand. It is ordinary sand, or silty sand, caught in a moment when water has pushed its grains apart and left them floating. The result is a soupy slurry that looks like firm ground, often at a river bank, a tidal flat, a lake shore or a marsh. A person steps on the crust, the crust gives, and a leg disappears to the knee. Films have taught generations to expect a slow, inevitable burial, but the reality is stranger: a trap that is easy to enter, almost impossible to leave by brute force, and nearly useless at drowning anyone who stays calm.
 
-## How water takes the grip away
+Sand grains normally rest against one another, each carrying part of the load, which is why a beach holds your weight. Quicksand forms when water flows upward through the sand, from a spring, an artesian seep or a rising tide, fast enough to lift the grains until they no longer touch. This is the idea of [[Pore water pressure|pore water pressure]]: the water carries the load instead of the grains, and the mass loses nearly all its strength. A shock can do the same thing, since vibration from footsteps, or from an earthquake in the larger-scale version called [[Liquefaction (soil)|liquefaction]], can briefly shake grains apart. Around Christchurch, New Zealand, the [[Christchurch earthquakes of 2010 and 2011|earthquakes of 2010 and 2011]] pushed silty water-laden sand up through the ground in thousands of [[Sand boil|sand boils]], burying streets in grey silt.
 
-Dry sand holds weight because each grain presses against its neighbours, and the load above travels through the points where they touch. Water filling the gaps pushes back, and the pressure it exerts there is called [[Pore water pressure]]. What remains of the total load once that water pressure is subtracted is the [[Effective stress]], a concept [[Karl Terzaghi]] set out in the 1920s and that still underpins soil engineering. Quicksand is the state in which that remainder falls to almost nothing.
-::: steps
-Water rises :: Groundwater seeps upward through loose, saturated sand from a spring or the tide.
-Pressure climbs :: Water pressure between the grains rises toward the weight of the sand above.
-Contact breaks :: The grains lose their hold on one another and stop bearing the load.
-Sand flows :: The mixture moves like a thick liquid around anything pushed into it.
+^ Because the water has to keep flowing upward, many quicksand patches are permanent features of a stream bed, while others vanish within minutes when the water pressure drops.
+
+## Why you can't sink and can't leave
+
+Quicksand is denser than a human body, roughly 2 grams per cubic centimetre against about 1 for a person, so you float in it much as you do in the Dead Sea. A 2005 study led by Daniel Bonn at the Ecole Normale Superieure in Paris, published in Nature, confirmed that no one can be swallowed whole; a person sinks to about the waist, and breathing makes the body rise slightly higher. The danger lies elsewhere. Quicksand is [[Thixotropy|thixotropic]], a property it shares with ketchup and some paints: it flows when disturbed and stiffens when left alone. Struggling liquefies the sand around you, and then, once you stop, the grains settle back and pack tight.
+
+The trap closes when you try to pull a leg out. As the leg rises, it leaves a void, and water has not had time to flow in and refill it, so the pressure below the foot drops and the sand clamps. Bonn's group calculated that extracting a foot at a speed of one centimetre per second needs a force comparable to lifting a medium-sized car, around a ton. No human can do this, and yanking harder only makes it worse. The sensible escape is slow: wiggle the leg to let water seep back down to loosen the packing, lean back to spread your weight, and pull the foot out over many minutes.
+
+::: guess
+Question :: Can you drown in quicksand without any tide or rising water?
+Answer :: Almost never. The usual killers are exposure, thirst and the incoming tide.
+Why :: The sand is too dense to swallow you, but it can hold you in place for hours.
 :::
 
-Physicists class the liquefied mixture as a [[Non-Newtonian fluid]], so its resistance depends on how fast it is pushed, and a sharp jerk meets more resistance than a slow pull. The conditions arise where water rises through sand, such as at springs, along river banks and on [[tidal flats|Tidal flat]] that each tide keeps saturated. Its surface often looks like any other wet beach, which is why it catches people out.
+## The tidal killers
 
-## Why you float, and why you stay stuck
+Real deaths from quicksand come mostly from being stuck while the sea returns. [[Morecambe Bay]] in northwest England has shifting channels and patches of soft sand across 300 square kilometres of tidal flat, and its tide can come in faster than a person can walk. On 5 February 2004, 21 Chinese cockle pickers were drowned there, caught far from shore as the water rose around them. The [[Bay of Mont-Saint-Michel]] in Normandy, with one of Europe's greatest tidal ranges, has long been described with its [[Tidal bore|tidal bore]] and soft sands as treacherous, and rescues of walkers stuck in mud there are regular events.
 
-Wet sand is denser than a human body, at about 2,000 kilograms per cubic metre against roughly 1,000 for a person, so the mixture pushes back as you sink. This is [[Archimedes' principle]] at work: an object floats when the weight of fluid it pushes aside equals its own weight. A standing person therefore usually stops at about the waist, which is why you cannot normally sink past it. The picture of quicksand swallowing people whole is a myth, and the real hazard is being held in place while the tide comes in.
+Sand can also show itself as stranger things. A mixture of grains and water in the right proportion behaves like [[Oobleck]], a [[Non-Newtonian fluid|non-Newtonian fluid]] that is runny when slowly poured and rigid when struck. [[Quick clay]], found in Scandinavia and Canada, goes further, collapsing from solid to liquid when disturbed and swallowing whole hillsides. And where [[Lightning]] strikes dry sand, the heat melts the grains into branching glass tubes called [[Fulgurite|fulgurites]], which show how dramatically sand's character changes with the energy put into it.
 
-The grip on a trapped leg has a second cause, which the engineer [[Osborne Reynolds]] described in 1885. He found that packed granular material expands when it is sheared, a property now called [[Dilatancy]]. When a leg pushes through dense, wet sand, the grains are forced apart and water is drawn into the gaps, which lowers the water pressure there and grips the leg harder. Estimates of the force needed to free a trapped foot vary, but in packed, wet sand it can approach the force needed to lift a car, so struggling is the wrong response.
-
-## When earthquakes do the same
-
-The same effect can strike a whole district during an earthquake. The shaking drives water up through loose, saturated ground, and in the [[1964 Niigata earthquake]] in Japan, ground under parts of the city of Niigata turned liquid. Engineers call the general process [[Soil liquefaction]], and at Niigata it tipped an apartment block onto its side, though the building itself stayed largely intact.
-
-The [[February 2011 quake|2011 Christchurch earthquake]] did the same across New Zealand's second-largest city, and the sand it forced to the surface built small cones called [[sand volcanoes|Sand volcano]] in streets and gardens. Houses in the worst-hit eastern suburbs tilted or sank as the soil beneath them lost its strength. Engineers now assess liquefaction risk before building on waterside sand.
-^ Geologists map where an earthquake liquefied the ground by surveying the sand volcanoes it left behind.
+^ Quicksand can be recognised by its surface alone only sometimes: a damp, rippling or slightly shiny patch in otherwise dry ground is the warning.
 ===
-- [[Lightning]] :: Lightning fuses sand into glass, leaving hollow tubes called fulgurites. :: phenomenon
-- [[La Brea Tar Pits]] :: Ice Age animals sank into sticky tar and left their bones behind. :: place
-- [[Singing sand]] :: Sand that booms like a bass note when its grains slide. :: phenomenon
-- [[Bog body]] :: Peat bogs swallowed bodies and kept their skin for thousands of years. :: thing
-- [[Mud volcano]] :: Water-soaked sediment, pushed upward by pressure, builds cones and erupts. :: phenomenon
-- [[Sinkhole]] :: Water dissolving rock underground can open a hole under a town without warning. :: phenomenon
+- [[Lightning]] :: it fuses sand into glass, leaving fossilised bolts underground :: phenomenon
+- [[Oobleck]] :: cornstarch and water that turns solid when punched, a kitchen cousin of quicksand :: thing
+- [[Quick clay]] :: Scandinavian hillsides that suddenly turn to liquid and slide away :: thing
+- [[Liquefaction (soil)]] :: earthquakes turning solid ground into slurry beneath whole cities :: phenomenon
+- [[Morecambe Bay]] :: tidal flats where racing water and soft sand claimed 21 cockle pickers :: place
+- [[Thixotropy]] :: why ketchup won't pour until you hit it, and quicksand behaves the same :: concept
 ???
-Why does wet sand sometimes hold a person's weight and sometimes not?
-Could an earthquake turn ordinary beach sand into quicksand?
-Can a rising tide drown someone stuck in quicksand on a beach?
+Can a person really sink completely into quicksand?
+How do you escape quicksand step by step?
+Why does ordinary sand sometimes turn into liquid?
 &&&
-[[Soil liquefaction]] :: Shaking can make the ground stop holding up buildings above it.
-[[Effective stress]] :: Subtracting water pressure from weight explains why soil can suddenly weaken.
-[[Pore water pressure]] :: Water in soil's gaps can carry the weight grains normally bear.
-[[Dilatancy]] :: Sheared sand swells and draws in water, locking things in place.
-[[Osborne Reynolds]] :: The engineer who described dilatancy also gave turbulence its key number.
-[[Karl Terzaghi]] :: The soil engineer who made groundwater pressure central to building design.
-[[Non-Newtonian fluid]] :: Cornstarch, ketchup and quicksand all defy simple liquid rules.
-[[Archimedes' principle]] :: Explains why steel ships float and why people float in quicksand.
-[[1964 Niigata earthquake]] :: An apartment block toppled onto its side, largely intact.
-[[2011 Christchurch earthquake]] :: Sand erupted through city streets and gardens, leaving cones behind.
-[[Sand volcano]] :: Tiny cones that map where the ground once liquefied.
-[[Tidal flat]] :: Each tide floods these flats and leaves the sand soaked.
+[[Thixotropy]] :: gels that liquefy when shaken and re-solidify at rest
+[[Non-Newtonian fluid]] :: liquids whose thickness changes with how hard you push
+[[Liquefaction (soil)]] :: earthquakes can turn solid ground into a slurry
+[[Pore water pressure]] :: water carrying the load that grains normally would
+[[Morecambe Bay]] :: England's tidal flats where the sea outruns walkers
+[[Bay of Mont-Saint-Michel]] :: Normandy tides that race in across soft sands
+[[Tidal bore]] :: a wave that surges upriver against the current
+[[Fulgurite]] :: lightning fused into glass tubes buried in sand
+[[Lightning]] :: bolts that turn sand to branching glass
+[[Quick clay]] :: clay that collapses into liquid when disturbed
+[[Christchurch earthquakes of 2010 and 2011]] :: silt erupted through streets across a whole city
+[[Oobleck]] :: a fluid that is solid when struck, liquid when poured
+[[Sand boil]] :: miniature volcanoes of sand erupting from saturated ground
+[[Grain size]] :: why fine, rounded sand is far more dangerous than coarse

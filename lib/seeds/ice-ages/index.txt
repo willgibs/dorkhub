@@ -1,82 +1,74 @@
 # Ice ages :: era
-> Earth is still in an ice age, and we happen to be living in one of its warm spells.
+> Earth is in an ice age right now, and the glaciers you can see are its leftovers.
 !!!
-Began :: About 2.6 million years ago
-Last glacial maximum :: About 20,000 years ago
-Current interglacial :: Began about 11,700 years ago
+Key facts :: 
+Current ice age :: Quaternary glaciation, began about 2.6 million years ago
+Last glacial peak :: about 20,000 years ago
+Sea level then :: roughly 120 m lower
 +++
-[[Louis Agassiz]] :: person
-[[Milankovitch cycles]] :: mechanism
-[[Milutin Milanković]] :: person
-[[Glacial erratic]] :: thing
-[[Last Glacial Maximum]] :: era
-[[Doggerland]] :: place
-[[Coral reefs]] :: thing
+[[Quaternary glaciation]] :: era
+[[Milankovitch cycles]] :: concept
+[[Last Glacial Maximum]] :: event
 [[Antarctica]] :: place
-[[Ice core]] :: technique
-[[Dansgaard–Oeschger event]] :: event
+[[EPICA]] :: thing
+[[Coral reefs]] :: thing
+[[Beringia]] :: place
+[[Snowball Earth]] :: mystery
+[[Laurentide Ice Sheet]] :: thing
+[[Doggerland]] :: place
 [[Younger Dryas]] :: event
-[[Lake Agassiz]] :: place
+[[Mammoth steppe]] :: place
+[[Missoula floods]] :: event
+[[Isostatic rebound]] :: phenomenon
 ---
-Stand on the Greenland ice sheet and the land has vanished under ice up to about three kilometres thick. [[Antarctica]] holds more, in places over four kilometres deep, and both sheets are the surviving proof that Earth is still in an ice age. Each year's snow packs into a new layer, so the ice works as a diary of the air it fell through.
+By the strict geological definition, an ice age is any stretch of time when permanent ice sheets cover large parts of the planet, and by that measure we are living in one. Greenland and [[Antarctica]] still hold ice sheets, which together lock up about 2 percent of Earth's water and enough to raise the oceans by some 65 metres if they melted. The thing that feels like "the Ice Age", with mammoths and glaciers over Chicago, was only the latest cold pulse inside this longer age. Scientists call those pulses glacials, and the warm gaps between them interglacials. Our own warm spell, the Holocene, is an interglacial that began about 11,700 years ago.
 
-## What starts and stops an ice age
+The present age, the [[Quaternary glaciation]], began about 2.6 million years ago, when ice sheets started to build on northern continents. Since then the climate has swung back and forth, and for the last million years or so the beat has been roughly 100,000 years: long, slow glaciations, then quick thaws. At the peak, the [[Laurentide Ice Sheet]] smothered most of Canada and reached into the American Midwest, and was up to about 3 kilometres thick over Hudson Bay. ^ The weight of that ice pressed the crust down. Parts of Canada and Scandinavia are still rising today, a slow recovery known as [[Isostatic rebound]].
 
-In 1837 [[Louis Agassiz]], a Swiss naturalist, argued that ice had once covered much of Europe, pointing to [[glacial erratics|Glacial erratic]] carried far from their mountains and to scratches cut into bedrock. The evidence held up, and by the twentieth century geologists had traced glacial deposits across much of Europe and North America. What his evidence could not explain was the rhythm, the way ice sheets came and went in cycles.
+## What drives the cycle
 
-The timing was explained, in outline, by [[Milutin Milanković]], a Serbian engineer who worked out how Earth's orbit shifts over tens of thousands of years, the [[Milankovitch cycles]] that now bear his name. The orbital pattern was tested in 1976 by James Hays, John Imbrie and Nicholas Shackleton, who matched the cycles to the ice volume recorded in deep-sea sediment cores. The response is lopsided: ice sheets build slowly over many millennia and collapse far faster.
+The pacing comes from small, regular wobbles in Earth's orbit. The Serbian scientist Milutin Milanković spent years during the First World War and after working out how changes in the shape of the orbit, the tilt of the axis and the precession of the equinoxes alter summer sunshine at high northern latitudes. His [[Milankovitch cycles]] were dismissed for decades, then confirmed in 1976 when Hays, Imbrie and Shackleton found the same rhythms in deep-sea sediment. The orbital nudge is tiny, though, so feedbacks do the heavy lifting: ice reflects sunlight, and cold oceans absorb more carbon dioxide. Ice cores show CO2 falling to about 180 parts per million in glacial times and rising to about 280 in interglacials.
 
 ::: steps
-Orbit :: Its shape and tilt shift, so high-latitude summers get less sunlight.
-Snow :: Winter snow survives the summer instead of melting away.
-Albedo :: Bright snow reflects more sunlight, so the land cools further.
-Ice :: Growing ice sheets lock up seawater and lower the sea.
-Carbon :: Atmospheric carbon dioxide falls, which deepens the cold.
+Orbit shifts :: Summer sunshine at northern high latitudes weakens over thousands of years.
+Snow persists :: Winter snow fails to melt in summer and piles up into ice.
+Albedo rises :: White ice reflects more sunlight, cooling the surface further.
+CO2 drops :: Colder oceans absorb more carbon dioxide, deepening the cooling.
+Ice sheets grow :: Sea level falls and glaciers advance until the orbit turns back.
 :::
 
-## When the sea fell
+## The world at the bottom
 
-Water locked up in ice has to come from somewhere. At the [[Last Glacial Maximum]], roughly 20,000 years ago, global sea level stood about 120 metres lower than it does today. The North Sea was largely dry land, and the low plain now called [[Doggerland]] tied Britain to the continent. Its marshes and hunting grounds drowned as the ice melted, and trawlers still bring up mammoth bones from the seabed.
+At the [[Last Glacial Maximum]], about 20,000 years ago, so much water was frozen that the sea stood roughly 120 metres lower than now. The shelf between Siberia and Alaska became [[Beringia]], a grassland a thousand kilometres wide that people and animals crossed, and the North Sea floor was dry [[Doggerland]]. The [[Coral reefs]] we admire today grew on submerged flanks of land; the glacial reefs sit drowned and stranded, and drilling off Tahiti and Barbados has used them to date the rising sea. Across Eurasia and North America stretched the [[Mammoth steppe]], a cold, dry, productive grassland that fed mammoths, woolly rhinos and bison.
 
-^ At the height of the last ice age, you could have walked from Britain to the Netherlands across land now under the sea.
+The end of the glacial was not smooth. Around 12,900 years ago the climate lurched back toward cold for about 1,200 years in the [[Younger Dryas]], and the cause is still argued, with meltwater flooding the North Atlantic the leading suspect. Ice dams burst too: in the Pacific Northwest, [[Missoula floods]] repeatedly emptied a lake the size of Lake Ontario and Lake Erie combined across Washington, carving the Channeled Scablands.
 
-[[Coral reefs]] keep a record of those shifts. Corals build only in shallow, sunlit water, so a reef marks the sea surface where it grew. On Barbados, fossil coral terraces, lifted by the slowly rising land, preserve old shorelines like steps on a staircase.
+## Deeper time
 
-## Reading the ice
-
-Drilling teams have pulled ice cores from the Antarctic plateau, one reaching back about 800,000 years. In 2004 the European Project for Ice Coring in Antarctica reported a core from Dome C that spans roughly eight glacial cycles. Dating the layers depends on counting annual snowfall near the surface and on ice-flow models deeper down.
-
-Air bubbles sealed in each [[ice core|Ice core]] are samples of the atmosphere from the moment they closed, and their carbon dioxide rises and falls in step with the temperature recorded in the same ice. That match suggests carbon dioxide does more than follow the cold: it helps amplify it. Carbon dioxide is one link in a longer chain of feedbacks, and the order of the others is still debated.
-
-^ Glacial-age carbon dioxide sat near 180 parts per million, against roughly 280 in the warm spells before industry.
-
-Greenland's ice shows that the last ice age was no steady deep freeze. Its cores record repeated sudden warmings, the [[Dansgaard–Oeschger event|Dansgaard–Oeschger events]], first identified in Greenland ice by Willi Dansgaard and Hans Oeschger, in which the air above the ice warmed by many degrees within a few decades. Each warm burst was followed by a slide back toward cold, so the climate of that age kept lurching rather than settling.
-
-The most recent sudden lurch came as the ice was already retreating. The [[Younger Dryas]] began about 12,900 years ago, returned parts of northern Europe to glacial cold for roughly 1,200 years, and ended abruptly. Its trigger is still disputed: the leading idea is a meltwater surge from [[Lake Agassiz]], the glacial lake that filled central North America, while a contested impact hypothesis has its own advocates.
-
+Quaternary ice is mild compared with the worst episodes. Geologists propose that around 700 million years ago the planet froze nearly or entirely, a [[Snowball Earth]] whose reality and severity are still debated. Antarctic ice preserves the more recent record: the [[EPICA]] core at Dome C reached back about 800,000 years, showing eight full glacial cycles in trapped air bubbles. Whether the next glaciation is delayed by the carbon dioxide humans have released is a live question, and several studies suggest it might be postponed for tens of thousands of years.
 ===
-- [[Snowball Earth]] :: Whether the oceans froze solid, from pole to tropics, is still debated :: mystery
-- [[Lascaux]] :: Painted about 17,000 years ago, while Europe lay in the last ice age :: place
-- [[Ötzi]] :: Found in 1991, frozen in an Alpine glacier for over five thousand years :: person
-- [[Mammoth steppe]] :: A cold grassland that fed mammoths, bison and lions, then largely vanished :: place
-- [[Methane clathrate]] :: Methane trapped in ice-like crystals under seafloors and permafrost :: thing
-- [[Antifreeze protein]] :: Some polar fish carry proteins that keep their blood from freezing :: thing
-
+- [[Snowball Earth]] :: Did ice once reach the equator and nearly entomb the whole planet?
+- [[Beringia]] :: The drowned land bridge that carried the first Americans across.
+- [[Missoula floods]] :: Ice-dam bursts that carved Washington's scablands in days, repeatedly.
+- [[Doggerland]] :: A lost hunting ground now lying beneath the North Sea.
+- [[Antarctica]] :: Ice cores 800,000 years deep hold ancient air bubbles.
+- [[Coral reefs]] :: Seas 120 m lower left ancient reefs stranded and drowned.
 ???
-Why do changes in Earth's orbit pace the ice ages?
-Could burning fossil fuels delay the next ice age?
-How do scientists know sea level once stood far below today's?
-
+Why did Milankovitch's orbital theory take 50 years to be accepted?
+Will the next glaciation be prevented by human carbon emissions?
+How did people cross from Siberia into North America during the glacial?
 &&&
-[[Louis Agassiz]] :: A naturalist who first argued Europe was once buried in ice.
-[[Milankovitch cycles]] :: Slow wobbles in Earth's orbit that set the ice's rhythm.
-[[Milutin Milanković]] :: A Serbian engineer who calculated the ice ages from the sky.
-[[Glacial erratic]] :: Boulders carried far from home by ice, then dropped.
-[[Last Glacial Maximum]] :: The last ice age's cold peak, when seas dropped far lower.
-[[Doggerland]] :: A lost land under the North Sea, still yielding mammoth bones.
-[[Coral reefs]] :: Stone records of sea level, stranded or drowned by melting ice.
-[[Antarctica]] :: A continent whose ice keeps an 800,000-year record of the air.
-[[Ice core]] :: Bubbles of ancient air, sealed in drilled cylinders of ice.
-[[Dansgaard–Oeschger event]] :: Greenland warmed by many degrees within decades, again and again.
-[[Younger Dryas]] :: A cold snap that returned ice-age chill as the ice retreated.
-[[Lake Agassiz]] :: A vast glacial lake whose meltwater may have chilled the Atlantic.
+[[Quaternary glaciation]] :: We live inside it, in a brief warm interglacial.
+[[Milankovitch cycles]] :: Orbital wobbles that pace the ice ages with clockwork.
+[[Last Glacial Maximum]] :: Ice at its peak, seas 120 metres lower.
+[[Antarctica]] :: Its ice holds 800,000 years of ancient air.
+[[EPICA]] :: A drill core reading eight ice-age cycles bubble by bubble.
+[[Coral reefs]] :: Glacial sea levels left ancient reefs stranded and drowned.
+[[Beringia]] :: A vanished grassland that linked Asia and America.
+[[Snowball Earth]] :: A possible frozen planet, argued over for decades.
+[[Laurentide Ice Sheet]] :: Three kilometres of ice once buried Canada.
+[[Doggerland]] :: A drowned landscape under the North Sea.
+[[Younger Dryas]] :: A sudden 1,200-year cold snap as the ice retreated.
+[[Mammoth steppe]] :: A vanished grassland ecosystem feeding mammoths across Eurasia.
+[[Missoula floods]] :: Ice-dam bursts that scoured the Pacific Northwest.
+[[Isostatic rebound]] :: Land still springing upward after ice weight vanished.

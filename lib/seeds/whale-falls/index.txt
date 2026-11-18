@@ -1,70 +1,82 @@
 # Whale falls :: phenomenon
-> A whale that sinks after death becomes an island of food in the deep sea, feeding hagfish, bone-eating worms and bacteria for decades.
-~ You start with a dead whale on the seabed, and it leads to worms that bore into bone with acid, hot springs on the ocean floor, and sea reptiles that fed the same kind of worms 100 million years ago.
+> A dead whale sinks into the lightless deep and becomes a decades-long oasis that feeds a whole ecosystem.
+!!!
+Key facts :: 
+Duration :: Up to 50+ years
+Depth :: Often below 1,000 m
+Discovered :: 1987, off California
 +++
-[[Marine snow]] :: phenomenon
-[[Hagfish]] :: creature
+[[Osedax]] :: creature
 [[Chemosynthesis]] :: mechanism
 [[Hydrothermal vent]] :: place
-[[Osedax]] :: creature
-[[Monterey Canyon]] :: place
-[[Dwarf males]] :: phenomenon
-[[Plesiosaur]] :: creature
-[[DSV Alvin]] :: thing
-[[Cold seep]] :: place
-[[Stepping-stone hypothesis]] :: mystery
-[[Wood fall]] :: phenomenon
-[[Whale pump]] :: mechanism
+[[Sperm whale]] :: creature
+[[Gray whale]] :: creature
+[[Santa Cruz Basin]] :: place
+[[Craig Smith (oceanographer)]] :: person
+[[Hagfish]] :: creature
+[[Bone-eating snot flower]] :: creature
+[[Sulfate-reducing bacteria]] :: creature
+[[Abyssal plain]] :: place
+[[Deep scattering layer]] :: phenomenon
+[[Sleeper shark]] :: creature
+[[Marine snow]] :: phenomenon
 ---
-A whale fall is the carcass of a whale that has sunk to the seafloor, usually more than 1,000 metres down. Great whales are slightly denser than seawater, so once the lungs empty, a body can sink fast and nearly whole. It lands where life normally depends on [[marine snow|Marine snow]], a thin drizzle of debris from the sunlit waters far above. A 40-tonne carcass brings about two tonnes of carbon, which by one estimate is as much food as the mud beneath it would otherwise receive in 2,000 years.
+When a large whale dies at sea, its body often sinks, and a carcass of 30 to 40 tonnes can fall through thousands of metres of cold, dark water until it lands on the seafloor. For most of the deep ocean, food is a thin drizzle of dead plankton and fecal specks, so a whale arriving all at once is like a truck of groceries dropped on a desert. A single gray whale carcass delivers roughly the amount of organic carbon that normally rains onto a patch of seabed the size of a tennis court over about 2,000 years. Life converges on it from kilometres around, and the feast can last longer than a human lifetime.
 
-## A meal in stages
-The body is eaten in shifts, each crew preparing the site for the next. Scavengers come first: [[hagfish|Hagfish]] burrow in and eat from the inside, and the flesh is usually gone within a couple of years. The bones last far longer, because they are soaked in oil; some are more than half fat by weight.
+The phenomenon was first documented by accident. In 1987, the submersible Alvin, piloted during a dive led by Craig Smith, came across a nearly intact gray whale skeleton at about 1,240 metres in the [[Santa Cruz Basin]] off California, crawling with unfamiliar animals. Before that, whale falls were a hypothesis at best; afterwards, researchers began deliberately sinking carcasses to watch the process unfold. Smith and colleagues later tracked experimental falls over years, and found that the sequence unfolds in distinct stages.
+
+^ Whale falls are spaced so thinly that larvae of some specialist species may need to drift or hop across hundreds of kilometres of barren seabed to find the next one.
+
+## Three courses of a very long meal
+
+First come the mobile scavengers. [[Hagfish]], [[sleeper shark]]s, rattail fish and crabs strip the soft tissue, and the flesh of a large whale can be reduced to bone in months to a couple of years. The stripped skeleton is then colonised by a second wave: dense mats of bacteria and crustaceans, polychaete worms and snails feeding on the lipid-rich sediment and bone surfaces, an "enrichment-opportunist" stage lasting years.
+
+The long final stage is the one that makes whale falls strange. Whale bones are up to 60 percent lipid by weight in some species, and as the oil seeps out, [[Sulfate-reducing bacteria]] break it down without oxygen, producing hydrogen sulfide. That sulfide supports [[Chemosynthesis]]: bacteria that harvest energy from chemicals rather than sunlight, and in turn feed mussels, clams and tubeworms that host them. This "sulphophilic" stage can persist for decades, and models for the largest carcasses suggest up to half a century or more.
+
 ::: steps
-Mobile scavengers :: Sleeper sharks, rattails and crustaceans join the hagfish, eating 40–60 kg a day
-Enrichment opportunists :: Worms and crustaceans crowd the enriched mud and bones, up to 40,000 per square metre
-Sulphophilic stage :: A community fuelled by sulphide from the bones lasts decades, perhaps a century
-Reef stage (proposed) :: With the fuel spent, bare bones become hard ground for filter feeders
+Descent :: Carcass sinks, often arriving intact on the seabed.
+Scavenging :: Sharks, hagfish and crabs strip flesh in months to two years.
+Enrichment :: Worms, snails and crustaceans exploit bone and fatty sediment for years.
+Sulphophilic :: Sulfide-eating bacteria support mussels and clams for decades.
+Reef :: Bare mineral remains offer a hard surface for later colonists.
 :::
 
-Deep inside the bones, bacteria that need no oxygen break the fat down, using sulphate from seawater and giving off hydrogen sulphide. Other bacteria turn that sulphide into food by [[chemosynthesis|Chemosynthesis]], the same chemistry that feeds life at [[hydrothermal vents|Hydrothermal vent]]. They spread in white mats over the skeleton and live inside the gills of clams and mussels, which feed on them.
-^ In a 2003 study, large whale skeletons in this stage averaged about 185 animal species each, more than the richest vent field then known.
+## The zombie worms
 
-## The bone devourers
-In 2002, researchers steering a robot submarine through [[Monterey Canyon]], off California, found a dead grey whale nearly 2,900 metres down, its bones furred with red worms. In 2004 the new worms were named [[Osedax]], Latin for "bone devourer". An Osedax has no mouth and no gut. The female grows root-like tissue into the bone and dissolves the mineral with acid, and bacteria living in the roots appear to help digest the fats and collagen inside. In most species the males are [[dwarf males|Dwarf males]]: microscopic, larva-like and living in the female's tube. More than 30 species are now known, on bones from fish to seabirds, and they can erase a whale skeleton in as little as a decade.
-^ Osedax harems range from a few males to hundreds; females of some larger species have been found with more than 600.
+In 2002, Robert Vrijenhoek and Greg Rouse at the Monterey Bay Aquarium Research Institute described [[Osedax]], from the Latin for "bone-devourer," found on a whale skeleton about 2,890 metres down in Monterey Canyon. The females are small worms whose bodies sprout feathery red plumes into the water, while root-like tissue burrows into the bone. They have no mouth or gut; symbiotic bacteria in the roots digest the lipids and collagen inside the bone for them. The males are microscopic and live inside the females' tubes, sometimes dozens to a single female.
 
-The worms seem to be older than whales. A [[plesiosaur|Plesiosaur]] bone from England, about 100 million years old, carries borings that match Osedax, and plesiosaur carcasses from Cretaceous Japan hosted snails of a family now typical of vents and seeps.
+Osedax is not alone in drawing on the fall. Researchers have catalogued well over 100 species at whale falls, including some that appear to be specialists and others shared with [[Hydrothermal vent]] and cold-seep communities. This overlap has led to the "stepping stone" hypothesis, that whale falls helped chemosynthetic animals disperse between vents across the ocean's barren stretches, though the idea remains debated. Genetic dating hinted that Osedax diverged tens of millions of years ago, and fossil traces of their borings have been found in plesiosaur and sea turtle bones, suggesting bone-eating worms predate whales themselves.
 
-## Islands in the deep
-The first living whale-fall community was found by chance in 1987, when Craig Smith's team, diving in [[DSV Alvin|the submersible Alvin]], came upon a 20-metre skeleton 1,240 metres down off southern California. Among its bacterial mats were clams whose relatives live at vents and at [[cold seeps|Cold seep]], where methane and sulphide leak from the seabed. In 1989 the team proposed the [[stepping-stone hypothesis|Stepping-stone hypothesis]]: larvae might hop from carcass to carcass between those scattered habitats. Some species are shared, but whether animals really spread this way is still unresolved.
+^ Some Osedax borings have been reported in Cretaceous marine reptile bones, long before the first whales evolved.
 
-Over evolutionary time the steps may have been real. Small mussels living on [[sunken wood|Wood fall]] and whale bones turn out to be close relatives of the large vent and seep mussels, which suggests the vent mussels' ancestors reached the vents by way of rotting logs and bones.
+## Why they matter now
 
-Whaling cut many great-whale populations to a fraction of their former size, and simple models suggest some whale-fall specialists may have vanished before anyone found them. Alive, whales fertilise surface waters through the [[whale pump|Whale pump]]; dead, they carry their carbon down to the deep, where a whole community spends decades eating it.
->>>
-[[Osedax]] :: How mouthless worms dissolve bone, house bacteria and keep harems of microscopic males.
+Industrial whaling killed millions of large whales in the twentieth century, and many scientists argue that this dramatically reduced the number of falls reaching the deep. Fewer falls could have meant local extinctions or isolation for specialist species, though the effect is hard to measure. Whale falls also store carbon: a large carcass buries tonnes of it on the seafloor, so recovering whale populations may slowly help rebuild both the oases and a small carbon sink.
+
+---
 ===
-- [[Experimental whale falls]] :: Scientists tow dead whales offshore and sink them with tonnes of steel :: deeper :: technique
-- [[Jelly falls]] :: Dead jellyfish blooms can carpet the seafloor, and scavengers strip them fast :: sideways :: phenomenon
-- [[Greenland shark]] :: Sleeper sharks scavenge whale falls; this Arctic cousin may live for centuries :: sideways :: creature
-- [[Forensic entomology]] :: Land corpses have their own succession, and insect arrivals help date death :: wild :: technique
-- [[Alabama underwater forest]] :: A drowned Ice Age forest where wood-dwelling cousins of vent mussels live :: wild :: place
+- [[Osedax]] :: The mouthless, gutless worms that dissolve whale bone with borrowed bacteria :: creature
+- [[Hydrothermal vent]] :: Black smokers where chemistry replaces sunlight, sharing animals with whale falls :: place
+- [[Chemosynthesis]] :: Life that eats sulfide instead of sunlight, found from vents to bones :: mechanism
+- [[Hagfish]] :: The slime-spewing eel-like scavenger that tunnels into carcasses :: creature
+- [[Marine snow]] :: The faint drizzle of dead plankton that feeds most of the deep sea :: phenomenon
+- [[Sleeper shark]] :: A slow giant of cold water with a taste for carrion :: creature
 ???
-Why do some dead whales wash ashore while others sink?
-How do scientists find a whale fall on the dark seafloor?
-Did whaling wipe out species that lived only on whale falls?
+How long can a whale fall support life on the seafloor?
+Do whale falls help store carbon in the deep ocean?
+How do bone-eating Osedax worms digest bone without a mouth?
 &&&
-[[Marine snow]] :: The deep sea's slow food supply, flakes that sink for weeks
-[[Hagfish]] :: Jawless scavengers that knot themselves and choke attackers with slime
-[[Chemosynthesis]] :: How whole ecosystems run on rotten-egg gas instead of sunlight
-[[Hydrothermal vent]] :: Seafloor hot springs whose animals nobody knew of until 1977
-[[Osedax]] :: Mouthless worms that root into bone like plants
-[[Monterey Canyon]] :: A submarine canyon off California rivalling the Grand Canyon in size
-[[Dwarf males]] :: Why evolution sometimes shrinks males into specks that females carry
-[[Plesiosaur]] :: Sea reptiles whose sunken carcasses fed bone worms before whales existed
-[[DSV Alvin]] :: Sank in 1968, then returned with its crew's lunch barely spoiled
-[[Cold seep]] :: Seafloor methane leaks where tubeworms may live over 250 years
-[[Stepping-stone hypothesis]] :: Could vent animals spread by hopping between dead whales?
-[[Wood fall]] :: Sunken logs that may have led mussels down to the vents
-[[Whale pump]] :: Why fewer whales may mean less plankton, not more
+[[Osedax]] :: Mouthless worms that eat bone using root-borne bacteria.
+[[Chemosynthesis]] :: Energy from chemicals instead of sunlight; deep-sea life's other engine.
+[[Hydrothermal vent]] :: Seafloor geysers hosting life that never sees the sun.
+[[Sperm whale]] :: Deep-diving giant whose carcass and oily bones feed decades of life.
+[[Gray whale]] :: The species behind the first whale fall ever found.
+[[Santa Cruz Basin]] :: The Californian seafloor where the first fall was stumbled upon.
+[[Craig Smith (oceanographer)]] :: Spent decades sinking whales to watch them become reefs.
+[[Hagfish]] :: Slime-producing scavenger that can feed from inside a carcass.
+[[Bone-eating snot flower]] :: Nickname for Osedax's mucus-coated, plume-bearing females.
+[[Sulfate-reducing bacteria]] :: Microbes turning whale fat into sulfide that powers a second ecosystem.
+[[Abyssal plain]] :: Vast, food-poor seabed where a single carcass is a jackpot.
+[[Deep scattering layer]] :: Daily migrating animal layer that links surface life to the deep.
+[[Sleeper shark]] :: Sluggish polar and deep-water shark that scavenges fallen whales.
+[[Marine snow]] :: The slow rain of organic scraps that normally feeds the deep.

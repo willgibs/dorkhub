@@ -22,9 +22,10 @@ test('every model a reader can pick has a say on thinking, and the rest are call
   for (const m of MODELS.filter(m => m.vetted)) assert.ok(writerSettings(m.id).options, `${m.id} would think as long as it likes`);
   assert.deepEqual(writerSettings('openai/gpt-6-luna'), { options: null, room: 0 });
   assert.deepEqual(writerSettings('anthropic/claude-haiku-5.5'), { options: { anthropic: { thinking: { type: 'disabled' } } }, room: 0 });
-  /* a writer that cannot stop thinking gets room for it beyond the page's own limit; one that can gets none */
+  /* a writer that cannot stop thinking gets room for it beyond the page's own limit; one that writes long pages, room
+     for a long page (Sonnet 5.5: one of 43 stopped at the limit, 2026-11-17); the rest none */
   assert.ok(writerSettings('anthropic/claude-opus-5.5').room >= 4000);
-  assert.equal(writerSettings('anthropic/claude-sonnet-5.5').room, 0);
+  assert.equal(writerSettings('anthropic/claude-sonnet-5.5').room, 1000);
 });
 
 test('with a reader\'s key, Anthropic is told: Haiku does not think, Sonnet only between tools, Opus as little as it can', async () => {

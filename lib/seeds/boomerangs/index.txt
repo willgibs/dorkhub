@@ -1,69 +1,90 @@
 # Boomerangs :: thing
-> Most boomerangs were built to hit or hunt, and only a few were made to fly back to the thrower.
+> Most boomerangs were never meant to return: they were weapons, digging tools and instruments that have been thrown across the world for tens of thousands of years.
+
 !!!
-Name source :: Dharug, the language of Sydney
-Returning designs :: a small minority
-Egyptian depiction :: a tomb painting, about 1350 BC
+Key facts :: 
+Oldest known :: Oblazowa Cave, Poland, about 23,000 years ago
+Returning range :: Typically 20 to 40 metres out
+Flight principle :: Spinning wing, gyroscopic precession
 +++
-[[Tomb of Nebamun]] :: work
-[[Fowling]] :: technique
-[[Club (weapon)]] :: thing
-[[Airfoil]] :: concept
-[[Propeller]] :: thing
+[[Oblazowa Cave]] :: place
+[[Kylie (boomerang)]] :: thing
 [[Gyroscopic precession]] :: mechanism
-[[Gyroscope]] :: thing
+[[Tutankhamun]] :: person
+[[Hieroglyphs]] :: concept
+[[Throwing stick]] :: thing
+[[Wyrie Swamp]] :: place
 [[Woomera (spear-thrower)]] :: thing
-[[Atlatl]] :: thing
-[[Sling (weapon)]] :: thing
+[[Lift (force)]] :: mechanism
+[[Mammoth ivory]] :: thing
+[[Boomerang Throwing World Cup]] :: event
+[[Aboriginal Australians]] :: concept
+[[Hunting with throwing sticks]] :: technique
 ---
-Picture a boomerang and most people see a flat wooden stick spinning across a field and curling back toward the thrower's feet. That picture describes only one family of designs. Most boomerangs were never meant to come back: they were thrown at birds, game or enemies, and they dropped where they landed.
+A boomerang is, at heart, a curved piece of wood that flies. The word comes from a Dharug-language term recorded near Sydney in the late 1700s, and it was later applied by Europeans to a whole family of bent throwing implements. The famous returning kind, with two slim arms set at an angle and a flight path that loops back to the thrower's feet, is the rarest member of that family. Far more numerous were the heavy, nearly straight [[throwing stick|throwing sticks]] that flew in flat arcs and never came home, the hunting weapons of [[Aboriginal Australians]] across the continent, and cousins of them used on other continents.
 
-## Sticks built to hit
+^ Oblazowa's boomerang was carved from a mammoth tusk, not wood, and may have been a thrown club rather than a returner.
 
-Throwing sticks that do not return were made in ancient Egypt and in parts of Africa as well as in Australia. The [[Tomb of Nebamun]], a painted tomb at Thebes from about 1350 BC, shows a hunter in a papyrus marsh hurling a curved stick into a flock of birds, a scene of [[fowling]] that has survived for over three thousand years. Australian makers produced heavier [[club (weapon)|clubs]] and straight throwing sticks for close fighting and hunting, and these were built to strike rather than to curve.
+## Weapons that stayed away
 
-## The one built to return
+The oldest boomerang-like object yet found came from [[Oblazowa Cave]] in the Carpathian Mountains of Poland, excavated in 1987 and dated to roughly 23,000 years ago. It is a curved blade of [[mammoth ivory|mammoth tusk]], about 70 centimetres long, and experimenters who built replicas found that it could be thrown to fly a short loop. Whether its makers meant it to return is unknown; many researchers think it was a hunting club. In Australia, wooden throwing sticks were preserved in the peat of [[Wyrie Swamp]] in South Australia, dated to around 10,000 years ago, and some of those curved pieces show a shape that could fly back.
 
-The returning kind is a specialised tool, most closely associated with Australia. Each arm is an [[airfoil|Airfoil]], cut like an aircraft wing with a flatter face and a curved one, and the two arms are joined so the whole piece spins as a unit. Makers carved them by hand and adjusted the arms by throwing and trimming until the flight curved back.
+Non-returning boomerangs were built for killing. A hunter might hurl one into a flock of ducks or cockatoos on the ground, or into the legs of a kangaroo, where a spinning blade could break bone at 100 metres. Heavier forms served as war clubs, clap sticks for music, fire-starting saws, digging tools and ceremonial objects. The [[kylie (boomerang)|kylie]] of Western Australia is one such, a flat, slightly curved stick that skips and ricochets along the ground. Returning boomerangs seem to have been used chiefly for sport, for decoy hunting (a hawk-like whirring that made flocks bunch) and for display.
 
-::: steps
-Throw :: a flick of the wrist sends it spinning forward through the air
-Spin :: each arm turns like a [[propeller|Propeller]] blade and works as a wing
-Lift :: the arm moving faster through the air gets more lift
-Tilt :: the spinning plane tips sideways through [[gyroscopic precession|Gyroscopic precession]]
-Return :: the curved path brings it round toward the thrower
+::: facts
+Typical wood :: Mulga, gidgee, other dense hardwoods
+Weapon throw range :: Up to about 100 metres
+Returning throw range :: Roughly 20 to 40 metres
+Common weapon forms :: Hunting stick, war boomerang, kylie
 :::
 
-A return is never guaranteed. Wind, a thrower's grip and the angle of release all change the path, so a throw can end short, wide or in the grass. The spin also gives the boomerang the steadiness of a [[gyroscope|Gyroscope]], which is why experienced throwers can watch the flight and step forward to catch it on the way back.
+## Why one comes back
 
-A well-thrown returning boomerang can circle back and land near the thrower, which is why it is the design most people picture. The return is also the hardest part to learn, because it can arrive at head height or dip toward the grass, and a beginner must read the spin and the wind before stepping into its path. Experienced throwers practise in open ground, where a missed catch costs nothing.
+A returning boomerang is a pair of rotating wings. Each arm is shaped like an airfoil, rounded on one face and flatter on the other, so it generates [[lift (force)|lift]] as it spins. A right-handed thrower launches it nearly upright, tilted slightly, spinning anticlockwise as seen from behind. Because the arm at the top moves faster relative to the air (spin speed plus forward speed) than the arm at the bottom (spin speed minus forward speed), it produces more lift, and the boomerang is pushed unevenly at its top edge.
 
-## Throwing aids and a word from Sydney
+That uneven push would simply tip a stationary object over, but a spinning one behaves like a gyroscope. The force acts, and the response arrives a quarter turn later: [[gyroscopic precession]] turns the spinning plane, so the boomerang leans over and curves in a wide arc rather than flipping. As the arc closes, the boomerang gradually lies flatter, and in a well-made throw it settles into a hovering spin above the thrower's hands. Small changes matter enormously: a gust, a wrongly angled launch or arms bent a few degrees off can send it elsewhere entirely.
 
-Other peoples gave a throw more leverage rather than more curve. The [[woomera (spear-thrower)|woomera]] of Australia and the [[atlatl]] of the Americas both extend the thrower's arm, so a spear leaves the hand faster, and a [[sling (weapon)|sling]] does something similar with a loop of cord. Each is a way of making a short arm throw further, while the boomerang takes a different route and asks the air to bring the stick back.
+::: steps
+Launch :: Thrown nearly upright, spinning fast, aimed slightly above the horizon.
+Uneven lift :: The upper arm moves faster through air than the lower one.
+Precession :: Spin turns that push into a leftward lean of the whole plane.
+Curve :: The path bends into a roughly circular loop.
+Return :: The boomerang flattens and drops, ideally near the thrower.
+:::
 
-^ A woomera has a peg at one end that seats in a notch at the spear's butt, turning the thrower's arm into a longer lever.
+## Out of the Outback
 
-The English word comes from Dharug, the language of the Sydney region. Today competitive throwers compete for distance, accuracy and trick catches, and most competition models are cut from plywood or moulded from plastic rather than carved from wood. The airfoil shape has changed less than the materials, so a modern throw still rides the same physics.
+Boomerangs turn up in unexpected places. Curved throwing sticks have been recorded among the Hopi of Arizona, in southern India and in ancient Egypt, where several non-returning examples were among the grave goods of [[Tutankhamun]], who died around 1323 BCE. [[Hieroglyphs]] show fowlers using such sticks in marsh hunts, a reminder that bird-hunting with a thrown club was an old and independent invention. Some of the king's pieces were made of wood, others of ivory or even decorated with gold.
+
+In the 20th century boomerangs became a sport. Modern competitors throw lightweight birch-ply or composite boomerangs for accuracy, endurance (catching as many returns as possible in five minutes) and "trick catch", behind the back or under a leg. The [[Boomerang Throwing World Cup]] has been held since 1989, and the sport has its own maths of wind, weight and wing angle. The old weapon makers had solved a version of the same problem by touch, shaping the wood by eye until a curve that cut the air one way would carry it another.
 ===
-- [[Hieroglyphs]] :: Tutankhamun's tomb held boomerangs, and its walls are covered in hieroglyphs :: thing
-- [[Bullroarer]] :: A spun wooden blade that roars through the air, used in ceremony :: thing
-- [[Samara (fruit)]] :: Maple seeds spin down like a boomerang's arms, a trick plants invented first :: thing
-- [[Helicopter]] :: Rotor blades are spinning wings, the boomerang's idea at a different scale :: thing
-- [[Ultimate (sport)]] :: A team sport played with a flying disc, the boomerang's distant cousin :: event
-- [[Spinning top]] :: A toy that stays upright by the same spin-and-tilt physics :: thing
+- [[Woomera (spear-thrower)]] :: The lever that made Aboriginal spears fly far faster than an arm could throw
+:: thing
+- [[Gyroscope]] :: The same spinning-top physics that steers ships, aircraft and space probes
+:: mechanism
+- [[Tutankhamun]] :: The boy king buried with throwing sticks beside gold and chariots
+:: person
+- [[Hieroglyphs]] :: The pictorial script that shows Egyptians hunting birds with thrown sticks
+:: concept
+- [[Mammoth ivory]] :: The Ice Age material carved into Poland's 23,000-year-old throwing blade
+:: thing
+- [[Wyrie Swamp]] :: The peat bog that preserved South Australia's oldest wooden throwing sticks
+:: place
 ???
-Why do most boomerangs fall instead of coming back?
-How does a boomerang's arm make it curve through the air?
-Did ancient Egyptians hunt birds with throwing sticks?
+Did boomerangs exist outside Australia in ancient times?
+Why does a returning boomerang need to be thrown upright?
+How is the world's oldest boomerang dated?
 &&&
-[[Tomb of Nebamun]] :: A marsh hunt painted about 3,400 years ago, teeming with birds.
-[[Fowling]] :: An old hunting craft that predates shotguns by millennia.
-[[Club (weapon)]] :: A heavy stick made to strike, not to fly.
-[[Airfoil]] :: The wing shape that gives a thin wooden arm its lift.
-[[Propeller]] :: Spins like a boomerang but drives air rather than riding it.
-[[Gyroscopic precession]] :: Why a spinning arm tilts sideways instead of simply falling.
-[[Gyroscope]] :: A spinning wheel that resists being pushed off its axis.
-[[Woomera (spear-thrower)]] :: A hooked stick that lengthens a thrower's arm.
-[[Atlatl]] :: The spear-thrower of the Americas, a parallel to the woomera.
-[[Sling (weapon)]] :: A loop of cord that flings stones with surprising force.
+[[Oblazowa Cave]] :: Polish cave that gave up a 23,000-year-old ivory boomerang
+[[Kylie (boomerang)]] :: Flat Western Australian stick that skips along the ground
+[[Gyroscopic precession]] :: Why a spinning thing responds a quarter-turn after you push it
+[[Tutankhamun]] :: Egyptian king buried with boomerang-like throwing sticks
+[[Hieroglyphs]] :: Egyptian script that depicts fowlers throwing sticks into marshes
+[[Throwing stick]] :: Straight-flying hunting weapon far commoner than returning boomerangs
+[[Wyrie Swamp]] :: Peat bog preserving 10,000-year-old Australian throwing sticks
+[[Woomera (spear-thrower)]] :: Wooden lever extending a hunter's spear throw dramatically
+[[Lift (force)]] :: The airfoil effect that holds up a spinning boomerang arm
+[[Mammoth ivory]] :: Ice Age tusk material used for carving tools and weapons
+[[Boomerang Throwing World Cup]] :: Competition where throwers chase accuracy, endurance and trick catches
+[[Aboriginal Australians]] :: Makers of the greatest variety of boomerang forms
+[[Hunting with throwing sticks]] :: How a spinning club brings down ducks and kangaroos

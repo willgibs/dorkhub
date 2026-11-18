@@ -1,79 +1,78 @@
-# Kessler syndrome :: phenomenon
-> The more junk circles Earth, the more it collides, and every collision makes more junk: a loop that may already be running.
-~ Orbital junk will lead you to a Cold War cloud of copper needles, a patch of the South Pacific where spacecraft are sunk on purpose, and carbon dioxide that keeps debris aloft longer.
+# Kessler syndrome :: concept
+> A runaway chain reaction in orbit, where each collision breeds debris that causes more collisions, until whole altitudes become unusable.
+!!!
+Key facts :: 3 lines
+Proposed :: 1978, Donald Kessler and Burton Cour-Palais
+Orbital speed :: about 7.5 km/s in low orbit
+Tracked objects :: over 30,000 pieces of debris
 +++
-[[Asteroid family]] :: thing
-[[Project West Ford]] :: event
-[[Spacecraft passivation]] :: technique
-[[2007 Chinese anti-satellite missile test]] :: event
-[[Iridium–Kosmos collision]] :: event
-[[Whipple shield]] :: technique
-[[Gravity (2013 film)]] :: work
-[[Thermosphere]] :: place
+[[Donald J. Kessler]] :: person
+[[Iridium 33 and Cosmos 2251 collision]] :: event
+[[Fengyun-1C]] :: event
+[[Low Earth orbit]] :: place
+[[Space debris]] :: thing
+[[Orbital decay]] :: mechanism
+[[Atmospheric drag]] :: phenomenon
+[[Whipple shield]] :: thing
+[[Space Surveillance Network]] :: thing
 [[Starlink]] :: thing
-[[Graveyard orbit]] :: place
-[[Point Nemo]] :: place
-[[ClearSpace-1]] :: thing
-[[Envisat]] :: thing
+[[Active debris removal]] :: technique
+[[Cosmos 954]] :: event
+[[Chain reaction]] :: concept
+[[Sputnik 1]] :: thing
 ---
-Kessler syndrome is the point at which the crowd of objects circling Earth begins to destroy itself. Collisions shatter satellites into fragments that cause more collisions, and past a critical density the debris multiplies faster than the atmosphere can clear it, even if launches stop. NASA scientists Donald Kessler and Burton Cour-Palais described the danger in 1978. Objects in low orbit meet at about 10 kilometres per second, so a fragment a centimetre across can wreck a satellite.
-^ The first entry in the satellite catalogue is not Sputnik 1 but the rocket stage that carried it up. Sputnik itself is number 2.
+In 1978, NASA scientist [[Donald J. Kessler]] and his colleague Burton Cour-Palais published a paper that asked an uncomfortable question: what happens when there is so much junk in orbit that it begins to make more junk by itself? Their answer was that past a certain density, collisions between objects would shatter them into fragments, and those fragments would collide with other objects, in a cascade that feeds on its own products. The resulting shell of debris could make some orbits unusable for generations. The phenomenon was later named after Kessler, though he did not coin the term himself.
 
-## A belt borrowed from the asteroids
+The danger comes from speed. In [[Low Earth orbit]], objects travel at roughly 7.5 kilometres per second, so two satellites meeting at an angle can close at over 10 km/s, more than ten times the speed of a rifle bullet. At those energies, a one-centimetre fragment of aluminium can carry the punch of a hand grenade, and a paint fleck has cracked a space shuttle window. Spacecraft armour such as the [[Whipple shield]], a thin outer sheet that vaporizes the impactor before it reaches the hull, can stop millimetre-scale particles but not anything much larger.
 
-The pair borrowed their method from studies of the asteroid belt, where collisions over billions of years have left [[asteroid families|Asteroid family]], swarms of fragments still on similar orbits. Around Earth, they argued, the same grinding could take decades, and a debris belt could start forming before 2000. A NORAD analyst, John Gabbard, is credited with the name.
+^ A "collision" in orbit needs no head-on crash: debris in one orbit crosses another's path from a different angle, and the closing speed does the damage.
 
-Some early litter was deliberate. In 1963 the US military scattered hundreds of millions of copper needles into orbit for [[Project West Ford]], meant as an artificial radio mirror; clumps of them still circle. The biggest source was explosions: by Kessler's 1978 count, 42 percent of catalogued objects came from just 19 break-ups, mostly of spent rocket stages. Burning off leftover propellant, part of [[spacecraft passivation|Spacecraft passivation]], became routine.
+## The numbers behind the fear
 
-## Collisions on the record
+The [[Space Surveillance Network]], run by the United States, catalogues objects larger than about ten centimetres, and the count of tracked pieces exceeds 30,000. Estimates for fragments between one and ten centimetres run to around a million, and for those over a millimetre, well over a hundred million. Most are too small to track but still lethal to a satellite.
 
-The [[2007 Chinese anti-satellite missile test]], which destroyed an old weather satellite, left more than 3,000 trackable fragments, the largest debris cloud on record. Two years later, in the [[Iridium–Kosmos collision]], a dead Russian satellite and a working American one met over Siberia at nearly 12 kilometres per second. Kessler called it the first clear example of his prediction.
+Real collisions have turned theory into data. In 2007 China destroyed its own weather satellite, [[Fengyun-1C]], in an anti-satellite missile test, producing more than 3,000 trackable fragments in one of the most heavily used altitude bands. Then in February 2009 the defunct Russian [[Iridium 33 and Cosmos 2251 collision|Cosmos 2251]] struck an operational Iridium communications satellite about 790 km above Siberia, the first known accidental hypervelocity collision between two intact satellites. Together these two events added thousands of tracked pieces, many of which will persist for decades.
 
-The International Space Station, the most heavily shielded spacecraft ever flown, wears [[Whipple shields|Whipple shield]], thin bumpers that shatter small particles before they reach the hull. Bigger fragments must be dodged or waited out: when a Russian missile shattered the old Soviet satellite Kosmos 1408 in 2021, the crew sheltered in their docked spaceships.
-^ In 1983 a fleck of paint, probably shed by another spacecraft, gouged a pit in a window of the shuttle Challenger.
-
-Whether the runaway has begun is disputed. Kessler wrote in 2009 that models showed low orbit had already crossed the threshold, and ESA's 2026 report says debris would keep growing even if launches stopped.
-::: figures
-47,000 :: objects tracked and catalogued in orbit, October 2026
-1.5 million :: estimated fragments between 1 and 10 cm across
-17,400 tonnes :: total mass of everything in Earth orbit
-660+ :: known break-ups, explosions and collisions since 1957
+::: timeline
+1957 :: [[Sputnik 1]] begins the era of objects left in orbit
+1978 :: Kessler and Cour-Palais publish their paper on collisional cascades
+2007 :: Chinese anti-satellite test destroys Fengyun-1C
+2009 :: Iridium 33 and Cosmos 2251 collide
 :::
 
-## Slower than the movies
+## Why it is a slow-motion disaster
 
-The film [[Gravity|Gravity (2013 film)]] shows a cascade ripping through orbit within hours; Kessler had written that he never meant one unfolding in days or months. The pace is set by drag from the [[thermosphere|Thermosphere]], the thin upper atmosphere. NASA says debris below 600 kilometres usually falls within several years, while at 800 kilometres it often lingers for centuries.
+Kessler syndrome is not an explosion but a process that unfolds over years or centuries, and that is what makes it hard to see. The cleanup mechanism is [[Atmospheric drag]]: wisps of upper atmosphere slow orbiting objects until they sink and burn up, a process called [[Orbital decay]]. Below roughly 400 km this happens within years. Higher up, around 800 to 1,000 km, the air is so thin that debris can linger for centuries, which is why these altitudes are the most worrying. Fragments from a collision there are effectively permanent on human timescales.
 
-That air swells when the Sun is stormy; a geomagnetic storm in February 2022 brought down 38 of 49 newly launched Starlink satellites. Over decades it is contracting, partly because the carbon dioxide that warms the surface cools the upper atmosphere, so debris lingers longer. A 2025 study estimated this could cut how many satellites low orbit can safely hold by 50 to 66 percent by 2100.
+The cascade is therefore a race between creation and decay. If launches and collisions add debris faster than drag removes it, the population grows exponentially, as in any [[Chain reaction]]. Some modelling suggests parts of low orbit may already be unstable, in the sense that collisions alone could keep growing the debris population even if all launching stopped, though this is debated and depends heavily on assumptions about future launches.
 
-## Keeping orbit usable
+The popular image from the 2013 film Gravity, of a debris storm wiping out everything in minutes, is wrong in both speed and geometry. A real cascade would be gradual, concentrated in particular altitude shells, and would cost satellites one by one. Still, the arrival of mega-constellations such as [[Starlink]], with thousands of spacecraft, raises the stakes, and operators now rely on automated collision-avoidance manoeuvres and rapid deorbiting of dead satellites. Proposals for [[Active debris removal]], including nets, harpoons and robotic arms, aim to pluck out the largest derelicts before they collide, since a few hundred big objects are responsible for most of the future risk.
 
-[[Starlink]] alone now flies more than 11,000 satellites, and in the year to May 2026 they swerved more than 350,000 times to dodge possible collisions. Rules are tightening: dead satellites should now leave low orbit within five years rather than 25. Geostationary ones already retire to a [[graveyard orbit|Graveyard orbit]] about 300 kilometres higher, and big spacecraft are steered to sink in the South Pacific near [[Point Nemo]].
+^ Kessler himself has said a cascade may already have begun in some altitude bands, but unfolding so slowly that it is hard to observe directly.
 
-Removing old junk is harder. In 2023 debris apparently struck the rocket adapter that ESA's debris-removal mission [[ClearSpace-1]] was meant to grab, forcing a change of target. Dead giants such as [[Envisat]], eight tonnes and silent since 2012, may circle for about 150 years. Kessler has likened the outcome to giving Earth a ring like Saturn's.
->>>
-[[Iridium–Kosmos collision]] :: The crash that turned Kessler's 1978 arithmetic into a real debris cloud over Siberia.
 ===
-- [[Light-gas gun]] :: Hydrogen-driven guns that fire pellets at 7 km/s to test spacecraft armour :: deeper :: thing
-- [[Laser broom]] :: Ground lasers that would push junk down by vaporising a sliver of it :: deeper :: technique
-- [[Kosmos 954]] :: A nuclear-powered satellite scattered radioactive debris over Canada; Moscow paid half the bill :: sideways :: event
-- [[Basic reproduction number]] :: Epidemics explode when each case causes more than one more, as crashes can :: wild :: concept
-- [[Fomalhaut b]] :: A 'planet' Hubble photographed seems instead to be dust from a collision :: wild :: mystery
+- [[Cosmos 954]] :: A Soviet reactor satellite scattered radioactive debris across northern Canada in 1978 :: event
+- [[Whipple shield]] :: How a sacrificial sheet of metal stops a bullet-fast pebble :: thing
+- [[Atmospheric drag]] :: Why the same debris vanishes in years at 400 km, lingers for centuries at 900 :: phenomenon
+- [[Chain reaction]] :: The same runaway logic that drives nuclear fission and epidemics :: concept
+- [[Starlink]] :: Thousands of satellites that dodge debris automatically, and add to the crowd :: thing
+- [[Active debris removal]] :: Harpoons, nets and robot arms designed to snatch dead satellites from orbit :: technique
 ???
-Could a debris cascade ever stop rockets reaching the Moon?
-Who pays when one country's junk destroys another's satellite?
-Why can't we track every fragment and steer around it?
+How long does debris stay in orbit before burning up?
+Has a Kessler cascade already started?
+Could a Kessler cascade trap humanity on Earth?
 &&&
-[[Asteroid family]] :: Shattered asteroids whose shards still fly similar orbits ages later
-[[Project West Ford]] :: Hundreds of millions of copper needles, put into orbit on purpose
-[[Spacecraft passivation]] :: Rocket stages that exploded years after launch, and the simple fix
-[[2007 Chinese anti-satellite missile test]] :: One missile, one old satellite, and the biggest debris cloud ever
-[[Iridium–Kosmos collision]] :: Two whole satellites met by accident at nearly 12 km/s
-[[Whipple shield]] :: An astronomer's 1946 idea: armour that works by being destroyed first
-[[Gravity (2013 film)]] :: A Hollywood cascade that takes hours instead of decades
-[[Thermosphere]] :: Air at furnace temperatures that would still feel freezing
-[[Starlink]] :: One company now flies most of the working satellites in orbit
-[[Graveyard orbit]] :: Dead satellites parked for good just above their old posts
-[[Point Nemo]] :: The ocean's most remote spot doubles as a spacecraft graveyard
-[[ClearSpace-1]] :: A junk-removal mission whose first target was hit by junk
-[[Envisat]] :: The largest civilian Earth-watching satellite ever built, dead since 2012
+[[Donald J. Kessler]] :: The NASA scientist who foresaw the cascade decades before it mattered.
+[[Iridium 33 and Cosmos 2251 collision]] :: Two satellites collided at 11 km/s, a first for intact spacecraft.
+[[Fengyun-1C]] :: One missile test created thousands of fragments that will last decades.
+[[Low Earth orbit]] :: Crowded shell where speeds near 7.5 km/s make every fragment lethal.
+[[Space debris]] :: Millions of fragments, from paint flecks to dead rocket stages.
+[[Orbital decay]] :: The slow spiral that eventually clears junk from low orbits.
+[[Atmospheric drag]] :: Thin air that cleans low orbits but barely touches high ones.
+[[Whipple shield]] :: Thin sacrificial armour that vaporizes impactors before they reach the hull.
+[[Space Surveillance Network]] :: Radars and telescopes tracking tens of thousands of orbiting objects.
+[[Starlink]] :: Mega-constellation testing how well automation can avoid collisions.
+[[Active debris removal]] :: Engineering schemes to harpoon, net or grapple dead satellites.
+[[Cosmos 954]] :: Nuclear-powered satellite whose 1978 crash spread debris across Canada.
+[[Chain reaction]] :: Runaway feedback where each event triggers more events.
+[[Sputnik 1]] :: The 1957 beep that began humanity's orbital litter.

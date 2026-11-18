@@ -1,68 +1,80 @@
 # Bioluminescence :: phenomenon
-> Most animals in the deep ocean make their own light, and they do it with almost no heat.
+> Living things make light with chemistry alone, and in the dark ocean, glowing is the rule rather than the exception.
 !!!
-Deep-sea animals :: roughly three in four
-Usual colour :: blue or blue-green
-Independent origins :: dozens of times
+Key facts :: 
+Light source :: Luciferin oxidized by luciferase or photoprotein
+Efficiency :: Nearly all energy emitted as light
+Common color :: Blue-green, about 470 nm
 +++
-[[Luciferin]] :: thing
-[[Luciferase]] :: thing
-[[Firefly (insect)]] :: creature
-[[Anglerfish]] :: creature
-[[Hawaiian bobtail squid]] :: creature
-[[Vibrio fischeri]] :: creature
+[[Luciferin]] :: molecule
+[[Luciferase]] :: molecule
+[[Aequorea victoria]] :: creature
 [[Green fluorescent protein]] :: thing
-[[Mosquito Bay]] :: place
+[[Vampire squid]] :: creature
+[[Anglerfish]] :: creature
 [[Dinoflagellate]] :: creature
-[[Fireworks]] :: thing
-[[Counter-illumination]] :: mechanism
-[[Chemiluminescence]] :: phenomenon
+[[Counterillumination]] :: mechanism
+[[Firefly]] :: creature
+[[Foxfire]] :: phenomenon
+[[Milky sea]] :: phenomenon
+[[Mesopelagic zone]] :: place
+[[Hawaiian bobtail squid]] :: creature
+[[Chemiluminescence]] :: concept
 ---
-On a summer night, a [[firefly|Firefly (insect)]] lights its lantern with a soft glow that a person can follow across a meadow. Each species flashes in its own pattern, so the glow works as a code. In the deep sea, a tiny crustacean can release a cloud of blue light the moment it is disturbed. Both come from a chemical reaction, and that reaction produces light with almost no waste.
+In the open ocean, a ship's wake can turn to blue fire. Each ripple jostles single-celled [[dinoflagellate|Dinoflagellate]]s, and each cell answers with a flash lasting a fraction of a second. Out of sight below, something far larger is going on: below roughly 200 meters, where sunlight fades into permanent dusk and then total black, most animals living in the water column make their own light. Trawl nets hauled up from the [[Mesopelagic zone]] bring up fish, squid, shrimp and jellies whose bodies are studded with glowing organs, and surveys of the deep ocean suggest that the great majority of the individuals swimming there are luminous. Bioluminescence is not a curiosity of the deep; it is the dominant visual language of the largest habitat on Earth.
 
-## Light without heat
+## The chemistry of cold light
 
-The reaction is [[chemiluminescence|Chemiluminescence]]: a molecule called [[luciferin|Luciferin]] reacts with oxygen, helped by an enzyme, [[luciferase|Luciferase]], and the product gives off its energy as light. Luciferin is a family of molecules rather than one, which is why the glow of a firefly and the glow of a jellyfish are chemically different. Heat-driven light is the older route: an old filament bulb wastes more energy as warmth than as light, and [[fireworks|Fireworks]] glow because they burn hot. A jellyfish's blue flash is shifted to green by [[green fluorescent protein|Green fluorescent protein]], a second protein that absorbs the blue light and re-emits it.
+The basic reaction is simple. A small molecule, generically called [[luciferin|Luciferin]], is oxidized, and the energy released leaves the product in an excited state that sheds the surplus as a photon. An enzyme, [[luciferase|Luciferase]], usually speeds the reaction; in some animals the machinery is a photoprotein that stores the reaction ready to fire when triggered by calcium. "Luciferin" is a job description, not one compound: the fireflies, the bacteria, the dinoflagellates and the marine coelenterazine users each use chemically unrelated molecules. Evolution has invented light-making independently at least 40 times, by common estimates, which is why glowing species turn up in bacteria, fungi, insects, fish and worms but never in birds or mammals.
 
-## The deep ocean's lanterns
+The light is called cold because almost none of the energy is wasted as heat, unlike an incandescent bulb, which loses most of its input that way. The reaction is a form of [[chemiluminescence]], and it is why fireworks make a telling contrast: a firework burns metal salts at high temperature and gets color from heat, while a glowing jelly gets color from a reaction at the temperature of seawater.
 
-Deep water is dark, so light has become a common language there. A 2017 survey by Sönke Martini and Steven Haddock found that roughly three in four of the animals they sampled, from the surface down to the deep sea, could make light. The female [[anglerfish|Anglerfish]] dangles a glowing lure in front of her mouth, and in many species the glow comes from bacteria she carries inside it. Males of many of these species are far smaller and fuse to the female's body for life.
+^ Most deep-sea light is blue-green because that wavelength travels farthest through seawater; many deep fish can see it, and almost nothing else.
 
-The [[Hawaiian bobtail squid|Hawaiian bobtail squid]] houses [[Vibrio fischeri|Vibrio fischeri]] bacteria in a light organ under its mantle. Each dawn it expels most of them, and each night the population grows back from the seawater around it. Many deep-sea fish use light organs along their bellies in a similar way, a tactic known as [[counter-illumination|Counter-illumination]].
+## What the light is for
 
-::: theories
-Counter-illumination :: a glowing underside hides a silhouette from predators below :: accepted
-Prey lure :: light attracts prey close enough to catch :: accepted
-Startle :: a sudden flash confuses or scares off a predator :: partly
-Detox :: light is a side effect of clearing harmful oxygen compounds :: disputed
+The uses are blunt and varied. The [[anglerfish]] dangles a luminous lure, glowing through symbiotic bacteria, in front of its mouth. Hatchetfish and the [[Hawaiian bobtail squid]] practice [[counterillumination]]: they match the faint light coming down from the surface with glowing organs on their undersides, erasing their silhouettes from predators looking up. The [[vampire squid]] releases a cloud of glowing mucus instead of ink, since a cloud of dark would be invisible down there. Others flash as alarms, as burglar alarms that attract a bigger predator to whatever is attacking them, or, on land, as courtship: each [[firefly]] species flashes a distinct pattern, and some predatory females mimic the signals of other species to lure in males.
+
+::: figures
+~200 m :: depth where sunlight becomes too dim for photosynthesis
+~1000 m :: depth below which no sunlight reaches
+~470 nm :: wavelength of typical deep-sea bioluminescence
 :::
 
-## Sea sparkle and bright bays
+## Glowing from the sea to the lab
 
-Along many coasts, the most familiar sea light is sea sparkle, made by [[dinoflagellates|Dinoflagellate]], single-celled plankton that flash when a wave or a swimmer's hand disturbs them. In [[Mosquito Bay]] on the island of Vieques, Puerto Rico, a dense population makes the water one of the brightest bioluminescent bays on Earth. The glow is strongest on moonless nights, when nothing outshines it. Because the light comes from living cells, it can vary from night to night with the plankton's numbers and the water's movement.
+Light can be seen at scale. Mariners have long described a "[[milky sea]]," a glow stretching across tens of thousands of square kilometers of the Indian Ocean; satellites have recorded such events, and the glow is thought to come from luminous bacteria. On land, rotting wood sometimes glows green with [[foxfire]], produced by fungi. And in 1962 Osamu Shimomura isolated a glowing protein from the jellyfish [[Aequorea victoria]]; its companion [[green fluorescent protein]] became one of biology's most useful tags, letting scientists watch genes switch on in living cells. That work earned the 2008 Nobel Prize in Chemistry for Shimomura, Martin Chalfie and Roger Tsien.
 
-^ Most of the light in a glowing wave comes from single-celled plankton, each cell far smaller than a grain of sand.
+Bioluminescence also leaves puzzles. How often the light is a defense, a lure or only a metabolic byproduct is still debated for many species, and the deep sea is so poorly sampled that new luminous species are routinely described.
 ===
-- [[Foxfire]] :: Rotting wood can glow, because fungi make light with a similar chemistry :: phenomenon
-- [[Light-emitting diode]] :: Cold light made from electricity, not chemistry, now fills most new bulbs :: thing
-- [[Light pollution]] :: Streetlights can drown out the flashes fireflies use to find mates :: phenomenon
-- [[Vampire squid]] :: A deep-sea cephalopod that squirts glowing mucus when threatened :: creature
-- [[Arachnocampa]] :: A fly larva that hangs glowing silk snares in a cave :: creature
-- [[Phosphorescence]] :: A glow that stores absorbed sunlight rather than making new light :: phenomenon
+- [[Fireworks]] :: Hot light versus cold light: how burning metal salts make color
+:: thing
+- [[Green fluorescent protein]] :: A jellyfish glow that became biology's most-used tag
+:: thing
+- [[Milky sea]] :: Satellites have photographed glowing ocean patches the size of a country
+:: phenomenon
+- [[Firefly]] :: Some females mimic other species' flashes to eat the males
+:: creature
+- [[Foxfire]] :: Glowing fungus in rotting wood, once seen in forests and mines
+:: phenomenon
+- [[Chemiluminescence]] :: The lab chemistry behind glow sticks and forensic blood tests
+:: concept
 ???
-Why does a firefly's light give off almost no heat?
-Which deep-sea animals borrow their light from bacteria?
-Why do most deep-sea animals make light at all?
+Why is most deep-sea bioluminescence blue-green?
+Why can't birds or mammals make their own light?
+How does a glow stick produce light without heat?
 &&&
-[[Firefly (insect)]] :: Flashes in species-specific codes, lit by a reaction that wastes little.
-[[Luciferin]] :: A family of molecules, not one molecule, behind many glows.
-[[Luciferase]] :: The enzyme behind a flash that the animal can switch on.
-[[Anglerfish]] :: Males fuse to females for life in many species.
-[[Hawaiian bobtail squid]] :: A squid whose lantern is bacteria, renewed from seawater each night.
-[[Vibrio fischeri]] :: The glowing bacterium that lives inside a squid's light organ.
-[[Green fluorescent protein]] :: A jellyfish protein that now lights up labs and living cells.
-[[Mosquito Bay]] :: One of Earth's brightest bioluminescent bays, lit by plankton.
-[[Dinoflagellate]] :: Plankton that flash when a swimmer's hand disturbs the water.
-[[Fireworks]] :: Hot light, coloured by burning metal salts, the firefly's opposite.
-[[Counter-illumination]] :: Belly light matched to the sky, erasing an animal's shadow.
-[[Chemiluminescence]] :: Light made by chemistry, with almost no heat wasted.
+[[Luciferin]] :: Not one molecule but many unrelated ones that all glow.
+[[Luciferase]] :: The enzyme that turns chemical energy into a photon.
+[[Aequorea victoria]] :: Jellyfish whose glow transformed cell biology.
+[[Green fluorescent protein]] :: A glowing tag that lets scientists watch living cells.
+[[Vampire squid]] :: Escapes predators with glowing mucus instead of ink.
+[[Anglerfish]] :: Fishes with a bacterial lantern dangling before its jaws.
+[[Dinoflagellate]] :: Single cells that flash when jostled by waves.
+[[Counterillumination]] :: Animals erase their shadows by glowing like the sky.
+[[Firefly]] :: Flash patterns act as species passwords, and sometimes as traps.
+[[Foxfire]] :: Fungi make rotting wood glow faint green.
+[[Milky sea]] :: Glowing ocean stretches visible from space.
+[[Mesopelagic zone]] :: The twilight layer where light is made, not borrowed.
+[[Hawaiian bobtail squid]] :: Hosts glowing bacteria to hide its shadow.
+[[Chemiluminescence]] :: Light from reactions, no heat required.

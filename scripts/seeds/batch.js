@@ -1,14 +1,19 @@
-/* Pages written ahead of time, asked for exactly as production asks for a page (lib/write.js: the same model, prompt,
-   output limit and thinking), plus, for one of the front page's topics, what the front page says about it
-   (lib/prompts.js seedBrief). scripts/seeds.mjs prints these prompts (`prompt`, `brief`) and sends them as one batch
+/* Pages written ahead of time, by SEED_MODEL, asked for exactly as production would ask that model for a page
+   (lib/write.js: the same prompt, output limit and thinking), plus, for one of the front page's topics, what the
+   front page says about it (lib/prompts.js seedBrief). scripts/seeds.mjs prints these prompts (`prompt`, `brief`) and sends them as one batch
    through Anthropic's Message Batches API (`batch`): half the price of a live page, written within the hour, never
    for a reader who is waiting. tests/seeds-batch.test.js holds a batch's request to production's own call. */
 import { writerSettings } from '../../lib/ai.js';
 import { CARDS, FRONT, THREADS } from '../../lib/front.js';
 import { TASKS, pageInput, pageParts, seedBrief, usablePage } from '../../lib/prompts.js';
-import { KINDS, cardsOf, keyOf, parseArticle } from '../../src/shared/article.js';
+import { KINDS, cardsOf, keyOf, parseArticle, splitLink } from '../../src/shared/article.js';
 import { PAGE_TOKENS, directId, findModel } from '../../src/shared/models.js';
 import { topicKey } from '../../src/shared/world.js';
+
+/* Who writes the pages written ahead of time: Claude Sonnet 5.5, while Claude Haiku 5.5 writes every live page (Will,
+   2026-11-17: the front page's ways in are a fun entry point into the product, so they get the more engaging writer;
+   the live writer is made the most of in Dorkhub's own design). On the same 44 topics Sonnet wrote 43 whole pages. */
+export const SEED_MODEL = 'anthropic/claude-sonnet-5.5';
 
 /** A page's folder under lib/seeds. @param {string} t */
 export const slug = t => keyOf(t).replace(/\s+/g, '-');
@@ -55,7 +60,7 @@ export function apiSettings(model) {
  * @type {Record<string, { note: string, model?: string, settings?: Record<string, unknown>, room?: number, variant?: 'split' }>}
  */
 export const ARMS = {
-  production: { note: "production's own call" },
+  production: { note: "production's own call to the pages' writer" },
   'haiku-think': { note: 'Haiku thinking a little before it writes (adaptive thinking, effort low)', model: 'anthropic/claude-haiku-5.5', settings: { output_config: { effort: 'low' } }, room: 8000 },
   'haiku-split': { note: "Haiku, the fixed part sent as system instructions (the eval's split variant)", model: 'anthropic/claude-haiku-5.5', variant: 'split' },
   sonnet: { note: 'Sonnet 5.5, as production would call it', model: 'anthropic/claude-sonnet-5.5' },
@@ -123,9 +128,11 @@ export function seedProblems(title, text) {
   if (t) {
     const kind = parseArticle(`# x :: ${t.k}\n`, false).kind;
     if (A.kind !== kind) P.push(`a ${A.kind || 'missing'} kind, not the front page's ${kind}`);
-    for (const th of THREADS.filter(x => x.a === t.t || x.b === t.t)) { const to = th.a === t.t ? th.b : th.a; if (!A.gloss[keyOf(to)]) P.push(`no link to ${to}, its thread on the front page`); }
+    /* a thread is linked in the body or offered as a topic to keep exploring, as its brief allows */
+    const linked = new Set([...Object.keys(A.gloss), ...cardsOf(A).map(c => keyOf(c.target)), ...A.blocks.flatMap(b => [...b.s.matchAll(/\[\[([^\]]+)\]\]/g)].map(m => keyOf(splitLink(m[1])[1])))]);
+    for (const th of THREADS.filter(x => x.a === t.t || x.b === t.t)) { const to = th.a === t.t ? th.b : th.a; if (!linked.has(keyOf(to))) P.push(`no link to ${to}, its thread on the front page`); }
+    /* three of them; a long one is the layout's to hold (the facts stack and wrap when they don't fit across) */
     if (A.keyFacts.length !== 3) P.push(`${A.keyFacts.length} key facts, not three`);
-    else for (const f of A.keyFacts) if (f.label.split(/\s+/).length > 3 || f.value.split(/\s+/).length > 7) P.push(`a long key fact: "${f.label} :: ${f.value}"`);
   }
   return P;
 }

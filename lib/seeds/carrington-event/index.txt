@@ -1,79 +1,81 @@
 # The Carrington Event :: event
-> In 1859 a five-minute flash on the Sun heralded a storm that turned Cuban skies red and kept telegraphs talking with their batteries unplugged.
-~ You came for a storm from the Sun, and it leads to magnets read by eye in Bombay, Japanese cedar rings from the 770s and sea mines exploding off Vietnam.
+> In September 1859, a sun-born storm set telegraph paper on fire and painted auroras over the tropics.
+!!!
+Key facts :: Date :: 1–2 September 1859
+Key facts :: Cause :: Coronal mass ejection from sunspot group
+Key facts :: Observed by :: Richard Carrington, Richard Hodgson
 +++
 [[Richard Carrington]] :: person
-[[White-light flare]] :: phenomenon
-[[Kew Observatory]] :: place
-[[Magnetic crochet]] :: phenomenon
+[[Sunspot]] :: phenomenon
+[[Solar flare]] :: phenomenon
 [[Coronal mass ejection]] :: phenomenon
-[[August 1972 solar storms]] :: event
-[[Red aurora]] :: phenomenon
+[[Geomagnetic storm]] :: phenomenon
+[[Aurora]] :: phenomenon
+[[Telegraph]] :: thing
+[[Kew Observatory]] :: place
 [[Geomagnetically induced current]] :: mechanism
-[[Photographic magnetograph]] :: thing
-[[Colaba Observatory]] :: place
-[[Miyake event]] :: mystery
 [[March 1989 geomagnetic storm]] :: event
-[[Solar storm of 2012]] :: event
+[[Ice core]] :: technique
+[[Carrington-class storm of July 2012]] :: event
+[[Miyake event]] :: phenomenon
+[[Solar cycle]] :: phenomenon
 ---
-The Carrington Event was the great magnetic storm of early September 1859, one of the most intense ever recorded and still the yardstick for what the Sun could do to a wired world. It began with a flash seen by the English astronomer [[Richard Carrington]], and within a day auroras glowed over the tropics while telegraph lines ran wild.
+On the morning of 1 September 1859, the amateur astronomer [[Richard Carrington|Richard Carrington]] was sketching a huge group of [[Sunspot|sunspots]] from his private observatory at Redhill, south of London, when two patches of intense white light flared up within the group. He watched them brighten for about five minutes before they faded, and he rushed off to find a witness, returning to find the show over. At almost the same time, Richard Hodgson, another English amateur, saw the same flash from his own observatory. It was the first recorded [[Solar flare]], and Carrington suspected at once that it had something to do with what happened next.
 
-## A flash over a sunspot
+What happened next arrived about 17 hours later. Normal transit from Sun to Earth for such an ejection takes three or four days; this one took under a day, a speed that modern researchers attribute to the fact that an earlier eruption had swept the path clear. A [[Coronal mass ejection]], a billion-tonne cloud of magnetized plasma, slammed into Earth's magnetic field and triggered the most intense [[Geomagnetic storm]] on record.
 
-On 1 September, Carrington was sketching sunspots from a projected image of the Sun at his private observatory in Redhill, south of London. At about 11:18 a.m., two patches of brilliant white light burst out inside a large spot group, drifted across it and faded within five minutes. He ran for a witness and returned within a minute to find them dimming. Richard Hodgson saw it independently in Highgate. It was the first solar flare ever recorded, and a rare kind: a [[white-light flare|White-light flare]], bright enough to show against the Sun's own glare.
-^ Solar physicists still count the Sun's turns in Carrington rotations, from one that began on 9 November 1853; the count is now past 2,300.
+## The night the sky caught fire
 
-At [[Kew Observatory]] in Richmond, magnets recording the Earth's field twitched at almost the same moment. That jolt, now called a [[magnetic crochet|Magnetic crochet]], comes from a flare's X-rays boosting electric currents in the sunlit upper atmosphere. Carrington noted the coincidence but would not build a theory on one case: one swallow, he wrote, does not make a summer.
+The [[Aurora]] that followed was seen from Cuba, Jamaica, Hawaii and Colombia, near the equator. In the Rocky Mountains, gold miners woke and began making breakfast, believing dawn had come, and newspaper accounts claim that people could read print by the light. Auroral glow reflected off the snow. Ships' crews saw red curtains of light spreading across the entire sky, and the colors were described as crimson, green and purple so bright they cast shadows.
 
-## Red skies and live wires
+^ Ice core nitrate spikes once used as a Carrington marker turned out to be unreliable; scientists later found that nitrate in Greenland ice is a poor storm proxy.
 
-The flash was the visible face of a bigger eruption. The Sun had also flung a vast cloud of magnetized gas toward Earth, an outburst now called a [[coronal mass ejection|Coronal mass ejection]]. It crossed unusually fast, probably because an earlier eruption, which had caused a lesser storm on 28 August, had swept the way clear. Only one crossing has been timed faster since, during the [[August 1972 solar storms]].
-::: steps
-Flare :: Tangled magnetic fields above the sunspots release energy as light and X-rays
-Ejection :: A cloud of magnetized gas crosses the 150 million km to Earth in 17.6 hours
-Impact :: If the cloud's field points south, it links with Earth's and pours in energy
-Currents :: Electric currents surge through space around Earth and the upper atmosphere, swinging the field below
-Induction :: The changing field drives current through the ground and long wires earthed at both ends
+The [[Telegraph]] network, then the most advanced technology on Earth, went haywire. Operators in the United States and Europe reported sparks leaping from equipment, shocks to their hands, and scorched paper. In one famous exchange, two operators, in Boston and Portland, Maine, disconnected their batteries and kept transmitting for about two hours on the current induced by the aurora alone. The mechanism is a [[Geomagnetically induced current]]: a rapidly changing magnetic field drives electric current through long conductors, whether telegraph wires then or power lines now.
+
+::: timeline
+28 Aug 1859 :: Auroras already seen at low latitudes as the sunspot group grows
+1 Sep, ~11:18 :: Carrington and Hodgson independently see a white-light flare
+1–2 Sep :: Plasma cloud arrives; telegraphs fail across Europe and North America
+2 Sep :: Auroras visible near the tropics; operators work without batteries
 :::
 
-Auroras that usually hug the poles were reported as far south as Cuba and Hawaii, glowing as a [[red aurora|Red aurora]] lit by oxygen hundreds of kilometres up. In the Rocky Mountains, gold miners were reportedly woken by the light and started cooking breakfast, thinking it was dawn. In the north-eastern United States, people said they could read a newspaper by it.
+## Measuring a storm no one could measure
 
-The telegraph took the brunt. Across both storms its long wires picked up [[geomagnetically induced currents|Geomagnetically induced current]] that garbled messages, threw sparks and gave operators shocks. On the morning of 2 September, operators in Boston and Portland, Maine, unhooked their batteries and worked for about two hours on the storm's current alone.
+Magnetometers at [[Kew Observatory]] in London recorded the event, and the magnetic disturbance there swung wildly enough to throw the instrument's trace off its recording paper. From historical records, later studies estimated the storm's strength at Dst of roughly minus 900 nanotesla, though this figure is debated. For comparison, the [[March 1989 geomagnetic storm]] reached about minus 589 and blacked out Quebec's grid in 90 seconds, leaving six million people without power for nine hours.
 
-## Taking its measure
+The question that matters is how often this happens. [[Ice core]] records of nitrate were once thought to carry the signature, a claim later retracted, while radiocarbon spikes tied to a [[Miyake event]] suggest far larger storms in antiquity, around 774 CE, perhaps ten times the energy. Flare activity follows the roughly 11-year [[Solar cycle]], with big storms possible at any phase.
 
-At Kew and Greenwich, the traces of [[photographic magnetographs|Photographic magnetograph]], drawn by light bounced off a mirror on a hanging magnet, ran off the paper at the storm's height. The best record of the peak came from [[Colaba Observatory]] in Bombay, where observers read their magnets by eye and logged the field's horizontal strength plunging by about 1,600 nanoteslas. Estimates built on that record differ twofold, but even cautious ones rank the storm among the strongest ever measured.
-^ A nitrate spike in Greenland ice was once read as a trace of the 1859 storm's particles; later studies argue it was smoke from forest fires.
+In July 2012, a Carrington-class ejection of similar scale crossed Earth's orbit, missing the planet by about nine days, according to analysis by Daniel Baker and colleagues. Had it hit, insurance estimates by Lloyd's of London have put the potential damage to the US economy alone in the trillions of dollars, a figure that remains an estimate rather than a measurement.
 
-Tree rings keep a far longer record of the Sun's violence. In 2012 Fusa Miyake's team found a sudden jump in radiocarbon in Japanese cedar rings from 774 to 775 CE. Several such spikes, now called [[Miyake events|Miyake event]], are known, and most researchers blame them on bursts of particles from the Sun, though that is unproven. By one estimate the 774 burst was at least five times stronger than any measured by instruments.
+::: figures
+17 hours :: transit time from Sun to Earth
+~5 minutes :: duration of the flare Carrington observed
+9 days :: how late the July 2012 storm missed Earth
+:::
 
-## The next one
-
-Today a storm like 1859's would hit power grids and satellites. A weaker one, the [[March 1989 geomagnetic storm]], collapsed Quebec's grid in under 90 seconds and left six million people without power for about nine hours. The [[solar storm of 2012|Solar storm of 2012]], which some researchers rate as strong as Carrington's, missed Earth only because it erupted about a week too late.
-
->>>
-[[Solar storm of 2012]] :: The modern near miss, and what an 1859-sized storm would do if it hit us now.
 ===
-- [[Carrington rotation]] :: How a spinning ball of gas with no fixed surface gets a calendar :: deeper :: concept
-- [[Balfour Stewart]] :: He read Kew's 1859 storm traces and later championed psychical research :: deeper :: person
-- [[May 1921 geomagnetic storm]] :: Nicknamed the New York Railroad Storm, it may have matched 1859 :: sideways :: event
-- [[L'Anse aux Meadows]] :: The radiocarbon spike of 993 dates Norse woodcutting in Newfoundland to 1021 :: wild :: place
-- [[Starfish Prime]] :: A 1962 nuclear test in space made auroras and knocked out Hawaiian streetlights :: wild :: event
+- [[Solar flare]] :: What exactly did Carrington see burst from that sunspot in 1859?
+- [[Aurora]] :: Why do green and red curtains of light hang in the sky?
+- [[Miyake event]] :: Tree rings reveal solar storms in 774 CE far worse than 1859.
+- [[Geomagnetically induced current]] :: How magnetic storms drive current through power grids and pipelines.
+- [[Telegraph]] :: Wires that carried messages across continents, and sometimes the Sun's own current.
+- [[Ice core]] :: Frozen air bubbles hold a record of ancient solar storms.
 ???
-What would a Carrington-class storm do to today's power grids?
-How much warning would we get before the next one hits?
-Did anyone die because of the 1859 storm?
+How likely is another Carrington-class storm this century?
+Could a Carrington Event destroy modern power grids?
+Why did the 1859 storm reach Earth in only 17 hours?
 &&&
-[[Richard Carrington]] :: Brewer-astronomer whose wife survived a stabbing; they died ten days apart
-[[White-light flare]] :: Most flares hide from the eye; these outshine the Sun's surface
-[[Kew Observatory]] :: Built so George III could watch Venus cross the Sun
-[[Magnetic crochet]] :: Magnets on Earth flinch the moment a flare's X-rays arrive
-[[Coronal mass ejection]] :: Billion-tonne magnetized clouds, first caught by a satellite in 1971
-[[August 1972 solar storms]] :: Fastest crossing on record; it probably set off US sea mines
-[[Red aurora]] :: Why skies far from the poles turn blood-red, not green
-[[Geomagnetically induced current]] :: Storm-driven currents that still threaten transformers on today's grids
-[[Photographic magnetograph]] :: Self-recording magnets whose 1859 traces are still being re-read today
-[[Colaba Observatory]] :: Read by eye in 1859, later driven out by electric trams
-[[Miyake event]] :: Tree rings hold particle storms, probably solar, bigger than any measured
-[[March 1989 geomagnetic storm]] :: Quebec's lights went out at 2:44 on a March morning
-[[Solar storm of 2012]] :: It struck the STEREO-A probe, which measured it from inside
+[[Richard Carrington]] :: The amateur who first saw a solar flare, and understood its meaning.
+[[Sunspot]] :: Dark blotches of intense magnetism, tracked since Galileo's day.
+[[Solar flare]] :: A sudden explosion of light and radiation from the Sun's surface.
+[[Coronal mass ejection]] :: A billion-tonne cloud of plasma hurled at planets.
+[[Geomagnetic storm]] :: Sun-driven shaking of Earth's magnetic field that can reach the ground.
+[[Aurora]] :: Light curtains that, in 1859, reached the tropics.
+[[Telegraph]] :: The first networked technology to feel a space-weather strike.
+[[Kew Observatory]] :: Victorian London station whose magnetometers recorded the disturbance.
+[[Geomagnetically induced current]] :: Space weather pushing current through any long metal conductor.
+[[March 1989 geomagnetic storm]] :: A weaker storm that darkened Quebec in ninety seconds.
+[[Ice core]] :: Frozen archives of ancient atmospheres, once misread for solar storms.
+[[Carrington-class storm of July 2012]] :: The near-miss that crossed Earth's orbit nine days late.
+[[Miyake event]] :: Radiocarbon spikes revealing storms far stronger than Carrington's.
+[[Solar cycle]] :: The Sun's roughly eleven-year rhythm of spots and storms.
