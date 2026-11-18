@@ -5,7 +5,7 @@
    for a reader who is waiting. tests/seeds-batch.test.js holds a batch's request to production's own call. */
 import { writerSettings } from '../../lib/ai.js';
 import { CARDS, FRONT, THREADS } from '../../lib/front.js';
-import { TASKS, pageInput, pageParts, seedBrief, usablePage } from '../../lib/prompts.js';
+import { PAGE_VARIANT, TASKS, pageInput, pageParts, seedBrief, usablePage } from '../../lib/prompts.js';
 import { KINDS, cardsOf, keyOf, parseArticle, splitLink } from '../../src/shared/article.js';
 import { PAGE_TOKENS, directId, findModel } from '../../src/shared/models.js';
 import { topicKey } from '../../src/shared/world.js';
@@ -37,13 +37,15 @@ export function briefOf(t) {
 
 /**
  * A page's prompt in its two parts: what every page shares, then this page, with its brief when the front page leads
- * to it. Joined, they are what `node scripts/seeds.mjs brief` (or `prompt`) prints.
- * @param {string} title @returns {{ fixed: string, rest: string }}
+ * to it. Joined, they are what `node scripts/seeds.mjs brief` (or `prompt`) prints. A try may ask in another
+ * variant's words, or as a live page is asked, with no brief.
+ * @param {string} title @param {string} [words] a PAGE_VARIANTS name @param {boolean} [brief]
+ * @returns {{ fixed: string, rest: string }}
  */
-export function seedParts(title) {
+export function seedParts(title, words = PAGE_VARIANT, brief = true) {
   const t = frontTopic(title);
-  const { fixed, request } = pageParts(pageInput({ title: t ? t.t : title, lens: 'encyclopedic' }));
-  return { fixed, rest: t ? `${request}\n${briefOf(t)}\n` : request };
+  const { fixed, request } = pageParts(pageInput({ title: t ? t.t : title, lens: 'encyclopedic' }), words);
+  return { fixed, rest: t && brief ? `${request}\n${briefOf(t)}\n` : request };
 }
 
 /** writerSettings (lib/ai.js) speaks the AI SDK's providerOptions; the Messages API takes the same settings as its own
@@ -57,13 +59,17 @@ export function apiSettings(model) {
  * Ways of asking for the same pages, to find a writer that keeps the format (2026-11-17: Claude Haiku 5.5 without
  * thinking broke it on about half its pages). `production` is production's own call; every other arm changes one
  * thing, and a batch of one is scored, never kept.
- * @type {Record<string, { note: string, model?: string, settings?: Record<string, unknown>, room?: number, variant?: 'split' }>}
+ * @type {Record<string, { note: string, model?: string, settings?: Record<string, unknown>, room?: number, variant?: 'split', words?: string, brief?: boolean }>}
  */
 export const ARMS = {
   production: { note: "production's own call to the pages' writer" },
   'haiku-think': { note: 'Haiku thinking a little before it writes (adaptive thinking, effort low)', model: 'anthropic/claude-haiku-5.5', settings: { output_config: { effort: 'low' } }, room: 8000 },
   'haiku-split': { note: "Haiku, the fixed part sent as system instructions (the eval's split variant)", model: 'anthropic/claude-haiku-5.5', variant: 'split' },
   sonnet: { note: 'Sonnet 5.5, as production would call it', model: 'anthropic/claude-sonnet-5.5' },
+  /* Will, 2026-11-17: find how Haiku writes genuinely engaging pages. Only the words change, to the eval's lean ones
+     (half the words, a sixth of the rules; lib/prompts.js), sent as production sends them, in one message with the
+     shared part cached; and the page is asked as a live page is, with no front-page brief. */
+  'haiku-lean': { note: "Haiku in the eval's lean words (half the words, a sixth of the rules), asked as a live page is: no front-page brief", model: 'anthropic/claude-haiku-5.5', words: 'lean', brief: false },
 };
 
 /**
@@ -75,7 +81,7 @@ export const ARMS = {
 export function seedRequest(customId, title, model, armId = 'production') {
   const arm = ARMS[armId]; if (!arm) throw new Error(`unknown arm: ${armId} (one of ${Object.keys(ARMS).join(', ')})`);
   const id = arm.model || model;
-  const { fixed, rest } = seedParts(title);
+  const { fixed, rest } = seedParts(title, arm.words, arm.brief !== false);
   const shared = { type: 'text', text: arm.variant === 'split' ? fixed.replace(/\n+$/, '') : fixed, cache_control: { type: 'ephemeral', ttl: '1h' } };
   const asked = arm.variant === 'split'
     ? { system: [shared], messages: [{ role: 'user', content: rest }] }
