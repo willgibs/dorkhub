@@ -2,10 +2,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { cardsOf, parseArticle } from '../src/shared/article.js';
-import { FRAME_SCHEMA, WAYS_SCHEMA, bodyOf, pageFromParts, pageInput } from '../lib/prompts.js';
+import { FRAME_STOP, WAYS_SCHEMA, bodyOf, frameOfLines, headSoFar, pageFromParts, pageInput } from '../lib/prompts.js';
 import { splitPage } from '../lib/split.js';
 
 const input = pageInput({ title: 'Magnets', lens: 'encyclopedic' });
+/* the frame as its call writes it: the page's own head lines */
+const frameText = '# Magnets :: thing\n> Invisible hands that move iron.\n!!!\nOldest :: lodestone, 600 BC\nStrongest :: 45 tesla\nPoles :: never one alone\n+++\n[[Lodestone]] :: thing\n[[Curie temperature]] :: phenomenon\n[[Magnets]] :: thing';
 const frame = { title: 'Magnets', kind: 'thing', deck: 'Invisible hands that move iron.', facts: [{ label: 'Oldest', value: 'lodestone, 600 BC' }, { label: 'Strongest', value: '45 tesla' }, { label: 'Poles', value: 'never one alone' }], links: [{ topic: 'Lodestone', kind: 'thing' }, { topic: 'Curie temperature', kind: 'phenomenon' }, { topic: 'Magnets', kind: 'thing' }] };
 const body = 'A magnet pulls iron across a gap with nothing between. The [[Lodestone]] showed it first, three thousand years ago, and sailors steered by it.\n\n## Heat undoes it\nAbove the [[Curie temperature]] the order inside melts, and the pull is gone. Iron loses it at 770 degrees.';
 const ways = { next: [{ topic: 'Compass', hook: 'the needle that made the sea legible', kind: 'thing' }, { topic: 'Aurora', hook: 'what a magnetic planet does with sunlight', kind: 'phenomenon' }], questions: ['Why does heat destroy a magnet?', 'Can a magnet have only one pole?', 'How strong is the strongest magnet?'], hooks: [{ topic: 'Lodestone', hook: 'a rock that finds north' }, { topic: 'Curie temperature', hook: 'the heat at which order melts' }] };
@@ -18,8 +20,8 @@ const writer = (answers, seen) => ({
   /** @param {any} o */
   async doStream(o) {
     const all = JSON.stringify(o.prompt);
-    const which = all.includes('set out its frame') ? 'frame' : all.includes('write the body of one page') ? 'body' : 'ways';
-    seen.push({ which, format: o.responseFormat?.type || 'text', max: o.maxOutputTokens });
+    const which = all.includes('write its head') ? 'frame' : all.includes('write the body of one page') ? 'body' : 'ways';
+    seen.push({ which, format: o.responseFormat?.type || 'text', max: o.maxOutputTokens, stop: o.stopSequences });
     const a = answers[which]; if (a instanceof Error) throw a;
     const text = typeof a === 'string' ? a : typeof a.text === 'string' ? a.text : JSON.stringify(a);
     const finish = a.finish || 'stop'; let i = 0;
@@ -43,9 +45,11 @@ async function write(answers) {
 }
 
 test('a page in three calls reads as the page one pass would have written', async () => {
-  const w = await write({ frame, body: `# Magnets\n> Invisible hands that move iron.\n\n${body}`, ways });
+  const w = await write({ frame: frameText, body: `# Magnets\n> Invisible hands that move iron.\n\n${body}`, ways });
+  assert.deepEqual(frameOfLines(frameText), frame, 'the head lines read back as the frame');
   assert.equal(w.text, pageFromParts(input, frame, body, ways), 'the joined page, the title and deck the body repeated left out');
-  assert.deepEqual(w.seen.map(s => [s.which, s.format]), [['frame', 'json'], ['body', 'text'], ['ways', 'json']], 'the frame, then the body, then the ways on, the frame and the ways as structured output');
+  assert.deepEqual(w.seen.map(s => [s.which, s.format]), [['frame', 'text'], ['body', 'text'], ['ways', 'json']], 'the frame as the head lines, then the body, then the ways on as structured output');
+  assert.deepEqual(w.seen[0].stop, FRAME_STOP, 'the frame stops where a body would begin');
   assert.equal(w.seen[1].max, 3000, "the body may use the page's whole limit");
   assert.equal(w.reason, 'stop');
   assert.deepEqual([w.usage.inputTokens, w.usage.outputTokens, w.usage.inputTokenDetails.cacheReadTokens], [300, 30, 120], 'what all three used');
@@ -57,10 +61,9 @@ test('a page in three calls reads as the page one pass would have written', asyn
   for (const c of w.chunks) { sofar += c; if (!sofar.includes('\n---\n')) assert.ok(sofar.endsWith('\n'), `a head line went out unfinished: ${JSON.stringify(sofar.slice(-40))}`); }
 });
 
-test("each call's schema, and a body cut off at the limit ends there", async () => {
-  assert.deepEqual(FRAME_SCHEMA.required, ['title', 'kind', 'deck', 'facts', 'links']);
+test("the ways on's schema, and a body cut off at the limit ends there", async () => {
   assert.deepEqual(WAYS_SCHEMA.required, ['next', 'questions', 'hooks']);
-  const cut = await write({ frame, body: { text: body.slice(0, 120), finish: 'length' }, ways });
+  const cut = await write({ frame: frameText, body: { text: body.slice(0, 120), finish: 'length' }, ways });
   assert.equal(cut.reason, 'length');
   assert.deepEqual(cut.seen.map(s => s.which), ['frame', 'body'], 'no ways on for a body that did not finish');
   assert.ok(cut.text.endsWith(body.slice(0, 120)));
@@ -70,7 +73,7 @@ test("each call's schema, and a body cut off at the limit ends there", async () 
 test('a failing call is handed on as a failing stream is, and nothing half-built follows it', async () => {
   const early = await write({ frame: new Error('credit balance is too low'), body, ways });
   assert.deepEqual([early.text, early.reason, String(early.errors[0])], ['', 'error', 'Error: credit balance is too low']);
-  const late = await write({ frame, body, ways: new Error('overloaded') });
+  const late = await write({ frame: frameText, body, ways: new Error('overloaded') });
   assert.equal(late.reason, 'error');
   assert.ok(late.text.endsWith(body.split('\n').at(-1) || ''), 'the body stays as it was written');
   assert.equal(late.errors.length, 1);
@@ -84,20 +87,21 @@ const sse = (/** @type {string} */ text) => {
     + [...text.matchAll(/[\s\S]{1,9}/g)].map(m => ev('content_block_delta', { index: 0, delta: { type: 'text_delta', text: m[0] } })).join('')
     + ev('content_block_stop', { index: 0 }) + ev('message_delta', { delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 20 } }) + ev('message_stop', {});
 };
-test("to Anthropic: the frame and the ways ask for JSON by their schema, and every call has thinking off and its shared part cached", async () => {
+test("to Anthropic: the frame asks for its lines and stops before a body, the ways ask for JSON by their schema, and every call has thinking off and its shared part cached", async () => {
   const { createAnthropic } = await import('@ai-sdk/anthropic');
   const { writerSettings } = await import('../lib/ai.js');
   /** @type {any[]} */ const sent = [];
   const fetch = /** @type {any} */ (async (/** @type {any} */ _url, /** @type {any} */ init) => {
     const b = JSON.parse(init.body); sent.push(b); const all = JSON.stringify(b.messages);
-    const text = all.includes('set out its frame') ? JSON.stringify(frame) : all.includes('write the body of one page') ? body : JSON.stringify(ways);
+    const text = all.includes('write its head') ? frameText : all.includes('write the body of one page') ? body : JSON.stringify(ways);
     return new Response(sse(text), { headers: { 'content-type': 'text/event-stream' } });
   });
   const r = splitPage({ model: createAnthropic({ apiKey: 'sk-ant-test', fetch })('claude-haiku-5-5'), input, maxTokens: 3000, providerOptions: writerSettings('anthropic/claude-haiku-5.5').options });
   let text = ''; for await (const c of r.textStream) text += c;
   assert.equal(text, pageFromParts(input, frame, body, ways));
-  assert.deepEqual(sent.map(b => [b.output_config?.format?.type ?? 'text', b.thinking?.type, b.messages[0].content[0].cache_control?.type]), [['json_schema', 'disabled', 'ephemeral'], ['text', 'disabled', 'ephemeral'], ['json_schema', 'disabled', 'ephemeral']]);
-  assert.deepEqual(sent[0].output_config.format.schema.required, FRAME_SCHEMA.required);
+  assert.deepEqual(sent.map(b => [b.output_config?.format?.type ?? 'text', b.thinking?.type, b.messages[0].content[0].cache_control?.type]), [['text', 'disabled', 'ephemeral'], ['text', 'disabled', 'ephemeral'], ['json_schema', 'disabled', 'ephemeral']]);
+  assert.deepEqual(sent[0].stop_sequences, FRAME_STOP);
+  assert.deepEqual(sent[2].output_config.format.schema.required, WAYS_SCHEMA.required);
   assert.deepEqual([(await r.totalUsage).inputTokenDetails.cacheReadTokens, await r.finishReason], [120, 'stop']);
 });
 
@@ -115,4 +119,33 @@ test('a planned topic the writer left plain is linked at its first mention, as i
     assert.equal(out + L.end(), once, `in pieces of ${n}`);
   }
   const half = mentionLinker(['Lodestone']); assert.equal(half.push('A lode'), '', 'a word that may become a name waits'); assert.equal(half.push('stone pulls.') + half.end(), 'A [[lodestone|Lodestone]] pulls.');
+});
+
+test("the frame's lines are read however Haiku slips, and each goes out as soon as it is whole", () => {
+  /* a preamble above the title, the format's names as labels, topics numbered, bulleted or without brackets, a deck
+     after the facts: the same frame */
+  const slipped = 'Here is the head.\n\n# Magnets :: thing\n> Invisible hands that move iron.\nKey facts:\nOldest :: lodestone, 600 BC\nStrongest :: 45 tesla\nPoles :: never one alone\nLink plan:\n1. Lodestone :: thing\n- [[Curie temperature]] :: phenomenon\n> a second deck\nMagnets :: thing\n';
+  assert.deepEqual(frameOfLines(slipped), frame);
+  /* the kinds in parentheses, as 4 of 24 live frames wrote them, with a second "+++" over the page's own topic */
+  const head = frameText.slice(0, frameText.indexOf('+++\n') + 4);
+  const parens = `${head}Lodestone (thing)\nCurie temperature (phenomenon)\n+++\n[[Magnets]] :: thing\n`;
+  assert.deepEqual(frameOfLines(parens), frame);
+  /* a name alone, and parentheses that are the name's own, are topics without a kind; a sentence is no topic */
+  assert.deepEqual(frameOfLines(`${head}Lodestone\nMercury (planet)\nThat is the head.\n`).links, [{ topic: 'Lodestone', kind: '' }, { topic: 'Mercury (planet)', kind: '' }]);
+  /* the facts with one colon, a bar or a colon too many, numbered or bold, as 3 of 88 live frames wrote them */
+  const facts = frameText.replace('Oldest :: ', 'Oldest: ').replace('Strongest :: ', '1. **Strongest** | ').replace('Poles :: ', 'Poles: :: ');
+  assert.deepEqual(frameOfLines(facts), frame);
+  const at = (/** @type {string} */ t) => headSoFar(input, frameOfLines(t, false), false);
+  assert.equal(at('# Magnets :: th'), '', 'nothing before the title line is whole');
+  assert.equal(at('# Magnets :: thing\n'), '# Magnets :: thing\n', 'the title line as soon as it is whole');
+  assert.equal(at('# Magnets :: thing\n> Invisible hands that move iron.\n'), '# Magnets :: thing\n> Invisible hands that move iron.\n', 'then the deck');
+  assert.ok(at(frameText.slice(0, frameText.indexOf('Strongest'))).endsWith('!!!\nOldest :: lodestone, 600 BC\n'), 'then each fact');
+  assert.ok(at(`${frameText.slice(0, frameText.indexOf('[[Curie'))}`).endsWith('+++\n[[Lodestone]] :: thing\n'), 'then each topic');
+  /* written a character at a time, slipped or not, the head only grows, and ends as the whole frame's head */
+  for (const t of [frameText, slipped, parens, facts]) {
+    let shown = '';
+    for (let i = 1; i <= t.length; i++) { const head = at(t.slice(0, i)); assert.ok(head.startsWith(shown), `rewritten at ${i}: ${JSON.stringify(head.slice(-60))}`); shown = head; }
+    assert.ok(headSoFar(input, frameOfLines(t), true).startsWith(shown));
+  }
+  assert.deepEqual(frameOfLines('Sure! Writing it now.'), { title: '', kind: '', deck: '', facts: [], links: [] }, 'no title line, no frame');
 });
