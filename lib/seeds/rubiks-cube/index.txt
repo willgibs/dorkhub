@@ -1,65 +1,83 @@
 # Rubik’s Cube :: thing
-> Twenty half-turns can undo any scramble, and nobody could prove it for over thirty years.
+> A 1970s Hungarian teaching toy hides 43 quintillion positions, yet every one can be solved in 20 moves or fewer.
 !!!
-Invented :: Ernő Rubik, Budapest, 1974
-Reachable positions :: about 43 quintillion
-Stickers :: 54, nine on each face
+Key facts :: Inventor :: Ernő Rubik, 1974
+Positions :: about 43 quintillion
+Maximum moves :: 20 (God's number)
 +++
 [[Ernő Rubik]] :: person
-[[Ideal Toy Company]] :: thing
-[[World Rubik’s Cube Championship]] :: event
+[[Group theory]] :: concept
+[[God's number]] :: concept
 [[Speedcubing]] :: technique
-[[Blindfold cubing]] :: technique
-[[Thistlethwaite’s algorithm]] :: technique
-[[God’s number]] :: concept
-[[Superflip]] :: concept
-[[Permutation]] :: concept
-[[Parity of a permutation]] :: concept
+[[Enigma machine]] :: thing
+[[Infinity]] :: concept
+[[Cuboid mechanism]] :: mechanism
+[[Singmaster notation]] :: technique
+[[Ideal Toy Corporation]] :: thing
+[[Blindfolded cubing]] :: technique
+[[Thistlethwaite's algorithm]] :: technique
+[[Permutation parity]] :: concept
+[[Budapest]] :: place
 ---
-Hold a Rubik’s Cube and you hold 26 small pieces that look like one solid block until you turn a face. Each turn rotates one layer of nine pieces around its axis, and the six faces carry 54 coloured stickers between them. A few random turns leave it looking like a jumble, yet every jumble can be turned back into the solved state, with one colour on each face.
+In 1974 a Hungarian architecture lecturer named [[Ernő Rubik|Ernő Rubik]] built a block of wood and rubber bands in his Budapest flat, twisted one face, and found he could not easily undo it. He had made a cube of 26 visible pieces that rotate around one another without falling apart, and he spent about a month solving his own scrambled creation. Nearly fifty years on, over 450 million have been sold, and the object sits somewhere between toy, puzzle and mathematics lesson. It is a three-by-three-by-three cube whose six faces each hold nine coloured stickers, and any face can turn a quarter, half or three-quarter revolution.
 
-## The pieces
+## What is inside
 
-The 26 visible pieces come in three kinds: 8 corners with three colours each, 12 edges with two, and 6 centres with one. The centres are the exception, since each sits on a hidden core and never changes places with another centre. A turn only spins the centre of the face it belongs to, which is why the centres fix the colours of a solved cube. The usual scheme puts white opposite yellow, green opposite blue and red opposite orange, and it is drawn with white on top and green and red at the sides. Shown exploded, the pieces float apart in their places, and each turn is a [[permutation|Permutation]] that turns nine of them at once.
+Take a cube apart and it is far simpler than it looks. There are 8 corner pieces with three coloured faces, 12 edge pieces with two, and 6 centre pieces with one, each fixed to a central core and never moving relative to the others. The centres therefore define the colour of each face, which is why the solved colour scheme is always the same up to mirror image, with white opposite yellow, green opposite blue and red opposite orange. The visible 26 pieces are held in place by interlocking tabs and a hidden spring-and-screw arrangement in modern cubes, not by Rubik's original rubber-and-wood pivots.
 
-## Counting the arrangements
+The pieces can be arranged in 43,252,003,274,489,856,000 ways, roughly 43 quintillion. The figure comes from counting corner and edge permutations and orientations, then dividing by 12 because three constraints bind them: corners twist in sets, edges flip in pairs, and a [[Permutation parity|parity]] rule links swaps of the two kinds. In practice this means that a cube reassembled at random from loose pieces has only a one-in-twelve chance of being solvable. Stacked end to end, that many cubes would stretch far beyond the nearest stars.
 
-The cube has 43,252,003,274,489,856,000 reachable arrangements, about 43 quintillion, and the count comes from treating its pieces as a [[permutation|Permutation]] problem with twists attached. The eight corners can be placed in any order and each can be twisted three ways, but the last twist is forced once the other seven are set. The twelve edges follow the same pattern with flips, and one rule halves the result: the corner order and the edge order must have matching [[parity|Parity of a permutation]]. Multiplying these choices gives the total, and every arrangement in it can be reached by turns alone.
 ::: figures
-40,320 :: ways to order the eight corners
-2,187 :: twist patterns the corners can take
-239,500,800 :: edge orders possible, given the corners
-2,048 :: flip patterns the edges can take
+8 :: corner pieces
+12 :: edge pieces
+43 quintillion :: reachable positions
+20 :: moves that solve any position
 :::
 
-In 2010 Tomas Rokicki, Herbert Kociemba, Morley Davidson and John Dethridge showed that every position can be solved in 20 moves or fewer, counting a half turn as one move. Their result settled [[God’s number]], the most moves any scramble needs, and when only quarter turns count, the figure is 26, proved in 2014. The [[superflip|Superflip]], which flips every edge in place while leaving the corners solved, is one of the positions that needs the full 20. A brute-force search of every arrangement was out of reach, so the proof grouped positions that behave alike and searched the groups instead.
-^ Checking one arrangement a second would take about 1.4 trillion years, roughly a hundred times the age of the universe.
+^ The first Hungarian prototypes were wooden, and Rubik originally called his invention the Magic Cube. The name Rubik's Cube arrived in 1980 with the international launch.
 
-## From puzzle to sport
+## From Budapest to the world
 
-[[Ernő Rubik]], an architecture lecturer in Budapest, built the first version in 1974 while working out how the parts of a moving three-dimensional object could stay joined. A hidden core holds the pieces together while each layer turns around it, so the cube can twist without falling apart. The American toy firm [[Ideal Toy Company]] took it abroad in 1980 as Rubik’s Cube, and in 1982 the first [[World Rubik’s Cube Championship]] was held in Budapest, where solvers competed for the world title.
-^ Its first name was the Magic Cube, a literal translation of the Hungarian Bűvös kocka.
+Rubik meant it as a teaching aid for three-dimensional thinking, and he patented the design in Hungary in 1975. Selling it abroad was harder in a planned economy, until a trade fair in 1979 led the [[Ideal Toy Corporation]] to license it. Renamed and shipped worldwide from 1980, it became the decade's defining craze, with a [[Speedcubing|speed-solving]] scene that began with a first world championship in Budapest in 1982. The winner solved it in just under 23 seconds. Today the average human record sits below 5 seconds, and the single-solve world record has been under 4 seconds since 2023, held by Max Park at 3.13.
 
-Most beginners solve it one layer at a time, with short sequences of turns that place each piece without disturbing those already set. Faster solvers memorise longer sequences and plan several pieces at once, and top [[speedcubers|Speedcubing]] now solve in under five seconds. Some go further and solve [[blindfolded|Blindfold cubing]], memorising the scramble before they begin. Mathematicians took a more systematic route, and [[Thistlethwaite’s algorithm]] solves any cube in at most 52 moves by stepping through a chain of smaller sets of positions, a method devised in the early 1980s.
+Solvers do not search; they memorise sequences of turns, written in [[Singmaster notation]], which names each face by a letter such as R for right and U for up. David Singmaster published the first widely used solution in 1981. Fast solvers use methods that chain together dozens of such algorithms, and some solve while [[Blindfolded cubing|blindfolded]] after studying the cube for a few seconds.
+
+::: timeline
+1974 :: Rubik builds the first working prototype in Budapest
+1975 :: Hungarian patent filed for the Magic Cube
+1980 :: Ideal Toy Corporation launches it internationally
+1981 :: Singmaster publishes his solution notation and method
+1982 :: first world championship held in Budapest
+2010 :: God's number proven to be 20
+:::
+
+## The mathematics underneath
+
+Every move on the cube is a permutation, and the full set of moves forms a mathematical structure studied in [[Group theory]] known as the Rubik's Cube group. Its elements are the 43 quintillion positions, and combining two moves always yields another position, which is precisely what makes it a group. The same idea of permutation underlies the wiring of the [[Enigma machine]], whose rotors shuffled letters in patterns that Polish and British codebreakers analysed with the same algebra.
+
+The cube raises the question of how many moves are enough. In 1981 Morwen Thistlethwaite devised a method that narrowed any position down through nested subgroups, guaranteeing a solution in at most 52 moves, and later work cut the bound gradually. In 2010 Tomas Rokicki, Herbert Kociemba, Morley Davidson and John Dethridge proved, using a donation of idle computer time from Google, that every position can be solved in 20 or fewer moves in the face-turn metric. That number is called [[God's number]], and a few special positions really do need all 20. The result shows how an enormous, yet finite, space can still be tightly bounded, a small taste of how [[Infinity]] differs from merely very large.
 ===
-- [[Enigma machine]] :: Permutations again, this time hiding messages in rotors that scrambled every letter :: thing
-- [[Infinity]] :: Huge, but finite: the cube’s count is vast yet exactly countable :: concept
-- [[Kociemba’s algorithm]] :: The two-phase solver that finds short, not shortest, answers almost instantly :: technique
-- [[Pyraminx]] :: The tetrahedron cousin, where the four tips twist on their own :: thing
-- [[Megaminx]] :: A dodecahedron with twelve pentagon faces, and a whole new set of turns :: thing
-- [[Tesseract]] :: The four-dimensional cube, drawn as a cube inside a cube :: thing
+- [[Enigma machine]] :: Its rotors permute letters; the cube's moves permute stickers, with the same algebra :: thing
+- [[Infinity]] :: Huge but finite versus truly endless: where does 43 quintillion sit? :: concept
+- [[Group theory]] :: The algebra that turns every cube twist into a mathematical object :: concept
+- [[Speedcubing]] :: How humans now solve in under five seconds, with finger tricks and lookahead :: technique
+- [[Ernő Rubik]] :: The architect who built a puzzle to teach spatial thinking and was surprised :: person
+- [[Thistlethwaite's algorithm]] :: How nested subgroups shrank the cube's solution to 52 moves in 1981 :: technique
 ???
-How did anyone prove that every Rubik’s Cube needs twenty moves or fewer?
-Why does the superflip, with every edge flipped, need twenty moves?
-Could a computer ever check every Rubik’s Cube arrangement one by one?
+How many moves does it take to solve a Rubik's Cube?
+Why do Rubik's Cubes have only one-twelfth of reassembled positions solvable?
+How do speedcubers solve a cube blindfolded?
 &&&
-[[Ernő Rubik]] :: Built the first cube in 1974 while puzzling over moving parts
-[[Ideal Toy Company]] :: The firm that took a Budapest puzzle worldwide and renamed it
-[[World Rubik’s Cube Championship]] :: Budapest’s 1982 contest, where solvers first raced for the world title
-[[Speedcubing]] :: Top competitors now solve in under five seconds, from memorised sequences
-[[Blindfold cubing]] :: Solvers memorise the whole scramble, then work without seeing it
-[[Thistlethwaite’s algorithm]] :: Solves any cube within 52 moves, through smaller sets of positions
-[[God’s number]] :: The most moves any scramble needs, proved only in 2010
-[[Superflip]] :: Every edge flipped in place, yet still needs twenty moves
-[[Permutation]] :: The idea behind every scramble, and how the count multiplies
-[[Parity of a permutation]] :: The hidden rule halving the count, and forbidding a lone swap
+[[Ernő Rubik]] :: Architecture lecturer who invented a toy before knowing it was solvable.
+[[Group theory]] :: Algebra of symmetries, with the cube as its famous playground.
+[[God's number]] :: The proven worst case: 20 face turns for any scramble.
+[[Speedcubing]] :: Competitive solving, where records are now measured in single seconds.
+[[Enigma machine]] :: Rotor-driven permutations that carried Germany's wartime secrets.
+[[Infinity]] :: Why 43 quintillion is vast yet still entirely finite.
+[[Cuboid mechanism]] :: How corner, edge and centre pieces interlock without falling apart.
+[[Singmaster notation]] :: Letter code that lets solutions travel across languages.
+[[Ideal Toy Corporation]] :: American firm that turned a Hungarian curiosity into a craze.
+[[Blindfolded cubing]] :: Memorising a scramble, then solving it entirely by feel.
+[[Thistlethwaite's algorithm]] :: Early method guaranteeing a solution within 52 moves.
+[[Permutation parity]] :: The hidden rule that forbids swapping just two pieces.
+[[Budapest]] :: City where the cube was born and the first championship held.

@@ -1,7 +1,7 @@
 // Seeds: pages written ahead of time, for the front page's topics (lib/front.js) and the pages from before it.
 //   node scripts/seeds.mjs doors                  every topic written ahead of time, its slug, whether it is written
 //                                                 yet or still shows its placeholder, and for a written page whether
-//                                                 production's writer and prompt wrote it (current) or not (stale)
+//                                                 the pages' writer and production's prompt wrote it (current) or not
 //   node scripts/seeds.mjs prompt "<title>"       the exact prompt a page on that topic gets (a question is asked as one)
 //   node scripts/seeds.mjs brief "<title>"        the writer's brief for one of the front page's topics: that prompt,
 //                                                 then what the front page says about it and the threads it draws
@@ -12,13 +12,17 @@
 //   node scripts/seeds.mjs batch send --yes ["<title>" ...]  send it: one batch through Anthropic's Message Batches API
 //   node scripts/seeds.mjs batch take [<batch id>]           wait for it, then keep each page that passes the checks
 // With no titles, a batch writes every page written ahead of time (all 44); name titles to write only those (say, to
-// send again what the last batch couldn't keep).
+// send again what the last batch couldn't keep). `--try <arm>` (plan, send) asks the same pages another way, from
+// ARMS in scripts/seeds/batch.js (Haiku thinking a little, the fixed part as system instructions, Sonnet): its take
+// scores the arm (pages production would keep, pages passing the seeds' checks, early stops, thinking, cost) into
+// .seeds-batch/<id>.score.json and keeps nothing.
 //
-// How a seed is made: the way any page is (Will, 2026-10-19: one bar for every page, so a page that opens from the
-// front page is never better or worse than the next one a reader opens). The production writer gets the brief (for
-// any other topic, the prompt) and writes the page in one pass, with no research and no fact-check. A batch sends
-// production's own call (its model, prompt, output limit and thinking: scripts/seeds/batch.js) at half a live page's
-// price, and keeps each page that stopped on its own and passes the checks tests/seeds.test.js makes, as
+// How a seed is made: the way any page is, by the writer the pages written ahead of time get (Will, 2026-11-17:
+// Claude Sonnet 5.5, so the front page's ways in are a more engaging entry point, while Claude Haiku 5.5 writes every
+// live page; it replaced his 2026-10-19 call that one writer makes every page). The writer gets the brief (for any
+// other topic, the prompt) and writes the page in one pass, with no research and no fact-check. A batch sends
+// production's own call for that writer (its prompt, output limit and thinking: scripts/seeds/batch.js) at half a
+// live page's price, and keeps each page that stopped on its own and passes the checks tests/seeds.test.js makes, as
 // lib/seeds/<slug>/index.txt, stamped in the index with the model and prompt version that wrote it. Then
 // npm run verify. A written page takes its placeholder's place. What a page gets wrong is fixed in the prompt
 // (lib/prompts.js), for every page, not by hand in one; when the prompt or the writer changes, `doors` shows every
@@ -41,14 +45,13 @@ const { placeholderText } = await import(join(repo, 'lib/placeholder.js'));
 const { topicKey } = await import(join(repo, 'src/shared/world.js'));
 const { isQuestion } = await import(join(repo, 'src/shared/article.js'));
 const { directId } = await import(join(repo, 'src/shared/models.js'));
-const { trialModel, writerSettings } = await import(join(repo, 'lib/ai.js'));
 const B = await import(join(repo, 'scripts/seeds/batch.js'));
 const dir = join(repo, 'lib/seeds');
 const runs = join(repo, '.seeds-batch');
 const [cmd, a, ...more] = process.argv.slice(2);
 const doorFile = (/** @type {string} */ s) => join(dir, s, 'index.txt');
-/* production's writer (DH_TRIAL_MODEL, else the default), the one every page written ahead of time comes from */
-const model = trialModel(process.env, () => {});
+/* the writer of every page written ahead of time (scripts/seeds/batch.js SEED_MODEL) */
+const model = B.SEED_MODEL;
 /** @returns {Record<string, any>} */
 const readIndex = () => { try { return JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8')).pages || {}; } catch { return {}; } };
 
@@ -102,24 +105,30 @@ function idOf(i) { return `p${String(i).padStart(2, '0')}`; }
 
 /** @param {string | undefined} sub @param {string[]} args */
 async function batch(sub, args) {
-  const named = args.filter(x => !x.startsWith('--'));
+  /* `--try <arm>` asks the pages another way (scripts/seeds/batch.js ARMS): scored when taken, never kept */
+  const t = args.indexOf('--try'); const arm = t >= 0 ? args[t + 1] : 'production';
+  if (!B.ARMS[arm]) { console.error(`--try wants one of: ${Object.keys(B.ARMS).join(', ')}`); process.exit(2); }
+  const named = args.filter((x, i) => !x.startsWith('--') && !(t >= 0 && i === t + 1));
   if (sub === 'plan' || sub === 'send') {
     const titles = named.length ? named.map(n => {
       const d = DOORS.find((/** @type {{ t: string }} */ x) => topicKey(x.t) === topicKey(n));
       if (!d) { console.error(`"${n}" is not a page written ahead of time (see: node scripts/seeds.mjs doors)`); process.exit(1); }
       return d.t;
     }) : DOORS.map((/** @type {{ t: string }} */ d) => d.t);
-    const e = B.estimate(model, titles);
-    console.log(`${titles.length} pages by ${model} (${directId(model)}), prompt ${PROMPT_VERSION}: max_tokens ${TASKS.page.maxTokens + writerSettings(model).room}, ${JSON.stringify(B.apiSettings(model))}; what every page shares is cached for an hour.`);
-    titles.forEach((t, i) => console.log(`  ${idOf(i)}  ${t}${B.frontTopic(t) ? '  (with its front-page brief)' : ''}`));
-    console.log(`About ${Math.round(e.input / 1000)}k tokens in and ${Math.round(e.output / 1000)}k out: about $${e.dollars.toFixed(2)} at batch prices (half a live page's), on the Console workspace "Dorkhub".`);
+    const writer = B.ARMS[arm].model || model;
+    const e = B.estimate(writer, titles);
+    const { params } = B.seedRequest(idOf(0), titles[0], model, arm);
+    const asked = Object.fromEntries(Object.entries(params).filter(([k]) => ['thinking', 'output_config'].includes(k)));
+    console.log(`${arm === 'production' ? '' : `A try, "${arm}" (${B.ARMS[arm].note}): scored, never kept. `}${titles.length} pages by ${writer} (${directId(writer)}), prompt ${PROMPT_VERSION}: max_tokens ${params.max_tokens}, ${JSON.stringify(asked)}${params.system ? ', the fixed part as system instructions' : ''}; what every page shares is cached for an hour.`);
+    titles.forEach((x, i) => console.log(`  ${idOf(i)}  ${x}${B.frontTopic(x) ? '  (with its front-page brief)' : ''}`));
+    console.log(`About ${Math.round(e.input / 1000)}k tokens in and ${Math.round(e.output / 1000)}k out${B.ARMS[arm].room ? ', plus what it thinks' : ''}: about $${e.dollars.toFixed(2)} at batch prices (half a live page's), on the Console workspace "Dorkhub".`);
     if (sub === 'plan') return;
     if (!args.includes('--yes')) { console.error('Add --yes to send it: it spends real tokens.'); process.exit(2); }
     const client = await anthropic();
-    const sent = await client.messages.batches.create({ requests: /** @type {any} */ (titles.map((t, i) => B.seedRequest(idOf(i), t, model))) });
+    const sent = await client.messages.batches.create({ requests: /** @type {any} */ (titles.map((x, i) => B.seedRequest(idOf(i), x, model, arm))) });
     mkdirSync(runs, { recursive: true });
-    const pages = Object.fromEntries(titles.map((t, i) => [idOf(i), { title: t, slug: B.slug(t) }]));
-    writeFileSync(join(runs, `${sent.id}.json`), JSON.stringify({ id: sent.id, model, prompt: PROMPT_VERSION, at: new Date().toISOString(), pages }, null, 1) + '\n');
+    const pages = Object.fromEntries(titles.map((x, i) => [idOf(i), { title: x, slug: B.slug(x) }]));
+    writeFileSync(join(runs, `${sent.id}.json`), JSON.stringify({ id: sent.id, model: writer, arm, prompt: PROMPT_VERSION, at: new Date().toISOString(), pages }, null, 1) + '\n');
     console.log(`Sent ${sent.id} (${sent.processing_status}). Then: node scripts/seeds.mjs batch take ${sent.id}`);
     return;
   }
@@ -137,6 +146,20 @@ async function batch(sub, args) {
     /** @type {any[]} */ const usages = []; /** @type {string[]} */ const kept = []; /** @type {[string, string][]} */ const failed = [];
     /** @type {Record<string, { model: string, prompt: string }>} */ const stamps = {};
     const answers = join(runs, run.id); mkdirSync(answers, { recursive: true });
+    if (run.arm && run.arm !== 'production') {
+      /* a try: every answer saved to read, the arm scored, nothing kept */
+      /** @type {{ title: string, text: string | null, usage: any }[]} */ const got = [];
+      for await (const r of await client.messages.batches.results(run.id)) {
+        const page = run.pages[r.custom_id]; if (!page) continue;
+        const { text, usage } = B.readResult(r);
+        if (text) writeFileSync(join(answers, `${page.slug}.txt`), text);
+        got.push({ title: page.title, text, usage });
+      }
+      const score = { arm: run.arm, model: run.model, ...B.scorecard(run.model, got) };
+      writeFileSync(join(runs, `${run.id}.score.json`), JSON.stringify(score, null, 1) + '\n');
+      console.log(JSON.stringify(score));
+      return;
+    }
     for await (const r of await client.messages.batches.results(run.id)) {
       const page = run.pages[r.custom_id]; if (!page) continue;
       const { text, why, usage } = B.readResult(r); usages.push(usage);

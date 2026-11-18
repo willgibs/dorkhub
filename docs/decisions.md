@@ -417,3 +417,77 @@ One line each, newest last. Why, not just what.
   - **What it buys.** A page is about a tenth of a cent on Haiku 5.5 ($0.10 in, $0.50 out per million tokens), so $50 is about 45,000 pages a month. Haiku stays the free writer; the model eval's first look, on the same credit, decides any switch (Will), and the pages written ahead of time always come from the same writer (one bar, 2026-10-19).
   - **Prompt caching** (Will's suggestion). The page's fixed instructions, about 2,050 tokens and 96% of its input, are identical for every topic, voice and question; they now go first in the one message, marked for Anthropic's cache (5 minutes, kept alive by each read). The words are unchanged, so no `PROMPT_VERSION` bump and every kept page stays valid. A page that starts within five minutes of another costs about 18% less and its first word comes a little sooner; one that finds the cache cold costs about 4% more. Output is about 80% of a page's price, so that is the most caching can do. The write log's `cacheRead`/`cacheWrite` give the hit rate; a 1-hour cache (twice the price to store) pays only if pages come at least hourly but rarely within five minutes of each other.
   - **The Batch API** (Will's suggestion) is for pages written ahead of time only: half price, results within the hour, never for a reader who is waiting. All 44 cost about 5 cents on Haiku at full price, so what it buys is the workflow: one command rewrites every page written ahead of time with production's own call (next, `scripts/seeds.mjs batch`). Will: rewrite all 44, the 11 earlier pages included.
+- 2026-11-17 · **Live writing runs, and its first real output shows the free writer breaks the page format about half the time** (#52 merged at Will's "Keys are in": `DH_ANTHROPIC_KEY` pasted by Will into Vercel; the Dorkhub workspace, its $50 limit and both key forms set up in his Console by an agent at his word, the keys created and pasted by him alone).
+  - **Production works.** A live page's first byte comes in about 0.8 s and the whole page in 9 to 12 s; each instance logs `{"evt":"writer","via":"anthropic"}`; the spend lands on the Dorkhub workspace ($0.03 on the day, the proofs and the batch included).
+  - **The prompt cache works.** The first page wrote 2,568 tokens into the cache and every later page read them (`cacheRead: 2568` of `in: 2700`). A page costs about $0.00094 with the cache warm (2,568 tokens at $0.01, 132 at $0.10 and about 1,800 out at $0.50 per million) and about $0.0012 cold.
+  - **The writer as configured breaks the format.** Claude Haiku 5.5 with thinking off (set 2026-11-13 for speed, never run live before) wrote the 44 pages written ahead of time in one batch, with production's own call. 20 pass production's bar for keeping a page, and 10 the seeds' checks. The faults: 21 drop the `# ` from the title line (the page then has no kind and no colour, and is never kept); 21 leave out the `===` marker (the parser still finds the cards in 39 of 44, under "Keep exploring:"); 8 stop after the body (under 4,800 characters, no cards, questions or hooks); 16 lack three key facts (3 write a literal `Label ::`/`Value ::`). As a reader's browser reads them, 43 of 44 bodies are whole. Two of the proof's four live pages were not kept for the same reason. `scripts/prove.mjs` now asks for a real topic (a year in a place), not a nonsense one.
+  - **Not shipped:** the 10 pages that passed. A tenth chosen by the checks would outclass every live page (one bar). All 44 answers are kept in `.seeds-batch/` (untracked) for comparison.
+  - **Measured fix:** read a bare `Title :: kind` first line as the title line and production keeps 35 of the 44, not 20. The rest are the early stops: a writer question for the eval (thinking at low effort, Sonnet 5.5, or the prompt), on the same 44 topics by batch, then one pass of all 44 with the winner.
+- 2026-11-17 · **What fixes the free writer: the parser for two slips, and Sonnet for the rest** (Will: "Fix it, keep it live"; three arms by batch on the same 44 topics, $0.74 in all, the answers in `.seeds-batch/`).
+  - **The parser now reads two slips as the writer meant them** (`src/shared/article.js`, free). A first line naming a kind after ` :: ` is the title line even without its `# `: Haiku leaves the `# ` off about half its title lines, and the page then showed "Umami :: concept" as its first paragraph and lost its kind. A copied "Key facts" label is dropped, whether on a line of its own or ahead of the first fact: Sonnet does it on 35 of 43 pages, and Haiku on 3; its three facts then fell into the body as a paragraph and the link plan was read as hooks. Every recorded page parses exactly alike with either slip, and the streaming checks run on the bare-title copies.
+  - **The arms, scored with both fixes** (kept by production / passing the front-page checks / stopping before the questions): today's writer, Haiku with thinking off: 35 of 44 / 19 / 11. Haiku thinking a little (effort low): 35 of the 37 it finished / 14 / 2, but about 5,100 tokens of thinking, some 25 seconds before the first word, and 7 pages never finished. Haiku with the fixed part as system instructions (`split`): 27 / 13 / 12, worse on every count. **Sonnet 5.5** as production would call it: 43 of the 43 it finished / 33 / 0, about 180 tokens of thinking (under a second); its misses are 7 key-fact values over seven words and 5 threads made into cards instead of links. Its pages run long (median 2,692 output tokens of the 3,000 a page may use; one stopped at the limit), so it needs about 1,000 more.
+  - **Cost:** a Sonnet page is about $0.027 with the cache warm (2,568 tokens at $0.10, 132 at $2 and about 2,700 out at $10 per million), about 27 times Haiku's: $50 a month is about 1,800 pages.
+- 2026-11-17 · **Sonnet writes the covers; Haiku writes every live page, made the most of in Dorkhub's own design**
+  (Will's desk verdicts: ship the fix for the two slips; Sonnet "can be used to write some of these cover articles,
+  so they're a bit more engaging as a fun entry point into the product. But it sounds like we really need to figure
+  out how to use Haiku to write all these articles and accommodate its weaknesses elegantly in our own architecture
+  and design, while finding how to best utilize it to write genuinely engaging articles").
+  - **Writers.** Claude Haiku 5.5 stays the free live writer. Sonnet 5.5 writes the pages written ahead of time
+    (`SEED_MODEL` in `scripts/seeds/batch.js`), which replaces his 2026-10-19 call that one writer makes every page.
+    Sonnet's limit gets 1,000 tokens of room, for readers' own keys too: one of its 43 pages stopped at 3,000.
+  - **The time travel page.** Will: "it starts making this crazy assumption of a really specific application of time
+    travel rather than this world of time travel itself." It was a stand-in that opened on GPS clocks, its card's
+    claim, because the brief said "Bear out each claim on the page". The brief now says the reader picks the page
+    with nothing in mind but the topic, so it opens on the topic itself and bears the claims out somewhere on it.
+    Given the old brief, Sonnet and Haiku both already opened time travel broadly.
+  - **Haiku's slips, read by their shape** (`src/shared/article.js`, free). On production's own call, 16 of 44 pages
+    left out `===`, `???` and `&&&`, so their cards showed as a list in the body, "::" and all, and their questions
+    and hooks as run-on paragraphs. 21 copied "Keep exploring:", and 5 of 132 Haiku pages copied "Link plan:", which
+    ended the plan. Measured on the 176 saved batch pages, production's Haiku pages:
+    - are kept 38 of 44 times (35 before);
+    - show format lines in the body on 3 (18);
+    - carry real cards, with hooks and kinds, on 37 (23), and three questions on 37 (33).
+
+    No line of prose is lost, and Sonnet's pages parse as before.
+  - **The seeds' checks.** A front-page thread may be one of the topics to keep exploring, as the brief allows, and a
+    long key fact is the layout's to hold (the facts stack and wrap when they don't fit across). So neither fails a
+    page any more.
+  - **The covers, by Sonnet 5.5** ($0.73 in all, on the Console workspace "Dorkhub"). One batch of all 44 kept 39.
+    The other 5 each missed a front-page thread, either neither linked nor offered as a topic, or linked as a
+    nearby topic ("DNA origami" for Origami). 4 of the 5 passed when sent again, and DNA on its third try. Two of
+    the earlier pages, which get no brief, named their own kinds: Kessler syndrome a concept, Fresnel lenses a
+    thing. Their doors and share pictures now follow the pages.
+- 2026-11-17 · **What Haiku 5.5 does best: one job at a time** (Will: "work in from both ends ... First principles
+  thinking, with everything up for relitigation"; two tries by batch on the same 44 topics, $0.048).
+  - **The single pass loses the links.** On production's own call, 16 of 44 Haiku bodies link nothing, 12 more link
+    one to four topics, and the median is 3. Sonnet's is 13, and Haiku thinking a little reaches 9. The links are the
+    product, and no parser can add links that were never written.
+  - **Fewer rules don't help.** The eval's `lean` words in the same single pass: 16 of 37 bodies link nothing, the
+    median is 1, and 7 of 44 pages ran past the limit.
+  - **One job does.** Haiku was asked for the body alone, given the frame its own page had (title, kind, deck, key
+    facts, link plan), with everything else held identical. Only 2 of 44 bodies link nothing, the median is 10, all
+    44 finished, and the openings read far more vividly. Magnets went from "A magnet is any object that produces a
+    magnetic field" to "A magnet is easiest to picture as a quiet, invisible hand."
+  - **Haiku mirrors the prompt's words.** The prompt's examples of what a section might cover became its headings
+    ("## What is still argued over" on 39 of 44 pages), and "a picture in a newcomer's head" became "Picture a…" on
+    30. A prompt for Haiku says what it wants without phrases it can copy.
+  - **Direction, for Will's go:** each page written in focused calls, streamed in reading order as one page:
+    1. a frame (kind, deck, key facts, link plan) as structured output that can't break;
+    2. the body, given the frame;
+    3. the ways on (six topics, three questions) after the body, from the body.
+
+    The server joins them into the same page text, so the parser, cache, client and Your world stay as they are.
+- 2026-11-17 · **The split writer, built** (Will: "Yes, build it"; tried by batch on the 44 topics, each asked as a live
+  page is, $0.036). Haiku 5.5 writes each page in three calls: a frame as structured output, the body written to it,
+  and the ways on written from the body (`lib/split.js`, `PAGE_WRITER = 'split'`).
+  - **On the same 44 topics against today's single pass:** bodies that link nothing fall from 17 to 0, and the median
+    rises from 2 links to 12 (Sonnet's is 13). Every page is whole, with title, kind, deck, three facts, six topics
+    and three questions, where today only 25 of 44 are. All 44 would be kept (38 today). No heading or opening is
+    copied from the prompt. A page costs about $0.0016 at full price, against $0.0012.
+  - **First mentions.** Given the plan, Haiku still wrote no brackets at all on 5 of 44 bodies. So a planned topic is
+    linked at its first plain mention as the body streams, which took those five from 0 links to 8 to 12 each.
+  - **What a plan can do to a body.** Kessler syndrome's frame planned "Kessler Run" (Star Wars has a "Kessel Run").
+    Told to link every planned topic, the body invented a sentence to fit it. The body prompt now leaves out any topic
+    the story doesn't reach and never adds a sentence only to fit one in, as the single pass always said.
+  - **Pages it wrote are kept under their own version** (`SPLIT_VERSION`), so pages already written in one pass are
+    written again as readers reach them. Readers' keys and the mock still write in one pass.

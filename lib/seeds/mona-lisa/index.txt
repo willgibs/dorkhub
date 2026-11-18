@@ -1,66 +1,80 @@
 # Mona Lisa :: work
-> A small panel portrait that became a celebrity after a former Louvre employee carried it out under his smock in 1911.
+> A small poplar-wood portrait of a Florentine silk merchant's wife became the most famous painting on Earth, and a burglary made it so.
 !!!
-Maker :: Leonardo da Vinci
-Medium :: Oil on poplar panel
-Size :: 77 by 53 centimetres
+Key facts :: 
+Painted :: c. 1503 to 1519, Leonardo da Vinci
+Size :: 77 × 53 cm, oil on poplar
+Home :: Louvre, Paris, since 1797
 +++
 [[Leonardo da Vinci]] :: person
-[[Vincenzo Peruggia]] :: person
-[[Louvre]] :: place
-[[Salle des États]] :: place
-[[Uffizi]] :: place
-[[Clos Lucé]] :: place
 [[Sfumato]] :: technique
-[[Aerial perspective]] :: technique
-[[Panel painting]] :: technique
+[[Lisa Gherardini]] :: person
+[[Vincenzo Peruggia]] :: person
+[[Theft of the Mona Lisa]] :: event
+[[Louvre]] :: place
+[[Francis I of France]] :: person
+[[Poplar panel painting]] :: technique
+[[Francesco del Giocondo]] :: person
+[[Isleworth Mona Lisa]] :: mystery
+[[Dada]] :: era
+[[L.H.O.O.Q.]] :: work
+[[Aerial perspective]] :: concept
 [[Craquelure]] :: phenomenon
 ---
-A woman sits in a chair with her hands folded, in front of a landscape of winding roads, a bridge and a pale river that dissolve into blue haze. Her face is modelled so softly that her smile seems to shift as you look at it, and the longer you look, the less sure you are where it begins. [[Leonardo da Vinci]] painted the portrait in oil on a poplar [[panel|Panel painting]], and it hangs today in the [[Salle des États]] of the [[Louvre]] in Paris.
-^ 'Mona' is a contraction of 'ma donna', meaning 'my lady', so the title is a form of address.
+The *Mona Lisa* is a half-length portrait, barely bigger than a large laptop screen, painted in oil on a single plank of poplar. It shows a woman seated before an invented landscape of winding paths, a bridge and receding blue mountains, her hands folded, her gaze turned toward the viewer with the faintest suggestion of a smile. [[Leonardo da Vinci]] began it in Florence around 1503 and was still working on it years later; he never delivered it to the sitter's family and carried it with him to France, where it stayed. Today it hangs behind bulletproof glass in the [[Louvre]], seen by something like ten million visitors a year, most of whom spend under a minute in front of it.
 
-## Who sat for it
+## A portrait that stayed with its painter
 
-The sitter is traditionally identified as Lisa Gherardini, born in 1479, who married Francesco del Giocondo, a Florentine silk merchant. The Italian title, La Gioconda, is built on that married name, but no contract or payment record survives, so the commission rests on later accounts. Leonardo never handed the picture over and kept working on it for years. He carried it with him when he moved to France, where he spent his last years at [[Clos Lucé]] near Amboise.
+The sitter is generally identified as [[Lisa Gherardini]], wife of the Florentine cloth and silk merchant [[Francesco del Giocondo]], which is why the French call the painting *La Joconde* and the Italians *La Gioconda*. The identification rests on a 1503 marginal note by a Florence official, Agostino Vespucci, in a printed book, which records Leonardo working on a portrait of "Lisa del Giocondo". Leonardo left for Milan and later Rome, took the panel with him, and kept refining it. He moved to France in 1516 at the invitation of [[Francis I of France]], and the painting entered the royal collection, probably after his death in 1519.
 
-## Stolen under a smock
+The painting's famous softness comes from [[Sfumato]], the building of transitions from light to shadow through many ultra-thin glazes, so that no hard outline separates lip from cheek. The corners of the mouth dissolve into shadow, which is why the smile seems to flicker depending on where your eye lands: look at the eyes and the mouth appears to curve, look at the mouth and it flattens. Behind her, [[Aerial perspective]] turns distant rock steadily bluer and paler, a method Leonardo studied in the atmosphere itself.
 
-On 21 August 1911 [[Vincenzo Peruggia]], a former Louvre employee, hid the panel under his smock and walked out of the museum. The empty wall went unnoticed until the next morning, when a visiting painter found the gap. Peruggia kept the picture in a trunk in his Paris lodgings for more than two years, and he later said he had wanted to return an Italian masterpiece to Italy.
+^ The panel is poplar, which warps with humidity; a long crack running down from the top of the head has been stabilised since the 1950s, and the Louvre keeps the painting in a climate-controlled case.
 
-The theft made the painting a subject of newspapers across Europe and North America, and crowds came to the Louvre to stare at its empty wall. Before 1911 the portrait was admired by specialists, but the theft made it a household name. When Peruggia tried to sell it to a Florentine dealer, the dealer called in the director of the [[Uffizi]], and the police arrested him.
+## The burglary that made a legend
+
+For centuries the painting was admired by artists and connoisseurs but was not a household image; works by Raphael were often rated higher. On the morning of 21 August 1911, [[Vincenzo Peruggia]], an Italian glazier who had worked on the Louvre's protective cases, walked out with it under his smock, having hidden in a storeroom overnight. The [[Theft of the Mona Lisa]] went unnoticed for hours, and when the museum closed for a week and the news broke, newspapers across the world ran the empty wall on their front pages. Crowds queued to stare at the blank space where it had hung. Pablo Picasso and the poet Guillaume Apollinaire were briefly questioned by police.
 
 ::: timeline
-About 1503 :: Leonardo starts the portrait in Florence
-21 August 1911 :: A former Louvre employee takes the panel out of the museum
-22 August 1911 :: A visiting painter finds the empty wall
-December 1913 :: The thief offers it to a Florentine dealer
-1914 :: The painting returns to the Louvre
+c. 1503 :: Leonardo begins the portrait in Florence
+1516 :: Leonardo takes it to France under Francis I
+1797 :: Hung permanently in the Louvre
+1911 :: Stolen by Vincenzo Peruggia, 21 August
+1913 :: Recovered in Florence after Peruggia tries to sell it
+1963 :: Tours the United States, drawing huge crowds
 :::
 
-## Sfumato and the making of a face
+Peruggia kept the painting for over two years in a trunk in his Paris room, then tried to sell it to an art dealer in Florence in December 1913, where he was caught. He claimed patriotic motives, wanting to return it to Italy, and served under a year in prison. The painting toured Italy before returning to Paris, now a global celebrity.
 
-Leonardo built up the face in thin, translucent layers of paint, a method later named [[sfumato|Sfumato]] after an Italian verb meaning to fade like smoke. There are no hard outlines around the eyes or the corners of the mouth, so the smile dissolves into shadow and the viewer's eye has to finish the shape. The landscape uses [[aerial perspective|Aerial perspective]], with the hills fading to blue and grey as they recede, an effect Leonardo described in his notes.
+## Afterlife as an image
 
-The surface is crazed with fine cracks, a network of [[craquelure|Craquelure]] that appears in old paint as its layers age and shrink. The picture is also seen through old varnish, which has yellowed over the centuries and dims the colours Leonardo chose. Conservators have studied the surface with cameras and microscopes, and those images show the layers of paint beneath the varnish.
+Fame invited mockery. In 1919 Marcel Duchamp drew a moustache and goatee on a postcard reproduction and titled it [[L.H.O.O.Q.]], a pun that sounds like a crude French phrase, a gesture associated with [[Dada]]. Andy Warhol, Fernando Botero and countless advertisers followed. The painting itself has been attacked: acid thrown in 1956 and a rock hurled the same year damaged its lower section, which is why it now sits behind glass.
+
+Its surface has aged into a yellowish haze, partly from darkened varnish and fine [[Craquelure]], so Leonardo's original cooler palette would have looked fresher. A rival version, the [[Isleworth Mona Lisa]], shows a younger-looking sitter in a similar pose; supporters think it is an earlier Leonardo, but most scholars are unconvinced.
+
 ===
-- [[Terracotta Army]] :: Once far more colourful: the soldiers' paint faded after the soil was lifted. :: thing
-- [[Duchenne smile]] :: Smiles that reach the eyes, mapped by a French neurologist using electric shocks. :: phenomenon
-- [[Dendrochronology]] :: Tree rings that date a poplar panel, a forest's diary read by scientists. :: technique
-- [[The Last Supper (Leonardo)]] :: Leonardo's Milan mural, painted on dry plaster, began to flake within decades. :: work
-- [[Vitruvian Man]] :: A nude man inside a circle and square, drawn in ink around 1490. :: work
-- [[Linear perspective]] :: The vanishing-point system that made painted rooms look deeper than their walls. :: technique
+- [[Terracotta Army]] :: Another famous image once blazing with colour that time has stripped away :: thing
+- [[Sistine Chapel ceiling]] :: Cleaning stripped centuries of grime and revealed shockingly vivid colour :: work
+- [[Last Supper (Leonardo)]] :: Leonardo's experimental technique began flaking within his own lifetime :: work
+- [[Art forgery]] :: Han van Meegeren sold fakes to Nazi leaders, fooling the experts :: concept
+- [[Vitruvian Man]] :: Leonardo's proportion diagram, seen in countless logos and tattoos :: work
+- [[Girl with a Pearl Earring]] :: Another famous portrait of a sitter whose identity remains uncertain :: work
 ???
-How did a former Louvre employee steal the Mona Lisa in 1911?
-Why does the Mona Lisa's smile seem to change with the viewer's gaze?
-Did Leonardo paint more than one version of the Mona Lisa?
+Why does the Mona Lisa's smile seem to change?
+Who was Vincenzo Peruggia and why did he steal the painting?
+How was Leonardo's sfumato technique actually painted?
 &&&
-[[Leonardo da Vinci]] :: Kept this portrait for years, and never handed it over.
-[[Vincenzo Peruggia]] :: Walked out of the Louvre with the panel under his smock.
-[[Louvre]] :: Its most famous wall went bare, and crowds came to stare.
-[[Salle des États]] :: The gallery where the Mona Lisa hangs behind protective glass.
-[[Uffizi]] :: Florence's gallery, whose director helped recover the stolen panel.
-[[Clos Lucé]] :: The manor where Leonardo spent his last years, near Amboise.
-[[Sfumato]] :: Edges that dissolve into smoky shadow instead of ending in lines.
-[[Aerial perspective]] :: Distant hills turn blue because air scatters light.
-[[Panel painting]] :: Pictures painted on wood, the medium before canvas took over.
-[[Craquelure]] :: The network of fine cracks that ages a painting's surface.
+[[Leonardo da Vinci]] :: Painter, engineer, anatomist who never finished most of what he began
+[[Sfumato]] :: Smoky glazing that makes outlines vanish into shadow
+[[Lisa Gherardini]] :: Merchant's wife who became the world's most scrutinised face
+[[Vincenzo Peruggia]] :: Glazier who carried it out under his smock
+[[Theft of the Mona Lisa]] :: Two years missing turned a masterpiece into an icon
+[[Louvre]] :: Former royal palace housing the painting since the Revolution
+[[Francis I of France]] :: King who gave Leonardo a manor and acquired his paintings
+[[Poplar panel painting]] :: Wood grain and humidity shape how old paintings crack
+[[Francesco del Giocondo]] :: Silk merchant whose surname gave the painting its French name
+[[Isleworth Mona Lisa]] :: Disputed earlier version, claimed by some to be Leonardo's own
+[[Dada]] :: Anarchic movement that mocked the sacred status of art
+[[L.H.O.O.Q.]] :: Duchamp's moustached postcard, a rude pun on the icon
+[[Aerial perspective]] :: Distance blues away because the atmosphere itself scatters light
+[[Craquelure]] :: Web of fine cracks that records a painting's age

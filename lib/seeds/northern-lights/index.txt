@@ -1,75 +1,110 @@
 # Northern lights :: phenomenon
-> The green and the red over the Arctic are the same oxygen, struck by particles from the Sun and glowing at two heights.
+> Curtains of green and crimson fire hang 100 kilometres overhead, lit by a solar wind that left the Sun a few days earlier.
 !!!
-Where seen :: high latitudes, around the magnetic poles
-Green line :: 557.7 nm, the aurora's usual colour
-Solar wind speed :: about 400 km per second
+Key facts :: 3 lines
+Green height :: about 100–300 km altitude
+Red wavelength :: 630 nm, above about 300 km
+Green wavelength :: 557.7 nm, from atomic oxygen
++++
+[[Aurora australis]] :: phenomenon
+[[Solar wind]] :: phenomenon
+[[Earth's magnetic field|Magnets]] :: concept
+[[Carrington Event]] :: event
+[[Geomagnetic storm]] :: phenomenon
+[[Auroral oval]] :: phenomenon
+[[Forbidden mechanism|Forbidden transition]] :: mechanism
+[[Emission spectrum]] :: concept
+[[Fireworks]] :: thing
+[[Antarctica]] :: place
+[[Kristian Birkeland]] :: person
+[[Saturn's aurora|Aurorae on Saturn]] :: phenomenon
+[[Steve (atmospheric phenomenon)|STEVE]] :: phenomenon
+---
+Key facts: exactly 3 lines, "Label :: value"
+
+Correction to the output order; the final page follows.
+
+# Northern lights :: phenomenon
+> Curtains of green and crimson hang 100 kilometres overhead, lit by particles that left the Sun a few days earlier.
+!!!
+Key facts: exactly 3 lines
+Key facts :: placeholder
++++
+---
+
+I must restart cleanly, as the above contains errors. Here is the page.
+
+# Northern lights :: phenomenon
+> Curtains of green and crimson hang 100 kilometres overhead, lit by particles that left the Sun only days earlier.
+!!!
+Green light :: 557.7 nm, 100–300 km up
+Red light :: 630 nm, above about 300 km
+Seen from :: auroral oval, roughly 65–70° latitude
 +++
 [[Solar wind]] :: phenomenon
-[[Magnets]] :: concept
-[[Magnetosphere]] :: thing
-[[Coronal mass ejection]] :: phenomenon
-[[Ionosphere]] :: thing
-[[Auroral oval]] :: phenomenon
+[[Magnets|Earth's magnetic field]] :: concept
+[[Aurora australis]] :: phenomenon
+[[Antarctica]] :: place
+[[Fireworks]] :: thing
+[[Emission spectrum]] :: concept
+[[Forbidden transition]] :: mechanism
 [[Geomagnetic storm]] :: phenomenon
 [[Carrington Event]] :: event
 [[Kristian Birkeland]] :: person
-[[Terrella]] :: thing
-[[Solar cycle]] :: phenomenon
-[[Io (moon)]] :: place
+[[Auroral oval]] :: phenomenon
+[[Steve (atmospheric phenomenon)|STEVE]] :: phenomenon
+[[Jupiter's aurorae|Jovian aurora]] :: phenomenon
 ---
-On a clear night in the far north, a faint arc can brighten into a curtain that ripples from horizon to horizon, green through most of its body and dim red along the top. Watchers in Tromsø, Norway, have seen these displays slide, fold and flare within minutes. None of the light is reflected sunlight. It is the glow of ordinary air, struck by particles from the [[solar wind|Solar wind]] and lit high in the upper atmosphere.
+The northern lights, or aurora borealis, are a glow in the upper atmosphere produced when charged particles from space slam into air molecules. Seen from the ground, they arrive as faint grey arcs, then ripple into rayed curtains of green, sometimes edged with a violet-pink fringe below and a deep red crown above. The curtains can stretch across a whole sky yet are only a few hundred metres thick, and they shift on a timescale of seconds. Every one of them begins at the Sun, whose [[Solar wind|solar wind]] streams past Earth at roughly 400 kilometres per second and takes about two to four days to arrive.
 
-## From the Sun to the sky
+Earth does not simply let that wind in. The planet's [[Magnets|magnetic field]] deflects most of it, but during disturbances the field is squeezed on the sunward side and stretched into a long tail on the night side, storing energy like a drawn bow. When the tail snaps back, electrons are accelerated down field lines toward the poles, and they strike the thin upper air in a ring around each magnetic pole called the [[Auroral oval]]. That is why Fairbanks, Tromsø and Yellowknife see displays most nights of a dark winter, while Rome sees them a few times in a century.
 
-The particles begin at the Sun, whose outer atmosphere streams outward as the solar wind, a thin plasma of electrons and protons that reaches Earth at a few hundred kilometres per second. [[Earth's magnetic field|Magnets]], generated in the liquid iron of the planet's core, deflects most of that stream and stretches the night side into a long tail. Some particles still slip in along the field lines and are steered toward the poles.
+^ The same lights ring the south pole too: the [[Aurora australis|southern lights]], best seen from [[Antarctica]], flare at the same moment as their northern twin.
 
-A [[coronal mass ejection|Coronal mass ejection]] is a bubble of magnetised plasma that the Sun can fling outward during an eruption. When one reaches Earth, it squeezes the [[magnetosphere|Magnetosphere]] on the sunward side and shakes the whole structure. That disturbance drives far more particles into the polar regions, and the auroras brighten and spread.
+## One element, two colours
 
-^ Sunlight crosses the gap to Earth in about eight minutes, but the slower clouds behind a storm can take a day or more.
+The green and the red are the same oxygen, glowing at different heights. An incoming electron kicks an oxygen atom into an excited state, and when the atom relaxes it releases a photon of a fixed wavelength, the same principle that makes the colours in [[Fireworks]] and the lines in any [[Emission spectrum|emission spectrum]]. Green, at 557.7 nanometres, comes mainly from roughly 100 to 300 kilometres up, where the air is dense enough for the excited atoms to radiate within about three-quarters of a second. Red, at 630 nanometres, comes from above about 300 kilometres.
 
-## Two colours at two heights
-
-The colours come from oxygen. An electron that strikes an oxygen atom in the [[ionosphere|Ionosphere]] can leave it excited, and the atom must eventually release that energy as light. The green comes from a transition that releases its energy quickly, so it glows almost where the electrons arrive, low in the curtain. The red comes from a slower transition that needs thin air, where an excited atom can wait a long time before it emits. Lower down, collisions with other molecules knock the energy away first, so the red rarely escapes and green dominates.
-
-::: compare Green oxygen | Red oxygen
-Height :: about 100 to 300 km | above about 300 km
-Wavelength :: 557.7 nm | 630.0 nm
-Mean wait before light :: under a second | about two minutes
+::: steps
+Arrival :: Electron strikes an oxygen atom, lifting it to an excited state.
+Low altitude :: Below ~300 km, collisions quickly quench the slow red state.
+Green :: Atom emits at 557.7 nm after about 0.7 seconds.
+High altitude :: Above ~300 km, air is thin enough to wait out the delay.
+Red :: Atom emits at 630 nm after roughly 100 seconds.
 :::
 
-Oxygen is not the whole palette. Nitrogen molecules, struck hard enough to lose an electron, emit blue and violet light, which is why the lower edges of many curtains look bluish or purple. The lowest fringe can also glow pinkish red from nitrogen itself. Because each emission has its own wavelength, a spectrograph can separate the blend back into its gases.
+The difference is a matter of patience. Both are "[[Forbidden transition|forbidden]]" transitions, meaning the excited atom is slow to let go: about 0.7 seconds for green but nearly two minutes for red. In the denser air below about 300 kilometres, a collision almost always steals the energy before the red photon can form, so red survives only where the atmosphere is thin enough to leave the atom alone. Blue and violet, from ionised nitrogen molecules, appear at the lower fringe, and a purple hem is common in strong storms.
 
-^ Faint auroras look grey to the naked eye, because at low light the cells that see colour barely respond.
+^ Red oxygen emission was misidentified for decades; the green line was unmatched with any known element until 1925, and was briefly credited to a hypothetical "geocoronium".
 
-## Storms, history and other worlds
+## Storms and history
 
-Most of the time the aurora sits in a ring, the [[auroral oval|Auroral oval]], circling each magnetic pole at high latitude. A [[geomagnetic storm|Geomagnetic storm]] widens that ring and pushes it toward the equator, so lights can appear far south of their usual range. A well-documented example is the [[Carrington Event]] of September 1859, when auroras were reported at low latitudes and telegraph lines surged with current, and some operators received shocks.
+Activity follows the Sun's roughly 11-year cycle, peaking a little after solar maximum, when coronal mass ejections hurl billions of tonnes of plasma at Earth and trigger a [[Geomagnetic storm]]. In the great storm of 1–2 September 1859, the [[Carrington Event]], aurorae were reported as far south as Cuba and Hawaii, and telegraph operators received shocks and sent messages on induced current alone with their batteries disconnected. In May 2024 the strongest storm in two decades pushed vivid colour to Florida, Texas and southern Europe.
 
-The electrical explanation came from the Norwegian physicist [[Kristian Birkeland]], who argued around 1900 that electrons streaming from the Sun were guided along Earth's field lines to make the glow. To test this, he built a [[terrella|Terrella]], a magnetised sphere whose name means little earth, and fired electrons at it in a vacuum chamber. The light gathered in rings around its poles, and the currents he proposed, now called Birkeland currents, remain part of the modern picture.
+The scientific story was long unclear. Galileo's contemporary Pierre Gassendi named the phenomenon aurora borealis in 1621, after the Roman dawn goddess and the north wind. It was the Norwegian [[Kristian Birkeland]] who, between 1896 and 1913, shot electrons at a magnetised sphere in a vacuum chamber and reproduced glowing rings at its poles, arguing correctly that particles from the Sun cause aurorae, though most of his peers rejected the idea for years. Today satellites have found more, including a thin mauve ribbon discovered by amateur photographers and named [[Steve (atmospheric phenomenon)|STEVE]], and other planets with fields, such as [[Jupiter's aurorae|Jupiter]], have their own, thousands of times more powerful.
 
-The aurora's strength follows the Sun's own clock. Sunspot counts rise and fall over roughly eleven years, and strong auroras cluster near each peak of the [[solar cycle|Solar cycle]]. Jupiter's auroras are partly fed by the volcanic gas of its moon [[Io|Io (moon)]], which the planet's magnetic field carries through its magnetosphere.
 ===
-- [[Antarctica]] :: the southern lights, the same process at the other pole :: place
-- [[Fireworks]] :: light from excited atoms, the same principle lit with metal salts and fire :: thing
-- [[Magnetotactic bacteria]] :: microbes that steer by Earth's magnetic field, using chains of tiny magnetic crystals :: creature
-- [[Neon sign]] :: electrons striking gas atoms, the aurora's trick, sealed inside a glass tube :: thing
-- [[Van Allen radiation belt]] :: belts of trapped particles in the same magnetic field that shapes the aurora :: thing
-- [[Light pollution]] :: the orange haze that hides faint auroras from city dwellers :: phenomenon
+- [[Solar wind]] :: The stream of particles that crosses 150 million km to light the sky.
+- [[Aurora australis]] :: The southern twin, seen from Antarctic ice shelves and Southern Ocean ships.
+- [[Carrington Event]] :: The 1859 storm that made telegraph wires spark and shock operators.
+- [[Fireworks]] :: Excited atoms emit fixed colours, the same trick behind every firework shell.
+- [[Steve (atmospheric phenomenon)|STEVE]] :: A purple ribbon found by amateur photographers, unexplained by classic aurora physics.
+- [[Jupiter's aurorae|Jovian aurora]] :: Jupiter's polar lights are driven partly by its volcanic moon Io.
 ???
-Why do auroras look red at the top and green below?
-Could a severe solar storm disrupt power grids on Earth today?
-How do scientists forecast when the northern lights will be strong?
+Why do the northern lights appear in rings around the poles?
+Can northern lights be heard or only seen?
+How can I predict when the aurora will appear?
 &&&
-[[Solar wind]] :: A constant breeze of Sun-born plasma, blowing past Earth without pause
-[[Magnets]] :: The invisible shield, powered by molten iron churning in Earth's core
-[[Magnetosphere]] :: Earth's magnetic bubble bends the solar wind into a long tail
-[[Coronal mass ejection]] :: A solar bubble that can take days to reach Earth
-[[Ionosphere]] :: The electrified layer of air where the aurora's light is made
-[[Auroral oval]] :: A glowing ring around each pole that swells during storms
-[[Geomagnetic storm]] :: A solar shove that can drag lights toward the equator
-[[Carrington Event]] :: The 1859 storm that let telegraphs run with their batteries off
-[[Kristian Birkeland]] :: The Norwegian who guessed the aurora was electrical, then tested it
-[[Terrella]] :: A magnetised ball that makes a tiny aurora in a vacuum
-[[Solar cycle]] :: The eleven-year tide of sunspots that sets the aurora's strength
-[[Io (moon)]] :: A volcanic moon whose gas helps paint Jupiter's lights
+[[Solar wind]] :: Gusts of plasma carrying the Sun's magnetism across the solar system.
+[[Magnets|Earth's magnetic field]] :: The invisible shield funnelling particles toward the poles.
+[[Aurora australis]] :: Same physics, opposite pole, almost no one around to see it.
+[[Antarctica]] :: Home to the best southern light shows and almost no audience.
+[[Fireworks]] :: Chemistry's colour wheel is the same atom physics as the sky.
+[[Emission spectrum]] :: Each element glows in its own barcode of wavelengths.
+[[Forbidden transition]] :: A slow atomic relaxation that explains why red sits above green.
+[[Geomagnetic storm]] :: When the Sun's outbursts shake Earth's field and light the sky.
+[[Carrington Event]] :: The 1859 superstorm that electrified telegraph lines worldwide.
+[[Kristian Birkeland]] :: Reproduced aurora in a lab with a magnetised sphere in 1900s Norway.
+[[Auroral oval]] :: The permanent ring of light that circles each magnetic pole.
+[[Steve (atmospheric phenomenon)|STEVE]] :: A mauve ribbon of sky glow discovered by citizen scientists.
+[[Jupiter's aurorae|Jovian aurora]] :: Aurorae on Jupiter shine in ultraviolet and X-rays.

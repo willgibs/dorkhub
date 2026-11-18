@@ -38,7 +38,7 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
   `world.js`: page identity, addresses, trails, the move-in from rabbit holes; `graph.js`: Your world's
   data and physics.
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
-- `lib/write.js` protocol · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
+- `lib/write.js` protocol · `lib/split.js` the split writer (a page in three calls: frame, body, ways on) · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
   per page in flight · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
 - `lib/front.js`: the front page, by hand: its topics (`FRONT`), the cards with their drawings, the
@@ -47,7 +47,7 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
 - `lib/placeholder.js`: a front-page topic whose page isn't written yet opens a placeholder, built
   from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page;
   `node scripts/seeds.mjs batch plan` (then `send --yes`, `take`) writes them all through the Batch API,
-  with production's own call, at half price (it spends: Will's go first).
+  by Sonnet 5.5 with production's own call for it, at half price (it spends: Will's go first).
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`

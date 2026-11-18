@@ -9,10 +9,16 @@ The product is built: the front page and its 13 cards, the reading page, Your wo
 Lamps identity. Since 2026-11-17 the free pages write on Will's Anthropic API credit (a $50-a-month Console
 workspace; `docs/decisions.md`). What remains, in order:
 
-1. **Prove live writing** (§1): `node scripts/prove.mjs https://dorkhub.com --spend --yes`, and the function log
-   shows `{"evt":"writer","via":"anthropic"}`, then `{"evt":"write",…,"end":"ok"}` rather than `trial_paused`, with
-   `cacheRead` on a page written within five minutes of another. Then the pages written ahead of time, rewritten by
-   the production writer through the Batch API (§2), and the model eval on the same credit (§3).
+1. **Haiku 5.5 writes every live page, made the most of in Dorkhub's own design** (Will, 2026-11-17; Sonnet 5.5
+   writes the pages written ahead of time). Done: the parser reads its slips (a bare title line, copied labels,
+   missing closing markers): production keeps 38 of 44 of its pages, and 3 of 44 show a format line in the body,
+   not 18. Next:
+   - The pages that stop after the body (6 of 44: no cards, questions or hooks; cards made from their links, never
+     kept). Either finish them (a short second call for the rest, about $0.0003 a page) or keep them as they are.
+   - **(Will)** Engaging pages: the eval's `lean` prompt (half the words, a sixth of the rules) on Haiku, the same
+     44 topics by batch (about $0.03), in blind pairs with today's prompt on the desk.
+   - Questions written straight after the body, with no topics before them (2 of 132 Haiku pages), still show as
+     a paragraph: a line ending in "?" there can't be told from the body's own question until it's too late.
 2. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
    whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
    once connected. Then §5's "Real Redis".
@@ -42,9 +48,10 @@ workspace; `docs/decisions.md`). What remains, in order:
 Will (2026-10-19): get any page right on the first try, quickly. Judge against `docs/vision.md`.
 - **Page by page.** Small batches of first tries, scored against what the prompt asks (`node scripts/score.mjs
   <dir>`); a prompt rule only for a failure on two or more pages of different kinds; a regression set unlike the
-  front page whenever the prompt changes. Pages written ahead of time are rewritten whenever the prompt or the
-  writer changes, so they never fall behind live pages (one bar): all 44, the 11 earlier pages (Tardigrades and the
-  rest) included (Will, 2026-11-17), in one batch through the Batch API with production's own call.
+  front page whenever the prompt changes. Pages written ahead of time are rewritten whenever the prompt or their
+  writer changes: all 44, the 11 earlier pages (Tardigrades and the rest) included, in one batch through the Batch
+  API, by Sonnet 5.5 with production's own call for it (Will, 2026-11-17: the front page's ways in get the more
+  engaging writer; Haiku writes every live page).
 - **Replace the stand-ins.** `lib/recorded.js` holds Haiku stand-ins written through a Claude Code subagent, not
   fact-checked; three still say "your path" (the old voice). Re-record them from live output
   (`scripts/recorded.mjs`). They replay only in dev, the walk and previews, never in production.

@@ -1,72 +1,76 @@
 # Stonehenge :: place
-> Some of its stones were brought from Wales and Scotland, and the midsummer sun still rises over the stone outside its entrance.
+> A ring of stones on Salisbury Plain, built over centuries by people who hauled rock across the length of Britain.
 !!!
-Whereabouts :: Salisbury Plain, Wiltshire, England
-Age :: about 5,000 years old
-Altar Stone :: northern Scotland, about 750 km away
+Key facts :: 
+Location :: Salisbury Plain, Wiltshire, England
+Main stone phase :: about 2500 BC
+Altar Stone source :: northeast Scotland, about 750 km away
 +++
-[[Sarsen]] :: thing
-[[Preseli Hills]] :: place
+[[Sarsen]] :: kind
+[[Bluestone]] :: thing
 [[Altar Stone]] :: thing
-[[Aubrey holes]] :: thing
-[[John Aubrey]] :: person
-[[Heel Stone]] :: thing
-[[Amesbury Archer]] :: person
-[[Beaker culture]] :: era
+[[Preseli Hills]] :: place
 [[Durrington Walls]] :: place
-[[Woodhenge]] :: place
-[[Avebury]] :: place
+[[Avenue (Stonehenge)]] :: place
+[[Beaker culture]] :: era
 [[Radiocarbon dating]] :: technique
+[[Mortise and tenon]] :: technique
+[[Winter solstice]] :: phenomenon
+[[Amesbury Archer]] :: person
+[[Mike Parker Pearson]] :: person
+[[Orcadian Basin]] :: place
+[[DNA]] :: concept
 ---
-On the chalk of Salisbury Plain, a ring of grey sarsen stone stands inside a ditch and bank, and some of its uprights still carry flat lintels across their tops. The biggest sarsens weigh around 25 tonnes, and the people who raised them left no writing to say why. Visitors walk a path around the ring today, but the monument still lines up with the sun at the year's turning points.
+Stonehenge is the best-known prehistoric monument in Europe, a ring of standing stones on the chalk grassland of Salisbury Plain in Wiltshire, England. What visitors see today is the last arrangement of a site that was reworked for roughly 1,500 years. It began around 3000 BC as a circular ditch and bank, with a ring of pits holding timber or small stones, and about 2500 BC it received its great stones: an outer circle of tall [[sarsen]] uprights carrying a continuous ring of horizontal lintels, with a horseshoe of even bigger sarsen trilithons inside. Among them stood smaller [[bluestone]]s, brought from far away. The largest sarsens weigh around 25 tonnes and the tallest upright rises about 7 metres.
 
-## Stones that travelled
+^ The lintels are held on by [[mortise and tenon]] joints and fitted to each other by tongue-and-groove, carpentry techniques borrowed from woodworking and applied to stone.
 
-Most of the great stones are [[sarsens|Sarsen]], local sandstone blocks from the Marlborough Downs to the north. The smaller bluestones came from the [[Preseli Hills]] in west Wales, and they are a mix of rock types, including dolerite and rhyolite. The [[Altar Stone]], the flat slab lying near the centre, was long assumed to have come from Wales too. In 2024 a study reported by University College London showed that it came from northern Scotland, roughly 750 kilometres away.
+## Two kinds of stone
 
-## Built over a thousand years
+The sarsens are a hard silicified sandstone, and geochemical work published in 2020 by a team led by David Nash traced most of them to West Woods, about 25 km north of the monument, near Marlborough. The bluestones are a different story. Many are dolerite and rhyolite that came from the [[Preseli Hills]] of southwest Wales, roughly 240 km away, where quarries at Carn Goedog and Craig Rhos-y-felin show signs of prehistoric extraction. How the stones, up to about 2 tonnes each, travelled that distance is still argued, though the old idea that glaciers delivered them is now widely rejected by specialists in favour of human transport.
 
-The earliest work came around 3000 BCE, when builders dug a circular ditch and bank and a ring of more than fifty pits into the chalk. Those pits are called [[Aubrey holes]] after [[John Aubrey]], the seventeenth-century antiquary who recorded them. The first sarsens were raised much later, around 2500 BCE, and the arrangement was reworked several times in the centuries that followed.
-^ The chalk pits were dug about five centuries before the first sarsen rose, so the monument began as an earthwork.
+The most surprising passenger is the [[Altar Stone]], a 6-tonne slab of sandstone lying at the centre of the monument. For a century it was assumed to be Welsh. In 2024 a team from Curtin University and University College London matched mineral grains in it to rocks of the [[Orcadian Basin]] in northeast Scotland, about 750 km away. That makes it the longest known movement of a megalith in Britain, and it implies that the monument's builders were connected to communities across the entire island.
 
-[[Radiocarbon dating]] of antler tools and cremated bone has done much to fix these dates, placing the main phases between roughly 3000 and 1500 BCE. Nearby [[Woodhenge]] was a ring of timber posts rather than stone, which shows that the same instinct for circles produced wooden as well as stone monuments. [[Avebury]], further north, is larger still and encloses a whole village within its bank.
-
-## What the stones were for
-
-The most striking alignment is the sun's. From the centre of the ring, the midsummer sun rises over the [[Heel Stone]] outside the entrance, a sight-line that looks deliberate. Each year crowds gather there before dawn on midsummer's day, waiting for the same sun to rise over that stone.
-::: theories
-Solar calendar :: Its solstice alignments may have been used to mark the seasons. :: partly
-Cemetery :: Cremated bones in its pits show the monument was used for the dead. :: accepted
-Magic from Ireland :: Geoffrey of Monmouth said Merlin's magic moved the stones from Ireland. :: rejected
+::: timeline
+3000 BC :: Circular ditch and bank dug; pits ring the interior
+2500 BC :: Sarsen circle, trilithons and bluestones set up
+2400 BC :: Beaker-using people begin arriving in Britain
+2300 BC :: Bluestones rearranged into circle and horseshoe
+1500 BC :: Last major activity at the site
 :::
 
-The [[Amesbury Archer]] was buried near the monument around 2300 BCE with gold ornaments, copper tools and a set of beaker pots. Isotope analysis of his teeth points to a childhood in continental Europe, a sign of the wider movement of people that accompanied the spread of the [[Beaker culture]] to Britain. [[Durrington Walls]], a few kilometres away, is a large henge that some archaeologists think housed the people who worked the stones, although that proposal is still debated.
-^ The Archer's knee was damaged, and he may have walked with a limp.
+## Who built it, and why
 
-## Keeping the stones
+The builders left no writing, but their settlements survive. At [[Durrington Walls]], 3 km northeast, excavations led by [[Mike Parker Pearson]] uncovered a huge village of houses from about 2500 BC, with pig bones showing midwinter and midsummer feasts. A ceremonial [[Avenue (Stonehenge)]] links the stones to the River Avon, and the alignment of the monument matches the sunrise at the summer solstice and sunset at the [[winter solstice]], which suggests a calendrical meaning, though not necessarily an astronomical observatory in the modern sense. Cremated remains of about 60 people buried in the early phase show it was also a cemetery, which dating by [[radiocarbon dating]] places mostly between 3000 and 2500 BC.
 
-For centuries the stones stood on private land, and visitors had long chipped fragments from them. Cecil Chubb bought the monument in 1915 and gave it to the nation in 1918. English Heritage now cares for it, and it has been a UNESCO World Heritage Site since 1986.
+Ancient [[DNA]] has changed the picture of the people themselves. A 2019 study in Nature Ecology & Evolution, led by Selina Brace and Ian Barnes, showed that Neolithic farmers in Britain descended mostly from Anatolian farmers who moved west through Iberia, not from the earlier hunter-gatherers. A few centuries after the sarsens went up, migrants linked to the [[Beaker culture]] arrived from the continent and replaced most of Britain's gene pool within a few generations. One of them, the [[Amesbury Archer]], was buried 5 km from the stones around 2300 BC with gold ornaments and was raised in the Alps region, a reminder that travellers reached the site from far beyond Britain.
+
+^ The Beaker newcomers who replaced most British ancestry arrived centuries after the stones were raised, so they inherited Stonehenge rather than built it.
+
 ===
-- [[DNA]] :: Ancient DNA from the people who raised the stones, read from their bones. :: thing
-- [[Newgrange]] :: A roof box lets the midwinter sun reach the back of a tomb. :: place
-- [[Sun Dagger]] :: A dagger of noon sunlight lands on a carved spiral at the solstices. :: thing
-- [[Geoffrey of Monmouth]] :: A twelfth-century chronicler's story of Merlin carrying stones from Ireland. :: person
-- [[Göbekli Tepe]] :: Carved stone pillars in Turkey, raised thousands of years before Stonehenge. :: place
-- [[Dolerite]] :: Some bluestones are dolerite, which also forms the crags Hadrian's Wall follows. :: thing
+Keep exploring:
+- [[Avebury]] :: The henge nearby so big a village sits inside its ring :: place
+- [[Göbekli Tepe]] :: Carved pillars raised thousands of years before Stonehenge by hunter-gatherers :: place
+- [[Seahenge]] :: A timber circle exposed by Norfolk tides, dated to a single spring :: thing
+- [[Archaeoastronomy]] :: Testing whether prehistoric alignments were deliberate or coincidence :: concept
+- [[Strontium isotope analysis]] :: Teeth reveal where a person grew up, tracing Stonehenge travellers :: technique
+- [[Skara Brae]] :: Orkney village with stone furniture, near where the Altar Stone began :: place
 ???
-How did builders move sarsen blocks weighing up to 25 tonnes?
-Why did the builders of Stonehenge bring bluestones from Wales?
-Who were the people who raised Stonehenge, and where did they come from?
+Where did the bluestones of Stonehenge come from?
+Who were the people who built Stonehenge?
+Why does Stonehenge align with the solstices?
 &&&
-[[Sarsen]] :: Stone so hard that it still stands after five thousand years.
-[[Preseli Hills]] :: Welsh hills where Neolithic people quarried the bluestones.
-[[Altar Stone]] :: A sandstone slab that probably travelled farther than any other stone.
-[[Aubrey holes]] :: Chalk pits dug about five centuries before the first sarsens.
-[[John Aubrey]] :: A seventeenth-century antiquary whose name now marks a ring of pits.
-[[Heel Stone]] :: A single outlying stone that marks where midsummer's sun comes up.
-[[Amesbury Archer]] :: A man buried with gold and copper, whose knee was damaged.
-[[Beaker culture]] :: Pottery that travelled with a new wave of people across Europe.
-[[Durrington Walls]] :: A large henge that may have housed Stonehenge's workers.
-[[Woodhenge]] :: A nearby circle of timber posts, with no stone at all.
-[[Avebury]] :: A whole village sits inside the henge that encloses its stones.
-[[Radiocarbon dating]] :: An antler pick can date the labour that dug the ditch.
+[[Sarsen]] :: Silicified sandstone boulders, some weighing 25 tonnes, shaping Stonehenge's giant frame.
+[[Bluestone]] :: Welsh dolerite and rhyolite carried hundreds of kilometres to Wiltshire.
+[[Altar Stone]] :: Six tonnes of Scottish sandstone, lying at the heart of the monument.
+[[Preseli Hills]] :: Welsh uplands with Neolithic quarries that supplied the famous bluestones.
+[[Durrington Walls]] :: A feasting village for thousands, three kilometres from the stones.
+[[Avenue (Stonehenge)]] :: A processional earthwork joining the monument to the River Avon.
+[[Beaker culture]] :: Continental newcomers who almost entirely replaced Britain's ancestry.
+[[Radiocarbon dating]] :: Dates burned bone and antler, pinning down centuries of construction.
+[[Mortise and tenon]] :: Woodworking joints, astonishingly used to lock multi-tonne stones together.
+[[Winter solstice]] :: The sunset alignment may mark midwinter feasts, more than midsummer.
+[[Amesbury Archer]] :: A gold-wearing immigrant buried near the stones, raised in the Alps.
+[[Mike Parker Pearson]] :: Archaeologist who found the builders' village and traced the bluestone quarries.
+[[Orcadian Basin]] :: Old Red Sandstone region of northeast Scotland where the Altar Stone began.
+[[DNA]] :: Reveals the migrations that replaced Britain's farmers near Stonehenge's time.

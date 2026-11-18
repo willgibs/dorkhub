@@ -1,90 +1,72 @@
 # Tulip mania :: event
-> In early 1637 a single striped tulip bulb, still buried in a Dutch garden, could cost more than a craftsman earned in ten years.
-~ You chose a story about money, and it leads to a virus spread by aphids, an envoy's letters from Suleiman's court and a painting of monkeys trading bulbs.
+> In 1636–37, Dutch traders bid wildly on tulip bulbs not yet out of the ground, then the market collapsed. Or did it?
+!!!
+Key facts :: 
+Date :: 1634–February 1637
+Place :: Dutch Republic, mainly Haarlem
+Peak trade :: Contracts on unplanted bulbs
 +++
-[[Tulip Era]] :: era
-[[Ogier Ghiselin de Busbecq]] :: person
-[[Carolus Clusius]] :: person
-[[Hortus Botanicus Leiden]] :: place
-[[Tulip breaking virus]] :: thing
-[[Green peach aphid]] :: creature
 [[Semper Augustus]] :: thing
-[[Tulip book]] :: work
-[[Windhandel]] :: technique
-[[Singerie]] :: concept
+[[Tulip breaking virus]] :: phenomenon
+[[Futures contract]] :: concept
+[[Haarlem]] :: place
+[[Charles de l'Écluse]] :: person
+[[Dutch Golden Age]] :: era
+[[Mackay's Extraordinary Popular Delusions]] :: work
+[[Anne Goldgar]] :: person
 [[South Sea Bubble]] :: event
-[[Extraordinary Popular Delusions and the Madness of Crowds]] :: work
-[[Greater fool theory]] :: concept
-
+[[Windhandel]] :: concept
+[[Dutch East India Company]] :: thing
+[[Tulip breaking virus]] :: phenomenon
+[[Bubonic plague]] :: phenomenon
+[[Bubble (economics)]] :: concept
 ---
+In the winter of 1636–37, in the taverns of Haarlem and other Dutch towns, men gathered around tables to buy and sell tulips that were buried in the cold ground. The trade was done on paper, in the form of promises to deliver a bulb after the plants had flowered and been lifted in summer. Prices for the most coveted varieties rose steeply week after week, and then, on a single day in early February 1637, buyers failed to appear at an auction in Haarlem. Within days the market for the rarest contracts had folded, leaving a story that has been retold for four centuries as the model of a speculative bubble.
 
-Tulip mania was a frenzy of buying and reselling tulip bulbs that peaked in the towns of the Dutch Republic in the winter of 1636–37 and broke in the first week of February 1637. It is often called the first recorded speculative bubble, yet much of the famous story was written afterwards by moralists, and historians still argue over how mad it really was.
+The tulip itself had arrived only recently. Bulbs reached the Low Countries from the Ottoman world in the later sixteenth century, and the botanist [[Charles de l'Écluse]], working at Leiden from 1593, planted them in the university garden and helped spread them among collectors. By the 1630s, riding the wealth of the [[Dutch Golden Age]], tulips were a status flower for merchants who had money to spend and gardens to display it in. What made some bulbs worth fortunes was a quirk of biology: the "broken" tulips, with flames and feathers of colour streaking the petals, were prized above plain ones.
 
-## From Ottoman gardens to Leiden
+^ The beauty was a disease. Broken colours come from a virus spread by aphids, which weakens the bulb and makes the prized varieties hard to propagate.
 
-Wild tulips grow across the mountains of Central Asia, and Ottoman gardeners prized them before western Europe did; in the 1720s Istanbul would have a tulip craze of its own, the [[Tulip Era]]. The Habsburg envoy [[Ogier Ghiselin de Busbecq]] described them in letters from his embassy to Suleiman the Magnificent, and is often credited, perhaps too generously, with sending the first bulbs west. The botanist [[Carolus Clusius]] planted tulips in the new [[botanical garden at Leiden|Hortus Botanicus Leiden]] in 1593, and thieves twice raided his garden for them.
+## How the market worked
 
-^ Tulip and turban began as the same word, Persian dulband; the Turks themselves called the flower lale.
+Early on, bulbs were bought the ordinary way, lifted from the ground in summer. As demand grew, trading moved into the rest of the year through [[Futures contract|forward contracts]] and, later, a rapid sale of the contracts themselves, often settled by notes rather than cash. Much of this took place in colleges, informal clubs meeting in inns, where small buyers could join for modest sums and trade by the day. Contemporaries called such business [[Windhandel]], "wind trade," because nothing tangible changed hands.
 
-## Flames, feathers and a virus
+The prices quoted for the grandest bulbs are what made the episode famous. The variety [[Semper Augustus]], with white petals flamed in crimson, was the most celebrated, and its price was said to have reached about 5,500 guilders for a single bulb in 1637, in a period when a skilled craftsman might earn around 300 guilders a year. Such figures survive in pamphlets and records, though the biggest prices were often for contracts that were never fulfilled.
 
-The bulbs that fetched fortunes were "broken" tulips, their petals feathered and flamed with a second colour on white or yellow. Nobody knew the pattern was a disease: the [[Tulip breaking virus]], spread by aphids such as the [[Green peach aphid]]. The infection also weakened the bulb, so the most coveted flowers multiplied the slowest, and no one could predict which plain tulip would break next. Only in the late 1920s did the mycologist Dorothy Cayley prove that breaking was an infection.
-
-^ A pamphlet dialogue about the mania advised grafting half a broken bulb onto half a plain one to make it break, a trick that could genuinely spread the virus.
-
-The most famous broken tulip was [[Semper Augustus]], white flamed with carmine. In the mid-1620s a chronicler reported that only about a dozen bulbs existed, all owned by one collector, who refused 3,000 guilders for a single bulb. Because a tulip blooms for only a week or so, dealers sold from painted catalogues, the [[tulip books|Tulip book]].
-
-## Trading in wind
-
-Bulbs spend autumn to early summer in the ground, so for most of the year a buyer could purchase only a promise. From mid-1636 dealers met in tavern clubs called colleges, with fixed bidding rituals and a small fee, wine money, on each deal. The Dutch called it [[windhandel|Windhandel]], trading in wind: no bulb was delivered, no deposit was asked, and one contract could be resold several times. From November the trade spread to common bulbs sold by the pound, whose prices rose as much as twentyfold in January 1637.
-
-Then the buyers stopped coming. Sellers were left holding promises that would not be kept, and no one could say whether a deal struck over wine in a tavern bound anyone at all. Settling the contracts dragged on for more than a year, and many were never honoured.
-
-::: timeline
-Early Feb 1637 :: A Haarlem auctioneer reportedly cuts prices but finds no buyers
-Same week :: Alkmaar sells an innkeeper's bulbs for his orphans: about 90,000 guilders
-Late Feb 1637 :: Florists' delegates in Amsterdam propose letting recent buyers quit for 10%
-Apr 1637 :: Holland's provincial authorities decline to rule, leaving disputes to towns
-May 1638 :: Haarlem lets buyers cancel by paying 3.5% of the price
+::: steps
+Summer 1636 :: Lifted bulbs sell openly; rare varieties already command large sums.
+Autumn 1636 :: Trade in unplanted bulbs spreads through inns and colleges.
+December 1636 :: Prices climb sharply, drawing in small buyers.
+Early February 1637 :: Buyers fail to appear at a Haarlem auction; rare-bulb prices fall.
 :::
 
-## How the legend grew
+## The crash, and what it really did
 
-Moralists struck at once. Pamphlets mocked the florists, and within a few years Jan Brueghel the Younger painted them as monkeys in fine clothes, weighing bulbs, facing a judge and being carried to the grave, in the Flemish tradition of [[singerie|Singerie]]. Two centuries later the Scottish journalist Charles Mackay set the tulips beside the [[South Sea Bubble]] in [[his 1841 book on popular delusions|Extraordinary Popular Delusions and the Madness of Crowds]], complete with a sailor who ate a costly bulb, taking it for an onion. His version became the one everyone knows.
+The pamphlets of 1637 describe ruin, but the evidence for widespread financial disaster is thin. The historian [[Anne Goldgar]], who searched Dutch archives for her 2007 book *Tulipmania*, found few people who were clearly bankrupted by the trade, and no sign that the Dutch economy was damaged. A plausible trigger for the sudden stop was an outbreak of [[Bubonic plague]] in the region, which may have thinned the crowds and frightened buyers. Authorities then debated what to do with contracts that debtors refused to honour; in 1638 the Haarlem courts and later the provincial government declined to enforce them as ordinary debts, and many were settled at a small fraction of the nominal price.
 
-Historians who returned to the archives tell a smaller story. The economist Peter Garber argued in 1989 that rare new bulbs routinely started dear and cheapened as they multiplied, leaving only the final month, when common bulbs soared and crashed, as a possible bubble. The historian Anne Goldgar, reading notaries' records, argued in 2007 that the deeper damage was to trust and honour. Whether January's buyers were chasing a [[greater fool|Greater fool theory]] or betting they could walk away from their contracts cheaply is still argued.
-
-::: myth
-Myth :: The crash bankrupted crowds of ordinary Dutch people and sank the economy.
-Actually :: Trading involved a small circle of well-off merchants and craftsmen; archives show fewer than half a dozen in trouble, and Dutch prosperity carried on.
-:::
-
->>>
-[[Tulip breaking virus]] :: The infection behind the priceless stripes, and why it kept the best bulbs scarce
-
+The legend owes much to moralising Dutch satirists and then, in 1841, to Charles Mackay's [[Mackay's Extraordinary Popular Delusions|Extraordinary Popular Delusions and the Madness of Crowds]], which popularised the picture of a whole nation gone mad. It became the standard comparison for the [[South Sea Bubble]] and later manias, and the standard shorthand for a [[Bubble (economics)|bubble]]. Modern economists argue over whether prices were irrational at all, since the market for rare, slowly propagated bulbs may have had a logic of scarcity. Whatever the verdict, the Dutch economy simply carried on, and its bigger enterprises, such as the [[Dutch East India Company]], stayed far larger than any flower trade.
 ===
-- [[Semper Augustus]] :: Who owned the most famous tulip of all? The chronicler never said :: deeper :: thing
-- [[Windhandel]] :: Contracts for bulbs still underground, some resold five times over :: deeper :: technique
-- [[Tulip Era]] :: Istanbul's own tulip craze ended in a revolt that toppled a sultan :: sideways :: era
-- [[Green peach aphid]] :: The aphid that spread the stripes carries her daughters and granddaughters at once :: wild :: creature
-- [[Crimean Gothic]] :: Busbecq, who described Ottoman tulips, also recorded this lost language's only word list :: wild :: thing
-
+- [[South Sea Bubble]] :: Britain's own mania, which ruined Isaac Newton's pocketbook in 1720.
+- [[Tulip breaking virus]] :: A plant disease created the most expensive colours in history.
+- [[Dutch East India Company]] :: The world's first major joint-stock company, trading shares in Amsterdam.
+- [[Windhandel]] :: Dutch "wind trade" and the strange birth of the futures market.
+- [[Charles de l'Écluse]] :: The Leiden botanist whose garden launched the Dutch bulb industry.
+- [[Anne Goldgar]] :: The historian who went to the archives and found few ruined tulip traders.
 ???
-Why would a virus make a tulip more valuable instead of worthless?
-Why did the Ottomans love tulips long before the Dutch did?
-Do any tulip varieties traded in 1637 still grow today?
-
+Was anyone actually ruined by tulip mania?
+What caused the colour streaks in prized tulips?
+How did the Dutch courts handle unpaid tulip contracts?
 &&&
-[[Tulip Era]] :: An Ottoman age when a rare tulip signalled rank and refinement
-[[Ogier Ghiselin de Busbecq]] :: Found Augustus's own account of his deeds on an Ankara temple
-[[Carolus Clusius]] :: The tulip's champion also pioneered the study of mushrooms
-[[Hortus Botanicus Leiden]] :: Its replanted Clusius garden follows a plant list from the 1590s
-[[Tulip breaking virus]] :: A disease whose victims became Europe's most expensive flowers
-[[Green peach aphid]] :: Can transmit more than a hundred different plant viruses
-[[Semper Augustus]] :: Known now only from watercolours, chronicles and old price lists
-[[Tulip book]] :: Painted catalogues that sold flowers no buyer could see for months
-[[Windhandel]] :: Selling bulbs nobody could deliver, in taverns, with no deposit asked
-[[Singerie]] :: Painters' monkeys in human clothes, from Flemish prints to Chantilly's walls
-[[South Sea Bubble]] :: London's 1720 share frenzy, which cost Isaac Newton at least £10,000
-[[Extraordinary Popular Delusions and the Madness of Crowds]] :: Seven pages on tulips that shaped nearly every later retelling
-[[Greater fool theory]] :: Why paying too much can be rational, if someone pays more
+[[Semper Augustus]] :: The legendary red-and-white tulip, worth a house in 1637.
+[[Tulip breaking virus]] :: Aphid-borne infection that painted the world's priciest petals.
+[[Futures contract]] :: Promises to deliver goods later, the engine of the bulb trade.
+[[Haarlem]] :: Heart of the Dutch bulb trade, where the market stopped.
+[[Charles de l'Écluse]] :: Botanist who planted the tulips that began the craze.
+[[Dutch Golden Age]] :: Era of merchant wealth that fed demand for status flowers.
+[[Mackay's Extraordinary Popular Delusions]] :: The 1841 book that cemented the legend of national madness.
+[[Anne Goldgar]] :: Historian whose archive work deflated the myth of mass ruin.
+[[South Sea Bubble]] :: British speculative crash, often paired with tulips.
+[[Windhandel]] :: "Wind trade": selling flowers that did not yet exist.
+[[Dutch East India Company]] :: Corporate giant dwarfing the flower trade in real economic weight.
+[[Bubonic plague]] :: Epidemic possibly clearing the taverns just as prices fell.
+[[Bubble (economics)]] :: Prices detached from value, with tulips as the textbook case.

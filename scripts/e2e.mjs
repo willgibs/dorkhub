@@ -943,7 +943,9 @@ async function sharing() {
   const head = async (/** @type {string} */ path, /** @type {string} */ ua) => { const html = await (await fetch(base + path, { headers: { 'user-agent': ua } })).text(); return Object.fromEntries([...html.matchAll(/<meta (?:property|name)="([^"]+)" content="([^"]*)">/g)].map(m => [m[1], m[2]])); };
   const size = (/** @type {Buffer} */ b) => { if (b.readUInt32BE(0) === 0x89504e47) return [b.readUInt32BE(16), b.readUInt32BE(20)]; for (let i = 2; i < b.length;) { const m = b[i + 1]; if (m >= 0xc0 && m <= 0xc3) return [b.readUInt16BE(i + 7), b.readUInt16BE(i + 5)]; i += 2 + b.readUInt16BE(i + 2); } return [0, 0]; };
   await step('sharing: a link to a page written ahead of time, or by its address to a typed topic, previews as itself', async () => {
-    for (const [path, title, line] of [['/whale-falls', 'Whale falls', /^A whale that sinks after death/], ['/black-holes', 'Black holes', /^A region where gravity wins/]]) {
+    /* each previews with its own deck, whoever wrote it */
+    const deckOf = (/** @type {string} */ slug) => { const d = /^> (.+)$/m.exec(readFileSync(new URL(`../lib/seeds/${slug}/index.txt`, import.meta.url), 'utf8'))?.[1] || '?'; return new RegExp(`^${d.slice(0, 40).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`); };
+    for (const [path, title, line] of [['/whale-falls', 'Whale falls', deckOf('whale-falls')], ['/black-holes', 'Black holes', deckOf('black-holes')]]) {
       for (const ua of [UA.bot, UA.reader]) {
         const t = await head(path, ua);
         if (t['og:title'] !== title || !line.test(t['og:description'] || '') || t['og:url'] !== base + path || t['twitter:card'] !== 'summary_large_image' || t.robots !== 'noindex') throw new Error(`${path}: ${JSON.stringify(t)}`);

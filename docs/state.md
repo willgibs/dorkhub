@@ -2,34 +2,37 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-17): live writing moves to Will's Anthropic API credit
-- **The free writer goes straight to Anthropic** on `DH_ANTHROPIC_KEY` (Production only, Sensitive), a key from the
-  Console workspace "Dorkhub", whose $50 monthly spend limit is the free pages' budget; auto-reload stays off, so
-  nothing is charged beyond the month's credit. Without the key, the gateway as before. Why not the gateway's
-  bring-your-own-key, and the costs: `docs/decisions.md` (2026-11-17).
-- **Prompt caching** on a page's fixed instructions (identical for every page, 96% of its input): about 18% off a
-  page that starts within five minutes of another. The write log's `cacheRead`/`cacheWrite` tell the hit rate.
-- **Will's calls:** Haiku 5.5 stays the free writer and the eval decides any switch; $50 a month; rewrite all 44
-  pages written ahead of time through the Batch API (the 11 earlier ones included).
-- **Will's part:** the workspace, its limit and two keys (`dorkhub-production` into Vercel as `DH_ANTHROPIC_KEY`,
-  `dorkhub-local` into `.env.local`). Keys are his to make and paste; agents never see one.
+## Now (2026-11-17, night): two PRs on the desk; the free writer rebuilt around Haiku
+- **Live on dorkhub.com:** the free pages write on Will's Anthropic credit (`DH_ANTHROPIC_KEY`, Production only;
+  Console workspace "Dorkhub", $50 monthly limit), and #54's parser fixes for the bare title and the "Key facts" label.
+- **PR #55 (`fix/unmarked-sections`)**, desk asks "closing-sections" and "covers":
+  - the parser reads Haiku's closing sections by their shape and drops copied labels;
+  - Sonnet 5.5 rewrote all 44 covers ($0.73), each opening on its topic.
+- **The split-writer PR (`feat/split-writer`, stacked on #55)**, desk ask "split-writer": Dorkhub's own writer writes a
+  page in three calls (frame, body, ways on; `lib/split.js`), with planned topics linked at their first mention.
+  - By batch on the 44 topics: bodies that link nothing fall from 17 to 0, the median rises from 2 links to 12
+    (Sonnet 13), and every page is whole (25 today).
+  - Merge #55 first, then this one. Each needs Will's Approve.
+- **Will's first-principles call (2026-11-17):** "work in from both ends", with everything up for relitigation. Haiku
+  does best with one job at a time and mirrors the prompt's words, so its prompts carry no phrases it could copy.
+- **Card audit:** a separate session ("Front-page cards that show their own topic") audits the cards that picture a
+  neighbouring idea. Changed lines mean those covers are written again (Will's go).
+- **Spent on the credit so far:** about $1.65 of the $50 month.
 
 ## Next
-1. Merge the writer change once `DH_ANTHROPIC_KEY` is in Vercel, then prove it:
-   `node scripts/prove.mjs https://dorkhub.com --spend --yes` (about $0.002), the `writer` and `write` log lines
-   in his Chrome, the spend under the Dorkhub workspace in the Console. Take the gateway-credit ask off the desk.
-2. `node scripts/seeds.mjs batch`: plan, send, take. Rewrites the 44 pages written ahead of time with production's
-   own call (about 3 cents); before and after pictures on the desk; merge on his Approve.
-3. Then (each on his go): the eval's first look on the credit, re-recording `lib/recorded.js` from live output,
-   the trial size once readers reach it; Upstash, old resources to retire, repo visibility, Pro pricing.
+1. Ship #55 then the split writer after Will's look. Prove it live (`node scripts/prove.mjs https://dorkhub.com
+   --spend --yes`, about $0.004) and read `split: true` in the logs, with the time to the first word.
+2. Relitigate the rest of the page around what Haiku writes well: hooks on hover rather than written for every link,
+   and readers' own keys on the split writer.
+3. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size; Upstash; old resources; repo
+   visibility; Pro pricing; identity federation.
 
 ## Open, small
+- The audit PR (#53, `package-lock.json` only) awaits Will's review.
 - CI's second try for the walk warns when used: drop it after a clean week (from 14 Nov).
-- A local walk means little while other projects load this Mac: check `uptime`; CI is the clean gate.
-- Room: the page is ~393 KB of its 400 KB budget (`tests/page.test.js`), `front.json` ~198 KB of 200 KB
-  (`tests/front.test.js`).
-- Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone, keyboard
-  focus into the sticky bar scrolls the page.
+- Never run `npm run verify` beside `npm run e2e`: verify rebuilds `public/` under the walk.
+- Room: the page is ~393 KB of its 400 KB budget (`tests/page.test.js`), `front.json` ~198 KB of 200 KB.
+- Placeholders still say a page "will be written by the same writer as every page"; none shows today.
+- `.e2e/desk/tools/page-end.mjs` captures a page's end from a saved answer, for free.
 
-The review desk: https://claude.ai/artifact/5H9tMoB19rZjCUkfkHKSLP (verdicts via ArtifactData, see `CLAUDE.md`).
 The orchestrator's working notes: `.claude/orchestrator-handoff.md` (untracked, on Will's Mac).

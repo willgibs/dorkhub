@@ -67,7 +67,14 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on
   their own, `&&&` a hook for every planned link, and, only on a page written ahead of time, `@@@` the sources it
   was checked against (`- Label :: https://…`; a live writer is never asked for them, and the page lists them only
-  for a seeded page: today only the placeholders carry any). Kinds come before the body so links appear
+  for a seeded page: today only the placeholders carry any). The parser reads the free writer's slips as it meant
+  them (Claude Haiku 5.5 without thinking, 2026-11-17): a first line naming a kind after ` :: ` is the title line
+  even without its `# `; once the body has a paragraph, a section after it whose marker is missing is known by its
+  lines' shape (a topic's `- [[Topic]] :: hook :: kind` opens the six topics, a line ending in `?` after them a
+  question, `[[Topic]] :: hook` the hooks; hooks straight after the body may yet be stray lines inside it, so prose
+  takes the body up again); and the format's own labels copied onto a line ("Key facts:", "Link plan:", "Body:",
+  "Keep exploring:"), like a lone `<br>`, are never prose. A line still being written that could turn out to be any
+  of these is held back until it is whole or can't be one, since until then it can't be told from a paragraph. Kinds come before the body so links appear
   in colour; hooks come last because only hover cards need them. The page's own kind counts
   once its title line is whole, so it never changes while streaming. `cardsOf()` gives the
   six cards, de-duplicated and never the page itself.
@@ -247,7 +254,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   plus what the front page says about the topic (hooks and drawings) and its threads, each
   with its source, to keep and to link. `node scripts/seeds.mjs batch plan|send|take` writes
   the pages written ahead of time through Anthropic's Message Batches API, at half a live page's
-  price: each request is production's own call (model, output limit, thinking and words, with the
+  price, by Claude Sonnet 5.5 (`SEED_MODEL`: Will, 2026-11-17, while Haiku 5.5 writes every live page): each
+  request is production's own call for that model (output limit, thinking and words, with the
   shared instructions cached for the hour a batch may take; `scripts/seeds/batch.js`), and only
   a page that stopped on its own and passes the seeds' tests is kept, stamped in
   `lib/seeds/index.json` with the model and prompt version that wrote it (`doors` shows a page
@@ -274,7 +282,20 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
      from the Console workspace "Dorkhub", whose monthly spend limit is the free pages' budget), or, where that key
      isn't set, to `gateway(DH_TRIAL_MODEL)` over OIDC. Each instance says which once: `{"evt":"writer","via":…}`.
      No SDK reads a `DH_` variable by itself and a reader's key is always passed explicitly, so the two never mix.
-   - A page's prompt goes in two parts (`pageParts` in `lib/prompts.js`, `cachedPrompt` in `lib/ai.js`): the fixed
+   - **Dorkhub's own writer writes a page in three calls** (`lib/split.js`, "the split writer" in `lib/prompts.js`;
+     `PAGE_WRITER`), because Haiku 5.5 writes well with one job at a time and loses the links when one pass asks for
+     everything (2026-11-17, `docs/decisions.md`):
+     1. A frame as structured output (`FRAME_SCHEMA`: title, kind, deck, key facts, the topics it links), each line of
+        the page's head going out as soon as its field is whole.
+     2. The body as prose written to that frame, with a planned topic linked at its first mention where the writer
+        left it plain (`mentionLinker`: text is held back only while a name might still be completing).
+     3. The ways on as structured output written from that body (`WAYS_SCHEMA`: six topics, three questions, a hook
+        for each link), each line out once whole.
+
+     The server streams them as one page's text in format v3.1, so the parser, the answer cache (kept under
+     `SPLIT_VERSION`) and the page don't change. Readers' keys and the mock write in one pass, as below. The log
+     line says `split: true`.
+   - A page's one-pass prompt goes in two parts (`pageParts` in `lib/prompts.js`, `cachedPrompt` in `lib/ai.js`): the fixed
      instructions, identical for every topic, voice and question (about 2,050 tokens, 96% of a page's input), marked
      for Anthropic's prompt cache, then the request. Joined, they are the page's prompt exactly. A page that starts
      within five minutes of another reads the instructions from the cache (on Haiku a tenth of their price, about

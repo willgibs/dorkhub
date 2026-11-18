@@ -1,71 +1,77 @@
 # Volcanoes :: phenomenon
-> Some eruptions are heard across an ocean, and their air pressure can circle the planet more than once.
+> Vents where the planet's interior breaks through, building mountains in an afternoon, darkening whole summers, and sometimes ending civilizations.
 !!!
-Where it happens :: plate edges and hotspots
-Lava temperature :: about 700 to 1,200 °C
-Krakatoa's toll :: about 36,000 people
+Key facts :: 
+Active on land :: about 1,300 volcanoes in the last 10,000 years
+Hottest lava :: about 1,200 °C for basalt
+Largest on record :: VEI 8, over 1,000 km³ erupted
 +++
-[[1883 eruption of Krakatoa]] :: event
-[[Caldera]] :: phenomenon
-[[Pumice]] :: thing
-[[Magma]] :: concept
-[[Diamonds]] :: thing
-[[Pyroclastic flow]] :: phenomenon
-[[Plinian eruption]] :: phenomenon
-[[Mount Vesuvius]] :: place
+[[Plate tectonics]] :: kind
+[[Krakatoa]] :: event
 [[Pompeii]] :: place
-[[Lightning]] :: phenomenon
-[[Lahar]] :: phenomenon
+[[Minoan eruption]] :: event
+[[Volcanic lightning]] :: phenomenon
+[[Kimberlite]] :: thing
+[[Pyroclastic flow]] :: phenomenon
+[[Year Without a Summer]] :: event
+[[Hotspot (geology)]] :: concept
+[[Toba catastrophe theory]] :: mystery
+[[Olympus Mons]] :: place
+[[Io (moon)]] :: place
+[[Volcanic Explosivity Index]] :: concept
+[[Mount Pinatubo]] :: event
 ---
-On the morning of 27 August 1883, the island of [[1883 eruption of Krakatoa|Krakatoa]] in the Sunda Strait, between Java and Sumatra, exploded with a sound that was heard 4,800 kilometres away. The blast threw ash and rock high into the sky, and much of the island then collapsed into the sea. It was one of the loudest sounds in recorded history, and its ash turned sunsets red around the world for months.
+A volcano is not really a mountain but a hole: a place where molten rock, gas and ash escape from the planet to the surface, with the mountain merely the debris pile built around it. Earth has roughly 1,300 volcanoes that have erupted within the last 10,000 years, and around 50 to 70 erupt in any given year. Most are hidden. About three quarters of the planet's volcanic output happens unseen along the mid-ocean ridges, where new seafloor is manufactured continuously, while the famous cones of the Pacific "Ring of Fire" mark the places where old seafloor dives back into the mantle.
 
-## Sound, sea and a flooded crater
+## Why the rock melts
 
-Barometers at observatories around the world recorded the pressure wave seven times as it circled the globe. Most of the roughly 36,000 deaths came from the tsunamis that the explosions and collapse sent into coastal towns on Java and Sumatra. Afterwards the sea flooded the hollow left by the collapse, forming a [[Caldera]] that remains. A new cone, Anak Krakatau, rose from the same waters in 1927, and it has erupted repeatedly since.
-^ Floating [[Pumice|pumice]] from the blast crossed the Indian Ocean and washed up on the African coast.
+The mantle beneath our feet is almost entirely solid, so a volcano needs a trick to melt it. [[Plate tectonics]] supplies three. At ridges, plates pull apart and the mantle rising to fill the gap loses pressure, which lets it melt without any added heat. At subduction zones, the sinking slab carries water down with it, and that water lowers the melting point of the rock above, producing the sticky, gas-rich magma that feeds explosive arcs like the Andes and Japan. And at a [[Hotspot (geology)|hotspot]], a plume of unusually hot rock rises from deep within, punching through the plate above; the Hawaiian chain is the trail left as the Pacific plate slid over one such plume.
 
-## What drives the blast
+The chemistry of the magma decides the character of the eruption. Runny basalt lets gas bubble out gently, so Hawaiian volcanoes pour lava in rivers and build vast, shallow shields. Silica-rich magma is thick as cold tar and traps its gas until the pressure shatters it, which is why the same planet produces both tourist-friendly lava flows and detonations that reshape continents' weather.
 
-[[Magma]] is rock that has melted deep underground, and it rises because it is less dense than the rock around it. Most magma, though, rises from shallow chambers, and it is the gas in those chambers that makes an eruption violent. Some kimberlite eruptions carry [[diamonds|Diamonds]] up from more than 150 kilometres down, and their pipes are where many diamond mines are dug.
-::: steps
-Rise :: Buoyant magma climbs through cracks toward shallower depths.
-Bubbles :: Dissolved gas leaves the melt as pressure falls, and each bubble swells.
-Jam :: Thick magma traps the gas, so pressure builds beneath a plug.
-Blast :: The plug gives way, and the mixture bursts upward as ash and gas.
+::: compare Basaltic | Silicic
+Viscosity :: Runny, like warm syrup | Thick, can plug the vent
+Typical style :: Fountains and flows | Explosive blasts, ash columns
+Example :: Kīlauea | Mount Pinatubo
 :::
 
-How violent an eruption becomes depends on how easily its gas escapes. Runny basaltic magma lets gas out quietly and builds fountains and lava flows, while sticky, silica-rich magma can sustain a towering column that spreads ash for kilometres, a style called a [[Plinian eruption]], named after the Roman writer Pliny the Younger. Volcanologists often judge a volcano's danger by which of these styles it is most likely to produce.
+## When the mountain explodes
 
-## Buried in AD 79
+The deadliest volcanic weapon is rarely lava, which moves slowly enough to walk away from. It is the [[Pyroclastic flow]], an avalanche of incandescent ash and gas that can hurtle downhill at hundreds of kilometres per hour. One of these buried [[Pompeii]] and Herculaneum in AD 79 after Vesuvius first rained pumice for hours, and later surges killed those who had stayed behind. Scientists rank eruptions on the [[Volcanic Explosivity Index]], a logarithmic scale where each step is roughly ten times more material, topping out at 8 for supereruptions.
 
-In AD 79 [[Mount Vesuvius]] erupted above the Bay of Naples and buried [[Pompeii]] under a thick layer of ash. Pliny the Younger watched from across the bay and later wrote about the eruption in letters to the historian Tacitus. The ash fell for hours before the worst arrived: [[pyroclastic flows|Pyroclastic flow]], dense clouds of hot gas and rock, raced down the slopes and reached the towns on the coast, killing many who had stayed behind.
-^ Pliny the Younger was about seventeen, and his letters remain the main eyewitness account of the eruption.
+The 1883 eruption of [[Krakatoa]] shows what the upper end of that scale does to the atmosphere. Its bangs were heard about 4,800 km away, on Rodrigues Island in the Indian Ocean, and barometers around the world recorded the pressure wave circling the globe several times, with the blast registering seven times in all. The associated tsunamis killed an estimated 36,000 people, and the sunsets stayed lurid for months afterward.
 
-## Lightning and mudflows
+^ Violent eruptions can also generate [[Volcanic lightning]], as colliding charged ash particles electrify the plume. Bolts flicker through the column at Krakatoa-scale events and in Iceland's ash clouds.
 
-Ash plumes make their own [[Lightning]]. Particles of ash colliding and rubbing inside the rising column build up electric charge, and the cloud can flash like a thunderstorm. Scientists call this volcanic lightning, and it is most common in the ash clouds of explosive eruptions rather than in lava flows.
+## Climate, myth and treasure
 
-The threat that outlasts the eruption is the [[Lahar|lahar]], a flood of volcanic mud and water that can run down river valleys long after the ash has stopped falling. Lahars have killed many people far from the summit, including in the 1985 eruption of Nevado del Ruiz in Colombia, where the mudflows destroyed the town of Armero. The town sat many kilometres downstream, in the valley the mudflows followed.
+Ash falls quickly, but sulfur dioxide lofted into the stratosphere turns to a haze of sulfuric acid droplets that reflects sunlight for a year or two. Tambora's 1815 eruption cooled the planet enough to cause the [[Year Without a Summer]] of 1816, with crop failures across Europe and North America. [[Mount Pinatubo]] in 1991 lowered global temperatures by roughly half a degree Celsius, a natural experiment that climate modellers still use. Some researchers argue that the [[Toba catastrophe theory]], a supereruption about 74,000 years ago, nearly wiped out early humans, though genetic and archaeological evidence for that remains disputed.
+
+The same violence has left legacies. The [[Minoan eruption]] of Thera around 1600 BC buried a Bronze Age town at Akrotiri and has long been proposed as a seed for the Atlantis story, though that link is speculation. Deep, fast-rising [[Kimberlite]] eruptions, which explode up from more than 150 km down, are how nearly all gem diamonds reach the surface. Elsewhere in the solar system, [[Olympus Mons]] on Mars is a shield volcano about 22 km high, and Jupiter's moon [[Io (moon)|Io]] is the most volcanically active body known, its eruptions powered by tidal flexing rather than plate motion.
+
 ===
-- [[Atlantis]] :: Plato's lost island may be a memory of Thera's eruption, say some scholars. :: mystery
-- [[Surtsey]] :: An island born in 1963 that scientists watched fill with life. :: place
-- [[Herculaneum]] :: A buried town where wooden furniture survived, charred by the heat. :: place
-- [[Mount Pelée]] :: A prisoner survived the 1902 blast inside a thick-walled jail cell. :: place
-- [[1815 eruption of Mount Tambora]] :: A 1815 blast turned 1816 into a year without summer across Europe. :: event
-- [[Tristan da Cunha]] :: An island village was evacuated in 1961 when its own volcano erupted. :: place
+- [[Atlantis]] :: Did Thera's blast inspire Plato's drowned island? The case for and against.
+- [[Lightning]] :: Volcanic plumes make their own thunderstorms, electrified by colliding ash grains.
+- [[Diamonds]] :: Kimberlite pipes are the supersonic elevators that deliver gems from the deep mantle.
+- [[Tambora]] :: The 1815 blast that gave Europe a summer of snow and inspired Frankenstein.
+- [[Yellowstone Caldera]] :: A hotspot supervolcano whose past eruptions dwarf anything in recorded history.
+- [[Mid-ocean ridge]] :: The planet's longest mountain chain, and the volcanic seam nobody ever sees.
 ???
-How far can a volcano's sound travel through the atmosphere?
-Why did the 1883 Krakatoa tsunamis kill so many people?
-Can a single volcanic eruption cool Earth's climate for a year?
+How do scientists predict when a volcano will erupt?
+Could a supervolcano eruption happen again in our lifetimes?
+Why do some volcanic islands vanish beneath the sea?
 &&&
-[[1883 eruption of Krakatoa]] :: A pressure wave that instruments recorded as it circled the planet.
-[[Caldera]] :: A collapsed summit, flooded by the sea at Krakatoa.
-[[Pumice]] :: Stone light enough to float across an ocean, and it did.
-[[Magma]] :: Liquid rock that carries its own fizz, sometimes until it blasts.
-[[Diamonds]] :: Stones carried up from more than 150 kilometres down, by eruptions.
-[[Pyroclastic flow]] :: Hot gas and rock that moves faster than anyone can run.
-[[Plinian eruption]] :: A column of ash that can rise into the stratosphere.
-[[Mount Vesuvius]] :: Its AD 79 blast preserved towns in their final moments.
-[[Pompeii]] :: A Roman town where plaster casts record people caught by ash.
-[[Lightning]] :: Electric flashes born from ash particles rubbing in a cloud.
-[[Lahar]] :: A mudflow that can outlive the eruption that began it.
+[[Plate tectonics]] :: The slow engine that decides where almost every volcano sits.
+[[Krakatoa]] :: A blast heard across an ocean, circled by pressure waves.
+[[Pompeii]] :: A Roman town frozen mid-breakfast under volcanic ash.
+[[Minoan eruption]] :: A Bronze Age catastrophe that may have broken a civilization.
+[[Volcanic lightning]] :: Thunderstorms born inside ash clouds from grains rubbing together.
+[[Kimberlite]] :: The deep volcanic pipes that carry diamonds to the surface.
+[[Pyroclastic flow]] :: A glowing ash avalanche faster than a speeding train.
+[[Year Without a Summer]] :: When a volcano in Indonesia cancelled summer across the Northern Hemisphere.
+[[Hotspot (geology)]] :: A fixed plume that drew the Hawaiian chain like a conveyor belt.
+[[Toba catastrophe theory]] :: Did one eruption shrink early humanity to a few thousand people?
+[[Olympus Mons]] :: A Martian volcano taller than Everest and as wide as France.
+[[Io (moon)]] :: A moon with hundreds of volcanoes, heated by Jupiter's squeeze.
+[[Volcanic Explosivity Index]] :: A logarithmic scale that makes a magnitude-8 eruption unimaginable.
+[[Mount Pinatubo]] :: An eruption that measurably cooled the whole planet for two years.

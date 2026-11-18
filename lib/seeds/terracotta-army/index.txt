@@ -1,77 +1,74 @@
 # Terracotta Army :: work
-> Life-size soldiers stand in battle formation near China's first emperor, and each was once painted in bright colours.
+> Thousands of life-sized clay soldiers, each with its own face, stand guard beside an emperor's tomb they were never meant to leave.
 !!!
-Made :: Before 210 BCE
-Figures :: About 8,000 soldiers
-Material :: Fired clay, with bronze weapons
+Key facts :: 
+Made :: c. 246–210 BCE, Qin dynasty
+Found :: March 1974, Lintong, Shaanxi
+Soldiers :: roughly 8,000 estimated
 +++
 [[Qin Shi Huang]] :: person
-[[Mausoleum of the First Qin Emperor]] :: place
-[[Sima Qian]] :: person
-[[Records of the Grand Historian]] :: work
-[[Mercury (element)]] :: thing
-[[Cinnabar]] :: thing
+[[Mausoleum of Qin Shi Huang]] :: place
+[[Xi'an]] :: place
+[[Qin dynasty]] :: era
 [[Crossbow]] :: thing
-[[Dagger-axe]] :: thing
+[[Mercury (element)]] :: thing
+[[Sima Qian]] :: person
+[[Han Chinese bronze casting|Chinese bronze metallurgy]] :: technique
+[[Pompeii]] :: place
+[[Mona Lisa]] :: work
 [[Lacquer]] :: thing
-[[Interchangeable parts]] :: technique
-[[Lamellar armour]] :: thing
+[[Chariot]] :: thing
+[[Chromium plating]] :: technique
+[[Ma Jun]] :: person
 ---
-Stand at the edge of the first pit and the army faces you: rows of soldiers in columns, each about 1.8 metres tall, with hair in topknots and faces that differ in age and features. They were buried near the tomb of [[Qin Shi Huang]], a ruler who wanted his afterlife guarded by a copy of his own army. An estimated 8,000 soldiers stand in the pits, together with horses and chariots. In 1974, farmers digging a well near Xi'an struck the first pit, and excavation has continued ever since.
+Around 8,000 life-sized soldiers stand in battle formation in pits near the city of [[Xi'an]], facing east toward the lands their emperor conquered. They were made for [[Qin Shi Huang]], who united China in 221 BCE and, as soon as he took the throne of Qin as a boy of thirteen, began preparing his tomb. Work on the vast burial complex is said to have involved some 700,000 conscripts, a figure from the historian [[Sima Qian]] writing a century and a half later. The clay army is only a fringe of that complex: the emperor's burial mound itself, a few kilometres west, has never been opened.
 
-## How the army was made
+On a March day in 1974, farmers digging a well in drought-struck Lintong district, Shaanxi, struck fragments of fired clay and bronze arrowheads. They had no idea they had found the largest known group of sculpture from the ancient world. Archaeologists followed, and over the next years excavation revealed three main pits (a fourth turned out to be empty, apparently abandoned unfinished). Pit 1 alone, roughly 230 metres long, holds the main infantry body in eleven corridors, and the soldiers are still being counted; only a fraction has been dug. Like [[Pompeii]], the site was found by accident and preserves a world frozen in the moment its makers abandoned it, though here the intent was ritual rather than catastrophe.
 
-The figures were not sculpted one at a time from scratch. Workshops pressed heads, torsos, arms and legs in moulds, joined them with wet clay, and then added ears, hair, collars and other details by hand. The repeated parts have a family resemblance to what later factories called [[interchangeable parts|Interchangeable parts]], yet the faces were worked individually, which is why the rows read as people rather than a single copy. Each figure was fired in a kiln and then painted over a base of [[lacquer|Lacquer]], a resin tapped from lacquer trees that held the pigment to the clay.
+## Every face different
+The soldiers were not cast from one mould. Workshops built bodies from coiled and stacked clay, with legs often solid and torsos hollow, then added hands, ears and heads from moulds before sculpting details by hand. The result is a startling variety of faces, hairstyles, beards and expressions, along with rank-specific armour: officers, archers, charioteers, cavalrymen, generals taller than common infantry. Many pieces carry stamped or incised names of workshop foremen and craftsmen, which suggests a system of accountability: faulty work could be traced to its maker.
 
-^ The figures mirror a real army, the force that conquered six rival states before the emperor's death.
+^ Archaeologists have found more than eighty inscribed craftsman names on the figures, a quality-control system that tied each soldier back to a person or workshop.
 
-The paint was far more fragile than the clay beneath it. Reds, greens and blues covered the armour and clothing, and the figures were brilliant before they were buried. Once the figures were exposed to air, the paint began to lift, and conservators have worked for decades to stabilise what remains. Most of the bare clay that visitors see today is what is left after the colour went.
+The weapons were real. The bronze swords, spears and [[Crossbow|crossbows]] found in the pits were functional, and the arrowheads were machined to remarkably consistent tolerances. Some blades were found still sharp after more than two thousand years. Reports in the 1990s that they had been chrome-plated captured attention; later analysis pointed toward a protective surface layer produced by the alloy and the burial environment rather than deliberate [[Chromium plating|chromium plating]], though the exact cause is still discussed.
 
-## A fire, a collapse and a written record
-
-The pits were roofed with timber, and the roofs burned. When they fell in, the beams and earth crushed many figures into fragments, which is why archaeologists have spent decades reassembling them from many pieces. Historians usually connect the fire to rebels who overthrew the dynasty, although the exact sequence of events is still debated.
-
-::: timeline
-246 BCE :: Work on his tomb starts as he becomes king of Qin.
-221 BCE :: He unifies China and proclaims himself emperor.
-210 BCE :: He dies on tour and is buried in the mausoleum.
-c. 206 BCE :: Qin falls, and fire brings the pits' timber roofs down.
-1979 :: A museum opens over the first pit to visitors.
-1987 :: UNESCO lists the mausoleum as a World Heritage Site.
+::: figures
+8,000 :: soldiers estimated across the pits
+2,200 :: years since they were made
+700,000 :: workers, according to Sima Qian
+~230 m :: length of Pit 1
 :::
 
-The main written account of the tomb comes from [[Sima Qian]], who wrote in the [[Records of the Grand Historian]] more than a century after the burial. He says that more than 700,000 labourers and convicts worked on the [[mausoleum|Mausoleum of the First Qin Emperor]], and that the tomb held rivers and seas of [[mercury|Mercury (element)]], with a model of the heavens above and the land below. He also says that crossbows were rigged to shoot any intruder who came near. Mercury is usually mined from [[cinnabar|Cinnabar]], a red ore, and soil samples from the mound have tested high in mercury, which some read as support for his description.
+## Once in colour
+Today the army is the colour of earth, but it was not made that way. Each figure was coated in a layer of [[Lacquer|lacquer]] from the sap of the lacquer tree, then painted in bright mineral pigments: reds, greens, blues, purples and a rare synthetic pigment known as Han purple (or Chinese purple), made from barium copper silicate. When the pits were first opened, the paint began to curl and flake within minutes as the lacquer dried in open air, leaving the bare clay seen in most photographs. Conservators have since developed ways to stabilise paint on freshly excavated pieces, and traces of colour survive on some figures. The effect recalls the way the [[Mona Lisa]] has changed with age: what we see is the work's long afterlife, not the surface its maker intended.
 
-^ The tomb chamber has never been opened, so the claims about rivers of mercury cannot yet be checked.
+## The wider tomb
+Sima Qian wrote that the emperor's burial chamber contained rivers of [[Mercury (element)|mercury]] with models of the heavens above and the land below. Soil tests at the burial mound in the 1980s found abnormally high mercury concentrations, lending some support to the account, though the chamber itself remains unexcavated and officials cite the need to protect it. Beyond the army, pits have yielded bronze birds, acrobats, musicians, stone armour made of thousands of limestone plates, and two half-scale bronze [[Chariot|chariots]] with working parts. The army itself was probably damaged soon after the dynasty fell, when rebel forces looted weapons and set fire to the timber roofs, collapsing them onto the figures below.
 
-## Real weapons and standard marks
-
-The weapons are real, not replicas. Bronze spears, [[dagger-axes|Dagger-axe]], swords and arrowheads, along with [[crossbow|Crossbow]] triggers, have been recovered from the pits. Some blades still hold a sharp edge, and many of the weapons carry marks naming the workshop and the officials who checked them. Historians read these marks as a quality-control system that let the state trace a faulty part back to the people who made it.
-
-Armour marks rank. Lower-ranking figures wear unarmoured tunics, while others wear [[lamellar armour|Lamellar armour]], small plates laced into a coat that bends with the wearer. Officers and generals wear more elaborate dress than the ranks beneath them.
-
+Why build it at all? The usual reading is that the army served the emperor in the afterlife, as a mirror of the force that had won him an empire. Earlier Chinese burials had used living sacrifices; replacing them with clay is sometimes argued to mark a shift, though that interpretation is debated.
 ===
-- [[Pompeii]] :: Found in 1599 by workers digging a tunnel to divert a river :: place
-- [[Mona Lisa]] :: Once far more colourful, before varnish and age dimmed it :: work
-- [[Mercury poisoning]] :: The emperor chasing immortality may have died swallowing mercury pills :: phenomenon
-- [[Oracle bones]] :: China's earliest known writing was carved on cracked bones and shells :: thing
-- [[Dujiangyan]] :: A third-century BCE river system still waters farmland in Sichuan today :: work
-- [[Egyptian blue]] :: A blue made in ancient Egypt survives on painted walls for millennia :: thing
-
+- [[Pompeii]] :: another site found by accident, frozen in time, in a very different disaster
+- [[Mona Lisa]] :: once far more colourful, like the painted soldiers of Lintong
+- [[Han purple]] :: a synthetic pigment made two millennia ago, found on the soldiers' paint
+- [[Great Wall of China]] :: built under the same emperor, using the same mass conscription
+- [[Lacquer]] :: sap that sealed the soldiers' paint and flaked off in minutes
+- [[Mercury (element)]] :: poured into rivers inside a tomb nobody has dared open
 ???
-Why does the Terracotta Army's original paint flake away after excavation?
-Has the chamber of Qin Shi Huang's tomb ever been opened?
-Can the mercury levels in Qin Shi Huang's tomb be measured without digging?
-
+Why hasn't the emperor's burial chamber been opened?
+How were the soldiers' colours lost after excavation?
+Who actually made the Terracotta Army?
 &&&
-[[Qin Shi Huang]] :: Unified China, then spent his last years chasing immortality.
-[[Mausoleum of the First Qin Emperor]] :: A sealed tomb, guarded by clay soldiers, whose chamber stays unopened.
-[[Sima Qian]] :: A historian whose account of mercury rivers still awaits proof.
-[[Records of the Grand Historian]] :: A history that describes a tomb no archaeologist has entered.
-[[Mercury (element)]] :: Liquid metal that, in legend, flowed through an emperor's tomb.
-[[Cinnabar]] :: A red ore that yields liquid silver when heated.
-[[Crossbow]] :: A bow that fired itself at intruders, if historians are right.
-[[Dagger-axe]] :: Stabbing and hooking, from one blade on a long pole.
-[[Lacquer]] :: Sap that held paint on clay soldiers until air undid it.
-[[Interchangeable parts]] :: Identical parts, assembled into individuals, long before factories.
-[[Lamellar armour]] :: Small plates laced into a coat that bends with the wearer.
+[[Qin Shi Huang]] :: unified China, standardised writing, and died chasing immortality elixirs.
+[[Mausoleum of Qin Shi Huang]] :: a sealed mound whose chamber remains unopened.
+[[Xi'an]] :: ancient capital and eastern end of the Silk Road.
+[[Qin dynasty]] :: lasted barely fifteen years yet shaped Chinese statehood.
+[[Crossbow]] :: bronze triggers here were standardised and interchangeable.
+[[Mercury (element)]] :: reportedly flowed in model rivers around the emperor's coffin.
+[[Sima Qian]] :: his account of the tomb was written a century later.
+[[Han Chinese bronze casting|Chinese bronze metallurgy]] :: precision-cast weapons stayed sharp underground for millennia.
+[[Pompeii]] :: another stunning ancient site found by accident.
+[[Mona Lisa]] :: aged surfaces hide original colours, as with the soldiers.
+[[Lacquer]] :: tree sap that made the paint stick, then peel.
+[[Chariot]] :: bronze half-scale chariots found near the army.
+[[Chromium plating]] :: claimed on the swords; the truth is more subtle.
+[[Ma Jun]] :: an inventor whose era's craft recalls Qin-era engineering.
