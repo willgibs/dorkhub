@@ -60,6 +60,30 @@ test('a title line without its "# " is still the title line', () => {
   for (const r of BARE) assert.deepEqual(parseArticle(r.text, false), parseArticle(`# ${r.text}`, false), r.title);
 });
 
+/* The same writer often left out the markers of the sections after the body, "===", "???" and "&&&" (16 of 44 pages),
+   and sometimes copied the plan's label from the format ("Link plan:"). Each section's line shape names it, so every
+   recorded page reads exactly alike written either way. */
+const UNMARKED = RECORDED.filter(r => /\n===\n/.test(r.text)).map(r => ({ title: `${r.title}, without its closing markers`, text: r.text.replace(/^(===|\?\?\?|&&&)\n/gm, ''), was: r.text }));
+const LABELLED = RECORDED.filter(r => /\n\+\+\+\n/.test(r.text)).map(r => ({ title: `${r.title}, with its plan's label copied`, text: r.text.replace(/\n\+\+\+\n/, '\n+++\nLink plan:\n'), was: r.text }));
+test("the sections after the body are known by their lines' shape when their markers are missing", () => {
+  assert.ok(UNMARKED.length >= 4 && LABELLED.length >= 4);
+  for (const r of [...UNMARKED, ...LABELLED]) assert.deepEqual(parseArticle(r.text, false), parseArticle(r.was, false), r.title);
+  const page = (/** @type {string} */ after, streaming = false) => parseArticle(`# Atlantis :: mystery\n+++\n[[Plato]] :: person\n---\nPlato tells the story in the [[Plato|Timaeus]].\n\n${after}`, streaming);
+  /* Haiku's own order on one page: hooks, the topics to keep exploring, the questions, a stray tag, more hooks */
+  const A = page('[[Thera]] :: the island now called Santorini\n\n- [[Minoan eruption]] :: one volcano, one day :: event\n- [[Orichalcum]] :: a lost metal :: mystery\n\nWhere did Plato find the story?\nWhy did the search move to the Aegean?\n\n<br>\n\n[[Plato]] :: the philosopher who wrote it down\n');
+  assert.deepEqual([A.blocks.length, A.bodyDone, cardsOf(A).map(c => c.target), A.questions.length], [1, true, ['Minoan eruption', 'Orichalcum'], 2]);
+  assert.deepEqual([A.gloss.thera.gloss, A.gloss.plato.gloss, A.gloss.plato.kind], ['the island now called Santorini', 'the philosopher who wrote it down', 'person']);
+  /* a hook's line inside the body, prose after it: the body carries on, and the line never shows */
+  const B = page('[[Fulgurite]] :: thing\n(Lightning can fuse sand into glass.)\n\nThe last paragraph.\n');
+  assert.deepEqual([B.blocks.map(b => b.s), B.bodyDone], [['Plato tells the story in the [[Timaeus|Plato]].', '(Lightning can fuse sand into glass.)', 'The last paragraph.'], false]);
+  assert.equal(page('[[Thera]] :: the island now called Santorini\n').bodyDone, true, 'a page that ends on hooks has finished its body');
+  assert.equal(page('[[Thera]] :: the island now called Santorini\n', true).bodyDone, false, 'until it ends, they might be stray lines inside it');
+  /* a line that could turn out to be a topic's waits for its newline; a list item in the body never was one */
+  assert.equal(page('- [[Minoan eruption]] :: one volcano, one day :: eve', true).blocks.length, 1);
+  assert.deepEqual(page('- [[Thera]] erupted around 1600 BC.\n').blocks.map(b => b.t), ['p', 'li']);
+  assert.equal(page('Was it ever real?\n').questions.length, 0, 'a question in the body stays in the body');
+});
+
 /* A page arrives in two shapes: v3 (kind on the title line, six cards) and, from older browsers'
    history and the fixtures below, v2 (a bridge, one next page, three branches with directions). */
 test('older pages still give six cards at most, their next page first', () => {
@@ -168,7 +192,7 @@ const cutsOf = (/** @type {string} */ t) => { const c = new Set([t.length]); for
 
 const linkKeys = (/** @type {any} */ A) => [...A.blocks.map((/** @type {any} */ b) => b.s), ...A.notes.map((/** @type {any} */ n) => n.s), ...A.panels.flatMap((/** @type {any} */ p) => [...p.heads, ...p.rows.flat()])].flatMap(s => [...String(s).matchAll(/\[\[([^\]]+)\]\]/g)].map(m => keyOf(splitLink(m[1])[1])));
 const MOCKS = Array.from({ length: 8 }, (_, i) => ({ title: `mock page ${i}`, text: mockPage({ title: `Mock ${i}`, lens: 'encyclopedic' }) }));
-const STREAMED = [...RECORDED, ...BARE, ...FIXTURES, ...MOCKS, { title: QUESTION, text: outlierPage() }];
+const STREAMED = [...RECORDED, ...BARE, ...UNMARKED, ...LABELLED, ...FIXTURES, ...MOCKS, { title: QUESTION, text: outlierPage() }];
 
 test('streaming never shows something that later changes or disappears', () => {
   for (const r of STREAMED) {

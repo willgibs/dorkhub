@@ -144,6 +144,16 @@ function cellsOf(R, type) {
 /** @param {string} t */
 const panelType = t => { const w = t.trim().toLowerCase(); return /** @type {Record<string, string>} */ (PANEL_ALIAS)[w] || w.replace(/\s+/g, '-'); };
 
+/* The line shapes of the sections after the body (FORMAT in lib/prompts.js): a topic to keep exploring,
+   "- [[Topic]] :: hook :: kind", and a link's hook, "[[Topic]] :: hook"; then a line still being written that could
+   turn out to be one of them, and a lone HTML tag ("<br>"), which is never prose. */
+const CARD_LINE = /^[-*•]\s*\[\[[^\]\n]+\]\]\s+::\s.*\s::\s*([a-z]+)$/i;
+const HOOK_LINE = /^\[\[[^\]\n]+\]\]\s+::\s/;
+const SHAPING = /^[-*•]?\s*\[\[[^\]\n]*(?:\]\]\s*:{0,2})?$|^[-*•]?\s*\[\[[^\]\n]+\]\]\s*::/;
+const TAG_LINE = /^<\/?[a-z][a-z0-9]*\s*\/?>$/i;
+/** @param {string} L */
+const isCardLine = L => { const m = CARD_LINE.exec(L); return !!m && !!kindOfWord(m[1]); };
+
 /* Tolerant of partial, streaming text: a half-written link, bold or italic run is held back until
    it closes, and so is a half-written line of the link plan, a panel or the hooks, so nothing
    flashes up in the wrong place and vanishes again. Panels never sit above the first paragraph:
@@ -157,7 +167,7 @@ export function parseArticle(raw, streaming) {
   }
   /** @type {Article} */
   const A = { title: '', kind: '', deck: '', bridge: '', blocks: [], panels: [], tunnels: [], next: null, gloss: {}, notes: [], questions: [], sources: [], keyFacts: [], bodyDone: false, wait: false };
-  let mode = 'body', pcount = 0, deckSeen = false, body = false, kept = 0, lastAfter = 0, paraOpen = false;
+  let mode = 'body', pcount = 0, deckSeen = false, body = false, kept = 0, lastAfter = 0, paraOpen = false, unmarked = false, stray = false;
   /** @type {Set<string> | null} */ let plan = null;
   /** @type {Panel | null} */ let P = null;
   /** @type {Panel[]} */ const held = [];
@@ -180,14 +190,34 @@ export function parseArticle(raw, streaming) {
       if (!OPENER.test(L) && isRow(R)) { if (P.rows.length < 8) P.rows.push(cellsOf(R, P.type)); continue; }
       P.done = true; P = null;
     }
-    if (!L) { flush(); continue; }
+    if (!L || TAG_LINE.test(L)) { flush(); continue; }
     const mk = /^(={3,}|\+{3,}|\^{3,}|\?{3,}|>{3,}|%{3,}|&{3,}|@{3,}|!{3,}|-{3,})\s*$/.exec(L);
     if (mk) {
       flush(); const k = mk[1].slice(0, 3);
       mode = k === '---' ? 'body' : k === '+++' && body ? 'hooks' : MARKS[k];
       if (mode === 'body' || !PRE_BODY.has(mode)) begin();
       if (!PRE_BODY.has(mode) && mode !== 'body') A.bodyDone = true;
-      continue;
+      unmarked = stray = false; continue;
+    }
+    /* Writers sometimes leave out the markers of the sections after the body (Claude Haiku 5.5 without thinking, on
+       16 of 44 pages, 2026-11-17: its topics to keep exploring showed as a list in the body, "::" and all, and its
+       questions and hooks as paragraphs) but still write each section in its own line shape. Once the body has a
+       paragraph, the shape names the section: a topic's line opens the topics to keep exploring, and after them a
+       line ending in "?" is a question and a hook's line opens the hooks. Hooks' lines straight after the body
+       might yet be stray lines inside it (2 of 176 pages carried on in prose), so until a topic or a question
+       follows them the body isn't done, and prose takes it up again. A line still being written that could turn
+       out to be any of these waits for its newline, so it never shows as prose first. */
+    if (pcount && (mode === 'body' || mode === 'tunnels' || mode === 'questions' || (mode === 'hooks' && unmarked))) {
+      const card = isCardLine(L), hook = !card && HOOK_LINE.test(L), link = /^[-*•]?\s*\[\[/.test(L);
+      if (li === open && (stray || ((mode === 'body' || mode === 'questions') && SHAPING.test(L)))) continue;
+      if (stray && !link) { mode = 'body'; unmarked = stray = false; }
+      else {
+        const to = card && (mode === 'body' || mode === 'hooks') ? 'tunnels'
+          : hook && (mode === 'body' || mode === 'questions') ? 'hooks'
+          : mode === 'tunnels' && li !== open && !link && /\?$/.test(L) ? 'questions' : '';
+        if (to) { flush(); stray = to === 'hooks' && mode === 'body'; unmarked = true; if (!stray) A.bodyDone = true; mode = to; }
+        else if (mode === 'questions' && link) continue;
+      }
     }
     if (mode === 'tunnels' || mode === 'next') {
       if ((m = /\[\[([^\]]+)\]\]\s*(.*)$/.exec(L))) {
@@ -204,6 +234,9 @@ export function parseArticle(raw, streaming) {
     if (mode === 'gloss' || mode === 'hooks') {
       if ((m = /^[-*•]?\s*\[\[([^\]]+)\]\]\s*(?:::|:)?\s*(.*)$/.exec(L))) { if (li !== open) addGloss(A.gloss, m[1], m[2]); continue; }
       if (li === open || mode === 'hooks') continue;
+      /* the format calls the plan "Your link plan:", and writers copy the label ("Link plan:", Claude Haiku 5.5 on 5
+         of 132 pages, 2026-11-17) or another line of the instructions ending in a colon: never the body's first line */
+      if (mode === 'gloss' && /:\W*$/.test(L)) continue;
       mode = 'body';
     }
     if (mode === 'time') {
@@ -269,6 +302,7 @@ export function parseArticle(raw, streaming) {
   /* a paragraph counts as finished once a line that isn't part of it has begun */
   const settled = pcount + (para.length && !paraOpen ? 1 : 0); flush();
   if (P && !streaming) P.done = true;
+  if (stray && !streaming) A.bodyDone = true;
   if (settled >= 1 || !streaming) {
     const p1 = A.blocks.findIndex(b => b.t === 'p'); const at = p1 >= 0 ? p1 + 1 : A.blocks.length;
     /** @type {Panel[]} */ const early = [];
