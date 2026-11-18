@@ -3,35 +3,46 @@
 _Ordered by priority. **(Will)** means it needs his decision or action first: ask, don't assume. What has shipped
 lives in `docs/decisions.md` and on dorkhub.com, not here. Questions for Will go on the review desk (`CLAUDE.md`)._
 
-## Now (2026-11-17)
+## Now (2026-11-18): the near-term roadmap, for next week
 
 The product is built: the front page and its 13 cards, the reading page, Your world, sharing, moves both ways, the
-Lamps identity. Since 2026-11-17 the free pages write on Will's Anthropic API credit (a $50-a-month Console
-workspace; `docs/decisions.md`). What remains, in order:
+Lamps identity. The free pages write live on Will's Anthropic API credit (a $50-a-month Console workspace), by Haiku
+5.5 through the split writer: the head and the topic plan at once, then the body, then the ways on (#59,
+`docs/decisions.md`). What remains, in order:
 
-1. **Haiku 5.5 writes every live page, made the most of in Dorkhub's own design** (Will, 2026-11-17; Sonnet 5.5
-   writes the pages written ahead of time). Done: the parser reads its slips (a bare title line, copied labels,
-   missing closing markers): production keeps 38 of 44 of its pages, and 3 of 44 show a format line in the body,
-   not 18. Next:
-   - The pages that stop after the body (6 of 44: no cards, questions or hooks; cards made from their links, never
-     kept). Either finish them (a short second call for the rest, about $0.0003 a page) or keep them as they are.
-   - **(Will)** Engaging pages: the eval's `lean` prompt (half the words, a sixth of the rules) on Haiku, the same
-     44 topics by batch (about $0.03), in blind pairs with today's prompt on the desk.
-   - Questions written straight after the body, with no topics before them (2 of 132 Haiku pages), still show as
-     a paragraph: a line ending in "?" there can't be told from the body's own question until it's too late.
-2. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
+1. **The wait between articles** (Will's note on #58: the wait for the first words "shaped into a delightful
+   transition from article to article"). Being built in its own session (worktree `feat/first-words-wait`); it comes
+   to the desk for his look. Design it against #59's timing: the head at ~1.0 s, the first body words at ~2.6 s.
+2. **Cut the first-word wait further** (Will: "amazing performance will always beat a delightful delay", never at
+   the page's quality). The first body words come 2.6 s after the click, 0.6 s behind the single pass, which links
+   one topic a page. Left: the plan (whole at ~1.8 s; the head at ~1.4 s) and the body's own first token (~0.6 s).
+   Test the links first, on the 44 test pages (`.seeds-batch/split3-*`, `.e2e/desk/tools/replay44.mjs`, judged by
+   `judge-plans.mjs`), then the timing (`timing.mjs`):
+   - The body on the head alone, the plan given only to the linker (up to ~0.4 s sooner). The risk: a body that
+     never saw the plan may not name its topics.
+   - A faster plan: fewer topics, or shorter lines.
+3. **The plans' misses.** Opus judged #59's plans worse than #58's on 11 of 44 pages: near-duplicates, off-topic
+   entries, one wrong name (the Great Emu War's minister). Read them before changing the plan prompt; a rule only for
+   a failure on two or more pages of different kinds.
+4. **The page around what Haiku writes well:** hooks shown on hover rather than written for every link, and readers'
+   own keys on the split writer. Those still get the single pass, whose pages can stop after the body (6 of 44) or
+   show questions as a paragraph.
+5. **(Will) Engaging pages:** the eval's `lean` prompt (half the words, a sixth of the rules) on Haiku, the same 44
+   topics by batch (about $0.03), in blind pairs with today's prompt on the desk.
+6. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
    whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
-   once connected. Then §5's "Real Redis".
-3. **(Will) Old resources to retire**, all in his accounts:
+   once connected. Then §6's "Real Redis".
+7. **(Will) Old resources to retire**, all in his accounts:
    - Revoke the `dorkhub-imports` gateway key, and the Gemini key.
    - Retire the old Supabase and Sentry projects. Sentry's uptime monitor on dorkhub.com is already disabled
      (2026-11-13: it was nearly all of Dorkhub's data transfer); deleting it goes with the project.
    - Remove the GitHub OAuth app, the fine-grained token and the `CRON_SECRET` Actions secret.
    - Remove the old sitemap in Search Console.
    - Remove the Mac backup agent `com.dorkhub.backup` (it still runs on Sundays at 09:00 and fails).
-4. **(Will) Repo visibility.** Public today, so the prompts are readable. On Hobby, making it private may block
+8. **(Will) Repo visibility.** Public today, so the prompts are readable. On Hobby, making it private may block
    deploys of commits authored by an agent.
-5. Drop CI's second try for the walk after a week with no "needed a second try" warning (from 2026-11-14).
+9. Drop CI's second try for the walk after a week with no "needed a second try" warning (from 2026-11-14).
+10. Record #59's timing on dorkhub.com (in `.claude/orchestrator-handoff.md`) with the next change's records.
 
 ## 1. Prove production (as soon as credits exist)
 
@@ -63,7 +74,8 @@ Will (2026-10-19): get any page right on the first try, quickly. Judge against `
   significant on eight topics; hover hooks were the most error-prone part (9%). Parked with the eval at Will's word
   (2026-10-15); `lib/grounding.js` and `docs/eval-plan.md` carry it. If the number-heavy panels invite errors,
   tighten or cut them in the prompt.
-- **Flow and weight.** Latency (first word, J to the next page) once live timings exist.
+- **Flow and weight.** Live timings exist (`.e2e/desk/tools/timing.mjs`); the first-word wait is "Now" item 2.
+  J to the next page is still unmeasured.
 
 ## 3. The model eval (Will gives the go and approves the cost)
 
