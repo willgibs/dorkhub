@@ -57,7 +57,7 @@ test('a front-page topic is sent with its brief, exactly as `seeds.mjs brief` pr
   assert.match(text(seedRequest('p00', 'Why is ice slippery?', TRIAL_MODEL).params), /The reader asked: "Why is ice slippery\?"/, 'a question is asked as one');
 });
 
-test('a try changes one thing from production\'s call, and asks the same words', () => {
+test('a try changes one thing from production\'s call: how it thinks, where the words go, or the words', () => {
   const prod = seedRequest('p00', 'Black holes', TRIAL_MODEL).params;
   const think = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'haiku-think').params;
   assert.deepEqual([think.model, think.thinking, think.output_config, think.max_tokens], [prod.model, undefined, { effort: 'low' }, TASKS.page.maxTokens + 8000], 'thinking a little, with room for it');
@@ -67,6 +67,10 @@ test('a try changes one thing from production\'s call, and asks the same words',
   assert.equal(`${split.system?.[0].text}\n\n${split.messages[0].content}`, text(prod), 'the fixed part as instructions, the request as the message');
   assert.equal(split.system?.[0].text, composePage(pageInput({ title: 'Black holes' }), 'split').system, "the eval's split variant");
   assert.deepEqual(split.thinking, prod.thinking);
+  /* the lean try changes the words only, and asks as a live page is asked: one message, no front-page brief */
+  const lean = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'haiku-lean').params; const L = composePage(pageInput({ title: 'Black holes' }), 'lean');
+  assert.equal(text(lean), `${L.system}\n\n${L.prompt}`, "the eval's lean words");
+  assert.deepEqual([lean.model, lean.thinking, lean.max_tokens, lean.system, lean.messages[0].content[0].cache_control], [prod.model, prod.thinking, prod.max_tokens, undefined, { type: 'ephemeral', ttl: '1h' }]);
   const sonnet = seedRequest('p00', 'Black holes', TRIAL_MODEL, 'sonnet').params;
   assert.deepEqual([sonnet.model, sonnet.thinking], ['claude-sonnet-5-5', { type: 'between_tools' }]);
   assert.throws(() => seedRequest('p00', 'Black holes', TRIAL_MODEL, 'nope'), /unknown arm/);

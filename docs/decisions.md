@@ -457,3 +457,37 @@ One line each, newest last. Why, not just what.
     nearby topic ("DNA origami" for Origami). 4 of the 5 passed when sent again, and DNA on its third try. Two of
     the earlier pages, which get no brief, named their own kinds: Kessler syndrome a concept, Fresnel lenses a
     thing. Their doors and share pictures now follow the pages.
+- 2026-11-17 · **What Haiku 5.5 does best: one job at a time** (Will: "work in from both ends ... First principles
+  thinking, with everything up for relitigation"; two tries by batch on the same 44 topics, $0.048).
+  - **The single pass loses the links.** On production's own call, 16 of 44 Haiku bodies link nothing, 12 more link
+    one to four topics, and the median is 3. Sonnet's is 13, and Haiku thinking a little reaches 9. The links are the
+    product, and no parser can add links that were never written.
+  - **Fewer rules don't help.** The eval's `lean` words in the same single pass: 16 of 37 bodies link nothing, the
+    median is 1, and 7 of 44 pages ran past the limit.
+  - **One job does.** Haiku was asked for the body alone, given the frame its own page had (title, kind, deck, key
+    facts, link plan), with everything else held identical. Only 2 of 44 bodies link nothing, the median is 10, all
+    44 finished, and the openings read far more vividly. Magnets went from "A magnet is any object that produces a
+    magnetic field" to "A magnet is easiest to picture as a quiet, invisible hand."
+  - **Haiku mirrors the prompt's words.** The prompt's examples of what a section might cover became its headings
+    ("## What is still argued over" on 39 of 44 pages), and "a picture in a newcomer's head" became "Picture a…" on
+    30. A prompt for Haiku says what it wants without phrases it can copy.
+  - **Direction, for Will's go:** each page written in focused calls, streamed in reading order as one page:
+    1. a frame (kind, deck, key facts, link plan) as structured output that can't break;
+    2. the body, given the frame;
+    3. the ways on (six topics, three questions) after the body, from the body.
+
+    The server joins them into the same page text, so the parser, cache, client and Your world stay as they are.
+- 2026-11-17 · **The split writer, built** (Will: "Yes, build it"; tried by batch on the 44 topics, each asked as a live
+  page is, $0.036). Haiku 5.5 writes each page in three calls: a frame as structured output, the body written to it,
+  and the ways on written from the body (`lib/split.js`, `PAGE_WRITER = 'split'`).
+  - **On the same 44 topics against today's single pass:** bodies that link nothing fall from 17 to 0, and the median
+    rises from 2 links to 12 (Sonnet's is 13). Every page is whole, with title, kind, deck, three facts, six topics
+    and three questions, where today only 25 of 44 are. All 44 would be kept (38 today). No heading or opening is
+    copied from the prompt. A page costs about $0.0016 at full price, against $0.0012.
+  - **First mentions.** Given the plan, Haiku still wrote no brackets at all on 5 of 44 bodies. So a planned topic is
+    linked at its first plain mention as the body streams, which took those five from 0 links to 8 to 12 each.
+  - **What a plan can do to a body.** Kessler syndrome's frame planned "Kessler Run" (Star Wars has a "Kessel Run").
+    Told to link every planned topic, the body invented a sentence to fit it. The body prompt now leaves out any topic
+    the story doesn't reach and never adds a sentence only to fit one in, as the single pass always said.
+  - **Pages it wrote are kept under their own version** (`SPLIT_VERSION`), so pages already written in one pass are
+    written again as readers reach them. Readers' keys and the mock still write in one pass.
