@@ -113,6 +113,10 @@ kbd{display:inline-grid;place-items:center;min-width:1.5em;height:1.5em;padding:
    one breaks where it must, and a long word never decides how wide its box is (Will, 2026-10-19: design for what the
    writer sends). A line of controls keeps its own rule (nowrap, or a clipped name a tap away from the whole of it). */
 .article,.side,.wpage,#hcard,#sheet,#omni,.toasts{overflow-wrap:anywhere}
+/* a word too wide for its box once its layout has made what room it can (fitWord), or longer than a phone's line in
+   running text (longWords): broken at a syllable, with a hyphen; at any letter only where no syllable is known, so no box
+   ever grows past the screen for it */
+[data-hy],.hy,.keyfacts [data-hy]{overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
 .linkish:hover{color:var(--ink)}
 
 /* ================= top bar ================= */
@@ -281,23 +285,30 @@ body.at-start .side,body.at-world .side{display:none!important}
 .kind.lens{color:var(--acc)}
 /* the page you came here from, quietly, after what this one is */
 .from{display:inline-flex;align-items:center;gap:7px;color:var(--faint);text-decoration:none;overflow-wrap:normal}
-.from b{display:inline-flex;align-items:center;gap:6px;min-width:0;overflow-wrap:anywhere;font-weight:600;color:var(--mute);transition:color var(--d-quick) var(--ease-out)}
+.from b{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-weight:600;color:var(--mute);transition:color var(--d-quick) var(--ease-out)}
 .from b::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--kc,var(--faint))}
 .from:hover b{color:var(--ink)}
+/* where it can't stand whole beside the page's tools, it takes a line of its own under them (fitHead) */
+.h-row[data-fit="below"]{flex-wrap:wrap;column-gap:14px;row-gap:10px}
+.h-row[data-fit="below"] .where{display:contents}
+.h-row[data-fit="below"] .tools{margin-left:auto}
+.h-row[data-fit="below"] .from{order:1;flex:1 0 100%}
+.h-row[data-fit="below"] .from b{white-space:normal}
 .kind.plain{color:var(--mute)}
 /* the title, by its length (titleSize in 05-render.js): a word or two set large, a phrase smaller, a question smaller
-   still, so a head never runs to four lines of display type */
+   still, so a head never runs to four lines of display type; a word wider than the column sets it smaller (fitTitle) */
 .a-title{margin-top:14px;font:700 clamp(34px,4vw,50px)/1.05 var(--f-ui);letter-spacing:-.026em;overflow-wrap:anywhere;max-width:20ch;text-wrap:balance}
 .a-title.t-m{font-size:clamp(29px,3.1vw,39px);line-height:1.1;letter-spacing:-.022em;max-width:24ch}
 .a-title.t-l{font-size:clamp(25px,2.4vw,31px);line-height:1.16;letter-spacing:-.018em;max-width:30ch}
 .a-title.t-xl{font-size:clamp(22px,2vw,26px);line-height:1.22;letter-spacing:-.014em;max-width:36ch}
+.a-title[data-fit]{max-width:none}
 .deck{margin-top:14px;max-width:34em;font:400 clamp(17px,1.35vw,19px)/1.5 var(--f-read);color:var(--mute);text-wrap:pretty}
 .deck.seed{color:var(--faint)}
 /* the key facts under the deck, the front page's small capitals over plain figures: side by side when every value fits
    on a line of its own, and down the column as label and value when one doesn't, which holds any length (fitFacts) */
 .keyfacts{margin:26px 0 0;max-width:var(--col);border-top:1px solid var(--line-2)}
-.keyfacts dt{font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint)}
-.keyfacts dd{margin:0;font:500 15px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink)}
+.keyfacts dt{font:var(--lbl);letter-spacing:var(--lbl-track);text-transform:uppercase;color:var(--faint);overflow-wrap:normal}
+.keyfacts dd{margin:0;font:500 15px/1.4 var(--f-ui);font-variant-numeric:tabular-nums;color:var(--ink);overflow-wrap:normal}
 .keyfacts:not([data-fit="down"]){display:flex}
 .keyfacts:not([data-fit="down"])>div{flex:1 1 0;min-width:max-content;padding:13px 20px 2px 0}
 .keyfacts:not([data-fit="down"])>div+div{padding-left:20px;border-left:1px solid var(--line)}
@@ -306,6 +317,9 @@ body.at-start .side,body.at-world .side{display:none!important}
 .keyfacts[data-fit="down"]>div{display:grid;grid-column:1/-1;grid-template-columns:subgrid;align-items:baseline;padding:11px 0 10px}
 .keyfacts[data-fit="down"]>div+div{border-top:1px solid var(--line)}
 .keyfacts[data-fit="down"] dd{text-wrap:pretty}
+/* a word in a label or a value too wide for its side of the row: each label over its value, the column's width */
+.keyfacts[data-stack],.keyfacts[data-stack]>div{display:block}
+.keyfacts[data-stack] dd{margin-top:5px}
 @media (max-width:560px){
   .keyfacts{margin-top:24px}
   .keyfacts dd{font-size:15px}

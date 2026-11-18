@@ -59,6 +59,11 @@ export function quietRuns(text) {
   return runs;
 }
 
+/* A word longer than a phone's line (24 letters or more) in running text, marked so it may break at a syllable (.hy) if
+   it must: no other word in the prose ever does. Tags pass whole, so an address or a link's target is never touched. */
+/** @param {string} html @returns {string} */
+export const longWords = html => String(html).replace(/(<[^>]*>)|[\p{L}\p{M}]{24,}/gu, (m, tag) => tag || `<span class="hy">${m}</span>`);
+
 /* For answers that should be JSON: tolerate code fences and stray prose around the value. */
 /** @param {unknown} text @returns {any} */
 export function looseJSON(text) {

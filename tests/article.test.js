@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFileSync, readdirSync } from 'node:fs';
-import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, panelLines, parseArticle, plain, quietRuns, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
+import { KINDS, capFirst, cardsOf, hookOf, isQuestion, keyOf, longWords, panelLines, parseArticle, plain, quietRuns, splitLink, timeOf, titleIsLocked, yearOf } from '../src/shared/article.js';
 import { FIXTURES } from './fixtures.js';
 import { DISEASE, LAW, QUESTION, RULES, VILLAGE, outlierPage } from './outliers.js';
 import { mockModel, page as mockPage, splitTimeline } from '../lib/mock.js';
@@ -391,4 +391,11 @@ test('small helpers', () => {
   assert.equal(yearOf('1404–1438'), 1404);
   assert.equal(yearOf('65 million years ago'), new Date().getFullYear() - 65e6);
   assert.equal(yearOf('soon'), null);
+});
+
+test('a word longer than a phone line may break at a syllable; no other word, and no tag or address, is touched', () => {
+  assert.equal(longWords('The word Pneumonoultramicroscopicsilicovolcanoconiosis is long'), 'The word <span class="hy">Pneumonoultramicroscopicsilicovolcanoconiosis</span> is long');
+  const a = '<a class="hole" href="/antidisestablishmentarianism" data-t="Antidisestablishmentarianism">';
+  assert.equal(longWords(`${a}Antidisestablishmentarianism</a>`), `${a}<span class="hy">Antidisestablishmentarianism</span></a>`);
+  assert.equal(longWords('Electroencephalography and <em>magnetoencephalography</em>'), 'Electroencephalography and <em>magnetoencephalography</em>');
 });

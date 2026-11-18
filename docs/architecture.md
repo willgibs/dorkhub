@@ -61,7 +61,8 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
   see Sharing; it never writes, so it goes through neither `lib/library.js` nor `lib/flight.js`).
 - **The page format, v3.1** (`FORMAT` in `lib/prompts.js`, parsed by `parseArticle` in
   `src/shared/article.js`): `# Title :: kind`, `> deck`, `!!!` three key facts (`Label :: value`, shown under
-  the deck once all three are in, side by side or down the column by what fits: `fitFacts` in `05-render.js`), `+++` link plan
+  the deck once all three are in, side by side, down the column or each label over its value, by what fits: `fitFacts` in `05-render.js`; no word in the
+  head or on a card breaks where a layout can make room for it: `fitHead`, `fitWord`), `+++` link plan
   (`[[Topic]] :: kind`), `---` body with `^` margin notes and 0 to 2 panels
   (`::: type [title | headers]`, rows that each hold ` :: `, then `:::`), `===` exactly six
   topics to open next (`- [[Topic]] :: hook :: kind`), `???` three questions that stand on

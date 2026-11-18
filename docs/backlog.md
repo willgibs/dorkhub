@@ -7,13 +7,11 @@ lives in `docs/decisions.md` and on dorkhub.com, not here. Questions for Will go
 
 The product is built: the front page and its 13 cards, the reading page, Your world, sharing, moves both ways, the
 Lamps identity. The free pages write live on Will's Anthropic API credit (a $50-a-month Console workspace), by Haiku
-5.5 through the split writer: the head and the topic plan at once, then the body, then the ways on (#59,
+5.5 through the split writer: the head and the topic plan at once, then the body, then the ways on (#59), and its wait
+is a row of lamps lit by the link plan (#60). No word breaks where a layout can make room for it (#61;
 `docs/decisions.md`). What remains, in order:
 
-1. **The wait between articles** (Will's note on #58: the wait for the first words "shaped into a delightful
-   transition from article to article"). Being built in its own session (worktree `feat/first-words-wait`); it comes
-   to the desk for his look. Design it against #59's timing: the head at ~1.0 s, the first body words at ~2.6 s.
-2. **Cut the first-word wait further** (Will: "amazing performance will always beat a delightful delay", never at
+1. **Cut the first-word wait further** (Will: "amazing performance will always beat a delightful delay", never at
    the page's quality). The first body words come 2.6 s after the click, 0.6 s behind the single pass, which links
    one topic a page. Left: the plan (whole at ~1.8 s; the head at ~1.4 s) and the body's own first token (~0.6 s).
    Test the links first, on the 44 test pages (`.seeds-batch/split3-*`, `.e2e/desk/tools/replay44.mjs`, judged by
@@ -21,28 +19,27 @@ Lamps identity. The free pages write live on Will's Anthropic API credit (a $50-
    - The body on the head alone, the plan given only to the linker (up to ~0.4 s sooner). The risk: a body that
      never saw the plan may not name its topics.
    - A faster plan: fewer topics, or shorter lines.
-3. **The plans' misses.** Opus judged #59's plans worse than #58's on 11 of 44 pages: near-duplicates, off-topic
+2. **The plans' misses.** Opus judged #59's plans worse than #58's on 11 of 44 pages: near-duplicates, off-topic
    entries, one wrong name (the Great Emu War's minister). Read them before changing the plan prompt; a rule only for
    a failure on two or more pages of different kinds.
-4. **The page around what Haiku writes well:** hooks shown on hover rather than written for every link, and readers'
+3. **The page around what Haiku writes well:** hooks shown on hover rather than written for every link, and readers'
    own keys on the split writer. Those still get the single pass, whose pages can stop after the body (6 of 44) or
    show questions as a paragraph.
-5. **(Will) Engaging pages:** the eval's `lean` prompt (half the words, a sixth of the rules) on Haiku, the same 44
+4. **(Will) Engaging pages:** the eval's `lean` prompt (half the words, a sixth of the rules) on Haiku, the same 44
    topics by batch (about $0.03), in blind pairs with today's prompt on the desk.
-6. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
+5. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
    whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
    once connected. Then §6's "Real Redis".
-7. **(Will) Old resources to retire**, all in his accounts:
+6. **(Will) Old resources to retire**, all in his accounts:
    - Revoke the `dorkhub-imports` gateway key, and the Gemini key.
    - Retire the old Supabase and Sentry projects. Sentry's uptime monitor on dorkhub.com is already disabled
      (2026-11-13: it was nearly all of Dorkhub's data transfer); deleting it goes with the project.
    - Remove the GitHub OAuth app, the fine-grained token and the `CRON_SECRET` Actions secret.
    - Remove the old sitemap in Search Console.
    - Remove the Mac backup agent `com.dorkhub.backup` (it still runs on Sundays at 09:00 and fails).
-8. **(Will) Repo visibility.** Public today, so the prompts are readable. On Hobby, making it private may block
+7. **(Will) Repo visibility.** Public today, so the prompts are readable. On Hobby, making it private may block
    deploys of commits authored by an agent.
-9. Drop CI's second try for the walk after a week with no "needed a second try" warning (from 2026-11-14).
-10. Record #59's timing on dorkhub.com (in `.claude/orchestrator-handoff.md`) with the next change's records.
+8. Drop CI's second try for the walk after a week with no "needed a second try" warning (from 2026-11-14).
 
 ## 1. Prove production (as soon as credits exist)
 

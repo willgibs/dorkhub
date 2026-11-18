@@ -1,9 +1,9 @@
 /* ================= what you've read: one index over your world, rebuilt only when it changes ================= */
-import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, quietRuns, splitLink, yearOf } from '../shared/article.js';
+import { capFirst, cardsOf, clip, hookOf, keyOf, longWords, parseArticle, plain, quietRuns, splitLink, yearOf } from '../shared/article.js';
 import { routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { LENS_PHRASE, kattr, kindOf } from './01-data.js';
-import { $, $$, afterMotion, announce, errText, esc, leave, reducedMotion, save, store, toast, tokenMs, write } from './02-util.js';
+import { $, $$, afterMotion, announce, errText, esc, fitWord, leave, minWidth, reducedMotion, save, store, toast, tokenMs, write } from './02-util.js';
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
@@ -72,7 +72,7 @@ function holeHTML(disp, target, p) {
 export function inline(s, p) {
   let out = '', last = 0; const re = /\[\[([^\]\n]+?)\]\]/g; let m;
   while ((m = re.exec(s))) { out += fmt(esc(s.slice(last, m.index))); const [d, t] = splitLink(m[1]); out += holeHTML(d, t, p); last = re.lastIndex; }
-  return out + fmt(esc(s.slice(last)));
+  return longWords(out + fmt(esc(s.slice(last))));
 }
 /* a page has finished: its title, deck and kind settle, and its links join your world */
 function finalize(p) {
@@ -281,18 +281,44 @@ function paintHead(p, sec, A, live) {
   }
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
-  watchHead(head); const kf = $('.keyfacts', head); if (kf) fitFacts(kf);
+  watchHead(head); fitHead(head);
 }
 /* The head is designed for whatever the writer sends, not for the lengths a prompt asks for (Will, 2026-10-19: rules
    in a prompt are fickle across models; the design has to hold the outliers). A title is set by its length, so a long
    one (a question, say) takes two or three lines at a smaller size rather than four or five large. */
 const titleSize = t => { const n = [...t].length; return n > 90 ? ' t-xl' : n > 44 ? ' t-l' : n > 24 ? ' t-m' : ''; };
-/* The key facts sit side by side when every value fits on one line, and as rows of label and value when one doesn't,
-   which hold any length. They are measured side by side before the frame is painted, and again when the column
-   changes width or the fonts arrive. */
+/* No word is broken where a layout can make room for it whole (Will, 2026-11-18: in pages made of generated words,
+   "any medium-length word or longer" must never break the layout). The page you came from stands whole beside the
+   tools, or takes a line of its own under them; a title whose longest word is wider than the column is set smaller
+   until that word fits, by up to a third, and past that keeps its size and breaks the word at a syllable; the key
+   facts sit side by side when every value fits on one line, as rows of label and value when one doesn't, and each
+   label over its value when a word in either is too wide for its side of the row. All are measured before the frame
+   is painted, and again when the column changes width or the fonts arrive. */
+function fitHead(head) {
+  const w = head.clientWidth, row = $('.h-row', head), where = $('.where', head), h1 = $('.a-title', head);
+  const sig = `${w}|${where ? where.textContent : ''}|${h1 ? h1.textContent + h1.className : ''}`;
+  if (w && head._fit !== sig) {
+    head._fit = sig;
+    if (row && where) {
+      const b = $('.from b', row); delete row.dataset.fit; if (b) { b.removeAttribute('data-hy'); b._fw = ''; }
+      if (where.scrollWidth > where.clientWidth + 1) { row.dataset.fit = 'below'; if (b) fitWord(b); }
+    }
+    if (h1) fitTitle(h1);
+  }
+  const kf = $('.keyfacts', head); if (kf) fitFacts(kf);
+}
+/* a title's widest word first takes the column's width, past the title's own measure, then fitWord */
+function fitTitle(h1) {
+  delete h1.dataset.fit; h1._fw = ''; h1.style.fontSize = ''; h1.removeAttribute('data-hy');
+  if (minWidth(h1) > h1.getBoundingClientRect().width + .01) h1.dataset.fit = 'wide';
+  fitWord(h1, .66);
+}
 function fitFacts(dl) {
   const w = dl.clientWidth; const sig = `${dl._h}|${w}`; if (!w || dl._fit === sig) return; dl._fit = sig;
-  dl.dataset.fit = 'across'; if (dl.scrollWidth > w + 1) dl.dataset.fit = 'down';
+  const cells = $$('dt, dd', dl); for (const c of cells) { c.removeAttribute('data-hy'); c._fw = ''; } dl.removeAttribute('data-stack');
+  dl.dataset.fit = 'across'; if (dl.scrollWidth <= w + 1) return;
+  dl.dataset.fit = 'down'; if (dl.scrollWidth <= w + 1 && !(cells[0] && cells[0].offsetWidth > w * .4)) return;
+  dl.setAttribute('data-stack', ''); for (const c of cells) fitWord(c);
 }
 /* While a page waits for its first words, its head grows above the wait (the writer's deck, then the key facts): the
    wait glides down to its new place on the motion scale, instead of jumping there. */
@@ -302,7 +328,7 @@ function watchHead(head) {
     const w = Math.round(e.contentRect.width), h = Math.round(e.contentRect.height), dh = w === head._w && head._hh ? h - head._hh : 0; head._hh = h;
     const st = dh && !reducedMotion() ? $('.a-body > .status-line.first:not(.lifted)', head.closest('.chamber')) : null;
     if (st) st.animate([{ transform: `translateY(${-dh}px)` }, { transform: 'none' }], { duration: tokenMs('--d-medium'), easing: getComputedStyle(st).getPropertyValue('--ease-out').trim() || 'ease-out', composite: 'add' });
-    if (w === head._w) return; head._w = w; requestAnimationFrame(() => { const kf = $('.keyfacts', head); if (kf) fitFacts(kf); });
+    if (w === head._w) return; head._w = w; requestAnimationFrame(() => { fitHead(head); for (const t of $$('.a-end .cd-t', head.closest('.chamber') || head)) fitWord(t, .66); });
   });
   head._ro.observe(head);
 }
@@ -622,7 +648,7 @@ export function setACC(v) { return (ACC = v); }
 /* What this module does when the page starts. main.js runs these in order, after every module has loaded. */
 export function init() {
 FROM_VIA = new Set(['link', 'card', 'question', 'select', 'peek', 'around', 'connect']);
-document.fonts?.ready.then(() => $$('.keyfacts').forEach(kf => { kf._fit = ''; fitFacts(kf); }));
+document.fonts?.ready.then(() => { for (const h of $$('.a-head')) { h._fit = ''; const kf = $('.keyfacts', h); if (kf) kf._fit = ''; fitHead(h); } for (const t of $$('.cd-t')) { t._fw = ''; fitWord(t, .66); } });
 /* A photo that fails to load never prints its alt text over the page (Will, 2026-10-19): a card's photo steps aside for
    what is drawn under it, and a page's lead picture that fails on a later visit is dropped, like one that failed to
    arrive the first time (the alt text is transparent meanwhile, so it never shows even for a moment). An image's error

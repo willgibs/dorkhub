@@ -3,7 +3,7 @@ import { capFirst, cardsOf, clip, keyOf, panelLines, plain } from '../shared/art
 import { routeOf, topicKey } from '../shared/world.js';
 import { LENSES, kattr, kindOf } from './01-data.js';
 import { PROVIDERS, findModel, modelsFor, pageCost } from '../shared/models.js';
-import { $, $$, auth, errText, esc, leftHTML, pagesLeft, reducedMotion, relTime, save, store, toast, tokenMs, write, writeJSON } from './02-util.js';
+import { $, $$, auth, errText, esc, fitWord, leftHTML, pagesLeft, reducedMotion, relTime, save, store, toast, tokenMs, write, writeJSON } from './02-util.js';
 import { ic } from './03-icons.js';
 import { waitHTML } from './03-orbs.js';
 import { REV, ctxInput, curPage, pageOf, parsed } from './04-pages.js';
@@ -183,6 +183,7 @@ export function paintEnd(p, sec, A, live) {
     place(end, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());
+  for (const t of $$('.cd-t', end)) fitWord(t, .66);
   watchEnd(p, end);
 }
 /* the tools: Save first, then the ones that open something beside the page, then the rest in a menu */
