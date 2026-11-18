@@ -8,7 +8,8 @@ lives in `docs/decisions.md` and on dorkhub.com, not here. Questions for Will go
 The product is built: the front page and its 13 cards, the reading page, Your world, sharing, moves both ways, the
 Lamps identity. The free pages write live on Will's Anthropic API credit (a $50-a-month Console workspace), by Haiku
 5.5 through the split writer: the head and the topic plan at once, then the body, then the ways on (#59), and its wait
-is a row of lamps lit by the link plan (#60; `docs/decisions.md`). What remains, in order:
+is a row of lamps lit by the link plan (#60). No word breaks where a layout can make room for it (#61;
+`docs/decisions.md`). What remains, in order:
 
 1. **Cut the first-word wait further** (Will: "amazing performance will always beat a delightful delay", never at
    the page's quality). The first body words come 2.6 s after the click, 0.6 s behind the single pass, which links
