@@ -282,19 +282,25 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
      from the Console workspace "Dorkhub", whose monthly spend limit is the free pages' budget), or, where that key
      isn't set, to `gateway(DH_TRIAL_MODEL)` over OIDC. Each instance says which once: `{"evt":"writer","via":…}`.
      No SDK reads a `DH_` variable by itself and a reader's key is always passed explicitly, so the two never mix.
-   - **Dorkhub's own writer writes a page in three calls** (`lib/split.js`, "the split writer" in `lib/prompts.js`;
+   - **Dorkhub's own writer writes a page in four calls** (`lib/split.js`, "the split writer" in `lib/prompts.js`;
      `PAGE_WRITER`), because Haiku 5.5 writes well with one job at a time and loses the links when one pass asks for
-     everything (2026-11-17, `docs/decisions.md`):
-     1. A frame written as the page's own head lines (title and kind, deck, key facts, the topics it links), stopped
-        where a body would begin (`FRAME_STOP`) and read by the page's own parser (`frameOfLines`, which also reads
-        the ways Haiku slips: a preamble, copied labels, a fact with one colon or a bar, a topic without brackets or
-        with its kind in parentheses). Each line goes out, in the page's own form, as soon as it is whole. As JSON
-        the frame cost the body's first words 1.6 to 1.8 s against the single pass; as lines, 0.7 s (2026-11-18,
-        `docs/decisions.md`).
-     2. The body as prose written to that frame, with a planned topic linked at its first mention where the writer
-        left it plain (`mentionLinker`: text is held back only while a name might still be completing).
-     3. The ways on as structured output written from that body (`WAYS_SCHEMA`: six topics, three questions, a hook
-        for each link), each line out once whole.
+     everything (2026-11-17, `docs/decisions.md`). Each writes the page's own lines, read by the page's own parser
+     however Haiku slips (`frameOfLines`, `planOfLines`, `waysOfLines`: a preamble, copied labels, a fact with one
+     colon or a bar, a topic without brackets or with its kind in parentheses, a marker left out), and each line goes
+     out as soon as it is whole:
+     1. The head (title and kind, deck, key facts: `headParts`, stopped before any topics or body by `HEAD_STOP`) and
+        the plan (the 10 to 14 topics it links: `planParts`, `PLAN_STOP`), written at once, so the body waits for the
+        later of the two rather than for both in turn. Both name the kind from the same words; the head's is the
+        page's.
+     2. The body as prose written to both, with a planned topic linked at its first mention where the writer left it
+        plain (`pageLinker`: text is held back only while a name might still be completing, and never linked inside
+        a longer planned name or the page's own title).
+     3. The ways on written from that body, as the page's end lines (`===` six topics, `???` three questions, `&&&`
+        a hook for each topic the body links).
+
+     As JSON the frame and the ways on each waited 1.2 to 1.8 s for a first token. Written as lines, with the head and
+     the plan at once, the body's first words come 0.6 s after the single pass's and the end 1.8 s after, with 13 links
+     a page against the single pass's 1 (2026-11-18, `docs/decisions.md`).
 
      The server streams them as one page's text in format v3.1, so the parser, the answer cache (kept under
      `SPLIT_VERSION`) and the page don't change. Readers' keys and the mock write in one pass, as below. The log
