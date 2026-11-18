@@ -47,7 +47,7 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
 - `lib/placeholder.js`: a front-page topic whose page isn't written yet opens a placeholder, built
   from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page;
   `node scripts/seeds.mjs batch plan` (then `send --yes`, `take`) writes them all through the Batch API,
-  by Sonnet 5.5 with production's own call for it, at half price (it spends: Will's go first).
+  by Sonnet 5.5 with production's own call for it, at half price (it spends, within the $20 a month below).
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`
@@ -91,9 +91,12 @@ decision only he can make, numbered, with its pictures before and after (or now 
 place itself. He answers each on the page: Approve, Revise (with a note) or Deny, saved in the page's store at
 `verdicts/<id>` (`{ verdict, note, rev, at }`). Read them with the ArtifactData tool at the start of every session
 and whenever he says he has answered. Approve: finish it (a reader-facing change still ships only after his look);
-Revise: rebuild from his note and bump the ask's `rev`; Deny: take it off. Anything that spends money or deletes
-something is confirmed with him in chat once, whatever the desk says. Nothing already live belongs there: when a
-change reaches dorkhub.com, take it off the desk in the same sitting, because the site is the record.
+Revise: rebuild from his note and bump the ask's `rev`; Deny: take it off. Testing on the Anthropic credit (model
+tests, batches, live proofs, rewriting the pages written ahead of time) needs no ask and no heads-up until it reaches
+$20 in a month: "Full permissions to spend away on this testing" (Will, 2026-11-18). Past that, tell him. Anything else
+that spends money, or deletes something, is confirmed with him in chat once, whatever the desk says. Nothing already
+live belongs there: when a change reaches dorkhub.com, take it off the desk in the same sitting, because the site is
+the record.
 `node .e2e/desk/build.mjs` rebuilds it from the lists at its top and the pictures in `.e2e/desk/shots/` (both
 untracked); republish the same file to keep its address. Builders' briefs say where their pictures go.
 Merge to `main` only when `npm run verify` and `npm run e2e` are green.
@@ -118,4 +121,5 @@ recommendation, not plan documents. Think in one head; use subagents only for re
 
 ## Ask Will first
 Pro pricing and launch · the model eval and which models ship · enabling a provider ·
-trial size or budget changes · anything that spends money or changes account settings.
+trial size or budget changes · anything that spends money beyond that $20 a month of testing, or changes account
+settings.

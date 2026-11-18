@@ -491,3 +491,43 @@ One line each, newest last. Why, not just what.
     the story doesn't reach and never adds a sentence only to fit one in, as the single pass always said.
   - **Pages it wrote are kept under their own version** (`SPLIT_VERSION`), so pages already written in one pass are
     written again as readers reach them. Readers' keys and the mock still write in one pass.
+- 2026-11-17 · **The front page's lines are about their own topic, not a neighbour's** (Will: some cards "try to visualize a neighbor concept too far away from the title topic it's meant to represent... I was clicking into a time travel topic and learning about phone GPS immediately, rather than that being a potentially neat or engaging point lower in the article"). An audit of the 33 topics' lines and the 13 cards: 26 lines and 11 cards show their topic itself. Seven lines showed a neighbour, and the stand-in covers written to bear them out opened on it (Time travel on GPS, Volcanoes on Krakatoa's sound, Apollo 11 on its computer); Sonnet's covers (#55) open on the topic but still carry the claim into their decks.
+  - **The seven, now on their topic**, each checked at its source: Time travel (GPS satellites' clocks, now: travel into the future is real, a year in orbit leaves you a few milliseconds younger); Magnets (a frog floated at 16 T, a neighbour's diamagnetism beside a card that draws the bar's own field; now: cut one in half and you get two magnets, never a lone pole); Apollo 11 (its guidance computer; now: the landing past a boulder field with under a minute of fuel to spare); Fingerprints (koalas and crime scenes; now: the ridges may be for touch more than grip); Volcanoes (one eruption's sound and pressure wave; now: three-quarters of Earth's magma comes out unseen, along the ocean ridges); Origami (a spacecraft's solar panel; now: a big enough sheet folds into any flat-sided shape without a cut, and its card keeps Miura's fold, with a hook on the fold itself and no satellite in its label); Pompeii (the dating of the eruption; now: two-thirds of the town dug out of the ash, the rest still buried).
+  - **Pompeii's card drew the eruption, not the town**: Vesuvius's column as Pliny saw it from Misenum, 29 km away, an umbrella pine the biggest thing on it and the town a small label. Proposed, as a mock: the walled town as an archaeologist's plan from OpenStreetMap's survey of the ruins, every excavated wall in ink and the part still buried left as ash (30% of the circuit by the survey, a third by Wikipedia). Its drawing and hook stay until Will picks.
+  - Their share pictures were remade (`scripts/share.mjs`). The covers whose claims changed are rewritten by batch only on Will's go in chat, after #55 (seven pages, about $0.08 on Sonnet 5.5); Pompeii's waits for its drawing.
+- 2026-11-18 · **Pompeii's card is the town's plan** (Will approved both asks; of the mock: "this feels much more refined
+  and sophisticated while still being interesting, which is a huge win for Dorkhub and likely a better direction
+  overall. It doesn't feel like lame junior education drawings, but super cool and a bit refined, like a knowledge tool
+  and not like a toy"). Built as mocked:
+  - **Drawn from the survey of the ruins.** `scripts/plates/pompeii.mjs` reads OpenStreetMap's survey once (the
+    Overpass API) and writes `lib/plates/pompeii.js` on the card's frame; the build never fetches anything. Every wall
+    the survey maps inside the circuit is ink, with the outlines of what it maps as built where no wall runs, at what
+    the card can show (2 px and longer, simplified within half a pixel). Dug is near a surveyed wall, inside a
+    surveyed building, insula or numbered garden, or on a paved street; the rest is ash: 30% of the circuit
+    (Wikipedia: two-thirds has been excavated). The card credits "© OpenStreetMap contributors", as the Open
+    Database Licence asks, and `/licenses.txt` says so.
+  - **Its turn is the digging.** The whole town starts as ash, and its quarters come out of it in the order the sources
+    date them: the amphitheatre (first dug in 1748) and the theatre quarter, then the north-west and the forum, then
+    Fiorelli's regiones from 1863, then the south-east (Maiuri, the 1950s), then regio V since 2018. Quarters, not
+    houses: the eras are per regio, so a house dug out of its quarter's time comes out with its quarter. Each run of
+    edge between two regions is simplified once, so the ash clears without seams. It rests once played.
+  - **`front.json`'s budget rose from 200 to 220 KB**: every surveyed wall is 35 KB of path data, against 17 KB for
+    Pliny's view. Held to 200 KB the plan came out visibly sparser than the mock Will approved. The front page
+    fetches 7 KB more by brotli (52 KB in all).
+- 2026-11-18 · **Testing needs no ask up to $20 a month** (Will, in chat, when asked for a go on about $0.09 for the
+  split writer's live proof and seven covers): "Just so you can stop asking me to spend incredibly minor amounts of API
+  credit, don't even give me a heads-up until we've burned $20 of our monthly credit testing. Even then, I doubt we'll
+  even get close to touching everything available. Full permissions to spend away on this testing." `CLAUDE.md` says
+  so. The running total is in `docs/state.md`, and the Console's usage under the Dorkhub workspace is the truth. Which
+  topics get pages is still his call. A session refuses a spend that reaches it only from another session, as #56's
+  did (rightly), so such spends run in the session he told, which writes the rule down where every session reads it.
+- 2026-11-18 · **The split writer, live and timed** (#57). On dorkhub.com every write logs `split: true` and `end: ok`,
+  at about $0.0016 a page, and every page after the first reads its 2,777 shared tokens from the prompt cache;
+  `node scripts/prove.mjs https://dorkhub.com --spend --yes` passes. It is slower than the half second I estimated:
+  - **Against the single pass**, on the same four topics, straight to Anthropic from Will's Mac: the deck shows at a
+    median 1.6 s against 0.75 s, the first body words at 3.8 s against 2.1 s, and the end at 16.8 s against 11.9 s.
+  - **On dorkhub.com**, six fresh pages, from the click: the head at 1.6 to 2.4 s, the first body words at 3.8 to
+    4.6 s, the end at 16.5 to 18 s.
+  - The time goes to the frame, written whole as structured output before the body can start, and then to the body
+    call's own wait for its first token. Kept for what it buys (a median of 12 links a page against 2, every page
+    whole); winning the time back is next. `.e2e/desk/tools/timing.mjs` (untracked, on Will's Mac) measures both.

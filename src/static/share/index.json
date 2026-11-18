@@ -173,8 +173,8 @@
    "from": "picture",
    "title": "Volcanoes",
    "kind": "phenomenon",
-   "line": "Krakatoa was heard 4,800 km away, and barometers caught its blast seven times.",
-   "alt": "Volcanoes: Krakatoa was heard 4,800 km away, and barometers caught its blast seven times. The picture: Augustine Volcano (Alaska) during its eruptive phase on January 24, 2006",
+   "line": "Three-quarters of Earth’s magma comes out unseen, along ridges on the ocean floor.",
+   "alt": "Volcanoes: Three-quarters of Earth’s magma comes out unseen, along ridges on the ocean floor. The picture: Augustine Volcano (Alaska) during its eruptive phase on January 24, 2006",
    "credit": "Cyrus Read Geophysicist USGS · Public domain"
   },
   "coral-reefs": {
@@ -200,8 +200,8 @@
    "from": "type",
    "title": "Fingerprints",
    "kind": "thing",
-   "line": "Koalas have them too, so like ours they could confuse a crime scene.",
-   "alt": "Fingerprints: Koalas have them too, so like ours they could confuse a crime scene."
+   "line": "Their ridges may be for touch more than grip: they amplify what a fingertip feels.",
+   "alt": "Fingerprints: Their ridges may be for touch more than grip: they amplify what a fingertip feels."
   },
   "terracotta-army": {
    "file": "terracotta-army.jpg",
@@ -225,8 +225,8 @@
    "from": "card",
    "title": "Magnets",
    "kind": "thing",
-   "line": "A strong enough magnet can float a living frog. It has been done, at 16 tesla.",
-   "alt": "Magnets, a thing: A strong enough magnet can float a living frog. It has been done, at 16 tesla. Iron filings round a bar magnet, lying along its field: looping from its north pole round to its south, crowded at the poles"
+   "line": "Cut a magnet in half and you get two magnets, never a lone pole.",
+   "alt": "Magnets, a thing: Cut a magnet in half and you get two magnets, never a lone pole. Iron filings round a bar magnet, lying along its field: looping from its north pole round to its south, crowded at the poles"
   },
   "infinity": {
    "file": "infinity.jpg",
@@ -241,8 +241,8 @@
    "from": "picture",
    "title": "Time travel",
    "kind": "concept",
-   "line": "GPS satellite clocks gain 38 microseconds a day, just as relativity says.",
-   "alt": "Time travel: GPS satellite clocks gain 38 microseconds a day, just as relativity says. The picture: The first page of The Time Machine published by Heinemann",
+   "line": "Travel into the future is real: a year in orbit leaves you a few milliseconds younger.",
+   "alt": "Time travel: Travel into the future is real: a year in orbit leaves you a few milliseconds younger. The picture: The first page of The Time Machine published by Heinemann",
    "credit": "Published by Heinemann in 1895 · Public domain"
   },
   "ice-ages": {
@@ -275,8 +275,8 @@
    "from": "card",
    "title": "Pompeii",
    "kind": "place",
-   "line": "The textbook date of the eruption, 24 August 79, may be months off.",
-   "alt": "Pompeii, a place: The textbook date of the eruption, 24 August 79, may be months off. The eruption of AD 79 as Pliny the Younger saw it from Misenum, 29 km across the Bay of Naples: a column of ash rising 33 km over Vesuvius, its top spread like the crown of the umbrella pine beside him, and pumice falling downwind on Pompeii"
+   "line": "Two-thirds of the town has been dug out of the ash. The rest is still buried.",
+   "alt": "Pompeii, a place: Two-thirds of the town has been dug out of the ash. The rest is still buried. Pompeii from above, inside its walls: every wall dug out of the ash drawn in ink, about two-thirds of the town, and the rest, never dug, left as ash"
   },
   "mona-lisa": {
    "file": "mona-lisa.jpg",
@@ -344,8 +344,8 @@
    "from": "card",
    "title": "Origami",
    "kind": "technique",
-   "line": "A fold made for spacecraft opens a whole solar panel in one pull.",
-   "alt": "Origami, a technique: A fold made for spacecraft opens a whole solar panel in one pull. A sheet of paper in Miura’s fold, a zigzag of parallelograms that opens and closes in a single motion, as it opened a satellite’s solar array"
+   "line": "A big enough sheet can be folded into any flat-sided shape, without a single cut.",
+   "alt": "Origami, a technique: A big enough sheet can be folded into any flat-sided shape, without a single cut. A sheet of paper in Miura’s fold, a zigzag of parallelograms that opens and closes in a single motion: half open, inside the outline of the whole sheet"
   },
   "boomerangs": {
    "file": "boomerangs.jpg",
@@ -369,8 +369,8 @@
    "from": "picture",
    "title": "Apollo 11",
    "kind": "event",
-   "line": "Its computer had 2,048 words of memory, and flashed alarms minutes before landing.",
-   "alt": "Apollo 11: Its computer had 2,048 words of memory, and flashed alarms minutes before landing. The picture: Apollo 11 Hasselblad image from film magazine 40/S - EVA",
+   "line": "Armstrong steered past a boulder field and landed with under a minute of fuel to spare.",
+   "alt": "Apollo 11: Armstrong steered past a boulder field and landed with under a minute of fuel to spare. The picture: Apollo 11 Hasselblad image from film magazine 40/S - EVA",
    "credit": "Neil A. Armstrong · Public domain"
   },
   "holograms": {

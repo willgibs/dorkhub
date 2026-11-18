@@ -24,7 +24,7 @@ on camera without fighting the app._
    view (a card plays when 60% of it has been on screen for 150 ms; wait for it to finish, 1–2.5 s). The strongest:
    Black holes (the hero: the disk as Luminet drew it), Northern lights, Origami (pulls open; the pointer or a
    thumb takes its corner), Venus flytraps (touch it: two touches within 20 s shut it, five digest), Enigma (type
-   into it), Magnets (filings follow the pointer), Pompeii (Pliny's view: the cloud like the pine beside him),
+   into it), Magnets (filings follow the pointer), Pompeii (the town's plan: its quarters come out of the ash in the order they were dug, a third still buried),
    Fireworks (a night show, each colour a metal), Rubik's Cube, Lightning, Giant squid, Infinity, Atlantis.
    Pointing at a drawing reads out what it shows.
 3. **The map of threads** between topics, below the cards, and the footer: the wordmark set in round lamps, ink at

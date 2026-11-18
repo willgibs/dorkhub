@@ -1,77 +1,85 @@
 # Volcanoes :: phenomenon
-> Vents where the planet's interior breaks through, building mountains in an afternoon, darkening whole summers, and sometimes ending civilizations.
+> Earth's interior breaks through its crust, and most of it happens in the dark, under the sea, where no one is watching.
 !!!
 Key facts :: 
 Active on land :: about 1,300 volcanoes in the last 10,000 years
-Hottest lava :: about 1,200 °C for basalt
-Largest on record :: VEI 8, over 1,000 km³ erupted
+Submarine share :: roughly 75% of magma output
+Tallest known :: Olympus Mons, Mars, 22 km high
 +++
-[[Plate tectonics]] :: kind
+[[Mid-ocean ridge]] :: phenomenon
+[[Plate tectonics]] :: mechanism
+[[Pacific Ring of Fire]] :: place
+[[Hawaiian hotspot]] :: phenomenon
 [[Krakatoa]] :: event
+[[Tambora]] :: event
+[[Year Without a Summer]] :: event
 [[Pompeii]] :: place
 [[Minoan eruption]] :: event
+[[Pyroclastic flow]] :: phenomenon
 [[Volcanic lightning]] :: phenomenon
 [[Kimberlite]] :: thing
-[[Pyroclastic flow]] :: phenomenon
-[[Year Without a Summer]] :: event
-[[Hotspot (geology)]] :: concept
-[[Toba catastrophe theory]] :: mystery
+[[Black smoker]] :: phenomenon
 [[Olympus Mons]] :: place
-[[Io (moon)]] :: place
-[[Volcanic Explosivity Index]] :: concept
-[[Mount Pinatubo]] :: event
 ---
-A volcano is not really a mountain but a hole: a place where molten rock, gas and ash escape from the planet to the surface, with the mountain merely the debris pile built around it. Earth has roughly 1,300 volcanoes that have erupted within the last 10,000 years, and around 50 to 70 erupt in any given year. Most are hidden. About three quarters of the planet's volcanic output happens unseen along the mid-ocean ridges, where new seafloor is manufactured continuously, while the famous cones of the Pacific "Ring of Fire" mark the places where old seafloor dives back into the mantle.
+A volcano is a place where molten rock, gas and ash escape from inside a planet. On Earth the picture most people carry, a cone with a plume over it, is only the visible tenth of the story. Volcanoes build islands, bury cities, cool the climate for years and, over billions of years, produced the air and oceans. They also range in manner from the gentle lava lakes of Kilauea to explosions that can be heard thousands of kilometres away.
 
-## Why the rock melts
+## Where the magma really goes
 
-The mantle beneath our feet is almost entirely solid, so a volcano needs a trick to melt it. [[Plate tectonics]] supplies three. At ridges, plates pull apart and the mantle rising to fill the gap loses pressure, which lets it melt without any added heat. At subduction zones, the sinking slab carries water down with it, and that water lowers the melting point of the rock above, producing the sticky, gas-rich magma that feeds explosive arcs like the Andes and Japan. And at a [[Hotspot (geology)|hotspot]], a plume of unusually hot rock rises from deep within, punching through the plate above; the Hawaiian chain is the trail left as the Pacific plate slid over one such plume.
+Most of Earth's volcanism is invisible. Roughly three-quarters of all magma erupted each year comes out along the [[Mid-ocean ridge|mid-ocean ridges]], a seam some 65,000 kilometres long that winds through every ocean. There, plates pull apart and the mantle beneath rises and partly melts, filling the gap with fresh basalt. The seafloor is made this way, continuously, and no one sees it happen. Cold seawater circulating through the new rock re-emerges as 350-degree fluid at [[Black smoker|black smokers]], whose chimneys were first photographed in 1977 near the Galapagos.
 
-The chemistry of the magma decides the character of the eruption. Runny basalt lets gas bubble out gently, so Hawaiian volcanoes pour lava in rivers and build vast, shallow shields. Silica-rich magma is thick as cold tar and traps its gas until the pressure shatters it, which is why the same planet produces both tourist-friendly lava flows and detonations that reshape continents' weather.
+The rest is mostly the famous kind. Where one plate dives beneath another, water carried down lowers the melting point of the mantle above, and the resulting magma feeds the volcanic arcs of the [[Pacific Ring of Fire]], which holds about 450 volcanoes. This is [[Plate tectonics|plate tectonics]] at work, and it explains why Japan, the Andes and the Aleutians erupt while most continental interiors do not.
 
-::: compare Basaltic | Silicic
-Viscosity :: Runny, like warm syrup | Thick, can plug the vent
-Typical style :: Fountains and flows | Explosive blasts, ash columns
-Example :: Kīlauea | Mount Pinatubo
+::: compare Ridge volcanism | Arc volcanism
+Setting :: Plates pulling apart | One plate sinking under another
+Magma :: Runny basalt | Thick, gas-rich, often silica-heavy
+Style :: Quiet, effusive, underwater | Often explosive
+Visibility :: Almost never seen | Dominates the news
 :::
 
-## When the mountain explodes
+^ Iceland sits on the Mid-Atlantic Ridge, one of the few places where a ridge rises above sea level and can be walked on.
 
-The deadliest volcanic weapon is rarely lava, which moves slowly enough to walk away from. It is the [[Pyroclastic flow]], an avalanche of incandescent ash and gas that can hurtle downhill at hundreds of kilometres per hour. One of these buried [[Pompeii]] and Herculaneum in AD 79 after Vesuvius first rained pumice for hours, and later surges killed those who had stayed behind. Scientists rank eruptions on the [[Volcanic Explosivity Index]], a logarithmic scale where each step is roughly ten times more material, topping out at 8 for supereruptions.
+## Why some erupt gently and others explode
 
-The 1883 eruption of [[Krakatoa]] shows what the upper end of that scale does to the atmosphere. Its bangs were heard about 4,800 km away, on Rodrigues Island in the Indian Ocean, and barometers around the world recorded the pressure wave circling the globe several times, with the blast registering seven times in all. The associated tsunamis killed an estimated 36,000 people, and the sunsets stayed lurid for months afterward.
+The difference is mostly viscosity and gas. Runny basalt lets bubbles escape, so lava pours out, as at the [[Hawaiian hotspot]], where a plume of hot mantle under the moving Pacific plate has strung out a chain of volcanoes over 70 million years. Sticky, silica-rich magma traps gas under pressure, like a shaken bottle, until it fragments into ash and pumice. The result can be a [[Pyroclastic flow]], a avalanche of hot gas and debris moving at hundreds of kilometres an hour, which is what killed the people of Herculaneum and [[Pompeii]] in AD 79.
 
-^ Violent eruptions can also generate [[Volcanic lightning]], as colliding charged ash particles electrify the plume. Bolts flicker through the column at Krakatoa-scale events and in Iceland's ash clouds.
+Friction between ash particles in the plume generates charge, and [[Volcanic lightning]] flickers inside the column, seen at Eyjafjallajokull in 2010 and Hunga Tonga in 2022.
 
-## Climate, myth and treasure
+## Volcanoes and the wider world
 
-Ash falls quickly, but sulfur dioxide lofted into the stratosphere turns to a haze of sulfuric acid droplets that reflects sunlight for a year or two. Tambora's 1815 eruption cooled the planet enough to cause the [[Year Without a Summer]] of 1816, with crop failures across Europe and North America. [[Mount Pinatubo]] in 1991 lowered global temperatures by roughly half a degree Celsius, a natural experiment that climate modellers still use. Some researchers argue that the [[Toba catastrophe theory]], a supereruption about 74,000 years ago, nearly wiped out early humans, though genetic and archaeological evidence for that remains disputed.
+Eruptions reach far beyond their slopes. In April 1815 [[Tambora]] in Indonesia produced the largest eruption of recorded history, killing tens of thousands directly, and the sulphate aerosols it lofted cooled the planet enough to cause the [[Year Without a Summer]] in 1816, with crop failures across Europe and North America. The 1883 blast of [[Krakatoa]] was heard some 4,800 kilometres away and generated waves that killed over 30,000 people. Some archaeologists link the [[Minoan eruption]] of Thera, around 1600 BC, to the decline of Bronze Age Crete, though the dating and the link are debated.
 
-The same violence has left legacies. The [[Minoan eruption]] of Thera around 1600 BC buried a Bronze Age town at Akrotiri and has long been proposed as a seed for the Atlantis story, though that link is speculation. Deep, fast-rising [[Kimberlite]] eruptions, which explode up from more than 150 km down, are how nearly all gem diamonds reach the surface. Elsewhere in the solar system, [[Olympus Mons]] on Mars is a shield volcano about 22 km high, and Jupiter's moon [[Io (moon)|Io]] is the most volcanically active body known, its eruptions powered by tidal flexing rather than plate motion.
+Volcanoes also deliver treasure from deep within. [[Kimberlite]] pipes, erupting from over 150 kilometres down, carried diamonds to the surface, and are the source of many of the world's gems. The solar system has its own giants: [[Olympus Mons]] on Mars is about 22 kilometres high, roughly two and a half times Everest's elevation above sea level.
 
+::: timeline
+AD 79 :: Vesuvius buries Pompeii and Herculaneum.
+1815 :: Tambora erupts; the next year is the Year Without a Summer.
+1883 :: Krakatoa explodes, heard nearly 5,000 km away.
+1977 :: Black smokers found on the Galapagos Rift.
+2022 :: Hunga Tonga erupts, its plume reaching the mesosphere.
+:::
 ===
-- [[Atlantis]] :: Did Thera's blast inspire Plato's drowned island? The case for and against.
-- [[Lightning]] :: Volcanic plumes make their own thunderstorms, electrified by colliding ash grains.
-- [[Diamonds]] :: Kimberlite pipes are the supersonic elevators that deliver gems from the deep mantle.
-- [[Tambora]] :: The 1815 blast that gave Europe a summer of snow and inspired Frankenstein.
-- [[Yellowstone Caldera]] :: A hotspot supervolcano whose past eruptions dwarf anything in recorded history.
-- [[Mid-ocean ridge]] :: The planet's longest mountain chain, and the volcanic seam nobody ever sees.
+- [[Pompeii]] :: Vesuvius, AD 79: a Roman town frozen in ash, mid-meal :: place
+- [[Atlantis]] :: Did Thera's eruption inspire Plato's sunken civilization? :: mystery
+- [[Lightning]] :: Volcanic plumes spark with it; how clouds make charge :: phenomenon
+- [[Diamonds]] :: Kimberlite eruptions carry them up from 150 km deep :: thing
+- [[Year Without a Summer]] :: Tambora's ash gave us Frankenstein and failed harvests :: event
+- [[Black smoker]] :: Seafloor chimneys at 350 degrees host life without sunlight :: phenomenon
 ???
-How do scientists predict when a volcano will erupt?
-Could a supervolcano eruption happen again in our lifetimes?
-Why do some volcanic islands vanish beneath the sea?
+Why do volcanoes explode in some places and only ooze in others?
+What was the Year Without a Summer, and how did Tambora cause it?
+How do diamonds ride a kimberlite eruption up from the deep mantle?
 &&&
-[[Plate tectonics]] :: The slow engine that decides where almost every volcano sits.
-[[Krakatoa]] :: A blast heard across an ocean, circled by pressure waves.
-[[Pompeii]] :: A Roman town frozen mid-breakfast under volcanic ash.
-[[Minoan eruption]] :: A Bronze Age catastrophe that may have broken a civilization.
-[[Volcanic lightning]] :: Thunderstorms born inside ash clouds from grains rubbing together.
-[[Kimberlite]] :: The deep volcanic pipes that carry diamonds to the surface.
-[[Pyroclastic flow]] :: A glowing ash avalanche faster than a speeding train.
-[[Year Without a Summer]] :: When a volcano in Indonesia cancelled summer across the Northern Hemisphere.
-[[Hotspot (geology)]] :: A fixed plume that drew the Hawaiian chain like a conveyor belt.
-[[Toba catastrophe theory]] :: Did one eruption shrink early humanity to a few thousand people?
-[[Olympus Mons]] :: A Martian volcano taller than Everest and as wide as France.
-[[Io (moon)]] :: A moon with hundreds of volcanoes, heated by Jupiter's squeeze.
-[[Volcanic Explosivity Index]] :: A logarithmic scale that makes a magnitude-8 eruption unimaginable.
-[[Mount Pinatubo]] :: An eruption that measurably cooled the whole planet for two years.
+[[Mid-ocean ridge]] :: A 65,000 km seam where most of Earth's magma emerges unseen.
+[[Plate tectonics]] :: The slow machinery that decides where volcanoes appear.
+[[Pacific Ring of Fire]] :: About 450 volcanoes ringing an ocean.
+[[Hawaiian hotspot]] :: A mantle plume stringing islands across the Pacific.
+[[Krakatoa]] :: A 1883 explosion heard 4,800 km away.
+[[Tambora]] :: Biggest eruption in recorded history, in 1815.
+[[Year Without a Summer]] :: A volcano cancelled 1816's summer across the Northern Hemisphere.
+[[Pompeii]] :: A Roman town preserved in ash, down to the loaves.
+[[Minoan eruption]] :: Thera blew apart around 1600 BC, perhaps ending Minoan power.
+[[Pyroclastic flow]] :: Glowing avalanches of gas and ash moving at hundreds of km/h.
+[[Volcanic lightning]] :: Ash colliding in the plume makes its own storm.
+[[Kimberlite]] :: Deep-sourced rock pipes that deliver diamonds to the surface.
+[[Black smoker]] :: Superheated vents where life thrives without sunlight.
+[[Olympus Mons]] :: A Martian shield volcano wider than France is across.
