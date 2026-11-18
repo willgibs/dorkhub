@@ -1,9 +1,9 @@
 /* ================= what you've read: one index over your world, rebuilt only when it changes ================= */
-import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, splitLink, yearOf } from '../shared/article.js';
+import { capFirst, cardsOf, clip, hookOf, keyOf, parseArticle, plain, quietRuns, splitLink, yearOf } from '../shared/article.js';
 import { routeOf, topicKey } from '../shared/world.js';
 import { nodeKeyOf } from '../shared/graph.js';
 import { LENS_PHRASE, kattr, kindOf } from './01-data.js';
-import { $, $$, afterMotion, announce, errText, esc, leave, reducedMotion, save, store, toast, write } from './02-util.js';
+import { $, $$, afterMotion, announce, errText, esc, leave, reducedMotion, save, store, toast, tokenMs, write } from './02-util.js';
 import { ic } from './03-icons.js';
 import { orbHTML, waitHTML } from './03-orbs.js';
 import { ACTIVE, CUR, REV, curTrail, isLive, linksFrom, pageInput, pageOf, parsed, shownTitle, titleLocked } from './04-pages.js';
@@ -93,13 +93,21 @@ function revealLoop(now) {
   revRaf = 0; const dt = Math.min(.1, Math.max(0, (now - revLast) / 1000)); revLast = now;
   for (const [id, r] of REV) {
     const target = (r.node.text || '').length; const backlog = target - r.shown;
-    if (backlog > 0) r.shown = Math.min(target, r.shown + Math.max(REV_MIN, Math.min(REV_MAX, backlog * 5)) * dt);
+    if (backlog > 0) r.shown = pastQuiet(r, Math.min(target, r.shown + Math.max(REV_MIN, Math.min(REV_MAX, backlog * 5)) * dt), target);
     const finished = r.node.status !== 'digging' && r.shown >= target;
     if (finished) REV.delete(id);
     if (backlog > 0 || finished) paint(r.node, !finished);
     if (finished) pageDone(r.node);
   }
   if (REV.size) revRaf = requestAnimationFrame(revealLoop);
+}
+
+/* lines a reader never sees are passed over at once (quietRuns), so a page that arrives whole shows its first words with
+   its head, not half a second after it, and a page being written never falls behind on them */
+function pastQuiet(r, at, max) {
+  const t = r.node.text || ''; if (!r.q || r.q.len !== t.length) r.q = { len: t.length, runs: quietRuns(t) };
+  for (const [a, b] of r.q.runs) if (at >= a && at < b) return Math.min(max, b);
+  return at;
 }
 
 /* ================= writing a page ================= */
@@ -230,14 +238,18 @@ export function fromOf(p) {
    then puts them back and lets them go. */
 function liftWaits(sec) {
   const waits = $$('.a-body > .status-line:not(.lifted)', sec);
-  for (const el of waits) {
-    if (reducedMotion() || !el.offsetParent) { el.remove(); continue; }
-    const r0 = el.getBoundingClientRect();
-    Object.assign(el.style, { position: 'absolute', top: '0px', left: '0px', width: `${r0.width}px`, margin: '0' });
-    const r1 = el.getBoundingClientRect(); el.style.top = `${r0.top - r1.top}px`; el.style.left = `${r0.left - r1.left}px`;
-    delete el.dataset.k; el.removeAttribute('role'); el.setAttribute('aria-hidden', 'true'); el.classList.add('lifted');
-  }
+  for (const el of waits) if (!lift(el)) el.remove();
   return waits.filter(el => el.classList.contains('lifted'));
+}
+/* a wait, out of the flow where it stands, so it can leave without moving anything; false when it can only go at once,
+   as a page's own wait does if the page's words came before it had faded in (it waits for the page to land) */
+function lift(el) {
+  if (reducedMotion() || !el.offsetParent || (el._born && performance.now() - el._born < tokenMs('--d-slow'))) return false;
+  const r0 = el.getBoundingClientRect();
+  Object.assign(el.style, { position: 'absolute', top: '0px', left: '0px', width: `${r0.width}px`, margin: '0' });
+  const r1 = el.getBoundingClientRect(); el.style.top = `${r0.top - r1.top}px`; el.style.left = `${r0.left - r1.left}px`;
+  delete el.dataset.k; el.removeAttribute('role'); el.setAttribute('aria-hidden', 'true'); el.classList.add('lifted');
+  return true;
 }
 const letGo = waits => waits.forEach(el => leave(el, () => el.remove()));
 /* The head: what kind of topic this is and the page's tools on one quiet row, then the title (already
@@ -269,7 +281,7 @@ function paintHead(p, sec, A, live) {
   }
   patch($('.h-main', head), main);
   const h1 = $('.a-title', head); if (h1 && !h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
-  const kf = $('.keyfacts', head); if (kf) { fitFacts(kf); watchHead(head); }
+  watchHead(head); const kf = $('.keyfacts', head); if (kf) fitFacts(kf);
 }
 /* The head is designed for whatever the writer sends, not for the lengths a prompt asks for (Will, 2026-10-19: rules
    in a prompt are fickle across models; the design has to hold the outliers). A title is set by its length, so a long
@@ -282,9 +294,16 @@ function fitFacts(dl) {
   const w = dl.clientWidth; const sig = `${dl._h}|${w}`; if (!w || dl._fit === sig) return; dl._fit = sig;
   dl.dataset.fit = 'across'; if (dl.scrollWidth > w + 1) dl.dataset.fit = 'down';
 }
+/* While a page waits for its first words, its head grows above the wait (the writer's deck, then the key facts): the
+   wait glides down to its new place on the motion scale, instead of jumping there. */
 function watchHead(head) {
   if (head._ro || typeof ResizeObserver !== 'function') return;
-  head._ro = new ResizeObserver(([e]) => { const w = Math.round(e.contentRect.width); if (w === head._w) return; head._w = w; requestAnimationFrame(() => { const kf = $('.keyfacts', head); if (kf) fitFacts(kf); }); });
+  head._ro = new ResizeObserver(([e]) => {
+    const w = Math.round(e.contentRect.width), h = Math.round(e.contentRect.height), dh = w === head._w && head._hh ? h - head._hh : 0; head._hh = h;
+    const st = dh && !reducedMotion() ? $('.a-body > .status-line.first:not(.lifted)', head.closest('.chamber')) : null;
+    if (st) st.animate([{ transform: `translateY(${-dh}px)` }, { transform: 'none' }], { duration: tokenMs('--d-medium'), easing: getComputedStyle(st).getPropertyValue('--ease-out').trim() || 'ease-out', composite: 'add' });
+    if (w === head._w) return; head._w = w; requestAnimationFrame(() => { const kf = $('.keyfacts', head); if (kf) fitFacts(kf); });
+  });
   head._ro.observe(head);
 }
 
@@ -510,12 +529,28 @@ function dropPic(node) {
   const fig = secFor(node.id) && $('figure.pic', secFor(node.id)); if (fig) fig.remove();
 }
 
-/* The status line tells the truth about a wait, and only while there is one: an orb for the kind of
-   wait, then what is happening. The orb stays put when the wait moves on; only its motion changes. */
-function setStatus(el, text, orb) {
-  if (el._t === text) return; const swap = !!el._t; el._t = text;
-  const shim = `<span class="shim${swap ? ' swap' : ''}" data-text="${esc(text)}">${esc(text)}</span>`;
-  const c = $('canvas.orb', el); if (c) { c.dataset.orb = orb; c.nextElementSibling.outerHTML = shim; } else el.innerHTML = `<span class="wait">${orbHTML(orb)}${shim}</span>`;
+/* ================= the wait for a page's first words: a row of lamps where they will be =================
+   Between a click and the first words the writer plans the page: its head a line at a time, and beside it the 10 to 14
+   topics it will link, sent together once the head is whole, then a pause while the body's own call begins (lib/split.js;
+   medians straight to Anthropic, 2026-11-18: the deck at 1.0 s, the plan near 1.8 s, the first words at 2.6 s). Where
+   the first line will be, the wait is the orb that says the writer is at work, and a row of the composer's lamps,
+   unlit; each planned topic lights the next along the line, in its kind's colour, which passes through it and leaves it
+   ink, as the wordmark's lamps do. When the words come, the row gives way to them along the same line. What is
+   happening is said in words to a screen reader. A page that arrives whole has no wait. */
+const LAMP_PITCH = 10;
+/** @param {any} el the wait @param {string} text @param {string} orb @param {string[]} plan the planned topics' kinds @param {() => number} room its row's width */
+function setStatus(el, text, orb, plan, room) {
+  if (!el._built) { el.innerHTML = `<span class="wait">${orbHTML(orb)}<span class="sr"></span></span><span class="plan" aria-hidden="true"></span>`; el._built = true; }
+  const c = $('canvas.orb', el); if (c.dataset.orb !== orb) c.dataset.orb = orb;
+  const sr = $('.sr', el); if (sr.textContent !== text) sr.textContent = text;
+  const row = $('.plan', el);
+  if (!row._n) { row._n = Math.max(12, Math.floor(room() / LAMP_PITCH)); row.innerHTML = '<i></i>'.repeat(row._n); row._k = 0; row._at = 0; }
+  /* topics that arrive together (the plan comes whole) light one after another, a stagger apart, as one sweep */
+  const now = performance.now(), step = row._k < plan.length && !reducedMotion() ? tokenMs('--d-stagger') : 0;
+  for (; row._k < Math.min(plan.length, row._n); row._k++) {
+    const i = row.children[row._k], k = kindOf(plan[row._k]); row._at = Math.max(now, row._at + step);
+    if (k) i.dataset.kind = k; if (row._at > now) i.style.animationDelay = `${Math.round(row._at - now)}ms`; i.className = 'on';
+  }
 }
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec);
@@ -526,7 +561,8 @@ function paintBody(node, sec, A, live) {
   /* known from an earlier visit: it's there from the start; found during this one: only while the first paragraph is still being written */
   if (node.pic && !PICAT.has(node.id)) { const p1 = A.blocks.findIndex(b => b.t === 'p'); PICAT.set(node.id, !PICASKED.has(node.id) || (live && !A.bodyDone && (p1 < 0 || p1 === lastIdx))); }
   const pic = node.pic && PICAT.get(node.id) ? node.pic : null;
-  if (live && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing what to link' : 'Writing this page', orb: A.wait ? 'connecting' : 'composing' });
+  /* only a page being written waits: one that arrived whole has its first words a beat behind its head */
+  if (node.status === 'digging' && !A.blocks.length) want.push({ k: 'status', type: 'status', text: A.wait ? 'Choosing what to link' : 'Writing this page', orb: A.wait ? 'connecting' : 'composing', plan: Object.values(A.gloss).map(g => g.kind) });
   /* a facts panel goes with its paragraph, below it with any aside; the rest where the writer put them */
   const side = new Map(), flow = [];
   A.panels.forEach((p, j) => { const b = A.blocks[p.at - 1]; if (p.type === 'facts' && b && b.t === 'p') { if (!side.has(p.at - 1)) side.set(p.at - 1, []); side.get(p.at - 1).push([p, j]); } else flow.push([p, j]); });
@@ -542,6 +578,10 @@ function paintBody(node, sec, A, live) {
   });
   panelsAt(A.blocks.length);
   const existing = new Map(); for (const el of body.children) if (el.dataset.k) existing.set(el.dataset.k, el);
+  /* the first words take the wait's place: it is lifted out of the flow where it stood, before they are placed there,
+     and gives way to them along the line */
+  const wait = existing.get('status');
+  if (wait && !want.some(w => w.type === 'status')) { existing.delete('status'); if (A.blocks.length && lift(wait)) leave(wait, () => wait.remove(), 'written'); else wait.remove(); }
   let prev = null; const anim = !reducedMotion();
   for (const w of want) {
     let el = existing.get(w.k);
@@ -551,7 +591,7 @@ function paintBody(node, sec, A, live) {
       else if (w.type === 'ul') el = document.createElement('ul');
       else if (w.type === 'p') { el = document.createElement('div'); el.className = 'pb'; el.innerHTML = `<div class="mcol"></div><div class="pcol"><button class="ptool" type="button" aria-label="Expand this paragraph" aria-haspopup="menu" aria-expanded="false">¶</button><p></p><div class="px"></div></div>`; }
       else if (w.type === 'panel') { el = document.createElement('section'); el.className = 'panel' + (anim ? ' enter' : ''); }
-      else { el = document.createElement('p'); el.className = 'status-line'; el.setAttribute('role', 'status'); }
+      else { el = document.createElement('p'); el.className = 'status-line first'; el.setAttribute('role', 'status'); el._born = performance.now(); }
       el.dataset.k = w.k;
     }
     if (w.type === 'h') inkHTML(el, w.html, w.tip);
@@ -570,7 +610,7 @@ function paintBody(node, sec, A, live) {
       const pb = pic && w.pi === 1 && $('.pic-box.loading', el); if (pb && !pb._f) picField(pb);
     }
     else if (w.type === 'panel') paintPanel(el, w.p, node, w.j);
-    else setStatus(el, w.text, w.orb);
+    else setStatus(el, w.text, w.orb, w.plan, () => body.clientWidth - 32);
     place(body, el, prev); prev = el;
   }
   existing.forEach(el => el.remove());

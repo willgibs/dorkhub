@@ -441,13 +441,16 @@ async function run(page, { mobile = false } = {}) {
     await page.route('**/api/picture?f=*', r => r.fulfill({ status: 200, contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="500" height="300"><rect width="500" height="300" fill="#4a7"/></svg>' }));
   } else await page.route('**/api/picture?t=*', r => r.fulfill({ status: 204 }));
   await step(`${tag}: first page streams in`, async () => {
-    /* what the wait looked like: its words, whether an orb was drawn beside them, and the picture slot's first height */
-    await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); w.__orb = false; w.__picH0 = 0; new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) { w.__status.add(s.textContent); if (s.querySelector('canvas.orb')) w.__orb = true; } const b = document.querySelector('.pic-box'); if (b && !w.__picH0) w.__picH0 = b.getBoundingClientRect().height; }).observe(document.body, { childList: true, subtree: true, characterData: true }); });
+    /* what the wait looked like: its words (for a screen reader), whether an orb was drawn beside them, its row of lamps
+       and how many were lit for the topics the writer planned, and the picture slot's first height */
+    await page.evaluate(() => { const w = /** @type {any} */ (window); w.__status = new Set(); w.__orb = false; w.__row = 0; w.__lit = 0; w.__picH0 = 0; new MutationObserver(() => { const s = document.querySelector('.status-line'); if (s) { w.__status.add(s.textContent); if (s.querySelector('canvas.orb')) w.__orb = true; w.__row = Math.max(w.__row, s.querySelectorAll('.plan i').length); w.__lit = Math.max(w.__lit, s.querySelectorAll('.plan i.on').length); } const b = document.querySelector('.pic-box'); if (b && !w.__picH0) w.__picH0 = b.getBoundingClientRect().height; }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class'] }); });
     await page.fill('#seedIn', first); await page.press('#seedIn', 'Enter');
     await page.waitForSelector('.a-title'); await waitDone();
-    const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], orb: /** @type {any} */ (window).__orb, now: !!document.querySelector('.status-line'), orbsLeft: document.querySelectorAll('.a-body canvas.orb').length }));
+    const status = await page.evaluate(() => ({ seen: [.../** @type {any} */ (window).__status], orb: /** @type {any} */ (window).__orb, row: /** @type {any} */ (window).__row, lit: /** @type {any} */ (window).__lit, now: !!document.querySelector('.status-line'), orbsLeft: document.querySelectorAll('.a-body canvas.orb').length }));
     if (!status.seen.length || status.now || status.seen.some(s => /path/.test(s))) throw new Error(`status line: seen ${JSON.stringify(status.seen)}, still there ${status.now}`);
     if (!status.orb || status.orbsLeft) throw new Error(`thinking orb: ${JSON.stringify(status)}`);
+    /* the wait is a row of lamps where the first line goes, one lit for each topic the writer planned (the mock plans ten) */
+    if (status.row < 12 || status.lit < 1 || status.lit > 10) throw new Error(`the wait's lamps: ${JSON.stringify(status)}`);
     const where = await page.evaluate(() => ({ url: location.pathname, title: document.querySelector('.a-title')?.textContent, kind: document.querySelector('.where .kind')?.textContent || '', accent: document.documentElement.dataset.accent }));
     if (where.url !== `/${slugOf(first)}` || where.title !== first || !where.kind || !where.accent) throw new Error(`the page: ${JSON.stringify(where)}`);
     /* every page carries its line of key facts, under the deck */
