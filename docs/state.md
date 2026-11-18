@@ -2,37 +2,39 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-17, night): two PRs on the desk; the free writer rebuilt around Haiku
-- **Live on dorkhub.com:** the free pages write on Will's Anthropic credit (`DH_ANTHROPIC_KEY`, Production only;
-  Console workspace "Dorkhub", $50 monthly limit), and #54's parser fixes for the bare title and the "Key facts" label.
-- **PR #55 (`fix/unmarked-sections`)**, desk asks "closing-sections" and "covers":
-  - the parser reads Haiku's closing sections by their shape and drops copied labels;
-  - Sonnet 5.5 rewrote all 44 covers ($0.73), each opening on its topic.
-- **The split-writer PR (`feat/split-writer`, stacked on #55)**, desk ask "split-writer": Dorkhub's own writer writes a
-  page in three calls (frame, body, ways on; `lib/split.js`), with planned topics linked at their first mention.
-  - By batch on the 44 topics: bodies that link nothing fall from 17 to 0, the median rises from 2 links to 12
-    (Sonnet 13), and every page is whole (25 today).
-  - Merge #55 first, then this one. Each needs Will's Approve.
-- **Will's first-principles call (2026-11-17):** "work in from both ends", with everything up for relitigation. Haiku
-  does best with one job at a time and mirrors the prompt's words, so its prompts carry no phrases it could copy.
-- **Card audit:** a separate session ("Front-page cards that show their own topic") audits the cards that picture a
-  neighbouring idea. Changed lines mean those covers are written again (Will's go).
-- **Spent on the credit so far:** about $1.65 of the $50 month.
+## Now (2026-11-18): the split writer is live; its first body words come 1.8 s later
+- **Live on dorkhub.com:** the free pages on Will's Anthropic credit (`DH_ANTHROPIC_KEY`, Production only; Console
+  workspace "Dorkhub", $50 monthly limit); the parser reading Haiku's pages where it drops its markers (#54, #55);
+  Sonnet 5.5's 44 covers (#55); npm audit's five advisories cleared (#53); and the split writer (#57): Haiku writes
+  each page in three calls (frame, body, ways on; `lib/split.js`), planned topics linked at their first mention.
+- **#56, merging with this file:** six front-page lines back on their own topic, Pompeii's card as the town's plan
+  from the survey of its ruins (`front.json`'s budget 200 → 220 KB), and those seven covers rewritten by Sonnet.
+- **The split writer, timed (18 Nov; `docs/decisions.md`):** on dorkhub.com the head shows 1.6–2.4 s after the click,
+  the first body words at 3.8–4.6 s, the end at 16.5–18 s. Against the single pass the first body words come 1.8 s
+  later (median 3.8 s against 2.1 s), not the half second estimated. In exchange: a median of 12 links a page, not 2.
+  - Where it goes: the frame as structured output waits 1.2–1.8 s for its first token (plain text: ~0.6 s) and runs
+    to ~430 tokens of JSON; then the body waits 0.55–0.7 s for its own first token.
+- **Will's calls (17–18 Nov):** "work in from both ends", everything up for relitigation; Haiku stays the live writer,
+  Sonnet writes the covers; cards should feel like "a knowledge tool and not like a toy" (his note on Pompeii); testing
+  on the credit needs no ask and no heads-up until $20 in a month (`CLAUDE.md`).
+- **Spent this month:** about $1.75 of the credit (the Console: $198.41 of $200 left at 04:36 UTC on 18 Nov, then
+  about $0.15: the live proof and timing, and #56's covers at $0.12).
 
 ## Next
-1. Ship #55 then the split writer after Will's look. Prove it live (`node scripts/prove.mjs https://dorkhub.com
-   --spend --yes`, about $0.004) and read `split: true` in the logs, with the time to the first word.
+1. Win back the first body words: the frame written as the page's own head lines (no JSON), and the body started as
+   soon as it can. Time it against the single pass with `.e2e/desk/tools/timing.mjs`, then the desk.
 2. Relitigate the rest of the page around what Haiku writes well: hooks on hover rather than written for every link,
    and readers' own keys on the split writer.
-3. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size; Upstash; old resources; repo
+3. Asked of Will: bring more cards up to the Pompeii bar, as desk asks?
+4. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size; Upstash; old resources; repo
    visibility; Pro pricing; identity federation.
 
 ## Open, small
-- The audit PR (#53, `package-lock.json` only) awaits Will's review.
 - CI's second try for the walk warns when used: drop it after a clean week (from 14 Nov).
 - Never run `npm run verify` beside `npm run e2e`: verify rebuilds `public/` under the walk.
-- Room: the page is ~393 KB of its 400 KB budget (`tests/page.test.js`), `front.json` ~198 KB of 200 KB.
+- Room: the page is ~387 KB of its 400 KB budget (`tests/page.test.js`), `front.json` ~215 KB of 220 KB.
 - Placeholders still say a page "will be written by the same writer as every page"; none shows today.
-- `.e2e/desk/tools/page-end.mjs` captures a page's end from a saved answer, for free.
+- On Will's Mac, untracked: `.e2e/desk/tools/page-end.mjs` captures a page's end from a saved answer, for free;
+  `timing.mjs` times a page's head, first body words and end (live, or the single pass against the split).
 
 The orchestrator's working notes: `.claude/orchestrator-handoff.md` (untracked, on Will's Mac).

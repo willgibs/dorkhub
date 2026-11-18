@@ -514,3 +514,20 @@ One line each, newest last. Why, not just what.
   - **`front.json`'s budget rose from 200 to 220 KB**: every surveyed wall is 35 KB of path data, against 17 KB for
     Pliny's view. Held to 200 KB the plan came out visibly sparser than the mock Will approved. The front page
     fetches 7 KB more by brotli (52 KB in all).
+- 2026-11-18 · **Testing needs no ask up to $20 a month** (Will, in chat, when asked for a go on about $0.09 for the
+  split writer's live proof and seven covers): "Just so you can stop asking me to spend incredibly minor amounts of API
+  credit, don't even give me a heads-up until we've burned $20 of our monthly credit testing. Even then, I doubt we'll
+  even get close to touching everything available. Full permissions to spend away on this testing." `CLAUDE.md` says
+  so. The running total is in `docs/state.md`, and the Console's usage under the Dorkhub workspace is the truth. Which
+  topics get pages is still his call. A session refuses a spend that reaches it only from another session, as #56's
+  did (rightly), so such spends run in the session he told, which writes the rule down where every session reads it.
+- 2026-11-18 · **The split writer, live and timed** (#57). On dorkhub.com every write logs `split: true` and `end: ok`,
+  at about $0.0016 a page, and every page after the first reads its 2,777 shared tokens from the prompt cache;
+  `node scripts/prove.mjs https://dorkhub.com --spend --yes` passes. It is slower than the half second I estimated:
+  - **Against the single pass**, on the same four topics, straight to Anthropic from Will's Mac: the deck shows at a
+    median 1.6 s against 0.75 s, the first body words at 3.8 s against 2.1 s, and the end at 16.8 s against 11.9 s.
+  - **On dorkhub.com**, six fresh pages, from the click: the head at 1.6 to 2.4 s, the first body words at 3.8 to
+    4.6 s, the end at 16.5 to 18 s.
+  - The time goes to the frame, written whole as structured output before the body can start, and then to the body
+    call's own wait for its first token. Kept for what it buys (a median of 12 links a page against 2, every page
+    whole); winning the time back is next. `.e2e/desk/tools/timing.mjs` (untracked, on Will's Mac) measures both.
