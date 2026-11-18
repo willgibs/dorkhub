@@ -1,71 +1,80 @@
 # Supernovas :: phenomenon
-> The iron in your blood was forged inside dying stars, and their explosions scattered it across the galaxy.
+> A star's death can outshine its whole galaxy for weeks, forging the gold in your jewelry and the iron in your blood.
 !!!
-Milky Way rate :: about one or two per century
-Last galactic sighting :: 1604, Kepler's supernova
-Peak brightness :: rivals its whole host galaxy
+Key facts :: 
+Peak output :: about 10^44 joules, comparable to a galaxy's light
+Rate :: roughly 1 to 2 per century per galaxy
+Nearest recent :: SN 1987A, 168,000 light-years away
 +++
-[[Crab Nebula]] :: thing
-[[Pulsar]] :: thing
+[[Crab Nebula]] :: phenomenon
+[[SN 1054]] :: event
+[[Black holes]] :: thing
 [[Neutron star]] :: thing
-[[Black holes]] :: phenomenon
-[[Neutrino]] :: thing
 [[Type Ia supernova]] :: phenomenon
 [[White dwarf]] :: thing
-[[Chandrasekhar limit]] :: concept
-[[Supernova 1987A]] :: event
-[[Standard candle]] :: concept
-[[Dark energy]] :: mystery
-[[SN 1572]] :: event
+[[SN 1987A]] :: event
+[[Neutrino]] :: thing
+[[Nucleosynthesis]] :: mechanism
+[[Fireworks]] :: thing
+[[Tycho Brahe]] :: person
+[[Dark energy]] :: concept
+[[Cosmic ray]] :: phenomenon
+[[Betelgeuse]] :: thing
 ---
-In the summer of 1054, astronomers at the Song dynasty court in China logged a new star in the constellation Taurus. It shone in daylight for 23 days, and it stayed in the night sky for nearly two years. What they had logged was an old star dying, its core collapsing and its outer layers blown into space. Its wreck is the [[Crab Nebula]], a glowing cloud about 6,500 light-years away that is still expanding. Such explosions are called supernovas, and for a few weeks one can rival the light of its whole host galaxy.
-^ The same summer, papal legates excommunicated the patriarch of Constantinople, a split that became the East-West Schism.
+A supernova is the explosion that ends a star's life, a burst so bright that a single dying star can rival the combined light of the hundred billion stars around it. For a few weeks it blazes, then fades over months, leaving behind either a dense stellar corpse or nothing at all but an expanding shell of glowing gas. In the year 1054, Chinese court astronomers recorded a "guest star" in Taurus that was visible in daylight for 23 days and in the night sky for nearly two years. Its wreckage is the [[Crab Nebula|Crab Nebula]], still expanding, still powered by a spinning remnant at its heart. The event is now catalogued as [[SN 1054]].
 
-## A core that cannot hold itself up
+Astronomers recognize two main routes to catastrophe. In the first, a star more than about eight times the mass of the Sun runs out of fuel; in the second, a small, dead star is pushed past its limit by a companion. Both end the same way: runaway energy that tears the star apart, and the light we see is only a sliver of it.
 
-Core-collapse supernovas begin with a star of roughly eight solar masses or more, which ends its life by fusing lighter elements into heavier ones, layer by layer, until its centre is iron. Iron cannot release energy by fusing, so the core stops generating the pressure that holds gravity back. When the core passes a limit, it collapses in a fraction of a second, and the falling material bounces off a new ball of [[neutron star|Neutron star]] matter. A flood of [[neutrinos|Neutrino]] carries energy out of the core, and the shock they help revive blasts the outer layers into space at thousands of kilometres per second.
+^ Roughly 99 percent of a core-collapse supernova's energy escapes as [[neutrino|neutrinos]], not light. The visible flash is a rounding error on the real event.
 
-If the core is heavy enough, nothing stops its collapse at the neutron star stage, and it becomes a [[Black holes|black hole]] instead. Whether a remnant ends as a neutron star or a black hole depends largely on the core's mass. Astronomers suspect some massive stars fail to explode at all and simply vanish, though such quiet collapses are hard to spot.
-::: figures
-10^46 J :: energy released by a core collapse
-20 km :: diameter of a typical neutron star
+## Collapse of a giant
+
+A massive star lives by fusing lighter elements into heavier ones, stacking them in onion-like layers: hydrogen outside, then helium, carbon, oxygen, silicon, and finally an iron core. Iron is the end of the line, because fusing it consumes energy rather than releasing it. Silicon burning in the final stage of a very massive star lasts only about a day. Once the iron core reaches roughly 1.4 solar masses, electron pressure can no longer hold it up, and it collapses in under a second, shrinking from the size of Earth to a ball some 20 kilometers across.
+
+The core rebounds off its own incompressible density, and the shockwave stalls until a flood of [[neutrino|neutrinos]] revives it. In 1987, detectors in Japan and Ohio caught 24 neutrinos from [[SN 1987A]] in the Large Magellanic Cloud, a few hours before the light arrived, confirming the picture. What remains is a [[neutron star]] if the core is under a few solar masses, or a [[black holes|black hole]] if it is heavier, the collapse of a heavy star literally making a hole in space.
+
+::: steps
+Iron core forms :: Fusion stops yielding energy; the core grows to about 1.4 solar masses.
+Collapse :: Electrons are forced into protons; the core falls in under a second.
+Bounce :: Matter hits nuclear density, rebounds, and a shockwave launches outward.
+Stall and revival :: Neutrinos heat the stalled shock until it blasts through the star.
+Brightening :: The star's outer layers are flung out and glow for weeks.
 :::
 
-## When a white dwarf goes too far
+## The thermonuclear kind
 
-The other main kind starts with a [[White dwarf|white dwarf]], the dense remnant of a Sun-like star that no longer fuses anything. Either the white dwarf pulls gas off a companion, or two of them spiral together and merge, and in both cases the mass climbs toward the [[Chandrasekhar limit]], beyond which electron pressure can no longer hold it up. Carbon ignites in the core, and the whole star is torn apart in a runaway thermonuclear blast, a [[Type Ia supernova]] that leaves no core behind.
+A [[Type Ia supernova]] has no massive star at all. It begins with a [[white dwarf]], the Earth-sized ember of a Sun-like star, drawing gas from a companion or merging with another dwarf. When it nears the 1.4 solar mass threshold, carbon ignites throughout its interior and the whole object is consumed in a thermonuclear runaway, leaving nothing behind. Because these explosions peak at nearly the same brightness, they work as standard candles. In 1998 two teams measuring distant Type Ia events found them dimmer than expected, evidence that the universe's expansion is accelerating, and the discovery won the 2011 Nobel Prize in Physics and gave us [[dark energy]] as a name for the cause.
 
-Because Type Ia explosions reach nearly the same peak brightness, astronomers use them as [[Standard candle|standard candles]] to measure distance. In 1998 Saul Perlmutter's team and Brian Schmidt's team, working separately, found that distant ones looked fainter than expected. That meant the universe's expansion has been speeding up rather than slowing, and the cause is unknown; it is usually called [[Dark energy]], a name for an effect rather than an explanation.
-^ Dark energy is thought to make up about 70 percent of the universe's total energy, far more than all the matter in stars.
+## Where the elements come from
 
-## Records in the sky and in the detectors
+Almost every element heavier than hydrogen and helium was made in stars, and supernovas scatter the product. Oxygen, calcium, and iron are blown out of massive stars and Type Ia explosions, a process called [[nucleosynthesis]]. The same fires that give [[fireworks]] their reds and greens, strontium and barium, were forged in stellar interiors and exploded outward. Gold and other heaviest elements likely come mostly from neutron star collisions rather than supernovas, a point confirmed in 2017 with gravitational waves and light from one such merger.
 
-In November 1572 the Danish astronomer Tycho Brahe watched a new star bloom in Cassiopeia, the supernova now known as [[SN 1572]]. He measured its position for months and found it did not shift against the background stars, which placed it far beyond the Moon. That challenged the old belief that the heavens never change, and in 1573 he published his observations as De nova stella.
+Supernova shockwaves also accelerate [[cosmic ray|cosmic rays]] and trigger the collapse of nearby gas into new stars, which is how our Solar System may have begun. The [[Tycho Brahe|Tycho]] event of 1572 and Kepler's of 1604 are the last two seen in our own galaxy with the naked eye. We are overdue, and the red supergiant [[Betelgeuse]] is a popular candidate, though it is probably tens of thousands of years from exploding.
 
-In February 1987, [[Supernova 1987A|a supernova]] exploded in the Large Magellanic Cloud, about 168,000 light-years away, the closest one seen since 1604. Its neutrinos reached Earth hours before its light did, and roughly twenty of them were caught by detectors in Japan and Ohio. On 24 February, Ian Shelton and Oscar Duhalde at Las Campanas Observatory in Chile noticed the new star.
-
-At the heart of the Crab sits a [[Pulsar|pulsar]], a [[Neutron star|neutron star]] spinning about thirty times a second. Its wind of charged particles keeps the nebula glowing, and as the spin slows, the Crab keeps changing almost a thousand years after the blast. Astronomers have followed that light from radio waves to gamma rays.
+^ The Milky Way hosts about one supernova every 50 years, yet dust hides most of them. The last confirmed Galactic remnant is only a few centuries old.
 ===
-- [[Fireworks]] :: Firework colours come from metals forged in stars, before anyone lit a fuse :: technique
-- [[Cobalt]] :: Supernova light fades as cobalt decays, the metal that colours blue glass :: thing
-- [[Iron-60]] :: Iron-60 in deep-sea crust hints at blasts near Earth, millions of years ago :: thing
-- [[Light echo]] :: Dust rings around Supernova 1987A keep glowing with light from the old blast :: phenomenon
-- [[Gamma-ray burst]] :: Some gamma-ray bursts come from a massive star collapsing into a black hole :: phenomenon
-- [[Cosmic ray]] :: Dying stars' shockwaves may be firing particles through you right now :: phenomenon
+- [[Crab Nebula]] :: A pulsar spinning 30 times a second powers this 1054 wreck.
+- [[Neutron star]] :: A teaspoon of this collapsed core would weigh billions of tons.
+- [[Dark energy]] :: Dim Type Ia supernovas revealed the universe's accelerating expansion.
+- [[Fireworks]] :: Strontium red and barium green were forged in stellar cores.
+- [[Neutrino]] :: Nearly all of a supernova's energy leaves as these ghost particles.
+- [[Betelgeuse]] :: A red supergiant in Orion that could explode, though not soon.
 ???
 How do astronomers tell a Type Ia supernova from a core-collapse one?
-Could a nearby supernova harm life on Earth?
-Why did Supernova 1987A's neutrinos arrive hours ahead of the light?
+Could a supernova near Earth harm life on the planet?
+Why does iron mark the end of a massive star's fusion?
 &&&
-[[Crab Nebula]] :: a glowing wreck with a spinning neutron star at its heart
-[[Pulsar]] :: a neutron star whose beam sweeps past Earth once per spin
-[[Neutron star]] :: a city-sized ball holding more mass than the Sun
-[[Black holes]] :: the leftover that traps even light, sometimes born in a blast
-[[Neutrino]] :: a ghost particle, trillions pass through you every second
-[[Type Ia supernova]] :: a white dwarf's explosion that works like a ruler across space
-[[White dwarf]] :: a dead star Earth-sized, with a teaspoon weighing several tonnes
-[[Chandrasekhar limit]] :: the mass ceiling set by quantum rules, not by heat
-[[Supernova 1987A]] :: the nearby blast whose neutrinos beat its light to Earth
-[[Standard candle]] :: the cosmic lamp whose faintness revealed a speeding-up universe
-[[Dark energy]] :: the name for a push nobody can yet explain
-[[SN 1572]] :: Tycho Brahe's new star, which shook belief in unchanging heavens
+[[Crab Nebula]] :: Glowing remnant of 1054, powered by a pulsar spinning 30 times per second.
+[[SN 1054]] :: Chinese and Japanese records caught a guest star visible by day.
+[[Black holes]] :: Born when the collapsed core is too heavy to stop.
+[[Neutron star]] :: City-sized core packing more than the Sun's mass.
+[[Type Ia supernova]] :: Exploding white dwarfs that serve as cosmic yardsticks.
+[[White dwarf]] :: Earth-sized stellar ember that can detonate completely.
+[[SN 1987A]] :: Nearest modern supernova; its neutrinos arrived hours before its light.
+[[Neutrino]] :: Nearly massless particle carrying away most of the explosion's energy.
+[[Nucleosynthesis]] :: How stars and their explosions cooked up the periodic table.
+[[Fireworks]] :: Their colors come from metals forged in dying stars.
+[[Tycho Brahe]] :: His 1572 supernova observations challenged the idea of unchanging heavens.
+[[Dark energy]] :: Supernova dimness revealed the universe's accelerating expansion.
+[[Cosmic ray]] :: Supernova shocks hurl particles to nearly the speed of light.
+[[Betelgeuse]] :: Orion's red supergiant, forever rumored to be about to explode.

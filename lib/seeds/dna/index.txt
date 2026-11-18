@@ -1,81 +1,82 @@
 # DNA :: thing
-> Four chemical letters, written along a molecule that would run two metres unwound from one cell, carry the instructions for building you.
+> A molecule four letters long that writes the instructions for every living thing, coiled so tightly that two metres of it fit inside a cell.
 !!!
-First isolated :: 1869, by Friedrich Miescher
-Base pairs :: about 3.1 billion per genome copy
-Protein-coding genes :: about 20,000
+Key facts :: 
+Structure :: Double helix, about 2 nm wide
+Genome size :: About 3.1 billion base pairs (human)
+Model built :: 1953, Cambridge
 +++
-[[Photo 51]] :: work
+[[Double helix]] :: concept
 [[Rosalind Franklin]] :: person
+[[Photo 51]] :: thing
+[[Chargaff's rules]] :: concept
+[[Histone]] :: thing
 [[Chromosome]] :: thing
-[[Ribosome]] :: thing
-[[Genetic code]] :: concept
-[[Transposable element]] :: thing
-[[DNA methylation]] :: mechanism
-[[Meselson–Stahl experiment]] :: event
 [[Polymerase chain reaction]] :: technique
-[[Neanderthal]] :: creature
-[[Fingerprints]] :: thing
-[[DNA profiling]] :: technique
-[[Origami]] :: technique
+[[Sanger sequencing]] :: technique
+[[Human Genome Project]] :: event
+[[Mitochondrial DNA]] :: thing
+[[DNA origami]] :: technique
+[[Ancient DNA]] :: technique
+[[Genetic fingerprinting]] :: technique
+[[Stonehenge]] :: place
 ---
-Take a typical cell from your body, unwind all of its DNA and join the strands end to end, and the result runs about two metres. It is packed into a nucleus a few thousandths of a millimetre across and written in four chemical letters: A, C, G and T. Nearly every living thing uses this same molecule, so a bacterium, a sunflower and a blue whale keep their instructions in one alphabet.
+DNA, deoxyribonucleic acid, is a long chain molecule that stores the instructions for building and running an organism. Its alphabet has only four letters, the bases adenine, thymine, guanine and cytosine, yet the sequence of roughly 3.1 billion of these pairs in a human cell specifies everything from haemoglobin to eye colour. Unwound, the DNA in one of your cells would stretch about 2 metres, and the whole of it is packed into a nucleus a few thousandths of a millimetre across. Laid end to end, the DNA from all the cells in one body would reach to the Sun and back many times over.
 
-^ On average any two humans share about 99.9 per cent of their DNA letters, which leaves roughly three million places where they differ.
+## Two strands, one logic
 
-## A ladder twisted into a thread
+Each strand is a backbone of alternating sugar and phosphate groups, with a base attached to every sugar. Two strands wind around each other into the [[double helix|Double helix]], held together by hydrogen bonds between bases: A always pairs with T, and G always with C. This pairing rule follows from [[Chargaff's rules|Chargaff's rules]], Erwin Chargaff's 1950 finding that the amounts of A and T in a sample match, as do G and C. The helix is only about 2 nanometres wide, with one full turn every 10 or so base pairs.
 
-The molecule is a double helix: two strands wound like the rails of a twisted ladder. Each rung pairs A with T, held by two hydrogen bonds, or G with C, held by three. The rungs stack about 0.34 nanometres apart and the helix completes a turn roughly every ten rungs, keeping the whole molecule about 2 nanometres wide. The shape was pieced together from X-ray images, among them [[Photo 51]], taken in 1952 in [[Rosalind Franklin]]'s laboratory at King's College London.
+The pairing is the whole trick. Pull the strands apart and each one carries enough information to rebuild its partner, which is how a cell copies its genome before dividing. Copying is astonishingly accurate: proofreading and repair enzymes hold errors to roughly one in a billion bases copied, and the rare mistakes that survive are the raw material of mutation and evolution.
 
-Those rungs add up to the two metres. One copy of the human genome holds about 3.1 billion base pairs, and at 0.34 nanometres each that comes to roughly a metre. Most of your cells carry two copies, one from each parent, which doubles the length to about 2 metres. Together those copies are packed into 46 [[chromosomes|Chromosome]], each a single unbroken molecule, and the longest, number 1, carries about 250 million base pairs.
+^ Miescher first isolated DNA in 1869 from pus on discarded surgical bandages, calling it "nuclein". Nobody thought it carried heredity for another 75 years.
 
-## From letters to proteins
+## Finding the shape
 
-Genes are the stretches of that sequence that code for products, mostly proteins. A gene is first copied into RNA, and a [[ribosome|Ribosome]] reads that copy three letters at a time. The [[genetic code|Genetic code]] matches each three-letter codon to one of 20 amino acids or a stop signal. The code is nearly identical in bacteria, fungi and people, which is why bacteria can be engineered to make human insulin.
-
-Protein-coding sequence fills only about 1 to 2 per cent of the genome. Close to half is made of [[transposable elements|Transposable element]], sequences that hop around the genome, first identified in maize by Barbara McClintock in the 1940s. Chemical marks add another layer: [[DNA methylation]] attaches a methyl group to some C letters, which can silence a gene without changing its sequence.
-
-^ Your liver and your neurons carry almost exactly the same DNA; what differs is which parts are switched on.
-
-## Copying and reading
-
-Before a cell divides, its double helix unzips and a team of enzymes builds a new partner against each strand. The [[Meselson–Stahl experiment]] of 1958 showed that each daughter keeps one old strand, by tracking heavy nitrogen through generations of bacteria. After proofreading and repair, a cell miscopies only about one base in a billion. Rare slips still get through, and they are the raw material of evolution.
-
-The [[polymerase chain reaction|Polymerase chain reaction]], devised by Kary Mullis in 1983, doubles a DNA sample with every heating and cooling cycle, so about thirty cycles make a billion copies. Old DNA is fragmented and easily contaminated, yet in 2010 Svante Pääbo's team published a draft Neanderthal genome. It showed that 1 to 4 per cent of the DNA of people outside Africa came from [[Neanderthal|Neanderthals]], through interbreeding tens of thousands of years ago.
+In 1944 Oswald Avery, Colin MacLeod and Maclyn McCarty showed that DNA, not protein, carried heredity in bacteria. The race to its structure then peaked in Cambridge and London. [[Rosalind Franklin]], working at King's College London with her student Raymond Gosling, produced [[Photo 51|Photo 51]] in 1952, an X-ray diffraction image whose X-shaped pattern pointed to a helix. Her data, shown to James Watson without her knowledge, helped Watson and Francis Crick build their metal-plate model in March 1953. Their paper, barely a page long, closed with the understatement that the pairing "immediately suggests a possible copying mechanism". Watson, Crick and Maurice Wilkins shared the 1962 Nobel Prize; Franklin had died in 1958.
 
 ::: timeline
-1869 :: Friedrich Miescher isolates "nuclein" from the nuclei of white blood cells
-1953 :: Watson and Crick publish the double-helix model in Nature
-1977 :: Sanger's team publishes a method for reading DNA letter by letter
-2003 :: The Human Genome Project declares the human genome essentially complete
-2022 :: A telomere-to-telomere team publishes the first gapless human genome
+1869 :: Friedrich Miescher isolates "nuclein" from white blood cells
+1944 :: Avery, MacLeod and McCarty identify DNA as hereditary material
+1950 :: Chargaff reports the base-matching rules
+1952 :: Franklin and Gosling record Photo 51
+1953 :: Watson and Crick publish the double helix
+2003 :: Human Genome Project declares the sequence essentially complete
 :::
 
-## Identity, and what people build
+## Packing, reading, using
 
-Identical twins grow from one fertilised egg and share nearly all their DNA, yet their [[fingerprints|Fingerprints]] differ, because conditions in the womb shape the ridges too. [[DNA profiling]], which Alec Jeffreys developed at Leicester in 1984, reads short repeats that differ strongly between people. Paul Rothemund at Caltech folded DNA itself into shapes in 2006, a technique he called [[DNA origami|Origami]].
+Two metres of thread fits in a nucleus because DNA is wound around spools of proteins called [[histones|Histone]], then coiled again into the dense bundles of a [[chromosome|Chromosome]]. Humans carry 46 chromosomes, and only about 1 to 2 percent of the sequence codes for proteins. Cells also carry a second, small genome in the [[mitochondria|Mitochondrial DNA]], inherited almost entirely from the mother.
+
+Reading DNA became routine through [[Sanger sequencing|Sanger sequencing]], devised by Frederick Sanger in 1977, and the [[polymerase chain reaction|Polymerase chain reaction]], conceived by Kary Mullis in 1983, which copies a stretch of DNA millions of times from a trace sample. The [[Human Genome Project|Human Genome Project]] used the former to assemble the first human reference sequence, announced in 2003 after 13 years. Today a genome can be sequenced in hours for a few hundred dollars.
+
+The molecule has since escaped biology. Variable repeats in everyone's DNA underpin [[genetic fingerprinting|Genetic fingerprinting]], introduced by Alec Jeffreys in Leicester in 1984. Strands can be folded into nanoscale smiley faces and boxes as [[DNA origami|DNA origami]], a method Paul Rothemund published in 2006. And fragments recovered from bones thousands of years old, the field of [[ancient DNA|Ancient DNA]], have rewritten human history, even tracing the ancestry of the people who raised [[Stonehenge]].
+
+^ Identical twins share the same genome, so DNA profiling cannot easily tell them apart, though their fingerprints still differ.
+
 ===
-- [[Stonehenge]] :: The ancient DNA of the people who built it, read from their remains :: place
-- [[Murchison meteorite]] :: A 1969 Australian meteorite held some of DNA's own chemical bases :: thing
-- [[Mitochondrial Eve]] :: Mitochondrial DNA passes only through mothers, tracing every lineage back to one woman :: concept
-- [[Green fluorescent protein]] :: A jellyfish's glowing gene now lights up cells in labs worldwide :: thing
-- [[Hershey–Chase experiment]] :: A kitchen blender and radioactive labels showed which molecule carries the genes :: event
-- [[Dolly (sheep)]] :: Dolly was grown from the nucleus of an adult ewe's udder cell :: creature
+- [[Fingerprints]] :: Identical twins share a genome yet never a fingerprint, so why?  :: phenomenon
+- [[Origami]] :: Paper folding inspired Rothemund's method of folding DNA into shapes :: technique
+- [[Stonehenge]] :: Ancient DNA revealed the migrant farmers who built it :: place
+- [[Rosalind Franklin]] :: The crystallographer whose X-ray image unlocked the helix :: person
+- [[Polymerase chain reaction]] :: A hot-spring bacterium's enzyme made DNA copying routine :: technique
+- [[Mitochondrial DNA]] :: A second genome inherited from mothers traces ancient migrations :: thing
 ???
-Why do identical twins share DNA but not fingerprints?
-How much of the human genome actually codes for proteins?
-Could the chemical bases of DNA form in space?
+How can two metres of DNA fit inside one cell?
+Why did Rosalind Franklin not share the Nobel Prize?
+How accurately do cells copy their DNA?
 &&&
-[[Photo 51]] :: A 1952 X-ray picture that gave clues to the double helix.
-[[Rosalind Franklin]] :: The X-ray crystallographer whose images underpinned the double helix.
-[[Chromosome]] :: How two metres of thread packs into a nucleus.
-[[Ribosome]] :: Its catalytic heart is RNA, a hint of life's earliest chemistry.
-[[Genetic code]] :: Nearly all life reads its genes with the same codon dictionary.
-[[Transposable element]] :: Some are fossilised viruses, stranded in our genome since ancient infections.
-[[DNA methylation]] :: A methyl tag can silence a gene, leaving its letters untouched.
-[[Meselson–Stahl experiment]] :: Heavy nitrogen in bacteria settled how DNA copies itself.
-[[Polymerase chain reaction]] :: Heating and cooling cycles turn one DNA molecule into billions.
-[[Neanderthal]] :: Their DNA survives in living people outside Africa.
-[[Fingerprints]] :: Identical twins share their DNA, but their ridges come out different.
-[[DNA profiling]] :: Born in Leicester in 1984, it has cleared innocent suspects.
-[[Origami]] :: The paper-folding craft that now folds DNA into nanoscale shapes.
+[[Double helix]] :: Twisted ladder whose rungs pair A with T and G with C
+[[Rosalind Franklin]] :: Her X-ray work revealed the helix, but she died before the Nobel
+[[Photo 51]] :: One blurry X-shaped image that changed biology
+[[Chargaff's rules]] :: Equal A and T, equal G and C, the clue behind pairing
+[[Histone]] :: Protein spools that wind DNA into compact beads
+[[Chromosome]] :: Tightly packed DNA bundles, 46 in a human cell
+[[Polymerase chain reaction]] :: Copies a trace of DNA millions of times in hours
+[[Sanger sequencing]] :: Chain-terminating method that read the first genomes
+[[Human Genome Project]] :: Thirteen years, billions of dollars, one reference human sequence
+[[Mitochondrial DNA]] :: A tiny second genome passed down mostly through mothers
+[[DNA origami]] :: Folding DNA strands into nanoscale shapes and machines
+[[Ancient DNA]] :: Genomes recovered from bones thousands of years old
+[[Genetic fingerprinting]] :: Leicester, 1984: a profile that solved crimes and settled paternity
+[[Stonehenge]] :: Ancient DNA shows its builders arrived from afar

@@ -1,75 +1,80 @@
 # Apollo 11 :: event
-> Two people reached the Moon with a computer that had 2,048 words of memory and kept flashing alarms.
+> Three men, a computer with less memory than a greeting card, and 21 hours on the Moon's surface that rewrote what humans had done.
 !!!
-Date :: 16 to 24 July 1969
-Place :: Sea of Tranquility, the Moon
-Toll :: no deaths; 21.5 kg lunar samples
+Key facts :: 
+Launch :: 16 July 1969, Kennedy Space Center
+Landing :: 20 July 1969, Sea of Tranquility
+Crew :: Armstrong, Aldrin, Collins
 +++
 [[Apollo Guidance Computer]] :: thing
-[[Apollo Lunar Module]] :: thing
-[[Apollo command and service module]] :: thing
 [[Saturn V]] :: thing
-[[Core rope memory]] :: thing
-[[Kennedy Space Center]] :: place
-[[Sea of Tranquility]] :: place
-[[Neil Armstrong]] :: person
-[[Buzz Aldrin]] :: person
-[[Michael Collins]] :: person
+[[Mare Tranquillitatis]] :: place
+[[Lunar Module Eagle]] :: thing
+[[1202 alarm]] :: event
+[[Lunar orbit rendezvous]] :: technique
 [[Lunar regolith]] :: thing
-[[Lunar laser ranging]] :: technique
-[[Solar wind]] :: phenomenon
+[[Lunar Receiving Laboratory]] :: place
+[[Allan Hills 81005]] :: thing
+[[Antarctica]] :: place
+[[Apollo 1]] :: event
+[[Parkes Observatory]] :: place
+[[Laser ranging retroreflector]] :: thing
+[[Margaret Hamilton (software engineer)]] :: person
 ---
-At 4:17 in the afternoon, Eastern time, a spidery four-legged craft named [[Eagle|Apollo Lunar Module]] tilted toward the dark, flat plain of the [[Sea of Tranquility]], its descent engine kicking up dust across the ground. Inside, [[Neil Armstrong]] and [[Buzz Aldrin]] watched the altitude readouts while Mission Control debated whether a computer that kept complaining could be trusted. The final stretch would be flown by hand, toward a spot the crew chose themselves.
+On 16 July 1969, a [[Saturn V]] rose from Florida carrying Neil Armstrong, Buzz Aldrin and Michael Collins toward a goal set eight years earlier by President Kennedy: land a man on the Moon and return him safely before the decade ended. Four days later, the lunar module [[Lunar Module Eagle|Eagle]] touched down in the [[Mare Tranquillitatis|Sea of Tranquility]] with, by NASA's later estimate, around 25 seconds of descent fuel to spare. Armstrong stepped onto the surface at 02:56 UTC on 21 July, and an audience of roughly 600 million people watched grainy black-and-white pictures arrive from a quarter of a million miles away. Behind the spectacle lay the work of some 400,000 people and a program that had already buried three astronauts in the [[Apollo 1]] fire of January 1967.
 
-## Three men, one rocket
+The mission's architecture was a gamble made in 1962: [[Lunar orbit rendezvous]], in which a small two-stage lander would descend while the command module waited in orbit. It saved enormous weight compared with landing the whole spacecraft, but it meant that if Eagle's ascent engine failed to fire, Armstrong and Aldrin had no rescue. Collins, alone in the command module Columbia, spent 28 hours orbiting the Moon, and for part of each lap he was out of radio contact behind the far side, farther from every other human than anyone had ever been.
 
-The [[Saturn V]] stood about 110 meters tall, and most of its launch mass was propellant. Engineers stacked the rocket in the Vehicle Assembly Building at [[Kennedy Space Center]] and crawled it to the pad. Atop the rocket sat the [[Columbia|Apollo command and service module]], which would carry the crew home, and the [[Eagle|Apollo Lunar Module]], which would carry two of them down. [[Michael Collins]] stayed in Columbia while [[Neil Armstrong]] and [[Buzz Aldrin]] moved into Eagle, a craft built for the Moon's vacuum and low gravity, and for nothing else. Its descent engine would brake the craft toward the surface, and a smaller engine on top would lift the crew back off.
+^ Collins later wrote that he felt not loneliness but awareness of life on the far side of the Moon, in the form of the two men below and everyone on Earth behind them.
 
-::: timeline
-16 July 1969 :: Saturn V lifts off from Pad 39A
-19 July 1969 :: The command module enters lunar orbit
-20 July 1969 :: Eagle lands in the Sea of Tranquility
-20 July 1969 :: Armstrong becomes the first person to walk on the Moon
-24 July 1969 :: The crew splashes down in the Pacific Ocean
+## The computer and the alarms
+
+The [[Apollo Guidance Computer]] carried about 2,048 words of erasable memory and 36,864 words of fixed memory, the latter woven by hand as copper wire threaded through magnetic cores, a technique that earned it the nickname "rope memory". It ran at roughly 1 MHz and was among the first computers built with integrated circuits. Its software, led at MIT by [[Margaret Hamilton (software engineer)|Margaret Hamilton]], was designed to shed low-priority work when overloaded rather than crash.
+
+That design was tested at about 6,000 feet above the surface. As Eagle descended, the computer flashed a [[1202 alarm|1202 program alarm]], then a 1201, indicating it was running out of processing capacity. The cause was the rendezvous radar, which had been left switched on and was flooding the computer with needless counting work. Steve Bales, the guidance officer in Houston, and his support engineer Jack Garman judged the alarms survivable, and the computer kept dropping the unimportant tasks while the landing continued.
+
+::: facts
+Fixed memory :: 36,864 words, hand-woven rope
+Erasable memory :: 2,048 words
+Clock speed :: about 1 MHz
+Alarm codes :: 1201 and 1202, minutes before touchdown
 :::
 
-## The computer and the boulders
+## Landing, walking, leaving
 
-The [[Apollo Guidance Computer]] had 2,048 words of erasable memory, its scratchpad for working numbers. Its program sat in a separate fixed memory of 36,864 words, built as [[Core rope memory]], where each bit depended on whether a wire ran through a ferrite ring or around it. Workers at Raytheon threaded those wires by hand, and the women who did the weaving were nicknamed the Little Old Ladies. The crew typed verb and noun codes into a keypad and display called the DSKY. The navigation had to fit inside that scratchpad, with almost no slack.
+Beyond the alarms, Armstrong saw that the autopilot was steering Eagle toward a field of boulders beside a large crater. He took manual control and flew past it, skimming along looking for smooth ground while Aldrin read out altitude and speed. The first words from the surface were "Houston, Tranquility Base here. The Eagle has landed." Over about two and a half hours outside, the two men planted a flag, set up a seismometer and a [[Laser ranging retroreflector]] that scientists still bounce lasers off today, and collected about 21.5 kilograms of [[Lunar regolith]].
 
-^ Those 2,048 words came to about 4 kilobytes, roughly one thousandth of a typical phone photo.
+The return was tense in smaller ways. During cabin preparations, a circuit-breaker switch needed to arm the ascent engine was found broken, apparently knocked off by a bulky backpack. Aldrin jammed a felt-tip pen into the gap, and it worked. The crew splashed down in the Pacific on 24 July and spent 21 days in quarantine at the [[Lunar Receiving Laboratory]], on the then-credible chance of lunar pathogens.
 
-During the descent, the computer flashed the 1202 and 1201 alarms several minutes before touchdown. They meant the machine was overloaded, with more work arriving than its schedule could handle. It dropped lower-priority jobs and kept the guidance running. Flight controllers in Houston checked the numbers, saw that the lander was still on track, and told the crew to continue.
+^ The 1969 television signal was received at the [[Parkes Observatory]] in Australia, whose dish had to be steered through a gale to catch the picture.
 
-The planned site turned out to be strewn with boulders, so Armstrong took manual control and steered past them toward a flatter patch, watching the fuel gauge fall. Nobody on the ground could fly the craft, so the final call rested with the two men inside. Eagle touched down with only seconds of fuel to spare, and Armstrong reported the landing to Houston.
+## What came back
 
-## What the Moon kept
+The samples shifted ideas about the Moon's origin, showing it was ancient, dry, and chemically close to Earth's mantle, evidence that fed the giant-impact hypothesis. They also set the template for lunar science elsewhere: some of the Moon's rocks were later found on Earth itself, in meteorites such as [[Allan Hills 81005]], picked up on the ice of [[Antarctica]] in 1982 and recognized as lunar a year later, the first meteorite identified as coming from the Moon.
 
-The first walk on the surface lasted about two and a half hours, and the crew gathered rock and soil to bring home, about 21.5 kilograms in all. Some of it was fine gray [[dust|Lunar regolith]], which clung to the suits and got into the cabin. They unrolled a sheet of aluminum foil to catch particles streaming from the [[solar wind|Solar wind]], then rolled it up and carried it back. They also set down a panel of mirrors that still bounces laser pulses from Earth, a target for [[Lunar laser ranging]].
-
-The footprints they left are still there, because the Moon has no wind or rain to wear them away. They could last for millions of years, unless a meteorite strikes the same spot. The rocks have fed decades of research, and laboratories still cut and measure them.
 ===
-- [[Antarctica]] :: Moon rocks in the ice, lunar meteorites gathered from Antarctic blue ice :: place
-- [[Apollo 13]] :: An oxygen tank exploded, and the lunar lander became the crew's lifeboat :: event
-- [[Moon landing conspiracy theories]] :: Why Apollo photos show no stars, and what the cameras were set for :: phenomenon
-- [[Exposure (photography)]] :: The exposure setting that hides the stars in sunlit Apollo photographs :: concept
-- [[Magnetic-core memory]] :: Tiny magnetic rings that stored bits, the idea behind rope memory :: thing
-- [[Apollo 1]] :: A pure-oxygen cabin fire during a 1967 rehearsal killed three astronauts :: event
+- [[Margaret Hamilton (software engineer)]] :: Her priority-scheduling code kept Eagle's computer alive through overload :: person
+- [[Antarctica]] :: Moon rocks ejected by ancient impacts lie on the ice, found by meteorite hunters :: place
+- [[Allan Hills 81005]] :: The 1982 Antarctic find that proved Moon rocks fall to Earth :: thing
+- [[Apollo 1]] :: The 1967 launch-pad fire that nearly ended the program :: event
+- [[Parkes Observatory]] :: How an Australian radio dish rescued the live moonwalk broadcast :: place
+- [[Lunar orbit rendezvous]] :: The contested 1962 decision that made the landing affordable :: technique
 ???
-How did the Apollo Guidance Computer handle the 1202 alarms during landing?
-What have scientists learned from Apollo 11's 21.5 kilograms of Moon rock?
-What did Michael Collins do alone in orbit while Eagle landed?
+How did Apollo's rope memory physically store a program?
+Why did Armstrong have only seconds of fuel left at landing?
+Could a Moon rock really be found lying on Antarctic ice?
 &&&
-[[Apollo Guidance Computer]] :: Flew the descent on 2,048 words of memory, alarms flashing
-[[Apollo Lunar Module]] :: A spidery lander with no streamlining, built only for vacuum
-[[Apollo command and service module]] :: The mothership that carried three men to the Moon and back
-[[Saturn V]] :: About 110 meters tall, it lifted three men from Florida
-[[Core rope memory]] :: Woven by hand, with 36,864 words of flight software inside
-[[Kennedy Space Center]] :: Florida site where Apollo 11's Saturn V rose from Pad 39A
-[[Sea of Tranquility]] :: A dark lava plain, smooth enough to land on
-[[Neil Armstrong]] :: The commander who took manual control with fuel running low
-[[Buzz Aldrin]] :: Second man on the Moon, who read the descent data aloud
-[[Michael Collins]] :: Alone behind the Moon on every orbit, out of radio contact
-[[Lunar regolith]] :: Gray dust, full of glass beads, that clung to the suits
-[[Lunar laser ranging]] :: A Moon mirror still bounces laser pulses back to Earth
-[[Solar wind]] :: Particles from the Sun, caught on aluminum foil and carried home
+[[Apollo Guidance Computer]] :: Navigation computer with hand-woven wire memory and a clock slower than a toy
+[[Saturn V]] :: Rocket taller than a 36-story building, still unmatched in payload to orbit
+[[Mare Tranquillitatis]] :: Ancient basalt plain chosen for its relatively smooth, boulder-poor ground
+[[Lunar Module Eagle]] :: A lander so light its walls were roughly as thick as foil
+[[1202 alarm]] :: Overload warning that nearly aborted the landing and was overruled
+[[Lunar orbit rendezvous]] :: The risky orbital docking plan that made Moon landing feasible
+[[Lunar regolith]] :: Sharp, glassy dust that smells of spent gunpowder, astronauts reported
+[[Lunar Receiving Laboratory]] :: Quarantine facility built to contain feared Moon germs
+[[Allan Hills 81005]] :: Palm-sized lunar meteorite discovered in Antarctica by a Japanese-American team
+[[Antarctica]] :: Frozen continent where blue ice concentrates meteorites from space
+[[Apollo 1]] :: Fire that killed three astronauts and forced a redesign of the capsule
+[[Parkes Observatory]] :: Australian radio telescope that relayed much of the moonwalk broadcast
+[[Laser ranging retroreflector]] :: Mirror array left on the Moon still measures distance to Earth
+[[Margaret Hamilton (software engineer)]] :: Led Apollo software and helped coin the term software engineering

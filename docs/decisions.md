@@ -427,3 +427,33 @@ One line each, newest last. Why, not just what.
   - **The parser now reads two slips as the writer meant them** (`src/shared/article.js`, free). A first line naming a kind after ` :: ` is the title line even without its `# `: Haiku leaves the `# ` off about half its title lines, and the page then showed "Umami :: concept" as its first paragraph and lost its kind. A copied "Key facts" label is dropped, whether on a line of its own or ahead of the first fact: Sonnet does it on 35 of 43 pages, and Haiku on 3; its three facts then fell into the body as a paragraph and the link plan was read as hooks. Every recorded page parses exactly alike with either slip, and the streaming checks run on the bare-title copies.
   - **The arms, scored with both fixes** (kept by production / passing the front-page checks / stopping before the questions): today's writer, Haiku with thinking off: 35 of 44 / 19 / 11. Haiku thinking a little (effort low): 35 of the 37 it finished / 14 / 2, but about 5,100 tokens of thinking, some 25 seconds before the first word, and 7 pages never finished. Haiku with the fixed part as system instructions (`split`): 27 / 13 / 12, worse on every count. **Sonnet 5.5** as production would call it: 43 of the 43 it finished / 33 / 0, about 180 tokens of thinking (under a second); its misses are 7 key-fact values over seven words and 5 threads made into cards instead of links. Its pages run long (median 2,692 output tokens of the 3,000 a page may use; one stopped at the limit), so it needs about 1,000 more.
   - **Cost:** a Sonnet page is about $0.027 with the cache warm (2,568 tokens at $0.10, 132 at $2 and about 2,700 out at $10 per million), about 27 times Haiku's: $50 a month is about 1,800 pages.
+- 2026-11-17 · **Sonnet writes the covers; Haiku writes every live page, made the most of in Dorkhub's own design**
+  (Will's desk verdicts: ship the fix for the two slips; Sonnet "can be used to write some of these cover articles,
+  so they're a bit more engaging as a fun entry point into the product. But it sounds like we really need to figure
+  out how to use Haiku to write all these articles and accommodate its weaknesses elegantly in our own architecture
+  and design, while finding how to best utilize it to write genuinely engaging articles").
+  - **Writers.** Claude Haiku 5.5 stays the free live writer. Sonnet 5.5 writes the pages written ahead of time
+    (`SEED_MODEL` in `scripts/seeds/batch.js`), which replaces his 2026-10-19 call that one writer makes every page.
+    Sonnet's limit gets 1,000 tokens of room, for readers' own keys too: one of its 43 pages stopped at 3,000.
+  - **The time travel page.** Will: "it starts making this crazy assumption of a really specific application of time
+    travel rather than this world of time travel itself." It was a stand-in that opened on GPS clocks, its card's
+    claim, because the brief said "Bear out each claim on the page". The brief now says the reader picks the page
+    with nothing in mind but the topic, so it opens on the topic itself and bears the claims out somewhere on it.
+    Given the old brief, Sonnet and Haiku both already opened time travel broadly.
+  - **Haiku's slips, read by their shape** (`src/shared/article.js`, free). On production's own call, 16 of 44 pages
+    left out `===`, `???` and `&&&`, so their cards showed as a list in the body, "::" and all, and their questions
+    and hooks as run-on paragraphs. 21 copied "Keep exploring:", and 5 of 132 Haiku pages copied "Link plan:", which
+    ended the plan. Measured on the 176 saved batch pages, production's Haiku pages:
+    - are kept 38 of 44 times (35 before);
+    - show format lines in the body on 3 (18);
+    - carry real cards, with hooks and kinds, on 37 (23), and three questions on 37 (33).
+
+    No line of prose is lost, and Sonnet's pages parse as before.
+  - **The seeds' checks.** A front-page thread may be one of the topics to keep exploring, as the brief allows, and a
+    long key fact is the layout's to hold (the facts stack and wrap when they don't fit across). So neither fails a
+    page any more.
+  - **The covers, by Sonnet 5.5** ($0.73 in all, on the Console workspace "Dorkhub"). One batch of all 44 kept 39.
+    The other 5 each missed a front-page thread, either neither linked nor offered as a topic, or linked as a
+    nearby topic ("DNA origami" for Origami). 4 of the 5 passed when sent again, and DNA on its third try. Two of
+    the earlier pages, which get no brief, named their own kinds: Kessler syndrome a concept, Fresnel lenses a
+    thing. Their doors and share pictures now follow the pages.

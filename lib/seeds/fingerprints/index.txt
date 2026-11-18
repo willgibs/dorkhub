@@ -1,71 +1,76 @@
 # Fingerprints :: thing
-> Set before birth, your fingerprint leaves a trace on almost everything you touch, yet its certainty is less settled than it looks.
+> The tiny ridged patterns on your fingertips form before birth, never repeat, and have solved crimes since the 1890s, yet their purpose remains debated.
 !!!
-Ridges form :: weeks 10 to 17 of gestation
-Loop share :: about 60 to 65% of prints
-Pattern classes :: Galton's book, 1892
+Key facts :: 
+Forms :: Weeks 10 to 24 of gestation
+Pattern types :: Loops, whorls and arches
+Match standard :: Varies, no universal point count
 +++
-[[DNA]] :: thing
 [[Dermatoglyphics]] :: concept
-[[Koala]] :: creature
-[[Latent print]] :: thing
-[[Minutiae]] :: concept
-[[Henry classification]] :: technique
-[[Juan Vucetich]] :: person
+[[Henry Faulds]] :: person
 [[Francis Galton]] :: person
-[[Locard's exchange principle]] :: concept
-[[Madrid train bombings]] :: event
-[[Sweat gland]] :: thing
+[[Juan Vucetich]] :: person
+[[Will West case]] :: event
+[[Mayfield affair]] :: event
+[[Koala]] :: creature
+[[DNA]] :: thing
+[[Adermatoglyphia]] :: phenomenon
+[[Integrated Automated Fingerprint Identification System]] :: thing
+[[Meissner's corpuscle]] :: mechanism
+[[Latent fingerprint development]] :: technique
+[[Monozygotic twins]] :: concept
+[[Bertillon system]] :: technique
 ---
-Touch a clean sheet of glass and lift your finger, and the glass keeps a pattern that is often said to be yours alone. The pattern is made of raised lines of skin that flow across the pad in arches, loops and whorls. The same ridges give your fingers their grip, helping them hold a slippery object without sliding off. The design is set before birth and stays largely unchanged for life, unless deep scarring alters it.
+Run a fingertip across a pane of glass and you leave behind a faint record: a map of ridges, thinner than a hair's width, laid down in a pattern that no one else alive shares. Fingerprints are the impressions left by the friction ridges on the skin of fingers, palms and soles, and they are among the most familiar and most argued-over objects in forensic science. They begin forming in the womb, around the tenth week of pregnancy, and by about the twenty-fourth week the pattern is fixed for life. Cuts and burns heal into the same design, because the blueprint lives in the deeper layer of skin, not on the surface.
 
-## A pattern built in the womb
+The pattern is not simply inherited. [[Monozygotic twins|Identical twins]] share their [[DNA]] almost entirely, yet their prints differ, because the ridges are shaped by chance conditions in the womb: the pressure of amniotic fluid, the position of the hand, the thickness of the growing finger pad. Even the ten fingers on one person differ from each other. Prints do run in families in broad strokes, since the general pattern type (loop, whorl or arch) is partly heritable, which is why the study of ridges, [[Dermatoglyphics]], has long been used as a window into development.
 
-Friction ridges start forming on the fingertips while a fetus is still in the womb. Genes influence the broad pattern types, but the exact design depends on physical conditions there, such as how the skin grows under pressure. Identical twins share the same [[DNA]] yet do not have the same fingerprints. The difference is thought to lie in how the skin grows while it is still forming, a process that DNA alone cannot specify.
+^ Koalas have fingerprints strikingly like ours, nearly indistinguishable under a microscope, even though primates and marsupials split from a common ancestor over 100 million years ago. Evolution seems to have invented them twice.
 
-The ridges do more than print. Sweat from the [[Sweat gland|sweat glands]] reaches the surface through pores set along the ridges, and the residue of sweat and oil is what a print leaves behind. Examiners compare [[Minutiae|minutiae]], the points where a ridge ends or forks, rather than the broad pattern alone. The study of these skin patterns is called [[Dermatoglyphics|dermatoglyphics]], and it has been used to look for links with some medical conditions.
+## From clay seals to a crime scene
 
-Friction ridges are not unique to people. [[Koala|Koalas]] have ridged fingertips so much like ours that their prints could confuse investigators at a crime scene. The animals spend much of their lives in eucalyptus trees, where a firm grip matters, and the ridges are thought to help.
-^ Koalas and humans last shared a common ancestor more than 100 million years ago.
+Ancient Babylonian and Chinese records show fingers pressed into clay, and in 1858 the British administrator William Herschel in India began taking handprints on contracts to stop signatories disowning them. The scientific leap came in 1880, when the Scottish physician [[Henry Faulds]], working in Tokyo, published a note in Nature arguing that prints could identify criminals. Faulds even helped clear an innocent man in a Tokyo theft case by showing the sooty prints at the scene did not match him. [[Francis Galton]] then supplied the statistics, publishing his 1892 book Finger Prints and estimating the odds of two matching at about one in 64 billion.
 
-## From handprints to the courtroom
+Before prints, police leaned on the [[Bertillon system]], which identified people by body measurements. The [[Will West case]] of 1903 at Leavenworth, a story often repeated though its details are embroidered, is said to have shown that two men could share near-identical measurements while their prints differed. Meanwhile [[Juan Vucetich]], in Argentina, secured the first murder conviction by fingerprint in 1892, when a bloody thumbprint exposed a mother who had blamed another for killing her children.
 
-Before fingerprints, police identified repeat offenders by measuring their bodies with calipers, a method that was slow and prone to error. Prints were quicker to take, but they only helped once impressions could be filed, and that meant a classification. [[Juan Vucetich]] built one in Argentina, [[Francis Galton]] gave the subject its scientific footing, and the [[Henry classification]], devised by Edward Henry, later served as the working standard across much of the English-speaking world.
 ::: timeline
-1858 :: Herschel in Bengal starts taking handprints on contracts.
-1880 :: Henry Faulds writes to Nature proposing fingerprints for identifying criminals.
-1892 :: Galton's book Finger Prints sets out the broad pattern types.
-1892 :: Vucetich ties a bloody print to the children's killer, their mother.
-1901 :: Scotland Yard sets up a fingerprint branch using the Henry classification.
+1858 :: Herschel begins requiring handprints on contracts in Bengal
+1880 :: Faulds proposes fingerprints for identifying criminals in Nature
+1892 :: Galton publishes his book; Vucetich solves the Rojas murder
+1901 :: Scotland Yard opens its Fingerprint Bureau
+1911 :: Chicago court accepts fingerprint evidence in a murder trial
 :::
 
-Crime scenes rarely offer a neat print. The [[Latent print|latent print]], the faint impression left by sweat and oil, is usually partial, smudged or distorted, and recovering it may take powders, chemicals or light. The idea behind collecting them is [[Locard's exchange principle]], which holds that a person who enters a place always leaves something behind and takes something away.
+## How a match is made, and where it fails
 
-## How sure can a match be?
+Examiners classify ridge details called minutiae: forks, endings, islands and dots. In a clean rolled print taken in ink or by scanner, these are easy to read, and databases like the FBI's [[Integrated Automated Fingerprint Identification System]] can search tens of millions of records in minutes. Crime scenes are harder. A [[Latent fingerprint development|latent print]] is an invisible smear of sweat and oil that must be revealed with powder, superglue fumes or chemical dyes, and it is usually partial, smudged or overlaid by other marks.
 
-A match is a judgement by a trained examiner, not a measurement. Examiners look at ridge flow, minutiae and the spacing between them, and they decide whether two impressions agree. In 2004 the FBI linked a print from the [[Madrid train bombings]] to Brandon Mayfield, an Oregon lawyer, who was held for weeks until Spanish investigators matched the print to another man.
+Here the claim of infallibility cracks. In 2004, after the Madrid train bombings, the FBI declared a latent print matched Oregon lawyer Brandon Mayfield; Spanish police later linked it to an Algerian man, and Mayfield, held for two weeks, was cleared in the [[Mayfield affair]]. Studies of examiners shown the same prints months apart have sometimes produced inconsistent verdicts, and unlike many countries, the United States has no fixed number of matching points required.
 
-The belief that no two prints are alike is an assumption that has not been proven. In 2009 a report from the US National Academy of Sciences said that the field had not rigorously measured how often examiners err. The debate is about how certain a match can be, not whether prints are useful at all.
+The ridges themselves have a job. They improve grip, and the [[Meissner's corpuscle|Meissner's corpuscles]] nestled beneath them sharpen touch, though a 2009 study found fingerprints may actually wick moisture in ways that matter for grip, and the exact purpose remains debated. A rare genetic condition, [[Adermatoglyphia]], leaves people with smooth fingertips entirely, which can complicate border crossings.
 ===
-- [[Meissner corpuscle]] :: Nerve endings packed beneath fingertip ridges that sense vibration and light touch. :: thing
-- [[Bertillonage]] :: Before prints, police identified criminals by measuring their bones with calipers. :: technique
-- [[Palmistry]] :: Palm lines, unlike ridges, have been read for fortunes for centuries. :: concept
-- [[Ninhydrin]] :: A colourless chemical that turns old fingerprints purple by reacting with amino acids. :: thing
-- [[Gecko adhesion]] :: Gecko feet cling to glass with hair-like structures that inspired adhesives. :: mechanism
-- [[Turing pattern]] :: Alan Turing's model of chemicals that could paint stripes and spots on skin. :: concept
+- [[DNA]] :: Twins share one, not the other: compare two ways of identifying you
+- [[Koala]] :: Why a tree-dwelling marsupial independently evolved human-like prints
+- [[Brandon Mayfield]] :: The lawyer wrongly tied to Madrid bombings by a fingerprint match
+- [[Biometrics]] :: How phones turned your fingertip into a password
+- [[Forensic science]] :: Where fingerprint certainty gave way to doubts about other trace evidence
+- [[Embryonic development]] :: How random forces in the womb sculpt ridges no one can copy
 ???
-Can a koala's fingerprint be told apart from a human's?
-Why do identical twins' fingerprints differ when their DNA is the same?
-How do investigators make a latent print visible on a smooth surface?
+Why do identical twins have different fingerprints?
+Can fingerprints be altered or removed permanently?
+How do koala fingerprints compare to human ones?
 &&&
-[[DNA]] :: Identical twins share it, yet their fingerprints still differ.
-[[Dermatoglyphics]] :: A field that once hoped skin ridges could reveal medical clues.
-[[Koala]] :: Its fingertips could fool a crime scene investigator.
-[[Latent print]] :: A fingerprint nobody can see until someone makes it visible.
-[[Minutiae]] :: Tiny breaks and forks in ridges, counted and compared by examiners.
-[[Henry classification]] :: A filing code that let clerks search large collections of prints.
-[[Juan Vucetich]] :: A police official whose print evidence exposed a mother's false accusation.
-[[Francis Galton]] :: Charles Darwin's cousin, who treated fingerprints as a statistical puzzle.
-[[Locard's exchange principle]] :: Every contact leaves a trace, even one nobody meant to leave.
-[[Madrid train bombings]] :: A print from the attack pointed investigators to the wrong man.
-[[Sweat gland]] :: Pores on the ridges release sweat that helps leave prints behind.
+[[Dermatoglyphics]] :: Ridge patterns read as clues to genes and development
+[[Henry Faulds]] :: Missionary doctor who first proposed fingerprinting criminals
+[[Francis Galton]] :: Darwin's cousin who put odds on fingerprint uniqueness
+[[Juan Vucetich]] :: Argentine police clerk behind the first fingerprint murder conviction
+[[Will West case]] :: Leavenworth legend of two men, one set of measurements
+[[Mayfield affair]] :: When the FBI confidently matched the wrong man
+[[Koala]] :: Marsupial with human-like prints from a separate evolution
+[[DNA]] :: Another identifier, and one twins share unlike prints
+[[Adermatoglyphia]] :: Inherited condition leaving fingertips completely smooth
+[[Integrated Automated Fingerprint Identification System]] :: FBI database searching tens of millions of prints
+[[Meissner's corpuscle]] :: Touch sensors packed beneath the ridges of your fingertips
+[[Latent fingerprint development]] :: Making invisible smears visible with fumes, powder and dyes
+[[Monozygotic twins]] :: Same genes, different prints: a natural experiment
+[[Bertillon system]] :: Body-measurement identification that fingerprints replaced

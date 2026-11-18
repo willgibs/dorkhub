@@ -1,7 +1,7 @@
 // Seeds: pages written ahead of time, for the front page's topics (lib/front.js) and the pages from before it.
 //   node scripts/seeds.mjs doors                  every topic written ahead of time, its slug, whether it is written
 //                                                 yet or still shows its placeholder, and for a written page whether
-//                                                 production's writer and prompt wrote it (current) or not (stale)
+//                                                 the pages' writer and production's prompt wrote it (current) or not
 //   node scripts/seeds.mjs prompt "<title>"       the exact prompt a page on that topic gets (a question is asked as one)
 //   node scripts/seeds.mjs brief "<title>"        the writer's brief for one of the front page's topics: that prompt,
 //                                                 then what the front page says about it and the threads it draws
@@ -17,11 +17,12 @@
 // scores the arm (pages production would keep, pages passing the seeds' checks, early stops, thinking, cost) into
 // .seeds-batch/<id>.score.json and keeps nothing.
 //
-// How a seed is made: the way any page is (Will, 2026-10-19: one bar for every page, so a page that opens from the
-// front page is never better or worse than the next one a reader opens). The production writer gets the brief (for
-// any other topic, the prompt) and writes the page in one pass, with no research and no fact-check. A batch sends
-// production's own call (its model, prompt, output limit and thinking: scripts/seeds/batch.js) at half a live page's
-// price, and keeps each page that stopped on its own and passes the checks tests/seeds.test.js makes, as
+// How a seed is made: the way any page is, by the writer the pages written ahead of time get (Will, 2026-11-17:
+// Claude Sonnet 5.5, so the front page's ways in are a more engaging entry point, while Claude Haiku 5.5 writes every
+// live page; it replaced his 2026-10-19 call that one writer makes every page). The writer gets the brief (for any
+// other topic, the prompt) and writes the page in one pass, with no research and no fact-check. A batch sends
+// production's own call for that writer (its prompt, output limit and thinking: scripts/seeds/batch.js) at half a
+// live page's price, and keeps each page that stopped on its own and passes the checks tests/seeds.test.js makes, as
 // lib/seeds/<slug>/index.txt, stamped in the index with the model and prompt version that wrote it. Then
 // npm run verify. A written page takes its placeholder's place. What a page gets wrong is fixed in the prompt
 // (lib/prompts.js), for every page, not by hand in one; when the prompt or the writer changes, `doors` shows every
@@ -44,14 +45,13 @@ const { placeholderText } = await import(join(repo, 'lib/placeholder.js'));
 const { topicKey } = await import(join(repo, 'src/shared/world.js'));
 const { isQuestion } = await import(join(repo, 'src/shared/article.js'));
 const { directId } = await import(join(repo, 'src/shared/models.js'));
-const { trialModel, writerSettings } = await import(join(repo, 'lib/ai.js'));
 const B = await import(join(repo, 'scripts/seeds/batch.js'));
 const dir = join(repo, 'lib/seeds');
 const runs = join(repo, '.seeds-batch');
 const [cmd, a, ...more] = process.argv.slice(2);
 const doorFile = (/** @type {string} */ s) => join(dir, s, 'index.txt');
-/* production's writer (DH_TRIAL_MODEL, else the default), the one every page written ahead of time comes from */
-const model = trialModel(process.env, () => {});
+/* the writer of every page written ahead of time (scripts/seeds/batch.js SEED_MODEL) */
+const model = B.SEED_MODEL;
 /** @returns {Record<string, any>} */
 const readIndex = () => { try { return JSON.parse(readFileSync(join(dir, 'index.json'), 'utf8')).pages || {}; } catch { return {}; } };
 

@@ -1,80 +1,78 @@
 # Origami :: technique
-> Fold one flat sheet with no cuts or glue, and a spacecraft's solar panel can open in a single pull.
+> A single uncut sheet becomes a crane, a heart stent or a satellite's wings, and folding turns out to be a science of its own.
 !!!
-Folding manual :: Senbazuru Orikata, 1797
-Spacecraft use :: Space Flyer Unit solar array, 1995
-Nanoscale use :: folded DNA shapes, 2006
+Key facts :: 
+Rule :: One sheet, folded, traditionally uncut
+Mathematics :: Huzita–Hatori axioms, 7 fold operations
+Space use :: Miura fold, 1970s, solar arrays
 +++
-[[Paper crane]] :: thing
-[[Senbazuru Orikata]] :: work
-[[Washi]] :: thing
-[[Sadako Sasaki]] :: person
-[[Children's Peace Monument]] :: place
-[[Miura fold]] :: mechanism
-[[Deployable structure]] :: concept
-[[Kirigami]] :: technique
+[[Miura fold]] :: technique
 [[Akira Yoshizawa]] :: person
-[[Crease pattern]] :: concept
-[[Maekawa's theorem]] :: concept
-[[DNA]] :: thing
-
+[[Robert J. Lang]] :: person
+[[Huzita–Hatori axioms]] :: concept
+[[Flat-foldability]] :: concept
+[[Kawasaki's theorem]] :: concept
+[[Space Flyer Unit]] :: thing
+[[Sadako Sasaki]] :: person
+[[Wet-folding]] :: technique
+[[Tessellation (origami)|Origami tessellation]] :: technique
+[[Trisection of an angle]] :: concept
+[[Kirigami]] :: technique
+[[Airbag]] :: thing
+[[Stent]] :: thing
 ---
+Origami is the art of making forms from a single sheet of paper by folding alone. Its most famous product is the paper crane, but the craft reaches from a child's boat to models with hundreds of folded points, and from the shelf of a gift shop to the deployment mechanism of a satellite. Paper itself reached Japan from China in the early seventh century, and folded paper has been used there ever since in ceremony: wrapping gifts, and the paper butterflies placed on sake bottles at weddings. The oldest known printed instructions for a folded figure are in Japanese books of the 1700s, including a 1797 work on folding a thousand cranes, though how much of the tradition is older than its surviving documents is hard to say.
 
-Take a square of paper, fold it with no scissors and no glue, and it can become a crane with a head, two wings and a tail. The Japanese word for the craft, origami, joins oru, to fold, with kami, paper, which becomes gami in the compound. Folders often choose [[washi|Washi]], a handmade Japanese paper whose long fibres hold a crease. Every fold decides where the paper will bend, and a few creases can turn a flat square into a three-dimensional animal.
-^ Kami, the word for paper, is written with a different character from kami, the word for a god or spirit.
+The modern art was largely made by one man. [[Akira Yoshizawa]] (1911 to 2005) left factory work in Tokyo to fold full-time, and in the 1950s he devised a notation of dashed lines, arrows and symbols that is still the standard language of diagrams worldwide. He also pioneered [[Wet-folding|wet-folding]], dampening heavy paper so it can be shaped into smooth, rounded animals with a sculptural look. Exhibitions in Amsterdam in 1955 and later in the United States carried his work to the West, where it influenced a generation of folders.
 
-## From ritual paper to the thousand cranes
+^ The thousand-crane tradition gained a modern weight through [[Sadako Sasaki]], a Hiroshima survivor who folded cranes in hospital in 1955 and became a symbol of peace.
 
-Paper reached Japan from China, and folded paper there grew up around ceremony, wrapping gifts and marking offerings. The [[paper cranes|Paper crane]] became the craft's emblem because they stood for long life, and a legend holds that folding a thousand of them grants a wish. In 1797 a Japanese book called [[Senbazuru Orikata]] published instructions for a chain of a thousand cranes, the senbazuru that gives it its name.
+## When folding became mathematics
 
-[[Sadako Sasaki]] was two when the atomic bomb fell on Hiroshima in 1945, and in 1955 she was diagnosed with leukemia, folding cranes in hospital in the hope of recovery. She died that year at twelve, and her classmates folded more cranes in her memory. The [[Children's Peace Monument]] in Hiroshima's Peace Memorial Park, unveiled in 1958, shows her holding a golden crane aloft.
+From the 1980s, folders and mathematicians began asking what the craft could in principle do. A few clean rules emerged. [[Kawasaki's theorem]] says that at any vertex of a flat-folded crease pattern, alternate angles add to 180 degrees, and a related result says the number of mountain and valley creases differs by exactly two. [[Flat-foldability]] in general turned out to be computationally hard: in 1996 Marshall Bern and Barry Hayes proved that deciding whether an arbitrary crease pattern folds flat is NP-hard.
 
-## A fold that opened a satellite
+The [[Huzita–Hatori axioms]], formalized by Humiaki Huzita and Koshiro Hatori, list seven basic ways to place a single fold relative to existing points and lines. Their power is striking: straightedge-and-compass geometry cannot trisect an angle or double a cube, but origami folds can, since one of the axioms solves cubic equations. [[Robert J. Lang]], a laser physicist turned full-time folder, turned the theory into software called TreeMaker, which computes a crease pattern for any stick-figure "tree" of limbs, so that a beetle with legs, antennae and horns can be designed on a computer.
 
-Koryo Miura, a Japanese space scientist, devised the [[Miura fold]] for the solar arrays of spacecraft. The Space Flyer Unit, a Japanese satellite launched in 1995, carried an array folded this way and unfolded it in orbit. Engineers call structures that pack small and then open on command [[deployable|Deployable structure]], and the Miura fold is a standard example.
-::: steps
-Crease :: a flat sheet is marked with a grid of mountain and valley creases
-Collapse :: the grid folds flat, each parallelogram stacking onto the next
-Pull :: one pull on the sheet opens the zigzag back to full size
+::: timeline
+1797 :: Japanese book on folding linked cranes published
+1950s :: Yoshizawa develops diagram notation and wet-folding
+1970s :: Koryo Miura devises his folding pattern
+1996 :: Flat-foldability proven NP-hard
+1990s :: Lang releases TreeMaker design software
 :::
 
-[[Kirigami]], the cut-and-fold cousin of origami, makes a different trade. Traditional origami allows no cuts, but slits let a folded sheet stretch in one direction while the folds keep it compact. The price is strength, because every cut is a place where the sheet can tear.
+## Folds that leave the table
 
-## Rules for where the paper bends
+The best-known engineering fold is the [[Miura fold]], devised by the Japanese astrophysicist Koryo Miura in the 1970s. Its crease pattern is a grid of parallelograms with zigzag lines, so that pulling opposite corners opens or closes the entire sheet in one motion, with no creases fighting each other and every panel stressed evenly. A version of it flew on the Japanese [[Space Flyer Unit]], launched in 1995, to unfurl a solar array; the appeal of the pattern is that a single actuator can deploy the whole panel.
 
-Most complex models begin as a [[crease pattern|Crease pattern]], a map of their folds, each marked as a mountain or a valley. Only some patterns fold flat, and at every vertex that does, the mountain and valley folds differ by exactly two. That rule is [[Maekawa's theorem]], named after the Japanese origami researcher Jun Maekawa, and it can be checked before anything is folded.
+Elsewhere the same ideas fold things smaller than a fingernail. Origami-derived designs shape [[Stent|stents]] that are squeezed through a blood vessel and then expand, and the way an [[Airbag]] packs flat owes to folding simulations that were first built for origami. Cut-and-fold hybrids belong to [[Kirigami]], and repeating pleat patterns known as [[Tessellation (origami)|origami tessellations]] give structure to materials that stiffen or bend in chosen directions. At the molecular scale, a single long strand of [[DNA]] can be folded by short "staple" strands into smiley faces and tiny boxes, a method Paul Rothemund published in 2006 and named DNA origami.
 
-[[Akira Yoshizawa]] popularised wet folding, which shapes damp paper into soft curves that dry creases cannot hold. He also worked out, with the American folder Samuel Randlett, a diagram system that is still used to publish models. Diagrams let a model travel from one folder to another without a demonstration.
+^ Rothemund's 2006 DNA smiley faces were about 100 nanometres across, roughly a thousand times narrower than a human hair.
 
-## Folding DNA
-
-The craft reached the molecular scale in 2006, when Paul Rothemund at Caltech published a way to fold [[DNA]] into flat shapes such as a smiley face and a star. He began with one DNA strand, and short pieces called staples pinned it into a planned form. The method came to be called DNA origami, and it showed that a designed sequence can dictate a shape.
-^ The paper was a virus's genome, from a virus that infects bacteria, not a sheet of cellulose.
-
+---
 ===
-
-- [[Huzita-Hatori axioms]] :: Seven basic folds that trisect angles, which compass and straightedge cannot :: concept
-- [[Earwig]] :: Hind wings that tuck under short covers in a fold pattern echoing origami :: creature
-- [[Protein folding]] :: A chain of amino acids that folds itself into a working molecular machine :: mechanism
-- [[Rigid origami]] :: Panels that fold without bending, the idea behind the Miura fold :: concept
-- [[Wet folding]] :: Damp paper shaped into soft, sculpted curves that crisp creases cannot make :: technique
-- [[Noshi]] :: Folded paper on Japanese gifts, a stand-in for dried abalone :: thing
-
+- [[DNA origami]] :: Rothemund's staple strands fold one long DNA strand into nanoscale smiley faces :: technique
+- [[Mathematical constructions with a straightedge and compass]] :: Why folds can trisect angles where compasses cannot :: concept
+- [[Solar panel]] :: Deployable arrays face the same fold-in-a-launch-rocket problem as Miura's paper :: thing
+- [[Sadako Sasaki]] :: A Hiroshima child and the thousand-crane peace movement :: person
+- [[Bistability]] :: Origami bits that snap between two stable shapes, like a flapping paper trap :: phenomenon
+- [[Protein folding]] :: Origami logic applied to the way chains of amino acids find their shape :: phenomenon
 ???
-Why did the paper crane become origami's best-known model?
-How does the Miura fold open a whole solar array in one pull?
-Can origami trisect an angle that compass and straightedge cannot?
-
+How does a Miura-folded panel open in one pull?
+Can origami really solve problems that compass and straightedge cannot?
+How did Sadako Sasaki's cranes become a peace symbol?
 &&&
-[[Paper crane]] :: One square becomes a bird that carries a legend of wishes.
-[[Washi]] :: Long, tough fibres give handmade Japanese paper its unusual strength.
-[[Senbazuru Orikata]] :: A 1797 book that teaches a chain of a thousand cranes.
-[[Sadako Sasaki]] :: A girl's paper cranes became a symbol for peace worldwide.
-[[Children's Peace Monument]] :: Sadako's statue raises a golden crane in Hiroshima's peace park.
-[[Miura fold]] :: Zigzagging parallelograms that fold flat and reopen in one motion.
-[[Deployable structure]] :: Engineers pack structures small, then let them open on command.
-[[Kirigami]] :: Cuts let folded paper stretch, at the cost of weak points.
-[[Akira Yoshizawa]] :: A master whose diagram system still lets strangers fold his models.
-[[Crease pattern]] :: Crease maps look like scribbles until the sheet folds exactly flat.
-[[Maekawa's theorem]] :: A counting rule that decides whether a fold can lie flat.
-[[DNA]] :: A double helix that can be folded into a smiley face.
+[[Miura fold]] :: One pull opens a whole solar array without crease conflicts.
+[[Akira Yoshizawa]] :: Invented the diagram language every folder still reads.
+[[Robert J. Lang]] :: Laser physicist who taught computers to design folded insects.
+[[Huzita–Hatori axioms]] :: Seven fold rules that outperform compass-and-straightedge geometry.
+[[Flat-foldability]] :: Deciding whether a crease pattern folds flat is computationally intractable.
+[[Kawasaki's theorem]] :: Angles around a vertex must alternate to sum to 180 degrees.
+[[Space Flyer Unit]] :: A 1995 Japanese satellite that tested a folded solar array.
+[[Sadako Sasaki]] :: A child folding cranes in hospital became a peace icon.
+[[Wet-folding]] :: Dampened paper lets folders sculpt smooth, rounded animal forms.
+[[Tessellation (origami)|Origami tessellations]] :: Repeating pleats turn paper into patterned, structural fabric.
+[[Trisection of an angle]] :: Impossible with compass and ruler, yet possible by folding.
+[[Kirigami]] :: Origami's cousin, where cutting is allowed.
+[[Airbag]] :: Packing a bag flat borrows directly from folding mathematics.
+[[Stent]] :: A folded tube that expands inside an artery.

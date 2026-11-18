@@ -1,75 +1,75 @@
 # Time travel :: concept
-> Time travel to the future happens in small doses, and GPS positions would drift about ten kilometres a day without correction.
+> Everyone travels forward in time at one second per second; physics allows speeding up or slowing down, while the road backward stays a bet.
 !!!
-Origin :: Einstein's special relativity, 1905
-Defining number :: 38 microseconds a day
-Literary origin :: The Time Machine, 1895
+Key facts :: 
+Forward record :: About 0.02 seconds, Sergei Krikalev
+GPS drift :: 38 microseconds gained daily
+Coined in :: 1895, H. G. Wells
 +++
+[[Time dilation]] :: phenomenon
 [[Special relativity]] :: concept
-[[Gravitational time dilation]] :: phenomenon
+[[General relativity]] :: concept
 [[Global Positioning System]] :: thing
-[[Atomic clock]] :: thing
-[[Hafele–Keating experiment]] :: event
-[[Black holes]] :: phenomenon
-[[Closed timelike curve]] :: concept
-[[Wormhole]] :: concept
-[[Grandfather paradox]] :: concept
+[[Black holes]] :: thing
 [[Twin paradox]] :: concept
-[[H. G. Wells]] :: person
-[[Sergei Krikalev]] :: person
+[[Closed timelike curve]] :: concept
+[[Gödel metric]] :: concept
+[[Kurt Gödel]] :: person
+[[Grandfather paradox]] :: concept
+[[Novikov self-consistency principle]] :: concept
+[[Wormhole]] :: thing
+[[Hafele–Keating experiment]] :: event
+[[The Time Machine]] :: work
 ---
-Your phone works out where you are by timing radio signals from [[Global Positioning System|GPS]] satellites about 20,000 kilometres overhead. Each one carries [[atomic clocks|Atomic clock]], and those clocks tick faster than identical clocks on the ground, a small but real case of time running at a different rate. Einstein's theories predicted that difference before any satellite was launched, and the satellites now confirm it.
-^ A GPS receiver is effectively solving for time as well as place, because a few billionths of a second of error becomes metres of error.
+Time travel is the idea of moving through time at a rate other than the ordinary one, or in a direction other than forward. Stated that way it splits into two very different questions. Travel to the future is not hypothetical: it happens, measurably, every day, in clocks on aircraft, on the International Space Station and in orbit over your head. Travel to the past is a different matter, a claim that sits at the edge of what the equations of physics permit, and nobody has come close to demonstrating it. The word "time machine" entered literature with H. G. Wells's novella [[The Time Machine|The Time Machine]] in 1895, but the physics that makes the forward half respectable arrived a decade later.
 
-## Two clocks, two effects
+## The forward road is already open
 
-Two effects act on a satellite clock, and they pull in opposite directions. Gravity is weaker at altitude, and general relativity says clocks in a weaker gravitational field tick faster, which adds about 45 microseconds a day. The satellite also moves at roughly 3.9 kilometres a second, and [[special relativity|Special relativity]] says a moving clock runs slow, which takes off about 7 microseconds a day. The net gain is 38 microseconds a day, just as relativity says. Left uncorrected, that gain would put positions about ten kilometres out every day. So engineers set the clocks to run slightly slow before launch.
+In 1905 Einstein's [[Special relativity|special relativity]] showed that a moving clock runs slow relative to a stationary one, an effect called [[Time dilation|time dilation]]. At everyday speeds it is absurdly small, but it has been measured directly. In 1971 Joseph Hafele and Richard Keating flew atomic clocks around the world on commercial airliners, and the clocks came back out of step with those left at the US Naval Observatory by a few hundred nanoseconds, matching prediction in the [[Hafele–Keating experiment|Hafele–Keating experiment]]. Cosmonaut Sergei Krikalev, after 803 days in orbit across several missions, returned about 0.02 seconds into the future of everyone he left behind.
 
-The effect was tested directly in 1971, when [[Hafele–Keating experiment|Joseph Hafele and Richard Keating]] flew caesium clocks around the world on commercial airliners, once eastward and once westward. They compared the travelling clocks with reference clocks at the United States Naval Observatory, and the gaps matched the predictions of relativity. The gaps were tens to hundreds of nanoseconds, far smaller than a blink, yet easily measured.
+^ Krikalev launched as a citizen of the Soviet Union and landed in a different country: his 1991 mission outlasted the USSR itself.
 
-## Forward is easy, backward is not
+Gravity bends time too. [[General relativity|General relativity]] predicts that clocks deeper in a gravitational field tick more slowly, so a clock on a mountain ages faster than one at sea level. The [[Global Positioning System|GPS]] constellation depends on both effects at once: satellite clocks run fast by about 45 microseconds a day because they sit higher in Earth's gravity, and slow by about 7 because of their orbital speed, a net gain of 38 microseconds per day. Left uncorrected, position errors would grow by roughly 10 kilometres daily, so engineers build the correction into the satellites' clock rates before launch.
 
-Forward travel is already measurable. The cosmonaut [[Sergei Krikalev]] accumulated 803 days in orbit across several missions, and at the end he was about 0.02 seconds younger than he would have been had he stayed on the ground. The gain is tiny, but it is the same physics as the satellites. Travel close to the speed of light would make the gap far larger, though no crewed craft has come near that speed.
-
-Gravity can stretch time much further than a satellite experiences. Near a [[Black holes|black hole]], clocks run far more slowly than clocks far away, a result of [[gravitational time dilation|Gravitational time dilation]] that makes a distant watcher see a falling clock slow and seem to freeze as it nears the horizon. A traveller falling across the horizon would notice nothing special at that moment, while the distant watcher would never see them cross it.
-
-A twin who flies out at close to light speed and comes home comes back younger than the sibling who stayed behind. The French physicist Paul Langevin popularised this scenario in 1911. The [[Twin paradox|twin paradox]] is not a contradiction, because the travelling twin accelerates, turns around and decelerates, and those changes break the symmetry between the two journeys.
-
-## Loops, wormholes and paradoxes
-
-Fiction had the machine first, and [[H. G. Wells|H. G. Wells]]'s 1895 novel gave the idea its shape. Backward travel depends on [[closed timelike curves|Closed timelike curve]], paths through spacetime that loop back to their own starting point. Kurt Gödel found solutions to Einstein's equations that contain such loops, in a rotating universe unlike our own. Those solutions show the equations allow time loops, but nothing observed in our universe is known to contain one.
-
-A [[Wormhole|wormhole]], a tunnel through spacetime joining two distant points, could in principle become a time machine if it were held open with exotic matter. Kip Thorne and two colleagues showed this in 1988. The obvious objection is the [[Grandfather paradox|grandfather paradox]], in which a traveller prevents their own birth, and Stephen Hawking proposed a chronology protection conjecture to suggest physics forbids such loops. That conjecture is unproven, so the question of time machines remains open.
-
-::: timeline
-1895 :: H. G. Wells publishes The Time Machine
-1905 :: Einstein publishes special relativity, tying time to speed
-1949 :: Gödel finds solutions with loops in time
-1971 :: Atomic clocks flown on airliners confirm time dilation
-1988 :: Wormhole time machine proposed by Morris, Thorne and Yurtsever
-1992 :: Hawking proposes the chronology protection conjecture
+::: steps
+Satellite height :: Orbit at 20,200 km means weaker gravity, so clocks run faster
+Satellite speed :: About 3.9 km/s orbital motion slows clocks slightly
+Net result :: Clocks gain roughly 38 microseconds per day
+Correction :: Clock frequency is offset before launch to cancel the drift
 :::
+
+## Going further than a few seconds
+
+The extreme version of gravitational time dilation lives near [[Black holes|black holes]]. Close to the event horizon, an outside observer sees clocks slow toward a standstill, so a traveller who hovered there and returned could leave centuries behind with little aging. The classic version is the [[Twin paradox|twin paradox]]: one twin cruises away at near light speed and comes home younger than the sibling who stayed. It looks like a contradiction only until you notice the travelling twin must turn around, breaking the symmetry between them. The cost is energy: reaching one year of future per day of travel needs speeds past 99.99 percent of light speed.
+
+## The backward road is a bet
+
+General relativity does not forbid travel to the past outright. Its equations allow [[Closed timelike curve|closed timelike curves]], paths through spacetime that loop back to their start. In 1949 [[Kurt Gödel|Kurt Gödel]], Einstein's neighbour at Princeton, found a rotating-universe solution, the [[Gödel metric|Gödel metric]], in which such loops exist everywhere. Our universe does not appear to rotate, and other proposals, such as traversable [[Wormhole|wormholes]] held open by exotic matter with negative energy density, require substances no one has found. Stephen Hawking's chronology protection conjecture suggests that quantum effects would destroy any time machine just as it was about to switch on, though it remains unproven.
+
+Even if the loops exist, logic imposes rules. The [[Grandfather paradox|grandfather paradox]], in which a traveller prevents their own birth, is the best-known problem. One proposed escape is the [[Novikov self-consistency principle|Novikov self-consistency principle]], formulated by Igor Novikov in the 1980s, under which only histories without contradiction can occur, so the traveller's gun jams or their aim fails. Another is branching timelines, in which the past you change belongs to a different universe than the one you left. Which, if either, is right, nobody can say, because no one has a time machine to test it.
 ===
-- [[Doctor Who]] :: A police box, bigger inside: the time machine of a British TV series. :: work
-- [[Marine chronometer]] :: Clocks, not stars: the sea timekeeper that finally let ships find their longitude. :: thing
-- [[Circadian rhythm]] :: A biological clock near 24 hours, shifted by every flight across time zones. :: mechanism
-- [[Relativity of simultaneity]] :: Events simultaneous for one observer can fall in another order for someone else. :: concept
-- [[Chronology protection conjecture]] :: Hawking's bouncer: a conjecture that physics forbids time loops, still unproven. :: concept
-- [[Leap second]] :: Some minutes last 61 seconds, because Earth's spin is irregular. :: concept
+- [[Hawking radiation]] :: black holes leak energy; Hawking also tried to ban time machines
+- [[Atomic clock]] :: optical clocks now detect time dilation across a height of one centimetre
+- [[Cosmic muon]] :: particles that should decay in flight reach the ground thanks to dilation
+- [[Light cone]] :: the geometry that decides which events can ever influence which
+- [[Hugh Everett]] :: many-worlds branching offers a way out of the grandfather paradox
+- [[Schrödinger's cat]] :: another famous thought experiment built to test an interpretation of reality
 ???
-Would a clock on a fast spaceship really fall behind Earth's?
-Could a wormhole ever be made into a working time machine?
-Why does the twin who flies away come back younger?
+Could a wormhole really work as a time machine?
+Why do GPS clocks gain 38 microseconds a day?
+How fast would a traveller need to go to leap centuries ahead?
 &&&
-[[Special relativity]] :: Speed alone changes how fast time passes for a moving observer.
-[[Gravitational time dilation]] :: Clocks higher up tick faster, even across a few metres.
-[[Global Positioning System]] :: A phone's location depends on satellite clocks corrected for relativity.
-[[Atomic clock]] :: Caesium atoms ticking at a fixed frequency, the basis of official time.
-[[Hafele–Keating experiment]] :: Clocks flown around the world came back measurably out of step.
-[[Black holes]] :: A falling clock appears to freeze to a distant watcher.
-[[Closed timelike curve]] :: A path through spacetime that loops back into its own past.
-[[Wormhole]] :: A shortcut through spacetime that might be held open, in theory.
-[[Grandfather paradox]] :: A traveller who prevents their own birth, and the logic breaks.
-[[Twin paradox]] :: The traveller who returns younger, with no contradiction in sight.
-[[H. G. Wells]] :: The novelist who gave fiction its time machine, in 1895.
-[[Sergei Krikalev]] :: A cosmonaut who came home a fiftieth of a second younger.
+[[Time dilation]] :: Moving clocks really do tick slower, and instruments confirm it.
+[[Special relativity]] :: Einstein's 1905 rules that tie time, space and speed together.
+[[General relativity]] :: Gravity as curved spacetime, and why altitude changes your aging.
+[[Global Positioning System]] :: Your phone's map quietly depends on Einstein's corrections.
+[[Black holes]] :: Time nearly stops at their edge from the outside view.
+[[Twin paradox]] :: One twin returns younger, and the turnaround explains why.
+[[Closed timelike curve]] :: Spacetime paths that loop back to their own past.
+[[Gödel metric]] :: A rotating universe where every journey can circle back in time.
+[[Kurt Gödel]] :: Gave Einstein a gift-wrapped nightmare for his birthday in 1949.
+[[Grandfather paradox]] :: The logical trap that makes backward travel so troublesome.
+[[Novikov self-consistency principle]] :: Physics might simply forbid any contradictory change to the past.
+[[Wormhole]] :: A hypothetical tunnel through spacetime needing matter nobody has found.
+[[Hafele–Keating experiment]] :: Airliners carried atomic clocks around the world and came back out of sync.
+[[The Time Machine]] :: Wells's 1895 novella that gave the idea its name.

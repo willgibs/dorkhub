@@ -26,7 +26,8 @@ test('every page written ahead of time and every placeholder is known, at its ow
   /* the line that travels on a picture is the one made by hand, for the front page or the door list */
   for (const t of [...FRONT, ...EARLIER]) assert.equal(by.get(topicKey(t.t))?.line, t.h, t.t);
   const ice = by.get('why is ice slippery'); assert.equal(ice?.title, 'Why is ice slippery?', 'a question keeps its words'); assert.equal(ice?.path, '/why-is-ice-slippery');
-  const whale = by.get('whale falls'); assert.match(whale?.deck || '', /^A whale that sinks/, 'a written page says its own deck');
+  const whale = by.get('whale falls'); const own = /^> (.+)$/m.exec(readFileSync(new URL('../lib/seeds/whale-falls/index.txt', import.meta.url), 'utf8'))?.[1];
+  assert.ok(own && whale?.deck === own && own !== EARLIER.find(e => e.t === 'Whale falls')?.h, 'a written page says its own deck');
 });
 
 test('the build gives each known page the head that says what it is, and changes nothing else', async () => {

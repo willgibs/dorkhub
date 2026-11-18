@@ -47,7 +47,7 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
 - `lib/placeholder.js`: a front-page topic whose page isn't written yet opens a placeholder, built
   from `lib/front.js` alone. `node scripts/seeds.mjs brief "<title>"` is the brief for the real page;
   `node scripts/seeds.mjs batch plan` (then `send --yes`, `take`) writes them all through the Batch API,
-  with production's own call, at half price (it spends: Will's go first).
+  by Sonnet 5.5 with production's own call for it, at half price (it spends: Will's go first).
 - `lib/recorded.js`: real writer output that the mock replays in dev, e2e and previews.
   Judge prompts and rendering against it, not against the synthetic mock.
 - Append to `docs/decisions.md` when you decide something real. Rewrite `docs/state.md`

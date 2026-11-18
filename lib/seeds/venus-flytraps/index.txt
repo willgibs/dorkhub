@@ -1,69 +1,86 @@
 # Venus flytraps :: creature
-> Two touches within twenty seconds spring a trap shut, and five start a slow, patient digestion.
+> A small bog plant that counts to five, then closes a green jaw and digests its prey alive.
+
 !!!
-Native range :: Coastal North and South Carolina
-Habitat :: Wet, sandy, nutrient-poor soil
-Trigger hairs :: three on each lobe
+Key facts :: 3 lines below
+Home :: Carolina coastal plain, USA
+Trap size :: 1 to 3 cm long
+Closing time :: about 0.1 seconds
 +++
+[[Dionaea muscipula]] :: creature
 [[Carnivorous plant]] :: concept
 [[Action potential]] :: mechanism
-[[Ion channel]] :: mechanism
-[[Turgor pressure]] :: mechanism
-[[Mechanoreceptor]] :: mechanism
-[[Thigmonasty]] :: mechanism
-[[Anthocyanin]] :: mechanism
-[[Carolina bay]] :: place
-[[Longleaf pine]] :: creature
 [[Charles Darwin]] :: person
-[[Wilmington, North Carolina]] :: place
-[[Magnets]] :: phenomenon
+[[Green Swamp]] :: place
+[[Longleaf pine]] :: creature
+[[Wildfire ecology]] :: phenomenon
+[[Anthocyanin]] :: thing
+[[Calcium signaling]] :: mechanism
+[[Lightning]] :: phenomenon
+[[Magnetocardiography]] :: technique
+[[Magnets]] :: thing
+[[Sundew]] :: creature
+[[Bog]] :: place
 ---
-On a wet, open savanna near the Carolina coast, a fly walks across the small green trap of a [[carnivorous plant|Carnivorous plant]]. The trap's two halves are hinged down the middle and fringed with stiff teeth, and their rims hold beads of sweet nectar. Three short hairs stand on the inner face of each half, and the plant reads them the way a sentry reads a tripwire. When one of those hairs bends, the trap starts counting, and the next few seconds decide whether it snaps shut.
-^ The genus Dionaea has a single species, so this plant is the whole genus.
+Key facts :: Home :: Carolina coastal plain, USA
 
-## A leaf built as a trap
+Correction of format follows in the page proper.
 
-The trap is a modified leaf. Its flat, winged stalk, or petiole, carries a blade split into two lobes joined along a midrib that works as a hinge. The open lobes bow outward in a curved state that stays put until something flips it. Stiff marginal teeth on each lobe interlock when the lobes meet, forming a cage that lets very small prey escape. In strong sunlight the inner surface turns deep red from [[anthocyanin pigment|Anthocyanin]], and in shade it stays green.
+Venus flytraps (*[[Dionaea muscipula]]*) grow wild in only one corner of the world: a strip of damp, sandy, acidic pine savanna within about 100 kilometres of Wilmington, North Carolina, reaching just into South Carolina. Each plant is a low rosette of leaves whose tips are hinged into twin lobes, edged with stiff bristles called cilia and, when open, often blushing red inside from [[Anthocyanin]] pigment. The soil is hopeless for a plant: waterlogged, starved of nitrogen and phosphorus. So the flytrap, like every [[Carnivorous plant]], buys what the ground cannot supply by catching animals, mostly beetles, spiders and ants rather than the flies of its name. Darwin called it "one of the most wonderful in the world."
 
-Each trigger hair is a [[mechanoreceptor|Mechanoreceptor]], a sensory structure that turns physical bending into an electrical signal. Bending a hair deforms the cells at its base, which opens [[ion channels|Ion channel]] in their membranes and sends a charge across the lobe. One touch produces only a weak signal that fades within about twenty seconds, so a single raindrop or grain of sand does not close the trap. A second touch before that signal fades pushes the total past a threshold, and the trap fires a full [[action potential|Action potential]], the same all-or-nothing spike a nerve uses, only far slower. Since moving charge makes a magnetic field, the firing trap gives off a faint [[magnetic field|Magnets]], and sensitive instruments have measured it.
+## A trap that counts
 
-## Snapping shut and counting to five
+Inside each lobe sit three slender trigger hairs. Bending one fires an electrical signal, but a single touch does nothing, because rain and falling debris touch leaves constantly. If a second touch arrives within roughly 20 seconds, the trap snaps shut. The plant is doing arithmetic on a leaf with no nervous system, and the 2016 study led by Rainer Hedrich's group at the University of Würzburg (Current Biology) showed how: each touch triggers an [[Action potential]], and each also lets calcium flow into the cells in a measured dose. The first touch raises calcium a little, and the second, arriving before it fades, pushes it over the threshold for closing.
 
-The snap is a change in shape more than a flex of muscle. [[Turgor pressure]], the water pressure inside cells, shifts along the midrib in a fraction of a second, and each lobe flips from convex to concave, sweeping its teeth across the other to seal the prey inside. Botanists class this touch-driven movement as [[thigmonasty|Thigmonasty]], a response that does not depend on which direction the stimulus came from. It is among the fastest plant movements known.
+The lobes shut in about a tenth of a second, but at first only into a loose cage: the cilia interlock like fingers, and small insects can slip out through the gaps, saving the plant the cost of digesting a crumb. A struggling captive keeps touching the hairs. After a total of five touches the trap seals tightly and the digestive glands begin to secrete. Hedrich's team found that the counting continues past the closing: the more the prey moves, the more jasmonate hormone signalling the plant makes, and the more enzymes it pumps out.
 
-Once the trap is sealed, glands on its inner surface release a digestive fluid of enzymes that break down the soft tissue of the prey over several days. The hard exoskeleton of an insect resists those enzymes, and when digestion finishes the lobes reopen and leave the husk behind. Digestion is not automatic, though: two touches close the trap, but digestion starts only after five, a count that separates a living animal from a grain of grit.
-
-::: myth
-Myth :: a flytrap survives on the insects it catches
-Actually :: photosynthesis feeds the plant, and prey supplies mainly the nitrogen and phosphorus its soil lacks
+::: steps
+Touch 1 :: A trigger hair bends; an action potential fires and calcium rises slightly.
+Touch 2 :: Within about 20 seconds, calcium crosses the threshold and the trap closes loosely.
+Touches 3-4 :: Struggling prey keeps stimulating hairs; the lobes press tighter.
+Touch 5 :: Trap seals airtight; glands flood with digestive fluid.
+Days later :: Nutrients absorbed; trap reopens, leaving the husk of the prey.
 :::
 
-## Bogs, fire and Darwin's greenhouse
+^ The electrical signals travel across the leaf at roughly 10 centimetres per second, a slow, plant-scale cousin of [[Lightning]] in the sense that both are discharges, only this one carries arithmetic.
 
-The plant's native range is small, a patch of wet, sandy, acidic coastal plain within roughly a hundred miles of [[Wilmington, North Carolina]]. Inside that patch it grows in open [[longleaf pine savannas|Longleaf pine]] and in the shallow, oval wetlands called [[Carolina bays|Carolina bay]]. Regular fire keeps taller plants from shading the ground, where competition would otherwise crowd out the trap.
+## How the snap works
 
-[[Charles Darwin]] studied the plant for years, much of it in greenhouses at Down House in Kent, England. In 1875 he published Insectivorous Plants, reporting experiments that showed the trap absorbs what it digests. He grew the plant thousands of miles from the bogs where it lives.
+The closing is not muscle. Before firing, the open lobe is held in a bowed, convex shape under tension, like a bent plastic lid. The action potentials trigger a rapid change in the cell walls and water movement, and the lobe flips to concave, as a spring-loaded toy snaps inside out. Research reported by Lakshminarayanan Mahadevan's group at Harvard in 2005 modelled this as a geometric instability rather than simple growth. Once sealed, digestion takes about five to twelve days, with enzymes and acid breaking prey down so the plant can absorb nitrogen and phosphorus. Each trap can digest only a handful of meals before it blackens and dies, and the plant grows new ones.
+
+The flytrap even manages its own colour. The red insides are thought to help lure prey, though that is debated, and the nectar-like secretions along the rim are an additional bait.
+
+## Living with fire, and a surprise field
+
+In the wild the plant depends on [[Wildfire ecology]]: the [[Longleaf pine]] savanna burns every few years, clearing the shrubs that would otherwise shade the low rosettes out. Without fire, populations decline, and poaching has pushed the species toward the threatened category. Its wild range sits around the [[Green Swamp]] and similar [[Bog]] edges, and a close cousin in sticky ambush, the [[Sundew]], shares some of its habitat.
+
+In 2020, a Mainz team led by Anke Fabricant used a sensitive atomic magnetometer, the same kind of tool as in [[Magnetocardiography]], to detect the tiny [[Magnets]]-style field produced when a trap fires: about 0.5 picotesla, thousands of times weaker than Earth's field. It was the first such recording from a plant's action potential, and a reminder that even a bog weed produces measurable physics.
+
+^ The measured field was roughly a hundred million times weaker than a fridge magnet's, yet the same instrument class reads human heartbeats.
+
 ===
-- [[Lightning]] :: Electrical signals, from a plant's touch counter to the strike that splits trees :: phenomenon
-- [[Hydrostatic skeleton]] :: Turgor pressure's animal cousin: water under pressure standing in for bone :: mechanism
-- [[Sundew]] :: Its sticky cousin catches prey with glue droplets rather than a snap :: creature
-- [[Nepenthes]] :: Tropical pitchers that drown their prey in slippery, digestive fluid :: creature
-- [[Mimosa pudica]] :: The sensitive plant folds its leaflets within seconds of a touch :: creature
-- [[Sphagnum]] :: The moss that acidifies bogs and leaves their soil nutrient-starved :: creature
+- [[Charles Darwin]] :: He spent years feeding flytraps and published Insectivorous Plants in 1875 :: person
+- [[Action potential]] :: The same electrical spike that fires your neurons also shuts a leaf :: mechanism
+- [[Sundew]] :: Tentacled glue trap that curls around insects, closely related to the flytrap :: creature
+- [[Calcium signaling]] :: How cells, plant and animal, count events using calcium ions :: mechanism
+- [[Magnetocardiography]] :: Sensors that read your heartbeat's magnetic field also detected a plant's :: technique
+- [[Wildfire ecology]] :: Why a savanna needs periodic fire to keep its carnivores alive :: phenomenon
 ???
-How fast does a Venus flytrap snap shut, and why so fast?
-Why does a Venus flytrap ignore a single touch?
-Can a Venus flytrap survive without eating any insects?
+How does a flytrap tell prey from falling raindrops?
+Why do flytrap traps die after a few meals?
+Can a flytrap survive outside the Carolinas in the wild?
 &&&
-[[Carnivorous plant]] :: Plants that eat animals to get the nutrients their soil lacks.
-[[Action potential]] :: The all-or-nothing spike that runs through a human nerve.
-[[Ion channel]] :: Tiny protein gates in membranes that open to let charge flow.
-[[Turgor pressure]] :: Water pressure inside cells, the force behind the lobes' snap.
-[[Mechanoreceptor]] :: A sensor that turns a bent hair into an electrical signal.
-[[Thigmonasty]] :: Plant movement driven by touch, not by light or gravity.
-[[Anthocyanin]] :: The pigment that turns a trap's inside deep red in sun.
-[[Carolina bay]] :: Oval wetlands whose origin is still debated.
-[[Longleaf pine]] :: A pine whose savannas depend on regular fire.
-[[Charles Darwin]] :: The naturalist who showed the flytrap absorbs what it digests.
-[[Wilmington, North Carolina]] :: The city that anchors the flytrap's small native range.
-[[Magnets]] :: A firing trap radiates a magnetic field, faint but measurable.
+[[Dionaea muscipula]] :: Sole species of its genus, native only to the Carolinas
+[[Carnivorous plant]] :: Dozens of lineages independently evolved meat-eating on poor soils
+[[Action potential]] :: The same electrical spike drives nerves and plant leaves
+[[Charles Darwin]] :: Fed flytraps beef and cheese, calling it wonderful
+[[Green Swamp]] :: North Carolina preserve harbouring wild flytraps
+[[Longleaf pine]] :: Fire-dependent tree that shapes flytrap habitat
+[[Wildfire ecology]] :: Burning keeps rare bog plants from being shaded out
+[[Anthocyanin]] :: Red pigment that tints the trap's interior
+[[Calcium signaling]] :: Calcium dose is how the leaf counts touches
+[[Lightning]] :: Electrical discharge, scaled up from the leaf's spikes
+[[Magnetocardiography]] :: Measures hearts' magnetic fields without touching skin
+[[Magnets]] :: Even a plant's electrical spikes make faint magnetic fields
+[[Sundew]] :: Glue-tentacle carnivore sharing flytrap's evolutionary family
+[[Bog]] :: Acid, waterlogged ground that starves plants of nitrogen

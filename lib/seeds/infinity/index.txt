@@ -1,66 +1,78 @@
 # Infinity :: concept
-> Infinity has no single size, and a clever diagonal of digits proves that some infinities outgrow others.
+> Some infinities are bigger than others, and a hotel with endless rooms, a list of every number and a single diagonal prove it.
 !!!
-Origin :: Georg Cantor, 1874 and 1891
-Defining case :: real numbers from 0 to 1
-Counting numbers :: aleph-zero, the countable infinity
+Key facts :: 
+Origin :: Cantor, 1870s–1890s
+Symbol :: ∞, John Wallis, 1655
+Defining case :: ℵ₀ versus 2^ℵ₀
 +++
-[[Hilbert’s paradox of the Grand Hotel]] :: concept
-[[David Hilbert]] :: person
-[[Countable set]] :: concept
-[[Actual infinity]] :: concept
-[[Zeno’s paradoxes]] :: concept
 [[Georg Cantor]] :: person
-[[Cantor’s diagonal argument]] :: technique
-[[Rubik’s Cube]] :: thing
+[[Cantor's diagonal argument]] :: concept
+[[Hilbert's Hotel]] :: concept
+[[Zeno's paradoxes]] :: mystery
 [[Continuum hypothesis]] :: mystery
-[[Black holes]] :: phenomenon
-[[Renormalization]] :: technique
+[[Aleph numbers]] :: concept
+[[Transfinite numbers]] :: concept
+[[Calculus]] :: concept
+[[Singularity (gravitational)|Gravitational singularity]] :: phenomenon
+[[Projective geometry]] :: concept
+[[Kurt Gödel]] :: person
+[[Russell's paradox]] :: concept
+[[Rubik's Cube]] :: thing
 ---
-Picture a hotel with a room for every counting number, all of them full. A new guest still gets a bed, because each guest moves to the next room and room 1 is left empty. Even a coach of infinitely many passengers fits, if each guest moves to the room with twice their number, leaving the odd-numbered rooms empty. This is [[Hilbert’s paradox of the Grand Hotel]], which [[David Hilbert]] used to show that a full infinite hotel can always take more. Behind the puzzle is a question about size, and [[Georg Cantor]] answered it in the 1870s.
-^ Georg Cantor, who proved this, suffered repeated breakdowns and died in a Halle sanatorium in 1918.
+Infinity is not a number you can reach by counting, but a way of describing things that never run out: the whole numbers 1, 2, 3 and onward, the points on a line, the steps of a division that is halved again and again. For most of history it was treated as a warning sign rather than an object. Aristotle allowed only a "potential" infinity, a process that could always continue, and rejected a completed one. The symbol ∞ appeared in print in 1655, in John Wallis's work on conic sections, and the sense that infinity could be handled as a finished thing, with arithmetic of its own, arrived only in the 1870s.
 
-## Matching instead of counting
-Galileo noticed a related paradox in 1638. Pairing each counting number with its square matches every square exactly, though squares grow sparser along the number line. He concluded that words like greater and smaller do not apply to infinite collections. Mathematicians call a set [[countable set|countable]] when its members can be listed in a sequence with none missed, and the counting numbers, the even numbers and the fractions all qualify. Huge is not endless, though: a [[Rubik’s Cube]] has about 43 quintillion arrangements, a vast but finite number.
+The shift came from [[Georg Cantor]], a mathematician at Halle, who asked a childishly simple question: what does it mean for two collections to be the same size? His answer needed no counting, only pairing. If every item in one set can be matched with exactly one item in another, with none left over, the sets are the same size. Applied to infinite sets, this produces results that feel like cheating. The even numbers can be paired with all whole numbers (2 with 1, 4 with 2, 6 with 3), so a part of the counting numbers is as large as the whole.
 
-Aristotle separated a potential infinity, a process that never ends, from an [[actual infinity|Actual infinity]], a completed whole, and denied that the second could exist. [[Zeno’s paradoxes|Zeno of Elea]] had earlier used endless halvings of a distance to argue that motion is impossible, and such puzzles kept philosophers busy for centuries. Mathematicians largely avoided treating a completed infinity as a real object until the nineteenth century.
+^ [[Zeno's paradoxes]] dramatized the problem some 2,400 years ago: infinitely many ever-shorter steps seem to forbid reaching a goal, yet runners finish races.
 
-## A list that can never be finished
-[[Georg Cantor]] treated completed infinite collections as objects, the opposite of Aristotle’s view. In 1874 he proved that the real numbers between 0 and 1 cannot be put into a list, and in 1891 he gave a simpler argument, the [[Cantor’s diagonal argument|diagonal argument]]. It assumes a list exists, with each number written as an endless decimal. It then builds a new number digit by digit, taking the first digit of the first number, the second of the second, and so on down the diagonal, changing each to a different digit. The new number differs from every row in at least one place, so it is on no list, and the assumption fails.
-^ Alan Turing used the same diagonal trick in 1936 to show that no machine can decide, for every machine, whether it runs forever.
+## The hotel with no vacancies
 
-Cantor’s method leads to an endless ladder rather than a single infinity. He showed that the collection of all subsets of any set is always larger than the set itself, so there is no largest infinity. Two sets have the same size exactly when their members pair off one to one, and no such pairing exists between the counting numbers and the reals, so the reals are strictly larger.
-::: compare Counting numbers | Real numbers from 0 to 1
-Example :: 1, 2, 3, and so on | any decimal from 0 to 1
-Can it be listed? :: yes, in order | no, every list misses one
-Size :: aleph-zero | 2 to the power of aleph-zero
+[[Hilbert's Hotel]], a thought experiment popularized by David Hilbert in the 1920s, makes pairing vivid. A hotel with infinitely many rooms is full, yet a new guest can be housed by moving everyone from room n to room n+1. Even an infinite busload of newcomers fits: move each guest from room n to room 2n, freeing every odd-numbered room. The fractions, surprisingly, also fit, since they can be arranged in a grid and walked through in a zigzag so that each gets a room number. Every one of these sets has the same size, which Cantor named ℵ₀, [[Aleph numbers|aleph-null]].
+
+## The diagonal
+
+The surprise is that some sets will not fit. In 1891 Cantor published [[Cantor's diagonal argument]], and it needs only a pencil. Suppose someone claims to have a list, numbered 1, 2, 3 and running on forever, of every real number between 0 and 1, each written as a string of decimal digits. Build a new number by taking the first digit of the first entry, the second digit of the second, the third of the third, and so on down the diagonal, then change each of those digits to something else, say by adding one (turning 9 into 0). The new number differs from the first entry in its first digit, from the second in its second digit, and from every entry somewhere. So it is not on the list, and the list was not complete.
+
+::: steps
+List :: Assume every real between 0 and 1 sits in a numbered list.
+Diagonal :: Read the nth digit of the nth number, for every n.
+Change :: Replace each diagonal digit with a different one, such as adding one.
+Compare :: The new number differs from entry n in digit n, so matches no row.
+Conclude :: No list can hold all the reals, so they outnumber the counting numbers.
 :::
 
-## Where infinity breaks down
-Cantor could never settle whether any size lies between the counting numbers and the reals. His conjecture that none does became the [[Continuum hypothesis]], and [[David Hilbert]] put it first on his list of twenty-three problems in 1900. Kurt Gödel showed in 1940 that the standard axioms cannot disprove it, and Paul Cohen showed in 1963 that they cannot prove it. Some set theorists argue for new axioms that would decide it, while others regard it as genuinely undecided.
+The same trick works against any list, so the real numbers form a strictly larger infinity than the whole numbers, of size 2^ℵ₀. Cantor went on to show that taking all subsets of any set always yields a bigger set, so the sizes climb forever, a ladder of [[Transfinite numbers]] with no top. His next question, whether any infinity sits between ℵ₀ and the reals, is the [[Continuum hypothesis]]. [[Kurt Gödel]] showed in 1940 that it cannot be disproved from standard set theory, and Paul Cohen showed in 1963 that it cannot be proved either.
 
-In physics, an infinite answer is usually a warning rather than a result. General relativity predicts that the density at the centre of a [[Black holes|black hole]] rises without limit, a point called a singularity, and most physicists read that as a sign the theory has broken down. Quantum electrodynamics faced the same trouble, because calculations of an electron’s own energy came out infinite. Richard Feynman, Julian Schwinger and Sin-Itiro Tomonaga showed in the 1940s how to absorb such infinities into measured quantities, a method called [[renormalization|Renormalization]]. Their work shared the 1965 Nobel Prize in Physics.
+^ Cantor's work was attacked by Leopold Kronecker, who called him a "corrupter of youth"; Cantor suffered recurring depression, though historians dispute how far the controversy caused it.
 
+## Infinity at work, and infinity in trouble
+
+Infinity is the engine of [[Calculus]], where Newton and Leibniz in the 1600s summed infinitely many infinitely thin slices, and where limits later gave the idea rigorous footing in the 1800s. Artists and geometers use it too: in [[Projective geometry]], parallel lines meet at a point at infinity, which is what a vanishing point in a Renaissance painting is. Its unrestricted use has costs, though. [[Russell's paradox]] of 1901, the set of all sets that do not contain themselves, showed naive set theory could contradict itself, and led to the careful axioms used today.
+
+In physics, a real infinity usually signals that a theory has been pushed past its limits, as with the [[Singularity (gravitational)|Gravitational singularity]] predicted at the center of a black hole, where density formally diverges. Finite things can be astronomically big without becoming infinite: the [[Rubik's Cube]] has about 4.3 × 10^19 positions, yet any can be solved in at most 20 moves. Whether physical space, or time, is truly infinite remains unknown.
 ===
-- [[Aleph number]] :: Cantor’s endless ladder of infinite sizes, each rung above the last :: concept
-- [[Infinitesimal]] :: Smaller than any positive number yet not zero, the ghost that powered calculus :: concept
-- [[Shepard tone]] :: A tone that seems to climb forever, an endless staircase built from sound :: phenomenon
-- [[Shape of the universe]] :: Measurements suggest space is flat, yet flat space could still be finite :: mystery
-- [[Halting problem]] :: Why no program can always tell whether another will run forever :: concept
-- [[The Library of Babel]] :: Borges imagined a library holding every possible book, its galleries stretching without end :: work
+- [[Black holes]] :: Where equations return infinity and physics admits it has run out of road. :: phenomenon
+- [[Rubik's Cube]] :: Over 43 quintillion positions, yet never more than 20 moves from solved. :: thing
+- [[Zeno's paradoxes]] :: Achilles never catches the tortoise, until limits say he does. :: mystery
+- [[Gödel's incompleteness theorems]] :: Gödel's coding trick, diagonal argument in disguise, shows true statements no system can prove. :: concept
+- [[Halting problem]] :: Turing reused Cantor's diagonal to prove some programs' fate is unknowable. :: concept
+- [[Banach–Tarski paradox]] :: Cut a ball into pieces, reassemble two balls, using infinite sets. :: concept
 ???
-Is the universe infinite in extent, or only very large?
-Why did Leopold Kronecker reject Cantor’s infinite sets as mathematics?
-Will physics ever remove the infinities inside black hole singularities?
+Is there an infinity between the whole numbers and the real numbers?
+Why does a diagonal prove some infinities are bigger?
+Can an infinite hotel with every room full still take guests?
 &&&
-[[Hilbert’s paradox of the Grand Hotel]] :: A full infinite hotel that still finds room for a coach.
-[[David Hilbert]] :: Gave the 1900 problem list that shaped a century of mathematics.
-[[Countable set]] :: Infinite sets that can still be lined up one after another.
-[[Actual infinity]] :: Whether a finished infinite whole can exist, which Aristotle denied.
-[[Zeno’s paradoxes]] :: Infinitely many steps that add up to a finite journey.
-[[Georg Cantor]] :: Made infinity precise, then paid a heavy personal price.
-[[Cantor’s diagonal argument]] :: A single diagonal that exposes every list as incomplete.
-[[Rubik’s Cube]] :: Finite, yet holding about 43 quintillion distinct arrangements.
-[[Continuum hypothesis]] :: A question standard mathematics cannot settle: is there a size between?
-[[Black holes]] :: Where gravity’s equations predict infinite density at the centre.
-[[Renormalization]] :: How physicists tamed infinite energies by folding them into measured constants.
+[[Georg Cantor]] :: Mocked for his infinities, now credited with reshaping mathematics.
+[[Cantor's diagonal argument]] :: One changed digit per row defeats every possible list.
+[[Hilbert's Hotel]] :: Always full, always room for infinitely many more.
+[[Zeno's paradoxes]] :: Ancient puzzles about motion that took calculus to untangle.
+[[Continuum hypothesis]] :: Provably unprovable and undisprovable in standard set theory.
+[[Aleph numbers]] :: Cantor's Hebrew-letter names for the sizes of infinity.
+[[Transfinite numbers]] :: Counting past infinity, with arithmetic of its own.
+[[Calculus]] :: Taming infinitely small slices into exact answers.
+[[Singularity (gravitational)|Gravitational singularity]] :: A point where density formally diverges and relativity stops working.
+[[Projective geometry]] :: Parallel lines meet at infinity, the mathematics behind perspective.
+[[Kurt Gödel]] :: Showed the continuum hypothesis cannot be refuted, then found unprovable truths.
+[[Russell's paradox]] :: A one-line contradiction that broke naive set theory.
+[[Rubik's Cube]] :: Enormous but finite, with every position within 20 moves.

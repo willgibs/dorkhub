@@ -2,37 +2,36 @@
 
 _Rewrite this at the end of each session. Keep it under 40 lines._
 
-## Now (2026-11-17, evening): live writing runs on Will's Anthropic credit; the writer needs fixing
-- **Live on dorkhub.com since #52:** the free pages go straight to Anthropic on `DH_ANTHROPIC_KEY` (Production only,
-  a Secret in Vercel), from the Console workspace "Dorkhub", whose $50 monthly limit is their budget (auto-reload
-  off). Each instance logs `{"evt":"writer","via":"anthropic"}`. The prompt cache works: every page after the first
-  reads 2,568 of its 2,700 input tokens from it. A page costs about $0.001.
-- **The writer breaks the format about half the time** (`docs/decisions.md`, 2026-11-17). Haiku 5.5 with thinking
-  off, run live for the first time today, drops the title line's `# ` on about half its pages (no kind, no colour,
-  never kept) and stops after the body on about a sixth. Bodies read whole on 43 of 44. Production keeps 20 of 44.
-- **The 44 pages written ahead of time are still the Claude Code stand-ins.** The batch tool works (one batch of 44,
-  about $0.025, answers in `.seeds-batch/`, untracked), but only 10 of its pages passed, and a tenth chosen by the
-  checks would break one bar. Nothing from it shipped.
-- **The review desk** (https://claude.ai/artifact/5H9tMoB19rZjCUkfkHKSLP) still shows ask 1 (the Anthropic key
-  steps): done. Take it off with the next desk update.
-- **Branch `seeds/production-writer`** (local, not pushed): `scripts/prove.mjs` now asks for a real topic, plus these
-  records. Push it with the next change.
+## Now (2026-11-17, night): Haiku writes every live page, Sonnet the covers
+- **Live on dorkhub.com:** the free pages write on Will's Anthropic credit (`DH_ANTHROPIC_KEY`, Production only;
+  Console workspace "Dorkhub", $50 monthly limit, auto-reload off), and the prompt cache works. #54 shipped the
+  parser's first two fixes for Haiku's slips (a bare title line, a copied "Key facts" label).
+- **Will's calls (desk, 2026-11-17):** Haiku 5.5 stays the live writer, "its weaknesses accommodated elegantly in
+  our own architecture and design", and should write genuinely engaging pages. Sonnet 5.5 writes the pages written
+  ahead of time, "a fun entry point". His time travel page opened on one narrow angle (GPS clocks).
+- **Branch `fix/unmarked-sections`** (one PR, on the desk as asks "closing-sections" and "covers"):
+  - The parser knows Haiku's closing sections by their lines' shape, and drops copied labels. On its 44 pages,
+    format lines in the body fall from 18 to 3, and real cards rise from 23 to 37.
+  - Sonnet rewrote all 44 covers ($0.73). The cover brief now opens on the whole topic, and Sonnet's limit gets
+    1,000 tokens of room.
+  - The covers' checks accept a thread as a card or a body link, and leave long facts to the layout.
+- **Spent on the credit so far:** about $1.50 of the $50 month (live proof, three writer arms, the covers).
 
 ## Next
-1. Read a bare `Title :: kind` first line as the title line (`src/shared/article.js`; mind the streaming rules).
-   Production then keeps 35 of 44, not 20. Free.
-2. **(Will)** Writer fixes tested on the same 44 topics by batch (cents each): thinking at low effort, Sonnet 5.5,
-   the prompt. Then all 44 written ahead of time in one pass with the winner, on the desk before shipping.
-3. Then, each on his go: the eval's first look on the credit, re-recording `lib/recorded.js` from live output, the
-   trial size once readers reach it; Upstash, old resources to retire, repo visibility, Pro pricing; identity
-   federation instead of the key (Vercel's OIDC token, no stored secret).
+1. Ship the PR after Will's look (desk asks 1 and 2), then take both off the desk.
+2. **(Will)** Engaging Haiku pages: the eval's `lean` prompt on Haiku, 44 topics by batch (about $0.03), in blind
+   pairs with today's prompt on the desk.
+3. Haiku's early stops: 6 of 44 pages end after the body. Either finish them with a short second call (about
+   $0.0003 a page), or keep them with cards made from their links.
+4. Then, each on his go: re-record `lib/recorded.js` from live output; the trial size once readers reach it;
+   Upstash; old resources to retire; repo visibility; Pro pricing; identity federation instead of the key.
 
 ## Open, small
-- The audit session's branch (Vercel packages' `npm audit` flags, `package-lock.json` only) brings its own PR.
+- The audit PR (#53, `package-lock.json` only) awaits Will's review.
 - CI's second try for the walk warns when used: drop it after a clean week (from 14 Nov).
 - Never run `npm run verify` beside `npm run e2e`: verify rebuilds `public/` under the walk.
 - Room: the page is ~393 KB of its 400 KB budget (`tests/page.test.js`), `front.json` ~198 KB of 200 KB.
-- Left on purpose: a picture whose image never answers keeps its dots moving while on screen; on a phone, keyboard
-  focus into the sticky bar scrolls the page.
+- Placeholders still say a page "will be written by the same writer as every page"; none shows today.
+- `.e2e/desk/tools/page-end.mjs` captures a page's end from a saved answer, for free.
 
 The orchestrator's working notes: `.claude/orchestrator-handoff.md` (untracked, on Will's Mac).

@@ -76,7 +76,7 @@
    "file": "kessler-syndrome.jpg",
    "from": "picture",
    "title": "Kessler syndrome",
-   "kind": "phenomenon",
+   "kind": "concept",
    "line": "How one collision could lock us out of orbit for generations.",
    "alt": "Kessler syndrome: How one collision could lock us out of orbit for generations. The picture: Space debris populations (not to scale) seen from outside geosynchronous orbit (GSO)",
    "credit": "NASA image · Public domain"
@@ -85,7 +85,7 @@
    "file": "fresnel-lenses.jpg",
    "from": "picture",
    "title": "Fresnel lenses",
-   "kind": "mechanism",
+   "kind": "thing",
    "line": "How lighthouses folded a giant lens into rings of glass.",
    "alt": "Fresnel lenses: How lighthouses folded a giant lens into rings of glass. The picture: First-order rotating catadioptric Fresnel lens, dated 1870, displayed at the Musée national de la Marine, Paris",
    "credit": "Rama · CeCILL"

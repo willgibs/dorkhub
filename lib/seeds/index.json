@@ -2,180 +2,268 @@
  "pages": {
   "black holes": {
    "title": "Black holes",
-   "file": "black-holes/index.txt"
+   "file": "black-holes/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "northern lights": {
    "title": "Northern lights",
-   "file": "northern-lights/index.txt"
+   "file": "northern-lights/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "venus flytraps": {
    "title": "Venus flytraps",
-   "file": "venus-flytraps/index.txt"
+   "file": "venus-flytraps/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "quicksand": {
    "title": "Quicksand",
-   "file": "quicksand/index.txt"
+   "file": "quicksand/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "stonehenge": {
    "title": "Stonehenge",
-   "file": "stonehenge/index.txt"
+   "file": "stonehenge/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "supernovas": {
    "title": "Supernovas",
-   "file": "supernovas/index.txt"
+   "file": "supernovas/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "diamonds": {
    "title": "Diamonds",
-   "file": "diamonds/index.txt"
+   "file": "diamonds/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "volcanoes": {
    "title": "Volcanoes",
-   "file": "volcanoes/index.txt"
+   "file": "volcanoes/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "coral reefs": {
    "title": "Coral reefs",
-   "file": "coral-reefs/index.txt"
+   "file": "coral-reefs/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "dreams": {
    "title": "Dreams",
-   "file": "dreams/index.txt"
+   "file": "dreams/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "fingerprints": {
    "title": "Fingerprints",
-   "file": "fingerprints/index.txt"
+   "file": "fingerprints/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "terracotta army": {
    "title": "Terracotta Army",
-   "file": "terracotta-army/index.txt"
+   "file": "terracotta-army/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "atlantis": {
    "title": "Atlantis",
-   "file": "atlantis/index.txt"
+   "file": "atlantis/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "magnets": {
    "title": "Magnets",
-   "file": "magnets/index.txt"
+   "file": "magnets/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "infinity": {
    "title": "Infinity",
-   "file": "infinity/index.txt"
+   "file": "infinity/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "time travel": {
    "title": "Time travel",
-   "file": "time-travel/index.txt"
+   "file": "time-travel/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "ice ages": {
    "title": "Ice ages",
-   "file": "ice-ages/index.txt"
+   "file": "ice-ages/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "fireworks": {
    "title": "Fireworks",
-   "file": "fireworks/index.txt"
+   "file": "fireworks/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "rubiks cube": {
    "title": "Rubik’s Cube",
-   "file": "rubiks-cube/index.txt"
+   "file": "rubiks-cube/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "pompeii": {
    "title": "Pompeii",
-   "file": "pompeii/index.txt"
+   "file": "pompeii/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "mona lisa": {
    "title": "Mona Lisa",
-   "file": "mona-lisa/index.txt"
+   "file": "mona-lisa/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "lightning": {
    "title": "Lightning",
-   "file": "lightning/index.txt"
+   "file": "lightning/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "octopuses": {
    "title": "Octopuses",
-   "file": "octopuses/index.txt"
+   "file": "octopuses/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "hieroglyphs": {
    "title": "Hieroglyphs",
-   "file": "hieroglyphs/index.txt"
+   "file": "hieroglyphs/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "giant squid": {
    "title": "Giant squid",
-   "file": "giant-squid/index.txt"
+   "file": "giant-squid/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "dna": {
    "title": "DNA",
-   "file": "dna/index.txt"
+   "file": "dna/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "antarctica": {
    "title": "Antarctica",
-   "file": "antarctica/index.txt"
+   "file": "antarctica/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "origami": {
    "title": "Origami",
-   "file": "origami/index.txt"
+   "file": "origami/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "boomerangs": {
    "title": "Boomerangs",
-   "file": "boomerangs/index.txt"
+   "file": "boomerangs/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "enigma machine": {
    "title": "Enigma machine",
-   "file": "enigma-machine/index.txt"
+   "file": "enigma-machine/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "apollo 11": {
    "title": "Apollo 11",
-   "file": "apollo-11/index.txt"
+   "file": "apollo-11/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "holograms": {
    "title": "Holograms",
-   "file": "holograms/index.txt"
+   "file": "holograms/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "bioluminescence": {
    "title": "Bioluminescence",
-   "file": "bioluminescence/index.txt"
+   "file": "bioluminescence/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "carrington event": {
    "title": "The Carrington Event",
-   "file": "carrington-event/index.txt"
+   "file": "carrington-event/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "tardigrades": {
    "title": "Tardigrades",
-   "file": "tardigrades/index.txt"
+   "file": "tardigrades/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "whale falls": {
    "title": "Whale falls",
-   "file": "whale-falls/index.txt"
+   "file": "whale-falls/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "antikythera mechanism": {
    "title": "The Antikythera mechanism",
-   "file": "antikythera-mechanism/index.txt"
+   "file": "antikythera-mechanism/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "voynich manuscript": {
    "title": "The Voynich manuscript",
-   "file": "voynich-manuscript/index.txt"
+   "file": "voynich-manuscript/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "umami": {
    "title": "Umami",
-   "file": "umami/index.txt"
+   "file": "umami/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "why is ice slippery": {
    "title": "Why is ice slippery?",
    "file": "why-is-ice-slippery/index.txt",
-   "question": true
+   "question": true,
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "great emu war": {
    "title": "The Great Emu War",
-   "file": "great-emu-war/index.txt"
+   "file": "great-emu-war/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "kessler syndrome": {
    "title": "Kessler syndrome",
-   "file": "kessler-syndrome/index.txt"
+   "file": "kessler-syndrome/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "fresnel lenses": {
    "title": "Fresnel lenses",
-   "file": "fresnel-lenses/index.txt"
+   "file": "fresnel-lenses/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   },
   "tulip mania": {
    "title": "Tulip mania",
-   "file": "tulip-mania/index.txt"
+   "file": "tulip-mania/index.txt",
+   "model": "anthropic/claude-sonnet-5.5",
+   "prompt": "2026-10-19-v3.1"
   }
  }
 }

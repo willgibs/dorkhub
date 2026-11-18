@@ -1,69 +1,74 @@
 # Giant squid :: creature
-> Sperm whales bear round scars from giant squid suckers, and the squid's beak survives in their stomachs.
+> A deep-sea cephalopod with the largest eyes known in any animal, seen alive in its own habitat only in this century.
 !!!
-Scientific name :: Architeuthis dux, described 1857
-Typical depth :: roughly 300 to 1,000 m
-Eye width :: 27 cm, largest of any animal
+Key facts :: 
+Eye diameter :: up to 27 cm
+Length :: about 12 m, females larger
+Habitat :: deep ocean worldwide, 300–1,000 m
 +++
-[[Octopuses]] :: creature
-[[Colossal squid]] :: creature
+[[Architeuthis]] :: creature
+[[Cephalopod]] :: creature
+[[Tsunemi Kubodera]] :: person
 [[Sperm whale]] :: creature
-[[Kraken (mythology)]] :: creature
-[[Twenty Thousand Leagues Under the Sea]] :: work
+[[Kraken]] :: creature
+[[Octopuses]] :: creature
+[[Bioluminescence]] :: phenomenon
+[[Statocyst]] :: mechanism
+[[Radula]] :: mechanism
+[[Ammonia buoyancy]] :: mechanism
+[[Colossal squid]] :: creature
 [[Ogasawara Islands]] :: place
-[[Mesopelagic zone]] :: place
-[[Cephalopod beak]] :: thing
-[[Chromatophore (pigment cell)]] :: mechanism
-[[Echolocation]] :: mechanism
-[[Deep-sea gigantism]] :: phenomenon
+[[Newfoundland]] :: place
+[[Chromatophore]] :: mechanism
 ---
-Hundreds of metres down, where daylight fades to almost nothing, a squid hangs in the water with eight arms, two long feeding tentacles and the largest eyes of any animal. Nobody has ever kept one alive. For most of its scientific history, what people knew about the giant squid came from what the sea left behind: beaks, tentacle fragments and carcasses on beaches.
+For most of human history the giant squid was a rumor with tentacles. Sailors told of sea monsters, and the [[Kraken]] of Scandinavian lore may owe something to it, but bodies were scarce: a carcass on a beach, a tangle of arms in a trawl net, pieces vomited by whales. The animal itself, [[Architeuthis]] to biologists, is a [[Cephalopod]] with eight arms, two much longer feeding tentacles, and a body plan that looks improbable until you see it scaled up. Large specimens are measured at around 12 metres including the tentacles, though most of that is arm and tentacle rather than bulk. The mantle, the muscular torso, is usually only about two metres.
 
-^ Its genus name, Architeuthis, comes from Greek words meaning roughly "chief squid."
+Its eye is the headline. In specimens, the eyeball reaches about 27 centimetres across, roughly the size of a dinner plate and about eleven times the width of a human eye, which measures around 2.4 centimetres. No other animal known has an eye bigger. Beneath that dark gaze, the skin is flecked with [[Chromatophore]] cells, tiny sacs of pigment that expand and contract to change its colour.
 
-## Eyes for dim water
+^ A giant squid's eye is so large that it could not fit on a postcard drawn at human scale; the lens alone can be the size of an orange.
 
-A giant squid's eye is about 27 cm across, roughly eleven times the width of a human eye, which measures about 2.4 cm. A common explanation is that a wider eye collects more of the faint light reaching the deep, though this remains a hypothesis. The eye follows the same basic plan as ours, a lens focusing an image onto a retina, but cephalopods and vertebrates arrived at that design separately. The animal belongs to the open-eyed squids, whose eyes have no transparent membrane covering them.
+## Why such big eyes?
 
-Its home is the dim water of the [[twilight zone|Mesopelagic zone]], far below any light a diver could use. It moves by jet propulsion, drawing water into its mantle and forcing it out through a siphon, and it steers with its fins. Its skin is flecked with [[chromatophores|Chromatophore (pigment cell)]], pigment sacs that muscles stretch open to change colour in a fraction of a second. Like [[octopuses|Octopuses]], it is a cephalopod, a group of molluscs whose arms ring the head, and it shares with them both its colour-changing skin and its camera-style eye.
+The deep ocean is nearly lightless, and the question is what a squid needs to see there. A 2012 study by Dan-Eric Nilsson and colleagues, published in Current Biology, offered an answer. Computer models suggested that the giant eye is not for seeing prey in the dark at all. It is tuned to detect one thing: the faint glow of [[Bioluminescence]] stirred up by a [[Sperm whale]] swimming through the water. A bigger eye lets the squid notice a whale's approach from far more than a hundred metres away, long enough to flee. Prey, by contrast, is close enough to be seen with a much smaller eye, so the extra size would be wasted on hunting.
 
-## Scars and beaks
+This makes the squid and its main predator a matched pair. Sperm whales dive for squid, and their stomachs have supplied most specimens that science has ever handled. Circular scars from squid suckers, studded with tiny toothed rings, scar the skin of sperm whales, evidence of fights that no human has watched.
 
-The [[sperm whale|Sperm whale]] is the giant squid's main known predator. Sperm whales dive into the dark and find their prey by [[echolocation|Echolocation]], sending out clicks and reading the echoes that bounce back. Many carry round scars consistent with giant squid suckers, and their stomachs hold the squid's [[beaks|Cephalopod beak]], the hard parts that survive digestion. What happens during those encounters is mostly inferred from the wounds and the leftovers, since no one has watched the whole fight.
+::: figures
+27 cm :: maximum eye diameter recorded
+2.4 cm :: width of a human eye
+12 m :: typical maximum total length
+:::
 
-^ Sperm whales can dive past a kilometre to hunt, where sunlight never reaches.
+## Seeing one alive
 
-The beak is shaped like a parrot's and built from chitin, the tough material of insect shells.
+Stranded animals had been studied since the nineteenth century. Newfoundland fishermen in the 1870s supplied several, and the naturalist Moses Harvey helped bring them to wide attention. Yet a living animal in its own habitat resisted every attempt. The breakthrough came on 30 September 2004, when a team led by [[Tsunemi Kubodera]] of Japan's National Science Museum, near the [[Ogasawara Islands]], photographed a giant squid attacking baited tackle at about 900 metres. Over the day the camera took more than 500 images. In 2012, Kubodera's team, working with Discovery Channel and Japan's broadcaster NHK, filmed one in its natural habitat at around 630 metres from a submersible.
 
-## A monster known from pieces
+Inside, the animal is odd too. Its flesh is held buoyant by ammonium chloride, a body fluid that is lighter than seawater and tastes of the chemical; this [[Ammonia buoyancy]] trick lets it hang in the water without swimming, and it is also why the meat is unpalatable. A parrot-like beak and a ribbon of teeth called the [[Radula]] shred prey, and the balance organs known as [[Statocyst]]s tell the squid which way is up, and are read by scientists to estimate age. Counting rings in them suggests lifespans of only about five years, short for so large an animal.
 
-Norse tradition described the [[kraken|Kraken (mythology)]], a sea monster so vast that sailors were said to mistake it for an island. Some scholars think sightings of giant squid helped shape that legend, long before the animal had a scientific name. Japetus Steenstrup gave it one, from specimens, and the species is still known as Architeuthis dux, with "dux" the Latin for leader.
-
-Jules Verne's novel [[Twenty Thousand Leagues Under the Sea]], with its submarine crew fighting a giant squid, helped fix the animal in the public mind as a monster.
-
-For a long time no one had photographed one alive. Researchers off the [[Ogasawara Islands]] took the first pictures of a living giant squid in its own habitat, at roughly 900 metres. Its cousin, the [[colossal squid|Colossal squid]], is thought to be heavier, though the giant squid is usually described as longer. Its lifespan, breeding and daily life remain largely unknown.
-
-The giant squid is one of several deep-sea animals that grow far larger than their shallow-water relatives, a pattern known as [[deep-sea gigantism|Deep-sea gigantism]], whose causes are still debated.
+Genetic studies have found that giant squid across the globe are remarkably alike, possibly one species in all oceans. A related but distinct giant, the [[Colossal squid]], is heavier but belongs to another family. Cousins such as [[Octopuses]] share the same basic cephalopod design of a brain wrapped around the throat, three hearts and blue blood.
 ===
-- [[Vampire squid]] :: Neither squid nor octopus, a deep-sea cephalopod living in the same dim water. :: creature
-- [[Camera eye]] :: Octopus eyes rival ours, yet their retinas are wired the other way round. :: mechanism
-- [[Belemnite]] :: Hard parts that outlive their owners, like fossil thunderbolts of extinct squid kin. :: creature
-- [[Squid giant axon]] :: A squid's oversized nerve fibre let scientists work out how nerves fire. :: thing
-- [[Sepia (pigment)]] :: A cephalopod's ink became sepia, the brown pigment painters once used. :: thing
-- [[Whale fall]] :: Sinking carcasses become seafloor feasts that can last for decades. :: phenomenon
+- [[Colossal squid]] :: Heavier than the giant squid, with swivelling hooks on its arms :: creature
+- [[Sperm whale]] :: The hunter that carries squid beak scars and dives to a kilometre :: creature
+- [[Octopuses]] :: Close cephalopod cousins with three hearts and arms that think for themselves :: creature
+- [[Bioluminescence]] :: The glow of the deep sea that giant eyes evolved to catch :: phenomenon
+- [[Kraken]] :: The legendary sea monster that sailors may have drawn from squid sightings :: thing
+- [[Statocyst]] :: Tiny balance organs whose growth rings reveal how old a squid was :: mechanism
 ???
-How do sperm whales find giant squid in the pitch dark?
-Why has no giant squid ever been kept alive in captivity?
-Why did the giant squid evolve eyes so much larger than ours?
+Why do sperm whales eat giant squid?
+How deep can a giant squid dive?
+Is the giant squid a single species?
 &&&
-[[Octopuses]] :: Eight arms that can taste what they touch and solve puzzles.
-[[Colossal squid]] :: Heavier than its giant cousin, with rotating hooks on its tentacles.
-[[Sperm whale]] :: Hunts giant squid by sound, and bears scars from their suckers.
-[[Kraken (mythology)]] :: A Norse sea monster, possibly inspired by real giant squid.
-[[Twenty Thousand Leagues Under the Sea]] :: Jules Verne's submarine epic, pitting its crew against a giant squid.
-[[Ogasawara Islands]] :: Subtropical islands where the first living giant squid was photographed.
-[[Mesopelagic zone]] :: The twilight layer where faint daylight fades into true darkness.
-[[Cephalopod beak]] :: A chitin beak that outlasts digestion, found in whale stomachs.
-[[Chromatophore (pigment cell)]] :: Pigment sacs that muscles stretch open, changing colour in a blink.
-[[Echolocation]] :: Clicks and echoes that let a whale map its squid prey.
-[[Deep-sea gigantism]] :: Why many deep-sea animals grow far larger than their shallow-water kin.
+[[Architeuthis]] :: The genus name; a single species may span all oceans.
+[[Cephalopod]] :: A head-and-foot class with blue blood and three hearts.
+[[Tsunemi Kubodera]] :: Japanese zoologist who first photographed a living giant squid in 2004.
+[[Sperm whale]] :: Its stomach supplied most known specimens; its approach may explain those eyes.
+[[Kraken]] :: Norse-rooted sea monster that may echo squid encounters.
+[[Octopuses]] :: Distant relatives with the same strange cephalopod brain and blood.
+[[Bioluminescence]] :: Deep-sea light that giant eyes may exist to detect.
+[[Statocyst]] :: Balance organs whose rings let scientists read a squid's age.
+[[Radula]] :: A toothed ribbon in the mouth, behind a parrot-like beak.
+[[Ammonia buoyancy]] :: Ammonium-laced tissue keeps the squid floating and makes it taste awful.
+[[Colossal squid]] :: A heavier relative from Antarctic waters with hooked arms.
+[[Ogasawara Islands]] :: Remote Pacific islands where the first living giant squid photographs were taken.
+[[Newfoundland]] :: Where nineteenth-century strandings put giant squid on the scientific map.
+[[Chromatophore]] :: Pigment sacs in the skin that flick colour on and off.

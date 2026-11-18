@@ -1,74 +1,77 @@
 # Atlantis :: mystery
-> Plato described a city of ringed sea and land, then said it sank in one day and night; every later telling starts with him.
+> A continent-sized island, a naval empire, a flood that swallowed it in a day and a night: one philosopher's story, endlessly reinvented.
 !!!
-First telling :: Plato's dialogues, around 360 BC
-Best candidate :: Thera's eruption, around 1600 BC
-Settled :: No; no city has been found
+Key facts :: 
+First telling :: Plato's Timaeus and Critias, c. 360 BC
+Best evidence :: One source, Plato; no physical site
+Status :: Widely held to be Plato's invention
 +++
-[[Minoan eruption]] :: event
-[[Akrotiri (Santorini)]] :: place
-[[Knossos]] :: place
-[[Spyridon Marinatos]] :: person
-[[Ignatius Donnelly]] :: person
+[[Plato]] :: person
 [[Timaeus (dialogue)]] :: work
 [[Critias (dialogue)]] :: work
-[[Stadion (unit)]] :: thing
+[[Solon]] :: person
+[[Minoan eruption]] :: event
+[[Volcanoes]] :: thing
+[[Hieroglyphs]] :: technique
 [[Orichalcum]] :: thing
-[[Bimini Road]] :: place
-[[Tartessos]] :: place
-[[Pillars of Heracles]] :: place
-[[Volcanoes]] :: phenomenon
-[[Hieroglyphs]] :: thing
+[[Ignatius Donnelly]] :: person
+[[Mid-Atlantic Ridge]] :: place
+[[Plato's Republic]] :: work
+[[Stadion (unit)]] :: concept
+[[Doggerland]] :: place
+[[Helike]] :: place
 ---
-Beyond the [[Pillars of Heracles]], Plato wrote, lay an island larger than Libya and Asia put together, ruled by the descendants of the sea god Poseidon. Its capital sat inside concentric rings of sea and land, a canal led in from the sea, and its walls shone with metal. Then, in one dreadful day and night, earthquakes and floods took the island beneath the waves. Every telling of Atlantis goes back to two dialogues Plato wrote around 360 BC, [[Timaeus (dialogue)|Timaeus]] and [[Critias (dialogue)|Critias]], and Critias breaks off partway through its story.
-^ Plato says the sinking left a mud shoal that still makes the sea there impassable.
+Atlantis is a drowned empire that appears in exactly one place in ancient literature: two dialogues by [[Plato]], the [[Timaeus (dialogue)|Timaeus]] and the unfinished [[Critias (dialogue)|Critias]], written around 360 BC. In them, a great island power lying beyond the Pillars of Heracles launches an invasion of the Mediterranean, is checked by an ancient Athens, and then, in a single terrible day and night of earthquakes and floods, sinks beneath the sea. Every later telling, from Renaissance speculation to submarine-themed cartoons, descends from those few pages. Whether Plato was passing on a memory, bending a real disaster into a moral fable, or simply inventing the whole thing is the question that has kept the mystery alive for twenty-four centuries.
 
-## Plato's numbers
+## Plato's story
 
-Plato measured the island in [[Stadion (unit)|stadia]], about 185 metres each in Athens. The central island was 5 stadia across, ringed by five bands of sea and land, 1, 2, 2, 3 and 3 stadia wide, starting with sea. Poseidon had fenced the hill of his mortal love, Cleito, with those rings, and their eldest son Atlas gave the island its name. The walls were brass on the outer ring, tin on the ring inside it, and [[Orichalcum|orichalcum]] around the citadel, which flashed like fire. A temple to Poseidon stood on the summit, sheathed in silver with gold pinnacles, and a racecourse for horses circled the rings.
+The tale comes wrapped in layers of hearsay. In the dialogues, Critias recalls a story told to him as a boy by his grandfather, who had it from [[Solon]], the Athenian lawgiver, who in turn learned it from priests at Sais in Egypt around 600 BC. The priests supposedly read it from records kept in temple writing, and Solon, the account says, translated the names, which is where [[Hieroglyphs|hieroglyphic]] inscriptions enter the legend. They dated the war to about 9,000 years before Solon, which would put it near 9600 BC, long before any known city existed.
 
-Plato says the story reached Athens through priests at Sais in Egypt, who told Solon that the war had come nine thousand years before his own time. Plato never names the script of their records, but Egyptian temple writing was [[Hieroglyphs|hieroglyphic]], a Greek word meaning 'sacred carvings', and it stayed largely unread until Champollion's decipherment in 1822.
-^ Counted back from Solon's day, about 600 BC, Plato's date falls near 9600 BC, roughly 8,000 years before Thera erupted.
+Atlantis was the realm of Poseidon, who fathered ten kings there with a mortal woman, Cleito. The capital was built around her hill in concentric rings, and the Critias gives its dimensions with unusual care: a central island 5 stadia across, ringed by alternating belts of sea and land measuring 1, 2 and 3 stadia in width. A [[Stadion (unit)|stadion]] was roughly 180 meters, so the whole city was about 5 kilometers wide. Bridges crossed the rings, a canal ran inland from the sea, and the walls were sheathed in [[Orichalcum|orichalcum]], tin and brass, with the temple of Poseidon at the center.
 
-## The rival answers
+^ Plato's Egyptian priest reportedly told Solon that Greeks were "always children"; Egypt, he said, preserved memory because its disasters spared the records.
 
-The most discussed candidate is the [[Minoan eruption]], which around 1600 BC blew apart the island of Thera, now Santorini. It ranks among the largest [[Volcanoes|volcanic]] eruptions of the past ten thousand years, and it buried the Bronze Age town of [[Akrotiri (Santorini)|Akrotiri]] under ash, where painted houses lay sealed for over three thousand years. In 1939 the archaeologist [[Spyridon Marinatos]] argued that the blast had wrecked Minoan Crete, and that a distorted memory of the ruin reached Plato as Atlantis. Thera's centre really did collapse and flood, which is what makes the comparison tempting, and Crete's palace at [[Knossos]] shows how rich that Minoan world was.
-
-The sunken continent owes much to [[Ignatius Donnelly]], a Minnesota politician whose 1882 book Atlantis: The Antediluvian World turned the island into a continent that seeded every ancient civilisation. Later candidates include [[Tartessos]], a rich kingdom of southern Spain whose capital is still unlocated, and the [[Bimini Road]] off the Bahamas, which divers took for a road before geologists called it natural rock.
-::: theories
-Plato's invention :: a moral fable about a greedy empire and an ideal Athens :: accepted
-Thera's eruption :: a real Bronze Age disaster, remembered as myth :: disputed
-Tartessos :: a lost kingdom of southern Spain was the city behind the legend :: rejected
-Bimini Road :: ancient ruins of a sunken city off the Bahamas :: rejected
+::: figures
+5 stadia :: width of the central island
+9,000 years :: age of the war before Solon, per Plato
+10 :: kings descended from Poseidon
+1 day and night :: duration of the destruction
 :::
 
-## What would settle it
+## A fable with a purpose
 
-Critias sets old Athens, the ideal state Socrates sketched in the Republic, against an empire punished for its greed, and many scholars read the whole tale as moral fiction. What would settle the question is a datable, submerged city whose rings match Plato's measurements, or an independent ancient record of one. No Egyptian text naming Atlantis has turned up, and no excavation has found the rings.
+Plato's own habits are the strongest clue. The story is told to illustrate his ideal state, sketched in the [[Plato's Republic|Republic]]: ancient Athens is virtuous, disciplined and austere, while Atlantis is rich, expansive and finally corrupt. The empire's divine character fades as its rulers' mortal side grows, and it is punished. Plato elsewhere freely invented myths to make a philosophical point, and Aristotle, his pupil, is reported by later writers to have remarked that the man who invented Atlantis also destroyed it. Most classicists today read it as a constructed fable, although some argue Plato adapted real events.
 
+The strangest feature is how thoroughly the story vanished after antiquity and how thoroughly it returned. In 1882, the American politician [[Ignatius Donnelly]] published *Atlantis: The Antediluvian World*, arguing that it was a real mid-ocean civilization, source of Egyptian and Maya culture. The notion that a sunken landmass lay beneath the Atlantic collapsed once the [[Mid-Atlantic Ridge]] was mapped and plate tectonics showed that the seafloor is young and no continent ever sank there.
+
+## Candidates and what would settle it
+
+Searchers have proposed nearly every drowned or devastated place. The leading scientific candidate is the Bronze Age explosion of Thera (Santorini), the [[Minoan eruption]] of roughly 1600 BC, one of the largest [[Volcanoes|volcanic]] events of the last few thousand years. It buried the town at Akrotiri and probably damaged Minoan Crete, a sea power with palaces and bull imagery that echo Plato's details. The weaknesses are scale and date: Plato's 9,000 years and his vast island do not fit, unless numbers were inflated by a factor of ten, an old and unprovable rescue.
+
+Others point to [[Helike]], a Greek city swallowed by an earthquake and tsunami in 373 BC, within Plato's own lifetime, or to the flooding of [[Doggerland]], the North Sea plain submerged after the last ice age. Nothing would settle the matter except a source independent of Plato: an Egyptian text, or an archaeological site matching the ringed plan. None has appeared, and the burden rests on those who claim the story had a model beyond Plato's imagination.
 ===
-- [[Mid-Atlantic Ridge]] :: Seafloor spreading here widens the Atlantic yearly, the geology behind sunken-continent doubts :: place
-- [[Lisbon earthquake of 1755]] :: Voltaire turned the Lisbon quake into a novel about why the innocent suffer :: event
-- [[Eratosthenes]] :: He sized the whole Earth in stadia, as Plato sized his island :: person
-- [[Linear A]] :: Minoan tablets from Crete carry a script that still no one can read :: thing
-- [[Rosetta Stone]] :: One decree in three scripts gave Champollion the key to hieroglyphs :: thing
-- [[Pompeii]] :: Ash buried Pompeii in 79 AD; bodies left cavities that became plaster casts :: place
+- [[Minoan eruption]] :: Santorini's blast buried Akrotiri and may have wrecked Europe's first sea power :: event
+- [[Doggerland]] :: A lost land under the North Sea, drowned as ice melted :: place
+- [[Helike]] :: A real Greek city vanished under the sea in 373 BC :: place
+- [[Plate tectonics]] :: Why no continent could have sunk in the mid-Atlantic :: concept
+- [[Thucydides]] :: Greek historian whose war narratives set the standard Plato's myth defied :: person
+- [[Pseudoarchaeology]] :: How lost-civilization theories spread from Donnelly to today's documentaries :: concept
 ???
-Could the Minoan eruption of Thera have destroyed a real Atlantis?
-Why did Plato's Egyptian priests date the war nine thousand years before Solon?
-Did any ancient Egyptian text ever mention the island of Atlantis?
+Did Plato invent Atlantis or borrow it from older stories?
+Could the Santorini eruption really explain Atlantis?
+How did Ignatius Donnelly make Atlantis famous in the 1880s?
 &&&
-[[Minoan eruption]] :: A blast that might have turned a disaster into legend
-[[Akrotiri (Santorini)]] :: A Bronze Age town preserved under volcanic ash, with painted walls
-[[Knossos]] :: The palace that Arthur Evans reconstructed, partly in concrete
-[[Spyridon Marinatos]] :: The archaeologist who tied Plato's island to a volcano in 1939
-[[Ignatius Donnelly]] :: The Minnesota politician whose 1882 book made Atlantis a sunken continent
-[[Timaeus (dialogue)]] :: Plato's cosmology, and the source of the island's first telling
-[[Critias (dialogue)]] :: The unfinished dialogue that breaks off partway through the island's story
-[[Stadion (unit)]] :: A unit that varied by city, and changes Atlantis's size
-[[Orichalcum]] :: Named "mountain copper", a metal scholars still argue over
-[[Bimini Road]] :: Divers' road off the Bahamas, which geologists say is natural rock
-[[Tartessos]] :: A rich kingdom of southern Spain whose capital is still unlocated
-[[Pillars of Heracles]] :: Rocks that marked the edge of the known world for Greeks
-[[Volcanoes]] :: Mountains that can bury a city, and maybe a whole civilisation
-[[Hieroglyphs]] :: Sacred carvings the Greeks could not read, cracked in 1822
+[[Plato]] :: Philosopher who told the tale and may have made it up.
+[[Timaeus (dialogue)]] :: Introduces Atlantis briefly inside a grand account of the cosmos.
+[[Critias (dialogue)]] :: Describes the ringed city, then breaks off mid-sentence.
+[[Solon]] :: Athenian lawgiver said to have heard the story in Egypt.
+[[Minoan eruption]] :: Bronze Age blast that buried Akrotiri on Santorini.
+[[Volcanoes]] :: Some of history's most vivid disasters came from them.
+[[Hieroglyphs]] :: Plato credited Egyptian priests and their temple records.
+[[Orichalcum]] :: Mysterious metal of Atlantis walls; its real identity is debated.
+[[Ignatius Donnelly]] :: Congressman whose 1882 book made Atlantis a modern craze.
+[[Mid-Atlantic Ridge]] :: Seafloor ridge that disproved a sunken Atlantic continent.
+[[Plato's Republic]] :: The ideal city Atlantis was meant to be measured against.
+[[Stadion (unit)]] :: Greek length of about 180 meters, Plato's unit for the rings.
+[[Doggerland]] :: Stone Age plain beneath the North Sea, lost to rising water.
+[[Helike]] :: Greek city swallowed by the sea during Plato's lifetime.
