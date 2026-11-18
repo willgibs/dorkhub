@@ -580,3 +580,38 @@ One line each, newest last. Why, not just what.
     told only the topics the body links, so every link gets a hook and no planned topic the body never reached does.
   - Testing this month: about $3.80 of the $20 (this change's live runs about $0.15, the blind judging about $1.70,
     two of its three runs lost to reading Opus's answers wrongly: it thinks by default, inside the output limit).
+- 2026-11-18 · **The wait for a page's first words, shaped into the move between pages** (Will's note on #58: "any
+  delay from topic to topic until the first word is ready should be shaped into a delightful transition from article
+  to article … amazing performance will always beat a delightful delay"). Between the click and the first words the
+  page waited under one line that shimmered "Writing this page", then "Choosing what to link", and the line snapped
+  away when the words came; a page written ahead of time, already whole, showed the same line while its reveal walked
+  through characters nobody sees.
+  - **The wait shows what the writer is doing, where the words will be.** On the first line's own place, a line of
+    body text tall: the orb, then a row of the composer's lamps, unlit. Each topic the writer plans lights the next
+    lamp along the line, in its kind's colour, which passes through it and leaves it ink (the wordmark's own arrival),
+    a stagger apart, so a plan that arrives whole (#59 sends it whole, near 1.8 s) sweeps across once. When the first words
+    come the row is lifted where it stood and gives way to them along the line, a soft edge ahead of the writing; the
+    orb goes where the first word lands. The words for a screen reader are unchanged ("Writing this page", "Choosing
+    what to link"). Rejected: skeleton lines (they promise a shape the writer doesn't keep), lamps scattered by the
+    golden ratio (a beaded rainbow that read as decoration, and several points of focus), lamps that keep their
+    colour (a rainbow at rest: "never rainbow everywhere"), the planned topics' names (text that vanishes as the
+    body arrives), and pacing the head to fill the wait (never slow down what has arrived).
+  - **Nothing jumps, nothing is added to an instant page.** The wait fades in only once the page has landed (after
+    the move's 400 ms), so a page whose words come within the move never shows one, and one that came before it had
+    faded in goes at once. When the deck and the key facts grow the head above the wait, it glides to its new place
+    (`--d-medium`) instead of jumping. A failed or stopped write lets it go as any state's wait goes.
+  - **Faster first words where the page is already whole.** The reveal passes at once over runs that show nothing
+    while they stream (`quietRuns` in `src/shared/article.js`: the key facts, whose row shows only when all three are
+    in, the link plan, v1's timeline, the hooks, the sources), proved by a test over all 44 pages written ahead and
+    the 27 recorded. A page written ahead now shows its first words at 0.42 s instead of 0.80 s (the dev server, three
+    runs each); on a live page the facts settle about 0.4 s sooner, before the plan's sweep, and the first words are
+    unchanged (3.11 s against main's 3.18 s with the mock at a 3.0 s wait).
+  - **Found on the way:** the store's save gathers for 400 ms, and a page saved mid-write is restored as "Stopped
+    partway", so a reload right after a page finished could lose its end (the browser walk did, once pages finished
+    sooner). A save still gathering is now made as the page is hidden or unloaded.
+  - **To watch it:** `DH_MOCK_WAIT=3000` replays a page's head on the split writer's timeline (#59's medians: the deck
+    at 1.0 s, the plan near 1.8 s, the first words at 2.6 s, shifted by the wait asked for) and `DH_MOCK_PAGES` replays
+    pages written today. Measured for the mock, straight to Anthropic on #58's writer, four topics, then eight whole
+    pages to replay: about $0.02 of the month's testing.
+  - Cost: 3.1 KB of the page (under 1 KB gzipped); the page is 390 KB of its 400 KB budget. Pictures:
+    `.e2e/desk/shots/wait-*` (1360, 1024, 390 and 320, both themes, WebKit at 1360 and 390, and main's for comparison).

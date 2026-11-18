@@ -331,24 +331,31 @@ test('v1 pages: head facts and timelines become panels below the first paragraph
   assert.equal(parseArticle(v1.slice(0, v1.indexOf('helps')), true).panels.length, 0);
 });
 
-/* A page's reveal passes over the lines a reader never sees (05-render.js), so a page that arrives whole shows its first
-   words with its head: what it passes over must hold nothing the parser shows, on every page written ahead and every
-   page recorded from a writer, and a run still being written stays open. */
+/* A page's reveal passes over the lines that show nothing while they stream in (05-render.js), so a page that arrives
+   whole shows its first words with its head: what it passes over must hold nothing the parser shows but the key facts,
+   whose row is shown only once they are all in, on every page written ahead and every page recorded from a writer; and
+   a run still being written stays open. */
 test('the quiet runs of a page hold nothing a reader sees', () => {
   const seeds = readdirSync(new URL('../lib/seeds/', import.meta.url), { withFileTypes: true }).filter(d => d.isDirectory()).map(d => readFileSync(new URL(`../lib/seeds/${d.name}/index.txt`, import.meta.url), 'utf8'));
-  const shown = (/** @type {string} */ t) => { const A = parseArticle(t, true); return JSON.stringify([A.title, A.deck, A.keyFacts, A.blocks, A.panels.length, A.notes, A.tunnels, A.questions]); };
+  const shown = (/** @type {string} */ t) => { const A = parseArticle(t, true); return JSON.stringify([A.title, A.deck, A.blocks, A.panels.length, A.notes, A.tunnels, A.questions]); };
+  /* the row of key facts shows once three are in (05-render.js), so passing over them only brings it sooner */
+  const facts = (/** @type {string} */ t) => Math.min(3, parseArticle(t, true).keyFacts.length);
   let passed = 0;
   for (const text of [...seeds, ...RECORDED.map(r => r.text)]) {
-    const runs = quietRuns(text);
-    for (const [a, b] of runs) { assert.equal(shown(text.slice(0, a)), shown(text.slice(0, Math.min(b, text.length))), `a run of ${text.slice(a, a + 40)}`); passed += Math.min(b, text.length) - a; }
+    for (const [a, b] of quietRuns(text)) {
+      const end = Math.min(b, text.length), at = `a run of ${JSON.stringify(text.slice(a, a + 40))}`;
+      assert.equal(shown(text.slice(0, a)), shown(text.slice(0, end)), at);
+      if (facts(text.slice(0, a)) !== facts(text.slice(0, end))) assert.equal(facts(text.slice(0, a)), 0, at);
+      passed += end - a;
+    }
   }
   assert.ok(seeds.length >= 40 && passed > seeds.length * 400, `the link plans are passed over (${passed} characters)`);
-  /* a page written ahead: its plan to the body's first line, and its hooks to the end */
-  const bh = seeds.find(t => t.startsWith('# Black holes')) || seeds[0]; const [plan] = quietRuns(bh);
-  assert.equal(bh.slice(plan[0], plan[0] + 4), '+++\n'); assert.ok(parseArticle(bh.slice(0, plan[1] + 12), true).blocks.length, 'the body follows at once');
+  /* a page written ahead: its key facts and plan to the body's first line, and its hooks to the end */
+  const bh = seeds.find(t => t.startsWith('# Black holes')) || seeds[0]; const [head] = quietRuns(bh);
+  assert.equal(bh.slice(head[0], head[0] + 4), '!!!\n'); assert.ok(parseArticle(bh.slice(0, head[1] + 12), true).blocks.length, 'the body follows at once');
   /* still being written: the plan's run is open; a line of prose straight after it (no "---") ends it */
   const live = '# Osedax :: creature\n> Deck.\n!!!\nA :: b\n+++\n[[Whale fall]] :: phenomenon\n';
-  assert.deepEqual(quietRuns(live), [[live.indexOf('+++'), Infinity]]);
+  assert.deepEqual(quietRuns(live), [[live.indexOf('!!!'), Infinity]]);
   const slip = '# T\n+++\n[[A]] :: thing\nBody begins here.\n';
   assert.deepEqual(quietRuns(slip), [[slip.indexOf('+++'), slip.indexOf('Body')]]);
 });

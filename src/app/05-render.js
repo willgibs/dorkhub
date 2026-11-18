@@ -544,9 +544,13 @@ function setStatus(el, text, orb, plan, room) {
   const c = $('canvas.orb', el); if (c.dataset.orb !== orb) c.dataset.orb = orb;
   const sr = $('.sr', el); if (sr.textContent !== text) sr.textContent = text;
   const row = $('.plan', el);
-  if (!row._n) { row._n = Math.max(12, Math.floor(room() / LAMP_PITCH)); row.innerHTML = '<i></i>'.repeat(row._n); row._k = 0; }
-  /* topics that arrive together still light one after another */
-  for (let j = 0; row._k < Math.min(plan.length, row._n); row._k++, j++) { const i = row.children[row._k]; const k = kindOf(plan[row._k]); if (k) i.dataset.kind = k; if (j) i.style.setProperty('--j', String(j)); i.className = 'on'; }
+  if (!row._n) { row._n = Math.max(12, Math.floor(room() / LAMP_PITCH)); row.innerHTML = '<i></i>'.repeat(row._n); row._k = 0; row._at = 0; }
+  /* topics that arrive together (the plan comes whole) light one after another, a stagger apart, as one sweep */
+  const now = performance.now(), step = row._k < plan.length && !reducedMotion() ? tokenMs('--d-stagger') : 0;
+  for (; row._k < Math.min(plan.length, row._n); row._k++) {
+    const i = row.children[row._k], k = kindOf(plan[row._k]); row._at = Math.max(now, row._at + step);
+    if (k) i.dataset.kind = k; if (row._at > now) i.style.animationDelay = `${Math.round(row._at - now)}ms`; i.className = 'on';
+  }
 }
 function paintBody(node, sec, A, live) {
   const body = $('.a-body', sec);

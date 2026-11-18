@@ -38,12 +38,13 @@ export function titleIsLocked({ title, q, bridge, depth, from }) {
   return !((depth === undefined || depth === 0) && isQuestion(title));
 }
 
-/* The runs of a page's text that show nothing as it streams in: the link plan, v1's timeline, the hooks for link cards
-   and the sources, each from its marker to the next marker (the body's own "---" with it), as [start, end) offsets, the
-   last open-ended while it is still being written. A run holds only lines shaped like those sections' own (a link, a
-   " :: ", an address, a label ending in a colon) and ends at any other line, which the parser would show: so a reveal
-   that passes over a run never hides anything, and at worst shows a slipped line at once instead of streaming it in. */
-const QUIET = new Set(['+++', '%%%', '&&&', '@@@']);
+/* The runs of a page's text that show nothing while they stream in: the key facts (a row shown only once all three are
+   in), the link plan, v1's timeline, the hooks for link cards and the sources, each from its marker to the next marker
+   (the body's own "---" with it), as [start, end) offsets, the last open-ended while it is still being written. A run
+   holds only lines shaped like those sections' own (a link, a " :: ", an address, a label ending in a colon) and ends at
+   any other line, which the parser would show: so a reveal that passes over a run at once never hides anything, and at
+   worst shows a slipped line at once instead of streaming it in. */
+const QUIET = new Set(['!!!', '+++', '%%%', '&&&', '@@@']);
 const QUIET_LINE = /^[-*•]?\s*\[\[|::|https:\/\/|:\W*$/;
 /** @param {string} text @returns {[number, number][]} */
 export function quietRuns(text) {

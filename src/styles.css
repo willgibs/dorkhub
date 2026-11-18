@@ -378,13 +378,13 @@ body.at-start .side,body.at-world .side{display:none!important}
 .status-line.first{display:flex;align-items:center;gap:12px;height:1lh;margin:0 0 1.05em;font:inherit;animation:fade var(--d-slow) var(--ease-out) var(--d-slow) both}
 .plan{display:flex;flex:1;min-width:0;justify-content:space-between;align-items:center;height:6px;overflow:hidden}
 .plan i{flex:none;width:6px;height:6px;border-radius:50%;background:var(--ink);opacity:.18;transform:scale(.58)}
-.plan i.on{opacity:.55;transform:none;animation:lampon var(--d-lamp) var(--ease-out) calc(var(--j,0) * var(--d-stagger)) both}
-@keyframes lampon{0%{background:var(--kc,var(--ink));opacity:.18;transform:scale(.58)}22%,40%{background:var(--kc,var(--ink));opacity:1;transform:none}}
+.plan i.on{opacity:.55;transform:none;animation:lampon var(--d-lamp) var(--ease-out) both}
+@keyframes lampon{0%{background:var(--ink);opacity:.18;transform:scale(.58)}22%,40%{background:var(--kc,var(--ink));opacity:1;transform:none}}
 .status-line.first.leaving{animation:fadeout var(--d-quick) var(--ease-out) both}
 .status-line.written{pointer-events:none}
 .status-line.written .orb{animation:fadeout var(--d-quick) var(--ease-out) both}
-.status-line.written .plan{-webkit-mask:linear-gradient(90deg,transparent 45%,#000 55%) 100% 0/250% 100% no-repeat;mask:linear-gradient(90deg,transparent 45%,#000 55%) 100% 0/250% 100% no-repeat;animation:giveway var(--d-slow) var(--ease-out) both}
-@keyframes giveway{to{-webkit-mask-position:0 0;mask-position:0 0}}
+.status-line.written .plan{mask:linear-gradient(90deg,transparent 55%,#000 65%) 100% 0/250% 100% no-repeat;animation:giveway var(--d-slow) var(--ease-out) both}
+@keyframes giveway{to{mask-position:0 0}}
 .shim{position:relative;display:inline-block}
 .shim::before{content:attr(data-text);position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 0,transparent 40%,var(--ink) 50%,transparent 60%,transparent 100%) 100% 0/400% 100% no-repeat;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:shim var(--d-shimmer) linear infinite}
 @keyframes shim{to{background-position:0 0}}

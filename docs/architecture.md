@@ -318,7 +318,11 @@ _How it works and what must stay true. Read before touching `lib/`, `api/` or th
    - The mock writer only answers on a dev machine or a preview deployment. It replays
      recorded real output from `lib/recorded.js` when it has some for the request, at a
      writer's pace (`DH_MOCK_PACE=quick` for the browser test), and writes a synthetic
-     stand-in otherwise.
+     stand-in otherwise. To watch the wait before a page's first words: `DH_MOCK_WAIT=3000`
+     replays a page's head as the split writer sends it (its lines one by one, the plan whole)
+     with the first words at 3.0 s, and turns off the dev server's answer cache so every new
+     reader's open is written again; `DH_MOCK_PAGES=<folder>` replays `<address>.txt` pages
+     kept there first (pages written today, rather than the recordings of October).
 4. **Written ahead of time** (pages, not `fresh`). `lib/seeds.js` serves a pre-written page
    for its topic to every reader, keys included, in the default voice; never for a
    connecting page or a name chosen inside another page. `x-dh-cache: seed`. A front-page
