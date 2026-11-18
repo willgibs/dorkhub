@@ -38,7 +38,7 @@ is not walked a second time on `main`. `node scripts/eval.mjs plan` prices a wri
   `world.js`: page identity, addresses, trails, the move-in from rabbit holes; `graph.js`: Your world's
   data and physics.
 - `lib/prompts.js`: every prompt. The page sends a task + structured input, never prompt text.
-- `lib/write.js` protocol · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
+- `lib/write.js` protocol · `lib/split.js` the split writer (a page in three calls: frame, body, ways on) · `lib/library.js` where pages are kept (seeds, cache, durable) · `lib/flight.js` one write
   per page in flight · `lib/ai.js` writer choice + error codes · `lib/trial.js` free
   allowance (reserve before writing) · `lib/counters.js` Redis (atomic) or Runtime Cache.
 - `lib/front.js`: the front page, by hand: its topics (`FRONT`), the cards with their drawings, the

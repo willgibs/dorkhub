@@ -477,3 +477,17 @@ One line each, newest last. Why, not just what.
     3. the ways on (six topics, three questions) after the body, from the body.
 
     The server joins them into the same page text, so the parser, cache, client and Your world stay as they are.
+- 2026-11-17 · **The split writer, built** (Will: "Yes, build it"; tried by batch on the 44 topics, each asked as a live
+  page is, $0.036). Haiku 5.5 writes each page in three calls: a frame as structured output, the body written to it,
+  and the ways on written from the body (`lib/split.js`, `PAGE_WRITER = 'split'`).
+  - **On the same 44 topics against today's single pass:** bodies that link nothing fall from 17 to 0, and the median
+    rises from 2 links to 12 (Sonnet's is 13). Every page is whole, with title, kind, deck, three facts, six topics
+    and three questions, where today only 25 of 44 are. All 44 would be kept (38 today). No heading or opening is
+    copied from the prompt. A page costs about $0.0016 at full price, against $0.0012.
+  - **First mentions.** Given the plan, Haiku still wrote no brackets at all on 5 of 44 bodies. So a planned topic is
+    linked at its first plain mention as the body streams, which took those five from 0 links to 8 to 12 each.
+  - **What a plan can do to a body.** Kessler syndrome's frame planned "Kessler Run" (Star Wars has a "Kessel Run").
+    Told to link every planned topic, the body invented a sentence to fit it. The body prompt now leaves out any topic
+    the story doesn't reach and never adds a sentence only to fit one in, as the single pass always said.
+  - **Pages it wrote are kept under their own version** (`SPLIT_VERSION`), so pages already written in one pass are
+    written again as readers reach them. Readers' keys and the mock still write in one pass.
