@@ -1,86 +1,81 @@
 # Pompeii :: place
-> A Roman port town frozen mid-errand by a volcano, still yielding secrets, including hints that the famous date is wrong.
+> A Roman town frozen mid-errand by a single afternoon of ash, still only two-thirds excavated nearly three centuries after digging began.
 !!!
 Key facts :: 
-Location :: Bay of Naples, Italy
-Buried :: AD 79, under about 4-6 m
-Excavation :: Since 1748
+Whereabouts :: Bay of Naples, Italy
+Buried :: AD 79, under volcanic ash
+Dug out :: About two-thirds of the town
 +++
-[[Mount Vesuvius]] :: mountain
-[[Pliny the Younger]] :: person
-[[Pliny the Elder]] :: person
-[[Herculaneum]] :: place
-[[Pyroclastic flow]] :: phenomenon
+[[Vesuvius]] :: mechanism
 [[Plinian eruption]] :: phenomenon
-[[Pumice]] :: thing
-[[Garum]] :: thing
-[[Villa of the Mysteries]] :: place
+[[Herculaneum]] :: place
+[[Pliny the Younger]] :: person
 [[Giuseppe Fiorelli]] :: person
-[[Volcanoes]] :: concept
-[[Cave canem mosaic]] :: work
-[[Roman concrete]] :: thing
-[[Misenum]] :: place
+[[Plaster cast (Pompeii)]] :: technique
+[[Garum]] :: thing
+[[Thermopolium]] :: thing
+[[Villa of the Mysteries]] :: place
+[[Amphitheatre of Pompeii]] :: place
+[[Pyroclastic flow]] :: phenomenon
+[[Fresco]] :: technique
+[[Campi Flegrei]] :: place
+[[Volcanoes]] :: phenomenon
 ---
-Pompeii was a prosperous Roman town of perhaps 11,000 to 12,000 people, set on a lava-built rise a few kilometres from the sea and in the shadow of [[Mount Vesuvius]], a mountain its inhabitants did not know was a volcano. It had a forum, two theatres, an amphitheatre, some 30 bakeries, and street-corner snack counters whose sunken jars once held hot food. In AD 79 the mountain erupted and the town vanished under pumice and ash, preserved so completely that walls still carry election slogans, insults and a pregnant woman's graffito-sized shopping lists. Rediscovered in the 18th century, it is the most intimate view of everyday Roman life that survives.
+Pompeii was a prosperous Roman port town of perhaps 10,000 to 12,000 people, set on the Bay of Naples about ten kilometres from [[Vesuvius]]. Its streets were paved with huge basalt blocks, worn into ruts by cart wheels, and crossed by raised stepping stones so pedestrians could keep their sandals out of the runoff. Shops opened straight onto the pavement, walls carried election slogans and graffiti, and bakeries, fullers' workshops and wine bars lined the main roads. Then, in AD 79, the town was buried so quickly that it kept its bread, its insults and its people exactly where the eruption found them.
 
-The eruption is known from an eyewitness. [[Pliny the Younger]], then seventeen, watched from [[Misenum]], about 29 km across the Bay of Naples, and described the cloud rising "like an umbrella pine": a trunk shooting upward, then spreading into branches. Modern volcanologists reconstruct the column at roughly 33 km high, and the style of eruption now bears his name: a [[Plinian eruption]]. His uncle [[Pliny the Elder]], commander of the fleet, sailed toward the disaster to attempt rescues and died on the shore at Stabiae.
+Today it is one of the few places where an entire ancient town can be walked from end to end. Inside the circuit of its walls, roughly two-thirds of the area has been dug out of the ash and pumice. The remaining third, mostly in the northeast, has never been excavated, and on a map of the site it simply shows as unbroken ground. That is deliberate as much as practical: archaeologists now argue that leaving a portion buried is a gift to people with better methods than ours.
 
-^ The Plinian column threw out material at an estimated rate of over a million tonnes per second at its peak, and the eruption lasted about 18 hours.
+## The afternoon it ended
 
-## Two days, two deaths
+The eruption began around midday with a column of gas and pumice that rose high above the mountain, a textbook [[Plinian eruption]]. Pompeii lay downwind, and for hours pumice fell on the town, piling up to about three metres. Roofs collapsed under the load, but many people could still have escaped on foot or by road. The best eyewitness account comes from [[Pliny the Younger]], who watched from across the bay at Misenum and wrote it down decades later in letters to the historian Tacitus.
 
-Pompeii lay downwind. For roughly the first 18 hours, white then grey [[Pumice]] fell on the town, piling up to about 2.8 m, enough to collapse roofs but leaving time to flee, and most of the population probably did. Then the column began to collapse, and in the early hours of the second day successive [[Pyroclastic flow|pyroclastic surges]] raced down the mountain at speeds of many tens of kilometres per hour. The nearer town of [[Herculaneum]] was hit first, by surges so hot that they carbonised wood and, in a 2020 study of skeletons in its boat houses, appear to have vaporised body fluids. At Pompeii the surges were cooler but lethal; about 1,100 bodies have been recovered, though the true death toll is unknown.
+During the night and early morning, the column collapsed and sent [[Pyroclastic flow|pyroclastic flows]] and surges racing down the slopes. These avalanches of hot gas and ash reached Pompeii within minutes and killed those still sheltering there. Studies of the bodies suggest death came from the heat and the ash-laden air, not slow suffocation as once assumed. Nearby [[Herculaneum]] met the same surges earlier and was sealed under a deeper, harder layer.
+
+^ The exact date is contested. Pliny's manuscripts give 24 August, but a charcoal graffito found in 2018 mentions a date in October, and many scholars now favour autumn.
+
+## Digging a town out
+
+Excavations began under the Bourbon rulers of Naples in 1748, and the early digs were treasure hunts: statues and paintings were cut out and carted to royal collections. Method arrived with [[Giuseppe Fiorelli]], who took charge in 1863. He divided the town into numbered regions, blocks and doorways, a system still used to cite any address in Pompeii. He also noticed that the ash had hardened around vanished bodies, leaving hollows in the shape of the dead.
 
 ::: steps
-Opening blast :: Steam-driven explosions clear the vent; a dark column climbs over Vesuvius.
-Pumice fall :: Fall-out blankets Pompeii for hours, building up metres of lapilli.
-Column collapse :: The overloaded plume falls back under its own weight.
-Surges :: Avalanches of hot gas and ash sweep the town in minutes.
-Ash burial :: Fine ash and rain-washed mud seal streets, rooms and bodies.
+Notice :: Workers strike hollows in the hardened ash layer.
+Pour :: Liquid plaster is poured into the void through a small opening.
+Set :: The plaster hardens inside the cavity left by the body.
+Reveal :: The ash is chipped away, leaving a cast of the victim's final posture.
 :::
 
-## The body casts
+That [[Plaster cast (Pompeii)|plaster cast]] technique gave the town its most haunting images, such as a dog straining against its chain and families huddled together. Newer work uses CT scans of the casts, which reveal teeth, bones and sometimes surprising details about the people inside.
 
-Ash hardened around the dead, and as bodies decayed they left hollows. In 1863 [[Giuseppe Fiorelli]], who directed the excavations, realised what these voids were and had liquid plaster poured into them, recovering the final postures of victims: a man covering his face, a huddled child. Fiorelli also introduced the division of the town into numbered regions and blocks that archaeologists still use. Recent work has used CT scanning of the casts and DNA to show that some pairs thought to be mothers and children were in fact unrelated, a reminder that the old stories were partly storytelling.
+## Everyday Rome, preserved
 
-## Was it really 24 August?
+Pompeii matters less for its disasters than for how ordinary it was. A street-corner [[Thermopolium]] with painted jars in its counter served hot food to passers-by. Workshops produced [[Garum]], the fermented fish sauce Romans loved, and its trade is traced in surviving amphorae. Rooms of the [[Villa of the Mysteries]] hold a vast [[Fresco]] cycle whose meaning, probably a Dionysiac initiation, is still debated. At the [[Amphitheatre of Pompeii]], one of the oldest surviving stone amphitheatres, a brawl between Pompeians and visitors from nearby Nuceria in AD 59 got the venue banned for ten years, according to Tacitus.
 
-The traditional date comes from manuscripts of Pliny the Younger's letters, which are medieval copies and may contain scribal errors. Several finds hint at autumn: charcoal graffiti dated to "the sixteenth day before the Kalends of November" (about 17 October), braziers in use, pomegranates and autumn fruits, and heavier clothing. In 2018 an inscription in a house on Region V, written in charcoal, was read as 17 October, and many scholars now favour an October or later date, though the question is not closed.
+^ The same region is not finished: [[Campi Flegrei]], a caldera just west of Naples, sits under about 500,000 people, and its ground is rising again.
 
-## What the town shows
-
-Pompeii's evidence is the ordinary. Its street slabs are rutted by cart wheels; its shops sold [[Garum]], the fermented fish sauce; the [[Cave canem mosaic]] warns visitors of the dog; and the [[Villa of the Mysteries]] holds a huge red-walled fresco of an unknown initiation rite. The town also reveals the scale of the damage that came before: a major earthquake in AD 62 had left much of it still under repair. Even the buildings tell the story, since [[Roman concrete]] and its volcanic ash ingredient were part of how the city was made.
-
-::: timeline
-c. 7th-6th c. BC :: Oscan settlement grows on the lava plateau
-AD 62 :: Severe earthquake damages the town
-AD 79 :: Vesuvius erupts; Pompeii and Herculaneum buried
-1748 :: Organised excavation begins under Bourbon rule
-1863 :: Fiorelli pours plaster into voids, making body casts
-:::
+Because the ash fell as a sealed blanket, even fragile things survived: loaves of bread, wooden shutters, carbonised food. For anyone studying how a [[Volcanoes|volcano]] can freeze a society in a single afternoon, nowhere else offers a record this complete.
 ===
-- [[Herculaneum]] :: Pompeii's sister town, buried deeper and preserving wood, food and papyrus scrolls. :: place
-- [[Volcanoes]] :: How Plinian columns, calderas and surges work across the planet. :: concept
-- [[Terracotta Army]] :: Another buried world, found in 1974 by farmers digging a well. :: place
-- [[Pliny the Younger]] :: His two letters to Tacitus founded the science of volcanology. :: person
-- [[Roman concrete]] :: Volcanic ash from this very bay made concrete that heals itself. :: thing
-- [[Garum]] :: The fish sauce Pompeii shipped across the empire, and how it was brewed. :: thing
+- [[Herculaneum]] :: Pompeii's neighbour kept wooden furniture and a library of burned scrolls. :: place
+- [[Vesuvius]] :: The volcano that still looms over three million people today. :: mechanism
+- [[Terracotta Army]] :: Another buried world revealed by farmers digging a well in 1974. :: thing
+- [[Pyroclastic flow]] :: The invisible avalanche that killed Pompeians in minutes, not hours. :: phenomenon
+- [[Garum]] :: Pompeii's fermented fish sauce, which sustained a whole industry. :: thing
+- [[Campi Flegrei]] :: A supervolcano caldera beneath modern Naples, quietly rising again. :: place
 ???
-Why were body casts poured at Pompeii but not found elsewhere?
-How do archaeologists argue Pompeii's eruption happened in autumn?
-Could Mount Vesuvius erupt again and threaten Naples?
+How did archaeologists make plaster casts of Pompeii's victims?
+Why is a third of Pompeii still left unexcavated?
+Could Vesuvius erupt again near modern Naples?
 &&&
-[[Mount Vesuvius]] :: Still active, with some 600,000 people living in its red zone.
-[[Pliny the Younger]] :: Teenage eyewitness whose letters preserved the eruption's sequence.
-[[Pliny the Elder]] :: Encyclopedist who sailed toward the eruption and never returned.
-[[Herculaneum]] :: Carbonised wooden furniture and scrolls survive here, not at Pompeii.
-[[Pyroclastic flow]] :: Avalanche of gas and ash faster than any running person.
-[[Plinian eruption]] :: Named for Pliny after his description of the pine-shaped cloud.
-[[Pumice]] :: Rock so full of bubbles that it floats on water.
-[[Garum]] :: Rotten-fish sauce that was a luxury of Roman tables.
-[[Villa of the Mysteries]] :: Fresco cycle whose meaning scholars still argue over.
-[[Giuseppe Fiorelli]] :: Turned looting into method and discovered the body voids.
-[[Volcanoes]] :: Pompeii's destroyer is one of roughly 1,300 potentially active worldwide.
-[[Cave canem mosaic]] :: Beware-of-the-dog sign laid in stone at a house entrance.
-[[Roman concrete]] :: Mixed with volcanic ash, it has outlasted modern concrete by centuries.
-[[Misenum]] :: Roman naval base where young Pliny watched the cloud rise.
+[[Vesuvius]] :: Still active, last erupted in 1944, and densely ringed by towns.
+[[Plinian eruption]] :: Named for Pliny, who described this very eruption's towering column.
+[[Herculaneum]] :: Buried deeper and hotter, preserving wood, food and charred scrolls.
+[[Pliny the Younger]] :: Teenage eyewitness whose letters created the template for volcanic reporting.
+[[Giuseppe Fiorelli]] :: Invented Pompeii's addressing system and the plaster cast method.
+[[Plaster cast (Pompeii)]] :: Plaster poured into voids left by bodies dissolved in ash.
+[[Garum]] :: Romans' beloved fermented fish sauce, made in stinking Pompeian workshops.
+[[Thermopolium]] :: Roman fast-food counter with painted jars and surviving food residue.
+[[Villa of the Mysteries]] :: Scarlet frescoes depicting a ritual no one can fully decode.
+[[Amphitheatre of Pompeii]] :: Ancient stadium whose riot led to a ten-year ban.
+[[Pyroclastic flow]] :: Hot gas and ash racing down slopes faster than any escape.
+[[Fresco]] :: Painting on wet plaster, the colours of Pompeii's walls.
+[[Campi Flegrei]] :: A vast caldera under Naples, restless and densely inhabited.
+[[Volcanoes]] :: The forces behind Pompeii's burial and many other lost worlds.

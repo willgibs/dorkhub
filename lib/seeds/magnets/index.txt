@@ -1,81 +1,78 @@
 # Magnets :: thing
-> Objects that reach across empty space to push and pull, from a fridge door to a floating frog.
+> Objects that pull on iron across empty space, and whose secret is the spin of electrons.
 !!!
 Key facts :: 
-Earliest known :: lodestone, described by Greeks around 600 BC
-Frog levitation :: 16 tesla, Nijmegen, 1997
-Earth's field :: about 50 microtesla at surface
+Origin :: Lodestone, known by about 600 BCE
+Pole count :: Always two; no lone pole ever found
+Strongest permanent type :: Neodymium, about 1.4 tesla
 +++
 [[Lodestone]] :: thing
-[[Magnetic field]] :: concept
-[[Ferromagnetism]] :: phenomenon
-[[Diamagnetism]] :: phenomenon
-[[Neodymium magnet]] :: thing
-[[Magnetic domain]] :: concept
-[[Curie temperature]] :: concept
-[[Earth's magnetic field]] :: phenomenon
-[[Compass]] :: thing
-[[Geodynamo]] :: mechanism
-[[Electromagnet]] :: thing
+[[Magnetite]] :: thing
+[[Magnetic field]] :: phenomenon
+[[Iron filings]] :: thing
 [[Magnetic monopole]] :: mystery
-[[Magnetic reversal]] :: event
-[[Andre Geim]] :: person
+[[Ferromagnetism]] :: phenomenon
+[[Curie temperature]] :: concept
+[[Magnetic domain]] :: concept
+[[Neodymium magnet]] :: thing
+[[Compass]] :: thing
+[[Earth's magnetic field]] :: phenomenon
+[[Northern lights]] :: phenomenon
+[[William Gilbert]] :: person
+[[Electromagnet]] :: thing
 ---
-A magnet is any object that produces a magnetic field, an invisible influence that tugs on iron, nickel, cobalt and a few other materials. Scatter [[iron filings]] on paper over a bar magnet and the field draws itself: the grains line up in arcs that loop from the north pole round to the south, packed tightly near the poles and thinning in between. That picture is the best portrait of a force that has no color, no smell and no contact. Magnets are older than writing about them: pieces of naturally magnetized rock called [[Lodestone|lodestones]] were described by Greek thinkers around 600 BC, and the word likely comes from Magnesia, a region of Greece. Today magnets spin in every electric motor, store data in hard drives, steer particles in accelerators and hold notes to refrigerators.
+A magnet is any object that creates a magnetic field and pulls on, or pushes against, certain other materials without touching them. The oldest magnets were found, not made: chunks of the black iron ore [[Magnetite]] called [[Lodestone]], which Greek writers around 600 BCE said could make iron move, and which Chinese texts later described as stones that "love" iron. Today magnets sit in hard drives, headphones, MRI scanners, wind turbines and the door of nearly every refrigerator. Yet the basic behaviour is the one the ancients saw: two ends, one that seeks north, one that seeks south, and an invisible reach between them.
 
-^ The sharpest lodestone magnets are made when lightning strikes iron ore, which is the leading explanation for how natural magnets form at all.
+## Two poles, never one
 
-## Where the pull comes from
+Every magnet has a north-seeking pole and a south-seeking pole, and unlike poles attract while like poles repel. Cut a bar magnet in half and you do not isolate the poles; each piece grows a fresh north and south, and cutting again repeats the trick, down to the scale of single atoms. Physicists have searched for a lone pole, a [[Magnetic monopole]], since Paul Dirac showed in 1931 that quantum mechanics permits one. Cosmic-ray detectors and particle colliders have found none, and a Stanford detector run by Blas Cabrera recorded one suggestive signal on 14 February 1982 that was never repeated.
 
-Magnetism begins with electrons. Each electron behaves like a tiny spinning magnet, and in most materials these cancel in pairs. In [[Ferromagnetism|ferromagnetic]] metals such as iron, an effect of quantum mechanics called exchange interaction makes neighboring atoms prefer to align their spins, so they add up instead of cancelling. The alignment is not uniform across a whole lump of iron: it breaks into patches called [[Magnetic domain|magnetic domains]], each typically microns to millimeters wide, each pointing its own way. An unmagnetized nail is a patchwork whose domains cancel out; magnetizing it means persuading the domains to line up, either by stroking it with a magnet or by placing it inside a coil of current-carrying wire.
+^ Pierre Curie's 1894 comment that monopoles seemed possible in theory is why the search began; Dirac's later argument explained why electric charge comes in fixed units.
 
-::: steps
-Atoms :: Unpaired electron spins make each iron atom a tiny magnet.
-Alignment :: Exchange interaction locks neighboring spins in the same direction.
-Domains :: Aligned regions form patches that point in random directions.
-Magnetizing :: An outside field makes domains aligned with it grow and others shrink.
-Result :: Domains line up; the whole object now has a north and a south pole.
+The pattern of the push and pull is mapped by the [[Magnetic field]]. Sprinkle [[Iron filings]] on paper over a bar magnet and each grain becomes a tiny magnet itself, lining up along the field: loops sweep from the north pole round to the south, and the filings crowd thickest at the poles where the field is strongest. Michael Faraday treated such patterns as real physical lines in space, an idea that grew into modern field theory.
+
+## Why iron, and why only some things
+
+The magnetism of a magnet comes from electrons, which behave like minuscule compass needles because of a quantum property called spin. In most materials the needles cancel. In iron, nickel and cobalt, neighbouring atoms lock their spins parallel through a quantum exchange effect, producing [[Ferromagnetism]]. Even then a lump of iron is usually not a magnet, because it splits into [[Magnetic domain]]s, patches microscopic to visible in size, each fully magnetized but pointing in different directions. Stroking the iron with a magnet, or placing it in a strong field, swings domains into alignment and the metal becomes magnetic.
+
+::: figures
+1043 K :: Curie temperature of iron, about 770 °C
+1.4 T :: surface field of a strong neodymium magnet
+0.00005 T :: Earth's field at the surface, about
 :::
 
-Heat undoes all this. Above the [[Curie temperature]], 770 degrees Celsius for iron, thermal jostling overwhelms the alignment and the metal stops being a magnet. Strong blows can also scramble domains, which is why dropping a magnet repeatedly weakens it.
+Heat undoes the order. Above the [[Curie temperature]], named for Pierre Curie, who studied it in the 1890s, thermal jostling overwhelms the alignment and the metal turns only weakly magnetic. Hammering or dropping a magnet also scrambles domains, which is why old magnets weaken. Modern [[Neodymium magnet]]s, invented in 1982 at General Motors and Sumitomo, pack a neodymium-iron-boron crystal so resistant to demagnetizing that a coin-sized piece can lift many kilograms.
 
-## Strength, and the stranger magnetisms
+## From compass needle to planet
 
-For centuries the best magnets were hardened steel. The modern leap came in 1983 with the [[Neodymium magnet]], an alloy of neodymium, iron and boron developed independently at Sumitomo in Japan and General Motors in the United States. A fingernail-sized one can lift several kilograms, and swallowed pairs can pinch through intestinal walls, a real medical hazard. Next to them, an [[Electromagnet]] has the advantage of being switchable: the research magnets of the Nijmegen high-field lab reach well over 30 tesla, about 600,000 times Earth's field.
+Magnetized needles floating in water or hung on threads became the [[Compass]], used for navigation in China and Europe by about the 12th century. In 1600 [[William Gilbert]], physician to Elizabeth I, floated a lodestone sphere model, a "terrella", and showed that a small needle dipped and pointed across it just as compasses behave on Earth. His conclusion was that the planet itself is a giant magnet. We now know it is not a permanent one: [[Earth's magnetic field]] is produced by swirling molten iron in the outer core, and it has flipped polarity many times, most recently about 780,000 years ago.
 
-Everything is magnetic to some degree, not just iron. Water, wood and living tissue show [[Diamagnetism]], a feeble repulsion from magnetic fields. In 1997 [[Andre Geim]] and Michael Berry floated a live frog in a 16-tesla field at Nijmegen in the Netherlands: the field is so strong that the repulsion in the frog's own water balanced gravity, and the frog was reportedly unharmed. Geim shared a Nobel Prize in 2010, for graphene rather than frogs, but the levitation earned him an Ig Nobel in 2000.
+The field shields us by deflecting charged particles from the Sun; those caught and funnelled toward the poles collide with the upper atmosphere and glow as the [[Northern lights]]. In 1820 Hans Christian Ørsted noticed a current deflecting a compass needle, revealing that electricity and magnetism are linked. That discovery gave us the [[Electromagnet]], a coil whose field switches on and off, and with it motors, generators and transformers.
 
-^ Even a Venus flytrap's electrical activity produces a magnetic field, detected in 2021 with sensitive atomic magnetometers, though it is about a billionth of Earth's.
-
-## The magnet underfoot
-
-The biggest magnet most people meet is the planet. [[Earth's magnetic field]] is generated by swirling liquid iron in the outer core, a self-sustaining process known as the [[Geodynamo]]. It is no static bar: the poles wander and, at irregular intervals averaging a few hundred thousand years, flip completely in a [[Magnetic reversal]], most recently about 780,000 years ago. The field also funnels charged particles from the solar wind toward the poles, where they excite the air into the [[Northern lights]]. The [[Compass]], first documented in China as a lodestone spoon in the Han period and used for navigation by the 11th century, simply reads that field.
-
-Every magnet ever found has two poles; cut one in half and each piece grows a new pair. A [[Magnetic monopole]], a lone north or south, has been predicted by several theories but never observed, and its absence remains one of physics' loose threads.
-
+^ Some migrating animals, including birds and sea turtles, are thought to sense Earth's field, though the receptor is still debated.
 ===
-- [[Northern lights]] :: Solar wind meets Earth's magnetic field and the sky lights up in curtains.
-- [[Venus flytraps]] :: The trap's own electrical snap produces a measurable magnetic field.
-- [[Magnetic monopole]] :: A lone north pole, predicted by theory and never found.
-- [[Geodynamo]] :: Molten iron swirling 3,000 km down powers the planet's whole shield.
-- [[Magnetic reversal]] :: Earth's north and south have swapped hundreds of times; rock records the flips.
-- [[Magnetoreception]] :: Birds, turtles and bacteria sense the field; how remains debated.
+- [[Venus flytraps]] :: Even this plant's electrical snap produces a measurable magnetic field of its own. :: creature
+- [[Magnetic reconnection]] :: Field lines snapping and rejoining power solar flares and auroral substorms. :: phenomenon
+- [[Geodynamo]] :: How swirling liquid iron 3,000 km down generates the planet's field. :: mechanism
+- [[Magnetoreception]] :: How birds and turtles may sense Earth's field for navigation. :: mystery
+- [[Magnetic resonance imaging]] :: Hydrogen nuclei in your body hum back inside a superconducting magnet. :: technique
+- [[Maglev]] :: Trains that float on magnetic fields and exceed 600 km/h. :: thing
 ???
-Why can't you make a magnet with only one pole?
-Could Earth's magnetic field flip again in our lifetimes?
-How does a magnetic resonance imaging scanner use magnets to image the body?
+Why does a magnet stick to a fridge but not to aluminium?
+How did Earth's magnetic poles flip in the past?
+Could a magnetic monopole ever actually be found?
 &&&
-[[Lodestone]] :: Natural magnets, possibly magnetized by lightning strikes on iron ore.
-[[Magnetic field]] :: Invisible lines that iron filings reveal as looping arcs.
-[[Ferromagnetism]] :: Why iron stays magnetic and aluminum foil does not.
-[[Diamagnetism]] :: Everything repels magnets slightly, even frogs, water and you.
-[[Neodymium magnet]] :: Tiny 1980s alloy magnets that lift thousands of times their weight.
-[[Magnetic domain]] :: Microscopic patches whose alignment decides whether iron is magnetized.
-[[Curie temperature]] :: Heat a magnet past this point and its magnetism simply vanishes.
-[[Earth's magnetic field]] :: A planetary shield generated by molten iron in the core.
-[[Compass]] :: Ancient navigators read the planet's magnet with a floating needle.
-[[Geodynamo]] :: Liquid metal motion that sustains Earth's field against decay.
-[[Electromagnet]] :: A magnet you can switch off, the basis of motors and scrapyard cranes.
-[[Magnetic monopole]] :: Predicted isolated pole that has never been observed.
-[[Magnetic reversal]] :: Earth's field flips unpredictably, leaving stripes in seafloor rock.
-[[Andre Geim]] :: Floated a frog, then won a Nobel for graphene.
+[[Lodestone]] :: Naturally magnetized rock that guided the first compasses.
+[[Magnetite]] :: Iron oxide that some bacteria grow as tiny internal compass needles.
+[[Magnetic field]] :: Invisible structure that Faraday insisted was physically real.
+[[Iron filings]] :: Grains that make an invisible field visible on paper.
+[[Magnetic monopole]] :: Allowed by theory, never found in any experiment.
+[[Ferromagnetism]] :: Quantum exchange that locks electron spins in parallel.
+[[Curie temperature]] :: Heat erases a magnet's order at a precise temperature.
+[[Magnetic domain]] :: Why most iron isn't magnetic despite being magnetic inside.
+[[Neodymium magnet]] :: Coin-sized magnets that can pinch skin and shatter themselves.
+[[Compass]] :: Floating needle that reshaped navigation and exploration.
+[[Earth's magnetic field]] :: Generated by liquid iron and reversed many times.
+[[Northern lights]] :: Solar particles funnelled by Earth's field to glow overhead.
+[[William Gilbert]] :: Elizabethan physician who argued the whole Earth is a magnet.
+[[Electromagnet]] :: Magnetism switched on and off by electric current.
