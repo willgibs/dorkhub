@@ -61,10 +61,10 @@ test('a title line without its "# " is still the title line', () => {
 });
 
 /* The same writer often left out the markers of the sections after the body, "===", "???" and "&&&" (16 of 44 pages),
-   and sometimes copied the plan's label from the format ("Link plan:"). Each section's line shape names it, so every
-   recorded page reads exactly alike written either way. */
+   and copied the format's labels onto lines of their own ("Keep exploring:" on 21 pages, "Link plan:", "Body:"). Each
+   section's line shape names it, and a label is never prose, so every recorded page reads exactly alike either way. */
 const UNMARKED = RECORDED.filter(r => /\n===\n/.test(r.text)).map(r => ({ title: `${r.title}, without its closing markers`, text: r.text.replace(/^(===|\?\?\?|&&&)\n/gm, ''), was: r.text }));
-const LABELLED = RECORDED.filter(r => /\n\+\+\+\n/.test(r.text)).map(r => ({ title: `${r.title}, with its plan's label copied`, text: r.text.replace(/\n\+\+\+\n/, '\n+++\nLink plan:\n'), was: r.text }));
+const LABELLED = RECORDED.filter(r => /\n\+\+\+\n[^]*\n---\n[^]*\n===\n/.test(r.text)).map(r => ({ title: `${r.title}, with the format's labels copied`, text: r.text.replace(/\n\+\+\+\n/, '\n+++\nLink plan:\n').replace(/\n---\n/, '\n---\nBody:\n').replace(/\n===\n/, '\nKeep exploring:\n'), was: r.text }));
 test("the sections after the body are known by their lines' shape when their markers are missing", () => {
   assert.ok(UNMARKED.length >= 4 && LABELLED.length >= 4);
   for (const r of [...UNMARKED, ...LABELLED]) assert.deepEqual(parseArticle(r.text, false), parseArticle(r.was, false), r.title);
@@ -82,6 +82,11 @@ test("the sections after the body are known by their lines' shape when their mar
   assert.equal(page('- [[Minoan eruption]] :: one volcano, one day :: eve', true).blocks.length, 1);
   assert.deepEqual(page('- [[Thera]] erupted around 1600 BC.\n').blocks.map(b => b.t), ['p', 'li']);
   assert.equal(page('Was it ever real?\n').questions.length, 0, 'a question in the body stays in the body');
+  /* a label waits while it could still be one, and never shows; a paragraph that only began like one shows */
+  assert.deepEqual(page('Keep exploring:\n- [[Orichalcum]] :: a lost metal :: mystery\n').blocks.length, 1);
+  assert.equal(page('Keep explo', true).blocks.length, 1);
+  assert.equal(page('**Keep exploring:**\n', true).blocks.length, 1);
+  assert.deepEqual(page('Both of them\n', true).blocks.map(b => b.s).slice(1), ['Both of them']);
 });
 
 /* A page arrives in two shapes: v3 (kind on the title line, six cards) and, from older browsers'

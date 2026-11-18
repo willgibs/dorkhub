@@ -153,6 +153,16 @@ const SHAPING = /^[-*•]?\s*\[\[[^\]\n]*(?:\]\]\s*:{0,2})?$|^[-*•]?\s*\[\[[^\
 const TAG_LINE = /^<\/?[a-z][a-z0-9]*\s*\/?>$/i;
 /** @param {string} L */
 const isCardLine = L => { const m = CARD_LINE.exec(L); return !!m && !!kindOfWord(m[1]); };
+/* The format's own labels for its sections, which writers copy onto a line of their own ("Keep exploring:" on 21 of
+   Claude Haiku 5.5's 44 pages, 2026-11-17; "Body:" on one of Sonnet 5.5's): never prose. A line still being
+   written waits while it could yet turn out to be one. */
+const LABELS = ['body', 'margin notes', 'panels', 'keep exploring', 'questions a curious reader might ask next', 'for every topic in your link plan'].map(x => `${x}:`);
+/** @param {string} L */
+const labelOf = L => L.replace(/\*+/g, '').trim().toLowerCase();
+/** @param {string} L */
+const isLabel = L => LABELS.includes(labelOf(L).replace(/\s+:$/, ':'));
+/** @param {string} L */
+const mayBeLabel = L => { const w = labelOf(L); return !!w && LABELS.some(x => x.startsWith(w)); };
 
 /* Tolerant of partial, streaming text: a half-written link, bold or italic run is held back until
    it closes, and so is a half-written line of the link plan, a panel or the hooks, so nothing
@@ -198,6 +208,10 @@ export function parseArticle(raw, streaming) {
       if (mode === 'body' || !PRE_BODY.has(mode)) begin();
       if (!PRE_BODY.has(mode) && mode !== 'body') A.bodyDone = true;
       unmarked = stray = false; continue;
+    }
+    if (body && (mode === 'body' || mode === 'questions')) {
+      if (li === open && mayBeLabel(L)) continue;
+      if (isLabel(L)) { flush(); continue; }
     }
     /* Writers sometimes leave out the markers of the sections after the body (Claude Haiku 5.5 without thinking, on
        16 of 44 pages, 2026-11-17: its topics to keep exploring showed as a list in the body, "::" and all, and its
