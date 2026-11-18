@@ -49,19 +49,51 @@ export function apiSettings(model) {
 }
 
 /**
- * One page's request in a batch: production's own call, with what every page shares cached for the hour a batch may
- * take (a batch runs its requests in any order).
- * @param {string} customId @param {string} title @param {string} model a catalog id, e.g. anthropic/claude-haiku-5.5
+ * Ways of asking for the same pages, to find a writer that keeps the format (2026-11-17: Claude Haiku 5.5 without
+ * thinking broke it on about half its pages). `production` is production's own call; every other arm changes one
+ * thing, and a batch of one is scored, never kept.
+ * @type {Record<string, { note: string, model?: string, settings?: Record<string, unknown>, room?: number, variant?: 'split' }>}
  */
-export function seedRequest(customId, title, model) {
+export const ARMS = {
+  production: { note: "production's own call" },
+  'haiku-think': { note: 'Haiku thinking a little before it writes (adaptive thinking, effort low)', model: 'anthropic/claude-haiku-5.5', settings: { output_config: { effort: 'low' } }, room: 8000 },
+  'haiku-split': { note: "Haiku, the fixed part sent as system instructions (the eval's split variant)", model: 'anthropic/claude-haiku-5.5', variant: 'split' },
+  sonnet: { note: 'Sonnet 5.5, as production would call it', model: 'anthropic/claude-sonnet-5.5' },
+};
+
+/**
+ * One page's request in a batch: production's own call (or an arm's), with what every page shares cached for the hour
+ * a batch may take (a batch runs its requests in any order).
+ * @param {string} customId @param {string} title @param {string} model a catalog id, e.g. anthropic/claude-haiku-5.5
+ * @param {string} [armId]
+ */
+export function seedRequest(customId, title, model, armId = 'production') {
+  const arm = ARMS[armId]; if (!arm) throw new Error(`unknown arm: ${armId} (one of ${Object.keys(ARMS).join(', ')})`);
+  const id = arm.model || model;
   const { fixed, rest } = seedParts(title);
-  return {
-    custom_id: customId,
-    params: {
-      model: directId(model), max_tokens: TASKS.page.maxTokens + writerSettings(model).room, ...apiSettings(model),
-      messages: [{ role: 'user', content: [{ type: 'text', text: fixed, cache_control: { type: 'ephemeral', ttl: '1h' } }, { type: 'text', text: rest }] }],
-    },
-  };
+  const shared = { type: 'text', text: arm.variant === 'split' ? fixed.replace(/\n+$/, '') : fixed, cache_control: { type: 'ephemeral', ttl: '1h' } };
+  const asked = arm.variant === 'split'
+    ? { system: [shared], messages: [{ role: 'user', content: rest }] }
+    : { messages: [{ role: 'user', content: [shared, { type: 'text', text: rest }] }] };
+  return { custom_id: customId, params: { model: directId(id), max_tokens: TASKS.page.maxTokens + (arm.room ?? writerSettings(id).room), ...(arm.settings ?? apiSettings(id)), ...asked } };
+}
+
+/**
+ * How an arm did: the pages production would keep, the pages that pass the seeds' checks, the ones that stopped
+ * before their questions, and what the writer spent. Thinking is what the writer wrote beyond the page's own words
+ * (a page runs about 2.77 characters a token, measured on 44 pages written without it); at about 200 tokens a
+ * second it is the wait before the first word.
+ * @param {string} model @param {{ title: string, text: string | null, usage: any }[]} answers
+ */
+export function scorecard(model, answers) {
+  const n = answers.length; const written = answers.filter(a => a.text);
+  const kept = written.filter(a => usablePage(/** @type {string} */ (a.text))).length;
+  const seeds = written.filter(a => !seedProblems(a.title, /** @type {string} */ (a.text)).length).length;
+  const early = written.filter(a => !/^\?{3}\s*$/m.test(/** @type {string} */ (a.text))).length;
+  const out = written.reduce((s, a) => s + (a.usage?.output_tokens || 0), 0) / (written.length || 1);
+  const words = written.reduce((s, a) => s + /** @type {string} */ (a.text).length / 2.77, 0) / (written.length || 1);
+  const thinking = Math.max(0, Math.round(out - words));
+  return { pages: n, written: written.length, keptByProduction: kept, passSeedsChecks: seeds, stoppedBeforeQuestions: early, outTokens: Math.round(out), thinkingTokens: thinking, waitSeconds: +(thinking / 200).toFixed(1), dollars: +batchCost(model, answers.map(a => a.usage)).toFixed(3) };
 }
 
 /**

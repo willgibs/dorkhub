@@ -47,6 +47,19 @@ test('the title line: the kind counts once the line is whole, and "::" never sho
   assert.deepEqual(at('# Lewis gun\n> Deck.', false), ['Lewis gun', ''], 'older pages have no kind');
 });
 
+/* Claude Haiku 5.5 without thinking left the "# " off about half its title lines (2026-11-17): the first line is the
+   title line all the same, so every recorded page reads exactly alike without it. */
+const BARE = RECORDED.filter(r => /^# [^\n]+\s::\s*\w/.test(r.text)).map(r => ({ title: `${r.title}, without its "# "`, text: r.text.replace(/^# /, '') }));
+test('a title line without its "# " is still the title line', () => {
+  const at = (/** @type {string} */ t, streaming = true) => { const A = parseArticle(t, streaming); return [A.title, A.kind, A.blocks.length]; };
+  assert.deepEqual(at('Tardigrades :: crea'), ['', '', 0], 'held back until the line is whole: nothing shows that could turn out to be a paragraph');
+  assert.deepEqual(at('Tardigrades :: creature\n'), ['Tardigrades', 'creature', 0]);
+  assert.deepEqual(at('Tardigrades :: animal\n> Deck.', false), ['Tardigrades', '', 0], 'an unknown kind is dropped, the title kept');
+  assert.deepEqual(at('Here is the page.\n# Tardigrades :: creature\n', false), ['Tardigrades', 'creature', 1], 'a first line with no kind stays prose');
+  assert.ok(BARE.length >= 4);
+  for (const r of BARE) assert.deepEqual(parseArticle(r.text, false), parseArticle(`# ${r.text}`, false), r.title);
+});
+
 /* A page arrives in two shapes: v3 (kind on the title line, six cards) and, from older browsers'
    history and the fixtures below, v2 (a bridge, one next page, three branches with directions). */
 test('older pages still give six cards at most, their next page first', () => {
@@ -73,6 +86,20 @@ test('the link plan accepts bulleted lines and pre-body blocks do not end the bo
   const A = parseArticle('# T\n+++\n- [[Lewis gun]] :: A machine gun aimed at birds :: thing\n---\nText with [[Lewis gun]].', false);
   assert.equal(A.gloss[keyOf('Lewis gun')].gloss, 'A machine gun aimed at birds');
   assert.equal(A.bodyDone, false);
+});
+
+/* Writers copy the section's label (Sonnet 5.5 on 35 of 43 pages, 2026-11-17), in every shape seen; it is never a fact,
+   and the facts after it stay facts, never a paragraph ahead of the body. */
+test('a copied "Key facts" label is never a fact, and the facts after it stay in their place', () => {
+  const FACTS = 'Mass :: about 4 million Suns\nFirst image :: April 2019\nRadius :: about 9 mm';
+  const want = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\n${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+  for (const label of ['Key facts ::', 'Key facts :: ', 'Key facts:', 'Key facts: exactly 3 lines', 'Key facts :: 3 lines', '**Key facts**', 'Key facts']) {
+    const A = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\n${label}\n${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+    assert.deepEqual(A, want, `the label "${label}"`);
+  }
+  const glued = parseArticle(`# Black holes :: phenomenon\n> Deck.\n!!!\nKey facts :: ${FACTS}\n+++\n[[Supernovas]] :: event\n---\nA body with [[Supernovas]].\n`, false);
+  assert.deepEqual(glued, want, 'the label ahead of the first fact');
+  assert.deepEqual(parseArticle('# B :: thing\n!!!\nKey facts :: Ma', true).keyFacts, [], 'a line still being written waits');
 });
 
 /* Every page carries a line of key facts right under its deck (v3.1); only a page written ahead of time can end with sources */
@@ -141,7 +168,7 @@ const cutsOf = (/** @type {string} */ t) => { const c = new Set([t.length]); for
 
 const linkKeys = (/** @type {any} */ A) => [...A.blocks.map((/** @type {any} */ b) => b.s), ...A.notes.map((/** @type {any} */ n) => n.s), ...A.panels.flatMap((/** @type {any} */ p) => [...p.heads, ...p.rows.flat()])].flatMap(s => [...String(s).matchAll(/\[\[([^\]]+)\]\]/g)].map(m => keyOf(splitLink(m[1])[1])));
 const MOCKS = Array.from({ length: 8 }, (_, i) => ({ title: `mock page ${i}`, text: mockPage({ title: `Mock ${i}`, lens: 'encyclopedic' }) }));
-const STREAMED = [...RECORDED, ...FIXTURES, ...MOCKS, { title: QUESTION, text: outlierPage() }];
+const STREAMED = [...RECORDED, ...BARE, ...FIXTURES, ...MOCKS, { title: QUESTION, text: outlierPage() }];
 
 test('streaming never shows something that later changes or disappears', () => {
   for (const r of STREAMED) {

@@ -9,10 +9,12 @@ The product is built: the front page and its 13 cards, the reading page, Your wo
 Lamps identity. Since 2026-11-17 the free pages write on Will's Anthropic API credit (a $50-a-month Console
 workspace; `docs/decisions.md`). What remains, in order:
 
-1. **Prove live writing** (§1): `node scripts/prove.mjs https://dorkhub.com --spend --yes`, and the function log
-   shows `{"evt":"writer","via":"anthropic"}`, then `{"evt":"write",…,"end":"ok"}` rather than `trial_paused`, with
-   `cacheRead` on a page written within five minutes of another. Then the pages written ahead of time, rewritten by
-   the production writer through the Batch API (§2), and the model eval on the same credit (§3).
+1. **The free writer breaks the page format about half the time** (2026-11-17, `docs/decisions.md`). Live writing
+   runs and the cache works, but Claude Haiku 5.5 with thinking off drops the title line's `# ` on about half its
+   pages and stops after the body on a sixth. First, read a bare `Title :: kind` first line as the title line (free;
+   production then keeps 35 of 44 pages, not 20). Then **(Will)** test writer fixes on the same 44 topics by batch
+   (cents each; thinking at low effort, Sonnet 5.5, or the prompt), and write all 44 pages ahead of time in one pass
+   with the winner (`node scripts/seeds.mjs batch`).
 2. **(Will) Connect Upstash Redis** (free, his click in the Vercel Marketplace: an account change), then decide
    whether `DH_LIBRARY=redis` keeps every finished page. The function log shows `{"evt":"store","counters":"redis"}`
    once connected. Then §5's "Real Redis".
