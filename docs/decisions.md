@@ -547,3 +547,36 @@ One line each, newest last. Why, not just what.
     seen, and all 180 saved frames read whole (three facts, 12 or more topics).
   - **What's left:** the body's first words come 0.7 s after the single pass's: the body call's own wait for its
     first token (~0.6 s) and the plan written before it can start, the price of the links.
+  - **Live on dorkhub.com** (five fresh topics, timed from the click as a reader gets them): the head at 1.1 s, the
+    first body words at 3.1 s, the end at 17.1 s (#57's JSON frame, live: 1.9, 4.0 and 17.8 s).
+- 2026-11-18 · **The split writer's head and plan written at once, and its ways on as the page's own lines** (Will's
+  note approving #58: "continue to squash that first word delay as much as possible without compromising full article
+  quality"). The frame's call wrote the head and then its 10 to 14 topics, so the body waited for both in turn; the
+  ways on were structured output, which waits 1.2 to 1.8 s for a first token. Now the head (title and kind, deck,
+  facts: `headParts`, `HEAD_STOP`) and the plan (its topics: `planParts`, `PLAN_STOP`) are two calls started
+  together, the body starts when the later ends, and the ways on write `===`, `???` and `&&&` lines (`waysOfLines`).
+  - **Timed** on #58's twelve topics, the three writers in rotating order, one at a time, straight to Anthropic from
+    Will's Mac (medians): the first body words at 2.6 s (#58 2.9, one pass 2.0), the end at 14.5 s (#58 16.6, one
+    pass 12.7), the deck at 1.0 s (both). Links in the body: 13 a page (#58 14, one pass 1). The plan, not the head,
+    now sets the pace: the head is whole at ~1.4 s, the plan at ~1.8 s, then the body's own first token (~0.6 s).
+  - **On the 44 pages written ahead of time**, live, six at a time: every page whole (once the readers below were
+    fixed, replayed from the same calls' words), 13 links in a body, none without, fewest 5 (#58: 6); planned topics
+    the body never linked 43 in all (#58: 79); the first body words at 2.4 s (#58's same run: 3.0), the end at
+    14.8 s. About $0.0016 a page, as before.
+  - **The plans, judged blind** by Claude Opus 5.5 against #58's, each pair asked twice with the order swapped: the
+    new plan better on 29 of 44 pages, #58's on 11, 4 split (by answer, 62 to 26). Where #58's won, the new plan had a
+    near-duplicate (Kimberlite and Kimberlite pipe), an off-topic entry, or a wrong specific: Great Emu War's plan
+    named Sir Frederick Shedden where the history has Sir George Pearce, and the body wrote him in. The topics' words
+    are #58's, unchanged; worth watching.
+  - **How Haiku slips, live:** 43 of 44 ends left out the `===` above their six topics. A first topic with a kind
+    outside the list ("material", "paradox") or none then read as body while streaming and was dropped once
+    finished, so 2 ends stopped after one line and Tulip mania's six cards had no hooks. The end reader now takes
+    lines above any marker as the six topics, and `moreTail` keeps the end whole if a line ever reads differently once
+    its call ends. 20 of 44 plans wrote their title line without its `#` ("Venus flytrap :: creature"), which planned
+    the page as its own link: everything above `+++` is the title now, and a page never plans itself however it
+    words its name (`plannedTopics`).
+  - **Linking:** a planned topic inside the page's own title stays plain (Ball lightning's body opened "Ball
+    [[lightning]]"), and a planned topic links in its plural ("emus" for Emu, "sarsens" for Sarsen). The ways on are
+    told only the topics the body links, so every link gets a hook and no planned topic the body never reached does.
+  - Testing this month: about $3.80 of the $20 (this change's live runs about $0.15, the blind judging about $1.70,
+    two of its three runs lost to reading Opus's answers wrongly: it thinks by default, inside the output limit).
