@@ -2,7 +2,7 @@
 import { capFirst, clip, hookOf, keyOf, plain } from '../shared/article.js';
 import { asksQuestion, pageId, topicKey } from '../shared/world.js';
 import { LENS_SHORT, kattr, kindOf } from './01-data.js';
-import { $, $$, esc, leave, reducedMotion, relTime, settle, stay, store, write } from './02-util.js';
+import { $, $$, esc, fitWord, leave, reducedMotion, relTime, settle, stay, store, write } from './02-util.js';
 import { ACTIVE, CUR, cleanTitle, curPage, full, isLive, openTopic, pageOf, rememberScroll } from './04-pages.js';
 import { ACC, secFor, worldIndex } from './05-render.js';
 import { peek, unfold } from './06-page-end.js';
@@ -109,7 +109,7 @@ ${wn.line ? `<p class="hc-else">${wn.line}</p>` : ''}
 <div class="hc-actions"><button class="btn glow" type="button" data-hc="open">${wn.read ? 'Go there' : 'Open page'}<span class="hc-key" aria-hidden="true"> ↵</span></button>${c.i >= 0 ? `<button class="btn ghost" type="button" data-hc="peek">Peek here</button>` : ''}</div>
 ${!wn.read ? `<div class="hc-lens"><span class="lbl">Or read it as</span>${Object.keys(LENS_SHORT).map(key => `<button type="button" data-hc="lens" data-lens="${key}">${esc(LENS_SHORT[key])}</button>`).join('')}</div>` : ''}`;
   stay(hcard); hcard.hidden = false; hcY = scrollY;
-  placeCard(a);
+  placeCard(a); fitWord($('.hc-title', hcard), .66);
 }
 /* Where there is room, the card sits in the margin beside the line it belongs to, a hairline leading to it, so it
    never covers what you are reading; otherwise just below the link (or above it, near the bottom of the screen). */

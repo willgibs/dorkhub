@@ -11,6 +11,22 @@ export const $ = (s, r = document) => r.querySelector(s);
 /** @param {string} s @param {any} [r] */
 export const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+/* the width of an element's widest word: its narrowest width that breaks no word */
+export function minWidth(el) {
+  const { width, overflowWrap } = el.style; Object.assign(el.style, { width: 'min-content', overflowWrap: 'normal' });
+  const x = el.getBoundingClientRect().width; Object.assign(el.style, { width, overflowWrap }); return x;
+}
+/* A word too wide for its box once its layout has made what room it can: a title or a name is set smaller until it
+   fits, down to `floor` of its size (a smaller size draws its letters a little wider, so it is measured again, up to
+   three times); past that, and a label or a value at once, it breaks at a syllable, with a hyphen ([data-hy]), never
+   at any letter. A word that fits on a line of its own is left as it is. */
+export function fitWord(el, floor = 1) {
+  const room = el ? el.getBoundingClientRect().width : 0, sig = `${room}|${el && el.textContent}`; if (!room || el._fw === sig) return; el._fw = sig;
+  el.style.fontSize = ''; el.removeAttribute('data-hy');
+  const size = parseFloat(getComputedStyle(el).fontSize); let need = minWidth(el);
+  for (let s = 1, i = 0; need > room + .01 && i < 3; i++) { s *= room / need; if (s < floor) break; el.style.fontSize = `${(size * s - .05).toFixed(2)}px`; need = minWidth(el); }
+  if (need > room + .01) { el.style.fontSize = ''; el.setAttribute('data-hy', ''); }
+}
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 export function relTime(ts) { const m = (Date.now() - ts) / 6e4; if (m < 1) return 'just now'; if (m < 60) return `${Math.round(m)} min ago`; const h = m / 60; if (h < 24) return `${Math.round(h)}h ago`; const d = h / 24; if (d < 2) return 'yesterday'; if (d < 30) return `${Math.round(d)} days ago`; return `${Math.round(d / 30)} months ago`; }

@@ -580,6 +580,8 @@ One line each, newest last. Why, not just what.
     told only the topics the body links, so every link gets a hook and no planned topic the body never reached does.
   - Testing this month: about $3.80 of the $20 (this change's live runs about $0.15, the blind judging about $1.70,
     two of its three runs lost to reading Opus's answers wrongly: it thinks by default, inside the output limit).
+  - **Live on dorkhub.com** (five fresh topics, just after the merge): the head at 1.1 s, the first body words at 2.7 s,
+    the end at 15.0 s (#58 there: 1.1, 3.1 and 17.1 s).
 - 2026-11-18 · **The wait for a page's first words, shaped into the move between pages** (Will's note on #58: "any
   delay from topic to topic until the first word is ready should be shaped into a delightful transition from article
   to article … amazing performance will always beat a delightful delay"). Between the click and the first words the
@@ -615,3 +617,23 @@ One line each, newest last. Why, not just what.
     pages to replay: about $0.02 of the month's testing.
   - Cost: 3.1 KB of the page (under 1 KB gzipped); the page is 390 KB of its 400 KB budget. Pictures:
     `.e2e/desk/shots/wait-*` (1360, 1024, 390 and 320, both themes, WebKit at 1360 and 390, and main's for comparison).
+- 2026-11-18 · **No word breaks where a layout can make room for it** (Will, approving #60: the page you came from
+  broke "Tardigrades" mid-word at 320 px, and "any medium-length word or longer is going to end up messing that layout
+  up. For an app built around generative copy, we need elegant considerations across any places where problems like
+  that could occur"). Every box of generated words broke a word at any letter (`overflow-wrap: anywhere`), which in a
+  row also let a name shrink below its own width. One rule now, measured the way `fitFacts` already measured: a layout
+  makes room for a whole word first; a title or a name still too wide for its box is set smaller until it fits, down to
+  two thirds of its size; only past that, and in a label or a value at once, does a word break, at a syllable, with a
+  hyphen.
+  - **Where:** the page you came from stands whole beside the tools or takes a line of its own under them (`fitHead`);
+    a title's widest word first takes the column past the title's measure, then is set smaller (`fitTitle`); the key
+    facts put each label over its value when a word is too wide for its side of the row (`fitFacts`); the cards' and
+    the hover card's names are set smaller (`fitWord`, `02-util.js`); in running text only a word longer than a
+    phone's line (24 letters or more) may hyphenate (`longWords`, tested). Every other word is untouched.
+  - **Proven** on three pages of long words (Electroencephalography, Magnetoencephalography, and the 45-letter
+    Pneumonoultramicroscopicsilicovolcanoconiosis) in Chromium at 320, 390, 1024 and 1360 and in WebKit at 390 and 1360.
+    Two traps on the way: a smaller size draws its letters a little wider, so a word is measured again after it is
+    set smaller (up to three times); and a word 0.9 px too wide still wraps, so the measures allow no slack. Chrome's
+    syllables run out early in the 45-letter word, which it breaks once without a hyphen (WebKit hyphenates it at
+    "microscopic-").
+  - Cost: about 2 KB of the page, which is 392 KB of its 400 KB budget. Pictures: `.e2e/desk/shots/words-*`.
